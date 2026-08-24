@@ -396,6 +396,8 @@ public class TurretSlotManager : MonoBehaviour
         }
 
         // 2) 다른 요리: 둘 다 T1이면 T2 진화
+        // P1 (감사 1-A 처방 2): 즉시 진화 대신 '인퓨징 미니게임'을 거친다.
+        // 판정이 좋으면 T2가 +1레벨로 탄생 - 실제 진화는 CompleteFusion에서 수행.
         if (ra.tier == 1 && rb.tier == 1)
         {
             RecipeData fusion = RecipeDatabase.GetFusion(ra.tag, rb.tag);
@@ -405,21 +407,63 @@ public class TurretSlotManager : MonoBehaviour
                 return false;
             }
 
-            int newLevel = Mathf.Max(1, (a.level + b.level) / 2);
-            b.SetTurret(fusion.recipeId, newLevel);
-            a.ClearSlot();
+            if (InfusingMinigame.IsActive)
+            {
+                resultMsg = "인퓨징이 이미 진행 중";
+                return false;
+            }
+            if (CookingMinigame.IsActive)
+            {
+                resultMsg = "조리 중에는 인퓨징 불가";
+                return false;
+            }
 
-            // 도감 발견 처리 (수량 0으로 등록 - FoodStock.Add는 0이어도 발견 처리)
-            if (FoodStock.Instance != null && !FoodStock.Instance.IsDiscovered(fusion.recipeId))
-                FoodStock.Instance.Add(fusion.recipeId, 0);
-
-            resultMsg = fusion.displayName + " [T2] 진화! Lv" + newLevel;
-            Debug.Log("[합체] T2 진화: " + ra.displayName + " + " + rb.displayName + " -> " + resultMsg);
+            InfusingMinigame.Begin(idxA, idxB, fusion, this);
+            resultMsg = "[인퓨징] " + ra.displayName + " + " + rb.displayName + " - 정수를 융합한다!";
             return true;
         }
 
         resultMsg = "T2 포탑은 같은 요리끼리만 합체 가능";
         return false;
+    }
+
+    /// <summary>
+    /// P1: 인퓨징 미니게임 완료 콜백 - 실제 T2 진화를 여기서 수행한다.
+    /// bonusLevel = 판정 보너스 (기준 미달이면 0), perfect = 만점(연출용).
+    /// 미니게임 도중 슬롯이 비었으면(다른 합체 등) 진화는 무산되고 아무것도 잃지 않는다.
+    /// </summary>
+    public void CompleteFusion(int idxA, int idxB, RecipeData fusion, int bonusLevel, bool perfect)
+    {
+        TurretSlot a = (idxA >= 0 && idxA < 8) ? slots[idxA] : null;
+        TurretSlot b = (idxB >= 0 && idxB < 8) ? slots[idxB] : null;
+
+        if (a == null || b == null || a.IsEmpty || b.IsEmpty || fusion == null)
+        {
+            UIManager.Instance?.ShowStatChange("인퓨징 무산 - 재료 포탑이 사라졌다 (아무것도 잃지 않음)");
+            Debug.Log("[합체] 인퓨징 무산: 슬롯 상태 변경됨");
+            return;
+        }
+
+        // 레벨은 완료 시점의 실제 레벨로 계산 (미니게임 중 동종 병합으로 올랐다면 반영)
+        int newLevel = Mathf.Max(1, (a.level + b.level) / 2) + bonusLevel;
+        b.SetTurret(fusion.recipeId, newLevel);
+        a.ClearSlot();
+
+        // 도감 발견 처리 (수량 0으로 등록 - FoodStock.Add는 0이어도 발견 처리)
+        if (FoodStock.Instance != null && !FoodStock.Instance.IsDiscovered(fusion.recipeId))
+            FoodStock.Instance.Add(fusion.recipeId, 0);
+
+        string msg;
+        if (perfect)
+            msg = "완벽한 융합! " + fusion.displayName + " [T2] Lv" + newLevel + " - 두 요리의 심장이 하나로 뛴다";
+        else if (bonusLevel > 0)
+            msg = fusion.displayName + " [T2] 진화! Lv" + newLevel + " (인퓨징 보너스 +" + bonusLevel + ")";
+        else
+            msg = fusion.displayName + " [T2] 진화! Lv" + newLevel;
+
+        UIManager.Instance?.ShowStatChange(msg);
+        SoundManager.Play(bonusLevel > 0 ? "sfx_judge_perfect" : "sfx_augment_pick");
+        Debug.Log("[합체] T2 진화 완료: " + msg);
     }
 
     // 외부 요리 투입: 같은 요리 슬롯 우선, 없으면 첫 해금 빈 슬롯

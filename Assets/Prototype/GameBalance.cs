@@ -231,6 +231,13 @@ public static class GameBalance
     public static float OilSlipDuration = 6f;    // 명중 시 조리대 미끄러짐 지속(초)
     public static float OilSlipWobble = 0.45f;   // 굽기 커서 요동 강도 (0이면 기믹 꺼짐)
 
+    // 인퓨징 (P1, 감사 1-A 처방 2): T2 진화 미니게임 - InfusingMinigame.cs가 사용
+    // 실패해도 진화는 성공 (보너스만 없음). 지역 난이도는 적용하지 않음 (이미 고부담 순간)
+    public static int InfuseBonusScoreNeed = 3;  // 판정 합계(라운드당 PERFECT 2/Good 1) 이 이상 = 보너스
+    public static int InfuseBonusLevel = 1;      // 보너스 레벨 (+1로 탄생)
+    public static float InfuseGrillSpeed = 70f;  // 1라운드(정수 추출) 커서 속도
+    public static float InfuseBoilTime = 4f;     // 2라운드(융합 안정화) 유지 시간(초)
+
     // ==================================================================
     //  게임필 (P1) - 셰이크 / 히트스톱 / 처치 팝 (GameFeel.cs가 사용)
     //  전부 0으로 만들면 해당 연출이 완전히 꺼진다.

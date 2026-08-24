@@ -141,6 +141,13 @@ public class CookingMinigame : MonoBehaviour
     // ─────────────────────────────────────────
     public void StartGame(int cookMethod)
     {
+        // P1: 인퓨징 진행 중에는 조리 시작 불가 (Space 입력이 겹치는 사고 방지)
+        if (InfusingMinigame.IsActive)
+        {
+            UIManager.Instance?.ShowStatChange("인퓨징 중에는 조리를 시작할 수 없다!");
+            return;
+        }
+
         method = cookMethod;
         running = true;
         finished = false;
