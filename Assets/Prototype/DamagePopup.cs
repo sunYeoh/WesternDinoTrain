@@ -42,6 +42,7 @@ public class DamagePopup : MonoBehaviour
             obj.transform.position = spawnPos;
 
             TextMeshPro tmp = obj.AddComponent<TextMeshPro>();
+            TMPFontFixer.Apply(tmp);   // 통일 폰트(Neo둥근모 기반) 배정
             ApplyTextStyle(tmp, damage, isCritical);
 
             // sortingLayer 최상단으로 (기차/적에 가려지지 않게)
@@ -84,6 +85,7 @@ public class DamagePopup : MonoBehaviour
         tmp = GetComponent<TextMeshPro>();
         if (tmp == null) tmp = gameObject.AddComponent<TextMeshPro>();
 
+        TMPFontFixer.Apply(tmp);   // 통일 폰트(Neo둥근모 기반) 배정
         ApplyTextStyle(tmp, damage, isCritical);
         startColor = tmp.color;
 
