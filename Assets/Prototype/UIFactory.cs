@@ -41,15 +41,29 @@ public static class UIFactory
 
     private static Font cachedFont;
 
-    /// <summary>한글 지원 폰트 (맑은 고딕 -> 실패 시 내장 폰트)</summary>
+    /// <summary>
+    /// 한글 지원 폰트.
+    /// 1순위: 번들 폰트 Resources/Fonts/GameFont (Neo둥근모 - 빌드에 포함, 어떤 PC에서도 동일)
+    /// 2순위: 맑은 고딕 (OS 폰트 - 에디터/윈도우 폴백)
+    /// 3순위: 유니티 내장 폰트
+    /// KitchenEventManager.GetFont와 같은 우선순위 - 전 UI 폰트 통일
+    /// </summary>
     public static Font GetFont()
     {
         if (cachedFont != null) return cachedFont;
+
+        // 1순위: 번들 폰트 (Assets/Resources/Fonts/GameFont.ttf)
+        cachedFont = Resources.Load<Font>("Fonts/GameFont");
+        if (cachedFont != null) return cachedFont;
+
+        // 2순위: OS 폰트
         try
         {
             cachedFont = Font.CreateDynamicFontFromOSFont("Malgun Gothic", 20);
         }
         catch (System.Exception) { }
+
+        // 3순위: 내장 폰트
         if (cachedFont == null)
             cachedFont = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
         return cachedFont;
