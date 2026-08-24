@@ -2,7 +2,12 @@
 using UnityEngine.UI;
 
 /// <summary>
-/// [CookingMinigame.cs] v2
+/// [CookingMinigame.cs] v2.5
+/// - v2.5 변경점 (P1 감사 1-A/2-C):
+///   1) 지역 기반 난이도: 지역 2부터 커서/시간 압박 +12%, 지역 3부터 +25% + 판정 존 -10%
+///      (수치는 GameBalance.CookRegionSpeedUp / CookRegionJudgeShrink)
+///   2) 오일 캑터스 '기름 튐': 명중 시 잠시 굽기 커서 요동 + 끓이기 게이지 하강 가속
+///      (Enemy.AttackTrain -> ApplyOilSlip. 볶기는 의도적으로 무영향)
 /// 새 조리 미니게임 3종 (프로토타입 v3 이식판, uGUI 코드 생성)
 /// - 굽기: 3연속 타이밍 바 (라운드마다 빨라짐)
 /// - 볶기: 방향키 커맨드 6개 순서 입력
@@ -32,6 +37,28 @@ public class CookingMinigame : MonoBehaviour
     // ── 증강 배율 캐시 (StartGame 시점에 고정) ──
     private float speedMul = 1f;      // 제한 시간 배율 (클수록 여유)
     private float judgeMul = 1f;      // 판정 존 배율 (클수록 관대)
+
+    // ─── P1: 지역 난이도 안내 (지역당 1회) ───
+    private static int regionNoticeShown = 1;
+
+    // ─── P1: 오일 캑터스 '기름 튐' (조리대 미끄러짐) ───
+    // Enemy.AttackTrain에서 캑터스 명중 시 ApplyOilSlip 호출.
+    // 효과: 굽기 커서가 요동치고(빨라졌다 느려졌다), 끓이기 게이지가 더 잘 미끄러져 내려간다.
+    // 볶기(커맨드 입력)는 손 위치 문제라 기름과 무관 - 의도적으로 영향 없음.
+    private static float oilSlipUntil = 0f;
+
+    /// <summary>기름 튐(미끄러짐) 상태인가?</summary>
+    public static bool OilSlipActive { get { return Time.time < oilSlipUntil; } }
+
+    /// <summary>오일 캑터스 명중 시 호출 - 잠시 조리대가 미끄러워진다 (중첩 시 연장)</summary>
+    public static void ApplyOilSlip(float duration)
+    {
+        bool fresh = !OilSlipActive;
+        oilSlipUntil = Mathf.Max(oilSlipUntil, Time.time + duration);
+        if (fresh)
+            UIManager.Instance?.ShowStatChange("[오일 캑터스] 기름이 튀었다! 조리대가 미끄럽다 ("
+                + (int)duration + "초)");
+    }
 
     // v2.2: 외부 홀드 종료 시각 (보스 낙뢰 패링이 Space를 잠시 빌려갈 때)
     private float externalHoldUntil = 0f;
@@ -134,6 +161,23 @@ public class CookingMinigame : MonoBehaviour
             judgeMul *= Mathf.Lerp(0.65f, 1f, chefRef.knifeSharpness / 100f);   // 칼 상태 -> 판정 존
             speedMul *= Mathf.Lerp(0.7f, 1f, chefRef.panCondition / 100f);      // 팬 상태 -> 제한 시간
             speedMul *= chefRef.cookingSpeedMultiplier;                          // 독침 프테라 디버프
+        }
+
+        // P1 (감사 1-A): 지역 기반 조리 난이도 - "협곡에서는 손도 떨린다"
+        // 지역 2: 커서/시간 압박 +12% / 지역 3+: +25% + 판정 존 -10% (수치는 GameBalance)
+        int region = Mathf.Clamp(GameBalance.RegionOf(
+            GameManager.Instance != null ? GameManager.Instance.currentWave : 1), 1, 4);
+        speedMul /= (1f + GameBalance.CookRegionSpeedUp[region - 1]);
+        judgeMul *= (1f - GameBalance.CookRegionJudgeShrink[region - 1]);
+
+        // 지역이 바뀐 뒤 첫 조리에서 1회만 안내 (스토리 감싸기)
+        if (region < regionNoticeShown) regionNoticeShown = region;   // 새 런 시작 - 안내 재무장
+        if (region >= 2 && region != regionNoticeShown)
+        {
+            regionNoticeShown = region;
+            UIManager.Instance?.ShowStatChange(region == 2
+                ? "[주방] 선로가 험해졌다... 손이 떨린다 (조리 난이도 상승)"
+                : "[주방] 한기가 뼈에 스민다... 손끝이 무뎌진다 (조리 난이도 상승)");
         }
 
         // EventSystem 포커스 해제 (Space가 버튼에 먹히는 문제 방지)
@@ -243,13 +287,19 @@ public class CookingMinigame : MonoBehaviour
     // ═════════════ 굽기 ═════════════
     private void UpdateGrill()
     {
-        grillBar += grillDir * grillSpeed * Time.deltaTime;
+        // P1: 기름 튐 - 커서가 미끄러지듯 요동친다 (빨라졌다 느려졌다, 느린 순간을 노리면 파훼)
+        float slipMul = OilSlipActive
+            ? 1f + GameBalance.OilSlipWobble * Mathf.Sin(Time.time * 7.3f)
+            : 1f;
+
+        grillBar += grillDir * grillSpeed * slipMul * Time.deltaTime;
         if (grillBar >= 100f) { grillBar = 100f; grillDir = -1f; }
         if (grillBar <= 0f) { grillBar = 0f; grillDir = 1f; }
 
         // 커서 이동
         grillCursor.anchoredPosition = new Vector2(-TRACK_W / 2f + TRACK_W * (grillBar / 100f), 0f);
-        infoText.text = "라운드 " + (grillRound + 1) + "/3   점수 " + grillScore + "  (5+ PERFECT / 3+ Good)\n[Space] 또는 클릭!";
+        infoText.text = "라운드 " + (grillRound + 1) + "/3   점수 " + grillScore + "  (5+ PERFECT / 3+ Good)\n"
+            + (OilSlipActive ? "[기름!] 커서가 미끄러진다  " : "") + "[Space] 또는 클릭!";
 
         if (Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0))
             GrillHit();
@@ -335,12 +385,14 @@ public class CookingMinigame : MonoBehaviour
     private void UpdateBoil()
     {
         // Space 홀드
+        // P1: 기름 튐 - 손을 떼면 게이지가 더 잘 미끄러져 내려가고, 안정존도 더 빨리 흔들린다
         boilHold = Input.GetKey(KeyCode.Space);
-        boilGauge += (boilHold ? 52f : -30f) * Time.deltaTime;
+        float fallSpeed = OilSlipActive ? -44f : -30f;
+        boilGauge += (boilHold ? 52f : fallSpeed) * Time.deltaTime;
         boilGauge = Mathf.Clamp(boilGauge, 0f, 100f);
 
         // 안정존이 사인파로 이동
-        boilZonePhase += Time.deltaTime * 0.9f;
+        boilZonePhase += Time.deltaTime * (OilSlipActive ? 1.35f : 0.9f);
         boilZoneCenter = 50f + Mathf.Sin(boilZonePhase) * 22f;
 
         boilTotal += Time.deltaTime;

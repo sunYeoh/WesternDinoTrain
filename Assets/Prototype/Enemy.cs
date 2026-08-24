@@ -644,6 +644,11 @@ public class Enemy : MonoBehaviour
             }
         }
 
+        // P1 (감사 2-C): 오일 캑터스 - 죽은 플레이버의 실기믹화
+        // 투척이 명중하면 주방에 기름이 튀어 잠시 조리대가 미끄러워진다 (굽기 요동/끓이기 하강 가속)
+        if (data.enemyName.Contains("캑터스"))
+            CookingMinigame.ApplyOilSlip(GameBalance.OilSlipDuration);
+
         // 자폭병: 일격 후 즉시 소멸 (보상은 정상 지급)
         if (behavior == BehaviorPattern.Suicide)
         {
