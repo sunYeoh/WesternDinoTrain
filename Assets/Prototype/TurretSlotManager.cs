@@ -1,0 +1,441 @@
+using UnityEngine;
+
+/// <summary>
+/// [TurretSlotManager.cs] v2
+/// 포탑 슬롯 8개를 자동 생성/관리하는 매니저 (싱글톤)
+/// - 기차 오브젝트에 붙이면 시작 시 슬롯 8개(2x4)를 자식으로 생성
+/// - 매 프레임: 인접 버프 계산 + 각 슬롯 발사 + 패시브(재생/오라) 처리
+/// - v2 변경점: 슬롯 잠금 시스템
+///   기본 해금 = GameBalance.BaseSlotCount (6칸)
+///   증강 '증축된 주방 칸'(ExtraSlotUnlock)으로 최대 8칸까지 확장
+/// - v3 변경점: 속성 공명 (기획 B-5)
+///   같은 속성(FoodTag) 포탑 3개 이상 배치 시 해당 속성 데미지 +20%
+///   방어(Def) 속성 공명은 기차 받는 피해 -10%로 대체
+///   증강 '속성 공명 증폭기'로 보너스 강화 가능
+/// VS 2017 (C# 7.3) 호환
+/// </summary>
+public class TurretSlotManager : MonoBehaviour
+{
+    public static TurretSlotManager Instance { get; private set; }
+
+    [Header("─ 슬롯 배치 (기차 로컬 좌표계) ─")]
+    public float slotSpacingX = 2.5f;  // 좌우 슬롯 간격
+    public float slotSpacingY = 1.6f;  // 행 간격
+    public Vector2 slotOrigin = new Vector2(-1.2f, 2.4f); // 첫 슬롯(0번) 위치
+
+    [Header("─ 런타임 ─")]
+    public TurretSlot[] slots = new TurretSlot[8];
+
+    private TrainManager train;
+    private float auraTimer = 0f;
+
+    // 속성 공명 (v3): 태그별 배치 수 + 발동 알림 상태
+    private int[] tagCounts = new int[16];
+    private System.Collections.Generic.HashSet<FoodTag> resonanceActive =
+        new System.Collections.Generic.HashSet<FoodTag>();
+
+    // 공명 현황 HUD (v3.1): 우하단 상시 표시
+    private UnityEngine.UI.Text resonanceText;
+
+    /// <summary>현재 해금된 슬롯 수 (기본 + 증강)</summary>
+    public int UnlockedSlotCount
+    {
+        get { return Mathf.Min(8, GameBalance.BaseSlotCount + AugmentManager.ExtraSlotUnlock); }
+    }
+
+    /// <summary>해당 인덱스 슬롯이 해금됐는지</summary>
+    public bool IsSlotUnlocked(int index)
+    {
+        return index < UnlockedSlotCount;
+    }
+
+    void Awake()
+    {
+        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+        Instance = this;
+    }
+
+    void Start()
+    {
+        train = FindFirstObjectByType<TrainManager>();
+
+        // 슬롯 배치를 GameBalance 값으로 강제 (Inspector 구값 무시 - 기차 밀착 배치)
+        slotOrigin = new Vector2(GameBalance.SlotOriginX, GameBalance.SlotOriginY);
+        slotSpacingX = GameBalance.SlotSpacingX;
+        slotSpacingY = GameBalance.SlotSpacingY;
+
+        // 슬롯 8개 자동 생성 (2열 4행)
+        // [0][1]
+        // [2][3]
+        // [4][5]
+        // [6][7]
+        for (int i = 0; i < 8; i++)
+        {
+            int row = i / 2;
+            int col = i % 2;
+
+            GameObject go = new GameObject("TurretSlot_" + i);
+            go.transform.SetParent(transform);
+            go.transform.localPosition = new Vector3(
+                slotOrigin.x + col * slotSpacingX,
+                slotOrigin.y - row * slotSpacingY,
+                0f);
+
+            slots[i] = go.AddComponent<TurretSlot>();
+        }
+
+        BuildResonanceHUD();
+        Debug.Log("[TurretSlotManager] 슬롯 8개 생성 완료 (해금 " + UnlockedSlotCount + "칸, 나머지는 증강으로 확장)");
+    }
+
+    /// <summary>공명 현황 상시 표시 HUD (우하단, 코드 생성)</summary>
+    private void BuildResonanceHUD()
+    {
+        GameObject canvasGo = new GameObject("ResonanceHUDCanvas");
+        canvasGo.transform.SetParent(transform, false);
+        Canvas cv = canvasGo.AddComponent<Canvas>();
+        cv.renderMode = RenderMode.ScreenSpaceOverlay;
+        cv.sortingOrder = 470;
+        UnityEngine.UI.CanvasScaler scaler = canvasGo.AddComponent<UnityEngine.UI.CanvasScaler>();
+        scaler.uiScaleMode = UnityEngine.UI.CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        scaler.referenceResolution = new Vector2(1920f, 1080f);
+        scaler.matchWidthOrHeight = 0.5f;
+
+        resonanceText = KitchenEventManager.MakeText(canvasGo.transform, "ResonanceText", "", 19,
+            new Color(0.85f, 0.85f, 0.8f));
+        RectTransform rt = resonanceText.rectTransform;
+        rt.anchorMin = new Vector2(1f, 0f);
+        rt.anchorMax = new Vector2(1f, 0f);
+        rt.pivot = new Vector2(1f, 0f);
+        rt.anchoredPosition = new Vector2(-16f, 195f);   // 하단 HUD(176px) 위
+        rt.sizeDelta = new Vector2(420f, 30f);
+        resonanceText.alignment = TextAnchor.LowerRight;
+        resonanceText.supportRichText = true;
+    }
+
+    void Update()
+    {
+        if (train == null || !train.IsAlive) return;
+        if (train.IsPowerSaveMode) return; // (구시스템 호환 - 항상 false)
+
+        // 슬롯 잠금 상태 동기화 (증강 획득 즉시 반영)
+        for (int i = 0; i < 8; i++)
+            if (slots[i] != null) slots[i].isLocked = !IsSlotUnlocked(i);
+
+        // 속성 공명 집계 (같은 태그 포탑 수)
+        UpdateResonance();
+
+        // 전투 중에만 발사
+        if (GameManager.Instance != null &&
+            GameManager.Instance.currentState != GameManager.GameState.Battle) return;
+
+        float dt = Time.deltaTime;
+
+        // 각 슬롯 발사 (인접 버프 반영)
+        for (int i = 0; i < 8; i++)
+        {
+            TurretSlot s = slots[i];
+            if (s == null || s.IsEmpty || s.isLocked) continue;
+            RecipeData r = s.Recipe;
+
+            float buffAS, buffPD, buffMD;
+            GetBuffsFor(i, out buffAS, out buffPD, out buffMD);
+
+            float dmgBuff = (r.damageType == DamageType.Magic) ? buffMD : buffPD;
+
+            // 속성 공명 보너스 (같은 태그 3개 이상이면 해당 태그 데미지 증폭)
+            dmgBuff += GetResonanceBonus(r.tag);
+
+            s.TickFire(dt, buffAS, dmgBuff);
+        }
+
+        // 패시브: 재생 (해독 스튜 / 정화의 성찬 / 오메가 리페어)
+        for (int i = 0; i < 8; i++)
+        {
+            TurretSlot s = slots[i];
+            if (s == null || s.IsEmpty || s.isLocked) continue;
+            RecipeData r = s.Recipe;
+            if (r.passiveType == "regen")
+                train.Heal(r.passiveValue * s.LevelMult * dt);
+            else if (r.passiveType == "omega")
+                train.Heal(3f * s.LevelMult * dt);
+        }
+
+        // 오라: 0.5초 간격으로 처리 (매 프레임은 낭비)
+        auraTimer += dt;
+        if (auraTimer >= 0.5f)
+        {
+            auraTimer = 0f;
+            TickAuras();
+        }
+    }
+
+    // 인접 버프 합산 계산: 같은 행 좌우 + 위아래 같은 열의 버프형 요리
+    private void GetBuffsFor(int index, out float atkSpeed, out float physDmg, out float magDmg)
+    {
+        atkSpeed = 0f; physDmg = 0f; magDmg = 0f;
+        int row = index / 2;
+        int col = index % 2;
+
+        for (int i = 0; i < 8; i++)
+        {
+            if (i == index) continue;
+            TurretSlot o = slots[i];
+            if (o == null || o.IsEmpty || o.isLocked) continue;
+            RecipeData r = o.Recipe;
+            if (string.IsNullOrEmpty(r.buffType)) continue;
+
+            int oRow = i / 2;
+            int oCol = i % 2;
+            bool adjacent = (oRow == row && oCol != col) ||             // 같은 행 옆칸
+                            (oCol == col && Mathf.Abs(oRow - row) == 1); // 위아래 같은 열
+            if (!adjacent) continue;
+
+            // 증강 '주방 동선 최적화': 인접 버프 배율
+            float v = r.buffValue * o.LevelMult * AugmentManager.AdjacentBuffMul;
+            if (r.buffType == "as") atkSpeed += v;
+            else if (r.buffType == "pd") physDmg += v;
+            else if (r.buffType == "md") magDmg += v;
+        }
+    }
+
+    // 오라 슬롯 처리 (화염 방벽 / 빙벽 스튜 / 부식의 정수)
+    private void TickAuras()
+    {
+        float auraRange = 10f;
+        Enemy[] all = FindObjectsByType<Enemy>(FindObjectsSortMode.None);
+
+        for (int i = 0; i < 8; i++)
+        {
+            TurretSlot s = slots[i];
+            if (s == null || s.IsEmpty || s.isLocked) continue;
+            RecipeData r = s.Recipe;
+            if (r.shape != AttackShape.Aura) continue;
+
+            for (int e = 0; e < all.Length; e++)
+            {
+                if (!all[e].IsAlive) continue;
+                float d = Vector3.Distance(train.transform.position, all[e].transform.position);
+                if (d > auraRange) continue;
+
+                if (r.passiveType == "auraBurn")
+                    all[e].TakeDamage(3f * s.LevelMult); // 0.5초마다 화염 틱
+                else if (r.passiveType == "auraSlow")
+                    all[e].ApplySpeedDebuff(0.5f, 0.6f);
+                else if (r.passiveType == "auraShred")
+                    all[e].ApplySpeedDebuff(0.85f, 0.6f); // 방깎/마깎은 5단계에서, 임시로 이속 감속
+            }
+        }
+    }
+
+    // ─────────────────────────────────────────────
+    // 속성 공명 (v3)
+    // ─────────────────────────────────────────────
+
+    /// <summary>태그별 배치 수 집계 + 새로 발동한 공명 알림</summary>
+    private void UpdateResonance()
+    {
+        for (int t = 0; t < tagCounts.Length; t++) tagCounts[t] = 0;
+
+        for (int i = 0; i < 8; i++)
+        {
+            TurretSlot s = slots[i];
+            if (s == null || s.IsEmpty || s.isLocked) continue;
+            int tagIdx = (int)s.Recipe.tag;
+            if (tagIdx >= 0 && tagIdx < tagCounts.Length) tagCounts[tagIdx]++;
+        }
+
+        // 발동/해제 감지 (발동 순간에만 알림)
+        foreach (FoodTag tag in System.Enum.GetValues(typeof(FoodTag)))
+        {
+            bool active = tagCounts[(int)tag] >= GameBalance.ResonanceCount;
+            if (active && !resonanceActive.Contains(tag))
+            {
+                resonanceActive.Add(tag);
+                string effect = (tag == FoodTag.Def)
+                    ? "기차 받는 피해 -10%"
+                    : "데미지 +" + Mathf.RoundToInt((GameBalance.ResonanceBonus + AugmentManager.ResonanceBonusAdd) * 100f) + "%";
+                Debug.Log("[공명] [" + TagKor(tag) + "] 속성 공명 발동! " + effect);
+                UIManager.Instance?.ShowStatChange("[" + TagKor(tag) + "] 속성 공명 발동! " + effect);
+            }
+            else if (!active && resonanceActive.Contains(tag))
+            {
+                resonanceActive.Remove(tag);
+            }
+        }
+
+        // 공명 현황 HUD 갱신: 배치된 태그만 "화염 2/3" 형태로, 발동 중이면 금색
+        if (resonanceText != null)
+        {
+            string line = "";
+            foreach (FoodTag tag in System.Enum.GetValues(typeof(FoodTag)))
+            {
+                int c = tagCounts[(int)tag];
+                if (c <= 0) continue;
+                if (line.Length > 0) line += "   ";
+
+                if (c >= GameBalance.ResonanceCount)
+                    line += "<color=#FFD24D>" + TagKor(tag) + " " + c + "/" + GameBalance.ResonanceCount + " 공명!</color>";
+                else
+                    line += TagKor(tag) + " " + c + "/" + GameBalance.ResonanceCount;
+            }
+            resonanceText.text = line.Length > 0 ? "속성:  " + line : "";
+        }
+    }
+
+    /// <summary>해당 태그의 공명 데미지 보너스 (미발동이면 0)</summary>
+    public float GetResonanceBonus(FoodTag tag)
+    {
+        if (tag == FoodTag.Def) return 0f;   // 방어 공명은 피해감소로 처리
+        int idx = (int)tag;
+        if (idx < 0 || idx >= tagCounts.Length) return 0f;
+        if (tagCounts[idx] < GameBalance.ResonanceCount) return 0f;
+        return GameBalance.ResonanceBonus + AugmentManager.ResonanceBonusAdd;
+    }
+
+    /// <summary>태그 한글 이름</summary>
+    private string TagKor(FoodTag tag)
+    {
+        switch (tag)
+        {
+            case FoodTag.Phys: return "물리";
+            case FoodTag.Elec: return "전기";
+            case FoodTag.Fire: return "화염";
+            case FoodTag.Ice: return "냉기";
+            case FoodTag.Poison: return "독";
+            default: return "방어";
+        }
+    }
+
+    // 슬롯 패시브 조회: 받는 피해 감소 합산 (최대 60%)
+    public float GetDamageReduction()
+    {
+        float dr = 0f;
+        for (int i = 0; i < 8; i++)
+        {
+            TurretSlot s = slots[i];
+            if (s == null || s.IsEmpty || s.isLocked) continue;
+            RecipeData r = s.Recipe;
+            if (r.passiveType == "dr")
+                dr += r.passiveValue * s.LevelMult;
+        }
+
+        // 방어 속성 공명: 받는 피해 -10% 추가
+        if ((int)FoodTag.Def < tagCounts.Length &&
+            tagCounts[(int)FoodTag.Def] >= GameBalance.ResonanceCount)
+            dr += 0.10f;
+
+        return Mathf.Min(0.6f, dr);
+    }
+
+    // 축전 장갑: 기차 피격 시 주변 감전 반격
+    public void TriggerThorns(Vector3 trainPos)
+    {
+        bool hasThorns = false;
+        float mult = 1f;
+        for (int i = 0; i < 8; i++)
+        {
+            TurretSlot s = slots[i];
+            if (s == null || s.IsEmpty || s.isLocked) continue;
+            if (s.Recipe.passiveType == "thorns")
+            {
+                hasThorns = true;
+                mult = Mathf.Max(mult, s.LevelMult);
+            }
+        }
+        if (!hasThorns) return;
+
+        Enemy[] all = FindObjectsByType<Enemy>(FindObjectsSortMode.None);
+        for (int e = 0; e < all.Length; e++)
+        {
+            if (!all[e].IsAlive) continue;
+            if (Vector3.Distance(trainPos, all[e].transform.position) <= 5f)
+            {
+                all[e].TakeDamage(12f * mult);
+                all[e].ApplyStun(0.3f);
+            }
+        }
+    }
+
+    // ─────────────────────────────────────────────
+    // 포탑 합체 진화 (기획 B-3, DRD 방식)
+    // ─────────────────────────────────────────────
+
+    /// <summary>
+    /// 슬롯 A를 슬롯 B에 합친다. 성공 시 A는 비워진다.
+    /// - 같은 요리: 레벨 합산 (슬롯 정리 + 고속 등급업)
+    /// - 다른 T1 요리: 두 태그의 T2 전설 포탑으로 진화 (레벨은 평균)
+    /// 반환: 성공 여부. resultMsg에 결과 설명
+    /// </summary>
+    public bool TryMergeSlots(int idxA, int idxB, out string resultMsg)
+    {
+        resultMsg = "";
+        if (idxA == idxB) { resultMsg = "같은 슬롯"; return false; }
+        if (idxA < 0 || idxA >= 8 || idxB < 0 || idxB >= 8) return false;
+
+        TurretSlot a = slots[idxA];
+        TurretSlot b = slots[idxB];
+        if (a == null || b == null || a.IsEmpty || b.IsEmpty || a.isLocked || b.isLocked)
+        {
+            resultMsg = "빈 슬롯이나 잠긴 슬롯은 합체 불가";
+            return false;
+        }
+
+        RecipeData ra = a.Recipe;
+        RecipeData rb = b.Recipe;
+
+        // 1) 같은 요리: 레벨 합산 병합
+        if (a.recipeId == b.recipeId)
+        {
+            int merged = a.level + b.level;
+            b.SetTurret(b.recipeId, merged);
+            a.ClearSlot();
+            resultMsg = rb.displayName + " 합체! " + b.GradeName + "등급 Lv" + merged;
+            Debug.Log("[합체] 동종 병합: " + resultMsg);
+            return true;
+        }
+
+        // 2) 다른 요리: 둘 다 T1이면 T2 진화
+        if (ra.tier == 1 && rb.tier == 1)
+        {
+            RecipeData fusion = RecipeDatabase.GetFusion(ra.tag, rb.tag);
+            if (fusion == null)
+            {
+                resultMsg = "이 조합의 진화 레시피 없음";
+                return false;
+            }
+
+            int newLevel = Mathf.Max(1, (a.level + b.level) / 2);
+            b.SetTurret(fusion.recipeId, newLevel);
+            a.ClearSlot();
+
+            // 도감 발견 처리 (수량 0으로 등록 - FoodStock.Add는 0이어도 발견 처리)
+            if (FoodStock.Instance != null && !FoodStock.Instance.IsDiscovered(fusion.recipeId))
+                FoodStock.Instance.Add(fusion.recipeId, 0);
+
+            resultMsg = fusion.displayName + " [T2] 진화! Lv" + newLevel;
+            Debug.Log("[합체] T2 진화: " + ra.displayName + " + " + rb.displayName + " -> " + resultMsg);
+            return true;
+        }
+
+        resultMsg = "T2 포탑은 같은 요리끼리만 합체 가능";
+        return false;
+    }
+
+    // 외부 요리 투입: 같은 요리 슬롯 우선, 없으면 첫 해금 빈 슬롯
+    public bool TryInsertFood(string recipeId)
+    {
+        // 1순위: 같은 요리가 이미 있는 슬롯 (레벨업)
+        for (int i = 0; i < 8; i++)
+            if (slots[i] != null && !slots[i].isLocked && slots[i].recipeId == recipeId)
+                return slots[i].TryInsertFood(recipeId);
+
+        // 2순위: 해금된 빈 슬롯
+        for (int i = 0; i < 8; i++)
+            if (slots[i] != null && !slots[i].isLocked && slots[i].IsEmpty)
+                return slots[i].TryInsertFood(recipeId);
+
+        Debug.Log("[TurretSlotManager] 빈 슬롯 없음! (해금 " + UnlockedSlotCount + "칸 - 증강 '증축된 주방 칸'으로 확장 가능)");
+        return false;
+    }
+}
