@@ -11,12 +11,28 @@ using UnityEngine.Events;
 ///   2) 구 자동공격(AutoAttack) 제거 - 공격은 TurretSlotManager가 전담
 ///   3) WagonSlotUI 참조 제거 (구 슬롯 UI 삭제 대비)
 ///   4) 증강 연동: 받는 피해 감소 (AugmentManager.DamageReductionAdd)
+/// - Phase 2-3 추가: 가시철조망 도금(DEF 가산 + 피격 반격) / 넘치는 솥(증기 보호막)
 /// 웨건 슬롯 API(InstallWagon 등)는 구 스크립트(CraftingUI 등)가 삭제되기 전까지
 /// 컴파일 호환을 위해 남겨둠 - 실제 스탯에는 반영되지만 새 시스템에서는 안 쓴다.
 /// VS 2017 (C# 7.3) 호환 버전입니다.
 /// </summary>
 public class TrainManager : MonoBehaviour
 {
+    /// <summary>싱글톤 참조 (Phase 2-2: 증강 '최후의 만찬' 등 외부에서 HP 비율 조회용)</summary>
+    public static TrainManager Instance { get; private set; }
+
+    /// <summary>현재 HP 비율 (0~1)</summary>
+    public float HPRatio
+    {
+        get { return currentMaxHP > 0f ? Mathf.Clamp01(currentHP / currentMaxHP) : 1f; }
+    }
+
+    private void Awake()
+    {
+        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+        Instance = this;
+    }
+
     // ── 구시스템 호환용 열거형 (허기 시스템 제거됨 - 삭제 예정) ──
     public enum SatietyGrade
     {
@@ -51,6 +67,13 @@ public class TrainManager : MonoBehaviour
     // 패시브 요리(철판 정식/오메가 리페어)와 증강으로 늘어난 최대HP 누적분
     // RecalculateStats가 최대HP를 재계산해도 사라지지 않도록 별도 보관
     private float passiveBonusMaxHP = 0f;
+
+    // ── Phase 2-3 증강 상태 ──
+    private float steamShield = 0f;      // 넘치는 솥: 초과 회복으로 쌓인 증기 보호막
+    private float nextThornsTime = 0f;   // 가시철조망 도금: 반격 쿨타임
+
+    /// <summary>현재 증기 보호막 수치 (HUD 표시용)</summary>
+    public float SteamShield { get { return steamShield; } }
 
     // ── 구시스템 호환용 (허기 제거됨 - 값은 항상 고정) ──
     [HideInInspector] public float satiety = 100f;                       // 항상 100 고정
@@ -132,7 +155,8 @@ public class TrainManager : MonoBehaviour
         }
 
         currentMaxHP = baseHP + bonusHP + passiveBonusMaxHP;
-        currentDEF = baseDEF + bonusDEF;
+        // Phase 2-3 증강 '가시철조망 도금': DEF 가산
+        currentDEF = baseDEF + bonusDEF + AugmentManager.TrainDefAdd;
         currentHP = Mathf.Min(currentHP, currentMaxHP);
 
         // 허기 배율 제거: 항상 기본 공격력/공속
@@ -169,6 +193,20 @@ public class TrainManager : MonoBehaviour
         // Phase 2-1: 스피노 베팅 [철벽 주방] 피격 카운트
         SpinoBet.CountTrainHit();
 
+        // Phase 2-3 증강 '가시철조망 도금': 피격 시 근처 적 반격 (스팸 방지 쿨타임)
+        if (AugmentManager.ThornsStacks > 0 && Time.time >= nextThornsTime)
+        {
+            nextThornsTime = Time.time + GameBalance.ThornsCooldown;
+            float thornsDamage = currentDEF * GameBalance.ThornsDefRatio * AugmentManager.ThornsStacks;
+            Enemy[] all = FindObjectsByType<Enemy>(FindObjectsSortMode.None);
+            for (int i = 0; i < all.Length; i++)
+            {
+                if (!all[i].IsAlive) continue;
+                if (Vector3.Distance(all[i].transform.position, transform.position) <= GameBalance.ThornsRadius)
+                    all[i].TakeDamage(thornsDamage);
+            }
+        }
+
         float finalDamage = Mathf.Max(1f, rawDamage - currentDEF);
 
         // 피해 감소 합산: 슬롯 패시브(수정 방패 연회) + 증강(나노 수복 장갑 등)
@@ -193,6 +231,15 @@ public class TrainManager : MonoBehaviour
         if (burstHitCount > GameBalance.BurstFreeHits)
             finalDamage *= GameBalance.BurstExtraHitMul;
 
+        // Phase 2-3 증강 '넘치는 솥': 증기 보호막이 피해를 먼저 받는다
+        if (steamShield > 0f)
+        {
+            float absorbed = Mathf.Min(steamShield, finalDamage);
+            steamShield -= absorbed;
+            finalDamage -= absorbed;
+            if (finalDamage <= 0f) return;   // 전부 막았다 - HP 무손실
+        }
+
         currentHP -= finalDamage;
         currentHP = Mathf.Clamp(currentHP, 0f, currentMaxHP);
 
@@ -205,7 +252,17 @@ public class TrainManager : MonoBehaviour
 
     public void Heal(float amount)
     {
+        float before = currentHP;
         currentHP = Mathf.Min(currentHP + amount, currentMaxHP);
+
+        // Phase 2-3 증강 '넘치는 솥': 최대 HP를 넘는 회복분은 증기 보호막으로
+        if (AugmentManager.OverflowShield && amount > 0f)
+        {
+            float overflow = amount - (currentHP - before);
+            if (overflow > 0f)
+                steamShield = Mathf.Min(steamShield + overflow,
+                    currentMaxHP * GameBalance.OverflowShieldCap);
+        }
     }
 
     // ─────────────────────────────────────────────

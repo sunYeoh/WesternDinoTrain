@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 
 /// <summary>
-/// [AugmentSystem.cs] v3
+/// [AugmentSystem.cs] v4
 /// 로그라이크 증강 시스템 (기획 C) - 창의적 증강 재설계판
 ///
 /// 설계 철학
@@ -11,6 +11,10 @@ using System.Collections.Generic;
 ///  - 프리즘 : 공격 방식 자체를 비트는 효과 - 빌드의 축이 되는 유물급
 ///  - v3 추가: 하이리스크/하이리턴 증강 + [도박] 패밀리 시너지
 ///    ([도박] 태그 증강을 모을수록 도박 계열 효과가 강해진다)
+///  - v4 (Phase 2-3, 사용자 결정 - 증강/아이템 이원화):
+///    주방 관여 증강 5종(식칼/황금 조리 기구/보험/부채질/미끄럼 매트)을
+///    아이템(ItemSystem.cs)으로 이관하고, 판도를 바꾸는 신규 증강 10종을 추가.
+///    증강 = 포탑 강화 + 기차 유틸만 남긴다.
 ///
 /// 다른 시스템은 AugmentManager의 static 값 / 플래그만 읽으면 된다.
 /// 실제 전투 반영은 TurretAttackExecutor v4가 담당.
@@ -96,6 +100,8 @@ public static class AugmentManager
     public static int StaticNth = 0;             // N번째 타격마다 감전 (0 = 비활성)
 
     // ---------- 주방 이벤트 관련 ----------
+    // Phase 2-3: 담당이 아이템(ItemManager)으로 이관됨. 어떤 증강도 더 이상 이 값을
+    // 바꾸지 않지만, 훅(KitchenEventManager) 호환을 위해 필드는 유지한다 (항상 1)
     public static float EventPenaltyMul = 1f;    // 이벤트 실패 페널티 배율
     public static float EventRewardMul = 1f;     // 이벤트 성공 보상 배율
     public static float EventIntervalMul = 1f;   // 이벤트 발생 간격 배율 (0.5 = 2배 자주)
@@ -148,6 +154,7 @@ public static class AugmentManager
     public static float RangeMul = 1f;           // 사거리 배율
 
     // ---------- 조리 (CookingMinigame v2에서 연동됨) ----------
+    // Phase 2-3: 담당이 아이템(ItemManager)으로 이관됨 - 필드는 훅 호환용 유지 (항상 1)
     public static float CookSpeedMul = 1f;       // 제한 시간 배율 (클수록 여유, 굽기 커서 감속)
     public static float CookJudgeMul = 1f;       // 판정 존 배율 (클수록 관대)
 
@@ -162,6 +169,35 @@ public static class AugmentManager
 
     // ---------- 속성 공명 (TurretSlotManager v3에서 연동됨) ----------
     public static float ResonanceBonusAdd = 0f;  // 공명 보너스 가산 (0.15 = +15%p)
+
+    // ---------- Phase 2-2 신규 증강 연동 ----------
+    public static int RerollsUsed = 0;           // 증강 리롤 사용 횟수 (비용 점증용)
+    public static float MasteryAmp = 1f;         // 단골 장부: 요리 숙련 공격력 보너스 배율
+    public static float SlotStunDurMul = 1f;     // 부동액 배관: 슬롯 감전/빙결 지속 배율
+    public static int ClearMatBonus = 0;         // 비상 식량 창고: 웨이브 클리어 랜덤 재료
+    public static float BetStakesMul = 1f;       // 판돈 두 배: 스피노 베팅 판돈/보상/대가 배율
+    public static int ResonanceNeedOverride = 0; // 공명 폭주: 공명 필요 개수 덮어쓰기 (0=기본)
+    public static bool LastSupperRush = false;   // 최후의 만찬: 저체력 시 포탑 공속 상승
+
+    // ---------- Phase 2-3 신규 증강 연동 ----------
+    public static int ApprenticeCooks = 0;       // 견습 셰프 고용: 웨이브 시작 시 자동 조리 수
+    public static bool CorpseService = false;    // 마지막 서비스: 처치한 적이 터진다
+    public static bool OverkillCarry = false;    // 옆 테이블 계산서: 초과 데미지 이월
+    public static int ThornsStacks = 0;          // 가시철조망 도금: 반격 스택 (0 = 없음)
+    public static float TrainDefAdd = 0f;        // 가시철조망 도금: 기차 DEF 가산
+    public static bool HasCollector = false;     // 골동품 감정가: 아이템 1개당 데미지 증가
+    public static bool SteelHeart = false;       // 강철의 심장: 최대 HP 비례 데미지
+    public static bool BasicsDoctrine = false;   // 선대의 기본기: T2 봉인 + T1 강화
+    public static bool OneChef = false;          // 주방장은 하나다: 최고 레벨 포탑 몰아주기
+    public static int OneChefKillStacks = 0;     // 주방장 처치 누적 스택 (런 한정)
+    public static bool OverflowShield = false;   // 넘치는 솥: 초과 회복 -> 증기 보호막
+    public static bool CurationBoost = false;    // 엄선된 메뉴판: 카드 -1장, 상위 등급 확률 상승
+
+    /// <summary>골동품 감정가 배율 (동적 계산 - 이후에 아이템을 얻어도 반영)</summary>
+    public static float CollectorMul
+    {
+        get { return HasCollector ? 1f + GameBalance.CollectorPerItem * ItemManager.OwnedCount : 1f; }
+    }
 
     /// <summary>지금까지 획득한 증강 목록 (UI 표시용)</summary>
     public static List<AugmentData> Owned = new List<AugmentData>();
@@ -191,22 +227,49 @@ public static class AugmentManager
         MaterialDropMul = 1f; DamageReductionAdd = 0f; ExtraSlotUnlock = 0;
         AdjacentBuffMul = 1f; ResonanceBonusAdd = 0f;
 
+        // Phase 2-2 신규
+        RerollsUsed = 0; MasteryAmp = 1f; SlotStunDurMul = 1f;
+        ClearMatBonus = 0; BetStakesMul = 1f; ResonanceNeedOverride = 0; LastSupperRush = false;
+
+        // Phase 2-3 신규
+        ApprenticeCooks = 0; CorpseService = false; OverkillCarry = false;
+        ThornsStacks = 0; TrainDefAdd = 0f; HasCollector = false;
+        SteelHeart = false; BasicsDoctrine = false;
+        OneChef = false; OneChefKillStacks = 0;
+        OverflowShield = false; CurationBoost = false;
+
         Owned.Clear();
         AugmentHooks.Clear();
         Debug.Log("[증강] 런 초기화 완료");
     }
 
-    /// <summary>증강 획득</summary>
+    /// <summary>
+    /// 증강 획득.
+    /// Phase 2-2 (사용자 결정 - 중첩 점증): 같은 증강을 n번째로 집으면 이번 획득 효과가
+    /// 기본의 n배 (효과 함수를 n회 실행). 스택 가능(stackable) 증강만 중복 등장하므로
+    /// 일회성 증강(골드 지급/부활 등)은 영향 없음.
+    /// </summary>
     public static void Acquire(AugmentData aug)
     {
         if (aug == null) return;
+
+        int stackNumber = CountAugment(aug.id) + 1;   // 이번이 몇 번째 스택인가
+
         Owned.Add(aug);
 
         // [도박] 패밀리 카운트 (시너지용) - apply보다 먼저 올려서 효과가 자기 자신을 포함
         if (aug.family == "도박") GamblerFamilyCount++;
 
-        if (aug.apply != null) aug.apply();
-        Debug.Log("[증강] 획득: " + aug.name + " (" + aug.GradeName() + ")"
+        if (aug.apply != null)
+            for (int k = 0; k < stackNumber; k++) aug.apply();
+
+        if (stackNumber > 1)
+        {
+            UIManager.Instance?.ShowStatChange("[중첩 " + stackNumber + "] " + aug.name
+                + " - 이번 효과 " + stackNumber + "배!");
+        }
+
+        Debug.Log("[증강] 획득: " + aug.name + " (" + aug.GradeName() + ") x" + stackNumber
             + (aug.family != null ? " [" + aug.family + "]" : ""));
     }
 
@@ -216,6 +279,15 @@ public static class AugmentManager
         for (int i = 0; i < Owned.Count; i++)
             if (Owned[i].id == id) return true;
         return false;
+    }
+
+    /// <summary>해당 증강의 보유 개수 (중첩 점증/카드 표기용)</summary>
+    public static int CountAugment(string id)
+    {
+        int c = 0;
+        for (int i = 0; i < Owned.Count; i++)
+            if (Owned[i].id == id) c++;
+        return c;
     }
 
     // ---------- 외부 연동 헬퍼 ----------
@@ -232,6 +304,13 @@ public static class AugmentManager
     {
         TrainManager tm = Object.FindFirstObjectByType<TrainManager>();
         if (tm != null) tm.Heal(amount);
+    }
+
+    /// <summary>기차 스탯 재계산 요청 (가시철조망 DEF 가산 등을 즉시 반영)</summary>
+    public static void RecalcTrain()
+    {
+        TrainManager tm = Object.FindFirstObjectByType<TrainManager>();
+        if (tm != null) tm.RecalculateStats();
     }
 }
 
@@ -366,9 +445,7 @@ public static class AugmentDatabase
             "모든 포탑 사거리 +15%", AugmentGrade.Silver, true,
             delegate { AugmentManager.RangeMul *= 1.15f; }));
 
-        all.Add(new AugmentData("silver_knife", "잘 드는 식칼",
-            "조리 미니게임 제한 시간 +20% (굽기 커서도 느려짐)", AugmentGrade.Silver, true,
-            delegate { AugmentManager.CookSpeedMul *= 1.20f; }));
+        // (Phase 2-3: '잘 드는 식칼'은 아이템으로 이관 - ItemSystem.cs 참고)
 
         all.Add(new AugmentData("silver_magnet", "자석 흡입기 개조",
             "적 처치 시 재료 드랍량 +25%", AugmentGrade.Silver, true,
@@ -413,9 +490,7 @@ public static class AugmentDatabase
             "기차가 받는 피해 15% 감소", AugmentGrade.Gold, true,
             delegate { AugmentManager.DamageReductionAdd += 0.15f; }));
 
-        all.Add(new AugmentData("gold_goldentool", "황금 조리 기구",
-            "조리 판정 존 +35%, 제한 시간 +10%", AugmentGrade.Gold, false,
-            delegate { AugmentManager.CookJudgeMul *= 1.35f; AugmentManager.CookSpeedMul *= 1.10f; }));
+        // (Phase 2-3: '황금 조리 기구'는 아이템으로 이관 - ItemSystem.cs 참고)
 
         // --- 여기부터 시너지형 골드 ---
         all.Add(new AugmentData("gold_static", "정전기 축적",
@@ -430,14 +505,7 @@ public static class AugmentDatabase
             "슬로우 / 스턴 상태의 적에게 데미지 +30%", AugmentGrade.Gold, true,
             delegate { AugmentManager.ControlTargetBonus += 0.30f; }));
 
-        all.Add(new AugmentData("gold_insurance", "보험 계약",
-            "주방 이벤트 실패 페널티 60% 감소", AugmentGrade.Gold, false,
-            delegate { AugmentManager.EventPenaltyMul *= 0.40f; }));
-
-        all.Add(new AugmentData("gold_fanflame", "부채질 장인",
-            "주방 이벤트가 2배 자주 발생하지만, 성공 보상 3배", AugmentGrade.Gold, false,
-            delegate { AugmentManager.EventIntervalMul *= 0.5f; AugmentManager.EventRewardMul *= 3f; },
-            null, "도박"));
+        // (Phase 2-3: '보험 계약'/'부채질 장인'은 아이템으로 이관 - ItemSystem.cs 참고)
 
         all.Add(new AugmentData("gold_fullsplash", "폭발 전문가",
             "폭발 스플래시 데미지 감쇄가 사라진다 (80% -> 100%)", AugmentGrade.Gold, false,
@@ -454,7 +522,7 @@ public static class AugmentDatabase
         all.Add(new AugmentData("gold_luckycharm", "행운의 부적",
             "앞으로 증강 선택지가 1장 더 나온다 (최대 +2)", AugmentGrade.Gold, true,
             delegate { AugmentManager.ExtraCards = Mathf.Min(2, AugmentManager.ExtraCards + 1); },
-            null, "도박"));
+            "prism_curation", "도박"));
 
         // --- 하이리스크 / 도박 패밀리 골드 ---
         all.Add(new AugmentData("gold_usurer", "고리대금업자",
@@ -580,6 +648,102 @@ public static class AugmentDatabase
             },
             null, "도박"));
 
+        // ==========================================================
+        //  Phase 2-2 신규 8종 - 최근 시스템(숙련/기름/빙결/베팅/공명)과 시너지
+        // ==========================================================
+
+        // (Phase 2-3: '미끄럼 방지 매트'는 아이템으로 이관 - ItemSystem.cs 참고)
+
+        all.Add(new AugmentData("silver_regular", "단골 장부",
+            "요리 숙련의 공격력 보너스가 50% 증폭된다", AugmentGrade.Silver, true,
+            delegate { AugmentManager.MasteryAmp += 0.5f; }));
+
+        all.Add(new AugmentData("silver_armorpad", "질긴 장갑",
+            "기차가 받는 피해 5% 감소", AugmentGrade.Silver, true,
+            delegate { AugmentManager.DamageReductionAdd += 0.05f; }));
+
+        all.Add(new AugmentData("gold_antifreeze", "부동액 배관",
+            "포탑의 감전/빙결 지속시간 -60%", AugmentGrade.Gold, false,
+            delegate { AugmentManager.SlotStunDurMul *= 0.4f; }));
+
+        all.Add(new AugmentData("gold_pantry", "비상 식량 창고",
+            "웨이브 클리어마다 랜덤 재료 +2", AugmentGrade.Gold, true,
+            delegate { AugmentManager.ClearMatBonus += 2; }));
+
+        all.Add(new AugmentData("gold_stakes", "판돈 두 배",
+            "스피노 베팅의 판돈 / 성공 보상 / 실패 대가가 전부 2배가 된다", AugmentGrade.Gold, false,
+            delegate { AugmentManager.BetStakesMul *= 2f; },
+            null, "도박"));
+
+        all.Add(new AugmentData("prism_resonance", "공명 폭주",
+            "속성 공명 발동 조건이 3개에서 2개로 줄어든다", AugmentGrade.Prismatic, false,
+            delegate { AugmentManager.ResonanceNeedOverride = 2; }));
+
+        all.Add(new AugmentData("prism_lastsupper", "최후의 만찬",
+            "기차 HP 40% 이하일 때 모든 포탑 공격속도 +50%", AugmentGrade.Prismatic, false,
+            delegate { AugmentManager.LastSupperRush = true; }));
+
+        // ==========================================================
+        //  Phase 2-3 신규 10종 - "판도를 바꾸는" 증강 대거 추가
+        //  (아레나/롤토체스/StS 유물 레퍼런스를 우리 세계관으로 번안)
+        // ==========================================================
+
+        // --- 골드 5종 ---
+        all.Add(new AugmentData("gold_apprentice", "견습 셰프 고용",
+            "웨이브가 시작될 때 견습 셰프가 발견한 요리 1개를 만들어 둔다", AugmentGrade.Gold, true,
+            delegate { AugmentManager.ApprenticeCooks += 1; }));
+
+        all.Add(new AugmentData("gold_lastservice", "마지막 서비스",
+            "쓰러진 손님이 터지며 주변 손님에게 처치 데미지의 25%를 나눠 준다",
+            AugmentGrade.Gold, false,
+            delegate { AugmentManager.CorpseService = true; }));
+
+        all.Add(new AugmentData("gold_overkill", "옆 테이블 계산서",
+            "처치하고 남은 초과 데미지가 가장 가까운 적에게 청구된다", AugmentGrade.Gold, false,
+            delegate { AugmentManager.OverkillCarry = true; }));
+
+        all.Add(new AugmentData("gold_barbedwire", "가시철조망 도금",
+            "기차 DEF +8. 기차가 피격되면 근처의 적에게 DEF에 비례한 반격 피해",
+            AugmentGrade.Gold, true,
+            delegate
+            {
+                AugmentManager.TrainDefAdd += 8f;
+                AugmentManager.ThornsStacks += 1;
+                AugmentManager.RecalcTrain();
+            }));
+
+        all.Add(new AugmentData("gold_collector", "골동품 감정가",
+            "보유한 아이템 1개당 모든 포탑 데미지 +6% (이후 획득분도 반영)",
+            AugmentGrade.Gold, false,
+            delegate { AugmentManager.HasCollector = true; }));
+
+        // --- 프리즘 5종 ---
+        all.Add(new AugmentData("prism_steelheart", "강철의 심장",
+            "기차 최대 HP 100당 모든 포탑 데미지 +2% (HP를 쌓을수록 강해진다)",
+            AugmentGrade.Prismatic, false,
+            delegate { AugmentManager.SteelHeart = true; }));
+
+        all.Add(new AugmentData("prism_basics", "선대의 기본기",
+            "T2 진화가 봉인된다 (이미 있는 T2는 유지). 대신 T1 포탑 데미지 +65%, T1 새 배치 시작 레벨 +1",
+            AugmentGrade.Prismatic, false,
+            delegate { AugmentManager.BasicsDoctrine = true; }));
+
+        all.Add(new AugmentData("prism_onechef", "주방장은 하나다",
+            "가장 레벨 높은 포탑이 주방장이 된다: 데미지 +50%, 처치마다 +2% 누적. 다른 포탑은 데미지 -20%",
+            AugmentGrade.Prismatic, false,
+            delegate { AugmentManager.OneChef = true; }));
+
+        all.Add(new AugmentData("prism_overflow", "넘치는 솥",
+            "회복이 최대 HP를 넘으면 초과분이 증기 보호막으로 쌓인다 (최대 HP의 25%까지, 피해를 먼저 막는다)",
+            AugmentGrade.Prismatic, false,
+            delegate { AugmentManager.OverflowShield = true; }));
+
+        all.Add(new AugmentData("prism_curation", "엄선된 메뉴판",
+            "증강 선택지가 2장으로 줄어든다. 대신 골드/프리즘 등급이 훨씬 잘 나온다",
+            AugmentGrade.Prismatic, false,
+            delegate { AugmentManager.CurationBoost = true; },
+            "gold_luckycharm"));
+
         Debug.Log("[증강] 데이터베이스 로드 완료 - 총 " + all.Count + "종");
     }
 
@@ -631,6 +795,13 @@ public static class AugmentDatabase
         float roll = Random.value;
         float prismChance = Mathf.Clamp(0.05f + waveNumber * 0.015f, 0.05f, 0.30f);
         float goldChance = Mathf.Clamp(0.25f + waveNumber * 0.020f, 0.25f, 0.50f);
+
+        // Phase 2-3 '엄선된 메뉴판': 선택지가 줄어드는 대신 상위 등급 확률 급상승
+        if (AugmentManager.CurationBoost)
+        {
+            prismChance = Mathf.Min(0.50f, prismChance * 2f);
+            goldChance = Mathf.Min(0.60f, goldChance * 1.5f);
+        }
 
         if (roll < prismChance) return AugmentGrade.Prismatic;
         if (roll < prismChance + goldChance) return AugmentGrade.Gold;

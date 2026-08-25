@@ -146,7 +146,8 @@ public static class TurretAttackExecutor
         float finalDamage = damage * mul * GameBalance.TurretDamageMul * AugmentManager.AtkMul;
 
         // P1+: 요리 숙련 - 평생 조리 횟수 티어에 따른 그 레시피 포탑 공격력 보너스 (영구)
-        float masteryAtk = MetaProgress.GetMasteryAtk(r.recipeId);
+        // Phase 2-2 증강 '단골 장부': 숙련 보너스 증폭 (MasteryAmp)
+        float masteryAtk = MetaProgress.GetMasteryAtk(r.recipeId) * AugmentManager.MasteryAmp;
         if (masteryAtk > 0f)
             finalDamage *= 1f + masteryAtk;
 
@@ -173,6 +174,32 @@ public static class TurretAttackExecutor
         if (AugmentManager.PrimalPower)
             finalDamage *= 1.8f;
 
+        // ── Phase 2-3 신규 증강 배율 ──
+
+        // 선대의 기본기: T1 포탑 강화 (T2 진화 봉인의 대가)
+        if (AugmentManager.BasicsDoctrine && r.tier == 1)
+            finalDamage *= 1f + GameBalance.BasicsT1Bonus;
+
+        // 강철의 심장: 기차 최대 HP 100당 데미지 증가 (전체 상한 +100%)
+        if (AugmentManager.SteelHeart && TrainManager.Instance != null)
+            finalDamage *= 1f + Mathf.Min(1f,
+                TrainManager.Instance.currentMaxHP / 100f * GameBalance.SteelHeartPer100);
+
+        // 주방장은 하나다: 최고 레벨 포탑에 몰아주기 (처치 누적은 아래 처치 처리에서 오른다)
+        string chefId = "";
+        if (AugmentManager.OneChef && TurretSlotManager.Instance != null)
+        {
+            chefId = TurretSlotManager.Instance.GetChefRecipeId();
+            if (chefId == r.recipeId && chefId != "")
+                finalDamage *= 1f + GameBalance.OneChefBonus
+                    + GameBalance.OneChefPerKill * AugmentManager.OneChefKillStacks;
+            else if (chefId != "")
+                finalDamage *= 1f - GameBalance.OneChefOthersPenalty;
+        }
+
+        // 골동품 감정가: 보유 아이템 1개당 데미지 증가 (동적 계산)
+        finalDamage *= AugmentManager.CollectorMul;
+
         // 도박사의 성배: [도박] 증강 1개당 +10% (동적 계산)
         finalDamage *= AugmentManager.ChaliceMul;
 
@@ -192,7 +219,44 @@ public static class TurretAttackExecutor
         if (AugmentManager.ControlTargetBonus > 0f && AugmentHooks.IsControlled(en))
             finalDamage *= 1f + AugmentManager.ControlTargetBonus;
 
+        float hpBefore = en.currentHP;   // Phase 2-3: 초과 데미지(옆 테이블 계산서) 판정용
+
         en.TakeDamage(finalDamage, r.damageType);
+
+        // ── Phase 2-3: 처치 시 효과 (주방장 누적 / 마지막 서비스 / 옆 테이블 계산서) ──
+        if (!en.IsAlive)
+        {
+            // 주방장은 하나다: 주방장 포탑이 처치할 때마다 데미지 누적 (런 한정)
+            if (AugmentManager.OneChef && chefId != "" && chefId == r.recipeId)
+                AugmentManager.OneChefKillStacks = Mathf.Min(
+                    GameBalance.OneChefMaxStacks, AugmentManager.OneChefKillStacks + 1);
+
+            // 마지막 서비스: 쓰러진 손님이 터진다
+            // (직접 데미지 - 파이프라인 재적용/연쇄 폭발 없음, 동상 파편과 같은 방식)
+            if (AugmentManager.CorpseService && !inSubAttack)
+            {
+                inSubAttack = true;
+                CorpseBurst(r, en, finalDamage * GameBalance.CorpseServiceRatio);
+                inSubAttack = false;
+            }
+
+            // 옆 테이블 계산서: 처치하고 남은 초과 데미지를 가장 가까운 적에게 청구
+            // (적 방어 보정 전 수치 기준의 근사치 - 골드 증강다운 손맛 우선)
+            if (AugmentManager.OverkillCarry && !inSubAttack)
+            {
+                float overkill = finalDamage - hpBefore;
+                if (overkill > 1f)
+                {
+                    Enemy next = FindNearestOther(en, GameBalance.OverkillCarryRange);
+                    if (next != null)
+                    {
+                        inSubAttack = true;
+                        next.TakeDamage(overkill, r.damageType);
+                        inSubAttack = false;
+                    }
+                }
+            }
+        }
 
         // 흡혈: 타격당 기차 회복
         if (AugmentManager.LifestealPerHit > 0f)
@@ -261,6 +325,46 @@ public static class TurretAttackExecutor
             if (Vector3.Distance(all[i].transform.position, pos) <= radius)
                 all[i].TakeDamage(damage, r.damageType);
         }
+    }
+
+    /// <summary>
+    /// Phase 2-3 '마지막 서비스': 처치한 적 위치에서 폭발 - 주변 적에게 직접 데미지.
+    /// (동상 파편과 같은 방식: 파이프라인 재적용 없음 -> 연쇄 폭발 없음)
+    /// </summary>
+    private static void CorpseBurst(RecipeData r, Enemy center, float damage)
+    {
+        if (center == null) return;
+        Vector3 pos = center.transform.position;
+        float radius = GameBalance.CorpseServiceRadius;
+
+        if (AttackVFX.Instance != null)
+            AttackVFX.Instance.Explosion(pos, new Color(1f, 0.75f, 0.35f), radius);
+
+        Enemy[] all = Object.FindObjectsByType<Enemy>(FindObjectsSortMode.None);
+        for (int i = 0; i < all.Length; i++)
+        {
+            if (all[i] == center || !all[i].IsAlive) continue;
+            if (Vector3.Distance(all[i].transform.position, pos) <= radius)
+                all[i].TakeDamage(damage, r.damageType);
+        }
+    }
+
+    /// <summary>Phase 2-3 '옆 테이블 계산서': 기준 적에서 가장 가까운 다른 생존 적</summary>
+    private static Enemy FindNearestOther(Enemy from, float range)
+    {
+        if (from == null) return null;
+        Vector3 pos = from.transform.position;
+        Enemy best = null;
+        float bestDist = range;
+
+        Enemy[] all = Object.FindObjectsByType<Enemy>(FindObjectsSortMode.None);
+        for (int i = 0; i < all.Length; i++)
+        {
+            if (all[i] == from || !all[i].IsAlive) continue;
+            float d = Vector3.Distance(all[i].transform.position, pos);
+            if (d < bestDist) { bestDist = d; best = all[i]; }
+        }
+        return best;
     }
 
     /// <summary>번개 계승용 소형 연쇄: 근처 적 2체로 전이</summary>

@@ -15,8 +15,8 @@ using UnityEngine.UI;
 /// 결과는 CookingBridge.FinishCook로 직접 전달
 /// GameSystems 오브젝트에 부착
 /// - v2 변경점: 증강 연동
-///   CookSpeedMul(잘 드는 식칼) = 제한 시간 증가 / 커서 감속
-///   CookJudgeMul(황금 조리 기구) = 판정 존 확대
+///   CookSpeedMul = 제한 시간 증가 / 커서 감속, CookJudgeMul = 판정 존 확대
+///   (Phase 2-3: 식칼/황금 조리 기구 등 조리 유틸은 아이템(ItemManager)으로 이관됨)
 /// - v2.1 변경점 (기획 복원): 기차 피격 시 조리 방해
 ///   굽기 = 커서 점프 / 볶기 = 다음 화살표 교체 / 끓이기 = 게이지 출렁
 /// VS 2017 (C# 7.3) 호환
@@ -53,6 +53,9 @@ public class CookingMinigame : MonoBehaviour
     /// <summary>오일 캑터스 명중 시 호출 - 잠시 조리대가 미끄러워진다 (중첩 시 연장)</summary>
     public static void ApplyOilSlip(float duration)
     {
+        // Phase 2-2 증강 '미끄럼 방지 매트': 기름 튐 무효
+        if (ItemManager.OilImmune) return;   // Phase 2-3: 미끄럼 방지 매트는 아이템으로 이관됨
+
         bool fresh = !OilSlipActive;
         oilSlipUntil = Mathf.Max(oilSlipUntil, Time.time + duration);
         if (fresh)
@@ -155,8 +158,16 @@ public class CookingMinigame : MonoBehaviour
         judgeTimer = 0f;
 
         // 증강 배율 캐시 (과하게 커지지 않게 상한)
+        // Phase 2-3부터 조리 유틸은 아이템이 담당 - 증강 값은 호환용으로만 곱한다 (항상 1)
         speedMul = Mathf.Min(AugmentManager.CookSpeedMul, 2f);
         judgeMul = Mathf.Min(AugmentManager.CookJudgeMul, 1.9f);
+
+        // Phase 2-3 아이템(유물): 식칼/황금 조리 기구 + 조리법별 전문 도구
+        speedMul *= ItemManager.CookTimeMul;
+        judgeMul *= ItemManager.CookJudgeMul;
+        if (method == 0) judgeMul *= ItemManager.GrillJudgeMul;        // 구리 온도계 (굽기)
+        else if (method == 1) speedMul *= ItemManager.StirTimeMul;     // 균형 잡힌 뒤집개 (볶기)
+        else if (method == 2) judgeMul *= ItemManager.BoilJudgeMul;    // 압력 조절 밸브 (끓이기)
 
         // 명성 상점 '셰프의 감각': 판정 존 영구 확대 (레벨당 +4%, 전체 상한 2.0)
         judgeMul = Mathf.Min(judgeMul * (1f + MetaProgress.CookJudgeBonus), 2f);
@@ -181,6 +192,10 @@ public class CookingMinigame : MonoBehaviour
         float masteryJudge = MetaProgress.GetMasteryJudge(CookingBridge.pendingRecipeId);
         if (masteryJudge > 0f)
             judgeMul = Mathf.Min(judgeMul * (1f + masteryJudge), 2.2f);
+
+        // Phase 2-3: 아이템까지 전부 겹쳤을 때의 안전 상한 (미니게임이 무의미해지는 것 방지)
+        speedMul = Mathf.Min(speedMul, 2.6f);
+        judgeMul = Mathf.Min(judgeMul, 2.6f);
 
         // 지역이 바뀐 뒤 첫 조리에서 1회만 안내 (스토리 감싸기)
         if (region < regionNoticeShown) regionNoticeShown = region;   // 새 런 시작 - 안내 재무장

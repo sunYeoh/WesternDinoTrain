@@ -60,6 +60,9 @@ public class MonsterIntrusionEvent : IKitchenEvent
         gauge = 0f;
         needGauge = 90f * (1f + difficulty);   // 난이도에 따라 최대 180
 
+        // Phase 2-3 아이템 '랩터 덫': 침입자가 덫을 밟고 시작 - 격퇴 게이지 감소
+        needGauge *= ItemManager.IntruderGaugeMul;
+
         // 침입자 표시용 아이콘 (화면 중앙 약간 아래)
         intruderIcon = KitchenEventManager.MakeBox(mgr.CustomRoot, "Intruder", new Color(0.75f, 0.2f, 0.18f, 0.92f));
         intruderIcon.anchorMin = new Vector2(0.5f, 0.5f);
@@ -122,6 +125,18 @@ public class MonsterIntrusionEvent : IKitchenEvent
             // 보상 다양화 (v3): 격퇴한 침입자가 재료를 떨군다
             if (MaterialInventory.Instance != null)
                 MaterialInventory.Instance.Add(MaterialType.Meat, 1);
+
+            // Phase 2-3 아이템 '장물 주머니': 침입자 격퇴마다 추가 골드
+            if (ItemManager.SwagGoldPerIntruder > 0)
+            {
+                GameManager.Instance?.AddGold(ItemManager.SwagGoldPerIntruder);
+                UIManager.Instance?.ShowStatChange("[장물 주머니] 침입자의 주머니를 털었다 +"
+                    + ItemManager.SwagGoldPerIntruder + "G");
+            }
+
+            // Phase 2-3: 침입자가 낮은 확률로 아이템을 떨군다 (장물 주머니 우선)
+            ItemManager.TryIntruderDrop();
+
             Debug.Log("[주방이벤트] 침입자 격퇴 성공 - 기차 25 회복 + 고기 1");
         }
         else

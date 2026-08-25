@@ -18,6 +18,7 @@ public class RouteData
     public int rewardMats = 0;    // 클리어 보상 랜덤 재료 수
     public bool journal = false;  // 클리어 시 선대의 일지 발견 (폐역)
     public bool earlyEvent = false; // 방해 이벤트가 이르게 옴 (안개)
+    public bool relicChance = false; // Phase 2-3: 클리어 시 확률로 아이템(유물) 발견 (폐역)
 }
 
 /// <summary>
@@ -130,16 +131,21 @@ public class BranchRouteUI : MonoBehaviour
             pool.RemoveAt(idx);
         }
 
-        // 폐역: 25% 확률, 미수집 일지가 남아 있을 때만 마지막 칸을 대체
-        if (Random.value < 0.25f && MetaProgress.PickUncollectedJournal() > 0)
+        // 폐역: 25% 확률. 미수집 일지가 남았거나, 주울 아이템이 남아 있으면 마지막 칸을 대체
+        // (Phase 2-3: 일지를 다 모아도 폐역은 아이템 수집처로 계속 등장한다)
+        bool journalLeft = MetaProgress.PickUncollectedJournal() > 0;
+        if (Random.value < 0.25f && (journalLeft || ItemManager.HasStock()))
         {
             RouteData ghost = new RouteData();
             ghost.id = "ghost";
             ghost.routeName = "폐역";
             ghost.desc = "적 물량 -40%. 버려진 역에 무언가 남아 있다";
-            ghost.rewardDesc = "클리어 시 선대의 일지 발견";
+            ghost.rewardDesc = journalLeft
+                ? "클리어 시 선대의 일지 발견 + 낮은 확률로 아이템"
+                : "클리어 시 낮은 확률로 아이템 발견";
             ghost.countMul = 0.6f;
-            ghost.journal = true;
+            ghost.journal = journalLeft;
+            ghost.relicChance = true;
             routes[routes.Count - 1] = ghost;
         }
 

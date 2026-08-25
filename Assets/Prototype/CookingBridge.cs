@@ -36,6 +36,20 @@ public static class CookingBridge
 
         if (quality == "bad")
         {
+            // Phase 2-3 아이템 '선대의 앞치마': 실패해도 재료를 돌려받는다
+            // (pendingRecipeId는 T1 조리 키 "재료+재료" 형식 - 여기서 재료 2개를 복원)
+            if (ItemManager.FailRefund && MaterialInventory.Instance != null)
+            {
+                string[] parts = pendingRecipeId.Split('+');
+                MaterialType ra, rb;
+                if (parts.Length == 2
+                    && TryParseMaterial(parts[0], out ra) && TryParseMaterial(parts[1], out rb))
+                {
+                    MaterialInventory.Instance.Add(ra, 1);
+                    MaterialInventory.Instance.Add(rb, 1);
+                    UIManager.Instance?.ShowStatChange("[선대의 앞치마] 실패한 재료를 되살렸다");
+                }
+            }
             Debug.Log("[CookingBridge] 조리 실패! (폭탄 시스템은 추후 연결)");
         }
         else
@@ -46,6 +60,14 @@ public static class CookingBridge
             if (quality == "perfect"
                 && MetaProgress.GetMasteryTier(pendingRecipeId) >= GameBalance.MasteryPerfectTier)
                 n += 1;
+
+            // Phase 2-3 아이템 '비밀 향신료 주머니': PERFECT 시 확률로 요리 +1
+            if (quality == "perfect" && ItemManager.PerfectExtraChance > 0f
+                && Random.value < ItemManager.PerfectExtraChance)
+            {
+                n += 1;
+                UIManager.Instance?.ShowStatChange("[향신료 주머니] 풍미 폭발! 요리 +1");
+            }
 
             // Phase 2-1: 스피노 베팅 [완벽한 접시] PERFECT 카운트
             if (quality == "perfect")

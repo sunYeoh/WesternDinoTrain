@@ -37,7 +37,8 @@ public class TurretSlot : MonoBehaviour
     /// <summary>슬롯 마비 + 종류 지정 (P1: 모사 빙결 등 - 같은 기믹, 다른 표기)</summary>
     public void StunSlot(float seconds, string kind)
     {
-        stunUntil = Time.time + seconds;
+        // Phase 2-2 증강 '부동액 배관': 감전/빙결 지속 단축
+        stunUntil = Time.time + seconds * AugmentManager.SlotStunDurMul;
         StunKind = kind;
     }
 
@@ -96,6 +97,13 @@ public class TurretSlot : MonoBehaviour
         {
             level += 1;
             Debug.Log("[TurretSlot] 장인의 감각 - " + r.displayName + " 시작 Lv" + level);
+        }
+
+        // Phase 2-3 증강 '선대의 기본기': T1 새 배치 시작 레벨 +1 (숙련 보너스와 중첩 가능)
+        if (wasEmpty && AugmentManager.BasicsDoctrine && r.tier == 1)
+        {
+            level += 1;
+            Debug.Log("[TurretSlot] 선대의 기본기 - " + r.displayName + " 시작 Lv" + level);
         }
 
         // 최대HP형 패시브는 즉시 기차에 적용
@@ -166,7 +174,13 @@ public class TurretSlot : MonoBehaviour
         if (target == null) return;
 
         // 쿨다운 리셋 (인접 버프 + 증강 공속 반영)
-        cooldownTimer = r.cooldown / ((1f + buffAttackSpeed) * AugmentManager.AspdMul);
+        // Phase 2-2 증강 '최후의 만찬': 기차 저체력이면 공속 상승 (배수진의 화력)
+        float rushMul = 1f;
+        if (AugmentManager.LastSupperRush && TrainManager.Instance != null
+            && TrainManager.Instance.HPRatio <= GameBalance.LastSupperHPRatio)
+            rushMul = GameBalance.LastSupperAspdMul;
+
+        cooldownTimer = r.cooldown / ((1f + buffAttackSpeed) * AugmentManager.AspdMul * rushMul);
 
         // 최종 데미지 = 기본 x 레벨배율 x (1+버프)
         // (전역 배율/증강 데미지는 TurretAttackExecutor.DealDamage에서 적용)

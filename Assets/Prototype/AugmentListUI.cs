@@ -3,9 +3,10 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [AugmentListUI.cs] v1 (신규 파일) - 감사 3-B 결정 사항
-/// 보유 증강 목록 패널 - V키로 열고 닫는다.
-/// "내가 지금 무슨 증강을 골랐더라?"를 언제든 확인 (레벨 시스템 절단의 대체 정보창).
+/// [AugmentListUI.cs] v2 - 감사 3-B 결정 사항 + Phase 2-3 아이템 표시
+/// 보유 증강 + 아이템(유물) 목록 패널 - V키로 열고 닫는다.
+/// "내가 지금 뭘 골랐더라?"를 언제든 확인 (레벨 시스템 절단의 대체 정보창).
+/// - v2: 증강 목록 아래에 보유 아이템도 이어서 표시 (희귀도 색)
 ///
 /// 사용법: 없음! AugmentPickUI가 시작 시 자동 생성한다. 파일만 넣으면 끝.
 /// VS 2017 (C# 7.3) 호환.
@@ -82,12 +83,13 @@ public class AugmentListUI : MonoBehaviour
             else { unique.Add(a); counts.Add(1); }
         }
 
-        titleText.text = "보유 증강 (" + AugmentManager.Owned.Count + ")   [V] 닫기";
+        titleText.text = "보유 증강 (" + AugmentManager.Owned.Count + ") / 아이템 ("
+            + ItemManager.OwnedCount + ")   [V] 닫기";
 
-        if (unique.Count == 0)
+        if (unique.Count == 0 && ItemManager.OwnedCount == 0)
         {
             Text empty = KitchenEventManager.MakeText(listArea, "Empty",
-                "아직 획득한 증강이 없다", 22, new Color(0.6f, 0.58f, 0.52f));
+                "아직 획득한 증강도 아이템도 없다", 22, new Color(0.6f, 0.58f, 0.52f));
             RectTransform eRt = empty.rectTransform;
             eRt.anchorMin = new Vector2(0.5f, 1f);
             eRt.anchorMax = new Vector2(0.5f, 1f);
@@ -97,51 +99,65 @@ public class AugmentListUI : MonoBehaviour
             return;
         }
 
-        // 2열 배치
-        float rowH = 58f;
+        // 2열 배치: 증강 먼저, 이어서 아이템 (같은 그리드에 계속 채운다)
+        int slot = 0;
         for (int i = 0; i < unique.Count; i++)
         {
             AugmentData a = unique[i];
-            int col = i % 2;
-            int rowIdx = i / 2;
-
-            RectTransform row = KitchenEventManager.MakeBox(listArea, "Row" + i,
-                new Color(0.15f, 0.13f, 0.11f, 0.9f));
-            row.anchorMin = new Vector2(0f, 1f);
-            row.anchorMax = new Vector2(0f, 1f);
-            row.pivot = new Vector2(0f, 1f);
-            row.anchoredPosition = new Vector2(14f + col * 462f, -8f - rowIdx * (rowH + 6f));
-            row.sizeDelta = new Vector2(450f, rowH);
-
-            // 이름 (등급색) + 중첩 수
             string label = a.name
                 + (a.family != null ? " [" + a.family + "]" : "")
                 + (counts[i] > 1 ? "  x" + counts[i] : "");
-            Text nameTxt = KitchenEventManager.MakeText(row, "Name", label, 19, a.GradeColor());
-            nameTxt.alignment = TextAnchor.MiddleLeft;
-            RectTransform nRt = nameTxt.rectTransform;
-            nRt.anchorMin = new Vector2(0f, 0.5f);
-            nRt.anchorMax = new Vector2(1f, 0.5f);
-            nRt.pivot = new Vector2(0.5f, 0.5f);
-            nRt.anchoredPosition = new Vector2(0f, 13f);
-            nRt.offsetMin = new Vector2(12f, nRt.offsetMin.y);
-            nRt.offsetMax = new Vector2(-12f, nRt.offsetMax.y);
-            nRt.sizeDelta = new Vector2(nRt.sizeDelta.x, 26f);
-
-            // 설명 (작게, 한 줄 잘림 허용)
-            Text descTxt = KitchenEventManager.MakeText(row, "Desc", a.desc, 15,
-                new Color(0.72f, 0.7f, 0.65f));
-            descTxt.alignment = TextAnchor.MiddleLeft;
-            descTxt.verticalOverflow = VerticalWrapMode.Truncate;
-            RectTransform dRt = descTxt.rectTransform;
-            dRt.anchorMin = new Vector2(0f, 0.5f);
-            dRt.anchorMax = new Vector2(1f, 0.5f);
-            dRt.pivot = new Vector2(0.5f, 0.5f);
-            dRt.anchoredPosition = new Vector2(0f, -13f);
-            dRt.offsetMin = new Vector2(12f, dRt.offsetMin.y);
-            dRt.offsetMax = new Vector2(-12f, dRt.offsetMax.y);
-            dRt.sizeDelta = new Vector2(dRt.sizeDelta.x, 24f);
+            MakeRow(slot++, label, a.GradeColor(), a.desc);
         }
+
+        // Phase 2-3: 보유 아이템(유물) - 희귀도 색 + [아이템] 접두
+        for (int i = 0; i < ItemManager.Owned.Count; i++)
+        {
+            ItemData it = ItemManager.Owned[i];
+            MakeRow(slot++, "[아이템] " + it.name, it.RarityColor(), it.desc);
+        }
+    }
+
+    /// <summary>목록 행 1개 생성 (증강/아이템 공용)</summary>
+    private void MakeRow(int index, string label, Color labelColor, string desc)
+    {
+        float rowH = 58f;
+        int col = index % 2;
+        int rowIdx = index / 2;
+
+        RectTransform row = KitchenEventManager.MakeBox(listArea, "Row" + index,
+            new Color(0.15f, 0.13f, 0.11f, 0.9f));
+        row.anchorMin = new Vector2(0f, 1f);
+        row.anchorMax = new Vector2(0f, 1f);
+        row.pivot = new Vector2(0f, 1f);
+        row.anchoredPosition = new Vector2(14f + col * 462f, -8f - rowIdx * (rowH + 6f));
+        row.sizeDelta = new Vector2(450f, rowH);
+
+        // 이름 (등급/희귀도 색)
+        Text nameTxt = KitchenEventManager.MakeText(row, "Name", label, 19, labelColor);
+        nameTxt.alignment = TextAnchor.MiddleLeft;
+        RectTransform nRt = nameTxt.rectTransform;
+        nRt.anchorMin = new Vector2(0f, 0.5f);
+        nRt.anchorMax = new Vector2(1f, 0.5f);
+        nRt.pivot = new Vector2(0.5f, 0.5f);
+        nRt.anchoredPosition = new Vector2(0f, 13f);
+        nRt.offsetMin = new Vector2(12f, nRt.offsetMin.y);
+        nRt.offsetMax = new Vector2(-12f, nRt.offsetMax.y);
+        nRt.sizeDelta = new Vector2(nRt.sizeDelta.x, 26f);
+
+        // 설명 (작게, 한 줄 잘림 허용)
+        Text descTxt = KitchenEventManager.MakeText(row, "Desc", desc, 15,
+            new Color(0.72f, 0.7f, 0.65f));
+        descTxt.alignment = TextAnchor.MiddleLeft;
+        descTxt.verticalOverflow = VerticalWrapMode.Truncate;
+        RectTransform dRt = descTxt.rectTransform;
+        dRt.anchorMin = new Vector2(0f, 0.5f);
+        dRt.anchorMax = new Vector2(1f, 0.5f);
+        dRt.pivot = new Vector2(0.5f, 0.5f);
+        dRt.anchoredPosition = new Vector2(0f, -13f);
+        dRt.offsetMin = new Vector2(12f, dRt.offsetMin.y);
+        dRt.offsetMax = new Vector2(-12f, dRt.offsetMax.y);
+        dRt.sizeDelta = new Vector2(dRt.sizeDelta.x, 24f);
     }
 
     // ─────────────────────────────────────────────

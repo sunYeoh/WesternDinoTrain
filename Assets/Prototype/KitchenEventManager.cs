@@ -209,6 +209,18 @@ public class KitchenEventManager : MonoBehaviour
     {
         if (ev == null || currentEvent != null) return;
 
+        // Phase 2-3 아이템 '구리 소화기': 화재는 웨이브당 1회 자동 진압 (이벤트 자체가 안 뜬다)
+        if (ev is KitchenFireEvent && ItemManager.TryAutoExtinguish())
+        {
+            UIManager.Instance?.ShowStatChange("[구리 소화기] 불길이 붙기도 전에 꺼졌다!");
+            SoundManager.Play("sfx_ui_click");
+            // 다음 이벤트 시각을 정상 주기로 재예약 (안 하면 같은 프레임에 다른 이벤트가 또 뜬다)
+            nextEventTime = Time.time + Random.Range(minInterval, maxInterval)
+                * AugmentManager.EventIntervalMul * ItemManager.EventIntervalMul;
+            Debug.Log("[주방이벤트] 화재 자동 진압 (구리 소화기)");
+            return;
+        }
+
         currentEvent = ev;
         firedCount++;
 
@@ -290,8 +302,9 @@ public class KitchenEventManager : MonoBehaviour
         ClearCustomRoot();
         HidePanel();
 
-        // 증강 '부채질 장인': 발생 간격 배율 적용 (0.5 = 2배 자주)
-        nextEventTime = Time.time + Random.Range(minInterval, maxInterval) * AugmentManager.EventIntervalMul;
+        // 발생 간격 배율 (Phase 2-3: '부채질 장인의 부채'는 아이템으로 이관 - 증강 값은 호환용)
+        nextEventTime = Time.time + Random.Range(minInterval, maxInterval)
+            * AugmentManager.EventIntervalMul * ItemManager.EventIntervalMul;
         Debug.Log("[주방이벤트] 종료: " + ev.Title + " / 결과 " + (success ? "성공" : "실패"));
     }
 
@@ -299,10 +312,10 @@ public class KitchenEventManager : MonoBehaviour
     //  외부 연동 (프로젝트 API가 다르면 이 구역만 고치면 된다)
     // ==================================================================
 
-    /// <summary>이벤트 실패 페널티 - 기차에 데미지 (증강 '보험 계약'이 배율을 줄인다)</summary>
+    /// <summary>이벤트 실패 페널티 - 기차에 데미지 (아이템 '보험 계약서'가 배율을 줄인다)</summary>
     public void DamageTrain(float amount)
     {
-        amount *= AugmentManager.EventPenaltyMul;
+        amount *= AugmentManager.EventPenaltyMul * ItemManager.EventPenaltyMul;
         TrainManager tm = Object.FindFirstObjectByType<TrainManager>();
         if (tm == null) return;
         tm.TakeDamage(amount);
@@ -310,10 +323,10 @@ public class KitchenEventManager : MonoBehaviour
         // tm.TakeDamage(amount, null);
     }
 
-    /// <summary>이벤트 성공 보상 - 기차 회복 (증강 '부채질 장인'이 배율을 올린다)</summary>
+    /// <summary>이벤트 성공 보상 - 기차 회복 (아이템 '부채질 장인의 부채'가 배율을 올린다)</summary>
     public void HealTrain(float amount)
     {
-        amount *= AugmentManager.EventRewardMul;
+        amount *= AugmentManager.EventRewardMul * ItemManager.EventRewardMul;
         TrainManager tm = Object.FindFirstObjectByType<TrainManager>();
         if (tm != null) tm.Heal(amount);
     }

@@ -289,7 +289,10 @@ public class TurretSlotManager : MonoBehaviour
         if (tag == FoodTag.Def) return 0f;   // 방어 공명은 피해감소로 처리
         int idx = (int)tag;
         if (idx < 0 || idx >= tagCounts.Length) return 0f;
-        if (tagCounts[idx] < GameBalance.ResonanceCount) return 0f;
+        // Phase 2-2 증강 '공명 폭주': 발동 조건 3개 -> 2개
+        int need = AugmentManager.ResonanceNeedOverride > 0
+            ? AugmentManager.ResonanceNeedOverride : GameBalance.ResonanceCount;
+        if (tagCounts[idx] < need) return 0f;
         return GameBalance.ResonanceBonus + AugmentManager.ResonanceBonusAdd;
     }
 
@@ -400,6 +403,13 @@ public class TurretSlotManager : MonoBehaviour
         // 판정이 좋으면 T2가 +1레벨로 탄생 - 실제 진화는 CompleteFusion에서 수행.
         if (ra.tier == 1 && rb.tier == 1)
         {
+            // Phase 2-3 증강 '선대의 기본기': T2 진화 봉인 (T1 강화의 대가)
+            if (AugmentManager.BasicsDoctrine)
+            {
+                resultMsg = "선대의 기본기 - T2 진화는 봉인됐다. 기본으로 돌아가라";
+                return false;
+            }
+
             RecipeData fusion = RecipeDatabase.GetFusion(ra.tag, rb.tag);
             if (fusion == null)
             {
@@ -425,6 +435,27 @@ public class TurretSlotManager : MonoBehaviour
 
         resultMsg = "T2 포탑은 같은 요리끼리만 합체 가능";
         return false;
+    }
+
+    /// <summary>
+    /// Phase 2-3 증강 '주방장은 하나다': 현재 가장 레벨이 높은 포탑의 레시피 키.
+    /// 동률이면 앞 슬롯 우선. 빈 주방이면 "" (보너스/페널티 둘 다 미적용)
+    /// </summary>
+    public string GetChefRecipeId()
+    {
+        int bestLevel = 0;
+        string bestId = "";
+        for (int i = 0; i < slots.Length; i++)
+        {
+            TurretSlot s = slots[i];
+            if (s == null || s.IsEmpty || s.isLocked) continue;
+            if (s.level > bestLevel)
+            {
+                bestLevel = s.level;
+                bestId = s.recipeId;
+            }
+        }
+        return bestId;
     }
 
     /// <summary>

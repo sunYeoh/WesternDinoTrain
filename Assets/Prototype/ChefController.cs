@@ -135,10 +135,13 @@ public class ChefController : MonoBehaviour
     /// <summary>조리 완료 시 도구 마모 (CookingMinigame이 호출). method: 0=굽기 1=볶기 2=끓이기</summary>
     public void WearToolsByMethod(int method)
     {
+        // Phase 2-3 아이템 '휴대용 숫돌': 도구 마모 감소 (기본 1 = 그대로)
+        float wearMul = ItemManager.ToolWearMul;
+
         if (method == 0)
-            knifeSharpness = Mathf.Max(0f, knifeSharpness - 5f);   // 굽기 = 칼 마모
+            knifeSharpness = Mathf.Max(0f, knifeSharpness - 5f * wearMul);   // 굽기 = 칼 마모
         else
-            panCondition = Mathf.Max(0f, panCondition - 8f);       // 볶기/끓이기 = 팬 마모
+            panCondition = Mathf.Max(0f, panCondition - 8f * wearMul);       // 볶기/끓이기 = 팬 마모
 
         if (knifeSharpness <= 30f)
             Debug.Log("[ChefController] 칼이 무뎌졌다! 정비소(G)에서 연마 필요 (" + Mathf.RoundToInt(knifeSharpness) + "%)");
@@ -161,9 +164,22 @@ public class ChefController : MonoBehaviour
             CookingMinigame.Instance.OnTrainHit(intensity);
     }
 
+    // Phase 2-3 아이템 '김서림 방지 고글': 저격 무효 알림 스팸 방지용 스로틀
+    private float nextGoggleNoticeTime = 0f;
+
     /// <summary>독침 프테라 피격 시 - 조리 속도 50% 감소 (CookingMinigame 제한시간에 반영)</summary>
     public void ApplyCookingSpeedDebuff(float duration = 10f)
     {
+        // Phase 2-3 아이템 '김서림 방지 고글': 프테라 저격 무효
+        if (ItemManager.SnipeImmune)
+        {
+            if (Time.time >= nextGoggleNoticeTime)
+            {
+                nextGoggleNoticeTime = Time.time + 4f;
+                UIManager.Instance?.ShowStatChange("[고글] 프테라의 저격을 무시했다");
+            }
+            return;
+        }
         StartCoroutine(CookingSpeedDebuffCoroutine(duration));
     }
 

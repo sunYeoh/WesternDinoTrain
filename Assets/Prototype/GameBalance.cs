@@ -318,6 +318,70 @@ public static class GameBalance
     // 실패: 골드 절반 압류 + 격파 보너스 몰수
 
     // ==================================================================
+    //  증강 확장 (Phase 2-2) - 리롤 / 최후의 만찬
+    // ==================================================================
+
+    /// <summary>증강 리롤 기본 비용 (골드). 사용할 때마다 Growth만큼 비싸진다 (런 단위 리셋)</summary>
+    public static int RerollBaseCost = 80;
+    public static int RerollCostGrowth = 40;
+
+    /// <summary>증강 '최후의 만찬': 이 HP 비율 이하일 때 공속 배율 발동</summary>
+    public static float LastSupperHPRatio = 0.4f;
+    public static float LastSupperAspdMul = 1.5f;
+
+    // ==================================================================
+    //  아이템(유물) + 행상인 안킬로 (Phase 2-3) - ItemSystem/MerchantUI가 사용
+    // ==================================================================
+
+    /// <summary>정차 시 행상인 등장 확률 (보스 직전 정차 제외, 각 지역 첫 정차는 확정 등장)</summary>
+    public static float MerchantChance = 0.35f;
+
+    /// <summary>아이템 가격 전체 배율 (경제 조이기/풀기용 - 개별 가격은 ItemSystem.cs)</summary>
+    public static float ItemPriceMul = 1f;
+
+    /// <summary>적 처치 시 아이템 드랍 확률 (일반 / 보스 / 침입자 격퇴)</summary>
+    public static float ItemDropChance = 0.008f;
+    public static float ItemDropChanceBoss = 0.25f;
+    public static float ItemDropChanceIntruder = 0.12f;
+
+    /// <summary>폐역 선로 클리어 시 아이템 획득 확률</summary>
+    public static float RouteRelicChance = 0.35f;
+
+    // ==================================================================
+    //  증강 확장 (Phase 2-3) - 신규 증강 10종 계수
+    // ==================================================================
+
+    /// <summary>마지막 서비스: 처치한 적 폭발 (처치 데미지 비율 / 반경)</summary>
+    public static float CorpseServiceRatio = 0.25f;
+    public static float CorpseServiceRadius = 2.6f;
+
+    /// <summary>옆 테이블 계산서: 초과 데미지 이월 탐색 범위</summary>
+    public static float OverkillCarryRange = 8f;
+
+    /// <summary>가시철조망 도금: 반격 = 기차 DEF x 이 값 x 스택 (쿨타임 안에 1회)</summary>
+    public static float ThornsDefRatio = 1.5f;
+    public static float ThornsRadius = 6f;
+    public static float ThornsCooldown = 0.5f;
+
+    /// <summary>강철의 심장: 최대 HP 100당 데미지 증가율 (전체 상한 +100%)</summary>
+    public static float SteelHeartPer100 = 0.02f;
+
+    /// <summary>선대의 기본기: T1 포탑 데미지 증가율</summary>
+    public static float BasicsT1Bonus = 0.65f;
+
+    /// <summary>주방장은 하나다: 기본 보너스 / 처치당 누적 / 누적 상한 / 나머지 포탑 감소율</summary>
+    public static float OneChefBonus = 0.5f;
+    public static float OneChefPerKill = 0.02f;
+    public static int OneChefMaxStacks = 100;
+    public static float OneChefOthersPenalty = 0.2f;
+
+    /// <summary>넘치는 솥: 증기 보호막 상한 (최대 HP 비율)</summary>
+    public static float OverflowShieldCap = 0.25f;
+
+    /// <summary>골동품 감정가: 보유 아이템 1개당 데미지 증가율</summary>
+    public static float CollectorPerItem = 0.06f;
+
+    // ==================================================================
     //  게임필 (P1) - 셰이크 / 히트스톱 / 처치 팝 (GameFeel.cs가 사용)
     //  전부 0으로 만들면 해당 연출이 완전히 꺼진다.
     //  플레이테스트에서 "과하다/멀미난다" 싶으면 GameFeelMaster 하나만 낮출 것.

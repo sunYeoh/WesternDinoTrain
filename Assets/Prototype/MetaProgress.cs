@@ -340,6 +340,20 @@ public static class MetaProgress
         PlayerPrefs.Save();
     }
 
+    // ─────────────────────────────────────────────
+    // 등짐장수 안킬로 기록 (Phase 2-3) - 첫만남 대사 분기용
+    // ─────────────────────────────────────────────
+
+    /// <summary>안킬로 행상인과 만난 총 횟수</summary>
+    public static int AnkyMeetings { get { return PlayerPrefs.GetInt(PREFIX + "AnkyMet", 0); } }
+
+    /// <summary>안킬로 등장 1회 기록</summary>
+    public static void AddAnkyMeeting()
+    {
+        PlayerPrefs.SetInt(PREFIX + "AnkyMet", AnkyMeetings + 1);
+        PlayerPrefs.Save();
+    }
+
     /// <summary>베팅 결과 기록</summary>
     public static void RecordBetResult(bool win)
     {
@@ -464,6 +478,7 @@ public static class MetaProgress
         PlayerPrefs.DeleteKey(PREFIX + "SpinoMet");
         PlayerPrefs.DeleteKey(PREFIX + "BetWins");
         PlayerPrefs.DeleteKey(PREFIX + "BetLosses");
+        PlayerPrefs.DeleteKey(PREFIX + "AnkyMet");
         cookCountCache = null;
         masterFamedCache = null;
 

@@ -663,14 +663,16 @@ public class Enemy : MonoBehaviour
         }
 
         // 사막 전갈: 공격할 때마다 조리 도구를 부식시킨다 (정비소 수요 창출)
+        // Phase 2-3 아이템 '휴대용 숫돌': 부식도 마모이므로 같이 감소
         if (data.enemyName.Contains("전갈"))
         {
             ChefController chef = FindFirstObjectByType<ChefController>();
             if (chef != null)
             {
-                chef.knifeSharpness = Mathf.Max(0f, chef.knifeSharpness - 3f);
-                chef.panCondition = Mathf.Max(0f, chef.panCondition - 3f);
-                Debug.Log("[사막 전갈] 독 공격 - 조리 도구 부식! (칼/팬 -3)");
+                float corrode = 3f * ItemManager.ToolWearMul;
+                chef.knifeSharpness = Mathf.Max(0f, chef.knifeSharpness - corrode);
+                chef.panCondition = Mathf.Max(0f, chef.panCondition - corrode);
+                Debug.Log("[사막 전갈] 독 공격 - 조리 도구 부식! (칼/팬 -" + corrode + ")");
             }
         }
 
@@ -818,6 +820,12 @@ public class Enemy : MonoBehaviour
         // P1 게임필: 처치 팝 (드랍 재료 색과 통일 - 조각 흡수 연출과 이어져 보이게)
         GameFeel.DeathPop(transform.position, PickupFX.ColorOf(GetDropMaterialType()));
         GameManager.Instance?.AddGold(data.goldReward);
+
+        // Phase 2-3: 아주 낮은 확률로 아이템(유물) 드랍 - 보스는 확률 대폭 상향
+        float itemChance = (this is BossEnemy)
+            ? GameBalance.ItemDropChanceBoss : GameBalance.ItemDropChance;
+        if (Random.value < itemChance)
+            ItemManager.GrantRandom(data.enemyName + " 잔해에서 발견");
         // (감사 3-B: XP 시스템 절단 - AddXP 호출 제거)
         // v3 재료 시스템 드롭 (증강 '자석 흡입기 개조' 반영)
         // v3.1: 즉시 지급 대신 흡수 연출 - 조각이 기차에 도착하면 지급 (PickupFX)

@@ -161,6 +161,21 @@ public class WaveManager : MonoBehaviour
             }
         }
 
+        // Phase 2-3 증강 '견습 셰프 고용': 웨이브 시작 시 발견한 T1 요리를 자동으로 만들어 둔다
+        // (숙련 카운트는 오르지 않는다 - 손맛은 직접 구워야 는다)
+        if (AugmentManager.ApprenticeCooks > 0 && FoodStock.Instance != null)
+        {
+            for (int a = 0; a < AugmentManager.ApprenticeCooks; a++)
+            {
+                string pick = PickRandomDiscoveredT1();
+                if (pick == null) break;   // 아직 발견한 요리가 없으면 견습도 손을 못 댄다
+                FoodStock.Instance.Add(pick, 1);
+                RecipeData pr = RecipeDatabase.Get(pick);
+                if (pr != null)
+                    UIManager.Instance?.ShowStatChange("[견습 셰프] " + pr.displayName + " 1개를 만들어 뒀다");
+            }
+        }
+
         // 보스 웨이브 긴급 보급 (v4.1): 초반엔 독/전기 재료 수급처가 없어
         // 디버프 요리를 못 만드는 문제 해결 - 보스전 시작 시 재료 지급
         WaveConfig bossCheck = GetWaveConfig(waveNumber);
@@ -663,6 +678,10 @@ public class WaveManager : MonoBehaviour
             if (activeRoute.journal)
                 journalNo = MetaProgress.PickUncollectedJournal();
 
+            // Phase 2-3: 폐역 잔해에서 아이템(유물)을 주울 수 있다
+            if (activeRoute.relicChance && Random.value < GameBalance.RouteRelicChance)
+                ItemManager.GrantRandom("폐역 잔해에서 발견");
+
             activeRoute = null;
         }
 
@@ -711,8 +730,12 @@ public class WaveManager : MonoBehaviour
             int nextWave = currentWaveNumber + 1;
 
             // Phase 2-1: 보스 직전 정차에는 도박사 스피노가 먼저 다가온다 (베팅 후 선로 선택)
+            // Phase 2-3: 그 외 정차에는 등짐장수 안킬로가 확률 등장 (아이템 행상인)
+            //  - 스피노와 안킬로는 같은 역에 절대 같이 서지 않는다 ("그 도마뱀 옆엔 안 앉수다")
             if (GameBalance.IsBossWave(nextWave))
                 SpinoBetUI.Show(nextWave, delegate { ProceedRouteChoice(nextWave); });
+            else if (MerchantUI.ShouldAppear(nextWave))
+                MerchantUI.Show(nextWave, delegate { ProceedRouteChoice(nextWave); });
             else
                 ProceedRouteChoice(nextWave);
         }
@@ -773,9 +796,30 @@ public class WaveManager : MonoBehaviour
     /// 우선순위 목록에서 "보유량 0"인 첫 재료만 1개 지급하므로
     /// 파밍을 잘하는 플레이어에게는 아무것도 주지 않는다 (밸런스 유지).
     /// </summary>
+    /// <summary>
+    /// Phase 2-3 '견습 셰프 고용'용: 발견(도감 등록)한 T1 레시피 중 하나를 무작위로 고른다.
+    /// 아무것도 발견 못 했으면 null (견습이 만들 줄 아는 요리가 없다)
+    /// </summary>
+    private string PickRandomDiscoveredT1()
+    {
+        if (FoodStock.Instance == null) return null;
+        System.Collections.Generic.List<string> ids = new System.Collections.Generic.List<string>();
+        foreach (RecipeData r in RecipeDatabase.All)
+            if (r.tier == 1 && FoodStock.Instance.IsDiscovered(r.recipeId)) ids.Add(r.recipeId);
+        return ids.Count > 0 ? ids[Random.Range(0, ids.Count)] : null;
+    }
+
     private void GuaranteeAttributeDrop(int waveNum)
     {
         if (MaterialInventory.Instance == null) return;
+
+        // Phase 2-2 증강 '비상 식량 창고': 웨이브 클리어마다 랜덤 재료 추가
+        if (AugmentManager.ClearMatBonus > 0)
+        {
+            for (int b = 0; b < AugmentManager.ClearMatBonus; b++)
+                MaterialInventory.Instance.Add((MaterialType)Random.Range(0, 6), 1);
+            UIManager.Instance?.ShowStatChange("[비상 식량 창고] 랜덤 재료 +" + AugmentManager.ClearMatBonus);
+        }
 
         // v6: 지역 기반 우선순위 목록 구성
         int region = GameBalance.RegionOf(waveNum);

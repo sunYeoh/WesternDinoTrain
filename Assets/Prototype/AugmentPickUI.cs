@@ -51,7 +51,11 @@ public class AugmentPickUI : MonoBehaviour
     void Awake()
     {
         Instance = this;
-        if (resetRunOnStart) AugmentManager.ResetRun();
+        if (resetRunOnStart)
+        {
+            AugmentManager.ResetRun();
+            ItemManager.ResetRun();   // Phase 2-3: 아이템(유물)도 런 단위 리셋
+        }
         BuildUI();
         dimRoot.gameObject.SetActive(false);
     }
@@ -61,7 +65,7 @@ public class AugmentPickUI : MonoBehaviour
         if (debugKeyEnabled && Input.GetKeyDown(KeyCode.F12) && !isOpen)
             Open(currentWave + 1, null);
 
-        // v1.2 (감사): 숫자키로 카드 선택 (1~5), 0 = 건너뛰기
+        // v1.2 (감사): 숫자키로 카드 선택 (1~5), 0 = 건너뛰기, 9 = 리롤 (Phase 2-2)
         if (isOpen)
         {
             for (int i = 0; i < currentCards.Count && i < 5; i++)
@@ -74,6 +78,8 @@ public class AugmentPickUI : MonoBehaviour
             }
             if (Input.GetKeyDown(KeyCode.Alpha0))
                 Skip();
+            else if (Input.GetKeyDown(KeyCode.Alpha9))
+                Reroll();
         }
     }
 
@@ -84,6 +90,53 @@ public class AugmentPickUI : MonoBehaviour
         UIManager.Instance?.ShowStatChange("증강 건너뛰기 - 명성 +" + GameBalance.AugmentSkipFame);
         Debug.Log("[증강] 건너뛰기 (+" + GameBalance.AugmentSkipFame + " 명성)");
         Close();
+    }
+
+    // ==================================================================
+    //  Phase 2-2: 리롤 - 골드를 태워 카드 3장을 새로 뽑는다 (쓸수록 비싸짐)
+    // ==================================================================
+
+    /// <summary>현재 리롤 비용 (사용할 때마다 Growth만큼 증가, 런 단위 리셋)</summary>
+    private int RerollCost()
+    {
+        return GameBalance.RerollBaseCost + AugmentManager.RerollsUsed * GameBalance.RerollCostGrowth;
+    }
+
+    /// <summary>
+    /// 이번 판 카드 수: 기본 3 + 행운의 부적(최대 +2) - 엄선된 메뉴판(-1). 2~5장 범위
+    /// </summary>
+    private int CardCount()
+    {
+        int count = cardCount + AugmentManager.ExtraCards;
+        if (AugmentManager.CurationBoost) count -= 1;
+        return Mathf.Clamp(count, 2, 5);
+    }
+
+    private void Reroll()
+    {
+        int cost = RerollCost();
+        if (GameManager.Instance == null || !GameManager.Instance.SpendGold(cost))
+        {
+            UIManager.Instance?.ShowStatChange("골드 부족! 리롤에는 " + cost + "G가 필요하다");
+            return;
+        }
+
+        AugmentManager.RerollsUsed++;
+        SoundManager.Play("sfx_ui_click");
+
+        int count = CardCount();
+        currentCards = AugmentDatabase.Roll(currentWave, count);
+        BuildCards(currentCards);
+        RefreshHeader();
+
+        Debug.Log("[증강] 리롤! -" + cost + "G (다음 비용 " + RerollCost() + "G)");
+    }
+
+    /// <summary>헤더 문구 갱신 (리롤 비용 포함)</summary>
+    private void RefreshHeader()
+    {
+        headerText.text = "웨이브 " + currentWave + " 클리어!   증강 선택 [1~" + currentCards.Count
+            + "]  /  건너뛰기 [0]  /  리롤 [9] (" + RerollCost() + "G)";
     }
 
     // ==================================================================
@@ -122,13 +175,13 @@ public class AugmentPickUI : MonoBehaviour
         currentWave = waveNumber;
         onClosed = afterPick;
 
-        // '행운의 부적' 증강 효과: 선택지 수 증가 (최대 5장)
-        int count = Mathf.Min(cardCount + AugmentManager.ExtraCards, 5);
+        // '행운의 부적'(+장) / '엄선된 메뉴판'(-1장, 등급 상승) 반영
+        int count = CardCount();
         List<AugmentData> rolled = AugmentDatabase.Roll(waveNumber, count);
         currentCards = rolled;   // v1.2: 숫자키 선택용 보관
         BuildCards(rolled);
 
-        headerText.text = "웨이브 " + waveNumber + " 클리어!   증강 선택 [1~" + rolled.Count + "]  /  건너뛰기 [0]";
+        RefreshHeader();
         ownedText.text = BuildOwnedSummary();
 
         dimRoot.gameObject.SetActive(true);
@@ -215,8 +268,13 @@ public class AugmentPickUI : MonoBehaviour
             nRt.sizeDelta = new Vector2(-24f, 80f);
             nameTxt.horizontalOverflow = HorizontalWrapMode.Wrap;
 
-            // 설명
-            Text descTxt = KitchenEventManager.MakeText(inner, "Desc", aug.desc, 21, new Color(0.88f, 0.88f, 0.84f));
+            // 설명 (Phase 2-2: 이미 보유한 스택형이면 중첩 점증 안내를 붙인다)
+            string descBody = aug.desc;
+            int ownedCount = AugmentManager.CountAugment(aug.id);
+            if (ownedCount > 0)
+                descBody += "\n\n[보유 " + ownedCount + "개 - 이번 획득 효과 " + (ownedCount + 1) + "배!]";
+
+            Text descTxt = KitchenEventManager.MakeText(inner, "Desc", descBody, 21, new Color(0.88f, 0.88f, 0.84f));
             RectTransform dRt = descTxt.rectTransform;
             dRt.anchorMin = new Vector2(0f, 0f);
             dRt.anchorMax = new Vector2(1f, 1f);
@@ -310,6 +368,16 @@ public class AugmentPickUI : MonoBehaviour
         sRt.pivot = new Vector2(0.5f, 0f);
         sRt.anchoredPosition = new Vector2(0f, 140f);
         skipBtn.onClick.AddListener(Skip);
+
+        // Phase 2-2: 리롤 버튼 (골드 소모 - 비용은 헤더에 표시)
+        Button rerollBtn = KitchenEventManager.MakeButton(dimRoot,
+            "리롤  [9]", new Color(0.30f, 0.22f, 0.34f), Vector2.zero, new Vector2(220f, 52f));
+        RectTransform rrRt = rerollBtn.GetComponent<RectTransform>();
+        rrRt.anchorMin = new Vector2(0.5f, 0f);
+        rrRt.anchorMax = new Vector2(0.5f, 0f);
+        rrRt.pivot = new Vector2(0.5f, 0f);
+        rrRt.anchoredPosition = new Vector2(330f, 140f);
+        rerollBtn.onClick.AddListener(Reroll);
 
         // v1.2: 보유 증강 목록 패널 자동 생성 (V키 열람 - 씬 세팅 불필요)
         if (FindFirstObjectByType<AugmentListUI>() == null)

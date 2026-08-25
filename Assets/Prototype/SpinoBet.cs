@@ -28,6 +28,9 @@ public static class SpinoBet
     /// <summary>직전 베팅 결과 (0=없음, 1=승리, 2=패배) - 스피노 재등장 대사용 (세션 한정)</summary>
     public static int LastResult = 0;
 
+    /// <summary>Phase 2-2 증강 '판돈 두 배': 판돈/보상/대가 공통 배율</summary>
+    private static float StakesMul { get { return AugmentManager.BetStakesMul; } }
+
     // ── 보스전 추적 카운터 ──
     private static float bossStartTime = 0f;
     private static int perfectCooks = 0;
@@ -104,7 +107,7 @@ public static class SpinoBet
         normalCard = normals[Random.Range(0, normals.Length)];
 
         bool canStake = GameManager.Instance != null
-            && GameManager.Instance.playerGold >= GameBalance.BetLedgerStake;
+            && GameManager.Instance.playerGold >= Mathf.RoundToInt(GameBalance.BetLedgerStake * StakesMul);
         BetId[] gambles = canStake
             ? new BetId[] { BetId.Ledger, BetId.Rush, BetId.Feast }
             : new BetId[] { BetId.Rush, BetId.Feast };
@@ -117,8 +120,9 @@ public static class SpinoBet
         Active = id;
         if (id == BetId.Ledger && GameManager.Instance != null)
         {
-            GameManager.Instance.AddGold(-GameBalance.BetLedgerStake);
-            UIManager.Instance?.ShowStatChange("[베팅] 판돈 " + GameBalance.BetLedgerStake + "G를 걸었다");
+            int stake = Mathf.RoundToInt(GameBalance.BetLedgerStake * StakesMul);
+            GameManager.Instance.AddGold(-stake);
+            UIManager.Instance?.ShowStatChange("[베팅] 판돈 " + stake + "G를 걸었다");
         }
         Debug.Log("[SpinoBet] 베팅 수락: " + TitleOf(id));
     }
@@ -188,35 +192,40 @@ public static class SpinoBet
         switch (bet)
         {
             case BetId.OnTime:
-                gm?.AddGold(GameBalance.BetOnTimeGold);
-                Notice("[베팅 승리] 정시 배식! 골드 +" + GameBalance.BetOnTimeGold);
+                int onTimeGold = Mathf.RoundToInt(GameBalance.BetOnTimeGold * StakesMul);
+                gm?.AddGold(onTimeGold);
+                Notice("[베팅 승리] 정시 배식! 골드 +" + onTimeGold);
                 break;
             case BetId.Perfect:
+                int matN = Mathf.RoundToInt(GameBalance.BetPerfectMats * StakesMul);
                 if (MaterialInventory.Instance != null)
-                    for (int i = 0; i < GameBalance.BetPerfectMats; i++)
+                    for (int i = 0; i < matN; i++)
                         MaterialInventory.Instance.Add(RandomMaterial(), 1);
-                Notice("[베팅 승리] 완벽한 접시! 랜덤 재료 +" + GameBalance.BetPerfectMats);
+                Notice("[베팅 승리] 완벽한 접시! 랜덤 재료 +" + matN);
                 break;
             case BetId.Tank:
-                Object.FindFirstObjectByType<TrainManager>()?.AddMaxHP(GameBalance.BetTankMaxHP);
-                Notice("[베팅 승리] 철벽 주방! 최대 HP +" + (int)GameBalance.BetTankMaxHP);
+                float tankHP = GameBalance.BetTankMaxHP * StakesMul;
+                Object.FindFirstObjectByType<TrainManager>()?.AddMaxHP(tankHP);
+                Notice("[베팅 승리] 철벽 주방! 최대 HP +" + (int)tankHP);
                 break;
             case BetId.Ledger:
-                gm?.AddGold(GameBalance.BetLedgerStake * GameBalance.BetLedgerPayoutMul);
-                Notice("[베팅 승리] 외상 장부 " + GameBalance.BetLedgerPayoutMul + "배 회수! 골드 +"
-                    + (GameBalance.BetLedgerStake * GameBalance.BetLedgerPayoutMul));
+                int payout = Mathf.RoundToInt(GameBalance.BetLedgerStake * StakesMul * GameBalance.BetLedgerPayoutMul);
+                gm?.AddGold(payout);
+                Notice("[베팅 승리] 외상 장부 " + GameBalance.BetLedgerPayoutMul + "배 회수! 골드 +" + payout);
                 break;
             case BetId.Rush:
-                gm?.AddGold(GameBalance.BetRushGold);
-                Notice("[베팅 승리] 속전속결! 골드 +" + GameBalance.BetRushGold);
+                int rushGold = Mathf.RoundToInt(GameBalance.BetRushGold * StakesMul);
+                gm?.AddGold(rushGold);
+                Notice("[베팅 승리] 속전속결! 골드 +" + rushGold);
                 break;
             case BetId.Feast:
+                int feastMats = Mathf.RoundToInt(GameBalance.BetFeastMats * StakesMul);
+                int feastFame = Mathf.RoundToInt(GameBalance.BetFeastFame * StakesMul);
                 if (MaterialInventory.Instance != null)
                     foreach (MaterialType t in System.Enum.GetValues(typeof(MaterialType)))
-                        MaterialInventory.Instance.Add(t, GameBalance.BetFeastMats);
-                MetaProgress.AddFame(GameBalance.BetFeastFame);
-                Notice("[베팅 승리] 굶주린 식탁! 전 재료 +" + GameBalance.BetFeastMats
-                    + ", 명성 +" + GameBalance.BetFeastFame);
+                        MaterialInventory.Instance.Add(t, feastMats);
+                MetaProgress.AddFame(feastFame);
+                Notice("[베팅 승리] 굶주린 식탁! 전 재료 +" + feastMats + ", 명성 +" + feastFame);
                 break;
         }
         UIManager.Instance?.ShowStatChange("스피노: \"...이번 요리사는 좀 다른가.\"");
@@ -234,28 +243,31 @@ public static class SpinoBet
                 return;   // 일반 베팅: 무손실, 스피노 조롱도 없음
 
             case BetId.Ledger:
-                // 판돈은 이미 나갔고, 재료 전 종류 절반 압류
+                // 판돈은 이미 나갔고, 재료 압류 (기본 절반 - '판돈 두 배'면 전부)
+                float seizeRatio = Mathf.Min(1f, 0.5f * StakesMul);
                 if (MaterialInventory.Instance != null)
                     foreach (MaterialType t in System.Enum.GetValues(typeof(MaterialType)))
                     {
-                        int loss = MaterialInventory.Instance.Get(t) / 2;
+                        int loss = Mathf.FloorToInt(MaterialInventory.Instance.Get(t) * seizeRatio);
                         if (loss > 0) MaterialInventory.Instance.Add(t, -loss);
                     }
-                Danger("[베팅 패배] 외상 장부 - 판돈 몰수, 재료 절반 압류!");
+                Danger("[베팅 패배] 외상 장부 - 판돈 몰수, 재료 " + (seizeRatio >= 1f ? "전부" : "절반") + " 압류!");
                 break;
 
             case BetId.Rush:
                 forfeitBossBonus = true;
-                Object.FindFirstObjectByType<TrainManager>()?.AddMaxHP(-GameBalance.BetRushHPPenalty);
-                Danger("[베팅 패배] 속전속결 - 격파 보너스 몰수, 최대 HP -"
-                    + (int)GameBalance.BetRushHPPenalty + "!");
+                float hpPen = GameBalance.BetRushHPPenalty * StakesMul;
+                Object.FindFirstObjectByType<TrainManager>()?.AddMaxHP(-hpPen);
+                Danger("[베팅 패배] 속전속결 - 격파 보너스 몰수, 최대 HP -" + (int)hpPen + "!");
                 break;
 
             case BetId.Feast:
                 forfeitBossBonus = true;
+                float goldRatio = Mathf.Min(1f, 0.5f * StakesMul);
                 if (gm != null && gm.playerGold > 0)
-                    gm.AddGold(-(gm.playerGold / 2));
-                Danger("[베팅 패배] 굶주린 식탁 - 격파 보너스 몰수, 골드 절반 압류!");
+                    gm.AddGold(-Mathf.FloorToInt(gm.playerGold * goldRatio));
+                Danger("[베팅 패배] 굶주린 식탁 - 격파 보너스 몰수, 골드 "
+                    + (goldRatio >= 1f ? "전부" : "절반") + " 압류!");
                 break;
         }
         UIManager.Instance?.ShowStatChange("스피노: \"고맙게 받지. 도박은 원래 집이 이기는 거다.\"");
