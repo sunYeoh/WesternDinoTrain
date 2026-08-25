@@ -37,6 +37,6 @@ public class CookingUIManager : MonoBehaviour
     /// <summary>독침 디버프 알림 - UIManager 알림으로 전달</summary>
     public void ShowPoisonDebuff(float duration)
     {
-        UIManager.Instance?.ShowStatChange("독침 피격! 조리 속도 -50% (" + (int)duration + "초)");
+        UIManager.Instance?.ShowDanger("독침 피격! 조리 속도 -50% (" + (int)duration + "초)");   // P1: 위험 채널
     }
 }

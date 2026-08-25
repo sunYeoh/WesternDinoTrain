@@ -643,7 +643,7 @@ public class Enemy : MonoBehaviour
         target.StunSlot(GameBalance.FreezeSlotSec, "빙결");
         nextFreezeAllowed = Time.time + GameBalance.FreezeGlobalCooldown;
 
-        UIManager.Instance?.ShowStatChange("[아이스 모사] 냉기가 포탑을 덮쳤다! 빙결 - 클릭으로 해빙");
+        UIManager.Instance?.ShowDanger("[아이스 모사] 냉기가 포탑을 덮쳤다! 빙결 - 클릭으로 해빙");
         Debug.Log("[Enemy] 아이스 모사 빙결: " + (target.Recipe != null ? target.Recipe.displayName : "?"));
     }
 

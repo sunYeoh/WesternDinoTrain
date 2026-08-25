@@ -56,7 +56,7 @@ public class CookingMinigame : MonoBehaviour
         bool fresh = !OilSlipActive;
         oilSlipUntil = Mathf.Max(oilSlipUntil, Time.time + duration);
         if (fresh)
-            UIManager.Instance?.ShowStatChange("[오일 캑터스] 기름이 튀었다! 조리대가 미끄럽다 ("
+            UIManager.Instance?.ShowDanger("[오일 캑터스] 기름이 튀었다! 조리대가 미끄럽다 ("
                 + (int)duration + "초)");
     }
 
