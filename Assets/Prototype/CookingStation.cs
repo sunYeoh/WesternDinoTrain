@@ -39,7 +39,7 @@ public class CookingStation : MonoBehaviour
     public KeyCode interactKey = KeyCode.E; // 상호작용 키
 
     [Header("─ 상호작용 표시 ─")]
-    public GameObject interactPrompt;    // "E 눌러서 조리" 텍스트
+    public GameObject interactPrompt;    // "[E] 조리" 텍스트
 
     // ─────────────────────────────────────────────
     // 내부 상태

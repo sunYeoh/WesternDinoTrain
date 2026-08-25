@@ -52,6 +52,7 @@ public class PauseMenu : MonoBehaviour
         if (BranchRouteUI.IsOpen) return;        // 분기 선로 선택 중
         if (FinalOrderUI.QteOpen) return;        // C-2: 마지막 주문 QTE 중 (시간정지 충돌 방지)
         if (InfusingMinigame.IsActive) return;   // P1: 인퓨징 중 (ESC = 인퓨징 취소가 우선)
+        if (SpinoBetUI.IsOpen) return;           // Phase 2-1: 스피노 베팅 중 (ESC = 거절이 우선)
 
         Open();
     }

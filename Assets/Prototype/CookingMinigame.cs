@@ -263,7 +263,7 @@ public class CookingMinigame : MonoBehaviour
         }
 
         if (shake > 0.2f)
-            ShowJudge("충격!", new Color(1f, 0.5f, 0.3f));
+            ShowJudge("흔들린다!", new Color(1f, 0.5f, 0.3f));
     }
 
     // ─────────────────────────────────────────
@@ -470,7 +470,7 @@ public class CookingMinigame : MonoBehaviour
         finished = true;
         finishTimer = 0.8f;
 
-        if (quality == "perfect") ShowJudge("PERFECT! 요리 2개!", UIFactory.GOLD);
+        if (quality == "perfect") ShowJudge("PERFECT! 최고의 한 접시!", UIFactory.GOLD);
         else if (quality == "good") ShowJudge("Good! 완성", new Color(0.6f, 0.85f, 0.54f));
         else ShowJudge("실패...", new Color(1f, 0.6f, 0.48f));
 

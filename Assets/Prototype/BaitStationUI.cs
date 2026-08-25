@@ -44,7 +44,7 @@ public class BaitStationUI : MonoBehaviour
     {
         boss = targetBoss;
         BuildUI();
-        UIManager.Instance?.ShowStatChange("[미끼 화덕] 가동! 고기를 구워 왕의 손님들을 대접하라!");
+        UIManager.Instance?.ShowStatChange("[미끼 화덕] 가동! 고기를 구워 굶주린 무리를 대접하라!");
         Debug.Log("[BaitStation] 미끼 화덕 가동 (녹슨 발톱 보스전)");
     }
 

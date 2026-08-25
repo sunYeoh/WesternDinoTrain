@@ -164,7 +164,7 @@ public class BossEnemy : Enemy
             data.enemyName = "천둥 둥지";
             bossMaxHP *= 0.95f; spd = 1.5f; bossAttackRange = 6.5f; // 멀리서 때림
             baseTint = new Color(0.72f, 0.72f, 1f);
-            intro = "선대의 번개 병이 기차에 실려 있다 - 낙뢰의 마지막 순간, [Space]로 병을 치켜라!";
+            intro = "선대의 번개 병이 기차에 실려 있다 - 낙뢰의 마지막 순간, [Space]로 병을 내밀어라!";
         }
         else if (kind == BossKind.Hibernator)
         {
@@ -438,7 +438,7 @@ public class BossEnemy : Enemy
                 }
                 else
                 {
-                    UIManager.Instance?.ShowStatChange("너무 빨랐다! 병을 헛들었다...");
+                    UIManager.Instance?.ShowStatChange("너무 빨랐다! 번개가 병을 비껴갔다...");
                 }
             }
 

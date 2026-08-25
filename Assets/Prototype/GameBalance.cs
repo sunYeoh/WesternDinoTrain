@@ -283,6 +283,41 @@ public static class GameBalance
     public static float FreezeGlobalCooldown = 7f;  // 전체 모사 공유 쿨타임 (다중 모사 스턴락 방지)
 
     // ==================================================================
+    //  스피노 베팅 (Phase 2-1) - 보스 직전 정차의 도박사
+    //  일반 베팅 = 실패해도 무손실 / 도박 베팅 = 화끈한 대가 (사용자 결정 2026-08-25)
+    //  조건 추적/정산은 SpinoBet.cs, 등장 UI는 SpinoBetUI.cs
+    // ==================================================================
+
+    // [일반] 정시 배식: 제한 시간 내 보스 격파
+    public static float BetOnTimeSec = 120f;
+    public static int BetOnTimeGold = 150;
+
+    // [일반] 완벽한 접시: 보스전 중 PERFECT 조리
+    public static int BetPerfectNeed = 2;
+    public static int BetPerfectMats = 4;      // 보상: 랜덤 재료 수
+
+    // [일반] 철벽 주방: 기차 피격 제한
+    public static int BetTankHitsMax = 8;
+    public static float BetTankMaxHP = 80f;    // 보상: 최대 HP (런 한정)
+
+    // [도박] 외상 장부: 판돈 선불, 그로기 투척 명중
+    public static int BetLedgerStake = 150;
+    public static int BetLedgerPayoutMul = 4;  // 성공 배수 (150 -> 600)
+    public static int BetLedgerThrowNeed = 2;
+    // 실패: 판돈 몰수 + 재료 전 종류 절반 압류
+
+    // [도박] 속전속결: 제한 시간 내 격파
+    public static float BetRushSec = 90f;
+    public static int BetRushGold = 500;
+    public static float BetRushHPPenalty = 50f;   // 실패: 최대 HP 감소 (+격파 보너스 몰수)
+
+    // [도박] 굶주린 식탁: 적은 포탑으로 격파
+    public static int BetFeastSlotsMax = 4;
+    public static int BetFeastMats = 4;        // 성공: 전 재료 +4
+    public static int BetFeastFame = 50;
+    // 실패: 골드 절반 압류 + 격파 보너스 몰수
+
+    // ==================================================================
     //  게임필 (P1) - 셰이크 / 히트스톱 / 처치 팝 (GameFeel.cs가 사용)
     //  전부 0으로 만들면 해당 연출이 완전히 꺼진다.
     //  플레이테스트에서 "과하다/멀미난다" 싶으면 GameFeelMaster 하나만 낮출 것.

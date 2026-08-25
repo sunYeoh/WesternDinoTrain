@@ -47,6 +47,10 @@ public static class CookingBridge
                 && MetaProgress.GetMasteryTier(pendingRecipeId) >= GameBalance.MasteryPerfectTier)
                 n += 1;
 
+            // Phase 2-1: 스피노 베팅 [완벽한 접시] PERFECT 카운트
+            if (quality == "perfect")
+                SpinoBet.CountPerfect();
+
             FoodStock.Instance.Add(pendingRecipeId, n);
 
             // P1+: 요리 숙련 카운트 (평생 누적 - 마일스톤 알림은 FoodStock이 처리)

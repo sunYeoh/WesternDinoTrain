@@ -115,7 +115,7 @@ public class BranchRouteUI : MonoBehaviour
         RouteData fog = new RouteData();
         fog.id = "fog";
         fog.routeName = "안개 선로";
-        fog.desc = "적 물량 -25%, 주방 사고가 이르게 온다";
+        fog.desc = "적 물량 -25%, 주방 사고가 일찍 찾아온다";
         fog.rewardDesc = "클리어 시 골드 +80";
         fog.countMul = 0.75f;
         fog.earlyEvent = true;

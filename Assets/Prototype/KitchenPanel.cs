@@ -44,7 +44,7 @@ public class KitchenPanel : MonoBehaviour
     private readonly List<GameObject> spawned = new List<GameObject>();
     private Button[] tabButtons = new Button[3];
 
-    private static readonly string[] MAT_KOR = { "고기", "등심", "전기", "화염", "얼음", "독침" };
+    private static readonly string[] MAT_KOR = { "고기", "등심", "전기", "화염", "얼음", "독" };
     private static readonly string[] METHOD_NAMES = { "굽기", "볶기", "끓이기" };
 
     void Awake()

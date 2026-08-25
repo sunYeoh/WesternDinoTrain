@@ -32,7 +32,7 @@ public class GameHUD : MonoBehaviour
     private const float CARD_H = 64f;
     private const float CARD_GAP = 4f;
 
-    private static readonly string[] MAT_SHORT = { "고기", "등심", "전기", "화염", "얼음", "독침" };
+    private static readonly string[] MAT_SHORT = { "고기", "등심", "전기", "화염", "얼음", "독" };
     private static readonly FoodTag[] MAT_TAG = { FoodTag.Phys, FoodTag.Def, FoodTag.Elec, FoodTag.Fire, FoodTag.Ice, FoodTag.Poison };
 
     void Awake()

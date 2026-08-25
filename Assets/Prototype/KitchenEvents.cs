@@ -49,7 +49,7 @@ public class MonsterIntrusionEvent : IKitchenEvent
     private RectTransform intruderIcon;
     private float shakeTimer;
 
-    public string Title { get { return "몬스터 침입! 주방에 랩터가 들어왔다"; } }
+    public string Title { get { return "침입자! 주방에 랩터가 들어왔다"; } }
     public string Guide { get { return "[E] 연타해서 몰아내라!   " + Mathf.RoundToInt(gauge) + " / " + Mathf.RoundToInt(needGauge); } }
     public float TimeLimit { get { return 6.5f; } }
     public float Progress { get { return needGauge > 0f ? gauge / needGauge : 0f; } }
@@ -144,7 +144,7 @@ public class EquipmentBreakEvent : IKitchenEvent
     private Text commandText;
     private float wrongFlash;         // 오입력 시 빨갛게 깜빡이는 시간
 
-    public string Title { get { return "조리 기구 고장! 배선이 튀었다"; } }
+    public string Title { get { return "조리 기구 고장! 배선에서 불꽃이 튄다"; } }
     public string Guide { get { return "방향키를 순서대로 입력해 수리하라   " + inputIndex + " / " + command.Count; } }
     public float TimeLimit { get { return 7f; } }
     public float Progress { get { return command.Count > 0 ? (float)inputIndex / command.Count : 0f; } }
@@ -269,7 +269,7 @@ public class KitchenFireEvent : IKitchenEvent
     private Text fireLabel;
 
     public string Title { get { return "주방 화재 발생! 기차가 계속 타들어간다"; } }
-    public string Guide { get { return "[E] 꾹 누른 채로 유지해서 불을 꺼라   " + Mathf.RoundToInt(gauge) + "%"; } }
+    public string Guide { get { return "[E] 꾹 눌러 불길을 잡아라   " + Mathf.RoundToInt(gauge) + "%"; } }
     public float TimeLimit { get { return 8f; } }
     public float Progress { get { return gauge / needGauge; } }
 
@@ -368,7 +368,7 @@ public class MaterialSpillEvent : IKitchenEvent
         items.Clear();
 
         totalCount = 4 + Mathf.RoundToInt(difficulty * 3f);   // 4 ~ 7개
-        string[] names = { "고기", "등심", "향신료", "약초", "전기꼬리", "화염꽃", "얼음꽃" };
+        string[] names = { "고기", "등심", "전기 꼬리", "화염 꽃", "얼음꽃", "독침" };
 
         for (int i = 0; i < totalCount; i++)
         {

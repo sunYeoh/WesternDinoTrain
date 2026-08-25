@@ -140,13 +140,19 @@ public class TrainManager : MonoBehaviour
         currentAttackSpeed = baseAttackSpeed;
     }
 
-    /// <summary>최대 HP 영구 증가 (패시브 요리 / 증강)</summary>
+    /// <summary>최대 HP 증감 (패시브 요리 / 증강 / 스피노 벌금). 음수여도 죽지는 않는다</summary>
     public void AddMaxHP(float amount)
     {
         passiveBonusMaxHP += amount;
         currentMaxHP += amount;
-        currentHP += amount; // 늘어난 만큼 현재 HP도 회복
-        Debug.Log("[TrainManager] 최대 HP +" + amount +
+        currentHP += amount; // 늘어난(줄어든) 만큼 현재 HP도 조정
+
+        // Phase 2-1: 음수 적용 안전장치 - 벌금으로 즉사하는 일은 없게
+        if (currentMaxHP < 100f) currentMaxHP = 100f;
+        if (currentHP < 1f) currentHP = 1f;
+        if (currentHP > currentMaxHP) currentHP = currentMaxHP;
+
+        Debug.Log("[TrainManager] 최대 HP " + (amount >= 0 ? "+" : "") + amount +
                   " (현재 " + currentHP.ToString("F0") + "/" + currentMaxHP.ToString("F0") + ")");
     }
 
@@ -159,6 +165,9 @@ public class TrainManager : MonoBehaviour
 
         // P1 게임필: 피격 셰이크 - 쿨타임 채널 방식 (매 피격마다 흔들리면 피로 - 1.5초에 1번만)
         GameFeel.Shake(GameBalance.ShakeTrainHit, "train_hit", GameBalance.ShakeTrainHitCooldown);
+
+        // Phase 2-1: 스피노 베팅 [철벽 주방] 피격 카운트
+        SpinoBet.CountTrainHit();
 
         float finalDamage = Mathf.Max(1f, rawDamage - currentDEF);
 

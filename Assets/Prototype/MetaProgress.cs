@@ -322,6 +322,32 @@ public static class MetaProgress
         return t >= 0 ? GameBalance.MasteryJudgeBonus[t] : 0f;
     }
 
+    // ─────────────────────────────────────────────
+    // 스피노 베팅 기록 (Phase 2-1) - 만남 횟수/승패 영구 저장
+    // 고회차 대사 조건("네 눈빛이 점점 나를 닮아간다" 등)에 재사용된다.
+    // ─────────────────────────────────────────────
+
+    /// <summary>스피노와 만난 총 횟수 (첫만남 대사 분기용)</summary>
+    public static int SpinoMeetings { get { return PlayerPrefs.GetInt(PREFIX + "SpinoMet", 0); } }
+
+    public static int BetWins { get { return PlayerPrefs.GetInt(PREFIX + "BetWins", 0); } }
+    public static int BetLosses { get { return PlayerPrefs.GetInt(PREFIX + "BetLosses", 0); } }
+
+    /// <summary>스피노 등장 1회 기록</summary>
+    public static void AddSpinoMeeting()
+    {
+        PlayerPrefs.SetInt(PREFIX + "SpinoMet", SpinoMeetings + 1);
+        PlayerPrefs.Save();
+    }
+
+    /// <summary>베팅 결과 기록</summary>
+    public static void RecordBetResult(bool win)
+    {
+        if (win) PlayerPrefs.SetInt(PREFIX + "BetWins", BetWins + 1);
+        else PlayerPrefs.SetInt(PREFIX + "BetLosses", BetLosses + 1);
+        PlayerPrefs.Save();
+    }
+
     /// <summary>100회 마스터 명성을 최초 1회만 지급 (지급했으면 true)</summary>
     public static bool TryGrantMasterFame(string recipeId)
     {
@@ -435,6 +461,9 @@ public static class MetaProgress
         PlayerPrefs.DeleteKey(PREFIX + "EndingB");
         PlayerPrefs.DeleteKey(PREFIX + "CookCounts");
         PlayerPrefs.DeleteKey(PREFIX + "MasterFamed");
+        PlayerPrefs.DeleteKey(PREFIX + "SpinoMet");
+        PlayerPrefs.DeleteKey(PREFIX + "BetWins");
+        PlayerPrefs.DeleteKey(PREFIX + "BetLosses");
         cookCountCache = null;
         masterFamedCache = null;
 

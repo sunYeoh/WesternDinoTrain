@@ -466,7 +466,7 @@ public static class AugmentDatabase
             },
             null, "도박"));
 
-        all.Add(new AugmentData("gold_bloodbet", "출혈 배팅",
+        all.Add(new AugmentData("gold_bloodbet", "출혈 베팅",
             "웨이브가 시작될 때마다 기차 HP -80. 대신 모든 포탑 데미지 +35%", AugmentGrade.Gold, false,
             delegate { AugmentManager.BloodBet = true; AugmentManager.AtkMul *= 1.35f; },
             null, "도박"));

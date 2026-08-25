@@ -76,6 +76,9 @@ public class BossGimmickSystem : MonoBehaviour
     {
         currentBoss = boss;
 
+        // Phase 2-1: 스피노 베팅 조건 추적 시작 (시간/조리/피격/투척 카운터 리셋)
+        SpinoBet.OnBossStart();
+
         // v4.1: 그로기 시간을 보스 쪽 설정과 자동 동기화 (게이지 바 길이 불일치 방지)
         groggyDuration = boss.groggyDuration;
 
@@ -207,7 +210,7 @@ public class BossGimmickSystem : MonoBehaviour
         RefreshGuideText();
 
         Debug.Log("[BossGimmickSystem] 보스 그로기 발동! 10초 안에 디버프 요리 투척!");
-        UIManager.Instance?.ShowStatChange("보스 그로기!! F키로 투척!");
+        UIManager.Instance?.ShowStatChange("보스 그로기!! [F] 디버프 요리 투척!");
     }
 
     private void UpdateGroggyPhase()
@@ -314,6 +317,7 @@ public class BossGimmickSystem : MonoBehaviour
         int reducedPct = Mathf.RoundToInt((1f - power) * 100f);
         Debug.Log("[BossGimmickSystem] " + food.displayName + " 투척! 보스 방어력 " + reducedPct + "% 감소!");
         UIManager.Instance?.ShowStatChange(food.displayName + " 적중! 보스 방어력 -" + reducedPct + "%!");
+        SpinoBet.CountThrowHit();   // Phase 2-1: [외상 장부] 베팅 조건 추적
 
         if (groggyGuideText != null)
             groggyGuideText.text = food.displayName + " 적중!  방어력 -" + reducedPct + "%";
@@ -345,6 +349,9 @@ public class BossGimmickSystem : MonoBehaviour
 
         Debug.Log("[BossGimmickSystem] 보스 처치!");
         UIManager.Instance?.ShowStatChange("보스 처치! 승리!");
+
+        // Phase 2-1: 스피노 베팅 정산 (격파 보너스 몰수 판정은 GameManager 지급부에서)
+        SpinoBet.Resolve();
     }
 
     // ─────────────────────────────────────────────

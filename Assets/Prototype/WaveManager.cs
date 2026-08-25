@@ -266,7 +266,7 @@ public class WaveManager : MonoBehaviour
         {
             bg = new Color(0.08f, 0.15f, 0.20f);   // 코발트 광산의 냉기
             regionTitle = "지역 3 - 코발트 광산";
-            regionLine = "대붕괴가 가장 깊이 남은 곳. 여기서부터는 정예다.";
+            regionLine = "대붕괴가 가장 깊이 남은 곳. 여기부터는 놈들도 정예다.";
         }
         else
         {
@@ -701,7 +701,7 @@ public class WaveManager : MonoBehaviour
         }
     }
 
-    /// <summary>증강 선택 완료 후: GameManager 흐름 + 분기 선로 선택 + 다음 웨이브 자동 시작</summary>
+    /// <summary>증강 선택 완료 후: GameManager 흐름 + (보스 직전 스피노) + 분기 선로 + 자동 시작</summary>
     private void AfterAugmentPick()
     {
         GameManager.Instance?.OnWaveCleared();
@@ -710,24 +710,34 @@ public class WaveManager : MonoBehaviour
         {
             int nextWave = currentWaveNumber + 1;
 
-            // v6.5 (감사 2-A): 선로 선택 빈도 1/2 - 메뉴 피로 완화
-            // 짝수 웨이브 앞 + 보스 직전에만 선택, 나머지는 자동 '곧은 선로'
-            bool routeChoice = BranchRouteUI.Instance != null
-                && (nextWave % 2 == 0 || GameBalance.IsBossWave(nextWave));
-
-            if (routeChoice)
-            {
-                BranchRouteUI.Instance.ShowRoutes(nextWave, delegate (RouteData route)
-                {
-                    pendingRoute = route;
-                    StartCoroutine(AutoNextWaveCoroutine(nextWave));
-                });
-            }
+            // Phase 2-1: 보스 직전 정차에는 도박사 스피노가 먼저 다가온다 (베팅 후 선로 선택)
+            if (GameBalance.IsBossWave(nextWave))
+                SpinoBetUI.Show(nextWave, delegate { ProceedRouteChoice(nextWave); });
             else
+                ProceedRouteChoice(nextWave);
+        }
+    }
+
+    /// <summary>분기 선로 선택 -> 자동 웨이브 시작 (스피노 이후의 기존 체인)</summary>
+    private void ProceedRouteChoice(int nextWave)
+    {
+        // v6.5 (감사 2-A): 선로 선택 빈도 1/2 - 메뉴 피로 완화
+        // 짝수 웨이브 앞 + 보스 직전에만 선택, 나머지는 자동 '곧은 선로'
+        bool routeChoice = BranchRouteUI.Instance != null
+            && (nextWave % 2 == 0 || GameBalance.IsBossWave(nextWave));
+
+        if (routeChoice)
+        {
+            BranchRouteUI.Instance.ShowRoutes(nextWave, delegate (RouteData route)
             {
-                pendingRoute = null;   // 곧은 선로
+                pendingRoute = route;
                 StartCoroutine(AutoNextWaveCoroutine(nextWave));
-            }
+            });
+        }
+        else
+        {
+            pendingRoute = null;   // 곧은 선로
+            StartCoroutine(AutoNextWaveCoroutine(nextWave));
         }
     }
 

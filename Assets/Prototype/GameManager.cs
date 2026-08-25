@@ -187,7 +187,7 @@ public class GameManager : MonoBehaviour
         }
 
         Debug.Log("[GameManager] 시작 보급품 지급: " + summary);
-        UIManager.Instance?.ShowStatChange("보급품 도착! " + summary + " - 슬롯에 투입해 포탑을 만들자!");
+        UIManager.Instance?.ShowStatChange("보급품 도착! " + summary + " - 슬롯에 투입해 포탑을 세워라!");
     }
 
     // ─────────────────────────────────────────────
@@ -204,10 +204,19 @@ public class GameManager : MonoBehaviour
         AddGold(goldReward);
 
         // 보스 웨이브 클리어 보너스 (별도 지급)
+        // Phase 2-1: 도박 베팅 패배 시 스피노가 이 보너스를 몰수한다
         if (GameBalance.IsBossWave(currentWave))
         {
-            AddGold(GameBalance.BossClearGold);
-            UIManager.Instance?.ShowStatChange("[보스 격파 보너스] 골드 +" + GameBalance.BossClearGold);
+            if (SpinoBet.ConsumeForfeit())
+            {
+                UIManager.Instance?.ShowDanger("[스피노] 격파 보너스 " + GameBalance.BossClearGold
+                    + "G는 내 몫이다 - 약속은 약속이지");
+            }
+            else
+            {
+                AddGold(GameBalance.BossClearGold);
+                UIManager.Instance?.ShowStatChange("[보스 격파 보너스] 골드 +" + GameBalance.BossClearGold);
+            }
         }
 
         Debug.Log("[GameManager] 마을 정비 - 골드 +" + goldReward);
@@ -221,7 +230,7 @@ public class GameManager : MonoBehaviour
         chefController?.EnableCooking(false);
 
         // v4: 런 종료 요약 표시 (명성은 웨이브 클리어마다 이미 저장돼 있음)
-        UIManager.Instance?.ShowWaveNotice("기차 대파...", MetaProgress.RunSummary());
+        UIManager.Instance?.ShowWaveNotice("기차가 멈췄다...", MetaProgress.RunSummary());
 
         // v4.2: 스피노의 사망 대사 (첫 사망은 고정, 이후 랜덤)
         StoryTexts.ShowDeathQuote();
@@ -237,7 +246,7 @@ public class GameManager : MonoBehaviour
 
         // v4: 승리 보너스 명성 + 런 종료 요약 표시
         MetaProgress.AddFame(300);
-        UIManager.Instance?.ShowWaveNotice("완주!", MetaProgress.RunSummary());
+        UIManager.Instance?.ShowWaveNotice("종착역 도착!", MetaProgress.RunSummary());
 
         // v5 (C-2): 엔딩 B 직후라면 스피노 침묵 문구 생략 (엔딩 연출이 이미 마무리 대사 포함)
         if (StoryTexts.TrueEndingJustPlayed)
