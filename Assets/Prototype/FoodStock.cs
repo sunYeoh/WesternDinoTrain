@@ -27,6 +27,47 @@ public class FoodStock : MonoBehaviour
     // 이번 런에서 새 요리를 처음 얻었을 때 알림 (연출/사운드용). 인자: recipeId
     public event Action<string> OnDiscovered;
 
+    // ─────────────────────────────────────────────
+    // P1+: 요리 숙련 (단골 메뉴의 영구화 - 사용자 결정 2026-08-24)
+    // 성공 조리마다 MetaProgress에 "평생" 횟수를 쌓고, 마일스톤 통과 순간 알림을 띄운다.
+    // 실제 저장/보너스 조회는 MetaProgress.GetCookCount/GetMasteryAtk 등이 담당.
+    // ─────────────────────────────────────────────
+
+    /// <summary>성공 조리 1회 기록 (CookingBridge.FinishCook이 호출)</summary>
+    public void CountCook(string recipeId)
+    {
+        if (string.IsNullOrEmpty(recipeId)) return;
+
+        int c = MetaProgress.AddCookCount(recipeId);
+        int tier = GameBalance.MasteryTier(c);
+        int prevTier = GameBalance.MasteryTier(c - 1);
+        if (tier <= prevTier) return;   // 마일스톤 통과 순간에만 알림
+
+        RecipeData r = RecipeDatabase.Get(recipeId);
+        string shownName = r != null ? r.displayName : recipeId;
+        string title = GameBalance.MasteryTitles[tier];
+
+        string msg = "[숙련] " + shownName + " - \"" + title + "\" (누적 " + c + "회) 공격력 +"
+            + Mathf.RoundToInt(GameBalance.MasteryAtkBonus[tier] * 100f) + "%";
+        if (GameBalance.MasteryJudgeBonus[tier] > 0f)
+            msg += " / 판정 +" + Mathf.RoundToInt(GameBalance.MasteryJudgeBonus[tier] * 100f) + "%";
+        if (tier == GameBalance.MasteryStartLevelTier)
+            msg += " / 배치 시 Lv+1";
+        if (tier >= GameBalance.MasteryPerfectTier)
+            msg += " / PERFECT 수량 +1";
+
+        UIManager.Instance?.ShowStatChange(msg);
+        SoundManager.Play("sfx_judge_perfect");
+        Debug.Log("[FoodStock] 숙련 마일스톤: " + msg);
+
+        // 100회 마스터: 최초 1회 명성 + 전용 문구 (팬 리워드)
+        if (tier >= GameBalance.MasteryPerfectTier && MetaProgress.TryGrantMasterFame(recipeId))
+        {
+            UIManager.Instance?.ShowStatChange("[마스터] " + shownName + " - 죽음도 손맛은 앗아가지 못한다 (명성 +"
+                + GameBalance.MasteryFame + ")");
+        }
+    }
+
     void Awake()
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }

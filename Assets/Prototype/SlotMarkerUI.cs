@@ -157,12 +157,23 @@ public class SlotMarkerUI : MonoBehaviour
             }
             else if (slot.IsStunned)
             {
-                // v3: 보스 낙뢰에 감전된 포탑 - 클릭 한 번으로 재가동
+                // v3: 마비된 포탑 - 클릭 한 번으로 재가동
+                // P1: 종류별 표기 (감전=노랑 / 빙결=하늘색)
                 RecipeData rs = slot.Recipe;
-                markerTexts[i].text = rs.displayName + "\n[감전! 클릭 재가동]";
-                markerTexts[i].color = new Color(1f, 0.9f, 0.3f);
-                markerBGs[i].color = new Color(0.25f, 0.22f, 0.05f, 0.85f);
-                markerBorders[i].color = new Color(1f, 0.85f, 0.2f);
+                bool frozen = slot.StunKind == "빙결";
+                markerTexts[i].text = rs.displayName + "\n[" + slot.StunKind + "! 클릭 재가동]";
+                if (frozen)
+                {
+                    markerTexts[i].color = new Color(0.65f, 0.9f, 1f);
+                    markerBGs[i].color = new Color(0.06f, 0.16f, 0.24f, 0.85f);
+                    markerBorders[i].color = new Color(0.5f, 0.85f, 1f);
+                }
+                else
+                {
+                    markerTexts[i].color = new Color(1f, 0.9f, 0.3f);
+                    markerBGs[i].color = new Color(0.25f, 0.22f, 0.05f, 0.85f);
+                    markerBorders[i].color = new Color(1f, 0.85f, 0.2f);
+                }
             }
             else
             {
@@ -203,11 +214,14 @@ public class SlotMarkerUI : MonoBehaviour
             return;
         }
 
-        // v3: 감전(낙뢰 마비) 해제가 모든 클릭보다 우선 - 한 번 클릭으로 재가동
+        // v3: 마비 해제가 모든 클릭보다 우선 - 한 번 클릭으로 재가동 (P1: 종류별 문구)
         if (slot.IsStunned)
         {
+            string kind = slot.StunKind;
             slot.ClearStun();
-            UIManager.Instance?.ShowStatChange("포탑 재가동! (감전 해제)");
+            UIManager.Instance?.ShowStatChange(kind == "빙결"
+                ? "포탑 해빙! (얼음을 깨뜨렸다)"
+                : "포탑 재가동! (감전 해제)");
             return;
         }
 
@@ -277,6 +291,16 @@ public class SlotMarkerUI : MonoBehaviour
         }
         else info += "\n";
         info += r.description + "\n";
+
+        // P1+: 요리 숙련 표시 (평생 조리 횟수 + 칭호)
+        int cookCount = MetaProgress.GetCookCount(r.recipeId);
+        if (cookCount > 0)
+        {
+            int mTier = GameBalance.MasteryTier(cookCount);
+            info += "숙련 " + cookCount + "회"
+                + (mTier >= 0 ? "  [" + GameBalance.MasteryTitles[mTier] + "]" : "") + "\n";
+        }
+
         info += "(우클릭: 폐기, 재료 " + Mathf.Max(1, slot.level) + "개 환급)";
 
         tooltipText.text = info;

@@ -145,6 +145,11 @@ public static class TurretAttackExecutor
         // 전역 밸런스 배율 + 증강 배율
         float finalDamage = damage * mul * GameBalance.TurretDamageMul * AugmentManager.AtkMul;
 
+        // P1+: 요리 숙련 - 평생 조리 횟수 티어에 따른 그 레시피 포탑 공격력 보너스 (영구)
+        float masteryAtk = MetaProgress.GetMasteryAtk(r.recipeId);
+        if (masteryAtk > 0f)
+            finalDamage *= 1f + masteryAtk;
+
         // 개전 포격: 웨이브 시작 8초간 데미지 2배
         if (AugmentManager.OpeningBarrage && Time.time - AugmentManager.WaveStartTime <= 8f)
             finalDamage *= 2f;

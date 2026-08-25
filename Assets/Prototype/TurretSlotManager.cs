@@ -446,6 +446,11 @@ public class TurretSlotManager : MonoBehaviour
 
         // 레벨은 완료 시점의 실제 레벨로 계산 (미니게임 중 동종 병합으로 올랐다면 반영)
         int newLevel = Mathf.Max(1, (a.level + b.level) / 2) + bonusLevel;
+
+        // P1+: 요리 숙련 '장인의 감각'(50회) - 숙련된 T2 레시피는 탄생 레벨 +1
+        if (MetaProgress.GetMasteryTier(fusion.recipeId) >= GameBalance.MasteryStartLevelTier)
+            newLevel += 1;
+
         b.SetTurret(fusion.recipeId, newLevel);
         a.ClearSlot();
 

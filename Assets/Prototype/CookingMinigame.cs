@@ -177,6 +177,11 @@ public class CookingMinigame : MonoBehaviour
         speedMul /= (1f + GameBalance.CookRegionSpeedUp[region - 1]);
         judgeMul *= (1f - GameBalance.CookRegionJudgeShrink[region - 1]);
 
+        // P1+: 요리 숙련 - 많이 구운 레시피는 손에 익어 판정이 후해진다 (영구, 10회부터)
+        float masteryJudge = MetaProgress.GetMasteryJudge(CookingBridge.pendingRecipeId);
+        if (masteryJudge > 0f)
+            judgeMul = Mathf.Min(judgeMul * (1f + masteryJudge), 2.2f);
+
         // 지역이 바뀐 뒤 첫 조리에서 1회만 안내 (스토리 감싸기)
         if (region < regionNoticeShown) regionNoticeShown = region;   // 새 런 시작 - 안내 재무장
         if (region >= 2 && region != regionNoticeShown)

@@ -189,6 +189,16 @@ public static class StoryTexts
         }, "- 서명은 불탄 자국뿐이다", 4.5f, true, onClosed);
     }
 
+    /// <summary>일지 총 장수 (P1: 열람 UI용)</summary>
+    public static int JournalCount { get { return JournalTexts.Length; } }
+
+    /// <summary>일지 본문 조회 (P1: 열람 UI용, 1-based. 범위 밖이면 빈 문자열)</summary>
+    public static string GetJournalText(int number)
+    {
+        if (number < 1 || number > JournalTexts.Length) return "";
+        return JournalTexts[number - 1];
+    }
+
     // ==================================================================
     //  연출 구현 - 호출 시 캔버스를 만들고 러너가 페이드 처리 후 자폭
     // ==================================================================

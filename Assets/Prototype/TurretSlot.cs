@@ -22,14 +22,24 @@ public class TurretSlot : MonoBehaviour
 
     private float cooldownTimer = 0f;
 
-    // ── v3: 슬롯 마비 (보스 '낙뢰 폭격' 패턴) ──
-    // 마비 중에는 발사 정지. 마커 클릭 한 번으로 즉시 해제(감전 털어내기)
+    // ── v3: 슬롯 마비 (보스 '낙뢰 폭격' 패턴 / P1: 아이스 모사 빙결) ──
+    // 마비 중에는 발사 정지. 마커 클릭 한 번으로 즉시 해제(감전 털어내기/해빙)
     private float stunUntil = 0f;
+
+    /// <summary>마비 종류 표기 ("감전"/"빙결" 등) - SlotMarkerUI가 표시에 사용</summary>
+    public string StunKind = "감전";
 
     public bool IsStunned { get { return Time.time < stunUntil; } }
 
-    /// <summary>슬롯 마비 (보스 패턴이 호출)</summary>
-    public void StunSlot(float seconds) { stunUntil = Time.time + seconds; }
+    /// <summary>슬롯 마비 (보스 낙뢰 - 기존 호환용, 감전 표기)</summary>
+    public void StunSlot(float seconds) { StunSlot(seconds, "감전"); }
+
+    /// <summary>슬롯 마비 + 종류 지정 (P1: 모사 빙결 등 - 같은 기믹, 다른 표기)</summary>
+    public void StunSlot(float seconds, string kind)
+    {
+        stunUntil = Time.time + seconds;
+        StunKind = kind;
+    }
 
     /// <summary>마비 즉시 해제 (마커 클릭 재가동)</summary>
     public void ClearStun() { stunUntil = 0f; }
@@ -76,8 +86,17 @@ public class TurretSlot : MonoBehaviour
         RecipeData r = RecipeDatabase.Get(id);
         if (r == null) return false;
 
+        bool wasEmpty = IsEmpty;   // P1+: 새 포탑 탄생인지 (레벨업 투입과 구분)
+
         recipeId = id;
         level += 1;
+
+        // P1+: 요리 숙련 '장인의 감각'(50회) - 빈 슬롯에 새로 배치할 때 시작 레벨 +1
+        if (wasEmpty && MetaProgress.GetMasteryTier(id) >= GameBalance.MasteryStartLevelTier)
+        {
+            level += 1;
+            Debug.Log("[TurretSlot] 장인의 감각 - " + r.displayName + " 시작 Lv" + level);
+        }
 
         // 최대HP형 패시브는 즉시 기차에 적용
         if (r.passiveType == "maxhp" || r.passiveType == "omega")

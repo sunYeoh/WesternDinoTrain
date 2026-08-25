@@ -41,7 +41,17 @@ public static class CookingBridge
         else
         {
             int n = (quality == "perfect") ? 2 : 1;
+
+            // P1+: 마스터 요리(숙련 100회) - PERFECT 조리 수량 +1 (2 -> 3)
+            if (quality == "perfect"
+                && MetaProgress.GetMasteryTier(pendingRecipeId) >= GameBalance.MasteryPerfectTier)
+                n += 1;
+
             FoodStock.Instance.Add(pendingRecipeId, n);
+
+            // P1+: 요리 숙련 카운트 (평생 누적 - 마일스톤 알림은 FoodStock이 처리)
+            FoodStock.Instance.CountCook(pendingRecipeId);
+
             RecipeData r = RecipeDatabase.Get(pendingRecipeId);
             Debug.Log("[CookingBridge] " + r.displayName + " x" + n + " 획득! (" + quality + ")");
         }

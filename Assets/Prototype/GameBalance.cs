@@ -239,6 +239,50 @@ public static class GameBalance
     public static float InfuseBoilTime = 4f;     // 2라운드(융합 안정화) 유지 시간(초)
 
     // ==================================================================
+    //  요리 숙련 (P1+, 사용자 결정 2026-08-24: 단골 메뉴의 영구화)
+    //  레시피별 "평생" 조리 횟수 누적 - 죽어도 리셋 안 됨 (같은 셰프니까).
+    //  배열은 전부 티어 순서 대응: [3회, 5회, 10회, 20회, 30회, 50회, 100회]
+    // ==================================================================
+
+    /// <summary>숙련 마일스톤 (누적 조리 횟수)</summary>
+    public static int[] MasteryThresholds = { 3, 5, 10, 20, 30, 50, 100 };
+
+    /// <summary>티어별 칭호 (알림/툴팁 표기)</summary>
+    public static string[] MasteryTitles =
+        { "단골 메뉴", "입소문", "익숙한 손길", "단골의 맛", "장인의 길", "장인의 감각", "마스터 요리" };
+
+    /// <summary>티어별 그 레시피 포탑 공격력 보너스 (대체 방식 - 중첩 아님)</summary>
+    public static float[] MasteryAtkBonus =
+        { 0.04f, 0.06f, 0.08f, 0.10f, 0.12f, 0.15f, 0.20f };
+
+    /// <summary>티어별 그 레시피 조리 판정 존 보너스 (10회부터)</summary>
+    public static float[] MasteryJudgeBonus =
+        { 0f, 0f, 0.05f, 0.08f, 0.08f, 0.10f, 0.12f };
+
+    /// <summary>이 티어(50회)부터: 빈 슬롯에 배치 시 시작 레벨 +1</summary>
+    public static int MasteryStartLevelTier = 5;
+
+    /// <summary>이 티어(100회)부터: PERFECT 조리 획득 수량 +1 (2 -> 3)</summary>
+    public static int MasteryPerfectTier = 6;
+
+    /// <summary>100회 최초 달성 시 1회 지급 명성</summary>
+    public static int MasteryFame = 100;
+
+    /// <summary>누적 횟수 -> 현재 티어 (-1 = 아직 없음)</summary>
+    public static int MasteryTier(int count)
+    {
+        int tier = -1;
+        for (int i = 0; i < MasteryThresholds.Length; i++)
+            if (count >= MasteryThresholds[i]) tier = i;
+        return tier;
+    }
+
+    // 아이스 모사 슬롯 빙결 (P1, 감사 2-C): 죽은 플레이버("바퀴 결빙")의 실기믹화
+    public static float FreezeChance = 0.5f;        // 모사 명중 시 빙결 발동 확률
+    public static float FreezeSlotSec = 4f;         // 슬롯 빙결 지속(초) - 클릭으로 즉시 해빙 가능
+    public static float FreezeGlobalCooldown = 7f;  // 전체 모사 공유 쿨타임 (다중 모사 스턴락 방지)
+
+    // ==================================================================
     //  게임필 (P1) - 셰이크 / 히트스톱 / 처치 팝 (GameFeel.cs가 사용)
     //  전부 0으로 만들면 해당 연출이 완전히 꺼진다.
     //  플레이테스트에서 "과하다/멀미난다" 싶으면 GameFeelMaster 하나만 낮출 것.

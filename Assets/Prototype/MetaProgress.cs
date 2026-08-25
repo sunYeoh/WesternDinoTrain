@@ -243,6 +243,112 @@ public static class MetaProgress
     }
 
     // ─────────────────────────────────────────────
+    // 요리 숙련 (P1+: 단골 메뉴의 영구화 - 사용자 결정 2026-08-24)
+    // 레시피별 "평생" 조리 횟수. 죽어도 리셋되지 않는다 - 같은 셰프가 계속 굽고 있으니까.
+    // 마일스톤/보상 수치는 GameBalance Mastery* 참조.
+    // 저장: 단일 키 "WDT_CookCounts" = "레시피id:횟수;..." (42종이라 가볍다)
+    // ─────────────────────────────────────────────
+
+    private static Dictionary<string, int> cookCountCache;
+    private static HashSet<string> masterFamedCache;   // 100회 명성을 이미 받은 레시피
+
+    private static void LoadCookCounts()
+    {
+        if (cookCountCache != null) return;
+        cookCountCache = new Dictionary<string, int>();
+        string raw = PlayerPrefs.GetString(PREFIX + "CookCounts", "");
+        if (!string.IsNullOrEmpty(raw))
+        {
+            string[] pairs = raw.Split(';');
+            for (int i = 0; i < pairs.Length; i++)
+            {
+                int sep = pairs[i].LastIndexOf(':');
+                if (sep <= 0) continue;
+                string id = pairs[i].Substring(0, sep);
+                int n;
+                if (int.TryParse(pairs[i].Substring(sep + 1), out n))
+                    cookCountCache[id] = n;
+            }
+        }
+    }
+
+    private static void SaveCookCounts()
+    {
+        System.Text.StringBuilder sb = new System.Text.StringBuilder();
+        foreach (KeyValuePair<string, int> kv in cookCountCache)
+        {
+            if (sb.Length > 0) sb.Append(';');
+            sb.Append(kv.Key).Append(':').Append(kv.Value);
+        }
+        PlayerPrefs.SetString(PREFIX + "CookCounts", sb.ToString());
+        PlayerPrefs.Save();
+    }
+
+    /// <summary>이 레시피의 평생 조리 횟수</summary>
+    public static int GetCookCount(string recipeId)
+    {
+        LoadCookCounts();
+        int n;
+        return cookCountCache.TryGetValue(recipeId, out n) ? n : 0;
+    }
+
+    /// <summary>조리 1회 기록 (FoodStock.CountCook이 호출). 갱신된 횟수 반환</summary>
+    public static int AddCookCount(string recipeId)
+    {
+        LoadCookCounts();
+        int n = GetCookCount(recipeId) + 1;
+        cookCountCache[recipeId] = n;
+        SaveCookCounts();
+        return n;
+    }
+
+    /// <summary>이 레시피의 현재 숙련 티어 (-1 = 없음)</summary>
+    public static int GetMasteryTier(string recipeId)
+    {
+        return GameBalance.MasteryTier(GetCookCount(recipeId));
+    }
+
+    /// <summary>숙련 공격력 보너스 (TurretAttackExecutor가 매 타격 참조)</summary>
+    public static float GetMasteryAtk(string recipeId)
+    {
+        int t = GetMasteryTier(recipeId);
+        return t >= 0 ? GameBalance.MasteryAtkBonus[t] : 0f;
+    }
+
+    /// <summary>숙련 판정 존 보너스 (CookingMinigame이 참조)</summary>
+    public static float GetMasteryJudge(string recipeId)
+    {
+        int t = GetMasteryTier(recipeId);
+        return t >= 0 ? GameBalance.MasteryJudgeBonus[t] : 0f;
+    }
+
+    /// <summary>100회 마스터 명성을 최초 1회만 지급 (지급했으면 true)</summary>
+    public static bool TryGrantMasterFame(string recipeId)
+    {
+        if (masterFamedCache == null)
+        {
+            masterFamedCache = new HashSet<string>();
+            string raw = PlayerPrefs.GetString(PREFIX + "MasterFamed", "");
+            if (!string.IsNullOrEmpty(raw))
+                foreach (string id in raw.Split(';'))
+                    if (!string.IsNullOrEmpty(id)) masterFamedCache.Add(id);
+        }
+
+        if (masterFamedCache.Contains(recipeId)) return false;
+
+        masterFamedCache.Add(recipeId);
+        System.Text.StringBuilder sb = new System.Text.StringBuilder();
+        foreach (string id in masterFamedCache)
+        {
+            if (sb.Length > 0) sb.Append(';');
+            sb.Append(id);
+        }
+        PlayerPrefs.SetString(PREFIX + "MasterFamed", sb.ToString());
+        AddFame(GameBalance.MasteryFame);
+        return true;
+    }
+
+    // ─────────────────────────────────────────────
     // 선대의 일지 수집 (분기 선로 '폐역' 보상 - 12장, 영구 저장)
     // 순서 무관 수집이지만 12장(최종)은 나머지 11장을 다 모아야 나온다.
     // ─────────────────────────────────────────────
@@ -327,6 +433,10 @@ public static class MetaProgress
         PlayerPrefs.DeleteKey(PREFIX + "Recipes");
         PlayerPrefs.DeleteKey(PREFIX + "Journals");
         PlayerPrefs.DeleteKey(PREFIX + "EndingB");
+        PlayerPrefs.DeleteKey(PREFIX + "CookCounts");
+        PlayerPrefs.DeleteKey(PREFIX + "MasterFamed");
+        cookCountCache = null;
+        masterFamedCache = null;
 
         // 명성 상점 업그레이드도 초기화
         string[] upgradeIds = { "gold", "hp", "food", "mat", "judge" };

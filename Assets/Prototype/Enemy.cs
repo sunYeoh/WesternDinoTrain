@@ -617,6 +617,36 @@ public class Enemy : MonoBehaviour
         transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
     }
 
+    // ─────────────────────────────────────────────
+    // P1: 아이스 모사 슬롯 빙결 (전체 모사 공유 쿨타임)
+    // ─────────────────────────────────────────────
+    private static float nextFreezeAllowed = 0f;
+
+    /// <summary>가동 중인 슬롯 하나를 무작위로 빙결시킨다 (대상 없으면 아무 일 없음)</summary>
+    private void TryFreezeRandomSlot()
+    {
+        TurretSlotManager mgr = TurretSlotManager.Instance;
+        if (mgr == null) return;
+
+        // 빙결 가능한 슬롯 수집: 해금 + 포탑 있음 + 아직 마비 아님
+        int count = 0;
+        TurretSlot[] candidates = new TurretSlot[8];
+        for (int i = 0; i < 8; i++)
+        {
+            TurretSlot s = mgr.slots[i];
+            if (s != null && !s.isLocked && !s.IsEmpty && !s.IsStunned)
+                candidates[count++] = s;
+        }
+        if (count == 0) return;
+
+        TurretSlot target = candidates[Random.Range(0, count)];
+        target.StunSlot(GameBalance.FreezeSlotSec, "빙결");
+        nextFreezeAllowed = Time.time + GameBalance.FreezeGlobalCooldown;
+
+        UIManager.Instance?.ShowStatChange("[아이스 모사] 냉기가 포탑을 덮쳤다! 빙결 - 클릭으로 해빙");
+        Debug.Log("[Enemy] 아이스 모사 빙결: " + (target.Recipe != null ? target.Recipe.displayName : "?"));
+    }
+
     protected virtual void AttackTrain()
     {
         float damage = scaledATK * (IsBuffed ? 1.25f : 1f);
@@ -648,6 +678,16 @@ public class Enemy : MonoBehaviour
         // 투척이 명중하면 주방에 기름이 튀어 잠시 조리대가 미끄러워진다 (굽기 요동/끓이기 하강 가속)
         if (data.enemyName.Contains("캑터스"))
             CookingMinigame.ApplyOilSlip(GameBalance.OilSlipDuration);
+
+        // P1 (감사 2-C): 아이스 모사 - 죽은 플레이버("바퀴 결빙")의 실기믹화
+        // 명중 시 확률로 가동 중인 포탑 슬롯 1기를 빙결 (낙뢰 마비와 같은 기믹 - 클릭으로 해빙)
+        // 전체 모사가 쿨타임을 공유해서 다중 모사 스턴락은 발생하지 않는다
+        if (data.enemyName.Contains("모사")
+            && Time.time >= nextFreezeAllowed
+            && Random.value < GameBalance.FreezeChance)
+        {
+            TryFreezeRandomSlot();
+        }
 
         // 자폭병: 일격 후 즉시 소멸 (보상은 정상 지급)
         if (behavior == BehaviorPattern.Suicide)
