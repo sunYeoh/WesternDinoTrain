@@ -679,8 +679,11 @@ public class WaveManager : MonoBehaviour
                 journalNo = MetaProgress.PickUncollectedJournal();
 
             // Phase 2-3: 폐역 잔해에서 아이템(유물)을 주울 수 있다
+            // B-2: 갑판 상자로 떨어진다 (기차 어딘가 - 걸어가서 회수)
             if (activeRoute.relicChance && Random.value < GameBalance.RouteRelicChance)
-                ItemManager.GrantRandom("폐역 잔해에서 발견");
+                DeckLoot.SpawnItemCrate(
+                    Random.Range(GameBalance.TrainWalkMinX + 1f, GameBalance.TrainWalkMaxX - 1f),
+                    "폐역 잔해에서 발견");
 
             activeRoute = null;
         }

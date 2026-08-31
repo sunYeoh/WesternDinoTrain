@@ -267,14 +267,14 @@ public class KitchenEventManager : MonoBehaviour
         currentEvent = ev;
         firedCount++;
 
-        // ── B-1: 위치 앵커 결정 - 침입/화재/고장은 "어딘가에서" 터진다 ──
-        // 주방 중앙에서 Edge 거리만큼 떨어진 좌/우 지점 (달려갈 이유를 만든다)
-        // 흘림은 마우스 줍기라 위치 무관. B-2에서 이 범위가 트레일러 전체로 확장된다.
+        // ── B-1/B-2: 위치 앵커 결정 - 침입/화재/고장은 기차 어느 칸에서든 터진다 ──
+        // (흘림은 마우스 줍기라 위치 무관.) 뒷칸 화재를 향해 달려가는 게 이 게임의 몸이다.
         HasAnchor = GameBalance.ProximityInteract && !(ev is MaterialSpillEvent);
         if (HasAnchor)
         {
-            float side = Random.value < 0.5f ? -1f : 1f;
-            AnchorX = side * Random.Range(GameBalance.EventAnchorEdgeMin, GameBalance.EventAnchorEdgeMax);
+            AnchorX = Random.Range(GameBalance.EventAnchorMinX, GameBalance.EventAnchorMaxX);
+            Debug.Log("[주방이벤트] 발생 칸: " + GameBalance.CarNames[GameBalance.CarIndexOf(AnchorX)]
+                + " (x " + AnchorX.ToString("F1") + ")");
         }
         UpdateChefReach();
 

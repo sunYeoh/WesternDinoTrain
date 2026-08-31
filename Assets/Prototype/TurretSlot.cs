@@ -22,14 +22,19 @@ public class TurretSlot : MonoBehaviour
 
     private float cooldownTimer = 0f;
 
-    // ── v3: 슬롯 마비 (보스 '낙뢰 폭격' 패턴 / P1: 아이스 모사 빙결) ──
-    // 마비 중에는 발사 정지. 마커 클릭 한 번으로 즉시 해제(감전 털어내기/해빙)
+    // ── v3: 슬롯 마비 (보스 '낙뢰 폭격' / P1: 모사 빙결 / B-2: 과열) ──
+    // 마비 중에는 발사 정지. 해제는 근접 [E] (감전/빙결 = 즉시, 과열 = 홀드 냉각)
     private float stunUntil = 0f;
 
-    /// <summary>마비 종류 표기 ("감전"/"빙결" 등) - SlotMarkerUI가 표시에 사용</summary>
+    /// <summary>마비 종류 표기 ("감전"/"빙결"/"과열") - SlotMarkerUI가 표시에 사용</summary>
     public string StunKind = "감전";
 
     public bool IsStunned { get { return Time.time < stunUntil; } }
+
+    // ── B-2: 과열 상태 (연속 사격 누적 - 병기 유지 손맛) ──
+    private int shotsSinceCool = 0;        // 마지막 냉각 후 사격 수
+    private int overheatThreshold = 0;     // 이번 과열 임계 (0 = 미정, 발사 시 롤)
+    private float overheatImmuneUntil = 0f; // 냉각 직후 재과열 면역
 
     /// <summary>슬롯 마비 (보스 낙뢰 - 기존 호환용, 감전 표기)</summary>
     public void StunSlot(float seconds) { StunSlot(seconds, "감전"); }
@@ -37,13 +42,26 @@ public class TurretSlot : MonoBehaviour
     /// <summary>슬롯 마비 + 종류 지정 (P1: 모사 빙결 등 - 같은 기믹, 다른 표기)</summary>
     public void StunSlot(float seconds, string kind)
     {
-        // Phase 2-2 증강 '부동액 배관': 감전/빙결 지속 단축
+        // B-2: 과열 중에는 낙뢰/빙결이 덮어쓰지 못한다
+        // (짧은 마비로 덮이면 냉각 작업 없이 과열이 풀리는 사고 방지)
+        if (IsStunned && StunKind == "과열" && kind != "과열") return;
+
+        // Phase 2-2 증강 '부동액 배관': 감전/빙결 지속 단축 (과열은 무기한이라 무관)
         stunUntil = Time.time + seconds * AugmentManager.SlotStunDurMul;
         StunKind = kind;
     }
 
-    /// <summary>마비 즉시 해제 (마커 클릭 재가동)</summary>
-    public void ClearStun() { stunUntil = 0f; }
+    /// <summary>마비 즉시 해제. 과열이었다면 냉각 후 면역 시간 부여</summary>
+    public void ClearStun()
+    {
+        if (StunKind == "과열")
+        {
+            overheatImmuneUntil = Time.time + GameBalance.OverheatImmuneTime;
+            shotsSinceCool = 0;
+            overheatThreshold = 0;
+        }
+        stunUntil = 0f;
+    }
 
     // 현재 투입된 레시피 데이터 (없으면 null)
     public RecipeData Recipe
@@ -188,6 +206,31 @@ public class TurretSlot : MonoBehaviour
 
         Vector3 origin = firePoint != null ? firePoint.position : transform.position;
         TurretAttackExecutor.Execute(r, origin, target, finalDamage);
+
+        // ── B-2 과열: 쉬지 않고 불을 뿜으면 쇳물도 지친다 ──
+        // 임계는 포탑마다 랜덤 + 레벨 높을수록 빨리 (캐리 포탑일수록 손이 간다)
+        // 빈도 제어: 기차 전체 최소 간격 + 다른 마비와 동시 발생 금지 (헌법: 동시 위기 1)
+        if (GameBalance.OverheatEnabled)
+        {
+            if (overheatThreshold <= 0)
+                overheatThreshold = Mathf.Max(10,
+                    Random.Range(GameBalance.OverheatShotsMin, GameBalance.OverheatShotsMax + 1)
+                    - (level - 1) * GameBalance.OverheatPerLevel);
+
+            shotsSinceCool++;
+            if (shotsSinceCool >= overheatThreshold
+                && Time.time >= overheatImmuneUntil
+                && TurretSlotManager.Instance != null
+                && TurretSlotManager.Instance.CanOverheatNow())
+            {
+                TurretSlotManager.Instance.NoteOverheat();
+                StunSlot(9999f, "과열");
+                SoundManager.Play("sfx_overheat");   // 클립 없으면 무시
+                UIManager.Instance?.ShowDanger("포탑 과열! 달려가서 [E]를 꾹 눌러 식혀라!");
+                Debug.Log("[TurretSlot] " + (Recipe != null ? Recipe.displayName : "?")
+                    + " 과열 (사격 " + shotsSinceCool + "발)");
+            }
+        }
     }
 
     private Enemy FindNearestEnemy()

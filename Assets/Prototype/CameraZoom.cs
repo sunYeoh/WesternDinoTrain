@@ -2,18 +2,19 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 
 /// <summary>
-/// [CameraZoom.cs] v3
+/// [CameraZoom.cs] v4 (B-2: 셰프 소프트 팔로우 - 방향결정 2026-08-31)
 /// 마우스 휠로 카메라 줌인/줌아웃합니다.
 /// Main Camera 오브젝트에 붙이세요.
 /// 줌아웃: 전장 전체 파악 / 줌인: 주방 정밀 조작
 ///
-/// - v3 변경점 (P1 게임필):
-///   1) GameFeel.ShakeOffset 반영 - 화면 셰이크는 이 스크립트가 최종 적용
-///      (내부 basePos에 추적 위치를 따로 보관해서 셰이크가 추적에 섞여 오염되지 않음)
-///   2) 줌 리셋 키 R -> Z 변경 (R은 보스전 '마지막 주문'(C-2)에 배정됨)
-/// - v2 변경점:
-///   1) 줌 범위 대폭 확장 (3~12 -> 2~20). 수치는 Start의 강제 적용값에서 조절
-///   2) 마우스가 UI 위에 있으면 줌 무시 - 하단 요리 목록 휠 스크롤과 충돌 방지
+/// - v4 변경점 (B-2 트레일러 확장):
+///   1) 셰프 소프트 팔로우 - 데드존 밖으로 나가면 카메라 X가 따라간다
+///      (기차가 4칸이 되면서 화면 한 장에 다 안 들어감 - 몸이 가는 곳이 화면의 중심)
+///   2) 카메라 X 이동 한계(CamFollowMinX/MaxX) - 전장이 화면 밖으로 새지 않게
+///   3) 기본 줌 7 -> GameBalance.CamDefaultZoom(8.5) - 긴 기차 프레이밍
+///   4) 수치 전부 GameBalance (CamFollowChef=false면 기존 기차 고정 추적으로 복귀)
+/// - v3: GameFeel.ShakeOffset 최종 적용(basePos 분리) / 줌 리셋 R -> Z
+/// - v2: 줌 범위 2~20 / UI 위 휠 무시
 ///
 /// VS 2017 (C# 7.3) 호환 버전입니다.
 /// </summary>
@@ -45,13 +46,16 @@ public class CameraZoom : MonoBehaviour
     // ─────────────────────────────────────────────
     // 초기화
     // ─────────────────────────────────────────────
+    // B-2: 셰프 팔로우 대상
+    private Transform chefTransform;
+
     private void Start()
     {
         // 줌 범위 강제 적용 (Inspector에 저장된 구값 무시 - 조절은 여기 숫자로)
         zoomSpeed = 3f;
         minZoom = 2f;      // 주방 정밀 조작용 근접
         maxZoom = 20f;     // 전장 전체 + 스폰 지점까지 조망
-        defaultZoom = 7f;
+        defaultZoom = GameBalance.CamDefaultZoom;   // B-2: 긴 기차 프레이밍 (8.5)
 
         cam = GetComponent<Camera>();
         targetZoom = defaultZoom;
@@ -67,7 +71,12 @@ public class CameraZoom : MonoBehaviour
             if (trainObj != null) targetTransform = trainObj.transform;
         }
 
-        Debug.Log("[CameraZoom] 카메라 초기화 완료 (줌 범위 " + minZoom + "~" + maxZoom + ", 기본 " + defaultZoom + ")");
+        // B-2: 셰프 자동 탐색 (팔로우 대상)
+        GameObject chefObj = GameObject.Find("Chef");
+        if (chefObj != null) chefTransform = chefObj.transform;
+
+        Debug.Log("[CameraZoom] 카메라 초기화 완료 (줌 " + minZoom + "~" + maxZoom
+            + ", 기본 " + defaultZoom + ", 셰프 팔로우 " + (GameBalance.CamFollowChef ? "ON" : "OFF") + ")");
     }
 
     // ─────────────────────────────────────────────
@@ -122,8 +131,27 @@ public class CameraZoom : MonoBehaviour
     private void HandleCameraPosition()
     {
         // 추적은 basePos에만 적용 (셰이크 오프셋이 Lerp에 오염되지 않게 분리)
-        if (targetTransform != null)
+        if (GameBalance.CamFollowChef && chefTransform != null)
         {
+            // ── B-2: 셰프 소프트 팔로우 ──
+            // 데드존 안에서는 카메라가 가만히, 벗어나면 가장자리를 잡고 따라간다.
+            // X 이동 한계로 전장(적 스폰 방향)이 화면 밖으로 새는 것을 막는다.
+            float targetX = basePos.x;
+            float dx = chefTransform.position.x - basePos.x;
+            if (Mathf.Abs(dx) > GameBalance.CamDeadzone)
+                targetX = chefTransform.position.x - Mathf.Sign(dx) * GameBalance.CamDeadzone;
+            targetX = Mathf.Clamp(targetX, GameBalance.CamFollowMinX, GameBalance.CamFollowMaxX);
+
+            // Y는 기차 기준 유지 (기차 태그 없으면 현재 y)
+            float targetY = targetTransform != null
+                ? targetTransform.position.y + offset.y : basePos.y;
+
+            Vector3 followPos = new Vector3(targetX, targetY, offset.z);
+            basePos = Vector3.Lerp(basePos, followPos, Time.deltaTime * GameBalance.CamFollowLerp);
+        }
+        else if (targetTransform != null)
+        {
+            // 팔로우 오프 = 기존 기차 고정 추적
             Vector3 targetPos = targetTransform.position + offset;
             basePos = Vector3.Lerp(basePos, targetPos, Time.deltaTime * smoothSpeed);
         }

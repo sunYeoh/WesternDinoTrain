@@ -18,10 +18,7 @@ public class TurretSlotManager : MonoBehaviour
 {
     public static TurretSlotManager Instance { get; private set; }
 
-    [Header("─ 슬롯 배치 (기차 로컬 좌표계) ─")]
-    public float slotSpacingX = 2.5f;  // 좌우 슬롯 간격
-    public float slotSpacingY = 1.6f;  // 행 간격
-    public Vector2 slotOrigin = new Vector2(-1.2f, 2.4f); // 첫 슬롯(0번) 위치
+    // (B-2: 구 2열 4행 배치 필드 제거 - 배치는 GameBalance.SlotRowAX/BX/GapX/SlotY가 담당)
 
     [Header("─ 런타임 ─")]
     public TurretSlot[] slots = new TurretSlot[8];
@@ -59,27 +56,19 @@ public class TurretSlotManager : MonoBehaviour
     {
         train = FindFirstObjectByType<TrainManager>();
 
-        // 슬롯 배치를 GameBalance 값으로 강제 (Inspector 구값 무시 - 기차 밀착 배치)
-        slotOrigin = new Vector2(GameBalance.SlotOriginX, GameBalance.SlotOriginY);
-        slotSpacingX = GameBalance.SlotSpacingX;
-        slotSpacingY = GameBalance.SlotSpacingY;
-
-        // 슬롯 8개 자동 생성 (2열 4행)
-        // [0][1]
-        // [2][3]
-        // [4][5]
-        // [6][7]
+        // B-2: 슬롯 8개 = 포탑칸 가로 1열 배치 (트레일러 확장 - 방향결정 2026-08-31)
+        // [0][1][2][3] = 포탑칸 A   [4][5][6][7] = 포탑칸 B (6,7은 기본 잠금 - 증강 해금)
+        // 셰프가 슬롯 아래에 서면 근접 [E]가 닿는다 (SlotY 0.9, SlotReach 1.3)
         for (int i = 0; i < 8; i++)
         {
-            int row = i / 2;
-            int col = i % 2;
+            int car = i / 4;    // 0 = 포탑 A, 1 = 포탑 B
+            int idx = i % 4;
+            float x = (car == 0 ? GameBalance.SlotRowAX : GameBalance.SlotRowBX)
+                      + idx * GameBalance.SlotGapX;
 
             GameObject go = new GameObject("TurretSlot_" + i);
             go.transform.SetParent(transform);
-            go.transform.localPosition = new Vector3(
-                slotOrigin.x + col * slotSpacingX,
-                slotOrigin.y - row * slotSpacingY,
-                0f);
+            go.transform.localPosition = new Vector3(x, GameBalance.SlotY, 0f);
 
             slots[i] = go.AddComponent<TurretSlot>();
         }
@@ -170,12 +159,10 @@ public class TurretSlotManager : MonoBehaviour
         }
     }
 
-    // 인접 버프 합산 계산: 같은 행 좌우 + 위아래 같은 열의 버프형 요리
+    // 인접 버프 합산 계산 (B-2: 가로 1열 재배치 - 인접 = 같은 포탑칸 안의 양옆 슬롯)
     private void GetBuffsFor(int index, out float atkSpeed, out float physDmg, out float magDmg)
     {
         atkSpeed = 0f; physDmg = 0f; magDmg = 0f;
-        int row = index / 2;
-        int col = index % 2;
 
         for (int i = 0; i < 8; i++)
         {
@@ -185,10 +172,8 @@ public class TurretSlotManager : MonoBehaviour
             RecipeData r = o.Recipe;
             if (string.IsNullOrEmpty(r.buffType)) continue;
 
-            int oRow = i / 2;
-            int oCol = i % 2;
-            bool adjacent = (oRow == row && oCol != col) ||             // 같은 행 옆칸
-                            (oCol == col && Mathf.Abs(oRow - row) == 1); // 위아래 같은 열
+            // 같은 칸(0~3 / 4~7) 안에서 바로 옆 슬롯만 인접으로 친다
+            bool adjacent = (i / 4 == index / 4) && Mathf.Abs(i - index) == 1;
             if (!adjacent) continue;
 
             // 증강 '주방 동선 최적화': 인접 버프 배율
@@ -436,6 +421,26 @@ public class TurretSlotManager : MonoBehaviour
         resultMsg = "T2 포탑은 같은 요리끼리만 합체 가능";
         return false;
     }
+
+    // ── B-2: 과열 빈도 제어 (동시 위기 상한 1 + 기차 전체 최소 간격) ──
+    private float lastOverheatTime = -999f;
+
+    /// <summary>어느 슬롯이든 마비(감전/빙결/과열) 중인가 - 과열 동시 발생 차단용</summary>
+    public bool AnySlotStunned()
+    {
+        for (int i = 0; i < slots.Length; i++)
+            if (slots[i] != null && slots[i].IsStunned) return true;
+        return false;
+    }
+
+    /// <summary>지금 새 과열이 발생해도 되는가 (TurretSlot.TickFire가 확인)</summary>
+    public bool CanOverheatNow()
+    {
+        return Time.time - lastOverheatTime >= GameBalance.OverheatGlobalGap && !AnySlotStunned();
+    }
+
+    /// <summary>과열 발생 기록 (전체 간격 타이머 리셋)</summary>
+    public void NoteOverheat() { lastOverheatTime = Time.time; }
 
     /// <summary>
     /// B-1: 셰프 근처에 마비(빙결/감전)된 포탑이 있는가.

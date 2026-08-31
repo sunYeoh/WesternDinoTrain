@@ -31,6 +31,10 @@ public class SlotMarkerUI : MonoBehaviour
     private Transform chefTransform;
     private int reachStunIndex = -1;
 
+    // B-2: 과열 냉각 홀드 상태 ([E] 꾹 - 손을 떼면 서서히 식힌 게 날아간다)
+    private float coolHold = 0f;
+    private int coolIndex = -1;
+
     // 합체 선택 상태 (-1 = 선택 없음)
     private int mergeSelectIndex = -1;
     private RectTransform mergeBanner;
@@ -106,13 +110,38 @@ public class SlotMarkerUI : MonoBehaviour
 
         reachStunIndex = TurretSlotManager.Instance.FindStunnedSlotNear(
             chefTransform.position, GameBalance.SlotReach);
-        if (reachStunIndex < 0) return;
+        if (reachStunIndex < 0) { coolHold = 0f; coolIndex = -1; return; }
 
+        TurretSlot slot = TurretSlotManager.Instance.slots[reachStunIndex];
+        if (slot == null || !slot.IsStunned) return;
+
+        // ── B-2 과열: [E] 홀드 냉각 (즉시 해제가 아니라 잠깐 '작업'한다) ──
+        if (slot.StunKind == "과열")
+        {
+            if (reachStunIndex != coolIndex) { coolIndex = reachStunIndex; coolHold = 0f; }
+
+            if (Input.GetKey(KeyCode.E))
+            {
+                ChefController.InteractConsumedFrame = Time.frameCount;   // 조리대 열림 방지
+                coolHold += Time.deltaTime;
+                if (coolHold >= GameBalance.OverheatCoolHold)
+                {
+                    coolHold = 0f; coolIndex = -1;
+                    slot.ClearStun();
+                    SoundManager.Play("sfx_ui_click");
+                    GameFeel.DeathPop(slot.transform.position, new Color(0.9f, 0.9f, 0.95f), 0.55f); // 증기 빠짐
+                    UIManager.Instance?.ShowStatChange("포탑 냉각 완료! 다시 불을 뿜는다");
+                }
+            }
+            else
+                coolHold = Mathf.Max(0f, coolHold - Time.deltaTime * 2f);   // 손 떼면 식힌 게 샌다
+            return;
+        }
+
+        // ── B-1: 감전/빙결 = [E] 한 번에 즉시 해제 ──
+        coolHold = 0f; coolIndex = -1;
         if (Input.GetKeyDown(KeyCode.E))
         {
-            TurretSlot slot = TurretSlotManager.Instance.slots[reachStunIndex];
-            if (slot == null || !slot.IsStunned) return;
-
             string kind = slot.StunKind;
             slot.ClearStun();
             ChefController.InteractConsumedFrame = Time.frameCount;   // 조리대 열림 방지
@@ -207,18 +236,28 @@ public class SlotMarkerUI : MonoBehaviour
             else if (slot.IsStunned)
             {
                 // v3: 마비된 포탑 / B-1: 근접 [E] 해제 안내 (스위치 꺼져 있으면 클릭 안내)
-                // P1: 종류별 표기 (감전=노랑 / 빙결=하늘색)
+                // P1: 종류별 표기 (감전=노랑 / 빙결=하늘색 / B-2: 과열=주황빨강)
                 RecipeData rs = slot.Recipe;
                 bool frozen = slot.StunKind == "빙결";
+                bool overheated = slot.StunKind == "과열";
                 string hint;
-                if (!GameBalance.ProximityInteract)
+                if (!GameBalance.ProximityInteract && !overheated)
                     hint = "[" + slot.StunKind + "! 클릭 재가동]";
+                else if (overheated && i == reachStunIndex)
+                    hint = "[E 꾹] 냉각 " + Mathf.RoundToInt(
+                        Mathf.Clamp01(coolHold / GameBalance.OverheatCoolHold) * 100f) + "%";
                 else if (i == reachStunIndex)
                     hint = "[E] " + (frozen ? "해빙!" : "털어내기!");
                 else
                     hint = "[" + slot.StunKind + "! 달려가서 E]";
                 markerTexts[i].text = rs.displayName + "\n" + hint;
-                if (frozen)
+                if (overheated)
+                {
+                    markerTexts[i].color = new Color(1f, 0.62f, 0.35f);
+                    markerBGs[i].color = new Color(0.26f, 0.09f, 0.03f, 0.85f);
+                    markerBorders[i].color = new Color(1f, 0.45f, 0.15f);
+                }
+                else if (frozen)
                 {
                     markerTexts[i].color = new Color(0.65f, 0.9f, 1f);
                     markerBGs[i].color = new Color(0.06f, 0.16f, 0.24f, 0.85f);

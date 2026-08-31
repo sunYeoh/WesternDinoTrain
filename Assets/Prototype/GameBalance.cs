@@ -44,13 +44,9 @@ public static class GameBalance
 
     // ==================================================================
     //  슬롯 배치 (TurretSlotManager가 Start에서 적용 - Inspector 무시)
-    //  기차 로컬 좌표 기준. 좌우 2열이 기차 양옆에 붙도록 컴팩트하게
+    //  B-2: 구 2열 4행(SlotOrigin/Spacing) 폐기 -> 포탑칸 가로 1열 배치는
+    //  아래 "B-2" 섹션의 SlotRowAX/SlotRowBX/SlotGapX/SlotY가 담당한다
     // ==================================================================
-
-    public static float SlotOriginX = -1.7f;   // 왼쪽 열 x
-    public static float SlotOriginY = 1.2f;    // 첫 행 y
-    public static float SlotSpacingX = 3.4f;   // 왼쪽 열 -> 오른쪽 열 간격
-    public static float SlotSpacingY = 0.8f;   // 행 간격 (4행: 1.2 / 0.4 / -0.4 / -1.2)
 
     /// <summary>공명 발동에 필요한 같은 속성 포탑 수</summary>
     public static int ResonanceCount = 3;
@@ -396,27 +392,71 @@ public static class GameBalance
     public static float ChefDashTime = 0.16f;
     public static float ChefDashCooldown = 1.2f;
 
-    /// <summary>셰프 활동 범위 (B-2 트레일러 확장 시 이 값만 넓히면 된다)</summary>
-    public static float TrainWalkMinX = -2f;
-    public static float TrainWalkMaxX = 2f;
+    /// <summary>셰프 활동 범위 (B-2: 트레일러 4칸으로 확장됨)</summary>
+    public static float TrainWalkMinX = -6.3f;
+    public static float TrainWalkMaxX = 11.3f;
     public static float TrainWalkMinY = -1.5f;
     public static float TrainWalkMaxY = 1.5f;
 
     /// <summary>위기 대응 근접 전환 스위치 (false = 빙결/감전 해제가 클릭으로 복귀)</summary>
     public static bool ProximityInteract = true;
 
-    /// <summary>마비(빙결/감전) 포탑 해제 근접 반경 (셰프-슬롯 거리)</summary>
+    /// <summary>마비(빙결/감전/과열) 포탑 해제 근접 반경 (셰프-슬롯 거리)</summary>
     public static float SlotReach = 1.3f;
 
     /// <summary>위치형 주방 이벤트: 조작 가능 근접 반경 (X 거리)</summary>
-    public static float EventReachX = 1.6f;
+    public static float EventReachX = 1.8f;
 
-    /// <summary>이벤트 발생 지점: 주방 중앙에서 이 거리만큼 떨어진 곳 (달려갈 이유)</summary>
-    public static float EventAnchorEdgeMin = 1.1f;
-    public static float EventAnchorEdgeMax = 1.9f;
+    /// <summary>이벤트 발생 지점 범위 (B-2: 기차 전체 칸에서 터진다)</summary>
+    public static float EventAnchorMinX = -6.0f;
+    public static float EventAnchorMaxX = 11.0f;
 
     /// <summary>위치형 이벤트 제한시간 보정 (+초, 달려가는 시간만큼 여유)</summary>
-    public static float EventReachGrace = 1.5f;
+    public static float EventReachGrace = 2.5f;
+
+    // ==================================================================
+    //  B-2: 트레일러 4칸 + 과열 + 카메라 + 갑판 전리품 (방향결정 2026-08-31)
+    // ==================================================================
+
+    /// <summary>칸 경계 X (5개 값 = 4칸): 기관차 / 주방 / 포탑 A / 포탑 B</summary>
+    public static float[] CarEdgesX = { -6.5f, -2.5f, 2.5f, 7f, 11.5f };
+    public static string[] CarNames = { "기관차", "주방", "포탑 A", "포탑 B" };
+
+    /// <summary>x 좌표가 속한 칸 인덱스 (0~3, 범위 밖은 가장 가까운 칸)</summary>
+    public static int CarIndexOf(float x)
+    {
+        for (int i = 1; i < CarEdgesX.Length - 1; i++)
+            if (x < CarEdgesX[i]) return i - 1;
+        return CarEdgesX.Length - 2;
+    }
+
+    /// <summary>슬롯 배치 (B-2: 포탑칸 가로 1열 4+4. 0~3=포탑 A, 4~7=포탑 B)</summary>
+    public static float SlotRowAX = 3.1f;      // 포탑 A 첫 슬롯 x
+    public static float SlotRowBX = 7.6f;      // 포탑 B 첫 슬롯 x
+    public static float SlotGapX = 1.1f;       // 슬롯 간격
+    public static float SlotY = 0.9f;          // 슬롯 높이 (셰프가 아래 서면 닿는다)
+
+    /// <summary>포탑 과열: 연속 사격이 쌓이면 정지, 근접 [E] 홀드로 냉각 (0=끔)</summary>
+    public static bool OverheatEnabled = true;
+    public static int OverheatShotsMin = 22;       // 과열까지 사격 수 (랜덤 하한)
+    public static int OverheatShotsMax = 34;       // (랜덤 상한)
+    public static int OverheatPerLevel = 2;        // 포탑 레벨당 임계 감소 (캐리일수록 손이 간다)
+    public static float OverheatCoolHold = 0.8f;   // [E] 홀드 냉각 시간
+    public static float OverheatImmuneTime = 14f;  // 냉각 후 그 포탑 재과열 면역
+    public static float OverheatGlobalGap = 25f;   // 기차 전체 과열 최소 간격 (빈도 상한)
+
+    /// <summary>카메라: 셰프 소프트 팔로우 (B-2)</summary>
+    public static bool CamFollowChef = true;
+    public static float CamDefaultZoom = 8.5f;     // 기본 줌 (7 -> 8.5, 긴 기차 프레이밍)
+    public static float CamDeadzone = 1.5f;        // 이 거리까지는 카메라가 안 따라온다
+    public static float CamFollowLerp = 4f;        // 따라오는 속도
+    public static float CamFollowMinX = -2.5f;     // 카메라 이동 한계 (전장이 화면 밖으로 안 나가게)
+    public static float CamFollowMaxX = 4.5f;
+
+    /// <summary>갑판 전리품 상자 (아이템 획득이 상자로 떨어짐 - 밟아서 회수. false=즉시 지급)</summary>
+    public static bool DeckLootEnabled = true;
+    public static float DeckLootY = -1.25f;        // 상자가 놓이는 갑판 높이
+    public static float DeckLootPickupRange = 0.9f;
 
     // ==================================================================
     //  게임필 (P1) - 셰이크 / 히트스톱 / 처치 팝 (GameFeel.cs가 사용)

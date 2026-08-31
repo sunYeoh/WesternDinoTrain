@@ -822,10 +822,11 @@ public class Enemy : MonoBehaviour
         GameManager.Instance?.AddGold(data.goldReward);
 
         // Phase 2-3: 아주 낮은 확률로 아이템(유물) 드랍 - 보스는 확률 대폭 상향
+        // B-2: 즉시 지급 대신 갑판 상자로 떨어진다 (죽은 자리 방향의 갑판 - 밟아서 회수)
         float itemChance = (this is BossEnemy)
             ? GameBalance.ItemDropChanceBoss : GameBalance.ItemDropChance;
         if (Random.value < itemChance)
-            ItemManager.GrantRandom(data.enemyName + " 잔해에서 발견");
+            DeckLoot.SpawnItemCrate(transform.position.x, data.enemyName + " 잔해에서 발견");
         // (감사 3-B: XP 시스템 절단 - AddXP 호출 제거)
         // v3 재료 시스템 드롭 (증강 '자석 흡입기 개조' 반영)
         // v3.1: 즉시 지급 대신 흡수 연출 - 조각이 기차에 도착하면 지급 (PickupFX)
