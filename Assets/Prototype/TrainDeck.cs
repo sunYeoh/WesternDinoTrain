@@ -1,16 +1,21 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 /// <summary>
-/// [TrainDeck.cs] v1 (신규 파일) - B-2: 트레일러 4칸 코드 데크 (방향결정 2026-08-31)
+/// [TrainDeck.cs] v2 - B-2: 트레일러 4칸 코드 데크 (방향결정 2026-08-31)
 ///
 /// 기차가 4칸(기관차/주방/포탑A/포탑B)으로 늘어나면서, 셰프가 걷는 갑판을
 /// 코드 생성 도형으로 그린다. 칸 몸체 / 지붕·바닥 트림 / 연결부 / 바퀴 / 기관차 굴뚝.
 /// 씬 작업 0 원칙 - 아트 단계에서 칸별 스프라이트로 교체 예정 (백로그 1절).
 ///
-/// 칸 경계는 GameBalance.CarEdgesX가 단일 소스 (기차 스트립 UI / 이벤트 앵커와 공유).
-/// 씬에 기존 기차 스프라이트가 있으면 겹쳐 보일 수 있음 - 거슬리면 그 오브젝트만
-/// 비활성화하면 된다 (선택 사항, 필수 아님).
+/// - v2 (비주얼 정렬 - 플레이 피드백 "슬롯과 기차가 따로 논다"):
+///   1) 구 기차 스프라이트(씬의 5x5 사각형) 자동 숨김 - 4칸 데크가 기차 본체가 된다
+///      (렌더러만 끔. TrainManager/태그/충돌 로직은 그대로. HideLegacyTrainVisual 스위치)
+///   2) 조리대 3대를 주방칸 안 정위치로 자동 정렬 (씬에서 팬이 지붕 위(0,2)에 떠 있었음.
+///      AlignStations 스위치, 위치는 GameBalance.StationXs/StationY)
+///   3) 씬 리로드(런 재시작)마다 재정렬 - sceneLoaded 구독
 ///
+/// 칸 경계는 GameBalance.CarEdgesX가 단일 소스 (기차 스트립 UI / 이벤트 앵커와 공유).
 /// 사용법: 없음! 파일만 넣으면 자동 생성된다.
 /// VS 2017 (C# 7.3) 호환
 /// </summary>
@@ -41,6 +46,13 @@ public class TrainDeck : MonoBehaviour
         GameObject go = new GameObject("TrainDeck");
         DontDestroyOnLoad(go);
         go.AddComponent<TrainDeck>();
+        // 씬 리로드(런 재시작)마다 새로 생긴 구 기차/조리대를 다시 정렬
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private static void OnSceneLoaded(Scene s, LoadSceneMode m)
+    {
+        if (instance != null) instance.AlignLegacyVisuals();
     }
 
     private void Awake()
@@ -48,6 +60,42 @@ public class TrainDeck : MonoBehaviour
         if (instance != null && instance != this) { Destroy(gameObject); return; }
         instance = this;
         Build();
+        AlignLegacyVisuals();
+    }
+
+    // ─────────────────────────────────────────────
+    // v2: 구 씬 오브젝트를 4칸 체제에 맞춰 정렬
+    // ─────────────────────────────────────────────
+    private void AlignLegacyVisuals()
+    {
+        // 1) 구 기차 스프라이트 숨김 - 4칸 데크가 기차 본체를 이어받는다
+        //    (렌더러만 끈다. TrainManager/태그/적 타겟팅 로직은 전부 그대로)
+        if (GameBalance.HideLegacyTrainVisual)
+        {
+            GameObject trainObj = GameObject.FindGameObjectWithTag("Train");
+            if (trainObj != null)
+            {
+                SpriteRenderer[] srs = trainObj.GetComponentsInChildren<SpriteRenderer>(true);
+                for (int i = 0; i < srs.Length; i++) srs[i].enabled = false;
+                if (srs.Length > 0)
+                    Debug.Log("[TrainDeck] 구 기차 스프라이트 " + srs.Length + "개 숨김 - 4칸 데크가 본체");
+            }
+        }
+
+        // 2) 조리대 3대를 주방칸 안 정위치로 (그릴/볶음팬/냄비 = StationXs 순서)
+        if (GameBalance.AlignStations)
+        {
+            CookingStation[] stations = FindObjectsByType<CookingStation>(FindObjectsSortMode.None);
+            for (int i = 0; i < stations.Length; i++)
+            {
+                int idx = (int)stations[i].stationType;   // 0=그릴 1=볶음팬 2=냄비
+                if (idx < 0 || idx >= GameBalance.StationXs.Length) continue;
+                stations[i].transform.position =
+                    new Vector3(GameBalance.StationXs[idx], GameBalance.StationY, 0f);
+            }
+            if (stations.Length > 0)
+                Debug.Log("[TrainDeck] 조리대 " + stations.Length + "대 주방칸 정렬 완료");
+        }
     }
 
     // ─────────────────────────────────────────────

@@ -436,6 +436,17 @@ public static class GameBalance
     public static float SlotGapX = 1.1f;       // 슬롯 간격
     public static float SlotY = 0.9f;          // 슬롯 높이 (셰프가 아래 서면 닿는다)
 
+    /// <summary>
+    /// 비주얼 정렬 (B-2.1): 구 기차 스프라이트(씬의 5x5 사각형)를 숨긴다.
+    /// 4칸 데크가 기차 본체 역할을 이어받는다. 렌더러만 끄고 로직/태그는 유지.
+    /// </summary>
+    public static bool HideLegacyTrainVisual = true;
+
+    /// <summary>비주얼 정렬 (B-2.1): 조리대 3대를 주방칸 안 정위치로 자동 정렬 (false=씬 배치 그대로)</summary>
+    public static bool AlignStations = true;
+    public static float StationY = -0.7f;                      // 조리대 높이 (갑판 위)
+    public static float[] StationXs = { -1.6f, 0f, 1.6f };     // 그릴 / 볶음팬 / 냄비 x
+
     /// <summary>포탑 과열: 연속 사격이 쌓이면 정지, 근접 [E] 홀드로 냉각 (0=끔)</summary>
     public static bool OverheatEnabled = true;
     public static int OverheatShotsMin = 22;       // 과열까지 사격 수 (랜덤 하한)

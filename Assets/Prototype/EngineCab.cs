@@ -102,13 +102,13 @@ public class EngineCab : MonoBehaviour
         Color iron = new Color(0.16f, 0.11f, 0.08f);
         Color copper = new Color(0.62f, 0.40f, 0.22f);
 
-        // 작살포: 받침 + 45도 포신
+        // 작살포: 지붕 거치 (받침 + 45도 포신)
         MakeQuad("HarpoonBase", GameBalance.HarpoonX, 2.0f, 0.5f, 0.35f, 0f, iron, -4);
         MakeQuad("HarpoonBarrel", GameBalance.HarpoonX + 0.18f, 2.45f, 0.95f, 0.14f, 40f, copper, -4);
 
-        // 레버: 기둥 + 손잡이 (전속이면 반대로 기운다)
-        MakeQuad("LeverPost", GameBalance.LeverX, 1.95f, 0.16f, 0.5f, 0f, iron, -4);
-        Transform handle = MakeQuad("LeverHandle", GameBalance.LeverX, 2.25f, 0.1f, 0.7f, 25f,
+        // 레버: 운전석 바닥 거치 (B-2.1: 지붕 위에 떠 있던 것을 칸 안으로 내림)
+        MakeQuad("LeverPost", GameBalance.LeverX, 0.35f, 0.16f, 0.9f, 0f, iron, -4);
+        Transform handle = MakeQuad("LeverHandle", GameBalance.LeverX, 0.95f, 0.1f, 0.7f, 25f,
             new Color(0.85f, 0.55f, 0.25f), -4);
         leverHandle = handle;
     }
@@ -360,8 +360,9 @@ public class EngineCab : MonoBehaviour
         if (nearLever)
         {
             leverHint.text = FullSteam ? "[E] 순항 복귀" : "[E] 전속 주행!";
+            // B-2.1: 레버가 운전석 바닥으로 내려왔으므로 힌트도 함께 하강 (3.1 -> 2.0)
             leverHint.rectTransform.position = Camera.main.WorldToScreenPoint(
-                new Vector3(GameBalance.LeverX, 3.1f, 0f));
+                new Vector3(GameBalance.LeverX, 2.0f, 0f));
         }
     }
 }

@@ -68,7 +68,8 @@ public class TurretSlotManager : MonoBehaviour
 
             GameObject go = new GameObject("TurretSlot_" + i);
             go.transform.SetParent(transform);
-            go.transform.localPosition = new Vector3(x, GameBalance.SlotY, 0f);
+            // B-2.1: 월드 좌표로 고정 (부모 오브젝트가 어디에 있든 데크 칸 위에 정확히 앉는다)
+            go.transform.position = new Vector3(x, GameBalance.SlotY, 0f);
 
             slots[i] = go.AddComponent<TurretSlot>();
         }
