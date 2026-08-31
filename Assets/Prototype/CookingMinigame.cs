@@ -193,6 +193,10 @@ public class CookingMinigame : MonoBehaviour
         if (masteryJudge > 0f)
             judgeMul = Mathf.Min(judgeMul * (1f + masteryJudge), 2.2f);
 
+        // B-3 기관차 레버 '전속 주행': 흔들리는 기차 위의 도마 - 판정 존 축소
+        if (EngineCab.FullSteam)
+            judgeMul *= 1f - GameBalance.LeverJudgePenalty;
+
         // Phase 2-3: 아이템까지 전부 겹쳤을 때의 안전 상한 (미니게임이 무의미해지는 것 방지)
         speedMul = Mathf.Min(speedMul, 2.6f);
         judgeMul = Mathf.Min(judgeMul, 2.6f);

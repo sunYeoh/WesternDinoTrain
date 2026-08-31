@@ -119,6 +119,14 @@ public class WaveManager : MonoBehaviour
     // ─────────────────────────────────────────────
     // 초기화
     // ─────────────────────────────────────────────
+    /// <summary>싱글톤 참조 (B-3: 작살 어그로 등 외부 스폰 요청용)</summary>
+    public static WaveManager Instance { get; private set; }
+
+    private void Awake()
+    {
+        Instance = this;
+    }
+
     private void Start()
     {
         GameObject trainObj = GameObject.FindGameObjectWithTag("Train");
@@ -384,99 +392,99 @@ public class WaveManager : MonoBehaviour
         for (int i = 0; i < config.steamRaptorCount - rushCount; i++)
         {
             SpawnEnemy(steamRaptorPrefab, Enemy.SteamRaptor, config.waveNumber, playerLevel, diffL);
-            yield return new WaitForSeconds(config.spawnInterval);
+            yield return new WaitForSeconds(SpawnGap(config));
         }
 
         for (int i = 0; i < config.springAnkyloCount; i++)
         {
             SpawnEnemy(springAnkyloPrefab, Enemy.SpringAnkylo, config.waveNumber, playerLevel, diffL);
-            yield return new WaitForSeconds(config.spawnInterval);
+            yield return new WaitForSeconds(SpawnGap(config));
         }
 
         for (int i = 0; i < config.oilCactusCount; i++)
         {
             SpawnEnemy(oilCactusPrefab, Enemy.OilCactus, config.waveNumber, playerLevel, diffL);
-            yield return new WaitForSeconds(config.spawnInterval);
+            yield return new WaitForSeconds(SpawnGap(config));
         }
 
         for (int i = 0; i < config.scorpionCount; i++)
         {
             SpawnEnemy(scorpionPrefab, Enemy.DesertScorpion, config.waveNumber, playerLevel, diffL);
-            yield return new WaitForSeconds(config.spawnInterval);
+            yield return new WaitForSeconds(SpawnGap(config));
         }
 
         for (int i = 0; i < config.tortoiseCount; i++)
         {
             SpawnEnemy(tortoisePrefab, Enemy.CopperTortoise, config.waveNumber, playerLevel, diffL);
-            yield return new WaitForSeconds(config.spawnInterval * 2f);
+            yield return new WaitForSeconds(SpawnGap(config) * 2f);
         }
 
         // ── Phase 2 유닛 스폰 ──
         for (int i = 0; i < config.boltTeranodonCount; i++)
         {
             SpawnEnemy(boltTeranodonPrefab, Enemy.BoltTeranodon, config.waveNumber, playerLevel, diffL);
-            yield return new WaitForSeconds(config.spawnInterval);
+            yield return new WaitForSeconds(SpawnGap(config));
         }
 
         for (int i = 0; i < config.poisonPteraCount; i++)
         {
             SpawnEnemy(poisonPteraPrefab, Enemy.PoisonPtera, config.waveNumber, playerLevel, diffL);
-            yield return new WaitForSeconds(config.spawnInterval);
+            yield return new WaitForSeconds(SpawnGap(config));
         }
 
         for (int i = 0; i < config.magnetParasaurCount; i++)
         {
             SpawnEnemy(magnetParasaurPrefab, Enemy.MagnetParasaur, config.waveNumber, playerLevel, diffL);
-            yield return new WaitForSeconds(config.spawnInterval * 2f);
+            yield return new WaitForSeconds(SpawnGap(config) * 2f);
         }
 
         for (int i = 0; i < config.overloadFlyCount; i++)
         {
             SpawnEnemy(overloadFlyPrefab, Enemy.OverloadFly, config.waveNumber, playerLevel, diffL);
-            yield return new WaitForSeconds(config.spawnInterval * 0.5f); // 빠르게 스폰
+            yield return new WaitForSeconds(SpawnGap(config) * 0.5f); // 빠르게 스폰
         }
 
         for (int i = 0; i < config.steelRaptorCount; i++)
         {
             SpawnEnemy(steelRaptorPrefab, Enemy.SteelRaptor, config.waveNumber, playerLevel, diffL);
-            yield return new WaitForSeconds(config.spawnInterval);
+            yield return new WaitForSeconds(SpawnGap(config));
         }
 
         for (int i = 0; i < config.flamePteroCount; i++)
         {
             SpawnEnemy(flamePteroPrefab, Enemy.FlamePterosaur, config.waveNumber, playerLevel, diffL);
-            yield return new WaitForSeconds(config.spawnInterval);
+            yield return new WaitForSeconds(SpawnGap(config));
         }
 
         // ── Phase 3 유닛 스폰 ──
         for (int i = 0; i < config.iceMosaCount; i++)
         {
             SpawnEnemy(iceMosaPrefab, Enemy.IceMosa, config.waveNumber, playerLevel, diffL);
-            yield return new WaitForSeconds(config.spawnInterval * 2f);
+            yield return new WaitForSeconds(SpawnGap(config) * 2f);
         }
 
         for (int i = 0; i < config.crystalPachyCount; i++)
         {
             SpawnEnemy(crystalPachyPrefab, Enemy.CrystalPachy, config.waveNumber, playerLevel, diffL);
-            yield return new WaitForSeconds(config.spawnInterval * 2f);
+            yield return new WaitForSeconds(SpawnGap(config) * 2f);
         }
 
         for (int i = 0; i < config.magmaCarnoCount; i++)
         {
             SpawnEnemy(magmaCarnoPrefab, Enemy.MagmaCarno, config.waveNumber, playerLevel, diffL);
-            yield return new WaitForSeconds(config.spawnInterval * 2f);
+            yield return new WaitForSeconds(SpawnGap(config) * 2f);
         }
 
         for (int i = 0; i < config.frostMammothCount; i++)
         {
             SpawnEnemy(frostMammothPrefab, Enemy.FrostMammoth, config.waveNumber, playerLevel, diffL);
-            yield return new WaitForSeconds(config.spawnInterval * 3f);
+            yield return new WaitForSeconds(SpawnGap(config) * 3f);
         }
 
         for (int i = 0; i < config.necroSpinoCount; i++)
         {
             SpawnEnemy(necroSpinoPrefab, Enemy.NecroSpino, config.waveNumber, playerLevel, diffL);
-            yield return new WaitForSeconds(config.spawnInterval * 3f);
+            yield return new WaitForSeconds(SpawnGap(config) * 3f);
         }
 
         // ── 보스 스폰 ──
@@ -558,6 +566,27 @@ public class WaveManager : MonoBehaviour
         enemy.currentHP *= activeRoute.statMul;
         enemy.scaledMaxHP = enemy.currentHP;
         enemy.scaledATK *= activeRoute.statMul;
+    }
+
+    /// <summary>
+    /// B-3 기관차 레버: 전속 주행이면 스폰 간격이 줄어든다 (웨이브를 당겨오는 레버).
+    /// SpawnWaveCoroutine의 모든 대기가 이 값을 쓴다 - 레버를 중간에 당겨도 즉시 반영.
+    /// </summary>
+    private float SpawnGap(WaveConfig config)
+    {
+        return config.spawnInterval * EngineCab.SpawnIntervalMul;
+    }
+
+    /// <summary>
+    /// B-3 작살 어그로: "황야가 마주 낚아챈다" - 현재 웨이브 배율의 스팀 랩터 난입.
+    /// EngineCab.TryFireHarpoon이 호출.
+    /// </summary>
+    public void SpawnAmbush(int count)
+    {
+        int playerLevel = GameManager.Instance != null ? GameManager.Instance.playerLevel : 1;
+        for (int i = 0; i < count; i++)
+            SpawnEnemy(steamRaptorPrefab, Enemy.SteamRaptor, currentWaveNumber, playerLevel,
+                GameBalance.EnemyDifficultyL);
     }
 
     private void SpawnEnemy(GameObject prefab, Enemy.EnemyData enemyData, int waveNum, int playerLevel, float diffL)

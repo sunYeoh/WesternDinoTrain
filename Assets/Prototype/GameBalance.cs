@@ -459,6 +459,37 @@ public static class GameBalance
     public static float DeckLootPickupRange = 0.9f;
 
     // ==================================================================
+    //  B-3: 작살포 + 기관차 레버 (방향결정 2026-08-31 - 이중 페르소나 완성)
+    // ==================================================================
+
+    /// <summary>작살포 (기관차 앞): 지나가는 자원 바위를 [E]로 낚는다 (false=끔)</summary>
+    public static bool HarpoonEnabled = true;
+    public static float HarpoonX = -5.8f;          // 거치대 위치
+    public static float HarpoonReach = 1.2f;       // 조작 근접 반경
+    public static float HarpoonRange = 14f;        // 작살 사거리 (바위 탐색)
+    public static float HarpoonCooldown = 12f;
+    public static int HarpoonMatMin = 3;           // 명중 보상 재료 수
+    public static int HarpoonMatMax = 5;
+    public static float HarpoonAggroChance = 0.25f; // 원안의 리트리벌 리스크
+    public static int HarpoonAggroMin = 1;
+    public static int HarpoonAggroMax = 2;
+
+    /// <summary>자원 바위: 전투 중 길가를 흘러가는 표적</summary>
+    public static float RockSpawnIntervalMin = 9f;
+    public static float RockSpawnIntervalMax = 16f;
+    public static int RockMaxAlive = 2;
+    public static float RockSpeed = 3.2f;          // 왼쪽으로 흐르는 속도
+    public static float RockY = -2.55f;            // 길가 높이 (데크 아래)
+
+    /// <summary>기관차 레버: 순항 <-> 전속 토글 (false=끔)</summary>
+    public static bool LeverEnabled = true;
+    public static float LeverX = -3.2f;            // 레버 위치 (기관차 뒤쪽 = 운전석)
+    public static float LeverReach = 1.2f;
+    public static float LeverSpawnMul = 0.65f;     // 전속: 적 스폰 간격 배율 (-35%)
+    public static float LeverJudgePenalty = 0.10f; // 전속: 조리 판정 존 -10%
+    public static float LeverParallaxMul = 1.8f;   // 전속: 주행 연출 가속
+
+    // ==================================================================
     //  게임필 (P1) - 셰이크 / 히트스톱 / 처치 팝 (GameFeel.cs가 사용)
     //  전부 0으로 만들면 해당 연출이 완전히 꺼진다.
     //  플레이테스트에서 "과하다/멀미난다" 싶으면 GameFeelMaster 하나만 낮출 것.

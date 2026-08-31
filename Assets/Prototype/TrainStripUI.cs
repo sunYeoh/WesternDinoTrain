@@ -145,6 +145,14 @@ public class TrainStripUI : MonoBehaviour
             string label = GameBalance.CarNames[i];
             Color bg = BG_IDLE, text = TEXT_IDLE;
 
+            // B-3: 전속 주행 중이면 기관차 셀이 달아오른다
+            if (i == 0 && EngineCab.FullSteam && stunKinds[i] == null && i != eventCar)
+            {
+                label = "기관차 전속!";
+                bg = new Color(0.30f, 0.16f, 0.04f, 0.8f);
+                text = new Color(1f, 0.8f, 0.45f);
+            }
+
             if (stunKinds[i] != null)
             {
                 // 마비 포탑이 있는 칸
