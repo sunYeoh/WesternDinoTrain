@@ -67,11 +67,54 @@ public class KitchenEventManager : MonoBehaviour
     /// <summary>이벤트별 커스텀 오브젝트를 붙일 부모 (전체 화면 크기)</summary>
     public RectTransform CustomRoot { get { return customRoot; } }
 
+    // ==================================================================
+    //  B-1: 이벤트 위치 앵커 (방향결정 2026-08-31)
+    //  이벤트가 "어딘가에서" 터지고, 셰프가 그 곁에 있어야 조작이 먹힌다.
+    //  흘림(마우스 줍기)은 제외. GameBalance.ProximityInteract=false면 전부 위치 무관.
+    // ==================================================================
+
+    /// <summary>이번 이벤트의 월드 X 앵커 (HasAnchor일 때만 유효)</summary>
+    public static float AnchorX { get; private set; }
+
+    /// <summary>이번 이벤트가 위치형인가</summary>
+    public static bool HasAnchor { get; private set; }
+
+    /// <summary>셰프가 앵커 근처에 있는가 (위치형 이벤트의 입력 게이트 - 각 이벤트가 읽음)</summary>
+    public static bool ChefInReach { get; private set; }
+
+    private Transform chefTransform;   // 근접 판정용 캐시
+
+    /// <summary>앵커의 캔버스 X 좌표 (이벤트 아이콘 배치용, 1920 기준. 앵커 없으면 0)</summary>
+    public float AnchorCanvasX()
+    {
+        if (!HasAnchor || Camera.main == null) return 0f;
+        float screenX = Camera.main.WorldToScreenPoint(new Vector3(AnchorX, 0f, 0f)).x;
+        float canvasX = (screenX / Mathf.Max(1f, Screen.width) - 0.5f) * 1920f;
+        return Mathf.Clamp(canvasX, -700f, 700f);
+    }
+
+    /// <summary>매 프레임 셰프-앵커 근접 갱신 (RunCurrentEvent에서 호출)</summary>
+    private void UpdateChefReach()
+    {
+        if (!HasAnchor) { ChefInReach = true; return; }
+
+        if (chefTransform == null)
+        {
+            GameObject chefObj = GameObject.Find("Chef");
+            if (chefObj != null) chefTransform = chefObj.transform;
+        }
+        // 셰프를 못 찾으면 막지 않는다 (안전)
+        ChefInReach = chefTransform == null
+            || Mathf.Abs(chefTransform.position.x - AnchorX) <= GameBalance.EventReachX;
+    }
+
     private static Font cachedFont;
 
     void Awake()
     {
         Instance = this;
+        ChefInReach = true;   // B-1: 이벤트 없을 때 기본값 (게이트 잠김 방지)
+        HasAnchor = false;
         BuildUI();
         nextEventTime = Time.time + firstDelay;
         HidePanel();
@@ -224,13 +267,25 @@ public class KitchenEventManager : MonoBehaviour
         currentEvent = ev;
         firedCount++;
 
+        // ── B-1: 위치 앵커 결정 - 침입/화재/고장은 "어딘가에서" 터진다 ──
+        // 주방 중앙에서 Edge 거리만큼 떨어진 좌/우 지점 (달려갈 이유를 만든다)
+        // 흘림은 마우스 줍기라 위치 무관. B-2에서 이 범위가 트레일러 전체로 확장된다.
+        HasAnchor = GameBalance.ProximityInteract && !(ev is MaterialSpillEvent);
+        if (HasAnchor)
+        {
+            float side = Random.value < 0.5f ? -1f : 1f;
+            AnchorX = side * Random.Range(GameBalance.EventAnchorEdgeMin, GameBalance.EventAnchorEdgeMax);
+        }
+        UpdateChefReach();
+
         // 이벤트가 누적될수록 조금씩 어려워진다 (최대 +100%)
         float difficulty = Mathf.Min(1f, firedCount * 0.08f);
 
         ClearCustomRoot();
         ev.OnStart(this, difficulty);
 
-        eventTimeMax = ev.TimeLimit;
+        // 위치형 이벤트는 달려가는 시간만큼 제한시간에 여유를 준다
+        eventTimeMax = ev.TimeLimit + (HasAnchor ? GameBalance.EventReachGrace : 0f);
         eventTimeLeft = eventTimeMax;
 
         titleText.text = ev.Title;
@@ -245,6 +300,9 @@ public class KitchenEventManager : MonoBehaviour
         float dt = Time.deltaTime;
         eventTimeLeft -= dt;
 
+        // B-1: 셰프-앵커 근접 갱신 (각 이벤트가 ChefInReach로 입력을 게이트)
+        UpdateChefReach();
+
         bool success;
         bool finished = currentEvent.OnUpdate(dt, out success);
 
@@ -258,7 +316,15 @@ public class KitchenEventManager : MonoBehaviour
         // 게이지 갱신
         SetFill(gaugeFill, Mathf.Clamp01(currentEvent.Progress));
         SetFill(timeFill, eventTimeMax > 0f ? Mathf.Clamp01(eventTimeLeft / eventTimeMax) : 0f);
-        guideText.text = currentEvent.Guide;
+
+        // B-1: 현장 밖이면 방향 화살표 + 달려가라 안내가 가이드를 대신한다
+        if (HasAnchor && !ChefInReach && chefTransform != null)
+        {
+            string arrow = AnchorX > chefTransform.position.x ? "→→" : "←←";
+            guideText.text = arrow + " 현장으로 달려가라! " + arrow + "   (" + currentEvent.Guide + ")";
+        }
+        else
+            guideText.text = currentEvent.Guide;
 
         // 기차 HP 실시간 표시
         if (cachedTrain == null) cachedTrain = Object.FindFirstObjectByType<TrainManager>();
@@ -287,6 +353,7 @@ public class KitchenEventManager : MonoBehaviour
     {
         IKitchenEvent ev = currentEvent;
         currentEvent = null;
+        HasAnchor = false; ChefInReach = true;   // B-1: 앵커 정리
 
         ClearCustomRoot();
         HidePanel();
@@ -297,6 +364,7 @@ public class KitchenEventManager : MonoBehaviour
     {
         IKitchenEvent ev = currentEvent;
         currentEvent = null;
+        HasAnchor = false; ChefInReach = true;   // B-1: 앵커 정리
 
         ev.OnEnd(success);
         ClearCustomRoot();

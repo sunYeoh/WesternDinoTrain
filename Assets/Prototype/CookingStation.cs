@@ -102,8 +102,19 @@ public class CookingStation : MonoBehaviour
             HidePrompt();
 
         // E키 입력 시 이 조리대 전용 조리창 열기
+        // B-1: 근처에 마비(빙결/감전) 포탑이 있으면 [E]는 위기 대응이 우선한다
+        //      (같은 프레임에 해빙이 먼저 소비했으면 InteractConsumedFrame으로 감지)
         if (isChefNearby && Input.GetKeyDown(interactKey))
+        {
+            if (ChefController.InteractConsumedFrame == Time.frameCount) return;
+            if (GameBalance.ProximityInteract && chefTransform != null
+                && TurretSlotManager.Instance != null
+                && TurretSlotManager.Instance.HasStunnedSlotNear(
+                    chefTransform.position, GameBalance.SlotReach))
+                return;   // 이번 E는 해빙 몫 - 조리창은 다음에
+
             OpenKitchen();
+        }
     }
 
     // ─────────────────────────────────────────────

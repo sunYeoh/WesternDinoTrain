@@ -47,6 +47,8 @@ public class PauseMenu : MonoBehaviour
         // ESC 용도가 겹치는 상황에서는 열지 않는다
         if (AugmentPickUI.IsOpen) return;        // 증강 선택 중
         if (CookingMinigame.IsActive) return;    // 미니게임 중
+        // B-1: 같은 프레임에 조리 중단(ESC)이 이미 소비된 경우 - 일시정지로 새지 않게
+        if (CookingMinigame.EscConsumedFrame == Time.frameCount) return;
         if (WorkshopUI.IsOpen) return;           // 정비소는 G로 닫음
         if (SlotMarkerUI.MergeSelecting) return; // 합체 선택 취소가 우선
         if (BranchRouteUI.IsOpen) return;        // 분기 선로 선택 중

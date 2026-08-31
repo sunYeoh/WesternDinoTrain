@@ -382,6 +382,43 @@ public static class GameBalance
     public static float CollectorPerItem = 0.06f;
 
     // ==================================================================
+    //  B-1: 셰프의 몸 (방향결정 2026-08-31) - 이동감 + 근접 위기 대응
+    //  ProximityInteract = false 로 두면 위기 대응이 기존 클릭 방식으로 복귀
+    // ==================================================================
+
+    /// <summary>셰프 이동 속도 (기존 3 - 몸이 주인공이 되면서 상향)</summary>
+    public static float ChefMoveSpeed = 4.2f;
+    public static float ChefAccel = 30f;          // 가속 (유닛/초^2)
+    public static float ChefDecel = 40f;          // 감속
+
+    /// <summary>대시 (Shift): 순간 가속 + 흙먼지. 조리 중에는 이동 자체가 잠겨 발동 불가</summary>
+    public static float ChefDashSpeed = 12f;
+    public static float ChefDashTime = 0.16f;
+    public static float ChefDashCooldown = 1.2f;
+
+    /// <summary>셰프 활동 범위 (B-2 트레일러 확장 시 이 값만 넓히면 된다)</summary>
+    public static float TrainWalkMinX = -2f;
+    public static float TrainWalkMaxX = 2f;
+    public static float TrainWalkMinY = -1.5f;
+    public static float TrainWalkMaxY = 1.5f;
+
+    /// <summary>위기 대응 근접 전환 스위치 (false = 빙결/감전 해제가 클릭으로 복귀)</summary>
+    public static bool ProximityInteract = true;
+
+    /// <summary>마비(빙결/감전) 포탑 해제 근접 반경 (셰프-슬롯 거리)</summary>
+    public static float SlotReach = 1.3f;
+
+    /// <summary>위치형 주방 이벤트: 조작 가능 근접 반경 (X 거리)</summary>
+    public static float EventReachX = 1.6f;
+
+    /// <summary>이벤트 발생 지점: 주방 중앙에서 이 거리만큼 떨어진 곳 (달려갈 이유)</summary>
+    public static float EventAnchorEdgeMin = 1.1f;
+    public static float EventAnchorEdgeMax = 1.9f;
+
+    /// <summary>위치형 이벤트 제한시간 보정 (+초, 달려가는 시간만큼 여유)</summary>
+    public static float EventReachGrace = 1.5f;
+
+    // ==================================================================
     //  게임필 (P1) - 셰이크 / 히트스톱 / 처치 팝 (GameFeel.cs가 사용)
     //  전부 0으로 만들면 해당 연출이 완전히 꺼진다.
     //  플레이테스트에서 "과하다/멀미난다" 싶으면 GameFeelMaster 하나만 낮출 것.

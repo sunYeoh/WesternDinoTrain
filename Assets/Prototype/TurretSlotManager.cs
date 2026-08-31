@@ -438,6 +438,33 @@ public class TurretSlotManager : MonoBehaviour
     }
 
     /// <summary>
+    /// B-1: 셰프 근처에 마비(빙결/감전)된 포탑이 있는가.
+    /// CookingStation이 [E] 우선순위 판별에 사용 (위기 대응 > 조리대 열기)
+    /// </summary>
+    public bool HasStunnedSlotNear(Vector3 chefPos, float reach)
+    {
+        return FindStunnedSlotNear(chefPos, reach) >= 0;
+    }
+
+    /// <summary>
+    /// B-1: 셰프 근처의 마비된 포탑 중 가장 가까운 슬롯 인덱스 (-1 = 없음).
+    /// SlotMarkerUI가 근접 [E] 해제 대상 결정에 사용
+    /// </summary>
+    public int FindStunnedSlotNear(Vector3 chefPos, float reach)
+    {
+        int best = -1;
+        float bestDist = reach;
+        for (int i = 0; i < slots.Length; i++)
+        {
+            TurretSlot s = slots[i];
+            if (s == null || s.isLocked || s.IsEmpty || !s.IsStunned) continue;
+            float d = Vector2.Distance(chefPos, s.transform.position);
+            if (d <= bestDist) { bestDist = d; best = i; }
+        }
+        return best;
+    }
+
+    /// <summary>
     /// Phase 2-3 증강 '주방장은 하나다': 현재 가장 레벨이 높은 포탑의 레시피 키.
     /// 동률이면 앞 슬롯 우선. 빈 주방이면 "" (보너스/페널티 둘 다 미적용)
     /// </summary>

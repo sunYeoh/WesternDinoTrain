@@ -306,6 +306,14 @@ public class CookingMinigame : MonoBehaviour
             return;
         }
 
+        // B-1: 조리 자발 중단 - [ESC] 재료 환급 + 즉시 복귀
+        // "접시를 마칠까, 포탑을 구할까"가 벌칙 없는 진짜 선택이 되게 한다
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            AbortCook();
+            return;
+        }
+
         if (method == 0) UpdateGrill();
         else if (method == 1) UpdateSaute();
         else UpdateBoil();
@@ -501,6 +509,21 @@ public class CookingMinigame : MonoBehaviour
         running = false;
         IsActive = false;
         panel.gameObject.SetActive(false);
+    }
+
+    /// <summary>
+    /// B-1: 조리 자발 중단이 일어난 프레임 (PauseMenu가 같은 프레임 ESC로
+    /// 일시정지를 여는 이중 소비를 막는 데 사용)
+    /// </summary>
+    public static int EscConsumedFrame = -1;
+
+    /// <summary>B-1: [ESC] 조리 중단 - 재료는 돌려받고 진행만 잃는다 (도구 마모 없음)</summary>
+    private void AbortCook()
+    {
+        EscConsumedFrame = Time.frameCount;
+        CookingBridge.AbortCook();   // 재료 환급 + 대기 레시피 정리
+        SoundManager.Play("sfx_ui_click");
+        Close();
     }
 
     private void ShowJudge(string text, Color color)

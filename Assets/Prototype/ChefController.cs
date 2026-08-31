@@ -4,19 +4,19 @@ using UnityEngine;
 using UnityEngine.Events;
 
 /// <summary>
-/// [ChefController.cs] v3
+/// [ChefController.cs] v4 (B-1: 셰프의 몸 - 방향결정 2026-08-31)
 /// 셰프 이동 + 도구 내구도 + 전투 연동(피격 연출/조리 디버프)을 담당합니다.
 ///
-/// - v3 변경점 (조리 시스템 통일):
-///   내장 미니게임 5종(굽기/볶기/끓이기/튀기기/절임) 완전 제거.
-///   조리는 전부 KitchenPanel(Tab/조리대 E) -> CookingMinigame 흐름으로 일원화.
-///   구 UI(CookingUIManager 버튼 등)가 부르던 StartGrilling 등은
-///   새 조리창을 여는 리다이렉트 스텁으로 유지 (컴파일/버튼 호환).
+/// - v4 변경점 (B-1 이동감):
+///   1) 이동 속도/활동 범위를 GameBalance로 이관 (Inspector 값은 Start에서 덮어씀)
+///   2) 가감속 곡선 - 즉발 속도 대신 짧은 가속/감속 (달리는 몸의 무게감)
+///   3) [Shift] 대시 - 순간 가속 + 흙먼지 팝 + 쿨타임 (위기 대응 달리기용)
+///   4) 발소리 훅 (sfx_step - 클립 없으면 무시)
+///   5) InteractConsumedFrame - 근접 [E]의 이중 소비 방지 (해빙 vs 조리대)
 ///
 /// 남은 역할:
-///   1) 셰프 WASD 이동 (주방 범위 제한)
+///   1) 셰프 WASD 이동 (활동 범위 제한 - B-2에서 트레일러로 확장)
 ///   2) 도구 내구도 (칼/팬) - 조리할 때마다 마모, 정비소에서 수리
-///      마모 상태는 CookingMinigame 판정/시간에 반영된다
 ///   3) 피격 연출(OnTrainHit) / 독침 프테라 조리 디버프
 ///
 /// VS 2017 (C# 7.3) 호환 버전입니다.
@@ -58,12 +58,25 @@ public class ChefController : MonoBehaviour
     // ─────────────────────────────────────────────
     // Inspector 설정
     // ─────────────────────────────────────────────
-    [Header("─ 셰프 이동 ─")]
+    [Header("─ 셰프 이동 (Start에서 GameBalance 값으로 덮어씀) ─")]
     public float moveSpeed = 3f;
     public float kitchenMinX = -2f;
     public float kitchenMaxX = 2f;
     public float kitchenMinY = -1.5f;
     public float kitchenMaxY = 1.5f;
+
+    // ── B-1: 이동감 상태 ──
+    private Vector2 currentVel = Vector2.zero;   // 가감속용 현재 속도
+    private float dashTimer = 0f;                // 대시 지속 잔여
+    private float dashReadyTime = 0f;            // 다음 대시 가능 시각
+    private Vector2 dashDir = Vector2.right;
+    private float nextStepSoundTime = 0f;
+
+    /// <summary>
+    /// B-1: 근접 [E]가 이번 프레임에 이미 소비됐는가 (해빙이 조리대 열림보다 우선).
+    /// 소비한 쪽이 Time.frameCount를 기록하고, 다른 쪽은 같은 프레임이면 무시한다.
+    /// </summary>
+    public static int InteractConsumedFrame = -1;
 
     [Header("─ 조리 해금 현황 (구 시스템 호환) ─")]
     public bool isGrillingUnlocked = true;
@@ -96,7 +109,15 @@ public class ChefController : MonoBehaviour
     // ─────────────────────────────────────────────
     private void Start()
     {
-        Debug.Log("[ChefController] 초기화 완료 (v3 - 조리는 KitchenPanel로 일원화)");
+        // B-1: 이동 수치/활동 범위는 GameBalance가 단일 소스 (조정은 GameBalance.cs에서)
+        moveSpeed = GameBalance.ChefMoveSpeed;
+        kitchenMinX = GameBalance.TrainWalkMinX;
+        kitchenMaxX = GameBalance.TrainWalkMaxX;
+        kitchenMinY = GameBalance.TrainWalkMinY;
+        kitchenMaxY = GameBalance.TrainWalkMaxY;
+
+        Debug.Log("[ChefController] 초기화 완료 (v4 - 속도 " + moveSpeed
+            + ", 범위 X " + kitchenMinX + "~" + kitchenMaxX + ")");
     }
 
     // ─────────────────────────────────────────────
@@ -108,11 +129,15 @@ public class ChefController : MonoBehaviour
     }
 
     // ─────────────────────────────────────────────
-    // 셰프 이동 (WASD 전용, 미니게임/주방창 중에는 정지)
+    // 셰프 이동 (WASD + Shift 대시, 미니게임/주방창 중에는 정지)
     // ─────────────────────────────────────────────
     private void HandleMovement()
     {
-        if (CookingMinigame.IsActive || KitchenPanel.IsOpenStatic) return;
+        if (CookingMinigame.IsActive || KitchenPanel.IsOpenStatic)
+        {
+            currentVel = Vector2.zero;   // 조리에 들어가면 관성도 멈춘다
+            return;
+        }
 
         float h = 0f, v = 0f;
 
@@ -121,11 +146,47 @@ public class ChefController : MonoBehaviour
         if (Input.GetKey(KeyCode.A)) h = -1f;
         if (Input.GetKey(KeyCode.D)) h = 1f;
 
-        Vector3 newPos = transform.position +
-                         (Vector3)(new Vector2(h, v).normalized * moveSpeed * Time.deltaTime);
+        Vector2 inputDir = new Vector2(h, v);
+        bool hasInput = inputDir.sqrMagnitude > 0.01f;
+        float dt = Time.deltaTime;
+
+        // ── B-1 대시: [Shift] - 위기 현장으로 달려가는 순간 가속 ──
+        if (hasInput && Time.time >= dashReadyTime
+            && (Input.GetKeyDown(KeyCode.LeftShift) || Input.GetKeyDown(KeyCode.RightShift)))
+        {
+            dashTimer = GameBalance.ChefDashTime;
+            dashReadyTime = Time.time + GameBalance.ChefDashCooldown;
+            dashDir = inputDir.normalized;
+            SoundManager.Play("sfx_dash");   // 클립 없으면 무시
+            // 발밑 흙먼지 (처치 팝 재사용 - 작게, 흙색)
+            GameFeel.DeathPop(transform.position + Vector3.down * 0.3f,
+                new Color(0.72f, 0.63f, 0.48f), 0.45f);
+        }
+
+        // ── 속도 계산: 대시 중 = 고정 고속 / 평시 = 가감속 곡선 ──
+        if (dashTimer > 0f)
+        {
+            dashTimer -= dt;
+            currentVel = dashDir * GameBalance.ChefDashSpeed;
+        }
+        else
+        {
+            Vector2 targetVel = hasInput ? inputDir.normalized * moveSpeed : Vector2.zero;
+            float rate = hasInput ? GameBalance.ChefAccel : GameBalance.ChefDecel;
+            currentVel = Vector2.MoveTowards(currentVel, targetVel, rate * dt);
+        }
+
+        Vector3 newPos = transform.position + (Vector3)(currentVel * dt);
         newPos.x = Mathf.Clamp(newPos.x, kitchenMinX, kitchenMaxX);
         newPos.y = Mathf.Clamp(newPos.y, kitchenMinY, kitchenMaxY);
         transform.position = newPos;
+
+        // ── 발소리 (이동 중 0.28초 간격, 클립 없으면 무시) ──
+        if (currentVel.sqrMagnitude > 0.25f && Time.time >= nextStepSoundTime)
+        {
+            nextStepSoundTime = Time.time + 0.28f;
+            SoundManager.Play("sfx_step");
+        }
     }
 
     // ─────────────────────────────────────────────

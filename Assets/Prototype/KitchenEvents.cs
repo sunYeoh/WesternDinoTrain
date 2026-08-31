@@ -48,6 +48,7 @@ public class MonsterIntrusionEvent : IKitchenEvent
     private float gainPerPress = 9f;  // E 한 번당 상승량
     private RectTransform intruderIcon;
     private float shakeTimer;
+    private float baseX;   // B-1: 위치 앵커의 캔버스 X (아이콘이 현장에 뜬다)
 
     public string Title { get { return "침입자! 주방에 랩터가 들어왔다"; } }
     public string Guide { get { return "[E] 연타해서 몰아내라!   " + Mathf.RoundToInt(gauge) + " / " + Mathf.RoundToInt(needGauge); } }
@@ -63,11 +64,12 @@ public class MonsterIntrusionEvent : IKitchenEvent
         // Phase 2-3 아이템 '랩터 덫': 침입자가 덫을 밟고 시작 - 격퇴 게이지 감소
         needGauge *= ItemManager.IntruderGaugeMul;
 
-        // 침입자 표시용 아이콘 (화면 중앙 약간 아래)
+        // 침입자 표시용 아이콘 - B-1: 위치 앵커 지점에 뜬다 (달려갈 곳이 보이게)
+        baseX = mgr.AnchorCanvasX();
         intruderIcon = KitchenEventManager.MakeBox(mgr.CustomRoot, "Intruder", new Color(0.75f, 0.2f, 0.18f, 0.92f));
         intruderIcon.anchorMin = new Vector2(0.5f, 0.5f);
         intruderIcon.anchorMax = new Vector2(0.5f, 0.5f);
-        intruderIcon.anchoredPosition = new Vector2(0f, -40f);
+        intruderIcon.anchoredPosition = new Vector2(baseX, -40f);
         intruderIcon.sizeDelta = new Vector2(150f, 150f);
         intruderIcon.GetComponent<Image>().raycastTarget = false;
 
@@ -85,7 +87,8 @@ public class MonsterIntrusionEvent : IKitchenEvent
         gauge -= decayPerSec * dt;
         if (gauge < 0f) gauge = 0f;
 
-        if (Input.GetKeyDown(KeyCode.E))
+        // B-1: 현장(앵커) 근처에서만 격퇴 가능 - 멀리서 누르면 헛손질
+        if (Input.GetKeyDown(KeyCode.E) && KitchenEventManager.ChefInReach)
         {
             gauge += gainPerPress;
             shakeTimer = 0.12f;   // 때린 느낌으로 아이콘을 흔든다
@@ -101,11 +104,11 @@ public class MonsterIntrusionEvent : IKitchenEvent
             if (shakeTimer > 0f)
             {
                 shakeTimer -= dt;
-                intruderIcon.anchoredPosition = new Vector2(Random.Range(-9f, 9f), -40f + Random.Range(-9f, 9f));
+                intruderIcon.anchoredPosition = new Vector2(baseX + Random.Range(-9f, 9f), -40f + Random.Range(-9f, 9f));
             }
             else
             {
-                intruderIcon.anchoredPosition = new Vector2(0f, -40f);
+                intruderIcon.anchoredPosition = new Vector2(baseX, -40f);
             }
         }
 
@@ -176,11 +179,12 @@ public class EquipmentBreakEvent : IKitchenEvent
         for (int i = 0; i < length; i++)
             command.Add(pool[Random.Range(0, pool.Length)]);
 
+        // B-1: 고장난 기구가 있는 앵커 지점에 커맨드가 뜬다 (텍스트 폭 고려해 좁게 클램프)
         commandText = KitchenEventManager.MakeText(mgr.CustomRoot, "Command", "", 52, Color.white);
         RectTransform rt = commandText.rectTransform;
         rt.anchorMin = new Vector2(0.5f, 0.5f);
         rt.anchorMax = new Vector2(0.5f, 0.5f);
-        rt.anchoredPosition = new Vector2(0f, -30f);
+        rt.anchoredPosition = new Vector2(Mathf.Clamp(mgr.AnchorCanvasX(), -420f, 420f), -30f);
         rt.sizeDelta = new Vector2(700f, 80f);
 
         RefreshCommandText();
@@ -192,7 +196,8 @@ public class EquipmentBreakEvent : IKitchenEvent
         if (wrongFlash > 0f) wrongFlash -= dt;
 
         KeyCode pressed = ReadArrowKey();
-        if (pressed != KeyCode.None)
+        // B-1: 고장난 기구 곁에서만 수리 입력이 먹힌다 (떨어져서 누르면 무효 - 리셋도 없음)
+        if (pressed != KeyCode.None && KitchenEventManager.ChefInReach)
         {
             if (pressed == command[inputIndex])
             {
@@ -295,10 +300,11 @@ public class KitchenFireEvent : IKitchenEvent
         burnTickTimer = 0f;
         burnDamagePerSec = 5f + difficulty * 5f;   // 난이도에 따라 5 ~ 10 (기차 HP 500 기준 조정)
 
+        // B-1: 불길이 앵커 지점에서 타오른다 (달려갈 곳이 보이게)
         fireBox = KitchenEventManager.MakeBox(mgr.CustomRoot, "Fire", new Color(1f, 0.35f, 0.1f, 0.35f));
         fireBox.anchorMin = new Vector2(0.5f, 0.5f);
         fireBox.anchorMax = new Vector2(0.5f, 0.5f);
-        fireBox.anchoredPosition = new Vector2(0f, -40f);
+        fireBox.anchoredPosition = new Vector2(mgr.AnchorCanvasX(), -40f);
         fireBox.sizeDelta = new Vector2(300f, 190f);
         fireBox.GetComponent<Image>().raycastTarget = false;
 
@@ -324,7 +330,8 @@ public class KitchenFireEvent : IKitchenEvent
             manager.DamageTrain(burnDamagePerSec * 0.5f);
         }
 
-        if (Input.GetKey(KeyCode.E)) gauge += holdGain * dt;
+        // B-1: 불길 곁에서만 진압 가능 - 떨어져 있으면 불은 계속 번진다
+        if (Input.GetKey(KeyCode.E) && KitchenEventManager.ChefInReach) gauge += holdGain * dt;
         else gauge -= releaseLoss * dt;
         gauge = Mathf.Clamp(gauge, 0f, needGauge);
 

@@ -84,6 +84,32 @@ public static class CookingBridge
         pendingRecipeId = "";
     }
 
+    /// <summary>
+    /// B-1: 조리 자발 중단 (CookingMinigame [ESC]).
+    /// 시작할 때 차감한 재료 2개를 그대로 돌려준다 - 위기 대응을 위한 중단이
+    /// 손해가 되지 않게. (pendingRecipeId는 T1 조리 키 "재료+재료" 형식)
+    /// </summary>
+    public static void AbortCook()
+    {
+        if (string.IsNullOrEmpty(pendingRecipeId)) return;
+
+        if (MaterialInventory.Instance != null)
+        {
+            string[] parts = pendingRecipeId.Split('+');
+            MaterialType a, b;
+            if (parts.Length == 2
+                && TryParseMaterial(parts[0], out a) && TryParseMaterial(parts[1], out b))
+            {
+                MaterialInventory.Instance.Add(a, 1);
+                MaterialInventory.Instance.Add(b, 1);
+            }
+        }
+
+        UIManager.Instance?.ShowStatChange("[조리 중단] 재료를 되찾았다 - 현장으로!");
+        Debug.Log("[CookingBridge] 조리 자발 중단 - 재료 환급: " + pendingRecipeId);
+        pendingRecipeId = "";
+    }
+
     /// <summary>간편 조리: 발견한 레시피를 바로 조리 (재료 자동 차감)</summary>
     public static bool QuickCook(string recipeId)
     {

@@ -3,14 +3,16 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 /// <summary>
-/// [SlotMarkerUI.cs] v2
+/// [SlotMarkerUI.cs] v4 (B-1: 근접 위기 대응 - 방향결정 2026-08-31)
 /// 슬롯 8개 위치에 화면 마커 표시 (월드 따라다님)
 /// - 좌클릭(투입 모드): 요리 투입
 /// - 좌클릭(평시): 합체 선택 -> 다른 포탑 클릭 = 합체 (기획 B-3)
 ///   같은 요리 = 레벨 합산 / 다른 T1 = T2 진화. 재클릭/ESC = 취소
 /// - 우클릭: 폐기 (재료 환급)
 /// - 호버: 성능 툴팁
-/// - v2 변경점: 잠금 슬롯 표시 / v3 변경점: 합체 진화 조작
+/// - v4 변경점 (B-1): 빙결/감전 해제가 클릭 -> "달려가서 [E]"로 전환.
+///   셰프가 그 포탑 곁(GameBalance.SlotReach)에 있어야 해제된다 - 몸이 움직일 이유.
+///   GameBalance.ProximityInteract = false 면 기존 클릭 방식으로 복귀.
 /// GameSystems 오브젝트에 부착
 /// VS 2017 (C# 7.3) 호환
 /// </summary>
@@ -24,6 +26,10 @@ public class SlotMarkerUI : MonoBehaviour
     private RectTransform tooltip;
     private Text tooltipText;
     private int hoverIndex = -1;
+
+    // B-1: 근접 해제 대상 (셰프와 가장 가까운 마비 슬롯, -1 = 없음)
+    private Transform chefTransform;
+    private int reachStunIndex = -1;
 
     // 합체 선택 상태 (-1 = 선택 없음)
     private int mergeSelectIndex = -1;
@@ -74,6 +80,49 @@ public class SlotMarkerUI : MonoBehaviour
         if (mergeSelectIndex >= 0 && GameHUD.Instance != null &&
             !string.IsNullOrEmpty(GameHUD.Instance.placingRecipeId))
             SetMergeSelect(-1);
+
+        // ── B-1: 근접 [E] 마비 해제 - "달려가서 몸으로 되살린다" ──
+        UpdateProximityUnstun();
+    }
+
+    /// <summary>
+    /// B-1: 셰프가 마비 포탑 곁에 있으면 [E]로 즉시 해제.
+    /// 조리대(E)와 겹칠 때는 위기 대응이 우선 - InteractConsumedFrame으로 이중 소비 방지.
+    /// </summary>
+    private void UpdateProximityUnstun()
+    {
+        reachStunIndex = -1;
+        if (!GameBalance.ProximityInteract) return;
+        if (TurretSlotManager.Instance == null) return;
+        if (CookingMinigame.IsActive || KitchenPanel.IsOpenStatic || PauseMenu.IsOpen
+            || AugmentPickUI.IsOpen || WorkshopUI.IsOpen) return;
+
+        if (chefTransform == null)
+        {
+            GameObject chefObj = GameObject.Find("Chef");
+            if (chefObj != null) chefTransform = chefObj.transform;
+            if (chefTransform == null) return;
+        }
+
+        reachStunIndex = TurretSlotManager.Instance.FindStunnedSlotNear(
+            chefTransform.position, GameBalance.SlotReach);
+        if (reachStunIndex < 0) return;
+
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            TurretSlot slot = TurretSlotManager.Instance.slots[reachStunIndex];
+            if (slot == null || !slot.IsStunned) return;
+
+            string kind = slot.StunKind;
+            slot.ClearStun();
+            ChefController.InteractConsumedFrame = Time.frameCount;   // 조리대 열림 방지
+            SoundManager.Play("sfx_ui_click");
+            GameFeel.DeathPop(slot.transform.position, kind == "빙결"
+                ? new Color(0.6f, 0.9f, 1f) : new Color(1f, 0.9f, 0.3f), 0.5f);
+            UIManager.Instance?.ShowStatChange(kind == "빙결"
+                ? "포탑 해빙! (얼음을 손으로 깨뜨렸다)"
+                : "포탑 재가동! (감전을 털어냈다)");
+        }
     }
 
     /// <summary>합체 선택 상태 변경 + 배너 갱신</summary>
@@ -157,11 +206,18 @@ public class SlotMarkerUI : MonoBehaviour
             }
             else if (slot.IsStunned)
             {
-                // v3: 마비된 포탑 - 클릭 한 번으로 재가동
+                // v3: 마비된 포탑 / B-1: 근접 [E] 해제 안내 (스위치 꺼져 있으면 클릭 안내)
                 // P1: 종류별 표기 (감전=노랑 / 빙결=하늘색)
                 RecipeData rs = slot.Recipe;
                 bool frozen = slot.StunKind == "빙결";
-                markerTexts[i].text = rs.displayName + "\n[" + slot.StunKind + "! 클릭 재가동]";
+                string hint;
+                if (!GameBalance.ProximityInteract)
+                    hint = "[" + slot.StunKind + "! 클릭 재가동]";
+                else if (i == reachStunIndex)
+                    hint = "[E] " + (frozen ? "해빙!" : "털어내기!");
+                else
+                    hint = "[" + slot.StunKind + "! 달려가서 E]";
+                markerTexts[i].text = rs.displayName + "\n" + hint;
                 if (frozen)
                 {
                     markerTexts[i].color = new Color(0.65f, 0.9f, 1f);
@@ -214,9 +270,15 @@ public class SlotMarkerUI : MonoBehaviour
             return;
         }
 
-        // v3: 마비 해제가 모든 클릭보다 우선 - 한 번 클릭으로 재가동 (P1: 종류별 문구)
+        // v3: 마비 해제가 모든 클릭보다 우선
+        // B-1: 근접 모드에서는 클릭으로 해제 불가 - 달려가야 한다 (안내만)
         if (slot.IsStunned)
         {
+            if (GameBalance.ProximityInteract)
+            {
+                UIManager.Instance?.ShowDanger("포탑 곁으로 달려가 [E]로 되살려라!");
+                return;
+            }
             string kind = slot.StunKind;
             slot.ClearStun();
             UIManager.Instance?.ShowStatChange(kind == "빙결"
