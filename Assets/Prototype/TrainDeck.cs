@@ -83,6 +83,7 @@ public class TrainDeck : MonoBehaviour
         }
 
         // 2) 조리대 3대를 주방칸 안 정위치로 (그릴/볶음팬/냄비 = StationXs 순서)
+        //    B-2.2: 스케일도 통일 (씬 0.4는 점처럼 작았음 - StationScale로 시인성 업)
         if (GameBalance.AlignStations)
         {
             CookingStation[] stations = FindObjectsByType<CookingStation>(FindObjectsSortMode.None);
@@ -92,6 +93,7 @@ public class TrainDeck : MonoBehaviour
                 if (idx < 0 || idx >= GameBalance.StationXs.Length) continue;
                 stations[i].transform.position =
                     new Vector3(GameBalance.StationXs[idx], GameBalance.StationY, 0f);
+                stations[i].transform.localScale = Vector3.one * GameBalance.StationScale;
             }
             if (stations.Length > 0)
                 Debug.Log("[TrainDeck] 조리대 " + stations.Length + "대 주방칸 정렬 완료");

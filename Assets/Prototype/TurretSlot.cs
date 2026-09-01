@@ -1,12 +1,18 @@
 using UnityEngine;
 
 /// <summary>
-/// [TurretSlot.cs] v3 (v3: 보스 낙뢰 패턴용 슬롯 마비 추가)
+/// [TurretSlot.cs] v4 (B-2.2: 포탑 실물 비주얼)
 /// 포탑 슬롯 1개. 요리를 투입하면 포탑으로 가동한다.
 /// - 같은 요리 반복 투입 -> 레벨업 (Lv1=C, 2=B, 3~4=A, 5+=S)
 /// - 발사형이면 쿨다운마다 가장 가까운 적 공격
 /// - 패시브/버프/오라는 TurretSlotManager가 일괄 처리
 /// - v2 변경점: 증강 연동 (공격속도 AspdMul / 사거리 RangeMul)
+/// - v3 변경점: 보스 낙뢰 패턴용 슬롯 마비 추가
+/// - v4 변경점 (플레이 피드백 "포탑이랑 기차가 따로 논다"):
+///   지금까지 슬롯은 월드 그림이 0개였다 - 화면의 마커 칩(이름표)이 포탑 행세를
+///   하며 지붕선을 가리던 것이 어색함의 정체. 받침+몸통+포신+속성 램프를
+///   코드 도형으로 지붕 위에 세운다 (아트 반영 전 임시, TurretVisuals 스위치).
+///   레벨업 = 조금씩 커짐 / 2티어 = 우람+안테나 / 마비 = 몸통 틴트(달아오름·서리·스파크)
 /// VS 2017 (C# 7.3) 호환
 /// </summary>
 public class TurretSlot : MonoBehaviour
@@ -246,5 +252,132 @@ public class TurretSlot : MonoBehaviour
             if (d < bestDist) { bestDist = d; best = all[i]; }
         }
         return best;
+    }
+
+    // ──────────────────────────────────────────────
+    //  B-2.2: 포탑 실물 비주얼 (코드 도형)
+    // ──────────────────────────────────────────────
+    private static readonly Color BODY_IRON = new Color(0.20f, 0.16f, 0.13f);   // 받침/포신 (검정 포인트)
+    private static readonly Color BODY_COPPER = new Color(0.55f, 0.35f, 0.20f); // 몸통 (구리)
+
+    private Transform visualRoot;          // 도형 묶음 (상태가 바뀌면 통째로 다시 그림)
+    private SpriteRenderer bodySr;         // 몸통 렌더러 (마비 틴트용)
+    private string vRecipeId = null;       // 마지막으로 그린 상태 캐시
+    private int vLevel = -1;
+    private bool vLocked = false;
+
+    private void Awake()
+    {
+        RebuildVisual();
+    }
+
+    private void Update()
+    {
+        if (!GameBalance.TurretVisuals)
+        {
+            if (visualRoot != null) { Destroy(visualRoot.gameObject); visualRoot = null; }
+            return;
+        }
+
+        // 상태(요리/레벨/잠금)가 바뀐 프레임에만 다시 그린다
+        if (recipeId != vRecipeId || level != vLevel || isLocked != vLocked)
+            RebuildVisual();
+
+        // 마비 틴트: 과열=달아오름 / 빙결=서리 / 감전=스파크빛 (해제되면 원래 구리색)
+        if (bodySr != null)
+        {
+            Color c = BODY_COPPER;
+            if (IsStunned)
+            {
+                if (StunKind == "과열") c = Color.Lerp(c, new Color(1f, 0.25f, 0.1f), 0.75f);
+                else if (StunKind == "빙결") c = Color.Lerp(c, new Color(0.5f, 0.8f, 1f), 0.65f);
+                else c = Color.Lerp(c, new Color(1f, 0.95f, 0.3f), 0.5f);
+            }
+            bodySr.color = c;
+        }
+    }
+
+    /// <summary>포탑 도형을 현 상태에 맞게 다시 그린다 (잠김/빈 슬롯/가동 중)</summary>
+    private void RebuildVisual()
+    {
+        vRecipeId = recipeId;
+        vLevel = level;
+        vLocked = isLocked;
+
+        if (visualRoot != null) Destroy(visualRoot.gameObject);
+        bodySr = null;
+        if (!GameBalance.TurretVisuals) return;
+
+        GameObject rootGo = new GameObject("TurretVisual");
+        visualRoot = rootGo.transform;
+        visualRoot.SetParent(transform, false);   // 슬롯(지붕 자리)에 따라붙는다
+
+        if (isLocked)
+        {
+            // 잠금 슬롯: 어두운 빈 거치대만 (마커 칩이 "잠김" 설명을 담당)
+            MakePart("Base", 0f, -0.07f, 0.5f, 0.14f, 0f, new Color(0.13f, 0.10f, 0.08f), false);
+            return;
+        }
+
+        // 받침: 지붕선(1.8)에 딱 앉는 거치대 (SlotY 1.95 기준 - 밑면이 지붕과 접합)
+        MakePart("Base", 0f, -0.07f, 0.62f, 0.16f, 0f, BODY_IRON, false);
+
+        if (IsEmpty)
+        {
+            // 빈 슬롯: 거치 핀 - "여기 요리를 꽂아라" 자리 표시
+            MakePart("Pin", 0f, 0.12f, 0.10f, 0.22f, 0f, new Color(0.34f, 0.26f, 0.20f), false);
+            return;
+        }
+
+        RecipeData r = Recipe;
+        bool tier2 = r != null && r.tier >= 2;
+
+        // 레벨이 오르면 조금씩 커진다 (C 1.0 ~ S급 언저리 1.27)
+        float grow = Mathf.Min(1.27f, 1f + 0.09f * (level - 1));
+        visualRoot.localScale = new Vector3(grow, grow, 1f);
+
+        // 몸통 (2티어는 더 우람하게)
+        SpriteRenderer body = MakePart("Body", 0f, 0.19f,
+            tier2 ? 0.52f : 0.44f, tier2 ? 0.42f : 0.34f, 0f, BODY_COPPER, false);
+        bodySr = body;
+
+        // 포신: 적이 오는 오른쪽 위로 비스듬히
+        MakePart("Barrel", 0.26f, 0.37f, 0.5f, 0.11f, 18f, BODY_IRON, false);
+
+        // 속성 램프 (공명 속성과 같은 기준색 - 한눈에 덱 구성이 읽힌다)
+        MakePart("Lamp", -0.06f, 0.21f, 0.15f, 0.15f, 0f, TagColor(r), true);
+
+        // 2티어 안테나 (정예의 상징)
+        if (tier2)
+            MakePart("Antenna", -0.18f, 0.48f, 0.05f, 0.26f, -8f, BODY_IRON, false);
+    }
+
+    /// <summary>도형 파츠 1개 생성 (TrainDeck의 공용 스프라이트 재사용)</summary>
+    private SpriteRenderer MakePart(string partName, float x, float y, float w, float h,
+        float tiltZ, Color color, bool circle)
+    {
+        GameObject go = new GameObject(partName);
+        go.transform.SetParent(visualRoot, false);
+        go.transform.localPosition = new Vector3(x, y, 0f);
+        go.transform.localScale = new Vector3(w, h, 1f);
+        go.transform.localEulerAngles = new Vector3(0f, 0f, tiltZ);
+
+        SpriteRenderer sr = go.AddComponent<SpriteRenderer>();
+        sr.sprite = circle ? TrainDeck.GetCircleSprite() : TrainDeck.GetWhiteSprite();
+        sr.color = color;
+        sr.sortingOrder = -3;   // 데크(-6~-4) 위, 셰프/적(0+) 아래
+        return sr;
+    }
+
+    /// <summary>속성 램프 색 (FoodTag = 공명 속성과 동일 기준)</summary>
+    private Color TagColor(RecipeData r)
+    {
+        if (r == null) return new Color(0.85f, 0.8f, 0.7f);
+        if (r.tag == FoodTag.Fire) return new Color(1f, 0.45f, 0.15f);      // 화염 주황
+        if (r.tag == FoodTag.Elec) return new Color(1f, 0.85f, 0.25f);      // 전기 노랑
+        if (r.tag == FoodTag.Ice) return new Color(0.45f, 0.85f, 1f);       // 냉기 하늘
+        if (r.tag == FoodTag.Poison) return new Color(0.72f, 0.42f, 0.9f);  // 독 보라
+        if (r.tag == FoodTag.Def) return new Color(0.4f, 0.8f, 0.45f);      // 방어 초록
+        return new Color(0.85f, 0.8f, 0.7f);                                // 물리 강철빛
     }
 }

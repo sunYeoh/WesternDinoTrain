@@ -211,7 +211,10 @@ public class SlotMarkerUI : MonoBehaviour
             if (slot == null) { markers[i].gameObject.SetActive(false); continue; }
 
             // 월드 -> 스크린 좌표 (마커가 슬롯을 따라다님)
-            Vector3 screen = Camera.main.WorldToScreenPoint(slot.transform.position);
+            // B-2.2: 이제 슬롯 자리에 포탑 실물이 서 있으므로 칩은 머리 위로 띄운다
+            //        (칩이 포탑/지붕선을 가리던 것이 "따로 논다"의 주범이었음)
+            Vector3 screen = Camera.main.WorldToScreenPoint(
+                slot.transform.position + Vector3.up * GameBalance.SlotMarkerYOffset);
             markers[i].gameObject.SetActive(screen.z > 0f);
             markers[i].position = screen;
 

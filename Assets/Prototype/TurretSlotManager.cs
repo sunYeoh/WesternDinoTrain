@@ -26,6 +26,9 @@ public class TurretSlotManager : MonoBehaviour
     private TrainManager train;
     private float auraTimer = 0f;
 
+    // B-2.2: 정비 시간 진입 감지용 (마비/과열 일괄 해제)
+    private GameManager.GameState lastSeenState = GameManager.GameState.Lobby;
+
     // 속성 공명 (v3): 태그별 배치 수 + 발동 알림 상태
     private int[] tagCounts = new int[16];
     private System.Collections.Generic.HashSet<FoodTag> resonanceActive =
@@ -58,7 +61,7 @@ public class TurretSlotManager : MonoBehaviour
 
         // B-2: 슬롯 8개 = 포탑칸 가로 1열 배치 (트레일러 확장 - 방향결정 2026-08-31)
         // [0][1][2][3] = 포탑칸 A   [4][5][6][7] = 포탑칸 B (6,7은 기본 잠금 - 증강 해금)
-        // 셰프가 슬롯 아래에 서면 근접 [E]가 닿는다 (SlotY 0.9, SlotReach 1.3)
+        // B-2.2: 슬롯은 지붕 위(SlotY 1.95) - 셰프가 발밑에 서면 근접 [E]가 닿는다 (가로 거리 판정)
         for (int i = 0; i < 8; i++)
         {
             int car = i / 4;    // 0 = 포탑 A, 1 = 포탑 B
@@ -114,6 +117,25 @@ public class TurretSlotManager : MonoBehaviour
 
         // 속성 공명 집계 (같은 태그 포탑 수)
         UpdateResonance();
+
+        // B-2.2: 정비 시간(Town) 진입 시 마비/과열 전체 해제
+        // 과열은 [E] 홀드 전용이라 방치하면 다음 웨이브까지 끌고 간다 - 정비 시간 서사와 모순
+        if (GameBalance.ClearStunsOnTown && GameManager.Instance != null)
+        {
+            GameManager.GameState st = GameManager.Instance.currentState;
+            if (st != lastSeenState)
+            {
+                if (st == GameManager.GameState.Town)
+                {
+                    int cleared = 0;
+                    for (int i = 0; i < 8; i++)
+                        if (slots[i] != null && slots[i].IsStunned) { slots[i].ClearStun(); cleared++; }
+                    if (cleared > 0)
+                        UIManager.Instance?.ShowStatChange("[정비 시간] 멈췄던 포탑 " + cleared + "문 응급 정비 완료!");
+                }
+                lastSeenState = st;
+            }
+        }
 
         // 전투 중에만 발사
         if (GameManager.Instance != null &&
@@ -454,7 +476,9 @@ public class TurretSlotManager : MonoBehaviour
 
     /// <summary>
     /// B-1: 셰프 근처의 마비된 포탑 중 가장 가까운 슬롯 인덱스 (-1 = 없음).
-    /// SlotMarkerUI가 근접 [E] 해제 대상 결정에 사용
+    /// SlotMarkerUI가 근접 [E] 해제 대상 결정에 사용.
+    /// B-2.2: 슬롯이 지붕 위(y 1.95)로 올라갔으므로 가로 거리만 본다
+    /// (직선 거리로 재면 갑판의 셰프가 영영 닿지 못한다)
     /// </summary>
     public int FindStunnedSlotNear(Vector3 chefPos, float reach)
     {
@@ -464,7 +488,7 @@ public class TurretSlotManager : MonoBehaviour
         {
             TurretSlot s = slots[i];
             if (s == null || s.isLocked || s.IsEmpty || !s.IsStunned) continue;
-            float d = Vector2.Distance(chefPos, s.transform.position);
+            float d = Mathf.Abs(chefPos.x - s.transform.position.x);
             if (d <= bestDist) { bestDist = d; best = i; }
         }
         return best;

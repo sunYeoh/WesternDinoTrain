@@ -434,7 +434,15 @@ public static class GameBalance
     public static float SlotRowAX = 3.1f;      // 포탑 A 첫 슬롯 x
     public static float SlotRowBX = 7.6f;      // 포탑 B 첫 슬롯 x
     public static float SlotGapX = 1.1f;       // 슬롯 간격
-    public static float SlotY = 0.9f;          // 슬롯 높이 (셰프가 아래 서면 닿는다)
+    // B-2.2: 0.9(칸 몸통 속) -> 1.95(지붕 위). 포탑 받침이 지붕선(1.8)에 딱 앉는다 (원안 복원).
+    // 근접 판정은 가로 거리만 보므로(FindStunnedSlotNear) 셰프는 여전히 발밑에서 정비 가능
+    public static float SlotY = 1.95f;
+
+    // ── B-2.2: 포탑 실물 비주얼 (TurretSlot이 코드 도형으로 그린다) ──
+    public static bool TurretVisuals = true;       // false = 실물 끄기 (마커 칩만)
+    public static float SlotMarkerYOffset = 1.05f; // 마커 칩을 포탑 머리 위로 (월드 유닛)
+    public static float StationScale = 0.55f;      // 조리대 통일 스케일 (씬 0.4 -> 시인성 업)
+    public static bool ClearStunsOnTown = true;    // 정비 시간 진입 시 마비/과열 전체 해제
 
     /// <summary>
     /// 비주얼 정렬 (B-2.1): 구 기차 스프라이트(씬의 5x5 사각형)를 숨긴다.
