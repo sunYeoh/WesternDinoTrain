@@ -200,7 +200,9 @@ public class TurretSlotManager : MonoBehaviour
             if (!adjacent) continue;
 
             // 증강 '주방 동선 최적화': 인접 버프 배율
-            float v = r.buffValue * o.LevelMult * AugmentManager.AdjacentBuffMul;
+            // 밸런스 1차: AdjBuffScale - 1열 재배치로 줄어든 수혜 폭 보정 (GameBalance 참고)
+            float v = r.buffValue * o.LevelMult * AugmentManager.AdjacentBuffMul
+                * GameBalance.AdjBuffScale;
             if (r.buffType == "as") atkSpeed += v;
             else if (r.buffType == "pd") physDmg += v;
             else if (r.buffType == "md") magDmg += v;

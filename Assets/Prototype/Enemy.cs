@@ -819,7 +819,13 @@ public class Enemy : MonoBehaviour
 
         // P1 게임필: 처치 팝 (드랍 재료 색과 통일 - 조각 흡수 연출과 이어져 보이게)
         GameFeel.DeathPop(transform.position, PickupFX.ColorOf(GetDropMaterialType()));
-        GameManager.Instance?.AddGold(data.goldReward);
+
+        // 밸런스 1차 (B-3 레버 리턴): 전속 주행 중 처치 골드 +25%
+        // - 스폰 압박/판정 페널티를 감수한 값. 회전율이 곧 매출이다
+        int gold = data.goldReward;
+        if (EngineCab.FullSteam)
+            gold = Mathf.RoundToInt(gold * GameBalance.LeverGoldMul);
+        GameManager.Instance?.AddGold(gold);
 
         // Phase 2-3: 아주 낮은 확률로 아이템(유물) 드랍 - 보스는 확률 대폭 상향
         // B-2: 즉시 지급 대신 갑판 상자로 떨어진다 (죽은 자리 방향의 갑판 - 밟아서 회수)

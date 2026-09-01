@@ -412,7 +412,9 @@ public static class GameBalance
     public static float EventAnchorMaxX = 11.0f;
 
     /// <summary>위치형 이벤트 제한시간 보정 (+초, 달려가는 시간만큼 여유)</summary>
-    public static float EventReachGrace = 2.5f;
+    // 밸런스 1차: 2.5 -> 4.0. 최악 대각(포탑B 끝 -> 기관차, 17유닛 = 걷기 4초)
+    // + 조리 중단 반응 1초를 더하면 2.5초로는 도달 전 실패가 난다 (헌법 위반)
+    public static float EventReachGrace = 4.0f;
 
     // ==================================================================
     //  B-2: 트레일러 4칸 + 과열 + 카메라 + 갑판 전리품 (방향결정 2026-08-31)
@@ -444,6 +446,11 @@ public static class GameBalance
     public static float StationScale = 0.55f;      // 조리대 통일 스케일 (씬 0.4 -> 시인성 업)
     public static bool ClearStunsOnTown = true;    // 정비 시간 진입 시 마비/과열 전체 해제
 
+    // 밸런스 1차: 인접 버프 보정. B-2 가로 1열 재배치로 버프 수혜 슬롯이
+    // 평균 ~3개(구 2x4 격자) -> 최대 2개(양옆)로 줄었다 - 버프형 포탑 가치 복원
+    // (예: 물리 +40% -> 실효 +60%. 수혜 폭 절반 x 1.5배 = 구 가치의 ~75%)
+    public static float AdjBuffScale = 1.5f;
+
     /// <summary>
     /// 비주얼 정렬 (B-2.1): 구 기차 스프라이트(씬의 5x5 사각형)를 숨긴다.
     /// 4칸 데크가 기차 본체 역할을 이어받는다. 렌더러만 끄고 로직/태그는 유지.
@@ -462,7 +469,9 @@ public static class GameBalance
     public static int OverheatPerLevel = 2;        // 포탑 레벨당 임계 감소 (캐리일수록 손이 간다)
     public static float OverheatCoolHold = 0.8f;   // [E] 홀드 냉각 시간
     public static float OverheatImmuneTime = 14f;  // 냉각 후 그 포탑 재과열 면역
-    public static float OverheatGlobalGap = 25f;   // 기차 전체 과열 최소 간격 (빈도 상한)
+    // 밸런스 1차: 25 -> 30. 60초 웨이브 기준 왕복 2.4회 -> 2.0회,
+    // 보스전(90~120초)은 4회 -> 3회 (낙뢰 마비 대응과 겹치는 피로 완화)
+    public static float OverheatGlobalGap = 30f;   // 기차 전체 과열 최소 간격 (빈도 상한)
 
     /// <summary>카메라: 셰프 소프트 팔로우 (B-2)</summary>
     public static bool CamFollowChef = true;
@@ -487,11 +496,13 @@ public static class GameBalance
     public static float HarpoonReach = 1.2f;       // 조작 근접 반경
     public static float HarpoonRange = 14f;        // 작살 사거리 (바위 탐색)
     public static float HarpoonCooldown = 12f;
-    public static int HarpoonMatMin = 3;           // 명중 보상 재료 수
-    public static int HarpoonMatMax = 5;
+    // 밸런스 1차: 3~5 -> 2~4. 희소 재료(전기/화염/얼음/독)를 골라 낚는 게 작살의 가치라
+    // 평균 4개/12초는 디버프 요리 재료가 항상 남아도는 수준이었다 (기대값 하향)
+    public static int HarpoonMatMin = 2;           // 명중 보상 재료 수
+    public static int HarpoonMatMax = 4;
     public static float HarpoonAggroChance = 0.25f; // 원안의 리트리벌 리스크
     public static int HarpoonAggroMin = 1;
-    public static int HarpoonAggroMax = 2;
+    public static int HarpoonAggroMax = 3;         // 밸런스 1차: 2 -> 3 (도박은 화끈하게)
 
     /// <summary>자원 바위: 전투 중 길가를 흘러가는 표적</summary>
     public static float RockSpawnIntervalMin = 9f;
@@ -507,6 +518,9 @@ public static class GameBalance
     public static float LeverSpawnMul = 0.65f;     // 전속: 적 스폰 간격 배율 (-35%)
     public static float LeverJudgePenalty = 0.10f; // 전속: 조리 판정 존 -10%
     public static float LeverParallaxMul = 1.8f;   // 전속: 주행 연출 가속
+    // 밸런스 1차: 전속의 보상 신설. 기존엔 "웨이브가 빨리 끝난다"뿐이라 판정 페널티만
+    // 체감되는 함정 레버였다 - 전속 중 처치 골드 +25%로 리턴을 눈에 보이게 (Enemy.Die 적용)
+    public static float LeverGoldMul = 1.25f;
 
     // ==================================================================
     //  게임필 (P1) - 셰이크 / 히트스톱 / 처치 팝 (GameFeel.cs가 사용)

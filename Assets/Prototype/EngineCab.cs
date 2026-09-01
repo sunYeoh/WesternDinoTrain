@@ -313,6 +313,9 @@ public class EngineCab : MonoBehaviour
         if (FullSteam)
         {
             UIManager.Instance?.ShowDanger("전속 주행! 손님들이 빨리 온다 - 도마가 흔들린다!");
+            // 밸런스 1차: 전속의 리턴을 유저에게 명시 (수치는 GameBalance.LeverGoldMul)
+            UIManager.Instance?.ShowStatChange("[전속 보너스] 회전율이 곧 매출 - 처치 골드 +"
+                + Mathf.RoundToInt((GameBalance.LeverGoldMul - 1f) * 100f) + "%");
             if (!leverStoryShown)
             {
                 leverStoryShown = true;
