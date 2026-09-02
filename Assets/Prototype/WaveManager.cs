@@ -591,14 +591,26 @@ public class WaveManager : MonoBehaviour
 
     private void SpawnEnemy(GameObject prefab, Enemy.EnemyData enemyData, int waveNum, int playerLevel, float diffL)
     {
-        if (prefab == null)
+        Vector3 spawnPos = GetRandomSpawnPosition();
+        GameObject enemyObj;
+
+        if (prefab != null)
+        {
+            enemyObj = Instantiate(prefab, spawnPos, Quaternion.identity);
+        }
+        else if (GameBalance.EnemyFallbackVisuals)
+        {
+            // 코드 폴백: 프리팹이 없는 종은 도형으로 만들어서라도 내보낸다
+            // (전갈/거북/강철랩터/화염익룡/네크로스피노가 조용히 스킵되어
+            //  지역 2~3 물량과 기믹이 설계보다 얇아지던 문제 - 백로그 3절)
+            enemyObj = BuildFallbackEnemy(enemyData, spawnPos);
+            Debug.Log("[WaveManager] '" + enemyData.enemyName + "' 코드 폴백 생성 (프리팹 미할당)");
+        }
+        else
         {
             Debug.LogWarning("[WaveManager] '" + enemyData.enemyName + "' 프리팹 미할당 - 스킵");
             return;
         }
-
-        Vector3 spawnPos = GetRandomSpawnPosition();
-        GameObject enemyObj = Instantiate(prefab, spawnPos, Quaternion.identity);
 
         Enemy enemy = enemyObj.GetComponent<Enemy>();
         if (enemy != null)
@@ -609,6 +621,85 @@ public class WaveManager : MonoBehaviour
         }
 
         aliveEnemyCount++;
+    }
+
+    // ─────────────────────────────────────────────
+    // 적 코드 폴백 (아트 반영 전 임시 - 종별 실루엣 도형)
+    // ─────────────────────────────────────────────
+
+    /// <summary>
+    /// 프리팹 없는 적을 코드 도형으로 생성한다. Enemy는 물리/스프라이트 요구가 없어
+    /// (이동·피격 전부 로직 기반) 컴포넌트 하나 + 자식 도형이면 완전한 적이 된다.
+    /// 행동 패턴은 Enemy.AssignBehavior가 이름으로 자동 배정 (네크로=힐러, 익룡=급강하 등).
+    /// </summary>
+    private GameObject BuildFallbackEnemy(Enemy.EnemyData data, Vector3 pos)
+    {
+        GameObject go = new GameObject("Enemy_" + data.enemyName);
+        go.transform.position = pos;
+
+        // 체력이 클수록 덩치도 조금 크게 (HP 30 = x0.85 ~ HP 400+ = x1.4)
+        float bulk = Mathf.Clamp(0.85f + data.baseHP / 500f, 0.85f, 1.4f);
+        string n = data.enemyName;
+
+        if (n.Contains("전갈"))
+        {
+            // 낮고 넓은 몸통 + 치켜든 독침 꼬리 (도구 파괴꾼)
+            MakeEnemyPart(go, "Body", 0f, -0.12f, 0.8f, 0.42f, 0f, new Color(0.62f, 0.35f, 0.18f), true);
+            MakeEnemyPart(go, "Tail", 0.3f, 0.28f, 0.14f, 0.5f, -30f, new Color(0.45f, 0.2f, 0.4f), false);
+            MakeEnemyPart(go, "Sting", 0.42f, 0.5f, 0.14f, 0.14f, 0f, new Color(0.72f, 0.42f, 0.9f), true);
+        }
+        else if (n.Contains("거북"))
+        {
+            // 커다란 등껍질 + 작은 머리 (고방어 탱커)
+            MakeEnemyPart(go, "Shell", 0f, 0.05f, 1.0f, 0.85f, 0f, new Color(0.35f, 0.5f, 0.42f), true);
+            MakeEnemyPart(go, "ShellRim", 0f, -0.28f, 0.95f, 0.2f, 0f, new Color(0.5f, 0.36f, 0.2f), false);
+            MakeEnemyPart(go, "Head", -0.55f, -0.15f, 0.3f, 0.24f, 0f, new Color(0.55f, 0.45f, 0.3f), true);
+        }
+        else if (n.Contains("강철"))
+        {
+            // 각진 강철 몸통 + 머리/꼬리 (물리 면역급)
+            MakeEnemyPart(go, "Body", 0f, 0f, 0.7f, 0.5f, 0f, new Color(0.55f, 0.58f, 0.62f), false);
+            MakeEnemyPart(go, "Head", -0.45f, 0.18f, 0.34f, 0.26f, 0f, new Color(0.42f, 0.45f, 0.5f), false);
+            MakeEnemyPart(go, "Tail", 0.5f, 0.1f, 0.42f, 0.12f, 12f, new Color(0.42f, 0.45f, 0.5f), false);
+        }
+        else if (n.Contains("익룡"))
+        {
+            // 다이아 몸통 + 가로 날개 (급강하 폭격)
+            MakeEnemyPart(go, "Wings", 0f, 0.05f, 1.15f, 0.16f, 0f, new Color(0.85f, 0.4f, 0.15f), false);
+            MakeEnemyPart(go, "Body", 0f, 0f, 0.45f, 0.45f, 45f, new Color(1f, 0.5f, 0.2f), false);
+        }
+        else if (n.Contains("네크로"))
+        {
+            // 뼈색 몸통 + 큰 등지느러미 + 사악한 치유의 빛 (힐러 - 우선 처치각)
+            MakeEnemyPart(go, "Body", 0f, -0.05f, 0.85f, 0.5f, 0f, new Color(0.35f, 0.3f, 0.4f), true);
+            MakeEnemyPart(go, "Sail", 0f, 0.42f, 0.6f, 0.55f, 0f, new Color(0.55f, 0.3f, 0.75f), false);
+            MakeEnemyPart(go, "Glow", -0.3f, 0.1f, 0.2f, 0.2f, 0f, new Color(0.4f, 0.95f, 0.5f), true);
+        }
+        else
+        {
+            // 알 수 없는 종: 회갈 원 하나 (기존 placeholder들과 같은 문법)
+            MakeEnemyPart(go, "Body", 0f, 0f, 0.7f, 0.7f, 0f, new Color(0.55f, 0.4f, 0.3f), true);
+        }
+
+        go.transform.localScale = new Vector3(bulk, bulk, 1f);
+        go.AddComponent<Enemy>();
+        return go;
+    }
+
+    /// <summary>폴백 적의 도형 파츠 1개 (TrainDeck 공용 스프라이트 재사용)</summary>
+    private void MakeEnemyPart(GameObject parent, string partName, float x, float y,
+        float w, float h, float tiltZ, Color color, bool circle)
+    {
+        GameObject part = new GameObject(partName);
+        part.transform.SetParent(parent.transform, false);
+        part.transform.localPosition = new Vector3(x, y, 0f);
+        part.transform.localScale = new Vector3(w, h, 1f);
+        part.transform.localEulerAngles = new Vector3(0f, 0f, tiltZ);
+
+        SpriteRenderer sr = part.AddComponent<SpriteRenderer>();
+        sr.sprite = circle ? TrainDeck.GetCircleSprite() : TrainDeck.GetWhiteSprite();
+        sr.color = color;
+        sr.sortingOrder = 5;   // 데크(-6~-4)/포탑(-3) 위, 처치 팝(58+) 아래
     }
 
     private void SpawnBoss()

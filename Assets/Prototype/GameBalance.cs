@@ -522,6 +522,28 @@ public static class GameBalance
     // 체감되는 함정 레버였다 - 전속 중 처치 골드 +25%로 리턴을 눈에 보이게 (Enemy.Die 적용)
     public static float LeverGoldMul = 1.25f;
 
+    /// <summary>
+    /// 정차역 라이트 (감사 3-C, StationStop.cs): 전투가 아니면 기차가 실제로 멈춘다.
+    /// Town 진입 = 간이역 정차 연출(기적/덜컹/역 이름 배너), Battle 진입 = 출발 재가속.
+    /// </summary>
+    public static bool StationStopEnabled = true;
+
+    /// <summary>
+    /// 컨텍스트 튜토리얼 (TutorialHint.cs): 각 기믹을 처음 마주치는 순간 1회 안내.
+    /// 기록은 PlayerPrefs "WDT_Tut_" - 본 힌트는 다시 안 뜬다. [H] 아카이브 재열람.
+    /// </summary>
+    public static bool TutorialEnabled = true;
+
+    /// <summary>로비 개편 (LobbyUI.cs): 씬의 구 로비 패널(묻힌 시작 버튼)을 자동 숨김</summary>
+    public static bool HideLegacyLobbyPanel = true;
+
+    /// <summary>
+    /// 적 코드 폴백 (WaveManager.BuildFallbackEnemy): 프리팹이 없는 적을 도형으로 생성.
+    /// 전갈/거북/강철랩터/화염익룡/네크로스피노가 스폰 스킵되던 문제 해소.
+    /// 아트 프리팹을 씬에 할당하면 그 종은 자동으로 프리팹이 우선한다.
+    /// </summary>
+    public static bool EnemyFallbackVisuals = true;
+
     // ==================================================================
     //  게임필 (P1) - 셰이크 / 히트스톱 / 처치 팝 (GameFeel.cs가 사용)
     //  전부 0으로 만들면 해당 연출이 완전히 꺼진다.
