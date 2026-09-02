@@ -111,6 +111,23 @@ public class KitchenPanel : MonoBehaviour
     {
         if (r == null) return 0;
 
+        // 픽스 2차 (플레이테스트: "스튜인데 볶기를 한다"): 이름이 조리법을 말하면
+        // 이름이 최우선이다 - 유저가 읽는 그대로 조리해야 어색하지 않다.
+        // (예: '절대영도 수프' 볶기 -> 끓이기 / '마비독 꼬치' 끓이기 -> 굽기)
+        string n = r.displayName;
+        if (!string.IsNullOrEmpty(n))
+        {
+            if (n.Contains("수프") || n.Contains("스튜") || n.Contains("탕")
+                || n.Contains("찜") || n.Contains("진액") || n.Contains("스프"))
+                return 2;   // 끓이기
+            if (n.Contains("볶음") || n.Contains("볶기"))
+                return 1;   // 볶기
+            if (n.Contains("육포") || n.Contains("스테이크") || n.Contains("구이")
+                || n.Contains("꼬치") || n.Contains("바베큐") || n.Contains("립")
+                || n.Contains("철판") || n.Contains("그릴"))
+                return 0;   // 굽기
+        }
+
         // 스프/정식/장판/오라/버프 계열 -> 끓이기 (냄비)
         bool isPot = !string.IsNullOrEmpty(r.passiveType) || !string.IsNullOrEmpty(r.buffType)
             || r.shape == AttackShape.Passive || r.shape == AttackShape.Aura || r.shape == AttackShape.Field;

@@ -40,8 +40,8 @@ public class TutorialHint : MonoBehaviour
             "재료 2개 = 요리 1개. [E] 가까운 조리대 / [Tab] 주방 전체 메뉴"),
         new HintDef("cook_start", "조리 개시",
             "판정에 맞춰 손을 움직여라. [ESC] 중단하면 재료는 돌려받는다"),
-        new HintDef("merge_ready", "합체 준비 완료",
-            "같은 요리 포탑이 2문이다 - 좌클릭 합체로 레벨을 합산하라"),
+        new HintDef("merge_ready", "같은 요리는 겹친다",
+            "가동 중인 포탑에 같은 요리를 다시 투입 = 레벨업! 같은 포탑 2문은 좌클릭 합체"),
         new HintDef("resonance_near", "공명 임박",
             "같은 속성 2문째다. 3문을 모으면 속성 공명 데미지 +20%!"),
         new HintDef("first_stun", "포탑 마비!",
@@ -234,6 +234,12 @@ public class TutorialHint : MonoBehaviour
             {
                 TurretSlot sa = mgr.slots[a];
                 if (sa == null || sa.IsEmpty || sa.isLocked) continue;
+
+                // 픽스 2차: 합체 안내를 앞당긴다 - 가동 포탑과 같은 요리가 "재고"에만
+                // 있어도 발동 (시작 포탑 + 보급 요리 조합이면 첫 전투 몇 초 안에 배운다)
+                if (id == "merge_ready" && FoodStock.Instance != null
+                    && FoodStock.Instance.Get(sa.recipeId) >= 1) return true;
+
                 for (int b = a + 1; b < mgr.slots.Length; b++)
                 {
                     TurretSlot sb = mgr.slots[b];

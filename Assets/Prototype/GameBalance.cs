@@ -19,8 +19,12 @@ public static class GameBalance
     /// <summary>기차 시작 최대 HP (기존 1000 -> 500. 강철 리벳/요새/야전 정비반으로 성장)</summary>
     public static float TrainStartHP = 500f;
 
-    /// <summary>모든 포탑 데미지 전역 배율 (기존 1.0 -> 0.7. 증강으로 화력을 되찾는 구조)</summary>
-    public static float TurretDamageMul = 0.7f;
+    /// <summary>
+    /// 모든 포탑 데미지 전역 배율.
+    /// 플레이테스트 2차: 0.7 -> 0.85. "포탑이 너무 약해 강화에 바빠 텍스트 읽을 틈이 없다"
+    /// - 자동 전투가 초반을 어느 정도 버텨줘야 스토리/증강을 읽는다 (증강 성장 여지는 유지)
+    /// </summary>
+    public static float TurretDamageMul = 0.85f;
 
     /// <summary>시작 골드 (기존 500 -> 200. 정비소/도박 증강의 무게를 살림)</summary>
     public static int StartGold = 200;
@@ -565,6 +569,20 @@ public static class GameBalance
     /// (랩터 3마리 + 대사 체인). 기록 "WDT_PrologueSeen" - 치트 F4가 튜토리얼과 함께 리셋.
     /// </summary>
     public static bool PrologueEnabled = true;
+
+    // ── 플레이테스트 픽스 2차: 상호작용 변주 ("전부 E 한 번이라 똑같은 느낌") ──
+    // 감전 = [E] 탁 털기(1회) / 빙결 = [E] 연타로 얼음 깨기 / 과열 = [E] 꾹 + 부채질 /
+    // 레버 = [E] 꾹 당기기(오발 방지 겸) / 작살·조리대 = [E] 1회 유지 - 손맛 3계열 분리
+
+    /// <summary>빙결 해제에 필요한 [E] 연타 수 (깡, 깡, 깡!)</summary>
+    public static int UnfreezeTaps = 3;
+
+    /// <summary>레버는 꾹 눌러 당긴다 (초). 짧지만 묵직하게 + 지나가다 오발 방지</summary>
+    public static float LeverHoldSec = 0.35f;
+
+    /// <summary>과열 냉각 부채질: 마우스를 휘저으면 냉각 가속 (픽셀당 보너스, 상한 배율)</summary>
+    public static float OverheatValveBonus = 0.05f;
+    public static float OverheatValveMax = 1.0f;   // 최대 2배속 (기본 1 + 보너스 1)
 
     // ==================================================================
     //  게임필 (P1) - 셰이크 / 히트스톱 / 처치 팝 (GameFeel.cs가 사용)

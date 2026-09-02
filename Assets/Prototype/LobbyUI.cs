@@ -48,7 +48,12 @@ public class LobbyUI : MonoBehaviour
 
         if (root != null && root.activeSelf != lobby)
             root.SetActive(lobby);
-        if (!lobby) return;
+        if (!lobby)
+        {
+            // 로비를 떠나면 도감도 닫는다 (출발 후 화면에 남지 않게)
+            if (collectionRoot != null) { Destroy(collectionRoot.gameObject); collectionRoot = null; }
+            return;
+        }
 
         // 구 씬 로비 패널 숨김 (Uimanager.ShowOnlyPanel이 다시 켜도 매 프레임 꺼서 유지)
         if (GameBalance.HideLegacyLobbyPanel && UIManager.Instance != null
@@ -104,19 +109,29 @@ public class LobbyUI : MonoBehaviour
         startRt.anchoredPosition = new Vector2(0f, 156f);
         startBtn.onClick.AddListener(StartRun);
 
-        // ── 출발 버튼 밑: 명성 상점 버튼 (플레이테스트 픽스) ──
+        // ── 출발 버튼 밑: 명성 상점 / 도감 버튼 (나란히) ──
         // 상점이 로비를 자동으로 덮지 않는다 - 출발 전에 원하는 사람만 열어 본다
         Button shopBtn = UIFactory.CreateButton(root.transform, "FameShopBtn",
-            "명성 상점  [M]", new Vector2(220f, 42f),
+            "명성 상점  [M]", new Vector2(214f, 42f),
             UIFactory.PANEL, UIFactory.GOLD, 17);
         RectTransform shopRt = shopBtn.GetComponent<RectTransform>();
         shopRt.anchorMin = new Vector2(0.5f, 0f);
         shopRt.anchorMax = new Vector2(0.5f, 0f);
-        shopRt.anchoredPosition = new Vector2(0f, 98f);
+        shopRt.anchoredPosition = new Vector2(-114f, 98f);
         shopBtn.onClick.AddListener(delegate
         {
             if (FameShopUI.Instance != null) FameShopUI.Instance.ToggleShop();
         });
+
+        // 도감 열람 (설계 6절 잔여): 지금까지 발견한 요리를 출발 전에 훑어본다
+        Button bookBtn = UIFactory.CreateButton(root.transform, "CollectionBtn",
+            "요리 도감", new Vector2(214f, 42f),
+            UIFactory.PANEL, UIFactory.CREAM, 17);
+        RectTransform bookRt = bookBtn.GetComponent<RectTransform>();
+        bookRt.anchorMin = new Vector2(0.5f, 0f);
+        bookRt.anchorMax = new Vector2(0.5f, 0f);
+        bookRt.anchoredPosition = new Vector2(114f, 98f);
+        bookBtn.onClick.AddListener(ToggleCollection);
 
         // ── 안내줄 ──
         Text guide = UIFactory.CreateText(root.transform, "Guide",
@@ -169,6 +184,95 @@ public class LobbyUI : MonoBehaviour
         plus.onClick.AddListener(delegate { AdjustVolume(bgm, 0.1f); });
 
         return label;
+    }
+
+    // ─────────────────────────────────────────────
+    // 요리 도감 열람 (읽기 전용 - 발견 = 이름, 미발견 = ???)
+    // ─────────────────────────────────────────────
+    private Canvas collectionCanvas;
+    private RectTransform collectionRoot;
+
+    private void ToggleCollection()
+    {
+        if (collectionRoot != null)
+        {
+            Destroy(collectionRoot.gameObject);
+            collectionRoot = null;
+            return;
+        }
+        BuildCollection();
+    }
+
+    /// <summary>열 때마다 새로 그린다 (발견 수가 런마다 늘어나니)</summary>
+    private void BuildCollection()
+    {
+        if (collectionCanvas == null)
+            collectionCanvas = UIFactory.CreateCanvas("LobbyCollection_Canvas", 565);   // 명성 상점(560) 위
+
+        // 요리 목록을 티어별로 모은다
+        System.Collections.Generic.List<RecipeData> t1 = new System.Collections.Generic.List<RecipeData>();
+        System.Collections.Generic.List<RecipeData> t2 = new System.Collections.Generic.List<RecipeData>();
+        int found = 0, total = 0;
+        foreach (RecipeData r in RecipeDatabase.All)
+        {
+            if (r == null) continue;
+            total++;
+            if (MetaProgress.IsRecipeDiscovered(r.recipeId)) found++;
+            if (r.tier == 2) t2.Add(r); else t1.Add(r);
+        }
+
+        int rows = Mathf.Max(t1.Count, t2.Count);
+        float height = 110f + rows * 24f;
+
+        collectionRoot = UIFactory.CreatePanel(collectionCanvas.transform, "Collection",
+            new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
+            new Vector2(-360f, -height * 0.5f), new Vector2(360f, height * 0.5f),
+            UIFactory.PANEL, UIFactory.COPPER, 2f);
+
+        Text title = UIFactory.CreateText(collectionRoot, "Title",
+            "황야의 요리 도감  -  발견 " + found + " / " + total, 20, UIFactory.GOLD, TextAnchor.UpperCenter);
+        title.rectTransform.offsetMin = new Vector2(10f, height - 44f);
+        title.rectTransform.offsetMax = new Vector2(-10f, -10f);
+
+        Text colA = UIFactory.CreateText(collectionRoot, "HeadT1",
+            "- 기본 요리 -", 15, UIFactory.CREAM, TextAnchor.MiddleCenter);
+        SetBookRow(colA.rectTransform, true, height, -1);
+        Text colB = UIFactory.CreateText(collectionRoot, "HeadT2",
+            "- 전설 요리 -", 15, UIFactory.T2PINK, TextAnchor.MiddleCenter);
+        SetBookRow(colB.rectTransform, false, height, -1);
+
+        for (int i = 0; i < rows; i++)
+        {
+            if (i < t1.Count) MakeBookRow(t1[i], true, height, i);
+            if (i < t2.Count) MakeBookRow(t2[i], false, height, i);
+        }
+
+        Text footer = UIFactory.CreateText(collectionRoot, "Footer",
+            "요리는 처음 만드는 순간 도감에 새겨진다 - [요리 도감] 버튼으로 닫기", 12,
+            UIFactory.DIM, TextAnchor.LowerCenter);
+        footer.rectTransform.offsetMin = new Vector2(10f, 8f);
+        footer.rectTransform.offsetMax = new Vector2(-10f, -(height - 30f));
+    }
+
+    private void MakeBookRow(RecipeData r, bool left, float height, int row)
+    {
+        bool seen = MetaProgress.IsRecipeDiscovered(r.recipeId);
+        string label = seen ? r.displayName : "???";
+        Color c = !seen ? UIFactory.DIM : (r.tier == 2 ? UIFactory.T2PINK : UIFactory.CREAM);
+
+        Text t = UIFactory.CreateText(collectionRoot, "Row_" + r.recipeId, label, 14,
+            c, TextAnchor.MiddleLeft);
+        SetBookRow(t.rectTransform, left, height, row);
+    }
+
+    /// <summary>도감 행 배치 (row -1 = 컬럼 머리글)</summary>
+    private static void SetBookRow(RectTransform rt, bool left, float height, int row)
+    {
+        float top = height - 74f - (row + 1) * 24f + 24f;
+        rt.anchorMin = new Vector2(left ? 0f : 0.5f, 0f);
+        rt.anchorMax = new Vector2(left ? 0.5f : 1f, 0f);
+        rt.offsetMin = new Vector2(left ? 26f : 20f, top - 22f);
+        rt.offsetMax = new Vector2(left ? -20f : -26f, top);
     }
 
     private void AdjustVolume(bool bgm, float delta)

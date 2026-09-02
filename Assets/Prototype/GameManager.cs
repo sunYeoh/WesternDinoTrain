@@ -187,7 +187,21 @@ public class GameManager : MonoBehaviour
         }
 
         Debug.Log("[GameManager] 시작 보급품 지급: " + summary);
-        UIManager.Instance?.ShowStatChange("보급품 도착! " + summary + " - 슬롯에 투입해 포탑을 세워라!");
+
+        // 픽스 2차 (플레이테스트: "시작하자마자 적응할 새 없이 바쁘다"):
+        // 첫 포탑 1문은 선대가 미리 걸어두고 떠났다 - 유저는 달리는 기차부터 익힌다.
+        // (재고 소모 없음 - 남은 보급 요리를 같은 포탑에 부으면 레벨업을 바로 배운다)
+        bool preInstalled = false;
+        if (TurretSlotManager.Instance != null && GameBalance.StarterFoods.Length > 0)
+        {
+            TurretSlot first = TurretSlotManager.Instance.slots[0];
+            if (first != null && first.IsEmpty && !first.isLocked)
+                preInstalled = first.TryInsertFood(GameBalance.StarterFoods[0].recipeId);
+        }
+
+        UIManager.Instance?.ShowStatChange(preInstalled
+            ? "보급품 도착! " + summary + " - 포탑 1문은 선대가 걸어뒀다. 나머지는 셰프의 몫!"
+            : "보급품 도착! " + summary + " - 슬롯에 투입해 포탑을 세워라!");
     }
 
     // ─────────────────────────────────────────────

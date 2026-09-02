@@ -35,6 +35,10 @@ public class SlotMarkerUI : MonoBehaviour
     private float coolHold = 0f;
     private int coolIndex = -1;
 
+    // 픽스 2차: 빙결 = [E] 연타로 깨기 (상호작용 변주)
+    private int iceTaps = 0;
+    private int iceTapIndex = -1;
+
     // 합체 선택 상태 (-1 = 선택 없음)
     private int mergeSelectIndex = -1;
     private RectTransform mergeBanner;
@@ -123,7 +127,14 @@ public class SlotMarkerUI : MonoBehaviour
             if (Input.GetKey(KeyCode.E))
             {
                 ChefController.InteractConsumedFrame = Time.frameCount;   // 조리대 열림 방지
-                coolHold += Time.deltaTime;
+
+                // 픽스 2차 (상호작용 변주): 부채질 - [E] 꾹 + 마우스를 휘저으면 냉각 가속
+                // (프레임당 마우스 이동량 기반. 안 휘저어도 기본 속도는 그대로)
+                float mouseMove = new Vector2(
+                    Input.GetAxisRaw("Mouse X"), Input.GetAxisRaw("Mouse Y")).magnitude;
+                float fanBonus = Mathf.Min(mouseMove * GameBalance.OverheatValveBonus,
+                    GameBalance.OverheatValveMax);
+                coolHold += Time.deltaTime * (1f + fanBonus);
                 if (coolHold >= GameBalance.OverheatCoolHold)
                 {
                     coolHold = 0f; coolIndex = -1;
@@ -138,18 +149,30 @@ public class SlotMarkerUI : MonoBehaviour
             return;
         }
 
-        // ── B-1: 감전/빙결 = [E] 한 번에 즉시 해제 ──
+        // ── 픽스 2차 (상호작용 변주): 감전 = [E] 탁 털기(1회) / 빙결 = [E] 연타로 깨기 ──
         coolHold = 0f; coolIndex = -1;
         if (Input.GetKeyDown(KeyCode.E))
         {
-            string kind = slot.StunKind;
-            slot.ClearStun();
             ChefController.InteractConsumedFrame = Time.frameCount;   // 조리대 열림 방지
+            string kind = slot.StunKind;
+
+            if (kind == "빙결")
+            {
+                // 얼음은 한 방에 안 깨진다 - 깡, 깡, 깡!
+                if (reachStunIndex != iceTapIndex) { iceTapIndex = reachStunIndex; iceTaps = 0; }
+                iceTaps++;
+                SoundManager.Play("sfx_ui_click");
+                GameFeel.DeathPop(slot.transform.position, new Color(0.6f, 0.9f, 1f), 0.3f); // 얼음 조각
+                if (iceTaps < GameBalance.UnfreezeTaps) return;
+                iceTaps = 0; iceTapIndex = -1;
+            }
+
+            slot.ClearStun();
             SoundManager.Play("sfx_ui_click");
             GameFeel.DeathPop(slot.transform.position, kind == "빙결"
                 ? new Color(0.6f, 0.9f, 1f) : new Color(1f, 0.9f, 0.3f), 0.5f);
             UIManager.Instance?.ShowStatChange(kind == "빙결"
-                ? "포탑 해빙! (얼음을 손으로 깨뜨렸다)"
+                ? "포탑 해빙! (얼음을 깡깡 깨뜨렸다)"
                 : "포탑 재가동! (감전을 털어냈다)");
         }
     }
@@ -247,10 +270,12 @@ public class SlotMarkerUI : MonoBehaviour
                 if (!GameBalance.ProximityInteract && !overheated)
                     hint = "[" + slot.StunKind + "! 클릭 재가동]";
                 else if (overheated && i == reachStunIndex)
-                    hint = "[E 꾹] 냉각 " + Mathf.RoundToInt(
+                    hint = "[E 꾹] + 마우스 휘저어 부채질! " + Mathf.RoundToInt(
                         Mathf.Clamp01(coolHold / GameBalance.OverheatCoolHold) * 100f) + "%";
                 else if (i == reachStunIndex)
-                    hint = "[E] " + (frozen ? "해빙!" : "털어내기!");
+                    hint = frozen
+                        ? "[E] 연타로 깨라! (" + iceTaps + "/" + GameBalance.UnfreezeTaps + ")"
+                        : "[E] 털어내기!";
                 else
                     hint = "[" + slot.StunKind + "! 달려가서 E]";
                 markerTexts[i].text = rs.displayName + "\n" + hint;

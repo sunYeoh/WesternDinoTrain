@@ -147,6 +147,7 @@ public class EngineCab : MonoBehaviour
     {
         TickRocks();
         TickInteract();
+        TickLeverHold();   // 픽스 2차: 레버 [E] 홀드 진행
         TickHints();
     }
 
@@ -236,11 +237,41 @@ public class EngineCab : MonoBehaviour
             return;
         }
 
-        // 레버
+        // 레버 - 픽스 2차 (상호작용 변주): 꾹 눌러 당긴다 (묵직함 + 지나가다 오발 방지)
+        // GetKeyDown은 홀드 시작만 기록 - 실제 당김은 TickLeverHold가 처리
         if (GameBalance.LeverEnabled
             && Mathf.Abs(chefX - GameBalance.LeverX) <= GameBalance.LeverReach)
         {
             ChefController.InteractConsumedFrame = Time.frameCount;
+            leverHolding = true;
+            leverHoldTime = 0f;
+        }
+    }
+
+    // ── 픽스 2차: 레버 홀드 처리 (매 프레임) ──
+    private bool leverHolding = false;
+    private float leverHoldTime = 0f;
+
+    private void TickLeverHold()
+    {
+        if (!leverHolding) return;
+
+        // 손을 뗐거나 레버에서 멀어지면 취소
+        bool near = chefTransform != null && GameBalance.LeverEnabled
+            && Mathf.Abs(chefTransform.position.x - GameBalance.LeverX) <= GameBalance.LeverReach;
+        if (!Input.GetKey(KeyCode.E) || !near)
+        {
+            leverHolding = false;
+            leverHoldTime = 0f;
+            return;
+        }
+
+        ChefController.InteractConsumedFrame = Time.frameCount;   // 홀드 중 조리대/작살 양보
+        leverHoldTime += Time.deltaTime;
+        if (leverHoldTime >= GameBalance.LeverHoldSec)
+        {
+            leverHolding = false;
+            leverHoldTime = 0f;
             ToggleLever();
         }
     }
@@ -362,7 +393,12 @@ public class EngineCab : MonoBehaviour
         leverHint.gameObject.SetActive(nearLever);
         if (nearLever)
         {
-            leverHint.text = FullSteam ? "[E] 순항 복귀" : "[E] 전속 주행!";
+            // 픽스 2차: 홀드 진행 표시 (당기는 중이면 %)
+            if (leverHolding && leverHoldTime > 0f)
+                leverHint.text = "당기는 중... " + Mathf.RoundToInt(
+                    Mathf.Clamp01(leverHoldTime / GameBalance.LeverHoldSec) * 100f) + "%";
+            else
+                leverHint.text = FullSteam ? "[E] 꾹 - 순항 복귀" : "[E] 꾹 - 전속 주행!";
             // B-2.1: 레버가 운전석 바닥으로 내려왔으므로 힌트도 함께 하강 (3.1 -> 2.0)
             leverHint.rectTransform.position = Camera.main.WorldToScreenPoint(
                 new Vector3(GameBalance.LeverX, 2.0f, 0f));
