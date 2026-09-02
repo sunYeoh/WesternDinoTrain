@@ -305,6 +305,27 @@ public class Enemy : MonoBehaviour
     /// <summary>현재 추적 대상 (도발 중이면 미끼, 아니면 기차)</summary>
     protected Transform CurrentTarget { get { return IsTaunted ? tauntTarget : trainTarget; } }
 
+    /// <summary>
+    /// 플레이테스트 픽스: 실제 공격 지점.
+    /// 기차가 4칸(-6.5~11.5)으로 길어졌는데 여전히 원점(주방 근처)만 노리면
+    /// 적이 기차 몸통을 통과해 파고들고, 포탑과의 거리도 왜곡된다.
+    /// 도발 중이 아니면 "내 위치에서 가장 가까운 기차 몸통 지점"을 노린다
+    /// (옆에서 오면 그쪽 가장자리, 위에서 오면 바로 아래 지붕).
+    /// </summary>
+    protected Vector3 CurrentTargetPos
+    {
+        get
+        {
+            if (IsTaunted && tauntTarget != null) return tauntTarget.position;
+
+            float left = GameBalance.CarEdgesX[0] + 0.8f;
+            float right = GameBalance.CarEdgesX[GameBalance.CarEdgesX.Length - 1] - 0.8f;
+            float tx = Mathf.Clamp(transform.position.x, left, right);
+            float ty = trainTarget != null ? trainTarget.position.y : 0f;
+            return new Vector3(tx, ty, 0f);
+        }
+    }
+
     /// <summary>미끼로 유인 (BaitStationUI가 호출)</summary>
     public void Taunt(Transform bait, float seconds)
     {
@@ -426,6 +447,17 @@ public class Enemy : MonoBehaviour
     {
         if (!isAlive) return;
 
+        // 플레이테스트 픽스 (정차 성역): 전투가 끝났으면 남은 손님들은 어둠 속으로 물러난다
+        // - 늦게 도착한 적이 선로/베팅 고르는 정비 턴에 기차를 물어뜯던 사고 방지
+        // - 보상 없이 퇴장 (죽인 게 아니라 물러난 것)
+        if (GameBalance.TownSanctuary && !(this is BossEnemy)
+            && GameManager.Instance != null
+            && GameManager.Instance.currentState != GameManager.GameState.Battle)
+        {
+            FleeAway();
+            return;
+        }
+
         // 상태이상 갱신
         TickStatusEffects();
 
@@ -443,8 +475,8 @@ public class Enemy : MonoBehaviour
             return;
         }
 
-        // v3.5: 도발 중이면 미끼를 추적
-        float distance = Vector3.Distance(transform.position, CurrentTarget.position);
+        // v3.5: 도발 중이면 미끼를 추적 (픽스: 기차는 가장 가까운 몸통 지점 기준)
+        float distance = Vector3.Distance(transform.position, CurrentTargetPos);
         bool inRange = (distance <= attackRange);
 
         // 사거리에 처음 진입하는 순간, 첫 공격을 개체별로 랜덤하게 늦춘다
@@ -481,13 +513,13 @@ public class Enemy : MonoBehaviour
         }
 
         // 접근 (일반보다 조금 빠르게 돌진) - 도발 중이면 미끼로
-        Vector3 direction = (CurrentTarget.position - transform.position).normalized;
+        Vector3 direction = (CurrentTargetPos - transform.position).normalized;
         transform.position += direction * scaledSPD * SpeedMul() * 1.15f * Time.deltaTime;
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
         transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
 
         // 스치듯 타격
-        float distance = Vector3.Distance(transform.position, CurrentTarget.position);
+        float distance = Vector3.Distance(transform.position, CurrentTargetPos);
         if (distance <= attackRange && attackTimer >= attackCooldown)
         {
             if (!IsTaunted) AttackTrain();
@@ -610,11 +642,31 @@ public class Enemy : MonoBehaviour
 
     protected virtual void MoveTowardsTrain()
     {
-        // v3.5: 도발 중이면 미끼를 향해 이동
-        Vector3 direction = (CurrentTarget.position - transform.position).normalized;
+        // v3.5: 도발 중이면 미끼를 향해 이동 (픽스: 기차는 가장 가까운 몸통 지점으로)
+        Vector3 direction = (CurrentTargetPos - transform.position).normalized;
         transform.position += direction * scaledSPD * SpeedMul() * Time.deltaTime;
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
         transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
+    }
+
+    // ─────────────────────────────────────────────
+    // 정차 성역: 전투 종료 후 퇴장 (플레이테스트 픽스)
+    // ─────────────────────────────────────────────
+    private Vector3 fleeDir = Vector3.zero;
+
+    /// <summary>기차에서 먼 쪽으로 물러나다 화면 밖에서 조용히 소멸 (보상 없음)</summary>
+    private void FleeAway()
+    {
+        if (fleeDir == Vector3.zero)
+        {
+            float dx = transform.position.x >= 2.5f ? 1f : -1f;
+            fleeDir = new Vector3(dx, Random.Range(-0.15f, 0.35f), 0f).normalized;
+        }
+
+        transform.position += fleeDir * Mathf.Max(4f, scaledSPD) * 1.6f * Time.deltaTime;
+
+        if (Mathf.Abs(transform.position.x) > 30f || Mathf.Abs(transform.position.y) > 20f)
+            Destroy(gameObject);
     }
 
     // ─────────────────────────────────────────────

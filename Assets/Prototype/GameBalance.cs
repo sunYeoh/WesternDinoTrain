@@ -544,6 +544,28 @@ public static class GameBalance
     /// </summary>
     public static bool EnemyFallbackVisuals = true;
 
+    // ── 플레이테스트 픽스 1차 (2026-09-02) ──
+
+    /// <summary>
+    /// 포탑 탐색 사거리 (구 TurretSlot.targetRange 15 대체 - Inspector 무시).
+    /// 플레이테스트: 기차가 4칸(-6.5~11.5)으로 길어졌는데 15로는 반대편(기관차 쪽)을
+    /// 무는 적이 포탑 사각에 들어가 영영 안 맞았다. 20 = 전 슬롯이 전장 대부분 커버.
+    /// </summary>
+    public static float TurretRange = 20f;
+
+    /// <summary>
+    /// 정차 성역 (플레이테스트: 선로/베팅 고르는 정비 턴에 늦게 도착한 적에게 물려 사망).
+    /// true면 비전투 상태에서 1) 기차 무피해 2) 남은 적은 어둠 속으로 물러난다(보상 없음).
+    /// 스폰 코루틴 중단은 스위치와 무관하게 항상 적용 (그건 순수 버그).
+    /// </summary>
+    public static bool TownSanctuary = true;
+
+    /// <summary>
+    /// 프롤로그 (1회차 한정, WaveManager): 첫 런의 웨이브 1을 스피노 안내 무대로 교체
+    /// (랩터 3마리 + 대사 체인). 기록 "WDT_PrologueSeen" - 치트 F4가 튜토리얼과 함께 리셋.
+    /// </summary>
+    public static bool PrologueEnabled = true;
+
     // ==================================================================
     //  게임필 (P1) - 셰이크 / 히트스톱 / 처치 팝 (GameFeel.cs가 사용)
     //  전부 0으로 만들면 해당 연출이 완전히 꺼진다.

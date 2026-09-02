@@ -101,17 +101,31 @@ public class LobbyUI : MonoBehaviour
         RectTransform startRt = startBtn.GetComponent<RectTransform>();
         startRt.anchorMin = new Vector2(0.5f, 0f);
         startRt.anchorMax = new Vector2(0.5f, 0f);
-        startRt.anchoredPosition = new Vector2(0f, 118f);
+        startRt.anchoredPosition = new Vector2(0f, 156f);
         startBtn.onClick.AddListener(StartRun);
+
+        // ── 출발 버튼 밑: 명성 상점 버튼 (플레이테스트 픽스) ──
+        // 상점이 로비를 자동으로 덮지 않는다 - 출발 전에 원하는 사람만 열어 본다
+        Button shopBtn = UIFactory.CreateButton(root.transform, "FameShopBtn",
+            "명성 상점  [M]", new Vector2(220f, 42f),
+            UIFactory.PANEL, UIFactory.GOLD, 17);
+        RectTransform shopRt = shopBtn.GetComponent<RectTransform>();
+        shopRt.anchorMin = new Vector2(0.5f, 0f);
+        shopRt.anchorMax = new Vector2(0.5f, 0f);
+        shopRt.anchoredPosition = new Vector2(0f, 98f);
+        shopBtn.onClick.AddListener(delegate
+        {
+            if (FameShopUI.Instance != null) FameShopUI.Instance.ToggleShop();
+        });
 
         // ── 안내줄 ──
         Text guide = UIFactory.CreateText(root.transform, "Guide",
-            "[M] 명성 상점 접기/펼치기   |   [J] 선대의 일지   |   [H] 차장의 안내 일지",
+            "[J] 선대의 일지   |   [H] 차장의 안내 일지",
             14, UIFactory.DIM, TextAnchor.MiddleCenter);
         guide.rectTransform.anchorMin = new Vector2(0f, 0f);
         guide.rectTransform.anchorMax = new Vector2(1f, 0f);
-        guide.rectTransform.offsetMin = new Vector2(0f, 58f);
-        guide.rectTransform.offsetMax = new Vector2(0f, 84f);
+        guide.rectTransform.offsetMin = new Vector2(0f, 52f);
+        guide.rectTransform.offsetMax = new Vector2(0f, 78f);
 
         // ── 좌하단: 소리 설정 ──
         Text soundTitle = UIFactory.CreateText(root.transform, "SoundTitle",

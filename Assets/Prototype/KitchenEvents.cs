@@ -97,6 +97,10 @@ public class MonsterIntrusionEvent : IKitchenEvent
         // 아이콘 흔들기 + 게이지에 따라 작아지는 연출
         if (intruderIcon != null)
         {
+            // 플레이테스트 픽스: 카메라가 셰프를 따라가므로 화면 좌표를 매 프레임 재계산
+            // (한 번만 계산하면 아이콘이 화면에 눌어붙어 현장이 어딘지 알 수 없었다)
+            baseX = manager.AnchorCanvasX();
+
             float t = Mathf.Clamp01(Progress);
             float size = Mathf.Lerp(150f, 60f, t);
             intruderIcon.sizeDelta = new Vector2(size, size);
@@ -194,6 +198,11 @@ public class EquipmentBreakEvent : IKitchenEvent
     {
         success = false;
         if (wrongFlash > 0f) wrongFlash -= dt;
+
+        // 플레이테스트 픽스: 커맨드 표시를 현장 월드 좌표에 매 프레임 재고정
+        if (commandText != null)
+            commandText.rectTransform.anchoredPosition =
+                new Vector2(Mathf.Clamp(manager.AnchorCanvasX(), -420f, 420f), -30f);
 
         KeyCode pressed = ReadArrowKey();
         // B-1: 고장난 기구 곁에서만 수리 입력이 먹힌다 (떨어져서 누르면 무효 - 리셋도 없음)
@@ -319,6 +328,10 @@ public class KitchenFireEvent : IKitchenEvent
     public bool OnUpdate(float dt, out bool success)
     {
         success = false;
+
+        // 플레이테스트 픽스: 화재 박스를 현장 월드 좌표에 매 프레임 재고정
+        if (fireBox != null)
+            fireBox.anchoredPosition = new Vector2(manager.AnchorCanvasX(), -40f);
 
         // 불이 꺼질 때까지 기차가 피해를 입는다
         // [수정] 매 프레임 잘게 넣으면 TrainManager 최소데미지(1) 보정 때문에

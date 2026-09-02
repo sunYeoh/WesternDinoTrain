@@ -295,7 +295,8 @@ public class WorkshopUI : MonoBehaviour
         gearRt.anchorMin = new Vector2(1f, 1f);
         gearRt.anchorMax = new Vector2(1f, 1f);
         gearRt.pivot = new Vector2(1f, 1f);
-        gearRt.anchoredPosition = new Vector2(-16f, -160f);
+        // HUD 정리: 허공(-160)에 떠 있던 버튼을 우상단 구석에 정렬
+        gearRt.anchoredPosition = new Vector2(-16f, -14f);
         gearButton.onClick.AddListener(delegate { Toggle(); });
 
         // ---------- 정비소 패널 ----------

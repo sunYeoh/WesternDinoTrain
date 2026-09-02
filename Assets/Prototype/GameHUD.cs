@@ -29,7 +29,7 @@ public class GameHUD : MonoBehaviour
     private readonly List<GameObject> foodCards = new List<GameObject>();
 
     private const float CARD_W = 112f;
-    private const float CARD_H = 64f;
+    private const float CARD_H = 56f;   // HUD 정리: 64 -> 56 (하단 바 압축에 맞춤)
     private const float CARD_GAP = 4f;
 
     private static readonly string[] MAT_SHORT = { "고기", "등심", "전기", "화염", "얼음", "독" };
@@ -68,10 +68,10 @@ public class GameHUD : MonoBehaviour
     {
         canvas = UIFactory.CreateCanvas("GameHUD_Canvas", 10);
 
-        // ── 하단 바 (전체 폭, v2: 176px로 확장) ──
+        // ── 하단 바 (전체 폭. HUD 정리: 176 -> 158, 내용 대비 과했던 높이 압축) ──
         RectTransform bottomBar = UIFactory.CreatePanel(canvas.transform, "BottomBar",
             new Vector2(0f, 0f), new Vector2(1f, 0f),
-            new Vector2(8f, 8f), new Vector2(-8f, 176f),
+            new Vector2(8f, 8f), new Vector2(-8f, 158f),
             UIFactory.PANEL, UIFactory.COPPER, 3f);
 
         // ── 재료 목록 패널 (하단 바 왼쪽) ──

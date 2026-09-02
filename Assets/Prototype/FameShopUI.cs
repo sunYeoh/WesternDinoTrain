@@ -56,7 +56,20 @@ public class FameShopUI : MonoBehaviour
     private GameObject restartButtonGo;   // v1.2: [다시 굽는다] - 게임오버/승리 시에만 표시
 
     // 표시 상태 추적
-    private bool userCollapsed = false;   // M 키로 접었는가
+    // 플레이테스트 픽스: 로비에서는 기본 접힘 - 시작 화면을 가리지 않는다.
+    // 로비의 [명성 상점] 버튼이나 M 키로 열어 본다. (사망/승리 시에는 자동으로 펼쳐진다)
+    private bool userCollapsed = true;
+    private GameManager.GameState lastSeenState = GameManager.GameState.Lobby;
+
+    /// <summary>로비 버튼(LobbyUI)이 접기/펼치기를 호출할 수 있게 공개</summary>
+    public static FameShopUI Instance { get; private set; }
+
+    public void ToggleShop() { userCollapsed = !userCollapsed; }
+
+    private void Awake()
+    {
+        Instance = this;
+    }
 
     // ─────────────────────────────────────────────
     // 초기화
@@ -95,6 +108,17 @@ public class FameShopUI : MonoBehaviour
             allowed = (s == GameManager.GameState.Lobby
                 || s == GameManager.GameState.GameOver
                 || s == GameManager.GameState.Victory);
+
+            // 플레이테스트 픽스: 사망/승리 화면에 들어온 순간엔 자동으로 펼친다
+            // (죽은 직후가 명성을 쓸 가장 뜨거운 순간 - 로비 기본 접힘과 별개)
+            if (s != lastSeenState)
+            {
+                if (s == GameManager.GameState.GameOver || s == GameManager.GameState.Victory)
+                    userCollapsed = false;
+                else if (s == GameManager.GameState.Lobby)
+                    userCollapsed = true;
+                lastSeenState = s;
+            }
         }
 
         // M 키로 접기/펼치기

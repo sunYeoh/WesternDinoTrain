@@ -80,6 +80,38 @@ public class TrainDeck : MonoBehaviour
                 if (srs.Length > 0)
                     Debug.Log("[TrainDeck] 구 기차 스프라이트 " + srs.Length + "개 숨김 - 4칸 데크가 본체");
             }
+
+            // 씬 HUD 잔재도 함께 정리: StatChangeText는 v2부터 미사용 (콘솔 폰트 경고의 원인)
+            GameObject statLegacy = GameObject.Find("StatChangeText");
+            if (statLegacy != null)
+            {
+                statLegacy.SetActive(false);
+                Debug.Log("[TrainDeck] 씬 잔재 StatChangeText 숨김 (미사용 - 삭제해도 무방)");
+            }
+
+            // HUD 정리: 좌상단 HP바가 너무 작고 구석에 밀착 - 코드로 키운다 (씬 작업 0)
+            GameObject hpBar = GameObject.Find("HPBar");
+            if (hpBar != null)
+            {
+                RectTransform barRt = hpBar.GetComponent<RectTransform>();
+                if (barRt != null)
+                {
+                    barRt.sizeDelta = new Vector2(340f, 26f);            // 250x20 -> 340x26
+                    barRt.anchoredPosition = new Vector2(14f, -14f);     // 가장자리 여백
+                }
+            }
+            GameObject hpTextGo = GameObject.Find("HPText");
+            if (hpTextGo != null)
+            {
+                RectTransform txtRt = hpTextGo.GetComponent<RectTransform>();
+                if (txtRt != null)
+                {
+                    txtRt.sizeDelta = new Vector2(130f, 26f);
+                    txtRt.anchoredPosition = new Vector2(364f, -14f);    // 커진 바 오른쪽에
+                }
+                TMPro.TextMeshProUGUI tmp = hpTextGo.GetComponent<TMPro.TextMeshProUGUI>();
+                if (tmp != null) tmp.fontSize = 20f;
+            }
         }
 
         // 2) 조리대 3대를 주방칸 안 정위치로 (그릴/볶음팬/냄비 = StationXs 순서)

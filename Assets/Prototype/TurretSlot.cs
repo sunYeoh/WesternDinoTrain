@@ -244,7 +244,9 @@ public class TurretSlot : MonoBehaviour
         Enemy[] all = FindObjectsByType<Enemy>(FindObjectsSortMode.None);
         Enemy best = null;
         // 증강 사거리 배율 반영
-        float bestDist = targetRange * AugmentManager.RangeMul;
+        // 플레이테스트 픽스: 사거리는 GameBalance.TurretRange가 단일 소스 (구 15는 4칸
+        // 기차에서 반대편을 무는 적이 사각에 들어갔다 - targetRange 필드는 무시)
+        float bestDist = GameBalance.TurretRange * AugmentManager.RangeMul;
         for (int i = 0; i < all.Length; i++)
         {
             if (!all[i].IsAlive) continue;

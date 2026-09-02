@@ -432,7 +432,7 @@ public class KitchenEventManager : MonoBehaviour
         panelRoot.anchorMin = new Vector2(0.5f, 0f);
         panelRoot.anchorMax = new Vector2(0.5f, 0f);
         panelRoot.pivot = new Vector2(0.5f, 0f);
-        panelRoot.anchoredPosition = new Vector2(0f, 190f);   // 하단 HUD(176px) 위
+        panelRoot.anchoredPosition = new Vector2(0f, 172f);   // 하단 HUD(158px) 위 (HUD 정리 연동)
         panelRoot.sizeDelta = new Vector2(760f, 144f);
         panelRoot.GetComponent<Image>().raycastTarget = false;
 

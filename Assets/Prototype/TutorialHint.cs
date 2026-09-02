@@ -136,14 +136,15 @@ public class TutorialHint : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.H) && !PauseMenu.IsOpen)
             ToggleArchive();
 
-        // 개발 치트 F4: 튜토리얼 기록 전체 리셋 (재테스트용 - 빌드 전 치트 정리 대상)
+        // 개발 치트 F4: 튜토리얼+프롤로그 기록 전체 리셋 (재테스트용 - 빌드 전 치트 정리 대상)
         if (Input.GetKeyDown(KeyCode.F4))
         {
             for (int i = 0; i < HINTS.Length; i++)
                 PlayerPrefs.DeleteKey(PREF_PREFIX + HINTS[i].id);
+            PlayerPrefs.DeleteKey("WDT_PrologueSeen");   // 프롤로그(웨이브 1 스피노 안내)도 초기화
             PlayerPrefs.Save();
             allSeen = false;
-            UIManager.Instance?.ShowStatChange("[치트] 튜토리얼 기록 리셋 - 처음 온 셰프가 됐다");
+            UIManager.Instance?.ShowStatChange("[치트] 튜토리얼/프롤로그 기록 리셋 - 처음 온 셰프가 됐다");
             Debug.Log("[TutorialHint] 치트 F4 - 기록 전체 리셋");
         }
 

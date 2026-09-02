@@ -110,6 +110,11 @@ public class WaveManager : MonoBehaviour
     private int currentWaveNumber = 0;
     private int aliveEnemyCount = 0;
     private bool isWaveActive = false;
+    private Coroutine activeSpawnRoutine;   // 진행 중인 스폰 코루틴 (클리어 시 중단)
+
+    // 프롤로그 (1회차 한정 - 설계: 튜토리얼_온보딩_설계 4절)
+    private const string PROLOGUE_KEY = "WDT_PrologueSeen";
+    private bool prologueRun = false;       // 이번 웨이브가 프롤로그 무대인가
     private Transform trainTransform;
 
     // v6.2: 분기 선로 - 다음 웨이브에 적용될 선로 / 이번 웨이브에 적용 중인 선로
@@ -198,6 +203,28 @@ public class WaveManager : MonoBehaviour
 
         WaveConfig config = GetWaveConfig(waveNumber);
 
+        // ── 프롤로그 (1회차 한정, 설계 4절): 웨이브 1 = 스피노가 안내하는 첫 무대 ──
+        // 새 씬/새 상태 없이 웨이브 1을 "랩터 3마리 + 느긋한 간격"으로 재구성하고
+        // 스피노 대사 체인을 곁들인다. 클리어/보상/증강 흐름은 정상 웨이브와 동일 -
+        // 첫 판부터 게임의 리듬(전투 -> 정차 -> 선로)을 원형 그대로 배운다.
+        if (GameBalance.PrologueEnabled && waveNumber == 1
+            && PlayerPrefs.GetInt(PROLOGUE_KEY, 0) == 0)
+        {
+            PlayerPrefs.SetInt(PROLOGUE_KEY, 1);
+            PlayerPrefs.Save();
+            prologueRun = true;
+
+            WaveConfig intro = new WaveConfig();
+            intro.waveNumber = 1;
+            intro.spawnInterval = 2.5f;                       // 느긋하게 - 시간 압박 없음
+            intro.difficultyL = GameBalance.EnemyDifficultyL;
+            intro.steamRaptorCount = 3;                       // 애피타이저 3마리
+            config = intro;
+
+            StartCoroutine(PrologueDialogue());
+            Debug.Log("[WaveManager] 프롤로그 무대 - 웨이브 1을 안내 구성으로 교체");
+        }
+
         // v6.2: 분기 선로 규칙 적용 (물량 배율 / 이른 이벤트)
         activeRoute = pendingRoute;
         pendingRoute = null;
@@ -224,7 +251,8 @@ public class WaveManager : MonoBehaviour
             ShowWaveAttributeNotice(config);
 
         Debug.Log("[WaveManager] 웨이브 " + waveNumber + " 시작!");
-        StartCoroutine(SpawnWaveCoroutine(config));
+        // 플레이테스트 픽스: 코루틴 참조 보관 - 클리어 시 남은 스폰 예약을 끊는다
+        activeSpawnRoutine = StartCoroutine(SpawnWaveCoroutine(config));
     }
 
     /// <summary>v6.2: 분기 선로 물량 배율을 웨이브 구성 전체에 적용</summary>
@@ -591,6 +619,9 @@ public class WaveManager : MonoBehaviour
 
     private void SpawnEnemy(GameObject prefab, Enemy.EnemyData enemyData, int waveNum, int playerLevel, float diffL)
     {
+        // 플레이테스트 픽스: 웨이브가 이미 끝났으면 어떤 경로로도 스폰 금지 (이중 안전장치)
+        if (!isWaveActive) return;
+
         Vector3 spawnPos = GetRandomSpawnPosition();
         GameObject enemyObj;
 
@@ -621,6 +652,28 @@ public class WaveManager : MonoBehaviour
         }
 
         aliveEnemyCount++;
+    }
+
+    // ─────────────────────────────────────────────
+    // 프롤로그 대사 체인 (스피노 = 안내역, 스토리바이블 "카론+멘토" 포지션)
+    // ─────────────────────────────────────────────
+    private System.Collections.IEnumerator PrologueDialogue()
+    {
+        // 오프닝 전체 화면 연출이 끝날 때까지 대기
+        while (StoryTexts.IsBlocking)
+            yield return null;
+        yield return new WaitForSeconds(1.2f);
+
+        UIManager.Instance?.ShowWaveNotice("도박사 스피노 - 오토바이가 나란히 달린다",
+            "\"어이, 신입. 그 고철이 네 주방이자 포대라니 - 어울리는군.\"");
+        yield return new WaitForSeconds(3.5f);
+
+        UIManager.Instance?.ShowStatChange(
+            "\"황야의 손님들은 예약이 없어. 먼저 대접하는 쪽이 이긴다.\" - 스피노");
+        yield return new WaitForSeconds(3.5f);
+
+        UIManager.Instance?.ShowStatChange(
+            "\"마침 애피타이저가 오는군. 요리가 곧 탄환이다 - 보여줘라!\" - 스피노");
     }
 
     // ─────────────────────────────────────────────
@@ -777,6 +830,24 @@ public class WaveManager : MonoBehaviour
     {
         isWaveActive = false;
         aliveEnemyCount = 0;
+
+        // 프롤로그 마무리: 스피노의 배웅 한 줄 (첫 무대 클리어)
+        if (prologueRun)
+        {
+            prologueRun = false;
+            UIManager.Instance?.ShowStatChange(
+                "\"나쁘지 않았어, 신입. 진짜 손님들은 지금부터다.\" - 스피노");
+        }
+
+        // 플레이테스트 픽스: 화면의 적을 다 잡아도 스폰 코루틴에 예약이 남아 있으면
+        // 선로/베팅 고르는 정비 턴에 뒤늦게 도착한 적이 기차를 물어뜯었다 (정비 턴 사망 사고).
+        // 클리어 = 이번 웨이브 스폰 계약 종료.
+        if (activeSpawnRoutine != null)
+        {
+            StopCoroutine(activeSpawnRoutine);
+            activeSpawnRoutine = null;
+        }
+
         SoundManager.Play("sfx_wave_clear");
         Debug.Log("[WaveManager] 웨이브 " + currentWaveNumber + " 모든 적 처치 완료!");
 

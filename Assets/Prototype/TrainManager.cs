@@ -184,6 +184,12 @@ public class TrainManager : MonoBehaviour
     {
         if (!isAlive) return;
 
+        // 플레이테스트 픽스 (정차 성역): 정비 턴/로비에서는 기차가 피해를 받지 않는다
+        // (선로·베팅 고르는 사이 늦게 온 적/잔여 도트에게 물려 죽던 사고 방지)
+        if (GameBalance.TownSanctuary && GameManager.Instance != null
+            && GameManager.Instance.currentState != GameManager.GameState.Battle)
+            return;
+
         // 피격음 (0.06초 스로틀은 SoundManager가 처리)
         SoundManager.Play("sfx_train_hit");
 
