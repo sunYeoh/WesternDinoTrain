@@ -2,61 +2,77 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// [ParallaxBackground.cs] v1 (½Å±Ô ÆÄÀÏ) - µµ¹Ú¼ö 1¼øÀ§: ÆĞ·²·¢½º ÁÖÇà ¹è°æ 1´Ü°è
-/// ±âÂ÷´Â Á¦ÀÚ¸®, ¹è°æ 3°ãÀÌ ¼­·Î ´Ù¸¥ ¼Óµµ·Î Èê·¯ "´Ş¸®´Â ±âÂ÷"¸¦ ¸¸µç´Ù.
+/// [ParallaxBackground.cs] v3 - ê³ í€„ PNG ì§€ë©´ (2026-09-03) / v2 íƒ‘ë·° ì§€ë©´ ìŠ¤í¬ë¡¤ (2026-09-02)
 ///
-/// ±¸¼º (ÀüºÎ ÄÚµå »ı¼º - ¾ÆÆ® ¿¡¼Â ºÒÇÊ¿ä, ³ªÁß¿¡ ½ºÇÁ¶óÀÌÆ®¸¸ ±³Ã¼):
-///  - ¿ø°æ(0.12¹è¼Ó): ´É¼± ½Ç·ç¿§. ¸Ö¾î¼­ °ÅÀÇ ¾È ¿òÁ÷ÀÓ
-///  - Áß°æ(0.40¹è¼Ó): ¹ÙÀ§/¼±ÀÎÀå ½Ç·ç¿§
-///  - ±Ù°æ(1.00¹è¼Ó): ÀÚ°¥ Áö¸é ½ºÆ®¸³. Á¦ÀÏ »¡¶ó¼­ ¼Óµµ°¨ ´ã´ç
+/// - v3: Resources/Sprites/WDT/ ì˜ ground_a, ground_b(ëª¨ë˜ 16x16ìœ ë‹›) / horizon(ì§€í‰ì„  ë  16x2) / rails(ë ˆì¼ ë  16x2)ë¥¼
+///   SpriteBankë¡œ ìš°ì„  ì‚¬ìš©. ì—†ìœ¼ë©´ v2 ì½”ë“œ ë„íŠ¸. PNG ë ˆì¼ì€ 16x2 ë ë¼ ì¸µ 2ì˜ ê¸°ì¤€ yê°€ -1.9(ë ˆì¼ ë°‘ì„ )ë¡œ ë°”ë€ë‹¤.
 ///
-/// µ¿ÀÛ:
-///  - ÀüÅõ(Battle) Áß¿¡¸¸ ¸ñÇ¥ ¼Óµµ 1.0, ±× ¿Ü(·Îºñ/¸¶À»/°ÔÀÓ¿À¹ö/½Â¸®)´Â 0
-///    -> Áï½Ã ¸ØÃßÁö ¾Ê°í ½º¸£¸¤ °¨¼Ó/°¡¼Ó (±âÂ÷ Á¤Â÷/Ãâ¹ß ¿¬Ãâ)
-///  - Ãş »öÀº ¸Å ÇÁ·¹ÀÓ Ä«¸Ş¶ó ¹è°æ»ö¿¡¼­ ÆÄ»ı -> Áö¿ª ÀüÈ¯ ½Ã ÀÚµ¿À¸·Î ºÎµå·´°Ô ¹°µê
-///  - ÁÜ ¹èÀ²À» µû¶ó ½ºÄÉÀÏ -> ÁÜÀÎ/ÁÜ¾Æ¿ôÇØµµ ¹è°æ ±¸µµ°¡ À¯Áö (½ºÄ«ÀÌ¹Ú½ºÃ³·³)
-///  - ½ºÅ©·ÑÀº ½ºÄÉÀÏµå ½Ã°£ -> ÀÏ½ÃÁ¤Áö/È÷Æ®½ºÅéÀÌ¸é ¹è°æµµ °°ÀÌ ¸ØÃã
+/// v1ì€ ì‚¬ì´ë“œë·°ìš©(ëŠ¥ì„ /ë°”ìœ„ ì‹¤ë£¨ì—£/ìê°ˆ ìŠ¤íŠ¸ë¦½)ì´ì—ˆë‹¤. íƒ‘ë·° í™•ì •ìœ¼ë¡œ "ì§€ë©´ íƒ€ì¼ ìŠ¤í¬ë¡¤"ì´ ì£¼ì¸ê³µì´ ë˜ê³ 
+/// í•˜ëŠ˜ íŒ¨ëŸ´ë™ìŠ¤ëŠ” í™”ë©´ ìƒë‹¨ì˜ ì–‡ì€ ì§€í‰ì„  ë (2.5D ë‹¨ì„œ)ë¡œ ì¶•ì†Œëë‹¤. ì „ë¶€ ì½”ë“œ ìƒì„± ë„íŠ¸ (PixelPainter.cs).
 ///
-/// »ç¿ë¹ı: ¾øÀ½! ÀÌ ÆÄÀÏ¸¸ ³ÖÀ¸¸é °ÔÀÓ ½ÃÀÛ ½Ã ½º½º·Î »ı¼ºµÈ´Ù.
-///  - ´Ü, ±¸ ¹è°æÀº Á¤¸®ÇÒ °Í: ¾À(Hierarchy)ÀÇ Background_1/2/3 »èÁ¦ + BackgroundScroll.cs ÆÄÀÏ »èÁ¦
-///    (ÀØ¾îµµ ÀÌ ½ºÅ©¸³Æ®°¡ ±¸ ¹è°æÀ» ÀÚµ¿ ºñÈ°¼ºÇØ¼­ °ãÄ¡Áö´Â ¾ÊÀ½)
-///  - 2´Ü°è(¼Óµµ ½ºÅÈÈ­: ºÎ½ºÅÍ/Á¤Áö ±â¹Í)¿ë ÈÅ: ParallaxBackground.SetSpeedMultiplier(¹èÀ²)
-/// VS 2017 (C# 7.3) È£È¯.
+/// êµ¬ì„± (3ì¸µ, ì „ë¶€ 16x? ì›”ë“œ íƒ€ì¼ 4ì¥ ìˆœí™˜):
+///  - ì¸µ 0 ëª¨ë˜ ì§€ë©´ (1.00ë°°ì†): í° ëª…ì•” íŒ¨ì¹˜ + í†µì œëœ ìŠ¤í™í´. í™”ë©´ ì „ì²´ë¥¼ ë®ëŠ”ë‹¤ (ì •ë ¬ -30)
+///  - ì¸µ 1 ì§€í‰ì„  ë  (0.12ë°°ì†): í•˜ëŠ˜ ê·¸ë¼ë°ì´ì…˜ + ì›ê²½ ë©”ì‚¬ 2í†¤ + ì§€í‰ì„  (í™”ë©´ ìµœìƒë‹¨, ì •ë ¬ -20)
+///  - ì¸µ 2 ë ˆì¼ + ì†Œí’ˆ (1.00ë°°ì†): ì¹¨ëª©/ìê°ˆ/2ì¤„ ë ˆì¼(ê¸°ì°¨ ë°‘) + ë°”í€´ ìêµ­ + ë°”ìœ„/ì„ ì¸ì¥/ì†Œ ë‘ê°œê³¨/í’€ (ì •ë ¬ -10)
+///
+/// ë°©í–¥: ê¸°ì°¨ëŠ” ë‘ìƒ ìª½(ì™¼ìª½)ìœ¼ë¡œ ë‹¬ë¦°ë‹¤ -> ì§€ë©´ì€ ì˜¤ë¥¸ìª½ìœ¼ë¡œ íë¥¸ë‹¤ (v1ì€ ë°˜ëŒ€. EngineCabì˜ ë°”ìœ„ì™€ ë™ì¼ ë°©í–¥)
+///
+/// ë™ì‘ (v1 ìœ ì§€):
+///  - ì „íˆ¬(Battle) ì¤‘ì—ë§Œ ëª©í‘œ ì†ë„ 1.0, ê·¸ ì™¸ëŠ” 0 -> ìŠ¤ë¥´ë¥µ ê°€ê°ì† (ì •ì°¨/ì¶œë°œ ì—°ì¶œ)
+///  - ì§€ì—­ ìƒ‰: ì¹´ë©”ë¼ ë°°ê²½ìƒ‰ì„ ê³± í‹´íŠ¸ë¡œ ì€ì€í•˜ê²Œ (ë°ê¸° 3~6 ì™•ë³µì€ ì¹´ë©”ë¼ ë°°ê²½ìƒ‰ì´ ë‹´ë‹¹)
+///  - ì¤Œ ë°°ìœ¨ì„ ë”°ë¼ ìŠ¤ì¼€ì¼ -> ì¤Œì¸/ì¤Œì•„ì›ƒí•´ë„ êµ¬ë„ ìœ ì§€ / ìŠ¤ì¼€ì¼ë“œ ì‹œê°„ -> ì¼ì‹œì •ì§€ ì‹œ ì •ì§€
+///
+/// ì‚¬ìš©ë²•: ì—†ìŒ! íŒŒì¼ë§Œ ë„£ìœ¼ë©´ ê²Œì„ ì‹œì‘ ì‹œ ìŠ¤ìŠ¤ë¡œ ìƒì„±ëœë‹¤. (PixelPainter.cs í•„ìš”)
+///  - êµ¬ ë°°ê²½ì€ ì •ë¦¬í•  ê²ƒ: ì”¬ì˜ Background_1/2/3 ì‚­ì œ + BackgroundScroll.cs ì‚­ì œ (ìŠì–´ë„ ìë™ ë¹„í™œì„±)
+///  - ì†ë„ í›…: ParallaxBackground.SetSpeedMultiplier(ë°°ìœ¨) - ë ˆë²„ ì „ì†ì´ ì“´ë‹¤
+/// VS 2017 (C# 7.3) í˜¸í™˜.
 /// </summary>
 public class ParallaxBackground : MonoBehaviour
 {
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
-    // Æ©´× »ó¼ö (¿©±â ¼ıÀÚ·Î Á¶Àı)
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
-    private const float BASE_SPEED = 3.2f;      // ±Ù°æ ±âÁØ ½ºÅ©·Ñ ¼Óµµ (¿ùµå ´ÜÀ§/ÃÊ)
-    private const float ACCEL_RATE = 0.55f;     // Ãâ¹ß °¡¼Ó (1.0±îÁö ¾à 1.8ÃÊ)
-    private const float DECEL_RATE = 0.45f;     // Á¤Â÷ °¨¼Ó (0±îÁö ¾à 2.2ÃÊ)
-    private const float TINT_LERP = 1.2f;       // Áö¿ª »ö ÀüÈ¯ ¼Óµµ
-    private const float TILE_W = 16f;           // Å¸ÀÏ 1ÀåÀÇ °¡·Î Æø (¿ùµå ´ÜÀ§)
-    private const int TILES_PER_LAYER = 4;      // Ãş´ç Å¸ÀÏ ¼ö (ÃÑ Æø 64 - ¿ïÆ®¶ó¿ÍÀÌµå Ä¿¹ö)
-    private const float VIEW_HALF_H = 7f;       // ±âÁØ ÁÜ (CameraZoom defaultZoom°ú µ¿ÀÏ)
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // íŠœë‹ ìƒìˆ˜
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    private const float BASE_SPEED = 3.2f;      // ì§€ë©´ ìŠ¤í¬ë¡¤ ì†ë„ (ì›”ë“œ ë‹¨ìœ„/ì´ˆ)
+    private const float ACCEL_RATE = 0.55f;     // ì¶œë°œ ê°€ì† (1.0ê¹Œì§€ ì•½ 1.8ì´ˆ)
+    private const float DECEL_RATE = 0.45f;     // ì •ì°¨ ê°ì† (0ê¹Œì§€ ì•½ 2.2ì´ˆ)
+    private const float TINT_LERP = 1.2f;       // ì§€ì—­ ìƒ‰ ì „í™˜ ì†ë„
+    private const float REGION_TINT = 0.5f;     // ì§€ì—­ ìƒ‰ì´ ì§€ë©´ì— ë°°ëŠ” ì •ë„ (0=ì—†ìŒ 1=ë°°ê²½ìƒ‰ ê·¸ëŒ€ë¡œ)
+    private const float TILE_W = 16f;           // íƒ€ì¼ 1ì¥ì˜ ê°€ë¡œ í­ (ì›”ë“œ ë‹¨ìœ„)
+    private const int TILES_PER_LAYER = 4;      // ì¸µë‹¹ íƒ€ì¼ ìˆ˜ (ì´ í­ 64 - ìš¸íŠ¸ë¼ì™€ì´ë“œ ì»¤ë²„)
+    private const float VIEW_HALF_H = 7f;       // ê¸°ì¤€ ì¤Œ (CameraZoom defaultZoomê³¼ ë™ì¼)
+    private const float PPU = 16f;              // ì§€ë©´ ë„íŠ¸ ë°°ìœ¨ (16px = 1ìœ ë‹›. ê¸°ì°¨ 20ë³´ë‹¤ ì‚´ì§ ì„±ê¸€ê²Œ - ë°°ê²½ì´ ë’¤ë¡œ ë¬¼ëŸ¬ë‚œë‹¤)
 
-    // Ãş Á¤ÀÇ: ¼Óµµ ¹èÀ² / ¹à±â º¸Á¤(Ä«¸Ş¶ó ¹è°æ»ö -> Èò»ö ¹æÇâ ºñÀ²) / Á¤·Ä ¼ø¼­
-    private static readonly float[] SPEED_MUL = { 0.12f, 0.40f, 1.00f };
-    private static readonly float[] LIGHTEN = { 0.10f, 0.22f, 0.34f };
+    // ì¸µ ì •ì˜: ì†ë„ ë°°ìœ¨ / ì •ë ¬ ìˆœì„œ / íƒ€ì¼ ê¸°ì¤€ y(í”¼ë²— ì•„ë˜)
+    private static readonly float[] SPEED_MUL = { 1.00f, 0.12f, 1.00f };
     private static readonly int[] SORT_ORDER = { -30, -20, -10 };
+    private static readonly float[] LAYER_Y = { -(VIEW_HALF_H + 1f), VIEW_HALF_H - 2f, -(VIEW_HALF_H + 1f) };
+    private const float RAILS_PNG_Y = -1.9f;     // v3: PNG ë ˆì¼ ë (16x2)ì˜ ë°‘ì„  = ì›”ë“œ -1.9 (ê¸°ì°¨ ë‚¨ë²½ ë°”ë¡œ ì•„ë˜)
 
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
-    // ³»ºÎ »óÅÂ
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ëª¨ë˜ íŒ”ë ˆíŠ¸ (ëª©ì—… v2)
+    private static readonly Color32 SAND = new Color32(214, 166, 102, 255);
+    private static readonly Color32 SAND_D = new Color32(206, 156, 92, 255);
+    private static readonly Color32 SAND_L = new Color32(222, 176, 112, 255);
+    private static readonly Color32 SPECK_D = new Color32(200, 148, 84, 255);
+    private static readonly Color32 SPECK_L = new Color32(228, 184, 122, 255);
+    private static readonly Color32 TRACK = new Color32(198, 148, 86, 255);
+
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ë‚´ë¶€ ìƒíƒœ
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     private Transform[] layerRoots = new Transform[3];
     private SpriteRenderer[][] tiles = new SpriteRenderer[3][];
-    private float[] offsets = new float[3];      // Ãşº° ½ºÅ©·Ñ ¿ÀÇÁ¼Â
-    private Color[] tintNow = new Color[3];      // Ãşº° ÇöÀç »ö (ºÎµå·¯¿î ÀüÈ¯¿ë)
+    private float[] offsets = new float[3];      // ì¸µë³„ ìŠ¤í¬ë¡¤ ì˜¤í”„ì…‹
+    private Color[] tintNow = new Color[3];      // ì¸µë³„ í˜„ì¬ ìƒ‰ (ë¶€ë“œëŸ¬ìš´ ì „í™˜ìš©)
 
-    private float speedFactor = 0f;              // 0=Á¤Â÷, 1=ÁÖÇà (°¡°¨¼ÓÀ¸·Î º¯ÇÔ)
-    private static float externalMul = 1f;       // 2´Ü°è¿ë ¿ÜºÎ ¹èÀ² (ºÎ½ºÅÍ µî)
+    private float speedFactor = 0f;              // 0=ì •ì°¨, 1=ì£¼í–‰ (ê°€ê°ì†ìœ¼ë¡œ ë³€í•¨)
+    private bool railsPng = false;               // v3: ë ˆì¼ ì¸µì´ PNG ë ì¸ê°€ (ê¸°ì¤€ y ì „í™˜ìš©)
+    private static float externalMul = 1f;       // ì™¸ë¶€ ë°°ìœ¨ (ë ˆë²„ ì „ì† ë“±)
 
     private static ParallaxBackground instance;
 
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
-    // ÀÚµ¿ ºÎÆ®½ºÆ®·¦ - ÆÄÀÏ¸¸ ³ÖÀ¸¸é °ÔÀÓ ½ÃÀÛ ½Ã ½º½º·Î »ı¼º
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ìë™ ë¶€íŠ¸ìŠ¤íŠ¸ë© - íŒŒì¼ë§Œ ë„£ìœ¼ë©´ ê²Œì„ ì‹œì‘ ì‹œ ìŠ¤ìŠ¤ë¡œ ìƒì„±
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void Bootstrap()
     {
@@ -66,15 +82,15 @@ public class ParallaxBackground : MonoBehaviour
         go.AddComponent<ParallaxBackground>();
     }
 
-    /// <summary>2´Ü°è ÈÅ: ÁÖÇà ¼Óµµ ¿ÜºÎ ¹èÀ² (ºÎ½ºÅÍ 1.5, ¼­Çà 0.5 µî). ±âº» 1</summary>
+    /// <summary>ì£¼í–‰ ì†ë„ ì™¸ë¶€ ë°°ìœ¨ (ì „ì† 1.5, ì„œí–‰ 0.5 ë“±). ê¸°ë³¸ 1</summary>
     public static void SetSpeedMultiplier(float mul)
     {
         externalMul = Mathf.Max(0f, mul);
     }
 
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
-    // ÃÊ±âÈ­
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ì´ˆê¸°í™”
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     private void Awake()
     {
         if (instance != null && instance != this) { Destroy(gameObject); return; }
@@ -84,7 +100,7 @@ public class ParallaxBackground : MonoBehaviour
         DisableLegacyBackground();
         SceneManager.sceneLoaded += OnSceneLoaded;
 
-        Debug.Log("[ParallaxBackground] ÆĞ·²·¢½º ¹è°æ »ı¼º (3°ã)");
+        Debug.Log("[ParallaxBackground] íƒ‘ë·° ì§€ë©´ ë°°ê²½ ìƒì„± (ëª¨ë˜/ì§€í‰ì„ /ë ˆì¼+ì†Œí’ˆ)");
     }
 
     private void OnDestroy()
@@ -96,13 +112,13 @@ public class ParallaxBackground : MonoBehaviour
         }
     }
 
-    // ¾À ¸®·Îµå([´Ù½Ã ±Á´Â´Ù]) ÈÄ¿¡µµ ±¸ ¹è°æ Á¤¸®¸¦ ´Ù½Ã ¼öÇà
+    // ì”¬ ë¦¬ë¡œë“œ([ë‹¤ì‹œ êµ½ëŠ”ë‹¤]) í›„ì—ë„ êµ¬ ë°°ê²½ ì •ë¦¬ë¥¼ ë‹¤ì‹œ ìˆ˜í–‰
     private void OnSceneLoaded(Scene s, LoadSceneMode mode)
     {
         DisableLegacyBackground();
     }
 
-    /// <summary>±¸ BackgroundScroll ¹è°æÀÌ ¾À¿¡ ³²¾Æ ÀÖÀ¸¸é ²ö´Ù (°ãÄ§ ¹æÁö, ÄÄÆÄÀÏ ÀÇÁ¸ ¾øÀ½)</summary>
+    /// <summary>êµ¬ BackgroundScroll ë°°ê²½ì´ ì”¬ì— ë‚¨ì•„ ìˆìœ¼ë©´ ëˆë‹¤ (ê²¹ì¹¨ ë°©ì§€, ì»´íŒŒì¼ ì˜ì¡´ ì—†ìŒ)</summary>
     private void DisableLegacyBackground()
     {
         MonoBehaviour[] all = FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None);
@@ -111,15 +127,15 @@ public class ParallaxBackground : MonoBehaviour
             if (all[i] != null && all[i].GetType().Name == "BackgroundScroll")
             {
                 all[i].gameObject.SetActive(false);
-                Debug.Log("[ParallaxBackground] ±¸ ¹è°æ ºñÈ°¼º: " + all[i].gameObject.name
-                    + " (¾À¿¡¼­ »èÁ¦ ±ÇÀå)");
+                Debug.Log("[ParallaxBackground] êµ¬ ë°°ê²½ ë¹„í™œì„±: " + all[i].gameObject.name
+                    + " (ì”¬ì—ì„œ ì‚­ì œ ê¶Œì¥)");
             }
         }
     }
 
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
-    // Ãş/Å¸ÀÏ »ı¼º
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ì¸µ/íƒ€ì¼ ìƒì„±
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     private void BuildLayers()
     {
         for (int L = 0; L < 3; L++)
@@ -128,11 +144,11 @@ public class ParallaxBackground : MonoBehaviour
             root.transform.SetParent(transform, false);
             layerRoots[L] = root.transform;
             tiles[L] = new SpriteRenderer[TILES_PER_LAYER];
-            tintNow[L] = Color.black;
+            tintNow[L] = Color.white;
 
-            // Å¸ÀÏ º¯Çü 2Á¾À» ¹ø°¥¾Æ ¹èÄ¡ (¹İº¹ Æ¼ ÁÙÀÌ±â)
+            // íƒ€ì¼ ë³€í˜• 2ì¢…ì„ ë²ˆê°ˆì•„ ë°°ì¹˜ (ë°˜ë³µ í‹° ì¤„ì´ê¸°)
             Sprite varA = MakeLayerSprite(L, 1000 + L * 77);
-            Sprite varB = MakeLayerSprite(L, 5000 + L * 131);
+            Sprite varB = MakeLayerSprite(L, 5001 + L * 131);   // í™€ìˆ˜ ì‹œë“œ -> PNG ëª¨ë˜ b ë³€í˜•
 
             for (int i = 0; i < TILES_PER_LAYER; i++)
             {
@@ -146,22 +162,22 @@ public class ParallaxBackground : MonoBehaviour
         }
     }
 
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
-    // ¸Å ÇÁ·¹ÀÓ: ¼Óµµ »óÅÂ -> ½ºÅ©·Ñ -> »ö -> Ä«¸Ş¶ó ÃßÁ¾
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ë§¤ í”„ë ˆì„: ì†ë„ ìƒíƒœ -> ìŠ¤í¬ë¡¤ -> ìƒ‰ -> ì¹´ë©”ë¼ ì¶”ì¢…
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     private void LateUpdate()
     {
         Camera cam = Camera.main;
         if (cam == null) return;
 
-        // 1) ÁÖÇà »óÅÂ: ÀüÅõ Áß¿¡¸¸ ´Ş¸°´Ù (±× ¿Ü¿¡´Â ½º¸£¸¤ Á¤Â÷)
+        // 1) ì£¼í–‰ ìƒíƒœ: ì „íˆ¬ ì¤‘ì—ë§Œ ë‹¬ë¦°ë‹¤ (ê·¸ ì™¸ì—ëŠ” ìŠ¤ë¥´ë¥µ ì •ì°¨)
         float target = 0f;
         GameManager gm = GameManager.Instance;
         if (gm != null && gm.currentState == GameManager.GameState.Battle) target = 1f;
         float rate = target > speedFactor ? ACCEL_RATE : DECEL_RATE;
         speedFactor = Mathf.MoveTowards(speedFactor, target, rate * Time.deltaTime);
 
-        // 2) Ãşº° ½ºÅ©·Ñ (½ºÄÉÀÏµå ½Ã°£ - ÀÏ½ÃÁ¤Áö/È÷Æ®½ºÅé ½Ã ¹è°æµµ Á¤Áö)
+        // 2) ì¸µë³„ ìŠ¤í¬ë¡¤ (ìŠ¤ì¼€ì¼ë“œ ì‹œê°„ - ì¼ì‹œì •ì§€/íˆíŠ¸ìŠ¤í†± ì‹œ ë°°ê²½ë„ ì •ì§€)
         float move = BASE_SPEED * speedFactor * externalMul * Time.deltaTime;
         float stripW = TILE_W * TILES_PER_LAYER;
         for (int L = 0; L < 3; L++)
@@ -169,154 +185,194 @@ public class ParallaxBackground : MonoBehaviour
             offsets[L] = Mathf.Repeat(offsets[L] + move * SPEED_MUL[L], stripW);
             for (int i = 0; i < TILES_PER_LAYER; i++)
             {
-                // ±âÁØ À§Ä¡¿¡¼­ ¿ÀÇÁ¼Â¸¸Å­ ¿ŞÂÊÀ¸·Î, ¹ş¾î³ª¸é ¹İ´ëÂÊÀ¸·Î ¼øÈ¯
-                float x = Mathf.Repeat(i * TILE_W - offsets[L] + stripW / 2f, stripW) - stripW / 2f;
-                tiles[L][i].transform.localPosition = new Vector3(x, -(VIEW_HALF_H + 1f), 0f);
+                // v2: ì˜¤í”„ì…‹ë§Œí¼ ì˜¤ë¥¸ìª½ìœ¼ë¡œ (ê¸°ì°¨ê°€ ì™¼ìª½ìœ¼ë¡œ ë‹¬ë¦°ë‹¤), ë²—ì–´ë‚˜ë©´ ë°˜ëŒ€ìª½ìœ¼ë¡œ ìˆœí™˜
+                float x = Mathf.Repeat(i * TILE_W + offsets[L] + stripW / 2f, stripW) - stripW / 2f;
+                float ly = (L == 2 && railsPng) ? RAILS_PNG_Y : LAYER_Y[L];
+                tiles[L][i].transform.localPosition = new Vector3(x, ly, 0f);
             }
         }
 
-        // 3) Áö¿ª »ö: Ä«¸Ş¶ó ¹è°æ»ö¿¡¼­ Ãşº°·Î ÆÄ»ı (Áö¿ª ÀüÈ¯ ½Ã ÀÚµ¿À¸·Î ºÎµå·´°Ô)
+        // 3) ì§€ì—­ ìƒ‰: ì¹´ë©”ë¼ ë°°ê²½ìƒ‰ì„ ê³± í‹´íŠ¸ë¡œ ì€ì€í•˜ê²Œ (ì§€ì—­ ì „í™˜ ì‹œ ìë™ìœ¼ë¡œ ë¶€ë“œëŸ½ê²Œ)
         Color bg = cam.backgroundColor;
+        Color want = Color.Lerp(Color.white, Color.Lerp(bg, Color.white, 0.5f), REGION_TINT);
         for (int L = 0; L < 3; L++)
         {
-            Color want = Color.Lerp(bg, Color.white, LIGHTEN[L]);
             tintNow[L] = Color.Lerp(tintNow[L], want, TINT_LERP * Time.unscaledDeltaTime);
             for (int i = 0; i < TILES_PER_LAYER; i++)
                 tiles[L][i].color = tintNow[L];
         }
 
-        // 4) Ä«¸Ş¶ó ÃßÁ¾ + ÁÜ ½ºÄÉÀÏ (ÁÜ¾Æ¿ôÇØµµ ¹è°æ ±¸µµ À¯Áö - ½ºÄ«ÀÌ¹Ú½ºÃ³·³)
+        // 4) ì¹´ë©”ë¼ ì¶”ì¢… + ì¤Œ ìŠ¤ì¼€ì¼ (ì¤Œì•„ì›ƒí•´ë„ êµ¬ë„ ìœ ì§€)
         transform.position = new Vector3(cam.transform.position.x, cam.transform.position.y, 0f);
         float s = cam.orthographicSize / VIEW_HALF_H;
         transform.localScale = new Vector3(s, s, 1f);
     }
 
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
-    // ÇÁ·Î½ÃÀú·² ½ºÇÁ¶óÀÌÆ® »ı¼º (ÇÈ¼¿ ¾ÆÆ® Åæ, Èò»öÀ¸·Î ±×¸®°í color·Î ¹°µéÀÓ)
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // íƒ€ì¼ ë„íŠ¸ ìƒì„± (ëª©ì—… v2 hq2.py ì§€ë©´/ë ˆì¼/ì†Œí’ˆ ë¬¸ë²• ì´ì‹)
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     private Sprite MakeLayerSprite(int layer, int seed)
     {
-        if (layer == 0) return MakeRidge(seed);
-        if (layer == 1) return MakeRocks(seed);
-        return MakeGround(seed);
+        // v3: PNG ìš°ì„  (ëª¨ë˜ëŠ” a/b 2ì¢…ì„ ì‹œë“œë¡œ ë²ˆê°ˆì•„), ì—†ìœ¼ë©´ ì½”ë“œ ë„íŠ¸
+        Sprite png = null;
+        if (layer == 0) png = SpriteBank.Get(seed % 2 == 0 ? "ground_a" : "ground_b");
+        else if (layer == 1) png = SpriteBank.Get("horizon");
+        else { png = SpriteBank.Get("rails"); railsPng = png != null; }
+        if (png != null) return png;
+
+        if (layer == 0) return MakeSand(seed);
+        if (layer == 1) return MakeHorizon(seed);
+        return MakeRailsAndProps(seed);
     }
 
-    /// <summary>¿ø°æ: ´É¼± ½Ç·ç¿§ (¾Æ·¡´Â Áö¸é±îÁö ²Ë Ã¤¿ò)</summary>
-    private Sprite MakeRidge(int seed)
+    /// <summary>ì¸µ 0: ëª¨ë˜ ì§€ë©´ 16x16 ìœ ë‹› - í° ëª…ì•” íŒ¨ì¹˜(ê²½ê³„ ì•ˆìª½) + ìŠ¤í™í´</summary>
+    private Sprite MakeSand(int seed)
     {
-        int w = 256, h = 176;   // 16 x 11 ¿ùµå (¹Ù´Ú -8 ~ ²À´ë±â +3)
-        Texture2D tex = NewTex(w, h);
-        Random.State backup = Random.state;
-        Random.InitState(seed);
-        float p1 = Random.Range(0f, 100f);
-        float p2 = Random.Range(0f, 100f);
-
-        for (int x = 0; x < w; x++)
-        {
-            float u = x / (float)(w - 1);
-            // ¿Ï¸¸ÇÑ Å« ´É¼± + ÀÛÀº ±¼°î
-            float big = Mathf.PerlinNoise(p1 + u * 3.1f, p1);
-            float small = Mathf.PerlinNoise(p2 + u * 7.3f, p2);
-            int ridge = 96 + Mathf.RoundToInt(big * 52f + small * 22f);   // 96 ~ 170
-
-            // °¡ÀåÀÚ¸® 12% ±¸°£Àº °øÅë ³ôÀÌ(128)·Î ¼ö·Å -> ¾î¶² Å¸ÀÏ³¢¸® ºÙ¾îµµ ÀÌÀ½»õ ¾øÀ½
-            float edge = Mathf.Clamp01(Mathf.Min(u, 1f - u) / 0.12f);
-            ridge = Mathf.RoundToInt(Mathf.Lerp(128f, ridge, edge));
-
-            for (int y = 0; y < h; y++)
-                tex.SetPixel(x, y, y <= ridge ? Color.white : Color.clear);
-        }
-        Random.state = backup;
-        tex.Apply();
-        return Sprite.Create(tex, new Rect(0, 0, w, h), new Vector2(0.5f, 0f), 16f);
-    }
-
-    /// <summary>Áß°æ: ³·Àº Áö¸é + ¹ÙÀ§/¼±ÀÎÀå ½Ç·ç¿§</summary>
-    private Sprite MakeRocks(int seed)
-    {
-        int w = 256, h = 96;   // 16 x 6 ¿ùµå
-        Texture2D tex = NewTex(w, h);
+        int w = 256, h = 256;
+        PixelPainter p = new PixelPainter(w, h);
         Random.State backup = Random.state;
         Random.InitState(seed);
 
-        int groundTop = 26;
-        for (int x = 0; x < w; x++)
-            for (int y = 0; y <= groundTop; y++)
-                tex.SetPixel(x, y, Color.white);
-
-        // ¹ÙÀ§: ¹İÅ¸¿ø 4~6°³ (Å¸ÀÏ °æ°è¸¦ ³ÑÁö ¾Ê°Ô ¾ÈÂÊ¿¡¸¸ - ÀÌÀ½»õ º¸È£)
-        int rocks = Random.Range(4, 7);
-        for (int r = 0; r < rocks; r++)
+        p.Rect(0, 0, w - 1, h - 1, SAND);
+        // í° ëª…ì•” íŒ¨ì¹˜ (íƒ€ì¼ ê²½ê³„ë¥¼ ë„˜ì§€ ì•Šê²Œ - ì´ìŒìƒˆ ë³´í˜¸)
+        int patches = Random.Range(6, 9);
+        for (int i = 0; i < patches; i++)
         {
-            int rw = Random.Range(8, 20);
-            int rh = Random.Range(6, 15);
-            int cx = Random.Range(rw + 2, w - rw - 2);
-            for (int dx = -rw; dx <= rw; dx++)
-            {
-                int x = cx + dx;
-                int top = groundTop + Mathf.RoundToInt(rh * Mathf.Sqrt(Mathf.Max(0f, 1f - (dx * dx) / (float)(rw * rw))));
-                for (int y = groundTop; y <= top; y++) tex.SetPixel(x, y, Color.white);
-            }
+            int pw = Random.Range(40, 90), ph = Random.Range(24, 60);
+            int px = Random.Range(2, w - pw - 2), py = Random.Range(2, h - ph - 2);
+            p.Ellipse(px, py, px + pw, py + ph, Random.value < 0.5f ? SAND_D : SAND_L, PixelPainter.CLEAR);
         }
-
-        // ¼±ÀÎÀå: ±âµÕ + ÆÈ (¿ª½Ã °æ°è ¾ÈÂÊ¿¡¸¸)
-        int cacti = Random.Range(2, 4);
-        for (int c = 0; c < cacti; c++)
+        // í†µì œëœ ìŠ¤í™í´ (2px ê°€ë¡œ ì )
+        for (int i = 0; i < 700; i++)
         {
-            int cx = Random.Range(8, w - 8);
-            int ch = Random.Range(20, 38);
-            for (int dx = -1; dx <= 1; dx++)
-                for (int y = groundTop; y <= groundTop + ch; y++)
-                    tex.SetPixel(cx + dx, y, Color.white);
-            // ÆÈ: ¿·À¸·Î 4px ³ª°¬´Ù°¡ À§·Î 7px
-            int armY = groundTop + Mathf.RoundToInt(ch * 0.55f);
-            int dir = Random.value < 0.5f ? -1 : 1;
-            for (int a = 1; a <= 4; a++) tex.SetPixel(cx + dir * (1 + a), armY, Color.white);
-            for (int a = 0; a <= 7; a++) tex.SetPixel(cx + dir * 5, armY + a, Color.white);
+            int gx = Random.Range(0, w - 1), gy = Random.Range(0, h);
+            Color32 c = Random.value < 0.5f ? SPECK_D : SPECK_L;
+            p.Point(gx, gy, c); p.Point(gx + 1, gy, c);
         }
-
         Random.state = backup;
-        tex.Apply();
-        return Sprite.Create(tex, new Rect(0, 0, w, h), new Vector2(0.5f, 0f), 16f);
+        return p.Bake(PPU, w * 0.5f, h);   // í”¼ë²— = ì•„ë˜ ì¤‘ì•™
     }
 
-    /// <summary>±Ù°æ: ÀÚ°¥ Áö¸é ½ºÆ®¸³ (À­¼±Àº »ìÂ¦ ¿ïÅüºÒÅü)</summary>
-    private Sprite MakeGround(int seed)
+    /// <summary>ì¸µ 1: ì§€í‰ì„  ë  16x2 ìœ ë‹› - í•˜ëŠ˜ ê·¸ë¼ë°ì´ì…˜ + ì›ê²½ ë©”ì‚¬ 2í†¤ + ì§€í‰ì„  + ëª¨ë˜ ì´ìŒ</summary>
+    private Sprite MakeHorizon(int seed)
     {
-        int w = 256, h = 56;   // 16 x 3.5 ¿ùµå
-        Texture2D tex = NewTex(w, h);
+        int w = 256, h = 32;
+        PixelPainter p = new PixelPainter(w, h);
         Random.State backup = Random.state;
         Random.InitState(seed);
-        float p = Random.Range(0f, 100f);
 
-        for (int x = 0; x < w; x++)
+        for (int y = 0; y < 26; y++)
         {
-            float u = x / (float)(w - 1);
-            int top = 44 + Mathf.RoundToInt(Mathf.PerlinNoise(p + u * 5.7f, p) * 8f);
-
-            // °¡ÀåÀÚ¸®´Â °øÅë ³ôÀÌ(48)·Î ¼ö·Å -> Å¸ÀÏ ÀÌÀ½»õ ¾øÀ½
-            float edge = Mathf.Clamp01(Mathf.Min(u, 1f - u) / 0.1f);
-            top = Mathf.RoundToInt(Mathf.Lerp(48f, top, edge));
-
-            for (int y = 0; y < h; y++)
-            {
-                if (y > top) { tex.SetPixel(x, y, Color.clear); continue; }
-                // ÀÚ°¥ ¹İÁ¡: ÀÏºÎ ÇÈ¼¿¸¸ »ìÂ¦ Åõ¸í -> Åæ ¾ó·è
-                float a = 1f;
-                if (Random.value < 0.06f) a = 0.72f;
-                tex.SetPixel(x, y, new Color(1f, 1f, 1f, a));
-            }
+            float t = y / 26f;
+            p.Rect(0, y, w - 1, y, new Color32((byte)(246 - 14 * t), (byte)(224 - 30 * t), (byte)(178 - 40 * t), 255));
         }
+        // ì›ê²½ ë©”ì‚¬ (ê²½ê³„ ì•ˆìª½ì—ë§Œ)
+        int x = Random.Range(0, 30);
+        while (x < w - 40)
+        {
+            int mw = Random.Range(40, 90), mh = Random.Range(9, 17);
+            if (x + mw > w - 2) break;
+            p.Polygon(new int[] { x, 26, x + 5, 26 - mh, x + mw - 5, 26 - mh, x + mw, 26 },
+                new Color32(196, 138, 96, 255), PixelPainter.CLEAR);
+            p.Polygon(new int[] { x + 3, 26, x + 7, 28 - mh, x + mw / 2, 28 - mh, x + mw / 2, 26 },
+                new Color32(210, 156, 112, 255), PixelPainter.CLEAR);
+            x += mw + Random.Range(10, 40);
+        }
+        p.Rect(0, 26, w - 1, 26, new Color32(160, 108, 70, 255));   // ì§€í‰ì„ 
+        p.Rect(0, 27, w - 1, h - 1, SAND);                          // ì•„ë˜ ëª¨ë˜ì¸µê³¼ ì´ìŒ
         Random.state = backup;
-        tex.Apply();
-        return Sprite.Create(tex, new Rect(0, 0, w, h), new Vector2(0.5f, 0f), 16f);
+        return p.Bake(PPU, w * 0.5f, h);
     }
 
-    private Texture2D NewTex(int w, int h)
+    /// <summary>ì¸µ 2: ë ˆì¼(ê¸°ì°¨ ë°‘) + ë°”í€´ ìêµ­ + ì†Œí’ˆ (ê¸°ì°¨ ë  y -2.6~2.6 ë°”ê¹¥ì—ë§Œ)</summary>
+    private Sprite MakeRailsAndProps(int seed)
     {
-        Texture2D tex = new Texture2D(w, h, TextureFormat.RGBA32, false);
-        tex.filterMode = FilterMode.Point;   // ÇÈ¼¿ ¾ÆÆ® Åæ
-        tex.wrapMode = TextureWrapMode.Clamp;
-        return tex;
+        int w = 256, h = 256;
+        PixelPainter p = new PixelPainter(w, h);
+        Random.State backup = Random.state;
+        Random.InitState(seed);
+
+        // ì›”ë“œ y -> ìº”ë²„ìŠ¤ í–‰ (í”¼ë²— ì•„ë˜ ì¤‘ì•™, íƒ€ì¼ ë°”ë‹¥ = ì›”ë“œ -8)
+        // ë ˆì¼ ë°´ë“œ: ì›”ë“œ -1.9 ~ -0.4 (ê¸°ì°¨ ëª¸í†µ ë‚¨ìª½ ì ˆë°˜ ë°‘ - ì¹¸ ì‚¬ì´ í‹ˆê³¼ ê¸°ì°¨ ì–‘ëì—ì„œ ë³´ì¸ë‹¤)
+        int railTop = h - Mathf.RoundToInt((-0.4f + 8f) * PPU);     // í–‰ (ìœ„)
+        int railBot = h - Mathf.RoundToInt((-1.9f + 8f) * PPU);     // í–‰ (ì•„ë˜)
+        // ìê°ˆ
+        for (int gx = 0; gx < w; gx += 2)
+            for (int gy = railTop; gy <= railBot; gy += 3)
+                if (Random.value < 0.5f) p.Point(gx + Random.Range(0, 2), gy + Random.Range(0, 3), new Color32(186, 148, 104, 255));
+        // ì¹¨ëª© (16px ê°„ê²© - 256ì˜ ì•½ìˆ˜ë¼ ì´ìŒìƒˆ ì—†ìŒ)
+        for (int sx = 0; sx < w; sx += 16)
+        {
+            p.Rect(sx, railTop, sx + 7, railBot, PixelPainter.WD);
+            p.Rect(sx, railTop, sx + 7, railTop + 1, PixelPainter.WD_H);
+            p.Rect(sx, railBot - 1, sx + 7, railBot, PixelPainter.WD_D);
+            p.Point(sx + 2, railTop + 3, PixelPainter.IR_O); p.Point(sx + 5, railBot - 3, PixelPainter.IR_O);
+        }
+        // 2ì¤„ ë ˆì¼
+        int[] railY = { railTop + 3, railBot - 6 };
+        for (int i = 0; i < 2; i++)
+        {
+            int ry = railY[i];
+            p.Rect(0, ry, w - 1, ry + 2, new Color32(96, 96, 108, 255));
+            p.Rect(0, ry, w - 1, ry, new Color32(196, 198, 208, 255));
+            p.Rect(0, ry + 3, w - 1, ry + 3, new Color32(52, 52, 62, 255));
+        }
+        // ë°”í€´ ìêµ­ (ê¸°ì°¨ ë‚¨ìª½, ë ˆì¼ê³¼ í‰í–‰í•œ ì˜…ì€ ì ì„  2ì¤„)
+        int trackY = h - Mathf.RoundToInt((-2.45f + 8f) * PPU);
+        for (int gx = 0; gx < w; gx += 3) { p.Point(gx, trackY, TRACK); p.Point(gx, trackY + 3, TRACK); }
+
+        // ì†Œí’ˆ: ê¸°ì°¨ ë (ì›”ë“œ -2.6~2.6 = í–‰ bandTop~bandBot) ë°”ê¹¥ì—ë§Œ
+        int bandTop = h - Mathf.RoundToInt((2.6f + 8f) * PPU);
+        int bandBot = h - Mathf.RoundToInt((-2.6f + 8f) * PPU);
+        int props = Random.Range(10, 15);
+        for (int i = 0; i < props; i++)
+        {
+            int px = Random.Range(12, w - 24);
+            int py = Random.value < 0.4f ? Random.Range(8, bandTop - 20) : Random.Range(bandBot + 8, h - 24);
+            float roll = Random.value;
+            if (roll < 0.35f) Rock(p, px, py, Random.Range(12, 20), Random.Range(8, 12));
+            else if (roll < 0.55f) Cactus(p, px, py);
+            else if (roll < 0.65f) Skull(p, px, py);
+            else Grass(p, px, py);
+        }
+
+        Random.state = backup;
+        return p.Bake(PPU, w * 0.5f, h);
+    }
+
+    // â”€â”€ ì†Œí’ˆ (ëª©ì—… v2 rock/cactus/skull/grass ì´ì‹) â”€â”€
+    private static void Rock(PixelPainter p, int x, int y, int w, int h)
+    {
+        p.Shadow(x + 1, y + h - 3, x + w + 1, y + h + 2);
+        p.Ellipse(x, y, x + w, y + h, new Color32(150, 104, 58, 255), new Color32(96, 62, 34, 255));
+        p.Ellipse(x + 2, y + 1, x + w - 3, y + h - 4, new Color32(176, 126, 72, 255), PixelPainter.CLEAR);
+        p.Ellipse(x + 3, y + 2, x + w / 2 + 2, y + h / 2, new Color32(198, 148, 90, 255), PixelPainter.CLEAR);
+    }
+
+    private static void Cactus(PixelPainter p, int x, int y)
+    {
+        Color32 g = new Color32(74, 120, 58, 255), gO = new Color32(40, 72, 30, 255), gL = new Color32(108, 156, 84, 255);
+        p.Shadow(x - 3, y + 9, x + 7, y + 13);
+        int[] ax = { 0, -4, 5 }; int[] ay = { 0, 3, 1 }; int[] aw = { 4, 3, 3 }; int[] ah = { 12, 5, 5 };
+        for (int i = 0; i < 3; i++)
+        {
+            p.RoundRect(x + ax[i], y + ay[i], x + ax[i] + aw[i], y + ay[i] + ah[i], 2, g, gO);
+            p.Line(x + ax[i] + 1, y + ay[i] + 1, x + ax[i] + 1, y + ay[i] + ah[i] - 1, gL, 1);
+        }
+        p.Point(x + 2, y - 1, new Color32(232, 120, 140, 255));   // ê½ƒ
+    }
+
+    private static void Skull(PixelPainter p, int x, int y)
+    {
+        Color32 bone = new Color32(236, 226, 206, 255);
+        p.Ellipse(x, y, x + 9, y + 6, bone, new Color32(150, 134, 110, 255));
+        p.Line(x - 3, y + 1, x, y + 2, bone, 1); p.Line(x + 9, y + 2, x + 12, y + 1, bone, 1);   // ë¿”
+        p.Point(x + 3, y + 2, new Color32(60, 50, 40, 255)); p.Point(x + 6, y + 2, new Color32(60, 50, 40, 255));
+    }
+
+    private static void Grass(PixelPainter p, int x, int y)
+    {
+        Color32 g = new Color32(122, 142, 74, 255);
+        p.Line(x - 2, y, x - 3, y - 4, g, 1); p.Line(x, y, x + 1, y - 4, g, 1); p.Line(x + 2, y, x + 3, y - 4, g, 1);
     }
 }

@@ -3,8 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// [WaveManager.cs] v6
+/// [WaveManager.cs] v6.4 (고퀄 PNG 적용 2026-09-03) / v6.3 탑뷰 재스킨
 /// 웨이브 단위로 적 유닛을 스폰하고, 모든 적 처치 시 웨이브 완료를 알립니다.
+/// - v6.4 변경점: 폴백 적이 Resources/Sprites/WDT/e_<종>.png (SpriteBank)를 우선 사용. 없으면 v6.3 코드 도트.
+///   PNG 적은 크게 그려져 있어 표시 배율 EnemyPngScale(0.6)로 줄인다 (attackRange 2 안에서 기차와 안 겹치게).
+/// - v6.3 변경점: 적 코드 폴백(BuildFallbackEnemy)을 도형 조합 -> 탑뷰 도트 스프라이트로 교체
+///   (PixelPainter.cs 신규). 스폰/웨이브/보상 로직은 무변경.
 /// - v6 변경점 (25웨이브 3지역 개편 - 슬더스 3막 구조):
 ///   지역 1 구리 사막(물리/러시) -> 지역 2 테슬라 협곡(전기/독/공중) -> 지역 3 코발트 광산(냉기/장갑/힐러)
 ///   각 지역 마지막 웨이브 = 지역 보스, 최종 웨이브 = 최종전.
@@ -677,13 +681,23 @@ public class WaveManager : MonoBehaviour
     }
 
     // ─────────────────────────────────────────────
-    // 적 코드 폴백 (아트 반영 전 임시 - 종별 실루엣 도형)
+    // 적 코드 폴백 (아트 반영 전 임시 - 탑뷰 도트 실루엣, 목업 v2 컨펌 2026-09-02)
     // ─────────────────────────────────────────────
 
+    /// <summary>폴백 적 도트 배율 (기차와 같은 20px/유닛 - 화면에서 같은 도트 밀도)</summary>
+    private const float ENEMY_PPU = 20f;
+    /// <summary>PNG 적 표시 배율 (64px/유닛 원본은 3~4유닛 길이라 0.6배로 - 사거리 2 안에서 기차와 겹치지 않는 크기)</summary>
+    private const float EnemyPngScale = 0.6f;
+    private static readonly Dictionary<string, Sprite> fallbackSpriteCache = new Dictionary<string, Sprite>();
+
     /// <summary>
-    /// 프리팹 없는 적을 코드 도형으로 생성한다. Enemy는 물리/스프라이트 요구가 없어
-    /// (이동·피격 전부 로직 기반) 컴포넌트 하나 + 자식 도형이면 완전한 적이 된다.
+    /// 프리팹 없는 적을 코드 도트 스프라이트로 생성한다. Enemy는 물리/스프라이트 요구가 없어
+    /// (이동·피격 전부 로직 기반) 컴포넌트 하나 + 자식 그림이면 완전한 적이 된다.
     /// 행동 패턴은 Enemy.AssignBehavior가 이름으로 자동 배정 (네크로=힐러, 익룡=급강하 등).
+    ///
+    /// 그림 문법 = 실루엣 위계(가는 꼬리 -> 넓은 골반 몸통 -> 몸의 60% 폭 머리 -> 테이퍼 주둥이)
+    /// + 소년만화 메카 스타일(2026-09-02 레퍼런스 반영): 각진 장갑판 + 액센트 플레이트 + 검정 관절 + 각진 흰자 눈 + 짧은 이빨.
+    /// 모든 스프라이트는 +x(오른쪽)를 향해 그린다 - Enemy가 이동 방향으로 회전시키므로 탑뷰에서 자연스럽다.
     /// </summary>
     private GameObject BuildFallbackEnemy(Enemy.EnemyData data, Vector3 pos)
     {
@@ -694,65 +708,200 @@ public class WaveManager : MonoBehaviour
         float bulk = Mathf.Clamp(0.85f + data.baseHP / 500f, 0.85f, 1.4f);
         string n = data.enemyName;
 
-        if (n.Contains("전갈"))
+        string kind;
+        if (n.Contains("전갈")) kind = "scorpion";
+        else if (n.Contains("거북")) kind = "tortoise";
+        else if (n.Contains("강철")) kind = "steel";
+        else if (n.Contains("익룡")) kind = "ptera";
+        else if (n.Contains("네크로")) kind = "necro";
+        else kind = "raptor";   // 알 수 없는 종: 기본 랩터 실루엣
+
+        // v6.4: PNG 우선 (e_raptor 등), 없으면 코드 도트 캐시
+        Sprite sprite = SpriteBank.Get("e_" + kind);
+        bool png = sprite != null;
+        if (!png && !fallbackSpriteCache.TryGetValue(kind, out sprite))
         {
-            // 낮고 넓은 몸통 + 치켜든 독침 꼬리 (도구 파괴꾼)
-            MakeEnemyPart(go, "Body", 0f, -0.12f, 0.8f, 0.42f, 0f, new Color(0.62f, 0.35f, 0.18f), true);
-            MakeEnemyPart(go, "Tail", 0.3f, 0.28f, 0.14f, 0.5f, -30f, new Color(0.45f, 0.2f, 0.4f), false);
-            MakeEnemyPart(go, "Sting", 0.42f, 0.5f, 0.14f, 0.14f, 0f, new Color(0.72f, 0.42f, 0.9f), true);
+            sprite = PaintFallbackEnemy(kind);
+            fallbackSpriteCache[kind] = sprite;
         }
-        else if (n.Contains("거북"))
-        {
-            // 커다란 등껍질 + 작은 머리 (고방어 탱커)
-            MakeEnemyPart(go, "Shell", 0f, 0.05f, 1.0f, 0.85f, 0f, new Color(0.35f, 0.5f, 0.42f), true);
-            MakeEnemyPart(go, "ShellRim", 0f, -0.28f, 0.95f, 0.2f, 0f, new Color(0.5f, 0.36f, 0.2f), false);
-            MakeEnemyPart(go, "Head", -0.55f, -0.15f, 0.3f, 0.24f, 0f, new Color(0.55f, 0.45f, 0.3f), true);
-        }
-        else if (n.Contains("강철"))
-        {
-            // 각진 강철 몸통 + 머리/꼬리 (물리 면역급)
-            MakeEnemyPart(go, "Body", 0f, 0f, 0.7f, 0.5f, 0f, new Color(0.55f, 0.58f, 0.62f), false);
-            MakeEnemyPart(go, "Head", -0.45f, 0.18f, 0.34f, 0.26f, 0f, new Color(0.42f, 0.45f, 0.5f), false);
-            MakeEnemyPart(go, "Tail", 0.5f, 0.1f, 0.42f, 0.12f, 12f, new Color(0.42f, 0.45f, 0.5f), false);
-        }
-        else if (n.Contains("익룡"))
-        {
-            // 다이아 몸통 + 가로 날개 (급강하 폭격)
-            MakeEnemyPart(go, "Wings", 0f, 0.05f, 1.15f, 0.16f, 0f, new Color(0.85f, 0.4f, 0.15f), false);
-            MakeEnemyPart(go, "Body", 0f, 0f, 0.45f, 0.45f, 45f, new Color(1f, 0.5f, 0.2f), false);
-        }
-        else if (n.Contains("네크로"))
-        {
-            // 뼈색 몸통 + 큰 등지느러미 + 사악한 치유의 빛 (힐러 - 우선 처치각)
-            MakeEnemyPart(go, "Body", 0f, -0.05f, 0.85f, 0.5f, 0f, new Color(0.35f, 0.3f, 0.4f), true);
-            MakeEnemyPart(go, "Sail", 0f, 0.42f, 0.6f, 0.55f, 0f, new Color(0.55f, 0.3f, 0.75f), false);
-            MakeEnemyPart(go, "Glow", -0.3f, 0.1f, 0.2f, 0.2f, 0f, new Color(0.4f, 0.95f, 0.5f), true);
-        }
-        else
-        {
-            // 알 수 없는 종: 회갈 원 하나 (기존 placeholder들과 같은 문법)
-            MakeEnemyPart(go, "Body", 0f, 0f, 0.7f, 0.7f, 0f, new Color(0.55f, 0.4f, 0.3f), true);
-        }
+
+        SpriteRenderer sr = PixelPainter.Attach(go.transform, "Body", sprite, Vector3.zero, 5);
+        sr.sortingOrder = 5;   // 데크(-6~-4)/포탑(-3~-1) 위, 처치 팝(58+) 아래
+        if (png) sr.transform.localScale = Vector3.one * EnemyPngScale;
 
         go.transform.localScale = new Vector3(bulk, bulk, 1f);
         go.AddComponent<Enemy>();
         return go;
     }
 
-    /// <summary>폴백 적의 도형 파츠 1개 (TrainDeck 공용 스프라이트 재사용)</summary>
-    private void MakeEnemyPart(GameObject parent, string partName, float x, float y,
-        float w, float h, float tiltZ, Color color, bool circle)
+    /// <summary>종별 도트 그림 (한 번 그려서 캐시). 소년만화 메카 문법: 주색 장갑판 + 액센트 플레이트 + 검정 관절 + 각진 흰자 눈 + 짧은 이빨</summary>
+    private static Sprite PaintFallbackEnemy(string kind)
     {
-        GameObject part = new GameObject(partName);
-        part.transform.SetParent(parent.transform, false);
-        part.transform.localPosition = new Vector3(x, y, 0f);
-        part.transform.localScale = new Vector3(w, h, 1f);
-        part.transform.localEulerAngles = new Vector3(0f, 0f, tiltZ);
+        if (kind == "scorpion") return PaintScorpion();
+        if (kind == "tortoise") return PaintTortoise();
+        if (kind == "ptera") return PaintPtera();
+        if (kind == "necro") return PaintNecroSpino();
+        if (kind == "steel")
+            return PaintRaptor(new Color32(40, 44, 52, 255), new Color32(130, 138, 150, 255),
+                new Color32(180, 188, 200, 255), PixelPainter.GOLD, new Color32(255, 80, 60, 255));
+        // 기본 랩터: 파랑 장갑 + 흰 플레이트 (레퍼런스 트리케라 완구 배색)
+        return PaintRaptor(new Color32(24, 34, 90, 255), new Color32(52, 78, 190, 255),
+            new Color32(110, 140, 236, 255), PixelPainter.WHITE, new Color32(255, 220, 60, 255));
+    }
 
-        SpriteRenderer sr = part.AddComponent<SpriteRenderer>();
-        sr.sprite = circle ? TrainDeck.GetCircleSprite() : TrainDeck.GetWhiteSprite();
-        sr.color = color;
-        sr.sortingOrder = 5;   // 데크(-6~-4)/포탑(-3) 위, 처치 팝(58+) 아래
+    /// <summary>각진 눈 1개 (전대물 톤): 흰자 트라페조이드 + 동공(앞쪽) + 반짝. dir = 남북 방향(-1 북 / +1 남)</summary>
+    private static void SharpEye(PixelPainter p, int x, int y, int dir)
+    {
+        p.Polygon(new int[] { x, y, x + 5, y - dir, x + 5, y + dir * 2, x + 1, y + dir * 2 }, PixelPainter.WHITE, PixelPainter.BLK_O);
+        p.Rect(x + 3, y, x + 4, y + dir, new Color32(30, 26, 36, 255));
+        p.Point(x + 2, y + dir, PixelPainter.WHITE);
+    }
+
+    /// <summary>
+    /// 메카 랩터 (머리 오른쪽). O=외곽 B=장갑 L=하이라이트 AC=액센트 플레이트 EYE=눈.
+    /// 실루엣 위계(꼬리→골반→60% 머리→주둥이)는 유지, 형태는 전부 각진 장갑판.
+    /// </summary>
+    private static Sprite PaintRaptor(Color32 O, Color32 B, Color32 L, Color32 AC, Color32 EYE)
+    {
+        PixelPainter p = new PixelPainter(44, 24);
+        Color32 J = PixelPainter.BLK, JO = PixelPainter.BLK_O;
+
+        p.Shadow(9, 7, 37, 19);
+        // 꼬리 2마디 (각진 장갑 + 검정 관절)
+        p.Polygon(new int[] { 12, 9, 12, 15, 6, 13, 6, 11 }, B, O);
+        p.Polygon(new int[] { 6, 11, 6, 13, 1, 12 }, L, O);
+        p.Line(12, 10, 12, 14, J, 1);
+        // 다리: 검정 관절 + 장갑 허벅지 + 각진 발(발톱 3)
+        p.Line(16, 8, 13, 3, JO, 2); p.Rect(9, 1, 14, 4, B); p.RectOutline(9, 1, 14, 4, O); p.Point(8, 2, JO); p.Point(8, 3, JO);
+        p.Line(21, 16, 24, 21, JO, 2); p.Rect(23, 19, 28, 22, B); p.RectOutline(23, 19, 28, 22, O); p.Point(29, 20, JO); p.Point(29, 21, JO);
+        // 몸통 장갑 (골반 폭) + 액센트 등판 + 판넬선
+        p.Plate(new int[] { 12, 7, 26, 6, 28, 12, 26, 18, 12, 17 }, B, O, L);
+        p.Plate(new int[] { 14, 9, 24, 8, 24, 11, 14, 12 }, AC, O, PixelPainter.CLEAR);
+        p.Line(19, 12, 19, 16, O, 1); p.Line(23, 12, 23, 16, O, 1);
+        p.Rect(15, 14, 17, 15, J);                                                     // 관절 노출
+        // 앞팔 (검정 관절 + 발톱)
+        p.Line(24, 8, 27, 5, JO, 1); p.Point(28, 5, PixelPainter.SILVER);
+        p.Line(24, 16, 27, 19, JO, 1); p.Point(28, 19, PixelPainter.SILVER);
+        // 머리 장갑 (몸의 60% 폭) + 볏 액센트 + 주둥이 테이퍼
+        p.Plate(new int[] { 27, 8, 34, 7, 39, 12, 34, 17, 27, 16 }, B, O, L);
+        p.Polygon(new int[] { 28, 6, 32, 4, 33, 8 }, AC, O);                            // 볏
+        // 턱: 검정 입 + 은 톱니 + 눈(발광, 각진)
+        p.Polygon(new int[] { 34, 10, 42, 11, 42, 13, 34, 14 }, JO, PixelPainter.CLEAR);
+        p.Point(36, 10, PixelPainter.SILVER); p.Point(40, 11, PixelPainter.SILVER);
+        p.Point(38, 14, PixelPainter.SILVER);
+        SharpEye(p, 28, 9, -1); SharpEye(p, 28, 15, 1);
+        p.Line(27, 7, 33, 8, JO, 1); p.Line(27, 17, 33, 16, JO, 1);                   // 눈썹 장갑 (심술)
+        return p.Bake(ENEMY_PPU, 22f, 12f);
+    }
+
+    /// <summary>사막 전갈 메카: 보라 장갑 마디 + 노랑 집게/독침 (레퍼런스 보라 완구 배색)</summary>
+    private static Sprite PaintScorpion()
+    {
+        PixelPainter p = new PixelPainter(48, 24);
+        Color32 O = new Color32(60, 20, 80, 255), B = new Color32(150, 60, 190, 255), L = new Color32(200, 120, 230, 255);
+        Color32 Y = new Color32(250, 190, 40, 255), YO = new Color32(150, 100, 10, 255);
+        p.Shadow(4, 6, 44, 18);
+        // 꼬리: 뒤(왼쪽)로 각진 마디 4개 + 노랑 독침
+        int[] tx = { 16, 12, 8, 5 };
+        for (int i = 0; i < 4; i++) { p.Rect(tx[i] - 2, 10, tx[i] + 1, 14, B); p.RectOutline(tx[i] - 2, 10, tx[i] + 1, 14, O); p.Point(tx[i] - 1, 11, L); }
+        p.Polygon(new int[] { 5, 9, 5, 15, 0, 12 }, Y, YO); p.Point(3, 12, PixelPainter.WHITE);
+        // 다리 6개 (검정 관절)
+        for (int i = 0; i < 3; i++)
+        {
+            int lx = 20 + i * 5;
+            p.Line(lx, 9, lx - 2, 5, PixelPainter.BLK_O, 1); p.Line(lx, 15, lx - 2, 19, PixelPainter.BLK_O, 1);
+        }
+        // 몸 장갑 마디 3개 (각진) + 하이라이트
+        int[] bx = { 17, 23, 29 }; int[] bw = { 6, 7, 6 };
+        for (int i = 0; i < 3; i++)
+        {
+            p.Plate(new int[] { bx[i], 8, bx[i] + bw[i], 8, bx[i] + bw[i] + 1, 12, bx[i] + bw[i], 16, bx[i], 16 }, B, O, L);
+        }
+        p.Rect(24, 11, 29, 12, Y);                                                     // 등 액센트
+        // 집게 2개 (앞 = +x, 노랑 각진)
+        for (int s = -1; s <= 1; s += 2)
+        {
+            int cy = 12 + s * 5;
+            p.Line(35, 12 + s * 2, 40, cy, PixelPainter.BLK_O, 2);
+            p.Polygon(new int[] { 39, cy - 3, 46, cy - 2, 47, cy + 1, 40, cy + 2 }, Y, YO);
+            p.Line(45, cy - 1, 47, cy + 1, PixelPainter.BLK_O, 1);
+        }
+        SharpEye(p, 31, 9, -1); SharpEye(p, 31, 15, 1);                                 // 눈
+        return p.Bake(ENEMY_PPU, 26f, 12f);
+    }
+
+    /// <summary>구리 거북 메카: 빨강/금 육각 장갑 등껍질 + 검정 관절 다리 + 초록 눈 (고방어 탱커)</summary>
+    private static Sprite PaintTortoise()
+    {
+        PixelPainter p = new PixelPainter(40, 30);
+        Color32 G = new Color32(60, 110, 70, 255), GO = new Color32(20, 50, 30, 255), GL = new Color32(110, 170, 110, 255);
+        p.Shadow(4, 6, 34, 27);
+        // 다리 4개 (검정 관절 + 각진 발)
+        int[] lx = { 9, 23 }; int[] ly = { 1, 23 };
+        for (int i = 0; i < 2; i++) for (int j = 0; j < 2; j++)
+        { p.Rect(lx[i], ly[j], lx[i] + 6, ly[j] + 5, PixelPainter.BLK); p.RectOutline(lx[i], ly[j], lx[i] + 6, ly[j] + 5, PixelPainter.BLK_O); p.Point(lx[i] + 1, ly[j] + 1, PixelPainter.BLK_L); }
+        // 머리 (앞 = +x) 초록 장갑 + 눈
+        p.Plate(new int[] { 29, 10, 36, 11, 38, 15, 36, 19, 29, 19 }, G, GO, GL);
+        SharpEye(p, 32, 12, -1); SharpEye(p, 32, 17, 1);
+        // 등껍질: 검정 림 + 빨강 육각 장갑 + 금 트림 + 중앙 금 코어
+        p.Polygon(new int[] { 11, 2, 25, 2, 31, 14, 25, 27, 11, 27, 5, 14 }, PixelPainter.BLK, PixelPainter.BLK_O);
+        p.Polygon(new int[] { 12, 4, 24, 4, 29, 14, 24, 25, 12, 25, 7, 14 }, PixelPainter.RED, PixelPainter.RED_O);
+        p.Polygon(new int[] { 13, 6, 23, 6, 27, 14, 23, 23, 13, 23, 9, 14 }, PixelPainter.CLEAR, PixelPainter.GOLD);
+        p.Line(13, 5, 23, 5, PixelPainter.RED_L, 1);
+        p.Polygon(new int[] { 15, 10, 21, 10, 23, 14, 21, 19, 15, 19, 13, 14 }, PixelPainter.GOLD, PixelPainter.GOLD_D);
+        p.Point(17, 12, PixelPainter.GOLD_L);
+        p.Line(13, 14, 9, 14, PixelPainter.RED_D, 1); p.Line(23, 14, 27, 14, PixelPainter.RED_D, 1);
+        return p.Bake(ENEMY_PPU, 18f, 14f);
+    }
+
+    /// <summary>화염 익룡 메카: 주황 각진 날개 + 흰 플레이트 + 검정 관절 + 부리 (급강하 폭격)</summary>
+    private static Sprite PaintPtera()
+    {
+        PixelPainter p = new PixelPainter(40, 44);
+        Color32 O = new Color32(110, 40, 10, 255), B = new Color32(236, 110, 40, 255), L = new Color32(250, 170, 90, 255);
+        p.Shadow(14, 18, 30, 28);   // 낙하 그림자 (공중이라 작게)
+        for (int s = -1; s <= 1; s += 2)
+        {
+            // 날개: 각진 장갑 2장 (안쪽/바깥쪽) + 흰 플레이트 + 관절
+            p.Polygon(new int[] { 22, 22, 20, 22 + s * 3, 13, 22 + s * 18, 9, 22 + s * 15, 13, 22 + s * 7, 17, 22 + s * 1 }, B, O);
+            p.Polygon(new int[] { 19, 22 + s * 4, 15, 22 + s * 12, 13, 22 + s * 10, 17, 22 + s * 4 }, PixelPainter.WHITE, O);
+            p.Line(20, 22 + s * 3, 14, 22 + s * 16, L, 1);
+            p.Rect(18, 22 + s * 5, 19, 22 + s * 6, PixelPainter.BLK);                 // 날개 관절
+            p.Point(12, 22 + s * 18, PixelPainter.GOLD_L); p.Point(11, 22 + s * 17, PixelPainter.GOLD);   // 날개 끝 불꽃 노즐
+        }
+        // 몸통 장갑 + 부리 + 눈
+        p.Plate(new int[] { 17, 18, 26, 18, 28, 22, 26, 26, 17, 26 }, B, O, L);
+        p.Rect(19, 21, 24, 23, PixelPainter.WHITE);
+        p.Polygon(new int[] { 26, 20, 34, 22, 26, 25 }, PixelPainter.GOLD, PixelPainter.GOLD_D);    // 금 부리
+        SharpEye(p, 21, 20, -1); SharpEye(p, 21, 24, 1);
+        return p.Bake(ENEMY_PPU, 22f, 22f);
+    }
+
+    /// <summary>네크로 스피노 메카: 검정 장갑 + 보라 등지느러미 플레이트 + 초록 발광 (힐러 - 우선 처치각)</summary>
+    private static Sprite PaintNecroSpino()
+    {
+        PixelPainter p = new PixelPainter(52, 24);
+        Color32 O = PixelPainter.BLK_O, B = new Color32(50, 46, 60, 255), L = new Color32(96, 90, 112, 255);
+        Color32 sail = new Color32(150, 80, 210, 255), sailD = new Color32(80, 30, 130, 255), glow = PixelPainter.EYE_G;
+        p.Shadow(6, 6, 46, 18);
+        // 꼬리 + 다리 4개 (검정 관절, 각진 발)
+        p.Polygon(new int[] { 12, 10, 12, 14, 3, 12 }, B, O); p.Line(4, 12, 10, 12, L, 1);
+        int[] lx = { 12, 30 }; int[] ly = { 2, 19 };
+        for (int i = 0; i < 2; i++) for (int j = 0; j < 2; j++)
+        { p.Line(lx[i] + 2, j == 0 ? 8 : 16, lx[i], ly[j] + 2, O, 2); p.Rect(lx[i] - 2, ly[j], lx[i] + 2, ly[j] + 2, B); p.RectOutline(lx[i] - 2, ly[j], lx[i] + 2, ly[j] + 2, O); }
+        // 몸통 장갑 + 초록 발광 라인
+        p.Plate(new int[] { 10, 6, 36, 6, 38, 12, 36, 18, 10, 18 }, B, O, L);
+        p.Line(12, 15, 34, 15, glow, 1); p.Point(16, 15, PixelPainter.EYE_GL); p.Point(28, 15, PixelPainter.EYE_GL);
+        // 등지느러미: 보라 각진 플레이트 열 (센터라인)
+        p.Polygon(new int[] { 12, 12, 15, 4, 18, 12, 21, 3, 24, 12, 27, 3, 30, 12, 33, 5, 36, 12 }, sail, sailD);
+        p.Rect(12, 11, 36, 13, sailD); p.Point(15, 6, PixelPainter.WHITE); p.Point(21, 5, PixelPainter.WHITE); p.Point(27, 5, PixelPainter.WHITE);
+        // 머리 장갑 + 턱 + 초록 눈 + 은 이빨
+        p.Plate(new int[] { 36, 8, 44, 8, 50, 12, 44, 16, 36, 16 }, B, O, L);
+        p.Polygon(new int[] { 44, 10, 51, 11, 51, 13, 44, 14 }, O, PixelPainter.CLEAR);
+        p.Point(46, 10, PixelPainter.SILVER); p.Point(48, 14, PixelPainter.SILVER);
+        SharpEye(p, 38, 9, -1); SharpEye(p, 38, 15, 1);
+        p.Point(41, 9, glow); p.Point(41, 16, glow);                                   // 눈에 초록 빛
+        return p.Bake(ENEMY_PPU, 26f, 12f);
     }
 
     private void SpawnBoss()

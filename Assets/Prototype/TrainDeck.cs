@@ -2,42 +2,49 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// [TrainDeck.cs] v2 - B-2: Æ®·¹ÀÏ·¯ 4Ä­ ÄÚµå µ¥Å© (¹æÇâ°áÁ¤ 2026-08-31)
+/// [TrainDeck.cs] v4 - ê³ í€„ ìŠ¤í”„ë¼ì´íŠ¸ PNG ì ìš© (ëª©ì—… v7d ì»¨íŒ 2026-09-03) / v3 íƒ‘ë·° ì¬ìŠ¤í‚¨ (2026-09-02)
 ///
-/// ±âÂ÷°¡ 4Ä­(±â°üÂ÷/ÁÖ¹æ/Æ÷Å¾A/Æ÷Å¾B)À¸·Î ´Ã¾î³ª¸é¼­, ¼ÎÇÁ°¡ °È´Â °©ÆÇÀ»
-/// ÄÚµå »ı¼º µµÇüÀ¸·Î ±×¸°´Ù. Ä­ ¸öÃ¼ / ÁöºØ¡¤¹Ù´Ú Æ®¸² / ¿¬°áºÎ / ¹ÙÄû / ±â°üÂ÷ ±¼¶Ò.
-/// ¾À ÀÛ¾÷ 0 ¿øÄ¢ - ¾ÆÆ® ´Ü°è¿¡¼­ Ä­º° ½ºÇÁ¶óÀÌÆ®·Î ±³Ã¼ ¿¹Á¤ (¹é·Î±× 1Àı).
+/// - v4: Resources/Sprites/WDT/ ì˜ PNG(car0/car1/car2/head/tail/chimney)ë¥¼ SpriteBankë¡œ ì½ì–´ ì“´ë‹¤.
+///   PNGê°€ ì—†ìœ¼ë©´ v3 ì½”ë“œ ë„íŠ¸(PixelPainter)ë¡œ ìë™ í´ë°±. ê¼¬ë¦¬(tail)ëŠ” PNGê°€ ìˆì„ ë•Œë§Œ ë¶™ëŠ”ë‹¤.
+///   ì¢Œí‘œÂ·ì •ë ¬ì€ v3 ê·¸ëŒ€ë¡œ (í”¼ë²—ì€ Editor/WDTSpriteImporter.csê°€ ì„í¬íŠ¸ ì‹œ ë§ì¶˜ë‹¤).
 ///
-/// - v2 (ºñÁÖ¾ó Á¤·Ä - ÇÃ·¹ÀÌ ÇÇµå¹é "½½·Ô°ú ±âÂ÷°¡ µû·Î ³í´Ù"):
-///   1) ±¸ ±âÂ÷ ½ºÇÁ¶óÀÌÆ®(¾ÀÀÇ 5x5 »ç°¢Çü) ÀÚµ¿ ¼û±è - 4Ä­ µ¥Å©°¡ ±âÂ÷ º»Ã¼°¡ µÈ´Ù
-///      (·»´õ·¯¸¸ ²û. TrainManager/ÅÂ±×/Ãæµ¹ ·ÎÁ÷Àº ±×´ë·Î. HideLegacyTrainVisual ½ºÀ§Ä¡)
-///   2) Á¶¸®´ë 3´ë¸¦ ÁÖ¹æÄ­ ¾È Á¤À§Ä¡·Î ÀÚµ¿ Á¤·Ä (¾À¿¡¼­ ÆÒÀÌ ÁöºØ À§(0,2)¿¡ ¶° ÀÖ¾úÀ½.
-///      AlignStations ½ºÀ§Ä¡, À§Ä¡´Â GameBalance.StationXs/StationY)
-///   3) ¾À ¸®·Îµå(·± Àç½ÃÀÛ)¸¶´Ù ÀçÁ¤·Ä - sceneLoaded ±¸µ¶
+/// ê¸°ì°¨ 4ì¹¸(ê¸°ê´€ì°¨/ì£¼ë°©/í¬íƒ‘A/í¬íƒ‘B)ì„ ì½”ë“œ ìƒì„± ë„íŠ¸ ê·¸ë¦¼ìœ¼ë¡œ ê·¸ë¦°ë‹¤.
+/// v2ê¹Œì§€ëŠ” ì‚¬ê°í˜• ëª‡ ê°œì˜€ê³ , v3ë¶€í„°ëŠ” ëª©ì—… v2ì˜ "ìœ„ì—ì„œ ë³¸ ê¸°ì°¨" ë¬¸ë²•ì„ ê·¸ëŒ€ë¡œ ì˜®ê²¼ë‹¤:
+///   - ì¹¸ = ì§€ë¶•(êµ¬ë¦¬ 5í†¤ ë¨í”„ + ë¶ìª½ í•˜ì´ë¼ì´íŠ¸ + íŒê¸ˆ ì´ìŒìƒˆ + ë¦¬ë²³) + ë‚¨ë²½ ì–‡ê²Œ(2.5D) + ë°œë°‘ ê·¸ë¦¼ì íƒ€ì›
+///   - ë¬´ì‡  ì½”ë„ˆ í”Œë ˆì´íŠ¸(ê²€ì€ í¬ì¸íŠ¸), ì£¼ë°©ì¹¸ì€ ì²œì¥ ê°œë°©(ëª©ì¬ ë°”ë‹¥ íŒì)
+///   - ê¸°ê´€ì°¨ ì• = T-Rex ë‘ìƒ(íƒ‘ë·°): ëŒì¶œ ëˆˆë§ìš¸ 2ê°œ + ì™¼ìª½ í…Œì´í¼ ì£¼ë‘¥ì´ + ìê¸° ì•„ê°€ë¦¬ + ì§€ê·¸ì¬ê·¸ ì´ë¹¨
+///     + ì½§êµ¬ë© 2ìŒ + ê°•ì²  ëˆˆì¹ ì¥ê°‘ + ì •ìˆ˜ë¦¬ ë¦¬ì§€ + ëª© ê´€ì ˆ ë°´ë“œ + ë“±ì¤„ê¸° ë‹¤ì´ì•„ ê°€ì‹œ
+///   - êµ´ëš(ë¬´ì‡  ì‹¤ë¦°ë”)ì€ ë‘ê°œê³¨ê³¼ ë¶„ë¦¬ ë°°ì¹˜, ì—°ê²°ë¶€ëŠ” ë¬´ì‡  ë°•ìŠ¤
+/// ì¢Œí‘œê³„ëŠ” v2 ê·¸ëŒ€ë¡œ (CarEdgesX / ëª¸ì²´ y -1.8~1.8). ë°”ë€ ê±´ "ê·¸ë¦¬ëŠ” ë¬¸ë²•"ë¿ì´ë¼
+/// TrainManager/ìŠ¬ë¡¯/ì¡°ë¦¬ëŒ€/ì´ë²¤íŠ¸ ì•µì»¤ì— ì˜í–¥ ì—†ìŒ. í”½ì…€ ë„êµ¬ = PixelPainter.cs (ì‹ ê·œ).
 ///
-/// Ä­ °æ°è´Â GameBalance.CarEdgesX°¡ ´ÜÀÏ ¼Ò½º (±âÂ÷ ½ºÆ®¸³ UI / ÀÌº¥Æ® ¾ŞÄ¿¿Í °øÀ¯).
-/// »ç¿ë¹ı: ¾øÀ½! ÆÄÀÏ¸¸ ³ÖÀ¸¸é ÀÚµ¿ »ı¼ºµÈ´Ù.
-/// VS 2017 (C# 7.3) È£È¯
+/// ìœ ì§€ ê¸°ëŠ¥ (v2): êµ¬ ê¸°ì°¨ ìŠ¤í”„ë¼ì´íŠ¸ ìë™ ìˆ¨ê¹€(HideLegacyTrainVisual) / ì¡°ë¦¬ëŒ€ ìë™ ì •ë ¬(AlignStations)
+/// / ì”¬ ë¦¬ë¡œë“œë§ˆë‹¤ ì¬ì •ë ¬. GetWhiteSprite/GetCircleSpriteëŠ” ë‹¤ë¥¸ íŒŒì¼(AttackVFX/DeckLoot)ì´ ì“°ë¯€ë¡œ ìœ ì§€.
+///
+/// ì‚¬ìš©ë²•: ì—†ìŒ! íŒŒì¼ë§Œ ë„£ìœ¼ë©´ ìë™ ìƒì„±ëœë‹¤. (PixelPainter.csê°€ ê°™ì´ ìˆì–´ì•¼ í•œë‹¤)
+/// ì•„íŠ¸ ë°˜ì˜ ì‹œ: ì¹¸ë³„ ìŠ¤í”„ë¼ì´íŠ¸ë¥¼ ì”¬ì— ë†“ê³  HideLegacyTrainVisual=false + ì´ íŒŒì¼ì˜ Build()ë¥¼ ë¹„ìš°ë©´ ëœë‹¤.
+/// VS 2017 (C# 7.3) í˜¸í™˜
 /// </summary>
 public class TrainDeck : MonoBehaviour
 {
     private static TrainDeck instance;
 
-    // Á¤·Ä ¼ø¼­: ÆĞ·²·¢½º(-30~-10)º¸´Ù ¾Õ, ¼ÎÇÁ/Àû(0+)º¸´Ù µÚ
+    // ì •ë ¬ ìˆœì„œ: íŒ¨ëŸ´ë™ìŠ¤(-30~-10)ë³´ë‹¤ ì•, ì…°í”„/ì (0+)ë³´ë‹¤ ë’¤
     private const int SORT_BODY = -6;
     private const int SORT_TRIM = -5;
     private const int SORT_DETAIL = -4;
 
-    // »ö (±¸¸® ±âÂ÷ - ¿ø¾È: Copper + °ËÁ¤ Æ÷ÀÎÆ®)
-    private static readonly Color BODY_A = new Color(0.42f, 0.26f, 0.16f);   // ±â°üÂ÷ (Â£Àº ±¸¸®)
-    private static readonly Color BODY_B = new Color(0.48f, 0.30f, 0.18f);   // ÁÖ¹æÄ­
-    private static readonly Color BODY_C = new Color(0.45f, 0.28f, 0.17f);   // Æ÷Å¾Ä­
-    private static readonly Color TRIM = new Color(0.16f, 0.11f, 0.08f);     // °ËÁ¤ Æ÷ÀÎÆ®
-    private static readonly Color COUPLER = new Color(0.12f, 0.09f, 0.07f);  // ¿¬°áºÎ
-    private static readonly Color WHEEL = new Color(0.10f, 0.08f, 0.07f);    // ¹ÙÄû
+    /// <summary>ë„íŠ¸ ë°°ìœ¨: ì›”ë“œ 1ìœ ë‹› = 20px (ëª©ì—… 480x270 ë„íŠ¸ ìº”ë²„ìŠ¤ì™€ ê°™ì€ ë°€ë„)</summary>
+    public const float PPU = 20f;
 
-    private static Sprite whiteSprite;   // 1x1 (»ç°¢Çü¿ë)
-    private static Sprite circleSprite;  // ¹ÙÄû¿ë ¿ø
+    // ì¹¸ ìº”ë²„ìŠ¤ ì„¸ë¡œ êµ¬ì„± (px, ìœ„ì—ì„œ ì•„ë˜ë¡œ): ì§€ë¶• 0~57 / ë‚¨ë²½ 58~71 / ê·¸ë¦¼ì ~84
+    private const int CAR_H = 92;
+    private const int ROOF_BOTTOM = 57;
+    private const int WALL_BOTTOM = 71;
+    private const int PIVOT_Y = 36;          // ì›”ë“œ y=0 ì— í•´ë‹¹í•˜ëŠ” í–‰ (1.8 * 20)
+
+    private static Sprite whiteSprite;   // 1x1 (ë‹¤ë¥¸ íŒŒì¼ ê³µìš©)
+    private static Sprite circleSprite;  // ì› (ë‹¤ë¥¸ íŒŒì¼ ê³µìš©)
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void Bootstrap()
@@ -46,7 +53,7 @@ public class TrainDeck : MonoBehaviour
         GameObject go = new GameObject("TrainDeck");
         DontDestroyOnLoad(go);
         go.AddComponent<TrainDeck>();
-        // ¾À ¸®·Îµå(·± Àç½ÃÀÛ)¸¶´Ù »õ·Î »ı±ä ±¸ ±âÂ÷/Á¶¸®´ë¸¦ ´Ù½Ã Á¤·Ä
+        // ì”¬ ë¦¬ë¡œë“œ(ëŸ° ì¬ì‹œì‘)ë§ˆë‹¤ êµ¬ ë¹„ì£¼ì–¼ ìˆ¨ê¹€/ì¡°ë¦¬ëŒ€ë¥¼ ë‹¤ì‹œ ì •ë ¬
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
@@ -63,13 +70,13 @@ public class TrainDeck : MonoBehaviour
         AlignLegacyVisuals();
     }
 
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
-    // v2: ±¸ ¾À ¿ÀºêÁ§Æ®¸¦ 4Ä­ Ã¼Á¦¿¡ ¸ÂÃç Á¤·Ä
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // v2: ì”¬ êµ¬ ì˜¤ë¸Œì íŠ¸ë¥¼ 4ì¹¸ ì²´ê³„ì— ë§ì¶° ì •ë ¬
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     private void AlignLegacyVisuals()
     {
-        // 1) ±¸ ±âÂ÷ ½ºÇÁ¶óÀÌÆ® ¼û±è - 4Ä­ µ¥Å©°¡ ±âÂ÷ º»Ã¼¸¦ ÀÌ¾î¹Ş´Â´Ù
-        //    (·»´õ·¯¸¸ ²ö´Ù. TrainManager/ÅÂ±×/Àû Å¸°ÙÆÃ ·ÎÁ÷Àº ÀüºÎ ±×´ë·Î)
+        // 1) êµ¬ ê¸°ì°¨ ìŠ¤í”„ë¼ì´íŠ¸ ìˆ¨ê¹€ - 4ì¹¸ ë°í¬ê°€ ê¸°ì°¨ ë³¸ì²´ë¥¼ ì´ì–´ë°›ëŠ”ë‹¤
+        //    (ë Œë”ëŸ¬ë§Œ ëˆë‹¤. TrainManager/íƒœê·¸/ì  íƒ€ê²ŸíŒ… ë¡œì§ì€ ì „ë¶€ ê·¸ëŒ€ë¡œ)
         if (GameBalance.HideLegacyTrainVisual)
         {
             GameObject trainObj = GameObject.FindGameObjectWithTag("Train");
@@ -78,18 +85,18 @@ public class TrainDeck : MonoBehaviour
                 SpriteRenderer[] srs = trainObj.GetComponentsInChildren<SpriteRenderer>(true);
                 for (int i = 0; i < srs.Length; i++) srs[i].enabled = false;
                 if (srs.Length > 0)
-                    Debug.Log("[TrainDeck] ±¸ ±âÂ÷ ½ºÇÁ¶óÀÌÆ® " + srs.Length + "°³ ¼û±è - 4Ä­ µ¥Å©°¡ º»Ã¼");
+                    Debug.Log("[TrainDeck] êµ¬ ê¸°ì°¨ ìŠ¤í”„ë¼ì´íŠ¸ " + srs.Length + "ê°œ ìˆ¨ê¹€ - 4ì¹¸ ë°í¬ë¡œ ëŒ€ì²´");
             }
 
-            // ¾À HUD ÀÜÀçµµ ÇÔ²² Á¤¸®: StatChangeText´Â v2ºÎÅÍ ¹Ì»ç¿ë (ÄÜ¼Ö ÆùÆ® °æ°íÀÇ ¿øÀÎ)
+            // êµ¬ HUD ì”ì¬ë„ í•¨ê»˜ ì •ë¦¬: StatChangeTextëŠ” v2ë¶€í„° ë¯¸ì‚¬ìš© (ë‹¨ìˆœ í…ìŠ¤íŠ¸ ë¼ë²¨ í•˜ë‚˜)
             GameObject statLegacy = GameObject.Find("StatChangeText");
             if (statLegacy != null)
             {
                 statLegacy.SetActive(false);
-                Debug.Log("[TrainDeck] ¾À ÀÜÀç StatChangeText ¼û±è (¹Ì»ç¿ë - »èÁ¦ÇØµµ ¹«¹æ)");
+                Debug.Log("[TrainDeck] êµ¬ ìƒíƒœ StatChangeText ìˆ¨ê¹€ (ë¯¸ì‚¬ìš© - ì‚­ì œí•´ë„ ë¬´ë°©)");
             }
 
-            // HUD Á¤¸®: ÁÂ»ó´Ü HP¹Ù°¡ ³Ê¹« ÀÛ°í ±¸¼®¿¡ ¹ĞÂø - ÄÚµå·Î Å°¿î´Ù (¾À ÀÛ¾÷ 0)
+            // HUD ì •ë¦¬: ì¢Œìƒë‹¨ HPë°”ê°€ ë„ˆë¬´ ì‘ê²Œ ë³´ì´ë˜ ë¬¸ì œ - ì½”ë“œë¡œ í‚¤ìš´ë‹¤ (ì”¬ ì‘ì—… 0)
             GameObject hpBar = GameObject.Find("HPBar");
             if (hpBar != null)
             {
@@ -97,7 +104,7 @@ public class TrainDeck : MonoBehaviour
                 if (barRt != null)
                 {
                     barRt.sizeDelta = new Vector2(340f, 26f);            // 250x20 -> 340x26
-                    barRt.anchoredPosition = new Vector2(14f, -14f);     // °¡ÀåÀÚ¸® ¿©¹é
+                    barRt.anchoredPosition = new Vector2(14f, -14f);     // ê°€ì¥ìë¦¬ ì—¬ë°±
                 }
             }
             GameObject hpTextGo = GameObject.Find("HPText");
@@ -107,100 +114,245 @@ public class TrainDeck : MonoBehaviour
                 if (txtRt != null)
                 {
                     txtRt.sizeDelta = new Vector2(130f, 26f);
-                    txtRt.anchoredPosition = new Vector2(364f, -14f);    // Ä¿Áø ¹Ù ¿À¸¥ÂÊ¿¡
+                    txtRt.anchoredPosition = new Vector2(364f, -14f);    // ì»¤ì§„ ë°” ì˜¤ë¥¸ìª½ì—
                 }
                 TMPro.TextMeshProUGUI tmp = hpTextGo.GetComponent<TMPro.TextMeshProUGUI>();
                 if (tmp != null) tmp.fontSize = 20f;
             }
         }
 
-        // 2) Á¶¸®´ë 3´ë¸¦ ÁÖ¹æÄ­ ¾È Á¤À§Ä¡·Î (±×¸±/ººÀ½ÆÒ/³¿ºñ = StationXs ¼ø¼­)
-        //    B-2.2: ½ºÄÉÀÏµµ ÅëÀÏ (¾À 0.4´Â Á¡Ã³·³ ÀÛ¾ÒÀ½ - StationScale·Î ½ÃÀÎ¼º ¾÷)
+        // 2) ì¡°ë¦¬ëŒ€ 3ëŒ€ë¥¼ ì£¼ë°©ì¹¸ ì•ˆ ì •ìœ„ì¹˜ë¡œ (ê·¸ë¦´/ë³¶ìŒíŒ¬/ëƒ„ë¹„ = StationXs ìˆœì„œ)
+        //    B-2.2: ìŠ¤ì¼€ì¼ë„ í†µì¼ (ì”¬ 0.4ëŠ” ë„ˆë¬´ ì‘ì•˜ìŒ - StationScaleì´ ë‹¨ì¼ì†ŒìŠ¤)
         if (GameBalance.AlignStations)
         {
             CookingStation[] stations = FindObjectsByType<CookingStation>(FindObjectsSortMode.None);
             for (int i = 0; i < stations.Length; i++)
             {
-                int idx = (int)stations[i].stationType;   // 0=±×¸± 1=ººÀ½ÆÒ 2=³¿ºñ
+                int idx = (int)stations[i].stationType;   // 0=ê·¸ë¦´ 1=ë³¶ìŒíŒ¬ 2=ëƒ„ë¹„
                 if (idx < 0 || idx >= GameBalance.StationXs.Length) continue;
                 stations[i].transform.position =
                     new Vector3(GameBalance.StationXs[idx], GameBalance.StationY, 0f);
                 stations[i].transform.localScale = Vector3.one * GameBalance.StationScale;
             }
             if (stations.Length > 0)
-                Debug.Log("[TrainDeck] Á¶¸®´ë " + stations.Length + "´ë ÁÖ¹æÄ­ Á¤·Ä ¿Ï·á");
+                Debug.Log("[TrainDeck] ì¡°ë¦¬ëŒ€ " + stations.Length + "ëŒ€ ì£¼ë°©ì¹¸ ì •ë ¬ ì™„ë£Œ");
         }
     }
 
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
-    // µ¥Å© »ı¼º
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ë°í¬ ìƒì„± (v3: ë„íŠ¸ ìŠ¤í”„ë¼ì´íŠ¸)
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     private void Build()
     {
         float[] edges = GameBalance.CarEdgesX;
-        float bodyBottom = -1.8f, bodyTop = 1.8f;
 
         for (int car = 0; car < edges.Length - 1; car++)
         {
-            // Ä­ ¸öÃ¼ (°æ°è¿¡¼­ 0.12¾¿ ¾ÈÂÊÀ¸·Î - Ä­ »çÀÌ Æ´ÀÌ º¸ÀÌ°Ô)
+            // ì¹¸ ëª¸ì²´ (ê²½ê³„ì—ì„œ 0.12ì”© ë“¤ì—¬ì“°ê¸° - ì¹¸ ì‚¬ì´ í‹ˆì´ ë³´ì´ê²Œ)
             float left = edges[car] + 0.12f;
             float right = edges[car + 1] - 0.12f;
-            Color body = car == 0 ? BODY_A : (car == 1 ? BODY_B : BODY_C);
+            int w = Mathf.RoundToInt((right - left) * PPU);
 
-            MakeQuad("Car" + car + "_Body", left, right, bodyBottom, bodyTop, body, SORT_BODY);
-            MakeQuad("Car" + car + "_Roof", left, right, bodyTop - 0.22f, bodyTop, TRIM, SORT_TRIM);
-            MakeQuad("Car" + car + "_Floor", left, right, bodyBottom, bodyBottom + 0.28f, TRIM, SORT_TRIM);
+            // v4: PNG ìš°ì„  (ì¹¸ 3ì€ ì¹¸ 2ì™€ ê°™ì€ í¬íƒ‘ì¹¸ ê·¸ë¦¼), ì—†ìœ¼ë©´ ì½”ë“œ ë„íŠ¸
+            Sprite carSprite = SpriteBank.Get(car == 3 ? "car2" : "car" + car);
+            if (carSprite == null) carSprite = PaintCar(w, car);
+            PixelPainter.Attach(transform, "Car" + car + "_Body", carSprite,
+                new Vector3((left + right) * 0.5f, 0f, 0f), SORT_BODY);
 
-            // ¹ÙÄû 2°³ (Ä­ ¾ç³¡ ÂÊ)
-            MakeWheel("Car" + car + "_WheelL", left + 0.7f);
-            MakeWheel("Car" + car + "_WheelR", right - 0.7f);
-
-            // ¿¬°áºÎ (´ÙÀ½ Ä­°úÀÇ Æ´)
+            // ì—°ê²°ë¶€ (ë‹¤ìŒ ì¹¸ê³¼ì˜ í‹ˆ) - ë¬´ì‡  ë°•ìŠ¤ + ì‚¬ì„  í•˜ì´ë¼ì´íŠ¸
             if (car < edges.Length - 2)
-                MakeQuad("Coupler" + car, edges[car + 1] - 0.18f, edges[car + 1] + 0.18f,
-                    -0.9f, -0.4f, COUPLER, SORT_DETAIL);
+                PixelPainter.Attach(transform, "Coupler" + car, PaintCoupler(),
+                    new Vector3(edges[car + 1], -0.85f, 0f), SORT_TRIM);
         }
 
-        // ±â°üÂ÷ µğÅ×ÀÏ: ±¼¶Ò + º¸ÀÏ·¯ µ¼ (Ä­ 0 ¿ŞÂÊ)
+        // ê¸°ê´€ì°¨ íˆì–´ë¡œ í”¼ìŠ¤: T-Rex ë‘ìƒ (ì¹¸ 0 ì•ìª½ì— ê²¹ì³ ì•‰ëŠ”ë‹¤) + êµ´ëš
         float locoLeft = edges[0];
-        MakeQuad("Chimney", locoLeft + 0.7f, locoLeft + 1.3f, bodyTop, bodyTop + 1.2f, TRIM, SORT_DETAIL);
-        MakeQuad("BoilerDome", locoLeft + 1.9f, locoLeft + 2.7f, bodyTop, bodyTop + 0.5f,
-            new Color(0.55f, 0.35f, 0.2f), SORT_DETAIL);
+        Sprite headSprite = SpriteBank.Get("head");
+        if (headSprite == null) headSprite = PaintHead();
+        PixelPainter.Attach(transform, "TRexHead", headSprite, new Vector3(locoLeft, 0f, 0f), SORT_DETAIL);
+        Sprite chimneySprite = SpriteBank.Get("chimney");
+        if (chimneySprite == null) chimneySprite = PaintChimney();
+        PixelPainter.Attach(transform, "Chimney", chimneySprite, new Vector3(locoLeft + 2.55f, -0.9f, 0f), SORT_DETAIL);
 
-        Debug.Log("[TrainDeck] 4Ä­ µ¥Å© »ı¼º ¿Ï·á (°æ°è " + edges[0] + " ~ " + edges[edges.Length - 1] + ")");
+        // v4: ê¼¬ë¦¬ (ë§ˆì§€ë§‰ ì¹¸ ë’¤, PNGê°€ ìˆì„ ë•Œë§Œ - ê¸°ì°¨ ì „ì²´ê°€ ê³µë£¡ìœ¼ë¡œ ì½íˆëŠ” í¬ì¸íŠ¸)
+        Sprite tailSprite = SpriteBank.Get("tail");
+        if (tailSprite != null)
+            PixelPainter.Attach(transform, "TRexTail", tailSprite,
+                new Vector3(edges[edges.Length - 1] - 0.1f, 0f, 0f), SORT_TRIM);
+
+        Debug.Log("[TrainDeck] 4ì¹¸ ë°í¬ ìƒì„± ì™„ë£Œ - íƒ‘ë·° v3 (ê²½ê³„ " + edges[0] + " ~ " + edges[edges.Length - 1] + ")");
     }
 
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
-    // µµÇü ÇïÆÛ
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
-    private void MakeQuad(string name, float left, float right, float bottom, float top,
-        Color color, int order)
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ì¹¸ 1ê°œ (kind: 0=ê¸°ê´€ì°¨ 1=ì£¼ë°©(ê°œë°©) 2,3=í¬íƒ‘ì¹¸)
+    // ë©”ì¹´ ë¬¸ë²•: ë¹¨ê°• ì¥ê°‘ ì§€ë¶• + ê¸ˆ íŠ¸ë¦¼ í”„ë ˆì„ + íŒë„¬ ë¶„í• ì„  / ê²€ì • ì„€ì‹œ ë‚¨ë²½ + íšŒìƒ‰ ë°”í€´ê°€ë“œ + ê¸ˆ ìŠ¤íŠ¸ë¼ì´í”„
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    private static Sprite PaintCar(int w, int kind)
     {
-        GameObject go = new GameObject(name);
-        go.transform.SetParent(transform, false);
-        go.transform.position = new Vector3((left + right) * 0.5f, (bottom + top) * 0.5f, 0f);
-        go.transform.localScale = new Vector3(right - left, top - bottom, 1f);
+        PixelPainter p = new PixelPainter(w, CAR_H);
+        int r = w - 1;
 
-        SpriteRenderer sr = go.AddComponent<SpriteRenderer>();
-        sr.sprite = GetWhiteSprite();
-        sr.color = color;
-        sr.sortingOrder = order;
+        // ë°œë°‘ ê·¸ë¦¼ì (ë‚¨ë²½ ì•„ë˜ë¡œ ì‚´ì§ ì‚ì ¸ë‚˜ì˜¨ë‹¤ - 2.5D ë‹¨ì„œ)
+        p.Shadow(1, 62, r + 1, 84);
+
+        // ê²€ì • ì„€ì‹œê°€ ì§€ë¶•ë³´ë‹¤ ì‚´ì§ ë„“ê²Œ ê¹”ë¦°ë‹¤ (ì™„êµ¬ì˜ í•˜ë¶€ í”„ë ˆì„)
+        p.Rect(0, 2, r, WALL_BOTTOM + 1, PixelPainter.BLK);
+        p.RectOutline(0, 2, r, WALL_BOTTOM + 1, PixelPainter.BLK_O);
+
+        // ì§€ë¶• ì¥ê°‘ (ë¹¨ê°•) + ê¸ˆ íŠ¸ë¦¼ í”„ë ˆì„ + ë¶ìª½ í•˜ì´ë¼ì´íŠ¸
+        p.RoundRect(2, 0, r - 2, ROOF_BOTTOM - 2, 4, PixelPainter.RED, PixelPainter.RED_O);
+        p.Rect(3, 1, r - 3, 4, PixelPainter.RED_L);
+        p.RoundRect(4, 3, r - 4, ROOF_BOTTOM - 5, 3, PixelPainter.CLEAR, PixelPainter.GOLD);
+        p.Rect(6, ROOF_BOTTOM - 10, r - 6, ROOF_BOTTOM - 9, PixelPainter.SILVER);   // ì€ìƒ‰ ì•¡ì„¼íŠ¸ ì¤„ (ì „ëŒ€ë¬¼ í° ìŠ¤íŠ¸ë¼ì´í”„)
+        p.Line(5, ROOF_BOTTOM - 4, r - 5, ROOF_BOTTOM - 4, PixelPainter.GOLD_D, 1);
+
+        // ë‚¨ë²½ = ê²€ì • ì„€ì‹œ + ê¸ˆ ìŠ¤íŠ¸ë¼ì´í”„ + íšŒìƒ‰ ë°”í€´ê°€ë“œ 2ê°œ + í†µí’êµ¬
+        p.Rect(1, ROOF_BOTTOM - 1, r - 1, WALL_BOTTOM, PixelPainter.BLK);
+        p.Rect(1, ROOF_BOTTOM + 1, r - 1, ROOF_BOTTOM + 2, PixelPainter.GOLD);
+        p.Rect(1, ROOF_BOTTOM + 3, r - 1, ROOF_BOTTOM + 3, PixelPainter.GOLD_D);
+        int[] gx = { 6, r - 18 };
+        for (int i = 0; i < 2; i++)
+        {
+            p.RoundRect(gx[i], ROOF_BOTTOM + 5, gx[i] + 12, WALL_BOTTOM - 1, 2, PixelPainter.GREY, PixelPainter.BLK_O);
+            p.Line(gx[i] + 1, ROOF_BOTTOM + 6, gx[i] + 11, ROOF_BOTTOM + 6, PixelPainter.GREY_L, 1);
+            for (int vx = gx[i] + 3; vx <= gx[i] + 9; vx += 3) p.Line(vx, ROOF_BOTTOM + 8, vx, WALL_BOTTOM - 3, PixelPainter.BLK, 1);
+        }
+        for (int vx = 24; vx < r - 22; vx += 4) p.Line(vx, ROOF_BOTTOM + 7, vx, WALL_BOTTOM - 3, PixelPainter.BLK_L, 1);   // í†µí’êµ¬ ìŠ¬ë¦¿
+
+        if (kind == 1)
+        {
+            // ì£¼ë°©ì¹¸: ì²œì¥ ê°œë°© - ê²€ì • ì²´í¬ í”Œë ˆì´íŠ¸ ë°”ë‹¥ + ê¸ˆ ë‚œê°„ í…Œë‘ë¦¬ + ë‚¨ìª½ ì•ˆìª½ ê·¸ëŠ˜
+            p.Rect(8, 6, r - 8, ROOF_BOTTOM - 8, PixelPainter.BLK_L);
+            p.RectOutline(8, 6, r - 8, ROOF_BOTTOM - 8, PixelPainter.GOLD);
+            p.RectOutline(7, 5, r - 7, ROOF_BOTTOM - 7, PixelPainter.RED_O);
+            for (int py = 9; py < ROOF_BOTTOM - 10; py += 4)
+                for (int px = 10; px < r - 9; px += 4)
+                    if (((px + py) / 4) % 2 == 0) p.Rect(px, py, px + 1, py + 1, PixelPainter.BLK);
+            p.Rect(9, ROOF_BOTTOM - 14, r - 9, ROOF_BOTTOM - 9, PixelPainter.BLK);
+        }
+        else if (kind == 0)
+        {
+            // ê¸°ê´€ì°¨: ë³´ì¼ëŸ¬ ë“±íŒ - ê¸ˆ ì„¼í„° ìŠ¤íŠ¸ë¼ì´í”„ + íŒë„¬ ë¶„í•  + í¡ê¸° ìŠ¬ë¦¿
+            p.Rect(10, 26, r - 6, 30, PixelPainter.GOLD);
+            p.Line(10, 30, r - 6, 30, PixelPainter.GOLD_D, 1); p.Line(11, 26, r - 7, 26, PixelPainter.GOLD_L, 1);
+            for (int px = 30; px < r - 6; px += 12)
+            {
+                p.Line(px, 5, px, ROOF_BOTTOM - 6, PixelPainter.RED_D, 1);
+                p.Rect(px + 3, 9, px + 8, 12, PixelPainter.BLK); p.Rect(px + 3, 44, px + 8, 47, PixelPainter.BLK);
+            }
+        }
+        else
+        {
+            // í¬íƒ‘ì¹¸: ë„“ì€ íŒë„¬ ë¶„í• ì„  + ê¸ˆ ë³¼íŠ¸ + ê°€ë¡œ ë³´ê°•ëŒ€ (ê¸ˆ)
+            for (int px = 12; px < r - 8; px += 20)
+            {
+                p.Line(px, 5, px, ROOF_BOTTOM - 6, PixelPainter.RED_D, 1);
+                p.Rivet(px - 1, 9, PixelPainter.GOLD_D, PixelPainter.GOLD_L); p.Rivet(px - 1, 46, PixelPainter.GOLD_D, PixelPainter.GOLD_L);
+            }
+            p.Rect(6, 25, r - 6, 29, PixelPainter.GOLD);
+            p.Line(6, 29, r - 6, 29, PixelPainter.GOLD_D, 1); p.Line(7, 25, r - 7, 25, PixelPainter.GOLD_L, 1);
+        }
+
+        // ê²€ì • ì½”ë„ˆ ì¥ê°‘ 4ê°œ (ì™„êµ¬ì˜ ëª¨ì„œë¦¬ ë¸”ë¡)
+        int[] cx = { 2, r - 7, 2, r - 7 };
+        int[] cy = { 0, 0, ROOF_BOTTOM - 7, ROOF_BOTTOM - 7 };
+        for (int i = 0; i < 4; i++)
+        {
+            p.RoundRect(cx[i], cy[i], cx[i] + 5, cy[i] + 5, 2, PixelPainter.BLK, PixelPainter.BLK_O);
+            p.Point(cx[i] + 2, cy[i] + 2, PixelPainter.BLK_L);
+        }
+
+        return p.Bake(PPU, w * 0.5f, PIVOT_Y);
     }
 
-    private void MakeWheel(string name, float x)
+    /// <summary>ì—°ê²°ë¶€: ê²€ì • ë°•ìŠ¤ + ê¸ˆ í•€ (ì¹¸ ì‚¬ì´ í‹ˆ, ë‚¨ë²½ ë†’ì´)</summary>
+    private static Sprite PaintCoupler()
     {
-        GameObject go = new GameObject(name);
-        go.transform.SetParent(transform, false);
-        go.transform.position = new Vector3(x, -1.95f, 0f);
-        go.transform.localScale = Vector3.one * 0.85f;
-
-        SpriteRenderer sr = go.AddComponent<SpriteRenderer>();
-        sr.sprite = GetCircleSprite();
-        sr.color = WHEEL;
-        sr.sortingOrder = SORT_BODY;
+        PixelPainter p = new PixelPainter(12, 12);
+        p.Rect(0, 0, 11, 11, PixelPainter.BLK);
+        p.RectOutline(0, 0, 11, 11, PixelPainter.BLK_O);
+        p.Rect(4, 3, 7, 8, PixelPainter.GOLD); p.Point(4, 3, PixelPainter.GOLD_L);
+        return p.Bake(PPU);
     }
 
-    /// <summary>1x1 Èò ½ºÇÁ¶óÀÌÆ® (½ºÄÉÀÏ·Î »ç°¢ÇüÀ» ¸¸µç´Ù)</summary>
+    /// <summary>êµ´ëš: ê²€ì • ì‹¤ë¦°ë” + ê¸ˆ ë¦¼ + íšŒìƒ‰ ë°›ì¹¨ (ë©”ì¹´ ë°°ê¸°í†µ)</summary>
+    private static Sprite PaintChimney()
+    {
+        PixelPainter p = new PixelPainter(24, 32);
+        p.Rect(3, 9, 21, 25, PixelPainter.BLK);
+        p.Line(3, 9, 3, 25, PixelPainter.BLK_O, 1); p.Line(21, 9, 21, 25, PixelPainter.BLK_O, 1);
+        p.Line(5, 10, 5, 24, PixelPainter.BLK_L, 1);                                  // ëª¸í†µ í•˜ì´ë¼ì´íŠ¸
+        p.Ellipse(1, 21, 23, 31, PixelPainter.GREY, PixelPainter.BLK_O);               // ë°›ì¹¨ í”Œëœì§€
+        p.Ellipse(1, 1, 23, 13, PixelPainter.GOLD, PixelPainter.GOLD_D);               // ìƒë‹¨ ê¸ˆ ë¦¼
+        p.Ellipse(5, 4, 19, 11, PixelPainter.BLK_O, PixelPainter.CLEAR);               // êµ¬ë©
+        return p.Bake(PPU);
+    }
+
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ì „ëŒ€ë¬¼ ë©”ê°€ì¡°ë“œ T-Rex ë‘ìƒ (íƒ‘ë·°) v5 - ì†Œë…„ë§Œí™” íˆì–´ë¡œ ë©”ì¹´ í†¤ (2026-09-02 ì‚¬ìš©ì í”¼ë“œë°±: v3 ë¹ŒëŸ° / v4 ìœ ì•„ ì‚¬ì´)
+    //   ê°ì§„ í›„ë“œ(íŒŒì…‹) + ê°ì§„ ë°œê´‘ ëˆˆ(ì½”ì–´ ë°ìŒ) + ì´ë§ˆ ê¸ˆ V í¬ë ˆìŠ¤íŠ¸ + ê¸ˆ ë§ˆìš°ìŠ¤í”Œë ˆì´íŠ¸(í†µí’ ìŠ¬ë¦¿, í„± ì•ˆ ê°€ë¦„)
+    //   + ì€ìƒ‰ ì•¡ì„¼íŠ¸ íŒë„¬ + íšŒìƒ‰ í„± ë²”í¼ + í›„ë°© ê¸ˆ í•€. ìº”ë²„ìŠ¤ 90x76, í”¼ë²— (30,28)
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    private static Sprite PaintHead()
+    {
+        PixelPainter p = new PixelPainter(90, 76);
+        Color32 eyeO = new Color32(10, 60, 30, 255), eye = new Color32(60, 220, 110, 255), eyeC = new Color32(200, 255, 210, 255);
+
+        p.Shadow(4, 54, 80, 74);                                                      // ë¨¸ë¦¬ ê·¸ë¦¼ì
+
+        // 1) ê²€ì • í•˜ë¶€ ì„€ì‹œ (í›„ë“œë³´ë‹¤ 3px í¬ê²Œ, ê°ì§„) + íšŒìƒ‰ ë²”í¼ ë¸”ë ˆì´ë“œ (ì• ì¢Œìš°, ì•ìœ¼ë¡œ ë»—ìŒ)
+        p.Polygon(new int[] { 76, 3, 76, 53, 30, 57, 10, 49, 2, 36, 2, 20, 10, 7, 30, -1 }, PixelPainter.BLK, PixelPainter.BLK_O);
+        p.Polygon(new int[] { 0, 13, 9, 9, 13, 15, 3, 19 }, PixelPainter.GREY, PixelPainter.BLK_O);
+        p.Polygon(new int[] { 0, 43, 3, 37, 13, 41, 9, 47 }, PixelPainter.GREY, PixelPainter.BLK_O);
+        p.Line(2, 13, 8, 10, PixelPainter.GREY_L, 1); p.Line(2, 43, 8, 46, PixelPainter.GREY_L, 1);
+
+        // ëª© ê´€ì ˆ (ê²€ì • ë°´ë“œ + ê¸ˆ ë³¼íŠ¸) + í›„ë°© ê¸ˆ í•€ 2ê°œ (ë‚¨ë¶ìœ¼ë¡œ ë»—ì€ ê°ì§„ ë‚ ê°œ)
+        p.Rect(68, 12, 74, 44, PixelPainter.BLK_L);
+        p.Line(68, 12, 68, 44, PixelPainter.BLK_O, 1); p.Line(74, 12, 74, 44, PixelPainter.BLK_O, 1);
+        p.Rivet(71, 20, PixelPainter.GOLD_D, PixelPainter.GOLD_L); p.Rivet(71, 38, PixelPainter.GOLD_D, PixelPainter.GOLD_L);
+        p.Polygon(new int[] { 56, 4, 66, 0, 70, 4, 60, 8 }, PixelPainter.GOLD, PixelPainter.GOLD_D);
+        p.Polygon(new int[] { 56, 52, 60, 48, 70, 52, 66, 56 }, PixelPainter.GOLD, PixelPainter.GOLD_D);
+        p.Line(58, 4, 65, 1, PixelPainter.GOLD_L, 1); p.Line(58, 52, 65, 55, PixelPainter.GOLD_L, 1);
+
+        // 2) ë¹¨ê°• í›„ë“œ (íŒŒì…‹ 8ê°, ì•ìœ¼ë¡œ í…Œì´í¼) + ì€ìƒ‰ ì¸¡ë©´ ì•¡ì„¼íŠ¸ íŒë„¬ + ê¸ˆ íŠ¸ë¦¼ + í•˜ì´ë¼ì´íŠ¸
+        int[] hood = { 70, 6, 70, 50, 30, 54, 12, 46, 5, 34, 5, 22, 12, 10, 30, 2 };
+        p.Polygon(hood, PixelPainter.RED, PixelPainter.RED_O);
+        p.Polygon(new int[] { 44, 4, 66, 8, 66, 14, 44, 12 }, PixelPainter.SILVER, PixelPainter.GREY);     // ì€ íŒë„¬(ë¶)
+        p.Polygon(new int[] { 44, 44, 66, 42, 66, 48, 44, 52 }, PixelPainter.SILVER, PixelPainter.GREY);   // ì€ íŒë„¬(ë‚¨)
+        p.Line(45, 5, 65, 9, PixelPainter.WHITE, 1); p.Line(45, 51, 65, 47, PixelPainter.WHITE, 1);
+        int[] trim = { 67, 9, 67, 47, 30, 51, 14, 44, 8, 33, 8, 23, 14, 12, 30, 5 };
+        p.Polygon(trim, PixelPainter.CLEAR, PixelPainter.GOLD);
+        p.Line(31, 4, 43, 5, PixelPainter.RED_L, 1); p.Line(14, 12, 29, 4, PixelPainter.RED_L, 1);
+        p.Line(48, 15, 48, 41, PixelPainter.RED_D, 1);                                 // íŒŒì…‹ ë¶„í• ì„ 
+
+        // 3) ì´ë§ˆ ê¸ˆ V í¬ë ˆìŠ¤íŠ¸ (ì„¼í„°ë¼ì¸, ì•ì„ ê°€ë¦¬í‚´) + ê¸ˆ ì„¼í„° ë¦¬ì§€
+        p.Polygon(new int[] { 42, 20, 60, 13, 60, 16, 46, 23, 46, 33, 60, 40, 60, 43, 42, 36, 39, 28 }, PixelPainter.GOLD, PixelPainter.GOLD_D);
+        p.Line(43, 20, 58, 15, PixelPainter.GOLD_L, 1);
+        p.Rect(14, 26, 40, 30, PixelPainter.GOLD); p.Line(14, 26, 40, 26, PixelPainter.GOLD_L, 1); p.Line(14, 30, 40, 30, PixelPainter.GOLD_D, 1);
+
+        // 4) ê°ì§„ ë°œê´‘ ëˆˆ 2ê°œ (íŠ¸ë¼í˜ì¡°ì´ë“œ, ì•ì´ ë¾°ì¡±) - ì™¸ê³½ ì–´ë‘ìš´ ì´ˆë¡ + ë³¸ì²´ + ì•ˆìª½ ë°ì€ ì½”ì–´ + ê²€ì • ëˆˆì¹ ì¥ê°‘
+        p.Polygon(new int[] { 18, 15, 38, 10, 38, 20, 22, 21 }, eye, eyeO);
+        p.Polygon(new int[] { 22, 15, 34, 12, 34, 17, 24, 18 }, eyeC, PixelPainter.CLEAR);
+        p.Polygon(new int[] { 18, 41, 22, 35, 38, 36, 38, 46 }, eye, eyeO);
+        p.Polygon(new int[] { 22, 41, 24, 38, 34, 39, 34, 44 }, eyeC, PixelPainter.CLEAR);
+        p.Polygon(new int[] { 16, 13, 40, 7, 40, 10, 18, 15 }, PixelPainter.BLK, PixelPainter.BLK_O);     // ëˆˆì¹ ì¥ê°‘(ë¶) - ë‚ ì¹´ë¡­ê²Œ
+        p.Polygon(new int[] { 16, 43, 18, 41, 40, 46, 40, 49 }, PixelPainter.BLK, PixelPainter.BLK_O);    // ëˆˆì¹ ì¥ê°‘(ë‚¨)
+
+        // 5) ì•ë©´ ê¸ˆ ë§ˆìš°ìŠ¤í”Œë ˆì´íŠ¸ (í„±ì„ ê°€ë¥´ì§€ ì•ŠëŠ”ë‹¤) + í†µí’ ìŠ¬ë¦¿ 3 + ì€ ì†¡ê³³ë‹ˆ 2 (í”Œë ˆì´íŠ¸ ê°€ì¥ìë¦¬ì— ì‚´ì§)
+        p.Polygon(new int[] { 6, 21, 18, 20, 20, 28, 18, 36, 6, 35 }, PixelPainter.GOLD, PixelPainter.GOLD_D);
+        p.Line(7, 22, 17, 21, PixelPainter.GOLD_L, 1);
+        for (int sy = 25; sy <= 31; sy += 3) p.Line(8, sy, 16, sy, PixelPainter.GOLD_D, 1);
+        p.Polygon(new int[] { 6, 20, 8, 17, 10, 20 }, PixelPainter.SILVER, PixelPainter.GREY);
+        p.Polygon(new int[] { 6, 36, 8, 39, 10, 36 }, PixelPainter.SILVER, PixelPainter.GREY);
+        p.Rect(11, 15, 13, 17, PixelPainter.GOLD_L); p.Rect(11, 39, 13, 41, PixelPainter.GOLD_L);      // í—¤ë“œë¨í”„
+
+        return p.Bake(PPU, 30f, 28f);
+    }
+
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ê³µìš© ìŠ¤í”„ë¼ì´íŠ¸ (ë‹¤ë¥¸ íŒŒì¼ì´ ì“´ë‹¤ - ìœ ì§€)
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    /// <summary>1x1 í° ìŠ¤í”„ë¼ì´íŠ¸ (ìŠ¤ì¼€ì¼ë¡œ ì‚¬ê°í˜•ì„ ë§Œë“ ë‹¤)</summary>
     public static Sprite GetWhiteSprite()
     {
         if (whiteSprite != null) return whiteSprite;
@@ -211,7 +363,7 @@ public class TrainDeck : MonoBehaviour
         return whiteSprite;
     }
 
-    /// <summary>Áö¸§ 1 ¿ùµå À¯´ÖÂ¥¸® ¿ø ½ºÇÁ¶óÀÌÆ® (¹ÙÄû/»óÀÚ Àå½Ä¿ë)</summary>
+    /// <summary>ì§€ë¦„ 1 ìœ ë‹› í° ì› ìŠ¤í”„ë¼ì´íŠ¸ (íŒ/ë¹” ë§ˆì»¤ìš©)</summary>
     public static Sprite GetCircleSprite()
     {
         if (circleSprite != null) return circleSprite;

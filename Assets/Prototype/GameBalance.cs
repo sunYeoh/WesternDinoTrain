@@ -584,6 +584,16 @@ public static class GameBalance
     public static float OverheatValveBonus = 0.05f;
     public static float OverheatValveMax = 1.0f;   // 최대 2배속 (기본 1 + 보너스 1)
 
+    // ── 스폰 각도 스위치 ──
+    // ★ 아트 방향 확정 (2026-09-02, 사용자): 탑뷰(살짝 기울인 2.5D).
+    // 탑뷰에서는 360도 사방 스폰이 자연스러우므로 기본 false (구 방식 유지).
+    // 사이드뷰용 코드(지상=좌우/비행=상공)는 남겨두되 쓰지 않는다.
+    public static bool SideViewSpawn = false;
+    public static float GroundSpawnYMin = -1.2f;   // 지면 높이대 (레일 부근)
+    public static float GroundSpawnYMax = 0.2f;
+    public static float FlyerSpawnYMin = 2.5f;     // 상공 (지붕 위 ~ 하늘)
+    public static float FlyerSpawnYMax = 5.5f;
+
     // ==================================================================
     //  게임필 (P1) - 셰이크 / 히트스톱 / 처치 팝 (GameFeel.cs가 사용)
     //  전부 0으로 만들면 해당 연출이 완전히 꺼진다.

@@ -4,58 +4,67 @@ using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 
 /// <summary>
-/// [EngineCab.cs] v1 (½Å±Ô ÆÄÀÏ) - B-3: ±â°üÂ÷ Ä­ = ±â°ü»ç Æä¸£¼Ò³ª (¹æÇâ°áÁ¤ 2026-08-31)
+/// [EngineCab.cs] v3 - B-3: ê¸°ê´€ì°¨ ì¹¸ = ê¸°ê´€ì‚¬ í˜ë¥´ì†Œë‚˜ (ë°©í–¥ê²°ì • 2026-08-31)
 ///
-/// ±â°üÂ÷¿¡ µÎ °³ÀÇ ¼Õ Á¶ÀÛÀÌ »ı±ä´Ù. ÀÌ·Î½á ±âÈ¹¼­ v1.5ÀÇ ÀÌÁß Æä¸£¼Ò³ª
-/// (¿ä¸®»ç x ±â°ü»ç)°¡ Ã³À½À¸·Î ½ÇÁ¦ Á¶ÀÛÀ¸·Î Á¸ÀçÇÏ°Ô µÈ´Ù.
+/// - v3 (ê³ í€„ PNG ì ìš© 2026-09-03): ì‘ì‚´í¬/ë ˆë²„/ë°”ìœ„ê°€ Resources/Sprites/WDT/ ì˜ harpoon / leverpost / leverhandle /
+///   rock_<ì¬ë£Œ> PNGë¥¼ SpriteBankë¡œ ìš°ì„  ì‚¬ìš©. ì—†ìœ¼ë©´ v2 ì½”ë“œ ë„íŠ¸. ì¢Œí‘œ ë™ì¼.
 ///
-///  1) ÀÛ»ìÆ÷ (¿ø¾È ºÎÈ°): ±æ°¡¸¦ Áö³ª°¡´Â ÀÚ¿ø ¹ÙÀ§¸¦ [E]·Î ³¬´Â´Ù.
-///     - ¹ÙÀ§´Â Àç·á 1Á¾ÀÇ »öÀ» ¶ì°í Èê·¯°£´Ù -> ¸íÁß ½Ã ±× Àç·á 3~5°³ (PickupFX Èí¼ö)
-///     - 25% È®·ü·Î ¾î±×·Î: "È²¾ß°¡ ¸¶ÁÖ ³¬¾ÆÃ¦´Ù" - ½ºÆÀ ·¦ÅÍ 1~2 ³­ÀÔ
-///     - ÄğÅ¸ÀÓ 12ÃÊ. ¹Ì´Ï°ÔÀÓ ¾Æ´Ô - ¹ÙÀ§°¡ Áö³ª°¥ ¶§ ÀÚ¸®¿¡ ÀÖ´Â°¡ÀÇ Å¸ÀÌ¹Ö Àâ
-///  2) ±â°üÂ÷ ·¹¹ö: [E]·Î ¼øÇ× <-> Àü¼Ó Åä±Û.
-///     - Àü¼Ó: Àû ½ºÆù °£°İ -35% (¿şÀÌºê¸¦ ´ç°Ü¿Â´Ù) + Á¶¸® ÆÇÁ¤ -10% + ÁÖÇà ¿¬Ãâ °¡¼Ó
-///     - ÀÚ½Å ÀÖÀ¸¸é ´ç±â´Â ¸®½ºÅ© ·¹¹ö. ´Ù¸¥ ½Ã½ºÅÛÀº EngineCab.FullSteam /
-///       EngineCab.SpawnIntervalMul¸¸ ÀĞÀ¸¸é µÈ´Ù
+/// - v2 (íƒ‘ë·° ì¬ìŠ¤í‚¨ - ëª©ì—… v2 ì»¨íŒ 2026-09-02): ì‘ì‚´í¬/ë ˆë²„/ìì› ë°”ìœ„ë¥¼ ì‚¬ê°í˜• ì¡°í•© -> ë„íŠ¸ ìŠ¤í”„ë¼ì´íŠ¸ë¡œ
+///   (PixelPainter.cs ì‹ ê·œ). ì‘ì‚´í¬ = ë¬´ì‡  ì‚¼ê°ëŒ€ ë§ + ë¶ë™ ì¡°ì¤€ í¬ì‹  + ë¯¸ëŠ˜ì´‰, ë ˆë²„ = ë¬´ì‡  ìŠ¬ë¡¯ íŒ + êµ¬ë¦¬ ì†ì¡ì´,
+///   ë°”ìœ„ = 3í†¤ ë°”ìœ„ + ì¬ë£Œìƒ‰ ê´‘ë§¥ ì . ì¡°ì‘ ì¢Œí‘œ(HarpoonX/LeverX/Reach)ì™€ ë¡œì§ì€ v1 ê·¸ëŒ€ë¡œ.
+///   ê¸°ì°¨ëŠ” ë‘ìƒ ìª½(ì™¼ìª½)ìœ¼ë¡œ ë‹¬ë¦¬ë¯€ë¡œ ë°”ìœ„ëŠ” ì™¼ìª½ì—ì„œ ë‚˜íƒ€ë‚˜ ì˜¤ë¥¸ìª½ìœ¼ë¡œ í˜ëŸ¬ê°„ë‹¤ (v1ì€ ë°˜ëŒ€ì˜€ìŒ -
+///   ë‘ìƒì´ ë’¤ë¥¼ ë³´ê³  ë‹¬ë¦¬ëŠ” ëª¨ìˆœ í•´ì†Œ. ParallaxBackground v2ì™€ ë°©í–¥ ì¼ì¹˜).
 ///
-/// E ¿ì¼±¼øÀ§: ÁÖ¹æ ÀÌº¥Æ® ÁøÇà Áß¿¡´Â ¾çº¸ (ÀÌº¥Æ® E ¿¬Å¸¿Í Ãæµ¹ ¹æÁö).
-/// Á¶¸®´ë/¸¶ºñ ½½·Ô°ú´Â À§Ä¡°¡ °ãÄ¡Áö ¾ÊÁö¸¸ InteractConsumedFrameµµ Á¸ÁßÇÑ´Ù.
-/// »ç¿ë¹ı: ¾øÀ½! ÆÄÀÏ¸¸ ³ÖÀ¸¸é ÀÚµ¿ »ı¼º. GameBalanceÀÇ Harpoon*/Lever*°¡ ¼öÄ¡.
-/// VS 2017 (C# 7.3) È£È¯
+/// ê¸°ê´€ì°¨ì— ë‘ ê°œì˜ ì† ì¡°ì‘ì´ ìƒê¸´ë‹¤. ì´ë¡œì¨ ê¸°íšì„œ v1.5ì˜ ì´ì¤‘ í˜ë¥´ì†Œë‚˜
+/// (ìš”ë¦¬ì‚¬ x ê¸°ê´€ì‚¬)ê°€ ì²˜ìŒìœ¼ë¡œ ì‹¤ì œ ì¡°ì‘ìœ¼ë¡œ ì¡´ì¬í•˜ê²Œ ëœë‹¤.
+///
+///  1) ì‘ì‚´í¬ (ì›ì•ˆ ë¶€í™œ): ê¸¸ê°€ë¥¼ ì§€ë‚˜ê°€ëŠ” ìì› ë°”ìœ„ë¥¼ [E]ë¡œ ë‚šëŠ”ë‹¤.
+///     - ë°”ìœ„ëŠ” ì¬ë£Œ 1ì¢…ì˜ ìƒ‰ì„ ë ê³  í˜ëŸ¬ê°„ë‹¤ -> ëª…ì¤‘ ì‹œ ê·¸ ì¬ë£Œ 3~5ê°œ (PickupFX í¡ìˆ˜)
+///     - 25% í™•ë¥ ë¡œ ì–´ê·¸ë¡œ: "í™©ì•¼ê°€ ë§ˆì£¼ ë‚šì•„ì±ˆë‹¤" - ìŠ¤íŒ€ ë©í„° 1~2 ë‚œì…
+///     - ì¿¨íƒ€ì„ 12ì´ˆ. ë¯¸ë‹ˆê²Œì„ ì•„ë‹˜ - ë°”ìœ„ê°€ ì§€ë‚˜ê°ˆ ë•Œ ìë¦¬ì— ìˆëŠ”ê°€ì˜ íƒ€ì´ë° ì¡
+///  2) ê¸°ê´€ì°¨ ë ˆë²„: [E]ë¡œ ìˆœí•­ <-> ì „ì† í† ê¸€.
+///     - ì „ì†: ì  ìŠ¤í° ê°„ê²© -35% (ì›¨ì´ë¸Œë¥¼ ë‹¹ê²¨ì˜¨ë‹¤) + ì¡°ë¦¬ íŒì • -10% + ì£¼í–‰ ì—°ì¶œ ê°€ì†
+///     - ìì‹  ìˆìœ¼ë©´ ë‹¹ê¸°ëŠ” ë¦¬ìŠ¤í¬ ë ˆë²„. ë‹¤ë¥¸ ì‹œìŠ¤í…œì€ EngineCab.FullSteam /
+///       EngineCab.SpawnIntervalMulë§Œ ì½ìœ¼ë©´ ëœë‹¤
+///
+/// E ìš°ì„ ìˆœìœ„: ì£¼ë°© ì´ë²¤íŠ¸ ì§„í–‰ ì¤‘ì—ëŠ” ì–‘ë³´ (ì´ë²¤íŠ¸ E ì—°íƒ€ì™€ ì¶©ëŒ ë°©ì§€).
+/// ì¡°ë¦¬ëŒ€/ë§ˆë¹„ ìŠ¬ë¡¯ê³¼ëŠ” ìœ„ì¹˜ê°€ ê²¹ì¹˜ì§€ ì•Šì§€ë§Œ InteractConsumedFrameë„ ì¡´ì¤‘í•œë‹¤.
+/// ì‚¬ìš©ë²•: ì—†ìŒ! íŒŒì¼ë§Œ ë„£ìœ¼ë©´ ìë™ ìƒì„±. GameBalanceì˜ Harpoon*/Lever*ê°€ ìˆ˜ì¹˜.
+/// VS 2017 (C# 7.3) í˜¸í™˜
 /// </summary>
 public class EngineCab : MonoBehaviour
 {
     private static EngineCab instance;
 
-    // ¦¡¦¡ ´Ù¸¥ ½Ã½ºÅÛÀÌ ÀĞ´Â »óÅÂ ¦¡¦¡
-    /// <summary>Àü¼Ó ÁÖÇà ÁßÀÎ°¡ (·¹¹ö ON)</summary>
+    // â”€â”€ ë‹¤ë¥¸ ì‹œìŠ¤í…œì´ ì½ëŠ” ìƒíƒœ â”€â”€
+    /// <summary>ì „ì† ì£¼í–‰ ì¤‘ì¸ê°€ (ë ˆë²„ ON)</summary>
     public static bool FullSteam { get; private set; }
 
-    /// <summary>Àû ½ºÆù °£°İ ¹èÀ² (WaveManager°¡ ÀĞÀ½ - Àü¼ÓÀÌ¸é 0.65)</summary>
+    /// <summary>ì  ìŠ¤í° ê°„ê²© ë°°ìœ¨ (WaveManagerê°€ ì½ìŒ - ì „ì†ì´ë©´ 0.65)</summary>
     public static float SpawnIntervalMul
     {
         get { return FullSteam ? GameBalance.LeverSpawnMul : 1f; }
     }
 
-    // ¦¡¦¡ ³»ºÎ »óÅÂ ¦¡¦¡
+    // â”€â”€ ë‚´ë¶€ ìƒíƒœ â”€â”€
     private Transform chefTransform;
     private float harpoonReadyTime = 0f;
     private readonly List<ResourceRock> rocks = new List<ResourceRock>();
     private float nextRockTime = 0f;
 
-    // ·± 1È¸ ½ºÅä¸® ¾È³»
+    // ëŸ° 1íšŒ ìŠ¤í† ë¦¬ ì•ˆë‚´
     private static bool harpoonStoryShown = false;
     private static bool leverStoryShown = false;
 
-    // ºñÁÖ¾ó/ÈùÆ®
+    // ë¹„ì£¼ì–¼/íŒíŠ¸
     private Transform leverHandle;
     private Canvas hintCanvas;
     private Text harpoonHint;
     private Text leverHint;
 
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
-    // ºÎÆ®½ºÆ®·¦ (¾À ·Îµå¸¶´Ù »óÅÂ ¸®¼Â)
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ë¶€íŠ¸ìŠ¤íŠ¸ë© (ì”¬ ë¡œë“œë§ˆë‹¤ ìƒíƒœ ë¦¬ì…‹)
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void Bootstrap()
     {
@@ -68,7 +77,7 @@ public class EngineCab : MonoBehaviour
 
     private static void OnSceneLoaded(Scene s, LoadSceneMode m)
     {
-        // »õ ·±: ·¹¹ö´Â ¼øÇ×À¸·Î, ¾È³»´Â ´Ù½Ã ³ª¿À°Ô
+        // ìƒˆ ëŸ°: ë ˆë²„ëŠ” ìˆœí•­ìœ¼ë¡œ, ì•ˆë‚´ëŠ” ë‹¤ì‹œ ë‚˜ì˜¤ê²Œ
         FullSteam = false;
         harpoonStoryShown = false;
         leverStoryShown = false;
@@ -86,7 +95,7 @@ public class EngineCab : MonoBehaviour
 
     private void ResetSceneState()
     {
-        rocks.Clear();   // ¾À ¿ÀºêÁ§Æ®¿´´ø ¹ÙÀ§µéÀº ¸®·Îµå·Î ÀÌ¹Ì ¼Ò¸ê
+        rocks.Clear();   // ì”¬ ì˜¤ë¸Œì íŠ¸ì˜€ë˜ ë°”ìœ„ë“¤ì€ ë¦¬ë¡œë“œë¡œ ì´ë¯¸ ì†Œë©¸
         harpoonReadyTime = 0f;
         nextRockTime = 0f;
         chefTransform = null;
@@ -94,44 +103,67 @@ public class EngineCab : MonoBehaviour
             leverHandle.localEulerAngles = new Vector3(0f, 0f, 25f);
     }
 
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
-    // ºñÁÖ¾ó (ÄÚµå µµÇü - ¾ÆÆ® ´Ü°è¿¡¼­ ±³Ã¼)
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ë¹„ì£¼ì–¼ (ì½”ë“œ ë„í˜• - ì•„íŠ¸ ë‹¨ê³„ì—ì„œ êµì²´)
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     private void BuildVisuals()
     {
-        Color iron = new Color(0.16f, 0.11f, 0.08f);
-        Color copper = new Color(0.62f, 0.40f, 0.22f);
+        // ì‘ì‚´í¬: ê¸°ê´€ì°¨ ì§€ë¶• ë¶ìª½ ê°€ì¥ìë¦¬ ê±°ì¹˜ (ë‘ìƒ ëˆˆì¹ ì¥ê°‘ ìœ„ìª½) - ì‚¼ê°ëŒ€ ë§ + ë¶ë™ ì¡°ì¤€ í¬ì‹  + ë¯¸ëŠ˜ì´‰
+        SpriteBank.Attach(transform, "Harpoon", "harpoon", PaintHarpoon(),
+            new Vector3(GameBalance.HarpoonX, 1.7f, 0f), -4);
 
-        // ÀÛ»ìÆ÷: ÁöºØ °ÅÄ¡ (¹ŞÄ§ + 45µµ Æ÷½Å)
-        MakeQuad("HarpoonBase", GameBalance.HarpoonX, 2.0f, 0.5f, 0.35f, 0f, iron, -4);
-        MakeQuad("HarpoonBarrel", GameBalance.HarpoonX + 0.18f, 2.45f, 0.95f, 0.14f, 40f, copper, -4);
-
-        // ·¹¹ö: ¿îÀü¼® ¹Ù´Ú °ÅÄ¡ (B-2.1: ÁöºØ À§¿¡ ¶° ÀÖ´ø °ÍÀ» Ä­ ¾ÈÀ¸·Î ³»¸²)
-        MakeQuad("LeverPost", GameBalance.LeverX, 0.35f, 0.16f, 0.9f, 0f, iron, -4);
-        Transform handle = MakeQuad("LeverHandle", GameBalance.LeverX, 0.95f, 0.1f, 0.7f, 25f,
-            new Color(0.85f, 0.55f, 0.25f), -4);
-        leverHandle = handle;
+        // ë ˆë²„: ìš´ì „ì„ ë°”ë‹¥ (B-2.1: ì§€ë¶• ìœ„ì— ë–  ìˆë˜ ê²ƒì„ ì¹¸ ì•ˆìœ¼ë¡œ ë‚´ë¦¼) - ìŠ¬ë¡¯ íŒ + ì†ì¡ì´(ë¿Œë¦¬ í”¼ë²— íšŒì „)
+        SpriteBank.Attach(transform, "LeverPost", "leverpost", PaintLeverPost(),
+            new Vector3(GameBalance.LeverX, 0.35f, 0f), -4);
+        SpriteRenderer handle = SpriteBank.Attach(transform, "LeverHandle", "leverhandle", PaintLeverHandle(),
+            new Vector3(GameBalance.LeverX, 0.55f, 0f), -3);
+        handle.transform.localEulerAngles = new Vector3(0f, 0f, 25f);
+        leverHandle = handle.transform;
     }
 
-    private Transform MakeQuad(string name, float x, float y, float w, float h, float tiltZ,
-        Color color, int order)
+    /// <summary>ì‘ì‚´í¬ (ìº”ë²„ìŠ¤ 40x40, í”¼ë²— = ì‚¼ê°ëŒ€ ë§ ì¤‘ì‹¬ (14,26)). ëª©ì—… v2 ì¢Œí‘œ ì´ì‹</summary>
+    private static Sprite PaintHarpoon()
     {
-        GameObject go = new GameObject(name);
-        go.transform.SetParent(transform, false);
-        go.transform.position = new Vector3(x, y, 0f);
-        go.transform.localScale = new Vector3(w, h, 1f);
-        go.transform.localEulerAngles = new Vector3(0f, 0f, tiltZ);
-        SpriteRenderer sr = go.AddComponent<SpriteRenderer>();
-        sr.sprite = TrainDeck.GetWhiteSprite();
-        sr.color = color;
-        sr.sortingOrder = order;
-        return go.transform;
+        PixelPainter p = new PixelPainter(40, 40);
+        Color32 steel = new Color32(214, 210, 198, 255);
+        p.Ellipse(6, 21, 22, 32, PixelPainter.BLK, PixelPainter.BLK_O);                 // ì‚¼ê°ëŒ€ ë§ (ê²€ì •)
+        p.Ellipse(9, 23, 19, 28, PixelPainter.BLK_L, PixelPainter.CLEAR);
+        p.Line(9, 30, 14, 23, PixelPainter.BLK_O, 1); p.Line(19, 30, 14, 23, PixelPainter.BLK_O, 1);
+        p.Line(14, 26, 31, 4, PixelPainter.BLK_L, 3);                                    // í¬ì‹  (ë¶ë™ ì¡°ì¤€)
+        p.Line(14, 26, 30, 5, PixelPainter.GREY, 1);
+        p.Line(20, 18, 23, 21, PixelPainter.GOLD, 2);                                    // ê¸ˆ ë°´ë“œ
+        p.Polygon(new int[] { 29, 1, 36, 6, 31, 9, 28, 4 }, steel, PixelPainter.CLEAR);  // ì‘ì‚´ì´‰
+        p.Polygon(new int[] { 27, 6, 25, 10, 30, 8 }, steel, PixelPainter.CLEAR);        // ë¯¸ëŠ˜
+        p.Rivet(11, 25, PixelPainter.GOLD_D, PixelPainter.GOLD_L); p.Rivet(18, 29, PixelPainter.GOLD_D, PixelPainter.GOLD_L);
+        return p.Bake(TrainDeck.PPU, 14f, 26f);
     }
 
-    /// <summary>±ÙÁ¢ ÈùÆ® ¶óº§ 2°³ (SlotMarkerUI¿Í °°Àº È­¸é ÃßÁ¾ ¹æ½Ä)</summary>
+    /// <summary>ë ˆë²„ ìŠ¬ë¡¯ íŒ: ë¬´ì‡  ë°›ì¹¨ + ì„¸ë¡œ ìŠ¬ë¡¯ (ìº”ë²„ìŠ¤ 12x24)</summary>
+    private static Sprite PaintLeverPost()
+    {
+        PixelPainter p = new PixelPainter(12, 24);
+        p.Ellipse(0, 17, 11, 23, PixelPainter.GREY, PixelPainter.BLK_O);                 // ë°›ì¹¨ (íšŒìƒ‰)
+        p.Rect(4, 0, 7, 20, PixelPainter.BLK);                                           // ìŠ¬ë¡¯ íŒ
+        p.RectOutline(4, 0, 7, 20, PixelPainter.BLK_O);
+        p.Line(5, 1, 5, 19, PixelPainter.BLK_L, 1);
+        return p.Bake(TrainDeck.PPU);
+    }
+
+    /// <summary>ë ˆë²„ ì†ì¡ì´: êµ¬ë¦¬ ë§‰ëŒ€ + ì†ì¡ì´ êµ¬ìŠ¬ (í”¼ë²— = ë¿Œë¦¬ (4,17) - íšŒì „ì´ ë ˆë²„ì²˜ëŸ¼ ë³´ì¸ë‹¤)</summary>
+    private static Sprite PaintLeverHandle()
+    {
+        PixelPainter p = new PixelPainter(9, 18);
+        p.Line(4, 17, 4, 4, PixelPainter.BLK_O, 3);
+        p.Line(4, 16, 4, 4, PixelPainter.GREY, 1);
+        p.Ellipse(1, 0, 7, 6, PixelPainter.GOLD, PixelPainter.GOLD_D);                   // ì†ì¡ì´ êµ¬ìŠ¬ (ê¸ˆ)
+        p.Point(3, 2, PixelPainter.GOLD_L);
+        return p.Bake(TrainDeck.PPU, 4f, 17f);
+    }
+
+    /// <summary>ê·¼ì ‘ íŒíŠ¸ ë¼ë²¨ 2ê°œ (SlotMarkerUIì™€ ê°™ì€ í™”ë©´ ì¶”ì¢… ë°©ì‹)</summary>
     private void BuildHints()
     {
-        hintCanvas = UIFactory.CreateCanvas("EngineCab_Canvas", 8);   // ½½·Ô ¸¶Ä¿(9)º¸´Ù ¾Æ·¡
+        hintCanvas = UIFactory.CreateCanvas("EngineCab_Canvas", 8);   // ìŠ¬ë¡¯ ë§ˆì»¤(9)ë³´ë‹¤ ì•„ë˜
         harpoonHint = UIFactory.CreateText(hintCanvas.transform, "HarpoonHint", "", 16,
             new Color(0.95f, 0.9f, 0.8f), TextAnchor.MiddleCenter);
         harpoonHint.rectTransform.sizeDelta = new Vector2(240f, 44f);
@@ -140,14 +172,14 @@ public class EngineCab : MonoBehaviour
         leverHint.rectTransform.sizeDelta = new Vector2(240f, 44f);
     }
 
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
-    // ¸Å ÇÁ·¹ÀÓ
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ë§¤ í”„ë ˆì„
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     private void Update()
     {
         TickRocks();
         TickInteract();
-        TickLeverHold();   // ÇÈ½º 2Â÷: ·¹¹ö [E] È¦µå ÁøÇà
+        TickLeverHold();   // í”½ìŠ¤ 2ì°¨: ë ˆë²„ [E] í™€ë“œ ì§„í–‰
         TickHints();
     }
 
@@ -157,12 +189,12 @@ public class EngineCab : MonoBehaviour
             && GameManager.Instance.currentState == GameManager.GameState.Battle;
     }
 
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
-    // ÀÚ¿ø ¹ÙÀ§ (±æ°¡¸¦ Èê·¯°£´Ù - ÀÛ»ìÀÇ Ç¥Àû)
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ìì› ë°”ìœ„ (ê¸¸ê°€ë¥¼ í˜ëŸ¬ê°„ë‹¤ - ì‘ì‚´ì˜ í‘œì )
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     private void TickRocks()
     {
-        // ÀüÅõ°¡ ¾Æ´Ï¸é (±âÂ÷ Á¤Â÷) ¹ÙÀ§µµ Èå¸£Áö ¾Ê´Â´Ù - ³²Àº ¹ÙÀ§ Á¤¸®
+        // ì „íˆ¬ê°€ ì•„ë‹ˆë©´ (ê¸°ì°¨ ì •ì°¨) ë°”ìœ„ë„ íë¥´ì§€ ì•ŠëŠ”ë‹¤ - ë‚¨ì€ ë°”ìœ„ ì •ë¦¬
         if (!InBattle() || !GameBalance.HarpoonEnabled)
         {
             for (int i = rocks.Count - 1; i >= 0; i--)
@@ -172,7 +204,7 @@ public class EngineCab : MonoBehaviour
             return;
         }
 
-        // ½ºÆù
+        // ìŠ¤í°
         rocks.RemoveAll(r => r == null);
         if (Time.time >= nextRockTime && rocks.Count < GameBalance.RockMaxAlive)
         {
@@ -186,13 +218,13 @@ public class EngineCab : MonoBehaviour
     {
         MaterialType type = (MaterialType)Random.Range(0, 6);
         GameObject go = new GameObject("ResourceRock");
-        go.transform.position = new Vector3(20f, GameBalance.RockY, 0f);
+        go.transform.position = new Vector3(-20f, GameBalance.RockY, 0f);   // v2: ì•(ì™¼ìª½)ì—ì„œ ë‚˜íƒ€ë‚œë‹¤
         ResourceRock rock = go.AddComponent<ResourceRock>();
         rock.Init(type);
         rocks.Add(rock);
     }
 
-    /// <summary>»ç°Å¸® ¾È¿¡¼­ °¡Àå °¡±î¿î ¹ÙÀ§ (¾øÀ¸¸é null)</summary>
+    /// <summary>ì‚¬ê±°ë¦¬ ì•ˆì—ì„œ ê°€ì¥ ê°€ê¹Œìš´ ë°”ìœ„ (ì—†ìœ¼ë©´ null)</summary>
     private ResourceRock NearestRock()
     {
         ResourceRock best = null;
@@ -206,9 +238,9 @@ public class EngineCab : MonoBehaviour
         return best;
     }
 
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
-    // [E] Á¶ÀÛ (ÀÛ»ì / ·¹¹ö)
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // [E] ì¡°ì‘ (ì‘ì‚´ / ë ˆë²„)
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     private void TickInteract()
     {
         if (chefTransform == null)
@@ -218,7 +250,7 @@ public class EngineCab : MonoBehaviour
             if (chefTransform == null) return;
         }
 
-        // UI/ÀÌº¥Æ® ÁøÇà Áß¿£ ¾çº¸ (ÀÌº¥Æ® E ¿¬Å¸°¡ ·¹¹ö¸¦ ´ç±â´Â »ç°í ¹æÁö)
+        // UI/ì´ë²¤íŠ¸ ì§„í–‰ ì¤‘ì—” ì–‘ë³´ (ì´ë²¤íŠ¸ E ì—°íƒ€ê°€ ë ˆë²„ë¥¼ ë‹¹ê¸°ëŠ” ì‚¬ê³  ë°©ì§€)
         if (CookingMinigame.IsActive || KitchenPanel.IsOpenStatic || PauseMenu.IsOpen
             || AugmentPickUI.IsOpen || WorkshopUI.IsOpen || KitchenEventManager.IsActive)
             return;
@@ -228,7 +260,7 @@ public class EngineCab : MonoBehaviour
 
         float chefX = chefTransform.position.x;
 
-        // ÀÛ»ìÆ÷
+        // ì‘ì‚´í¬
         if (GameBalance.HarpoonEnabled
             && Mathf.Abs(chefX - GameBalance.HarpoonX) <= GameBalance.HarpoonReach)
         {
@@ -237,8 +269,8 @@ public class EngineCab : MonoBehaviour
             return;
         }
 
-        // ·¹¹ö - ÇÈ½º 2Â÷ (»óÈ£ÀÛ¿ë º¯ÁÖ): ²Ú ´­·¯ ´ç±ä´Ù (¹¬Á÷ÇÔ + Áö³ª°¡´Ù ¿À¹ß ¹æÁö)
-        // GetKeyDownÀº È¦µå ½ÃÀÛ¸¸ ±â·Ï - ½ÇÁ¦ ´ç±èÀº TickLeverHold°¡ Ã³¸®
+        // ë ˆë²„ - í”½ìŠ¤ 2ì°¨ (ìƒí˜¸ì‘ìš© ë³€ì£¼): ê¾¹ ëˆŒëŸ¬ ë‹¹ê¸´ë‹¤ (ë¬µì§í•¨ + ì§€ë‚˜ê°€ë‹¤ ì˜¤ë°œ ë°©ì§€)
+        // GetKeyDownì€ í™€ë“œ ì‹œì‘ë§Œ ê¸°ë¡ - ì‹¤ì œ ë‹¹ê¹€ì€ TickLeverHoldê°€ ì²˜ë¦¬
         if (GameBalance.LeverEnabled
             && Mathf.Abs(chefX - GameBalance.LeverX) <= GameBalance.LeverReach)
         {
@@ -248,7 +280,7 @@ public class EngineCab : MonoBehaviour
         }
     }
 
-    // ¦¡¦¡ ÇÈ½º 2Â÷: ·¹¹ö È¦µå Ã³¸® (¸Å ÇÁ·¹ÀÓ) ¦¡¦¡
+    // â”€â”€ í”½ìŠ¤ 2ì°¨: ë ˆë²„ í™€ë“œ ì²˜ë¦¬ (ë§¤ í”„ë ˆì„) â”€â”€
     private bool leverHolding = false;
     private float leverHoldTime = 0f;
 
@@ -256,7 +288,7 @@ public class EngineCab : MonoBehaviour
     {
         if (!leverHolding) return;
 
-        // ¼ÕÀ» ¶Ã°Å³ª ·¹¹ö¿¡¼­ ¸Ö¾îÁö¸é Ãë¼Ò
+        // ì†ì„ ë—ê±°ë‚˜ ë ˆë²„ì—ì„œ ë©€ì–´ì§€ë©´ ì·¨ì†Œ
         bool near = chefTransform != null && GameBalance.LeverEnabled
             && Mathf.Abs(chefTransform.position.x - GameBalance.LeverX) <= GameBalance.LeverReach;
         if (!Input.GetKey(KeyCode.E) || !near)
@@ -266,7 +298,7 @@ public class EngineCab : MonoBehaviour
             return;
         }
 
-        ChefController.InteractConsumedFrame = Time.frameCount;   // È¦µå Áß Á¶¸®´ë/ÀÛ»ì ¾çº¸
+        ChefController.InteractConsumedFrame = Time.frameCount;   // í™€ë“œ ì¤‘ ì¡°ë¦¬ëŒ€/ì‘ì‚´ ì–‘ë³´
         leverHoldTime += Time.deltaTime;
         if (leverHoldTime >= GameBalance.LeverHoldSec)
         {
@@ -280,51 +312,51 @@ public class EngineCab : MonoBehaviour
     {
         if (!InBattle())
         {
-            UIManager.Instance?.ShowStatChange("[ÀÛ»ìÆ÷] ±âÂ÷°¡ ¼­ ÀÖ´Ù - ´Ş¸± ¶§ ³¬¾Æ¶ó");
+            UIManager.Instance?.ShowStatChange("[ì‘ì‚´í¬] ê¸°ì°¨ê°€ ì„œ ìˆë‹¤ - ë‹¬ë¦´ ë•Œ ë‚šì•„ë¼");
             return;
         }
         if (Time.time < harpoonReadyTime)
         {
-            UIManager.Instance?.ShowStatChange("[ÀÛ»ìÆ÷] ÀçÀåÀü Áß... "
-                + Mathf.CeilToInt(harpoonReadyTime - Time.time) + "ÃÊ");
+            UIManager.Instance?.ShowStatChange("[ì‘ì‚´í¬] ì¬ì¥ì „ ì¤‘... "
+                + Mathf.CeilToInt(harpoonReadyTime - Time.time) + "ì´ˆ");
             return;
         }
 
         ResourceRock target = NearestRock();
         if (target == null)
         {
-            UIManager.Instance?.ShowStatChange("[ÀÛ»ìÆ÷] Áö±İÀº ³¬À» ¹ÙÀ§°¡ ¾ø´Ù - ±æ°¡¸¦ ÁöÄÑºÁ¶ó");
+            UIManager.Instance?.ShowStatChange("[ì‘ì‚´í¬] ì§€ê¸ˆì€ ë‚šì„ ë°”ìœ„ê°€ ì—†ë‹¤ - ê¸¸ê°€ë¥¼ ì§€ì¼œë´ë¼");
             return;
         }
 
         harpoonReadyTime = Time.time + GameBalance.HarpoonCooldown;
 
-        // ¹ß»ç ¿¬Ãâ: °ÅÄ¡´ë -> ¹ÙÀ§·Î ºö + ¸íÁß ÆË
-        Vector3 muzzle = new Vector3(GameBalance.HarpoonX + 0.5f, 2.7f, 0f);
+        // ë°œì‚¬ ì—°ì¶œ: ê±°ì¹˜ëŒ€ -> ë°”ìœ„ë¡œ ë¹” + ëª…ì¤‘ íŒ
+        Vector3 muzzle = new Vector3(GameBalance.HarpoonX + 0.85f, 2.8f, 0f);   // v2: í¬ì‹  ë (ë¶ë™)
         Color rockColor = PickupFX.ColorOf(target.materialType);
         if (AttackVFX.Instance != null)
             AttackVFX.Instance.Beam(muzzle, target.transform.position, rockColor, 0.12f);
         GameFeel.DeathPop(target.transform.position, rockColor, 0.7f);
-        SoundManager.Play("sfx_harpoon");   // Å¬¸³ ¾øÀ¸¸é ¹«½Ã
+        SoundManager.Play("sfx_harpoon");   // í´ë¦½ ì—†ìœ¼ë©´ ë¬´ì‹œ
         GameFeel.Shake(0.08f, "harpoon", 1f);
 
-        // º¸»ó: ¹ÙÀ§ »ö Àç·á 3~5°³ (Èí¼ö ¿¬Ãâ)
+        // ë³´ìƒ: ë°”ìœ„ ìƒ‰ ì¬ë£Œ 3~5ê°œ (í¡ìˆ˜ ì—°ì¶œ)
         int amount = Random.Range(GameBalance.HarpoonMatMin, GameBalance.HarpoonMatMax + 1);
         PickupFX.Spawn(target.transform.position, target.materialType, amount);
-        UIManager.Instance?.ShowStatChange("[ÀÛ»ìÆ÷] ¸íÁß! " + amount + "°³¸¦ ³¬¾Ò´Ù");
+        UIManager.Instance?.ShowStatChange("[ì‘ì‚´í¬] ëª…ì¤‘! " + amount + "ê°œë¥¼ ë‚šì•˜ë‹¤");
 
         if (!harpoonStoryShown)
         {
             harpoonStoryShown = true;
-            UIManager.Instance?.ShowStatChange("¼±´ëµµ ÀÌ ÀÛ»ì·Î È²¾ß¸¦ ³¬¾Ò´Ù...");
+            UIManager.Instance?.ShowStatChange("ì„ ëŒ€ë„ ì´ ì‘ì‚´ë¡œ í™©ì•¼ë¥¼ ë‚šì•˜ë‹¤...");
         }
 
-        // ¿ø¾ÈÀÇ ¸®Æ®¸®¹ú ¸®½ºÅ©: °¡²û È²¾ß°¡ ¸¶ÁÖ ³¬¾ÆÃ¦´Ù
+        // ì›ì•ˆì˜ ë¦¬íŠ¸ë¦¬ë²Œ ë¦¬ìŠ¤í¬: ê°€ë” í™©ì•¼ê°€ ë§ˆì£¼ ë‚šì•„ì±ˆë‹¤
         if (Random.value < GameBalance.HarpoonAggroChance && WaveManager.Instance != null)
         {
             int n = Random.Range(GameBalance.HarpoonAggroMin, GameBalance.HarpoonAggroMax + 1);
             WaveManager.Instance.SpawnAmbush(n);
-            UIManager.Instance?.ShowDanger("È²¾ß°¡ ¸¶ÁÖ ³¬¾ÆÃ«´Ù! ±¾ÁÖ¸° °Íµé " + n + "¸¶¸® ³­ÀÔ!");
+            UIManager.Instance?.ShowDanger("í™©ì•¼ê°€ ë§ˆì£¼ ë‚šì•„ì±˜ë‹¤! êµ¶ì£¼ë¦° ê²ƒë“¤ " + n + "ë§ˆë¦¬ ë‚œì…!");
         }
 
         rocks.Remove(target);
@@ -338,38 +370,38 @@ public class EngineCab : MonoBehaviour
         if (leverHandle != null)
             leverHandle.localEulerAngles = new Vector3(0f, 0f, FullSteam ? -25f : 25f);
 
-        SoundManager.Play("sfx_lever");   // Å¬¸³ ¾øÀ¸¸é ¹«½Ã
+        SoundManager.Play("sfx_lever");   // í´ë¦½ ì—†ìœ¼ë©´ ë¬´ì‹œ
         GameFeel.Shake(0.12f, "lever", 0.5f);
 
         if (FullSteam)
         {
-            UIManager.Instance?.ShowDanger("Àü¼Ó ÁÖÇà! ¼Õ´ÔµéÀÌ »¡¸® ¿Â´Ù - µµ¸¶°¡ Èçµé¸°´Ù!");
-            // ¹ë·±½º 1Â÷: Àü¼ÓÀÇ ¸®ÅÏÀ» À¯Àú¿¡°Ô ¸í½Ã (¼öÄ¡´Â GameBalance.LeverGoldMul)
-            UIManager.Instance?.ShowStatChange("[Àü¼Ó º¸³Ê½º] È¸ÀüÀ²ÀÌ °ğ ¸ÅÃâ - Ã³Ä¡ °ñµå +"
+            UIManager.Instance?.ShowDanger("ì „ì† ì£¼í–‰! ì†ë‹˜ë“¤ì´ ë¹¨ë¦¬ ì˜¨ë‹¤ - ë„ë§ˆê°€ í”ë“¤ë¦°ë‹¤!");
+            // ë°¸ëŸ°ìŠ¤ 1ì°¨: ì „ì†ì˜ ë¦¬í„´ì„ ìœ ì €ì—ê²Œ ëª…ì‹œ (ìˆ˜ì¹˜ëŠ” GameBalance.LeverGoldMul)
+            UIManager.Instance?.ShowStatChange("[ì „ì† ë³´ë„ˆìŠ¤] íšŒì „ìœ¨ì´ ê³§ ë§¤ì¶œ - ì²˜ì¹˜ ê³¨ë“œ +"
                 + Mathf.RoundToInt((GameBalance.LeverGoldMul - 1f) * 100f) + "%");
             if (!leverStoryShown)
             {
                 leverStoryShown = true;
-                UIManager.Instance?.ShowStatChange("¼Óµµ´Â °øÂ¥°¡ ¾Æ´Ï´Ù. È²¾ß¿¡¼­´Â ´õ´õ¿í.");
+                UIManager.Instance?.ShowStatChange("ì†ë„ëŠ” ê³µì§œê°€ ì•„ë‹ˆë‹¤. í™©ì•¼ì—ì„œëŠ” ë”ë”ìš±.");
             }
         }
         else
-            UIManager.Instance?.ShowStatChange("[±â°üÂ÷] ¼øÇ× º¹±Í - µµ¸¶°¡ ÀáÀáÇØÁ³´Ù");
+            UIManager.Instance?.ShowStatChange("[ê¸°ê´€ì°¨] ìˆœí•­ ë³µê·€ - ë„ë§ˆê°€ ì ì í•´ì¡Œë‹¤");
     }
 
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
-    // ±ÙÁ¢ ÈùÆ® ¶óº§ (Á¶ÀÛ ÁöÁ¡ À§¿¡ ¶á´Ù)
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ê·¼ì ‘ íŒíŠ¸ ë¼ë²¨ (ì¡°ì‘ ì§€ì  ìœ„ì— ëœ¬ë‹¤)
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     private void TickHints()
     {
         if (harpoonHint == null || Camera.main == null) return;
 
         bool uiBlocked = CookingMinigame.IsActive || KitchenPanel.IsOpenStatic
             || PauseMenu.IsOpen || AugmentPickUI.IsOpen || WorkshopUI.IsOpen
-            || KitchenEventManager.IsActive;   // ÀÌº¥Æ® Áß¿£ E°¡ ÀÌº¥Æ® ¸ò - ÈùÆ®µµ ¼û±è
+            || KitchenEventManager.IsActive;   // ì´ë²¤íŠ¸ ì¤‘ì—” Eê°€ ì´ë²¤íŠ¸ ëª« - íŒíŠ¸ë„ ìˆ¨ê¹€
         float chefX = chefTransform != null ? chefTransform.position.x : -999f;
 
-        // ÀÛ»ì ÈùÆ®
+        // ì‘ì‚´ íŒíŠ¸
         bool nearHarpoon = !uiBlocked && GameBalance.HarpoonEnabled
             && Mathf.Abs(chefX - GameBalance.HarpoonX) <= GameBalance.HarpoonReach;
         harpoonHint.gameObject.SetActive(nearHarpoon);
@@ -377,29 +409,29 @@ public class EngineCab : MonoBehaviour
         {
             string label;
             if (Time.time < harpoonReadyTime)
-                label = "ÀçÀåÀü " + Mathf.CeilToInt(harpoonReadyTime - Time.time) + "ÃÊ";
+                label = "ì¬ì¥ì „ " + Mathf.CeilToInt(harpoonReadyTime - Time.time) + "ì´ˆ";
             else if (NearestRock() != null)
-                label = "[E] ÀÛ»ì ¹ß»ç!";
+                label = "[E] ì‘ì‚´ ë°œì‚¬!";
             else
-                label = "³¬À» ¹ÙÀ§ ´ë±â Áß...";
+                label = "ë‚šì„ ë°”ìœ„ ëŒ€ê¸° ì¤‘...";
             harpoonHint.text = label;
             harpoonHint.rectTransform.position = Camera.main.WorldToScreenPoint(
                 new Vector3(GameBalance.HarpoonX, 3.4f, 0f));
         }
 
-        // ·¹¹ö ÈùÆ®
+        // ë ˆë²„ íŒíŠ¸
         bool nearLever = !uiBlocked && GameBalance.LeverEnabled
             && Mathf.Abs(chefX - GameBalance.LeverX) <= GameBalance.LeverReach;
         leverHint.gameObject.SetActive(nearLever);
         if (nearLever)
         {
-            // ÇÈ½º 2Â÷: È¦µå ÁøÇà Ç¥½Ã (´ç±â´Â ÁßÀÌ¸é %)
+            // í”½ìŠ¤ 2ì°¨: í™€ë“œ ì§„í–‰ í‘œì‹œ (ë‹¹ê¸°ëŠ” ì¤‘ì´ë©´ %)
             if (leverHolding && leverHoldTime > 0f)
-                leverHint.text = "´ç±â´Â Áß... " + Mathf.RoundToInt(
+                leverHint.text = "ë‹¹ê¸°ëŠ” ì¤‘... " + Mathf.RoundToInt(
                     Mathf.Clamp01(leverHoldTime / GameBalance.LeverHoldSec) * 100f) + "%";
             else
-                leverHint.text = FullSteam ? "[E] ²Ú - ¼øÇ× º¹±Í" : "[E] ²Ú - Àü¼Ó ÁÖÇà!";
-            // B-2.1: ·¹¹ö°¡ ¿îÀü¼® ¹Ù´ÚÀ¸·Î ³»·Á¿ÔÀ¸¹Ç·Î ÈùÆ®µµ ÇÔ²² ÇÏ°­ (3.1 -> 2.0)
+                leverHint.text = FullSteam ? "[E] ê¾¹ - ìˆœí•­ ë³µê·€" : "[E] ê¾¹ - ì „ì† ì£¼í–‰!";
+            // B-2.1: ë ˆë²„ê°€ ìš´ì „ì„ ë°”ë‹¥ìœ¼ë¡œ ë‚´ë ¤ì™”ìœ¼ë¯€ë¡œ íŒíŠ¸ë„ í•¨ê»˜ í•˜ê°• (3.1 -> 2.0)
             leverHint.rectTransform.position = Camera.main.WorldToScreenPoint(
                 new Vector3(GameBalance.LeverX, 2.0f, 0f));
         }
@@ -408,38 +440,52 @@ public class EngineCab : MonoBehaviour
 
 
 /// <summary>
-/// ±æ°¡¸¦ Èê·¯°¡´Â ÀÚ¿ø ¹ÙÀ§ 1°³. Àç·á 1Á¾ÀÇ »öÀ» ¶í´Ù (ÀÛ»ìÆ÷ÀÇ Ç¥Àû).
-/// EngineCabÀÌ »ı¼º/Á¤¸®ÇÑ´Ù.
+/// ê¸¸ê°€ë¥¼ í˜ëŸ¬ê°€ëŠ” ìì› ë°”ìœ„ 1ê°œ. ì¬ë£Œ 1ì¢…ì˜ ìƒ‰ì„ ë¤ë‹¤ (ì‘ì‚´í¬ì˜ í‘œì ).
+/// EngineCabì´ ìƒì„±/ì •ë¦¬í•œë‹¤.
 /// </summary>
 public class ResourceRock : MonoBehaviour
 {
     public MaterialType materialType;
 
+    private static readonly Dictionary<MaterialType, Sprite> rockSpriteCache = new Dictionary<MaterialType, Sprite>();
+
     public void Init(MaterialType type)
     {
         materialType = type;
 
-        // ¹ÙÀ§ º»Ã¼ (È¸°¥»ö)
+        // v2: 3í†¤ ë°”ìœ„ + ì¬ë£Œìƒ‰ ê´‘ë§¥ ì  (ë­˜ ë‚šì„ì§€ ë³´ì´ê²Œ) - ì¢…ë¥˜ë³„ 1íšŒ êµ½ê³  ìºì‹œ
+        Sprite sprite = SpriteBank.Get("rock_" + type.ToString().ToLower());   // v3: PNG ìš°ì„  (rock_meat ë“±)
+        if (sprite == null && !rockSpriteCache.TryGetValue(type, out sprite))
+        {
+            sprite = PaintRock(PickupFX.ColorOf(type));
+            rockSpriteCache[type] = sprite;
+        }
         SpriteRenderer body = gameObject.AddComponent<SpriteRenderer>();
-        body.sprite = TrainDeck.GetCircleSprite();
-        body.color = new Color(0.42f, 0.38f, 0.33f);
-        body.sortingOrder = -8;   // ÆĞ·²·¢½º(-10)¿Í µ¥Å©(-6) »çÀÌ = ±æ°¡
-        transform.localScale = Vector3.one * 1.05f;
+        body.sprite = sprite;
+        body.sortingOrder = -8;   // íŒ¨ëŸ´ë™ìŠ¤(-10)ì™€ ë°í¬(-6) ì‚¬ì´ = ê¸¸ê°€
+    }
 
-        // ±¤¸Æ ÄÚ¾î (Àç·á »ö - ¹» ³¬À»Áö º¸ÀÌ°Ô)
-        GameObject core = new GameObject("Core");
-        core.transform.SetParent(transform, false);
-        core.transform.localScale = Vector3.one * 0.5f;
-        SpriteRenderer coreSr = core.AddComponent<SpriteRenderer>();
-        coreSr.sprite = TrainDeck.GetCircleSprite();
-        coreSr.color = PickupFX.ColorOf(type);
-        coreSr.sortingOrder = -7;
+    /// <summary>ë°”ìœ„ ë„íŠ¸ (ìº”ë²„ìŠ¤ 24x20): ê·¸ë¦¼ì + 3í†¤ ë°”ìœ„ + ì™¸ê³½ì„  + ê´‘ë§¥ ì  4ê°œ</summary>
+    private static Sprite PaintRock(Color ore)
+    {
+        PixelPainter p = new PixelPainter(24, 20);
+        Color32 oreC = ore;
+        Color32 oreL = PixelPainter.Mix(oreC, new Color32(255, 255, 255, 255), 0.45f);
+        p.Shadow(2, 13, 23, 19);
+        p.Ellipse(1, 2, 21, 16, new Color32(150, 104, 58, 255), new Color32(96, 62, 34, 255));
+        p.Ellipse(3, 3, 18, 12, new Color32(176, 126, 72, 255), PixelPainter.CLEAR);
+        p.Ellipse(4, 4, 11, 8, new Color32(198, 148, 90, 255), PixelPainter.CLEAR);
+        p.Rect(8, 7, 10, 9, oreC); p.Point(8, 7, oreL);
+        p.Rect(13, 9, 15, 11, oreC); p.Point(13, 9, oreL);
+        p.Rect(6, 11, 7, 12, oreC);
+        p.Rect(15, 5, 16, 6, oreC); p.Point(15, 5, oreL);
+        return p.Bake(TrainDeck.PPU);
     }
 
     private void Update()
     {
-        // ¿ŞÂÊÀ¸·Î Èê·¯°£´Ù (±âÂ÷°¡ ¿À¸¥ÂÊÀ¸·Î ´Ş¸®´Â ¿¬Ãâ°ú ÇÕÄ¡)
-        transform.position += Vector3.left * GameBalance.RockSpeed * Time.deltaTime;
-        if (transform.position.x < -16f) Destroy(gameObject);
+        // v2: ì˜¤ë¥¸ìª½ìœ¼ë¡œ í˜ëŸ¬ê°„ë‹¤ (ê¸°ì°¨ê°€ ë‘ìƒ ìª½ = ì™¼ìª½ìœ¼ë¡œ ë‹¬ë¦¬ëŠ” ì—°ì¶œê³¼ í•©ì¹˜)
+        transform.position += Vector3.right * GameBalance.RockSpeed * Time.deltaTime;
+        if (transform.position.x > 16f) Destroy(gameObject);
     }
 }
