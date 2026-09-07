@@ -2,15 +2,16 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// [ParallaxBackground.cs] v4 - 완전 탑다운 지면 (2026-09-07) / v3 고퀄 PNG 지면 / v2 탑뷰 지면 스크롤
+/// [ParallaxBackground.cs] v4.1 - 완전 탑다운 지면 (2026-09-07) / v3 고퀄 PNG 지면 / v2 탑뷰 지면 스크롤
 ///
 /// v4 (Apocalypse Express 문법, 지평선 없음):
 ///   - Resources/Sprites/WDT/ 에 ground_ae(모래 32x32유닛, 중앙 피벗) + rails_ae(선로 16x5유닛, 중앙 피벗)가 있으면 "탑다운 모드"
-///       층 0: ground_ae 3장 가로 순환 (정렬 -30)  - 화면 전체를 덮는다
+///       층 0: ground_ae 5x3장 (정렬 -30)  - 화면 전체를 덮는다
 ///       층 1: (없음) - 지평선 층 제거
-///       층 2: rails_ae 6장 가로 순환, y=0 = 기차 중심 밑 (정렬 -10) - 칸 사이 틈과 기차 위아래로 침목 끝이 보인다
-///     기준 줌을 GameBalance.CamDefaultZoom(8.5)로 맞춰 기본 줌에서 지면 도트가 기차와 같은 크기(32px/유닛)로 보인다
-///   - ground_ae 가 없으면 v3 동작 그대로 (ground_a/b + horizon + rails, 그것도 없으면 v2 코드 도트)
+///       층 2: rails_ae 10장 가로 순환, y=0 = 기차 중심 밑 (정렬 -10) - 칸 사이 틈과 기차 위아래로 침목 끝이 보인다
+///     v4.1: 탑다운 모드는 **줌을 따라 스케일하지 않는다** (세계에 고정). 휠 줌 시 지면·선로도 기차와 같이 커지고 작아진다.
+///           대신 최대 줌아웃(20 = 세로 40유닛, 울트라와이드 가로 93유닛)까지 덮도록 모래 5x3장(160x96유닛), 선로 10장(160유닛)을 깐다
+///   - ground_ae 가 없으면 v3 동작 그대로 (ground_a/b + horizon + rails, 그것도 없으면 v2 코드 도트. 이쪽은 줌 스케일 유지)
 ///   - 먼지 연출(DustFX.cs)이 쓰는 현재 지면 속도: ParallaxBackground.CurrentSpeed (월드 유닛/초)
 ///
 /// 방향: 기차는 두상 쪽(왼쪽)으로 달린다 -> 지면은 오른쪽으로 흐른다 (EngineCab의 바위와 동일 방향)
@@ -35,10 +36,11 @@ public class ParallaxBackground : MonoBehaviour
     private const float PPU = 16f;              // 코드 도트 폴백의 지면 배율
 
     // v4 탑다운 모드: 층별 타일 폭(유닛)/장수/y/정렬
-    private const float GROUND_TILE_W = 32f;    // ground_ae = 1024px / 32ppu
-    private const int GROUND_TILES = 3;         // 96유닛 커버 (줌 스케일이 따라가므로 줌아웃도 안전)
+    private const float GROUND_TILE_W = 32f;    // ground_ae = 1024px / 32ppu (정사각)
+    private const int GROUND_COLS = 5;          // 가로 160유닛 (최대 줌아웃 울트라와이드 93유닛 + 여유)
+    private const int GROUND_ROWS = 3;          // 세로 96유닛 (최대 줌아웃 40유닛 + 카메라 y 이동 여유)
     private const float RAILS_TILE_W = 16f;     // rails_ae = 512px / 32ppu
-    private const int RAILS_TILES = 6;
+    private const int RAILS_TILES = 10;         // 가로 160유닛
     private const int ORDER_GROUND = -30;
     private const int ORDER_RAILS = -10;
 
@@ -67,6 +69,7 @@ public class ParallaxBackground : MonoBehaviour
     private SpriteRenderer[][] tiles = new SpriteRenderer[3][];
     private float[] tileW = new float[3];        // 층별 타일 폭
     private float[] layerY = new float[3];       // 층별 y
+    private int[] cols = new int[3];             // 층별 가로 장수 (세로 줄 수 = tiles.Length / cols)
     private float[] offsets = new float[3];      // 층별 스크롤 오프셋
     private Color[] tintNow = new Color[3];      // 층별 현재 색 (부드러운 전환용)
 
@@ -149,19 +152,20 @@ public class ParallaxBackground : MonoBehaviour
     // ─────────────────────────────────────────────
     private void BuildTopdownLayers()
     {
-        viewHalfH = GameBalance.CamDefaultZoom;   // 기본 줌에서 지면 1:1 (32px/유닛)
-        MakeLayer(0, SpriteBank.Get("ground_ae"), GROUND_TILE_W, GROUND_TILES, 0f, ORDER_GROUND);
-        MakeLayer(1, null, 1f, 0, 0f, 0);
-        MakeLayer(2, SpriteBank.Get("rails_ae"), RAILS_TILE_W, RAILS_TILES, 0f, ORDER_RAILS);
+        viewHalfH = GameBalance.CamDefaultZoom;   // (탑다운은 스케일 안 함 - 참고값)
+        MakeLayer(0, SpriteBank.Get("ground_ae"), GROUND_TILE_W, GROUND_COLS, GROUND_ROWS, 0f, ORDER_GROUND);
+        MakeLayer(1, null, 1f, 0, 1, 0f, 0);
+        MakeLayer(2, SpriteBank.Get("rails_ae"), RAILS_TILE_W, RAILS_TILES, 1, 0f, ORDER_RAILS);
     }
 
-    private void MakeLayer(int L, Sprite sprite, float w, int count, float y, int order)
+    private void MakeLayer(int L, Sprite sprite, float w, int colCount, int rowCount, float y, int order)
     {
         GameObject root = new GameObject("Layer" + L);
         root.transform.SetParent(transform, false);
         layerRoots[L] = root.transform;
+        int count = colCount * rowCount;
         tiles[L] = new SpriteRenderer[count];
-        tileW[L] = w; layerY[L] = y; tintNow[L] = Color.white;
+        tileW[L] = w; layerY[L] = y; cols[L] = Mathf.Max(1, colCount); tintNow[L] = Color.white;
         for (int i = 0; i < count; i++)
         {
             GameObject t = new GameObject("Tile" + i);
@@ -184,7 +188,7 @@ public class ParallaxBackground : MonoBehaviour
             root.transform.SetParent(transform, false);
             layerRoots[L] = root.transform;
             tiles[L] = new SpriteRenderer[TILES_PER_LAYER];
-            tileW[L] = TILE_W; layerY[L] = LAYER_Y[L]; tintNow[L] = Color.white;
+            tileW[L] = TILE_W; layerY[L] = LAYER_Y[L]; cols[L] = TILES_PER_LAYER; tintNow[L] = Color.white;
 
             // 타일 변형 2종을 번갈아 배치 (반복 티 줄이기)
             Sprite varA = MakeLayerSprite(L, 1000 + L * 77);
@@ -225,14 +229,17 @@ public class ParallaxBackground : MonoBehaviour
         {
             int n = tiles[L].Length;
             if (n == 0) continue;
-            float stripW = tileW[L] * n;
+            int nc = cols[L]; int nr = n / nc;
+            float stripW = tileW[L] * nc;
             float mul = topdown ? 1f : SPEED_MUL[L];
             offsets[L] = Mathf.Repeat(offsets[L] + move * mul, stripW);
             for (int i = 0; i < n; i++)
             {
-                // 오프셋만큼 오른쪽으로 (기차가 왼쪽으로 달린다), 벗어나면 반대쪽으로 순환
-                float x = Mathf.Repeat(i * tileW[L] + offsets[L] + stripW / 2f, stripW) - stripW / 2f;
-                tiles[L][i].transform.localPosition = new Vector3(x, layerY[L], 0f);
+                int col = i % nc, row = i / nc;
+                // 오프셋만큼 오른쪽으로 (기차가 왼쪽으로 달린다), 벗어나면 반대쪽으로 순환. 세로 줄은 타일 높이(=폭, 정사각) 간격
+                float x = Mathf.Repeat(col * tileW[L] + offsets[L] + stripW / 2f, stripW) - stripW / 2f;
+                float y = layerY[L] + (row - (nr - 1) * 0.5f) * tileW[L];
+                tiles[L][i].transform.localPosition = new Vector3(x, y, 0f);
             }
         }
 
@@ -246,10 +253,11 @@ public class ParallaxBackground : MonoBehaviour
                 tiles[L][i].color = tintNow[L];
         }
 
-        // 4) 카메라 추종 + 줌 스케일 (줌아웃해도 구도 유지). 탑다운 모드는 x만 따라가고 y는 0 고정 (레일이 기차 밑에 붙어 있어야 하므로)
+        // 4) 카메라 추종. 탑다운 모드: x만 따라가고 y는 0 고정(레일이 기차 밑) + **줌 스케일 없음**(세계 고정 - 휠 줌 시 지면도 같이 커진다)
+        //    레거시 모드: 카메라 y도 따라가고 줌 배율만큼 스케일 (구 지평선 구도 유지)
         float py = topdown ? 0f : cam.transform.position.y;
         transform.position = new Vector3(cam.transform.position.x, py, 0f);
-        float s = cam.orthographicSize / viewHalfH;
+        float s = topdown ? 1f : cam.orthographicSize / viewHalfH;
         transform.localScale = new Vector3(s, s, 1f);
     }
 

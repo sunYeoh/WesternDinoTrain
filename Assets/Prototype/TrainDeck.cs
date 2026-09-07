@@ -4,6 +4,7 @@ using UnityEngine.SceneManagement;
 /// <summary>
 /// [TrainDeck.cs] v4 - 고퀄 스프라이트 PNG 적용 (목업 v7d 컨펌 2026-09-03) / v3 탑뷰 재스킨 (2026-09-02)
 ///
+/// - v5 (2026-09-07): 칸 사이 통로 gangway PNG 배치 (edges[1..3], y=0, SORT_DETAIL). 포탑칸 PNG는 개방형(내부 바닥)으로 교체됨 - 코드 좌표 무변경
 /// - v4: Resources/Sprites/WDT/ 의 PNG(car0/car1/car2/head/tail/chimney)를 SpriteBank로 읽어 쓴다.
 ///   PNG가 없으면 v3 코드 도트(PixelPainter)로 자동 폴백. 꼬리(tail)는 PNG가 있을 때만 붙는다.
 ///   좌표·정렬은 v3 그대로 (피벗은 Editor/WDTSpriteImporter.cs가 임포트 시 맞춘다).
@@ -161,8 +162,15 @@ public class TrainDeck : MonoBehaviour
 
             // 연결부 (다음 칸과의 틈) - 무쇠 박스 + 사선 하이라이트
             if (car < edges.Length - 2)
+            {
                 PixelPainter.Attach(transform, "Coupler" + car, PaintCoupler(),
                     new Vector3(edges[car + 1], -0.85f, 0f), SORT_TRIM);
+                // v5: 칸 사이 통로 (gangway PNG가 있을 때만) - 발판 + 금 난간, 두 칸 끝에 걸쳐 앉는다
+                Sprite gangway = SpriteBank.Get("gangway");
+                if (gangway != null)
+                    PixelPainter.Attach(transform, "Gangway" + car, gangway,
+                        new Vector3(edges[car + 1], 0f, 0f), SORT_DETAIL);
+            }
         }
 
         // 기관차 히어로 피스: T-Rex 두상 (칸 0 앞쪽에 겹쳐 앉는다) + 굴뚝
@@ -180,7 +188,7 @@ public class TrainDeck : MonoBehaviour
             PixelPainter.Attach(transform, "TRexTail", tailSprite,
                 new Vector3(edges[edges.Length - 1] - 0.1f, 0f, 0f), SORT_TRIM);
 
-        Debug.Log("[TrainDeck] 4칸 데크 생성 완료 - 탑뷰 v3 (경계 " + edges[0] + " ~ " + edges[edges.Length - 1] + ")");
+        Debug.Log("[TrainDeck] 4칸 데크 생성 완료 - v5 (경계 " + edges[0] + " ~ " + edges[edges.Length - 1] + ", 통로 " + (SpriteBank.Has("gangway") ? "PNG" : "없음") + ")");
     }
 
     // ─────────────────────────────────────────────

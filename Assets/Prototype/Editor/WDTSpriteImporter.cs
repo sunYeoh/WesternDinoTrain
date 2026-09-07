@@ -46,6 +46,7 @@ public class WDTSpriteImporter : AssetPostprocessor
             { "e_scorpion", new Info(32f, 0.5000f, 0.5000f) },
             { "e_steel", new Info(32f, 0.5000f, 0.5000f) },
             { "e_tortoise", new Info(32f, 0.4800f, 0.5000f) },
+            { "gangway", new Info(32f, 0.5053f, 0.4947f) },
             { "ground_ae", new Info(32f, 0.5000f, 0.5000f) },
             { "harpoon", new Info(32f, 0.3500f, 0.3375f) },
             { "head", new Info(32f, 0.3200f, 0.6290f) },
