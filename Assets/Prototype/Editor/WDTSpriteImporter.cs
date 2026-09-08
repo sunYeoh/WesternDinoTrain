@@ -4,13 +4,14 @@ using UnityEditor;
 using UnityEngine;
 
 /// <summary>
-/// [WDTSpriteImporter.cs] v3 (Editor 전용) - 스프라이트 PNG 자동 임포트 설정 (2026-09-07, v9 픽셀 팩)
+/// [WDTSpriteImporter.cs] v4 (Editor 전용) - 스프라이트 PNG 자동 임포트 설정 (2026-09-07, v9 픽셀 팩 + UI 스킨)
 ///
 /// Assets/Resources/Sprites/WDT/ 아래 PNG가 임포트될 때 자동으로:
 ///   Texture Type = Sprite (Single) / Pixels Per Unit = 파일별 값 / Filter = Point(도트 선명) /
 ///   Compression = None / Mipmap 끔 / Pivot = 파일별 커스텀(게임 좌표와 1:1로 맞춘 값)
 /// 을 잡아준다. 그래서 유저는 PNG를 폴더에 복사하기만 하면 된다.
 ///
+/// v4: UI 스킨 ui_*.png 규칙 - PPU 100(캔버스 1유닛 = 1px), Point, FullRect, 9-슬라이스 테두리(UI_BORDER 표). 타일/슬라이스는 UISkin.cs 가 Image.type 으로 정함
 /// v3: v9 픽셀 팩 - 전 스프라이트 32px/유닛(표 재생성: 기차/포탑/적/바위/작살/레버/굴뚝 + ground_ae/rails_ae/dust_0~3)
 /// v2: 유저 제작 셰프 도트 hero_*.png (32x32, 발이 아래에서 두 번째 줄) 규칙 - HERO_PPU 로 크기 조절
 ///     (32 = 기차와 같은 도트 밀도(확정), 1080p에서 약 60px 키 / 24 = 1.33배 크게 / 21 = 1.5배 크게)
@@ -25,6 +26,22 @@ public class WDTSpriteImporter : AssetPostprocessor
         public float ppu, px, py;   // px, py = 정규화 피벗 (0~1, 왼쪽 아래 원점)
         public Info(float ppu, float px, float py) { this.ppu = ppu; this.px = px; this.py = py; }
     }
+
+    // UI 스킨 9-슬라이스 테두리 (px). 0 = 테두리 없음 (타일/단순)
+    private static readonly Dictionary<string, float> UI_BORDER = new Dictionary<string, float>
+    {
+            { "ui_button", 16f },
+            { "ui_gauge_bg", 16f },
+            { "ui_gauge_fill", 4f },
+            { "ui_gauge_round", 0f },
+            { "ui_hazard", 0f },
+            { "ui_nameplate", 12f },
+            { "ui_pipe", 28f },
+            { "ui_plate", 0f },
+            { "ui_ring", 16f },
+            { "ui_valve", 0f },
+            { "ui_vent", 0f },
+    };
 
     private const float HERO_PPU = 32f;                 // 셰프(hero_*) 크기: 낮출수록 화면에서 커진다 (32 = 기차와 같은 밀도(확정), 24 / 21 = 크게)
     private const float HERO_PIVOT_Y = 1f / 32f;        // 발바닥 = 아래에서 두 번째 픽셀 줄 (유저 도트 기준)
@@ -96,6 +113,20 @@ public class WDTSpriteImporter : AssetPostprocessor
 
         string name = Path.GetFileNameWithoutExtension(path);
         Info info;
+        if (name.StartsWith("ui_"))
+        {
+            // UI 스킨: 캔버스 픽셀 1:1 (PPU 100 = uGUI 기본), 중앙 피벗, 9-슬라이스 테두리
+            ti.spritePixelsPerUnit = 100f;
+            float bd;
+            if (!UI_BORDER.TryGetValue(name, out bd)) bd = 0f;
+            TextureImporterSettings us = new TextureImporterSettings();
+            ti.ReadTextureSettings(us);
+            us.spriteAlignment = (int)SpriteAlignment.Center;
+            us.spriteMeshType = SpriteMeshType.FullRect;
+            ti.SetTextureSettings(us);
+            ti.spriteBorder = new Vector4(bd, bd, bd, bd);
+            return;
+        }
         if (name.StartsWith("hero_"))
         {
             // 유저 제작 셰프 도트: 표 대신 접두어 규칙 (새 프레임을 추가해도 표 수정 불필요)

@@ -3,9 +3,13 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [KitchenPanel.cs] v2
+/// [KitchenPanel.cs] v2.1
 /// Tab키 주방 패널 (uGUI 코드 생성) - 조리 / 합성 / 도감 3탭
 /// GameSystems 오브젝트에 부착
+///
+/// - v2.1 (2026-09-07, "쇳냄새" 픽셀 스킨 - HUD 목업 v3 컨펌): UISkin 이 있을 때만
+///   제목 "주 방" 을 파이프 위에 걸린 황동 명판으로, 닫기 힌트를 파이프 아래로, 내용 영역을 파이프 안쪽(30px)으로,
+///   오른쪽 위 파이프에 압력 게이지·밸브 장식. 스킨이 없으면 v2 배치 그대로. 로직 변경 없음
 ///
 /// - v2 변경점 (조리법 정체성):
 ///   1) 모든 레시피에 고유 조리법 부여 (MethodOf: 굽기/볶기/끓이기 자동 판정)
@@ -167,18 +171,29 @@ public class KitchenPanel : MonoBehaviour
             new Vector2(-620f, -380f), new Vector2(620f, 380f),
             UIFactory.PANEL, UIFactory.COPPER, 4f);
 
-        // 타이틀
-        Text title = UIFactory.CreateText(panel, "Title", "주방", 30, UIFactory.GOLD, TextAnchor.UpperLeft);
-        title.rectTransform.anchorMin = new Vector2(0f, 1f);
-        title.rectTransform.anchorMax = new Vector2(1f, 1f);
-        title.rectTransform.offsetMin = new Vector2(28f, -56f);
-        title.rectTransform.offsetMax = new Vector2(0f, -16f);
+        bool skin = UISkin.Available;   // v2.1: 파이프 프레임(테 28px)일 때만 배치를 조금 옮긴다
+
+        // 타이틀 (스킨: 파이프 위에 걸린 황동 명판 / 아니면 금색 글자)
+        if (skin)
+        {
+            UISkin.Nameplate(panel, "Title", "주 방", 24, new Vector2(0f, 1f), new Vector2(40f, 4f));
+            UISkin.AddOrnament(panel, "gauge", new Vector2(1f, 1f), new Vector2(-230f, 14f), new Vector2(56f, 56f));
+            UISkin.AddOrnament(panel, "valve", new Vector2(1f, 1f), new Vector2(-166f, 10f), new Vector2(48f, 48f));
+        }
+        else
+        {
+            Text title = UIFactory.CreateText(panel, "Title", "주방", 30, UIFactory.GOLD, TextAnchor.UpperLeft);
+            title.rectTransform.anchorMin = new Vector2(0f, 1f);
+            title.rectTransform.anchorMax = new Vector2(1f, 1f);
+            title.rectTransform.offsetMin = new Vector2(28f, -56f);
+            title.rectTransform.offsetMax = new Vector2(0f, -16f);
+        }
 
         Text hint = UIFactory.CreateText(panel, "Hint", "[Tab] 닫기", 16, UIFactory.DIM, TextAnchor.UpperRight);
         hint.rectTransform.anchorMin = new Vector2(0f, 1f);
         hint.rectTransform.anchorMax = new Vector2(1f, 1f);
-        hint.rectTransform.offsetMin = new Vector2(0f, -46f);
-        hint.rectTransform.offsetMax = new Vector2(-28f, -20f);
+        hint.rectTransform.offsetMin = new Vector2(0f, skin ? -60f : -46f);
+        hint.rectTransform.offsetMax = new Vector2(-28f, skin ? -34f : -20f);
 
         // 탭 버튼 3개
         string[] tabNames = { "조리", "합성", "도감" };
@@ -202,8 +217,8 @@ public class KitchenPanel : MonoBehaviour
         contentArea.SetParent(panel, false);
         contentArea.anchorMin = Vector2.zero;
         contentArea.anchorMax = Vector2.one;
-        contentArea.offsetMin = new Vector2(20f, 16f);
-        contentArea.offsetMax = new Vector2(-20f, -66f);
+        contentArea.offsetMin = skin ? new Vector2(30f, 30f) : new Vector2(20f, 16f);      // 스킨: 파이프(28px) 안쪽
+        contentArea.offsetMax = skin ? new Vector2(-30f, -70f) : new Vector2(-20f, -66f);
     }
 
     // ─────────────────────────────────────────

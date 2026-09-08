@@ -3,36 +3,40 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [GameHUD.cs] v2
-/// ÀüÅõ Áß ÇÙ½É HUD (ÀüºÎ ÄÚµå »ı¼º - Canvas ¼¼ÆÃ ºÒÇÊ¿ä)
-/// - ÇÏ´Ü ¹Ù: Àç·á 6Á¾ Ä«¿îÆ® + º¸À¯ ¿ä¸® Ä«µå ¸ñ·Ï
-/// - ¿ä¸® Ä«µå Å¬¸¯ -> ÅõÀÔ ¸ğµå (½½·Ô ¸¶Ä¿ Å¬¸¯À¸·Î ÅõÀÔ)
-/// - v2 º¯°æÁ¡ (UI °³¼±):
-///   1) ¿ä¸® ¸ñ·Ï 2ÁÙ ±×¸®µå (±âÁ¸ 1ÁÙ -> È­¸é ¹ÛÀ¸·Î ³ÑÄ¡´ø ¹®Á¦ ÇØ°á)
-///   2) Æ¼¾î -> ¼Ó¼º -> ÀÌ¸§ ¼ø Á¤·Ä (°°Àº °è¿­ÀÌ ¸ğ¿©¼­ Ã£±â ½¬¿ò)
-///   3) Ä«µå°¡ È­¸éÀ» ³ÑÀ¸¸é ¸¶¿ì½º ÈÙ·Î °¡·Î ½ºÅ©·Ñ
-///   4) ÇÏ´Ü ¹Ù ³ôÀÌ 128 -> 176 (2ÁÙ ¼ö¿ë)
-/// GameSystems ¿ÀºêÁ§Æ®¿¡ ºÎÂø
-/// VS 2017 (C# 7.3) È£È¯
+/// [GameHUD.cs] v3 - ì „íˆ¬ ì¤‘ í•µì‹¬ HUD (ì „ë¶€ ì½”ë“œ ìƒì„± - Canvas ì„¸íŒ… ë¶ˆí•„ìš”)
+/// - í•˜ë‹¨ ë°”: ì¬ë£Œ 6ì¢… ì¹´ìš´íŠ¸ + ë³´ìœ  ìš”ë¦¬ ì¹´ë“œ ëª©ë¡ (2ì¤„ ê·¸ë¦¬ë“œ, íœ  ê°€ë¡œ ìŠ¤í¬ë¡¤)
+/// - ìš”ë¦¬ ì¹´ë“œ í´ë¦­ -> íˆ¬ì… ëª¨ë“œ (ìŠ¬ë¡¯ ë§ˆì»¤ í´ë¦­ìœ¼ë¡œ íˆ¬ì…)
+/// - v3 ë³€ê²½ì  (2026-09-07, "ì‡³ëƒ„ìƒˆ" í”½ì…€ ìŠ¤í‚¨ - HUD ëª©ì—… v3 ì»¨íŒ):
+///   1) í•˜ë‹¨ ë°” 158 -> 184: êµ¬ë¦¬ íŒŒì´í”„ í”„ë ˆì„(í…Œ 28px) ì•ˆì— ì¬ë£Œ 2x3 + ìš”ë¦¬ ì¹´ë“œ 2ì¤„ì´ ë“¤ì–´ê°€ë„ë¡
+///   2) "ì¬ë£Œ"/"ìš”ë¦¬" ì œëª©ì„ íŒŒì´í”„ ìœ„ì— ê±¸ë¦° í™©ë™ ëª…íŒìœ¼ë¡œ (ì•ˆìª½ ë†’ì´ ì ˆì•½)
+///   3) ìš”ë¦¬ ì¹´ë“œ = ë¬´ì‡  í‰íŒ + ê³„ì—´ìƒ‰ í…Œ(ë¦¬ë²³), ì„ íƒ ì¤‘ì´ë©´ í™©ë™ í…Œ. ì¬ë£Œ ì¹¸ = ê³„ì—´ìƒ‰ íŒ + ê¸€ì
+///   4) ì˜¤ë¥¸ìª½ ë ì¥ì‹: ì••ë ¥ ê²Œì´ì§€ + ë°¸ë¸Œ íœ  + ë°°ê¸° ê·¸ë¦´
+///   5) íˆ¬ì… ëª¨ë“œ ë°°ë„ˆ: í‰íŒ + í™©ë™ í…Œ ì¹´ë“œ(880x72) + ìœ„í—˜ ìŠ¤íŠ¸ë¼ì´í”„, ê¸€ì ì¢Œìš° 84Â·ìƒí•˜ 10 ì—¬ë°± (í…Œë‘ë¦¬ì— ë¶™ì§€ ì•Šê²Œ)
+///   UISkin(ui_*.png)ì´ ì—†ìœ¼ë©´ v2 ë‹¨ìƒ‰ ë°•ìŠ¤ ë°°ì¹˜ë¡œ ìë™ í´ë°± (ìˆ˜ì¹˜ë§Œ ë‹¤ë¦„)
+/// GameSystems ì˜¤ë¸Œì íŠ¸ì— ë¶€ì°©
+/// VS 2017 (C# 7.3) í˜¸í™˜
 /// </summary>
 public class GameHUD : MonoBehaviour
 {
     public static GameHUD Instance { get; private set; }
 
-    // ÅõÀÔ ¸ğµå: ¼±ÅÃµÈ ¿ä¸® recipeId ("" = ¸ğµå ¾Æ´Ô)
+    // íˆ¬ì… ëª¨ë“œ: ì„ íƒëœ ìš”ë¦¬ recipeId ("" = ëª¨ë“œ ì•„ë‹˜)
     public string placingRecipeId = "";
 
     private Canvas canvas;
     private Text[] matTexts = new Text[6];
-    private RectTransform foodListRoot;    // ½ºÅ©·Ñ ³»¿ë¹° (Ä«µå ºÎ¸ğ)
+    private RectTransform foodListRoot;    // ìŠ¤í¬ë¡¤ ë‚´ìš©ë¬¼ (ì¹´ë“œ ë¶€ëª¨)
     private Text placingBanner;
     private readonly List<GameObject> foodCards = new List<GameObject>();
 
-    private const float CARD_W = 112f;
-    private const float CARD_H = 56f;   // HUD Á¤¸®: 64 -> 56 (ÇÏ´Ü ¹Ù ¾ĞÃà¿¡ ¸ÂÃã)
-    private const float CARD_GAP = 4f;
+    private const float BAR_H = 184f;          // v3: í•˜ë‹¨ ë°” ë†’ì´ (v2 158)
+    private const float FRAME = 28f;           // íŒŒì´í”„ í…Œ ë‘ê»˜ (ui_pipe í…Œë‘ë¦¬ = 28px @1080p)
+    private const float MAT_W = 330f;          // ì¬ë£Œ êµ¬ì—­ í­ (ë°” ì™¼ìª½)
+    private const float CARD_W = 116f;
+    private const float CARD_H = 56f;
+    private const float CARD_GAP = 6f;
 
-    private static readonly string[] MAT_SHORT = { "°í±â", "µî½É", "Àü±â", "È­¿°", "¾óÀ½", "µ¶" };
+    private static readonly string[] MAT_SHORT = { "ê³ ê¸°", "ë“±ì‹¬", "ì „ê¸°", "í™”ì—¼", "ì–¼ìŒ", "ë…" };
     private static readonly FoodTag[] MAT_TAG = { FoodTag.Phys, FoodTag.Def, FoodTag.Elec, FoodTag.Fire, FoodTag.Ice, FoodTag.Poison };
 
     void Awake()
@@ -56,39 +60,53 @@ public class GameHUD : MonoBehaviour
 
     void Update()
     {
-        // ¿ìÅ¬¸¯ = ÅõÀÔ ¸ğµå Ãë¼Ò
+        // ìš°í´ë¦­ = íˆ¬ì… ëª¨ë“œ ì·¨ì†Œ
         if (!string.IsNullOrEmpty(placingRecipeId) && Input.GetMouseButtonDown(1))
             SetPlacing("");
     }
 
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
-    // UI »ı¼º
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // UI ìƒì„±
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     private void BuildUI()
     {
         canvas = UIFactory.CreateCanvas("GameHUD_Canvas", 10);
+        bool skin = UISkin.Available;
+        float inset = skin ? FRAME : 12f;              // ë°” ì•ˆìª½ ì—¬ë°±
+        float topInset = skin ? FRAME - 4f : 34f;      // ìœ„ìª½ ì—¬ë°± (ìŠ¤í‚¨: ëª…íŒì´ íŒŒì´í”„ì— ê±¸ë¦¬ë¯€ë¡œ ì œëª© ì¤„ì´ í•„ìš” ì—†ë‹¤)
 
-        // ¦¡¦¡ ÇÏ´Ü ¹Ù (ÀüÃ¼ Æø. HUD Á¤¸®: 176 -> 158, ³»¿ë ´ëºñ °úÇß´ø ³ôÀÌ ¾ĞÃà) ¦¡¦¡
+        // â”€â”€ í•˜ë‹¨ ë°” (ì „ì²´ í­) â”€â”€
         RectTransform bottomBar = UIFactory.CreatePanel(canvas.transform, "BottomBar",
             new Vector2(0f, 0f), new Vector2(1f, 0f),
-            new Vector2(8f, 8f), new Vector2(-8f, 158f),
+            new Vector2(6f, 6f), new Vector2(-6f, 6f + BAR_H),
             UIFactory.PANEL, UIFactory.COPPER, 3f);
 
-        // ¦¡¦¡ Àç·á ¸ñ·Ï ÆĞ³Î (ÇÏ´Ü ¹Ù ¿ŞÂÊ) ¦¡¦¡
+        // â”€â”€ ì œëª©: ìŠ¤í‚¨ì´ë©´ íŒŒì´í”„ ìœ„ì— ê±¸ë¦° í™©ë™ ëª…íŒ, ì•„ë‹ˆë©´ ê¸€ì â”€â”€
+        if (skin)
+        {
+            UISkin.Nameplate(bottomBar, "Mat", "ì¬ë£Œ", 17, new Vector2(0f, 1f), new Vector2(34f, 4f), 76f);           // íŒŒì´í”„ ìœ„ì— 4px ê±¸ë¦¼ (ëª©ì—…ê³¼ ë™ì¼)
+            UISkin.Nameplate(bottomBar, "Food", "ìš”ë¦¬  (í´ë¦­ = íˆ¬ì…,  íœ  = ìŠ¤í¬ë¡¤)", 16, new Vector2(0f, 1f), new Vector2(MAT_W + 56f, 4f));
+        }
+        else
+        {
+            Text matTitle = UIFactory.CreateText(bottomBar, "MatTitle", "ì¬ë£Œ", 18, UIFactory.GOLD, TextAnchor.UpperLeft);
+            matTitle.rectTransform.anchorMin = new Vector2(0f, 1f); matTitle.rectTransform.anchorMax = new Vector2(0f, 1f);
+            matTitle.rectTransform.pivot = new Vector2(0f, 1f);
+            matTitle.rectTransform.anchoredPosition = new Vector2(16f, -8f); matTitle.rectTransform.sizeDelta = new Vector2(200f, 24f);
+            Text foodTitle = UIFactory.CreateText(bottomBar, "FoodTitle", "ìš”ë¦¬ (í´ë¦­ = íˆ¬ì… ëª¨ë“œ, íœ  = ìŠ¤í¬ë¡¤)", 18, UIFactory.GOLD, TextAnchor.UpperLeft);
+            foodTitle.rectTransform.anchorMin = new Vector2(0f, 1f); foodTitle.rectTransform.anchorMax = new Vector2(0f, 1f);
+            foodTitle.rectTransform.pivot = new Vector2(0f, 1f);
+            foodTitle.rectTransform.anchoredPosition = new Vector2(MAT_W + 20f, -8f); foodTitle.rectTransform.sizeDelta = new Vector2(600f, 24f);
+        }
+
+        // â”€â”€ ì¬ë£Œ ëª©ë¡ (í•˜ë‹¨ ë°” ì™¼ìª½): 2í–‰ 3ì—´ (ê³„ì—´ìƒ‰ íŒ + ì´ë¦„ + ìˆ˜) â”€â”€
         RectTransform matPanel = new GameObject("MatPanel").AddComponent<RectTransform>();
         matPanel.SetParent(bottomBar, false);
         matPanel.anchorMin = new Vector2(0f, 0f);
         matPanel.anchorMax = new Vector2(0f, 1f);
-        matPanel.offsetMin = new Vector2(12f, 8f);
-        matPanel.offsetMax = new Vector2(320f, -8f);
+        matPanel.offsetMin = new Vector2(inset + 4f, inset);
+        matPanel.offsetMax = new Vector2(inset + MAT_W, -topInset);
 
-        Text matTitle = UIFactory.CreateText(matPanel, "Title", "Àç·á", 18, UIFactory.GOLD, TextAnchor.UpperLeft);
-        matTitle.rectTransform.anchorMin = new Vector2(0f, 1f);
-        matTitle.rectTransform.anchorMax = new Vector2(1f, 1f);
-        matTitle.rectTransform.offsetMin = new Vector2(4f, -26f);
-        matTitle.rectTransform.offsetMax = new Vector2(0f, -2f);
-
-        // Àç·á 6Á¾: 2Çà 3¿­ (Á¡ + ÀÌ¸§ + ¼ö)
         for (int i = 0; i < 6; i++)
         {
             int col = i % 3;
@@ -100,47 +118,43 @@ public class GameHUD : MonoBehaviour
             crt.anchorMin = new Vector2(0f, 1f);
             crt.anchorMax = new Vector2(0f, 1f);
             crt.pivot = new Vector2(0f, 1f);
-            crt.anchoredPosition = new Vector2(4f + col * 102f, -34f - row * 40f);
-            crt.sizeDelta = new Vector2(98f, 34f);
+            crt.anchoredPosition = new Vector2(4f + col * 100f, -12f - row * 50f);
+            crt.sizeDelta = new Vector2(96f, 34f);
 
-            // »öÁ¡
-            GameObject dot = new GameObject("Dot");
+            // ê³„ì—´ìƒ‰ íŒ (ìŠ¤í‚¨: í‹´íŠ¸ í‰íŒ, ì•„ë‹ˆë©´ ìƒ‰ì )
+            GameObject dot = new GameObject("Chip");
             RectTransform drt = dot.AddComponent<RectTransform>();
             drt.SetParent(crt, false);
             drt.anchorMin = new Vector2(0f, 0.5f);
             drt.anchorMax = new Vector2(0f, 0.5f);
             drt.anchoredPosition = new Vector2(9f, 0f);
-            drt.sizeDelta = new Vector2(14f, 14f);
-            dot.AddComponent<Image>().color = UIFactory.TagColor(MAT_TAG[i]);
+            drt.sizeDelta = new Vector2(16f, 16f);
+            Image dotImg = dot.AddComponent<Image>();
+            dotImg.color = UIFactory.TagColor(MAT_TAG[i]);
+            dotImg.raycastTarget = false;
+            if (skin) UISkin.Plate(dotImg, UIFactory.TagColor(MAT_TAG[i]));
 
-            Text label = UIFactory.CreateText(crt, "Label", MAT_SHORT[i] + " 0", 17, UIFactory.CREAM, TextAnchor.MiddleLeft);
-            label.rectTransform.offsetMin = new Vector2(22f, 0f);
+            Text label = UIFactory.CreateText(crt, "Label", MAT_SHORT[i] + " 0", 18, UIFactory.CREAM, TextAnchor.MiddleLeft);
+            label.rectTransform.offsetMin = new Vector2(26f, 0f);
             matTexts[i] = label;
         }
 
-        // ¦¡¦¡ ¿ä¸® ¸®½ºÆ® Á¦¸ñ ¦¡¦¡
-        Text foodTitle = UIFactory.CreateText(bottomBar, "FoodTitle", "¿ä¸® (Å¬¸¯ = ÅõÀÔ ¸ğµå, ÈÙ = ½ºÅ©·Ñ)", 18, UIFactory.GOLD, TextAnchor.UpperLeft);
-        foodTitle.rectTransform.anchorMin = new Vector2(0f, 1f);
-        foodTitle.rectTransform.anchorMax = new Vector2(1f, 1f);
-        foodTitle.rectTransform.offsetMin = new Vector2(340f, -30f);
-        foodTitle.rectTransform.offsetMax = new Vector2(0f, -6f);
-
-        // ¦¡¦¡ ¿ä¸® ½ºÅ©·Ñ ¿µ¿ª (v2: 2ÁÙ ±×¸®µå + °¡·Î ½ºÅ©·Ñ) ¦¡¦¡
+        // â”€â”€ ìš”ë¦¬ ìŠ¤í¬ë¡¤ ì˜ì—­ (2ì¤„ ê·¸ë¦¬ë“œ + ê°€ë¡œ ìŠ¤í¬ë¡¤) â”€â”€
         GameObject scrollGo = new GameObject("FoodScroll");
         RectTransform scrollRt = scrollGo.AddComponent<RectTransform>();
         scrollRt.SetParent(bottomBar, false);
         scrollRt.anchorMin = new Vector2(0f, 0f);
         scrollRt.anchorMax = new Vector2(1f, 1f);
-        scrollRt.offsetMin = new Vector2(340f, 8f);
-        scrollRt.offsetMax = new Vector2(-12f, -34f);
+        scrollRt.offsetMin = new Vector2(inset + MAT_W + 24f, inset - 2f);
+        scrollRt.offsetMax = new Vector2(-(inset + (skin ? 150f : 8f)), -topInset + 2f);   // ì˜¤ë¥¸ìª½ì€ ì¥ì‹ ìë¦¬
 
-        // ½ºÅ©·Ñ ÆÇÁ¤¿ë Åõ¸í ÀÌ¹ÌÁö (ÈÙ ÀÔ·ÂÀ» ¹ŞÀ¸·Á¸é ·¹ÀÌÄ³½ºÆ® ´ë»ó ÇÊ¿ä)
+        // ìŠ¤í¬ë¡¤ íŒì •ìš© íˆ¬ëª… ì´ë¯¸ì§€ (íœ  ì…ë ¥ì„ ë°›ìœ¼ë ¤ë©´ ë ˆì´ìºìŠ¤íŠ¸ ëŒ€ìƒ í•„ìš”)
         Image scrollBg = scrollGo.AddComponent<Image>();
         scrollBg.color = new Color(0f, 0f, 0f, 0.01f);
 
         ScrollRect sr = scrollGo.AddComponent<ScrollRect>();
 
-        // ºäÆ÷Æ® (³ÑÄ¡´Â Ä«µå Àß¶ó³¿)
+        // ë·°í¬íŠ¸ (ë„˜ì¹˜ëŠ” ì¹´ë“œ ì˜ë¼ëƒ„)
         GameObject viewportGo = new GameObject("Viewport");
         RectTransform viewportRt = viewportGo.AddComponent<RectTransform>();
         viewportRt.SetParent(scrollRt, false);
@@ -150,15 +164,17 @@ public class GameHUD : MonoBehaviour
         viewportRt.offsetMax = Vector2.zero;
         viewportGo.AddComponent<RectMask2D>();
 
-        // ³»¿ë¹° (Ä«µå ºÎ¸ğ)
+        // ë‚´ìš©ë¬¼ (ì¹´ë“œ ë¶€ëª¨) - ì¹´ë“œ 2ì¤„ì´ ìŠ¤í¬ë¡¤ ì˜ì—­ ì„¸ë¡œ ê°€ìš´ë°ì— ì˜¤ë„ë¡ ë‚¨ëŠ” ë†’ì´ë¥¼ ìœ„ì•„ë˜ë¡œ ë‚˜ëˆˆë‹¤
+        float scrollH = BAR_H - (inset - 2f) - (topInset - 2f);
+        float gridPadY = Mathf.Max(0f, (scrollH - (CARD_H * 2f + CARD_GAP)) * 0.5f);
         GameObject listGo = new GameObject("FoodList");
         foodListRoot = listGo.AddComponent<RectTransform>();
         foodListRoot.SetParent(viewportRt, false);
         foodListRoot.anchorMin = new Vector2(0f, 0f);
         foodListRoot.anchorMax = new Vector2(0f, 1f);
         foodListRoot.pivot = new Vector2(0f, 0.5f);
-        foodListRoot.offsetMin = Vector2.zero;
-        foodListRoot.offsetMax = Vector2.zero;
+        foodListRoot.offsetMin = new Vector2(0f, gridPadY);
+        foodListRoot.offsetMax = new Vector2(0f, -gridPadY);
 
         sr.viewport = viewportRt;
         sr.content = foodListRoot;
@@ -168,18 +184,48 @@ public class GameHUD : MonoBehaviour
         sr.scrollSensitivity = 35f;
         sr.inertia = true;
 
-        // ¦¡¦¡ ÅõÀÔ ¸ğµå ¾È³» ¹è³Ê (È­¸é »ó´Ü Áß¾Ó) ¦¡¦¡
+        // â”€â”€ ì¬ë£Œ/ìš”ë¦¬ ì‚¬ì´ ì„¸ë¡œ íŒŒì´í”„ êµ¬ë¶„ì„  + ì˜¤ë¥¸ìª½ ë ì¥ì‹ (ìŠ¤í‚¨): ì••ë ¥ ê²Œì´ì§€ + ë°¸ë¸Œ íœ  + ë°°ê¸° ê·¸ë¦´ â”€â”€
+        if (skin)
+        {
+            GameObject divGo = new GameObject("Divider");
+            RectTransform divRt = divGo.AddComponent<RectTransform>();
+            divRt.SetParent(bottomBar, false);
+            divRt.anchorMin = new Vector2(0f, 0f);
+            divRt.anchorMax = new Vector2(0f, 1f);
+            divRt.pivot = new Vector2(0f, 1f);
+            divRt.offsetMin = new Vector2(inset + MAT_W - 12f, 20f);       // í­ 28, ìœ„ì•„ë˜ íŒŒì´í”„ì— 8px ê²¹ì³ ì´ì–´ì§„ ê²ƒì²˜ëŸ¼
+            divRt.offsetMax = new Vector2(inset + MAT_W + 16f, -20f);
+            Image divImg = divGo.AddComponent<Image>();
+            divImg.raycastTarget = false;
+            UISkin.PipeVertical(divImg);
+
+            UISkin.AddOrnament(bottomBar, "gauge", new Vector2(1f, 1f), new Vector2(-136f, -40f), new Vector2(56f, 56f));
+            UISkin.AddOrnament(bottomBar, "valve", new Vector2(1f, 1f), new Vector2(-72f, -48f), new Vector2(48f, 48f));
+            UISkin.AddOrnament(bottomBar, "vent", new Vector2(1f, 1f), new Vector2(-124f, -118f), new Vector2(64f, 24f));
+        }
+
+        // â”€â”€ íˆ¬ì… ëª¨ë“œ ì•ˆë‚´ ë°°ë„ˆ (í™”ë©´ ìƒë‹¨ ì¤‘ì•™, ì›¨ì´ë¸Œ ì˜ˆê³ /ì•ˆë‚´ ì¹´ë“œ ì•„ë˜) â”€â”€
+        //    í‰íŒ + í™©ë™ í…Œ ì¹´ë“œ (íŒŒì´í”„ í”„ë ˆì„ì€ í…Œê°€ 28px ë¼ 72px ë°°ë„ˆì—ì„  ê¸€ìê°€ íŒŒì´í”„ì— ë¶™ëŠ”ë‹¤)
+        //    ê¸€ì ì¢Œìš° 84px ì•ˆì— ìœ„í—˜ ìŠ¤íŠ¸ë¼ì´í”„, ìƒí•˜ 10px ì—¬ë°±
         RectTransform bannerPanel = UIFactory.CreatePanel(canvas.transform, "PlacingBanner",
             new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
-            new Vector2(-320f, -96f), new Vector2(320f, -52f),
+            new Vector2(-440f, -318f), new Vector2(440f, -246f),
             UIFactory.PANEL, UIFactory.GOLD, 2f);
         placingBanner = UIFactory.CreateText(bannerPanel, "Text", "", 20, UIFactory.GOLD, TextAnchor.MiddleCenter);
+        placingBanner.rectTransform.offsetMin = new Vector2(84f, 10f);
+        placingBanner.rectTransform.offsetMax = new Vector2(-84f, -10f);
+        if (skin)
+        {
+            // í”¼ë²—ì´ ì™¼ìª½ ìœ„ë¼ y=+8 ì´ ì„¸ë¡œ ê°€ìš´ë°
+            UISkin.AddOrnament(bannerPanel, "hazard", new Vector2(0f, 0.5f), new Vector2(16f, 8f), new Vector2(56f, 16f));
+            UISkin.AddOrnament(bannerPanel, "hazard", new Vector2(1f, 0.5f), new Vector2(-72f, 8f), new Vector2(56f, 16f));
+        }
         bannerPanel.gameObject.SetActive(false);
     }
 
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
-    // °»½Å
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ê°±ì‹ 
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     private void RefreshMaterials()
     {
         if (MaterialInventory.Instance == null) return;
@@ -193,14 +239,14 @@ public class GameHUD : MonoBehaviour
 
     private void RebuildFoodList()
     {
-        // ±âÁ¸ Ä«µå Á¦°Å
+        // ê¸°ì¡´ ì¹´ë“œ ì œê±°
         for (int i = 0; i < foodCards.Count; i++)
             Destroy(foodCards[i]);
         foodCards.Clear();
 
         if (FoodStock.Instance == null) return;
 
-        // º¸À¯ ¿ä¸® ¼öÁı ÈÄ Á¤·Ä: Æ¼¾î -> ¼Ó¼º -> ÀÌ¸§ (°°Àº °è¿­ÀÌ ¸ğÀÌ°Ô)
+        // ë³´ìœ  ìš”ë¦¬ ìˆ˜ì§‘ í›„ ì •ë ¬: í‹°ì–´ -> ì†ì„± -> ì´ë¦„ (ê°™ì€ ê³„ì—´ì´ ëª¨ì´ê²Œ)
         List<KeyValuePair<string, int>> owned = new List<KeyValuePair<string, int>>();
         foreach (KeyValuePair<string, int> kv in FoodStock.Instance.AllStock)
         {
@@ -217,7 +263,7 @@ public class GameHUD : MonoBehaviour
             return string.CompareOrdinal(ra.displayName, rb.displayName);
         });
 
-        // 2ÁÙ ±×¸®µå ¹èÄ¡ (¼¼·Î ¸ÕÀú Ã¤¿ì°í ¿À¸¥ÂÊÀ¸·Î)
+        // 2ì¤„ ê·¸ë¦¬ë“œ ë°°ì¹˜ (ì„¸ë¡œ ë¨¼ì € ì±„ìš°ê³  ì˜¤ë¥¸ìª½ìœ¼ë¡œ)
         for (int i = 0; i < owned.Count; i++)
         {
             int col = i / 2;
@@ -227,17 +273,22 @@ public class GameHUD : MonoBehaviour
             foodCards.Add(card);
         }
 
-        // ½ºÅ©·Ñ ³»¿ë¹° Æø °»½Å
+        // ìŠ¤í¬ë¡¤ ë‚´ìš©ë¬¼ í­ ê°±ì‹  (ì„¸ë¡œëŠ” BuildUI ì—ì„œ ì •í•œ ìœ„ì•„ë˜ ì—¬ë°± ìœ ì§€)
         int cols = (owned.Count + 1) / 2;
-        foodListRoot.sizeDelta = new Vector2(cols * (CARD_W + CARD_GAP) + 4f, 0f);
+        foodListRoot.sizeDelta = new Vector2(cols * (CARD_W + CARD_GAP) + 4f, foodListRoot.sizeDelta.y);
     }
 
     private GameObject CreateFoodCard(RecipeData r, int count, int col, int row)
     {
         string id = r.recipeId;
+        bool skin = UISkin.Available;
+        Color tagC = UIFactory.TagColor(r.tag);
 
-        // Ä«µå (T2´Â ÇÎÅ© Å×µÎ¸®)
-        Color border = r.tier == 2 ? UIFactory.T2PINK : UIFactory.COPPER;
+        // ì¹´ë“œ í…Œ ìƒ‰: ì„ íƒ ì¤‘ = í™©ë™, T2 = í•‘í¬, ê·¸ ì™¸ = ê³„ì—´ìƒ‰ (ìŠ¤í‚¨) / êµ¬ë¦¬ (ë‹¨ìƒ‰)
+        Color border = (placingRecipeId == id) ? UIFactory.GOLD
+            : r.tier == 2 ? UIFactory.T2PINK
+            : skin ? tagC : UIFactory.COPPER;
+
         GameObject cardGo = new GameObject("Food_" + id);
         RectTransform rt = cardGo.AddComponent<RectTransform>();
         rt.SetParent(foodListRoot, false);
@@ -248,30 +299,33 @@ public class GameHUD : MonoBehaviour
         rt.sizeDelta = new Vector2(CARD_W, CARD_H);
 
         Image borderImg = cardGo.AddComponent<Image>();
-        borderImg.color = (placingRecipeId == id) ? UIFactory.GOLD : border;
+        borderImg.color = border;
+        if (skin) UISkin.Ring(borderImg, border);
 
         Button btn = cardGo.AddComponent<Button>();
         btn.onClick.AddListener(delegate { OnFoodCardClicked(id); });
 
-        // ³»ºÎ ¹è°æ (°è¿­»ö ¾îµÓ°Ô)
+        // ë‚´ë¶€ ë°°ê²½ (ìŠ¤í‚¨: ë¬´ì‡  í‰íŒ / ë‹¨ìƒ‰: ê³„ì—´ìƒ‰ ì–´ë‘¡ê²Œ)
         GameObject bg = new GameObject("BG");
         RectTransform bgRt = bg.AddComponent<RectTransform>();
         bgRt.SetParent(rt, false);
         bgRt.anchorMin = Vector2.zero;
         bgRt.anchorMax = Vector2.one;
-        bgRt.offsetMin = new Vector2(2f, 2f);
-        bgRt.offsetMax = new Vector2(-2f, -2f);
-        Color tagC = UIFactory.TagColor(r.tag);
-        bg.AddComponent<Image>().color = new Color(tagC.r * 0.28f, tagC.g * 0.28f, tagC.b * 0.28f, 0.95f);
-        bg.GetComponent<Image>().raycastTarget = false;
+        float pad = skin ? 8f : 2f;
+        bgRt.offsetMin = new Vector2(pad, pad);
+        bgRt.offsetMax = new Vector2(-pad, -pad);
+        Image bgImg = bg.AddComponent<Image>();
+        bgImg.color = new Color(tagC.r * 0.28f, tagC.g * 0.28f, tagC.b * 0.28f, 0.95f);
+        bgImg.raycastTarget = false;
+        if (skin) UISkin.Plate(bgImg, Color.white);
 
-        // ÀÌ¸§
+        // ì´ë¦„
         Text nameText = UIFactory.CreateText(bgRt, "Name", r.displayName, 14, UIFactory.CREAM, TextAnchor.UpperCenter);
         nameText.rectTransform.offsetMin = new Vector2(2f, 18f);
         nameText.rectTransform.offsetMax = new Vector2(-2f, -3f);
         nameText.horizontalOverflow = HorizontalWrapMode.Wrap;
 
-        // ÇÏ´Ü: Æ¼¾î + ¼ö·®
+        // í•˜ë‹¨: í‹°ì–´ + ìˆ˜ëŸ‰
         string bottomStr = (r.tier == 2 ? "T2  " : "") + "x" + count;
         Text cntText = UIFactory.CreateText(bgRt, "Count", bottomStr, 14,
             r.tier == 2 ? UIFactory.T2PINK : UIFactory.GOLD, TextAnchor.LowerCenter);
@@ -281,12 +335,12 @@ public class GameHUD : MonoBehaviour
         return cardGo;
     }
 
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
-    // ÅõÀÔ ¸ğµå
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // íˆ¬ì… ëª¨ë“œ
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     private void OnFoodCardClicked(string recipeId)
     {
-        // °°Àº Ä«µå ´Ù½Ã Å¬¸¯ = Ãë¼Ò
+        // ê°™ì€ ì¹´ë“œ ë‹¤ì‹œ í´ë¦­ = ì·¨ì†Œ
         SetPlacing(placingRecipeId == recipeId ? "" : recipeId);
     }
 
@@ -302,13 +356,13 @@ public class GameHUD : MonoBehaviour
             if (on)
             {
                 RecipeData r = RecipeDatabase.Get(recipeId);
-                placingBanner.text = r.displayName + " - ½½·ÔÀ» °ñ¶ó¼­ Å¬¸¯ (¿ìÅ¬¸¯ Ãë¼Ò)";
+                placingBanner.text = r.displayName + " - ìŠ¬ë¡¯ì„ ê³¨ë¼ì„œ í´ë¦­ (ìš°í´ë¦­ ì·¨ì†Œ)";
             }
         }
-        RebuildFoodList(); // ¼±ÅÃ Å×µÎ¸® °»½Å
+        RebuildFoodList(); // ì„ íƒ í…Œë‘ë¦¬ ê°±ì‹ 
     }
 
-    /// <summary>½½·Ô ¸¶Ä¿¸¦ Å¬¸¯ÇßÀ» ¶§ È£Ãâ (SlotMarkerUI¿¡¼­)</summary>
+    /// <summary>ìŠ¬ë¡¯ ë§ˆì»¤ë¥¼ í´ë¦­í–ˆì„ ë•Œ í˜¸ì¶œ (SlotMarkerUIì—ì„œ)</summary>
     public void OnSlotClicked(TurretSlot slot)
     {
         if (string.IsNullOrEmpty(placingRecipeId)) return;
@@ -316,13 +370,13 @@ public class GameHUD : MonoBehaviour
         if (slot.TryInsertFood(placingRecipeId))
         {
             FoodStock.Instance.TryConsume(placingRecipeId, 1);
-            // Àç°í ÀüºÎ ¼ÒÁøµÇ¸é ¸ğµå ÇØÁ¦
+            // ì¬ê³  ì „ë¶€ ì†Œì§„ë˜ë©´ ëª¨ë“œ í•´ì œ
             if (FoodStock.Instance.Get(placingRecipeId) <= 0)
                 SetPlacing("");
         }
         else
         {
-            Debug.Log("[GameHUD] ÀÌ ½½·Ô¿¡ ÅõÀÔ ºÒ°¡ (Àá±İ ¶Ç´Â ´Ù¸¥ ¿ä¸® Á¸Àç)");
+            Debug.Log("[GameHUD] ì´ ìŠ¬ë¡¯ì— íˆ¬ì… ë¶ˆê°€ (ì ê¸ˆ ë˜ëŠ” ë‹¤ë¥¸ ìš”ë¦¬ ì¡´ì¬)");
         }
     }
 }

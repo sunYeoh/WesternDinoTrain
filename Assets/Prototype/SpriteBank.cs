@@ -2,7 +2,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// [SpriteBank.cs] v1 (신규 파일) - 고퀄 스프라이트 PNG 로더 (2026-09-03, 목업 v7d 컨펌)
+/// [SpriteBank.cs] v1.1 - 고퀄 스프라이트 PNG 로더 (2026-09-03, 목업 v7d 컨펌)
+///   v1.1 (2026-09-07): UI 스킨 ui_*.png 는 PPU 100 이 정상이라 '재임포트' 경고에서 제외
 ///
 /// Assets/Resources/Sprites/WDT/ 폴더의 PNG를 이름으로 꺼내 쓴다. 한 번 읽으면 캐시.
 ///   예) SpriteBank.Get("head") -> Resources/Sprites/WDT/head.png
@@ -32,7 +33,7 @@ public static class SpriteBank
         cache[name] = s;   // null도 캐시 (매 프레임 Resources.Load 반복 방지)
 
         // 임포트 설정이 안 잡힌 채(유니티 기본 100px/유닛, 중앙 피벗) 들어오면 크기/위치가 다 틀어진다 - 한 번만 경고
-        if (s != null && !loggedBadImport && Mathf.Abs(s.pixelsPerUnit - 100f) < 0.5f)
+        if (s != null && !loggedBadImport && !name.StartsWith("ui_") && Mathf.Abs(s.pixelsPerUnit - 100f) < 0.5f)
         {
             loggedBadImport = true;
             Debug.LogWarning("[SpriteBank] '" + name + "' 의 Pixels Per Unit이 100 = 임포트 설정 미적용. 메뉴 WDT > 스프라이트 재임포트 를 한 번 실행해라");
