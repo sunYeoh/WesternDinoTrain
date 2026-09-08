@@ -2,8 +2,10 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// [TrainDeck.cs] v4 - 고퀄 스프라이트 PNG 적용 (목업 v7d 컨펌 2026-09-03) / v3 탑뷰 재스킨 (2026-09-02)
+/// [TrainDeck.cs] v5.1 - 고퀄 스프라이트 PNG 적용 (목업 v7d 컨펌 2026-09-03) / v3 탑뷰 재스킨 (2026-09-02)
 ///
+/// - v5.1 (2026-09-08): 셰프 보행 영역 API (IsWalkable / ResolveWalk) - 칸 바닥(난간 안쪽) + 칸 사이 통로 발판만 걸을 수 있다.
+///   ChefController v5 가 매 프레임 ResolveWalk 로 이동을 잘라낸다. 데크 지오메트리(칸 경계/통로)는 이 파일이 단일 소스
 /// - v5 (2026-09-07): 칸 사이 통로 gangway PNG 배치 (edges[1..3], y=0, SORT_DETAIL). 포탑칸 PNG는 개방형(내부 바닥)으로 교체됨 - 코드 좌표 무변경
 /// - v4: Resources/Sprites/WDT/ 의 PNG(car0/car1/car2/head/tail/chimney)를 SpriteBank로 읽어 쓴다.
 ///   PNG가 없으면 v3 코드 도트(PixelPainter)로 자동 폴백. 꼬리(tail)는 PNG가 있을 때만 붙는다.
@@ -46,6 +48,61 @@ public class TrainDeck : MonoBehaviour
 
     private static Sprite whiteSprite;   // 1x1 (다른 파일 공용)
     private static Sprite circleSprite;  // 원 (다른 파일 공용)
+
+    // ─────────────────────────────────────────────
+    // v5.1: 셰프 보행 영역 - 칸 바닥(난간 안쪽) + 칸 사이 통로 발판
+    //   칸 바닥 x = [경계 + FLOOR_INSET_X, 다음 경계 - FLOOR_INSET_X]
+    //     (칸 몸체 여백 0.12 + 지붕 테두리/금 난간 0.45 = 0.57. car1/car2 PNG 의 바닥 홈이 시작되는 자리)
+    //   칸 사이(난간 - 통로 발판 - 난간)는 |y| <= GANGWAY_HALF_Y 에서만 건널 수 있다 (gangway.png 발판 높이 ±0.5)
+    //   세로 범위는 GameBalance.TrainWalkMinY/MaxY 그대로 (조리대 E / 갑판 전리품 줍기 거리를 바꾸지 않는다)
+    // ─────────────────────────────────────────────
+    public const float FLOOR_INSET_X = 0.57f;
+    public const float GANGWAY_HALF_Y = 0.5f;
+
+    /// <summary>x 가 어떤 칸의 바닥(난간 안쪽) 위인지. 칸 사이(통로 구간)면 -1</summary>
+    public static int FloorCarAt(float x)
+    {
+        float[] e = GameBalance.CarEdgesX;
+        for (int car = 0; car < e.Length - 1; car++)
+            if (x >= e[car] + FLOOR_INSET_X && x <= e[car + 1] - FLOOR_INSET_X) return car;
+        return -1;
+    }
+
+    /// <summary>(x, y)에 서 있을 수 있는가 - 칸 바닥이거나, 통로 높이 안의 칸 사이</summary>
+    public static bool IsWalkable(float x, float y)
+    {
+        float[] e = GameBalance.CarEdgesX;
+        if (x < e[0] + FLOOR_INSET_X || x > e[e.Length - 1] - FLOOR_INSET_X) return false;
+        if (y < GameBalance.TrainWalkMinY || y > GameBalance.TrainWalkMaxY) return false;
+        if (FloorCarAt(x) >= 0) return true;
+        return Mathf.Abs(y) <= GANGWAY_HALF_Y;
+    }
+
+    /// <summary>
+    /// from 에서 to 로 가려는 이동을 벽에 맞춰 잘라낸다 (가로/세로를 나눠 처리 - 벽에 붙으면 벽을 따라 미끄러진다).
+    /// ChefController 가 매 프레임 호출. 대시처럼 한 프레임에 크게 움직여도 범위 클램프라 벽을 뚫지 않는다
+    /// </summary>
+    public static Vector2 ResolveWalk(Vector2 from, Vector2 to)
+    {
+        float[] e = GameBalance.CarEdgesX;
+        Vector2 p = from;
+
+        // 1) 가로: 통로 높이 안이면 기차 전체(바닥~통로~바닥), 아니면 지금 서 있는 칸 바닥 안에서만
+        float xMin = e[0] + FLOOR_INSET_X, xMax = e[e.Length - 1] - FLOOR_INSET_X;
+        if (Mathf.Abs(p.y) > GANGWAY_HALF_Y)
+        {
+            int car = FloorCarAt(p.x);
+            if (car < 0) car = GameBalance.CarIndexOf(p.x);   // 칸 사이인데 통로 높이 밖 (씬 초기 배치 등) - 가까운 칸 바닥으로 끌어온다
+            xMin = e[car] + FLOOR_INSET_X; xMax = e[car + 1] - FLOOR_INSET_X;
+        }
+        p.x = Mathf.Clamp(to.x, xMin, xMax);
+
+        // 2) 세로: 칸 바닥 위면 전체 높이, 칸 사이면 통로 발판 높이
+        float yMin = GameBalance.TrainWalkMinY, yMax = GameBalance.TrainWalkMaxY;
+        if (FloorCarAt(p.x) < 0) { yMin = -GANGWAY_HALF_Y; yMax = GANGWAY_HALF_Y; }
+        p.y = Mathf.Clamp(to.y, yMin, yMax);
+        return p;
+    }
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void Bootstrap()
@@ -188,7 +245,7 @@ public class TrainDeck : MonoBehaviour
             PixelPainter.Attach(transform, "TRexTail", tailSprite,
                 new Vector3(edges[edges.Length - 1] - 0.1f, 0f, 0f), SORT_TRIM);
 
-        Debug.Log("[TrainDeck] 4칸 데크 생성 완료 - v5 (경계 " + edges[0] + " ~ " + edges[edges.Length - 1] + ", 통로 " + (SpriteBank.Has("gangway") ? "PNG" : "없음") + ")");
+        Debug.Log("[TrainDeck] 4칸 데크 생성 완료 - v5.1 (경계 " + edges[0] + " ~ " + edges[edges.Length - 1] + ", 통로 " + (SpriteBank.Has("gangway") ? "PNG" : "없음") + ")");
     }
 
     // ─────────────────────────────────────────────

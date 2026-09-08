@@ -4,9 +4,14 @@ using UnityEngine;
 using UnityEngine.Events;
 
 /// <summary>
-/// [ChefController.cs] v4 (B-1: 셰프의 몸 - 방향결정 2026-08-31)
+/// [ChefController.cs] v5 (통로 보행 2026-09-08) / v4 (B-1: 셰프의 몸 - 방향결정 2026-08-31)
 /// 셰프 이동 + 도구 내구도 + 전투 연동(피격 연출/조리 디버프)을 담당합니다.
 ///
+/// - v5 변경점 (통로로 칸 건너기):
+///   활동 범위가 "기차 전체 사각형"에서 "칸 바닥 + 칸 사이 통로 발판"으로 바뀐다.
+///   칸 안에서는 예전처럼 자유롭게 걷고, 옆 칸으로 갈 때는 통로 높이(y -0.5~0.5)로 내려와 발판을 건너야 한다.
+///   벽에 부딪히면 벽을 따라 미끄러진다 (가로/세로 분리 판정). 판정은 TrainDeck.ResolveWalk (데크 지오메트리 단일 소스).
+///   TrainDeck.cs v5.1 이상 필요. 이동 속도/대시/세로 범위 수치는 GameBalance 그대로
 /// - v4 변경점 (B-1 이동감):
 ///   1) 이동 속도/활동 범위를 GameBalance로 이관 (Inspector 값은 Start에서 덮어씀)
 ///   2) 가감속 곡선 - 즉발 속도 대신 짧은 가속/감속 (달리는 몸의 무게감)
@@ -15,7 +20,7 @@ using UnityEngine.Events;
 ///   5) InteractConsumedFrame - 근접 [E]의 이중 소비 방지 (해빙 vs 조리대)
 ///
 /// 남은 역할:
-///   1) 셰프 WASD 이동 (활동 범위 제한 - B-2에서 트레일러로 확장)
+///   1) 셰프 WASD 이동 (활동 범위 = 칸 바닥 + 통로, TrainDeck 이 판정)
 ///   2) 도구 내구도 (칼/팬) - 조리할 때마다 마모, 정비소에서 수리
 ///   3) 피격 연출(OnTrainHit) / 독침 프테라 조리 디버프
 ///
@@ -116,8 +121,8 @@ public class ChefController : MonoBehaviour
         kitchenMinY = GameBalance.TrainWalkMinY;
         kitchenMaxY = GameBalance.TrainWalkMaxY;
 
-        Debug.Log("[ChefController] 초기화 완료 (v4 - 속도 " + moveSpeed
-            + ", 범위 X " + kitchenMinX + "~" + kitchenMaxX + ")");
+        Debug.Log("[ChefController] 초기화 완료 (v5 - 속도 " + moveSpeed
+            + ", 범위 X " + kitchenMinX + "~" + kitchenMaxX + ", 칸 사이는 통로(|y| <= " + TrainDeck.GANGWAY_HALF_Y + ")로만)");
     }
 
     // ─────────────────────────────────────────────
@@ -176,10 +181,15 @@ public class ChefController : MonoBehaviour
             currentVel = Vector2.MoveTowards(currentVel, targetVel, rate * dt);
         }
 
-        Vector3 newPos = transform.position + (Vector3)(currentVel * dt);
-        newPos.x = Mathf.Clamp(newPos.x, kitchenMinX, kitchenMaxX);
-        newPos.y = Mathf.Clamp(newPos.y, kitchenMinY, kitchenMaxY);
-        transform.position = newPos;
+        // v5: 칸 바닥 + 통로 발판 안으로 잘라낸다 (벽에 닿으면 미끄러짐). 세로 한계는 예전 값 그대로
+        Vector2 wanted = (Vector2)transform.position + currentVel * dt;
+        wanted.y = Mathf.Clamp(wanted.y, kitchenMinY, kitchenMaxY);
+        Vector2 resolved = TrainDeck.ResolveWalk(transform.position, wanted);
+        transform.position = new Vector3(resolved.x, resolved.y, transform.position.z);
+
+        // 벽에 막힌 축은 관성도 끊는다 (벽에 붙어 미는 동안 속도가 쌓여 있다가 튀어나가는 것 방지)
+        if (Mathf.Abs(resolved.x - wanted.x) > 0.0001f) currentVel.x = 0f;
+        if (Mathf.Abs(resolved.y - wanted.y) > 0.0001f) currentVel.y = 0f;
 
         // ── 발소리 (이동 중 0.28초 간격, 클립 없으면 무시) ──
         if (currentVel.sqrMagnitude > 0.25f && Time.time >= nextStepSoundTime)
@@ -310,15 +320,22 @@ public class ChefController : MonoBehaviour
         }
     }
 
+    /// <summary>에디터 기즈모: 칸 바닥(노랑) + 칸 사이 통로 발판(초록)</summary>
     private void OnDrawGizmosSelected()
     {
-        Gizmos.color = Color.yellow;
-        Vector3 center = new Vector3(
-            (kitchenMinX + kitchenMaxX) * 0.5f,
-            (kitchenMinY + kitchenMaxY) * 0.5f, 0f);
-        Vector3 size = new Vector3(
-            kitchenMaxX - kitchenMinX,
-            kitchenMaxY - kitchenMinY, 0f);
-        Gizmos.DrawWireCube(center, size);
+        float[] e = GameBalance.CarEdgesX;
+        float minY = GameBalance.TrainWalkMinY, maxY = GameBalance.TrainWalkMaxY;
+        for (int car = 0; car < e.Length - 1; car++)
+        {
+            float l = e[car] + TrainDeck.FLOOR_INSET_X, r = e[car + 1] - TrainDeck.FLOOR_INSET_X;
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawWireCube(new Vector3((l + r) * 0.5f, (minY + maxY) * 0.5f, 0f), new Vector3(r - l, maxY - minY, 0f));
+            if (car < e.Length - 2)
+            {
+                Gizmos.color = Color.green;
+                Gizmos.DrawWireCube(new Vector3(e[car + 1], 0f, 0f),
+                    new Vector3(TrainDeck.FLOOR_INSET_X * 2f, TrainDeck.GANGWAY_HALF_Y * 2f, 0f));
+            }
+        }
     }
 }

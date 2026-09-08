@@ -3,12 +3,19 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// [ChefVisual.cs] v2 - 셰프 스프라이트 애니메이션 (2026-09-07, 유저 제작 도트 8장 대응)
+/// [ChefVisual.cs] v2.1 - 셰프 스프라이트 애니메이션 (2026-09-07, 유저 제작 도트 8장 대응)
+///
+/// - v2.1 (2026-09-08) 이동 모션 수정: "한쪽으로 가는데 스프라이트가 와리가리 친다"
+///     원인 1) run0(몸 왼쪽으로 기울임) <-> run1(오른쪽) 두 극단 포즈만 7fps 로 번갈아 보여서 좌우로 흔들리는 걸음이 됐다
+///            -> RPG 식 4박자 걸음으로: run0 -> idle -> run1 -> idle (중립 자세를 사이에 끼운다). 프레임 속도 7 -> 9
+///     원인 2) 대각선/벽 밀기 때 가로·세로 크기가 엇비슷하면 매 프레임 남향<->동향이 뒤집힘
+///            -> 방향 히스테리시스: 지금 축보다 다른 축이 1.25배 이상 커야 방향을 바꾼다
 ///
 /// 씬의 "Chef" 오브젝트에 자동으로 붙어서 Resources/Sprites/WDT/ 의 셰프 PNG로 걷기/대시를 그린다.
 ///   파일 규약: hero_{s|n|e}_{idle|run0|run1|...}.png  (서향은 동향을 좌우 반전)
 ///   - 방향별 달리기 프레임 수를 자동 감지한다 (run0부터 번호가 이어지는 만큼). 예: s/n = run0~run1, e = run0
-///     · 2장 이상: run0 -> run1 -> ... 순환
+///     · 2장:      run0 -> idle -> run1 -> idle (4박자 걸음, 중립 사이 끼움)
+///     · 3장 이상: run0 -> run1 -> run2 ... 순환 (제대로 그린 걷기 시트)
 ///     · 1장뿐:    run0 <-> idle 교대 (동향처럼 걷기 프레임이 한 장인 경우)
 ///     · 0장:      idle 고정
 ///   - 대시: 전용 프레임 없이 달리기 순환을 1.8배 속도로 + 잔상(고스트) 스프라이트를 흘린다
@@ -23,7 +30,8 @@ using UnityEngine.SceneManagement;
 public class ChefVisual : MonoBehaviour
 {
     private const float SPRITE_Y_OFFSET = -0.35f;  // 피벗이 발밑이라 오브젝트 중심보다 살짝 아래에 발을 둔다 (걷기 범위 y -1.5~1.5 -> 발 -1.85~1.15)
-    private const float RUN_FPS = 7f;               // 달리기 프레임 속도 (2프레임 순환 기준)
+    private const float RUN_FPS = 9f;               // 달리기 프레임 속도 (4박자 걸음 기준: 9fps = 한 걸음 0.22초, 4.2유닛/초면 걸음당 0.93유닛)
+    private const float DIR_HYSTERESIS = 1.25f;     // 방향 축 전환 문턱 (다른 축이 이 배수 이상 커야 남/북 <-> 동/서 전환)
     private const float DASH_FPS_MUL = 1.8f;        // 대시 중 프레임 속도 배율
     private const float MOVE_EPS = 0.6f;            // 이 속도(유닛/초) 이상이면 "이동 중"
     private const int SORT_ORDER = 6;               // 포탑 돔(-1)/적(5) 위, 전리품(58)/팝업(60) 아래
@@ -128,6 +136,7 @@ public class ChefVisual : MonoBehaviour
         string idle = prefix + d + "_idle";
         if (frames.Count == 0) return new string[] { idle };
         if (frames.Count == 1) return new string[] { frames[0], idle };
+        if (frames.Count == 2) return new string[] { frames[0], idle, frames[1], idle };   // v2.1: 4박자 걸음 (왼발-중립-오른발-중립)
         return frames.ToArray();
     }
 
@@ -148,10 +157,15 @@ public class ChefVisual : MonoBehaviour
         bool dashing = speed > GameBalance.ChefMoveSpeed * 1.6f;   // 대시(12) vs 달리기(4.2) 사이
 
         // 방향: 가로가 더 크면 동/서, 아니면 남/북 (멈추면 마지막 방향 유지)
+        // v2.1: 축 전환에 문턱을 둔다 - 대각선/벽 밀기에서 매 프레임 뒤집히지 않게. 같은 축 안의 부호(동<->서, 남<->북)는 즉시 반영
         if (moving)
         {
-            if (Mathf.Abs(delta.x) >= Mathf.Abs(delta.y)) dir = delta.x >= 0f ? "e" : "w";
-            else dir = delta.y >= 0f ? "n" : "s";
+            float ax = Mathf.Abs(delta.x), ay = Mathf.Abs(delta.y);
+            bool horizontal = dir == "e" || dir == "w";
+            if (horizontal && ay > ax * DIR_HYSTERESIS) horizontal = false;
+            else if (!horizontal && ax > ay * DIR_HYSTERESIS) horizontal = true;
+            if (horizontal && ax > 0.0001f) dir = delta.x >= 0f ? "e" : "w";
+            else if (!horizontal && ay > 0.0001f) dir = delta.y >= 0f ? "n" : "s";
         }
 
         // 조리 중엔 조리대(남쪽 = 화면 아래)를 보고 선다
