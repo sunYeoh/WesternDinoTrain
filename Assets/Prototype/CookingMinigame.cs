@@ -2,7 +2,14 @@
 using UnityEngine.UI;
 
 /// <summary>
-/// [CookingMinigame.cs] v2.5
+/// [CookingMinigame.cs] v2.6
+/// - v2.6 변경점 (v9.5 조리 미니게임 픽셀 스킨 - 조리 목업 v1 컨펌본):
+///   UISkin + ui_mg_*.png 가 있을 때만 그림을 바꾼다. 판정/타이머/게이지 로직과 좌표 상수는 v2.5 그대로.
+///   굽기  = 석쇠 트랙(ui_mg_grate) + 판정 구간 틴트 조각(ui_mg_zone: Good 초록 / Perfect 황금) + 꼬치 커서 + 트랙 아래 불꽃 띠 + 우상단 라운드 고기 칩 3개
+///   볶기  = 화살표 칩 6개 (무쇠 평판 + 색 테 + 화살표 글리프 ui_mg_arrow_*: 완료 초록 / 현재 황금 / 대기 흐림) + 불꽃 띠 + 팬 엠블럼
+///   끓이기 = 유리관 압력 게이지(ui_gauge_bg 안에 채움 ui_gauge_fill + 안정존 ui_mg_zone) + "압력" 라벨 + 솥 엠블럼. 투입 버튼은 UIFactory 가 이미 무쇠 버튼(빨강)으로 입힌다
+///   제목  = 패널 위 테에 걸린 황동 명판 (요리 이름이 바뀌면 UISkin.Relabel 로 폭도 다시 잡는다)
+///   불꽃 3프레임은 Update 에서 0.11초마다 돌린다. 스킨이 없으면(PNG 미복사 / UISkin.ENABLED=false) v2.5 단색 박스 그대로
 /// - v2.5 변경점 (P1 감사 1-A/2-C):
 ///   1) 지역 기반 난이도: 지역 2부터 커서/시간 압박 +12%, 지역 3부터 +25% + 판정 존 -10%
 ///      (수치는 GameBalance.CookRegionSpeedUp / CookRegionJudgeShrink)
@@ -107,6 +114,11 @@ public class CookingMinigame : MonoBehaviour
     private Text judgeText;           // PERFECT!/Good/Miss 팝업
     private float judgeTimer;
 
+    // 조리법별 묶음 (표시 전환용 투명 컨테이너 - 좌표계는 패널과 동일)
+    private RectTransform grillRoot;
+    private RectTransform sauteRoot;
+    private RectTransform boilRoot;
+
     // 굽기 UI
     private RectTransform grillTrack;
     private RectTransform grillGoodZone;
@@ -119,13 +131,38 @@ public class CookingMinigame : MonoBehaviour
 
     // 끓이기 UI
     private RectTransform boilTrack;
+    private RectTransform boilInner;      // Fill/Zone 의 부모 (스킨 = 유리관 안쪽 52x150, 스킨 없음 = boilTrack 자신)
     private RectTransform boilZoneRect;
     private RectTransform boilFillRect;
     private Button promptButton;
+    private float boilBarW = 56f;         // 채움/안정존 폭 (v2.5 값. 스킨이면 유리관 안폭 52)
 
     // v2.3: UI 개선 - 조리 중에도 전장이 보이도록 패널 축소 (사용자 피드백)
     private const float TRACK_W = 380f;
     private const float BOIL_H = 150f;
+
+    // ── v2.6 픽셀 스킨 (UISkin + ui_mg_*.png 가 전부 있을 때만) ──
+    private bool skin;
+    private static readonly string[] ARROW_PNG = { "l", "r", "u", "d" };          // sauteSeq 값 순서 = ui_mg_arrow_{l,r,u,d}
+    private static readonly string[] SKIN_PNGS =                                   // 스킨을 켜는 데 필요한 그림 전부
+    {
+        "ui_mg_grate", "ui_mg_zone", "ui_mg_cursor", "ui_mg_arrow_l", "ui_mg_arrow_r", "ui_mg_arrow_u", "ui_mg_arrow_d",
+        "ui_mg_flame_0", "ui_mg_flame_1", "ui_mg_flame_2", "ui_mg_pot", "ui_mg_pan", "ui_mg_meat", "ui_gauge_bg", "ui_gauge_fill",
+    };
+    private static readonly Color ZONE_GOOD = new Color(0.43f, 0.78f, 0.43f, 0.67f);   // 판정 구간 초록 (목업 (110,200,110) a170)
+    private static readonly Color FILL_CYAN = new Color(0.43f, 0.78f, 0.79f, 1f);      // 압력 게이지 채움
+    private const float FLAME_FPS = 9f;                                            // 불꽃 프레임 전환 속도
+    private const int FLAME_COUNT = 10;                                            // 띠 하나의 불꽃 수 (32px, 34px 간격)
+    private RectTransform titlePlate;                                              // 황동 명판 (titleText 대신)
+    private Sprite[] flameFrames = new Sprite[3];
+    private Image[] grillFlames;                                                   // 트랙 아래 불꽃 띠
+    private Image[] sauteFlames;                                                   // 화살표 칩 아래 불꽃 띠
+    private Image[] grillChips = new Image[3];                                     // 라운드 고기 칩 (완료 황금 / 진행 크림 / 대기 흐림)
+    private Image[] arrowImgs = new Image[6];                                      // 화살표 글리프 (arrowTexts 대신 보이는 것)
+    private Image[] arrowRings = new Image[6];                                     // 칩 테 (색 = 화살표 상태색)
+    private Sprite[] arrowSprites = new Sprite[4];
+    private float flameTimer;
+    private int flameFrame;
 
     void Awake()
     {
@@ -223,21 +260,21 @@ public class CookingMinigame : MonoBehaviour
 
         if (method == 0)
         {
-            titleText.text = "굽기  -  " + foodName;
+            SetTitle("굽기  -  " + foodName);
             grillRound = 0; grillScore = 0;
             grillBar = 0f; grillDir = 1f;
             grillSpeed = 55f / speedMul;   // 식칼 증강: 커서 감속
         }
         else if (method == 1)
         {
-            titleText.text = "볶기  -  " + foodName;
+            SetTitle("볶기  -  " + foodName);
             for (int i = 0; i < 6; i++) sauteSeq[i] = Random.Range(0, 4);
             sauteIdx = 0; sauteMiss = 0;
             sauteTimer = 6f * speedMul;    // 식칼 증강: 제한 시간 증가
         }
         else
         {
-            titleText.text = "끓이기  -  " + foodName;
+            SetTitle("끓이기  -  " + foodName);
             boilGauge = 50f; boilHold = false;
             boilTimer = 7f * speedMul;     // 식칼 증강: 제한 시간 증가
             boilInZone = 0f; boilTotal = 0f;
@@ -272,7 +309,7 @@ public class CookingMinigame : MonoBehaviour
             if (sauteIdx < 6 && shake > 0.3f)
             {
                 sauteSeq[sauteIdx] = Random.Range(0, 4);
-                arrowTexts[sauteIdx].text = ARROW_STR[sauteSeq[sauteIdx]];
+                SetArrowGlyph(sauteIdx, sauteSeq[sauteIdx]);
             }
         }
         else
@@ -289,6 +326,9 @@ public class CookingMinigame : MonoBehaviour
     void Update()
     {
         if (!running) return;
+
+        // v2.6: 불꽃 띠 애니메이션 (순수 연출 - 홀드 중에도 계속 탄다)
+        if (skin) AnimateFlames();
 
         // v2.2: 외부 홀드 (보스 낙뢰 패링 중) - 미니게임 진행/입력 일시 대기
         // 같은 키(Space)가 패링 판정에 쓰이도록 이 프레임의 조리 입력을 통째로 양보한다
@@ -358,6 +398,7 @@ public class CookingMinigame : MonoBehaviour
 
         grillScore += pts;
         grillRound++;
+        RefreshGrillChips();
 
         if (grillRound >= 3)
         {
@@ -395,7 +436,7 @@ public class CookingMinigame : MonoBehaviour
 
         if (input == sauteSeq[sauteIdx])
         {
-            arrowTexts[sauteIdx].color = new Color(0.6f, 0.85f, 0.54f); // 완료 초록
+            SetArrowColor(sauteIdx, new Color(0.6f, 0.85f, 0.54f)); // 완료 초록
             sauteIdx++;
             if (sauteIdx >= 6)
             {
@@ -416,8 +457,24 @@ public class CookingMinigame : MonoBehaviour
         for (int i = 0; i < 6; i++)
         {
             if (i < sauteIdx) continue; // 완료된 건 초록 유지
-            arrowTexts[i].color = (i == sauteIdx) ? UIFactory.GOLD : UIFactory.DIM;
+            SetArrowColor(i, (i == sauteIdx) ? UIFactory.GOLD : UIFactory.DIM);
         }
+    }
+
+    /// <summary>화살표 칸 i 에 방향 dir(0=좌 1=우 2=상 3=하) 표시 - 글자와 (스킨이면) 글리프 그림을 함께 바꾼다</summary>
+    private void SetArrowGlyph(int i, int dir)
+    {
+        arrowTexts[i].text = ARROW_STR[dir];
+        if (skin && arrowImgs[i] != null) arrowImgs[i].sprite = arrowSprites[dir];
+    }
+
+    /// <summary>화살표 칸 i 의 상태색 (완료 초록 / 현재 황금 / 대기 흐림) - 글자·글리프·칩 테에 같이 칠한다</summary>
+    private void SetArrowColor(int i, Color c)
+    {
+        arrowTexts[i].color = c;
+        if (!skin) return;
+        if (arrowImgs[i] != null) arrowImgs[i].color = c;
+        if (arrowRings[i] != null) arrowRings[i].color = c;
     }
 
     // ═════════════ 끓이기 ═════════════
@@ -462,10 +519,10 @@ public class CookingMinigame : MonoBehaviour
 
         // 게이지/존 렌더
         float fillH = BOIL_H * (boilGauge / 100f);
-        boilFillRect.sizeDelta = new Vector2(56f, fillH);
+        boilFillRect.sizeDelta = new Vector2(boilBarW, fillH);
         float zoneH = BOIL_H * (boilZoneHalf * 2f / 100f);
         float zoneY = BOIL_H * ((boilZoneCenter - boilZoneHalf) / 100f);
-        boilZoneRect.sizeDelta = new Vector2(56f, zoneH);
+        boilZoneRect.sizeDelta = new Vector2(boilBarW, zoneH);
         boilZoneRect.anchoredPosition = new Vector2(0f, zoneY);
 
         float ratio = boilInZone / Mathf.Max(0.1f, boilTotal);
@@ -542,6 +599,13 @@ public class CookingMinigame : MonoBehaviour
         else if (text.StartsWith("실패") || text.StartsWith("꽝")) SoundManager.Play("sfx_judge_bad");
     }
 
+    /// <summary>제목 - 스킨이면 황동 명판 글자(폭 자동), 아니면 v2.5 제목 텍스트</summary>
+    private void SetTitle(string title)
+    {
+        titleText.text = title;
+        if (skin) UISkin.Relabel(titlePlate, title, 16);
+    }
+
     // ─────────────────────────────────────────
     // UI 구성 (1회)
     // ─────────────────────────────────────────
@@ -549,8 +613,23 @@ public class CookingMinigame : MonoBehaviour
     {
         canvas = UIFactory.CreateCanvas("Minigame_Canvas", 30); // 주방 패널보다 위
 
+        // v2.6: 스킨 가용성 - UISkin 스프라이트 + 미니게임 조각(ui_mg_*) 13장 + 게이지 조각이 전부 있어야 한다. 하나라도 없으면 v2.5 박스
+        //       (스프라이트가 null 인 Image 는 흰 사각형으로 그려지므로 일부만 있는 상태로 스킨을 켜지 않는다)
+        skin = UISkin.Available;
+        string missing = null;
+        for (int i = 0; i < SKIN_PNGS.Length; i++)
+            if (!SpriteBank.Has(SKIN_PNGS[i])) { missing = SKIN_PNGS[i]; skin = false; break; }
+        if (UISkin.Available && !skin)
+            Debug.LogWarning("[CookingMinigame] " + missing + ".png 가 빠져 조리 미니게임은 단색 박스로 표시 (Resources/Sprites/WDT 확인)");
+        if (skin)
+        {
+            for (int i = 0; i < 3; i++) flameFrames[i] = SpriteBank.Get("ui_mg_flame_" + i);
+            for (int i = 0; i < 4; i++) arrowSprites[i] = SpriteBank.Get("ui_mg_arrow_" + ARROW_PNG[i]);
+        }
+
         // v2.3: 좌하단 컴팩트 패널 (HUD 바로 위)
         // 화면 중앙(기차/전장)을 가리지 않아 조리 중에도 바깥 상황이 보인다
+        // (스킨이면 UIFactory 가 리벳 테 카드 + 무쇠 평판으로 만든다)
         panel = UIFactory.CreatePanel(canvas.transform, "MinigamePanel",
             new Vector2(0f, 0f), new Vector2(0f, 0f),
             new Vector2(12f, 192f), new Vector2(452f, 470f),
@@ -561,6 +640,12 @@ public class CookingMinigame : MonoBehaviour
         titleText.rectTransform.offsetMax = new Vector2(-10f, -14f);
         titleText.rectTransform.anchorMin = new Vector2(0f, 1f);
         titleText.rectTransform.anchorMax = new Vector2(1f, 1f);
+        if (skin)
+        {
+            // 제목은 패널 위 테에 걸린 황동 명판 (웨이브 명판과 같은 문법). 원래 제목 글자는 끈다
+            titleText.enabled = false;
+            titlePlate = UISkin.Nameplate(panel, "MinigameTitle", "", 16, new Vector2(0f, 1f), new Vector2(16f, 4f), 200f);
+        }
 
         infoText = UIFactory.CreateText(panel, "Info", "", 17, UIFactory.CREAM, TextAnchor.LowerCenter);
         infoText.rectTransform.anchorMin = new Vector2(0f, 0f);
@@ -574,28 +659,66 @@ public class CookingMinigame : MonoBehaviour
         judgeText.rectTransform.offsetMin = new Vector2(10f, -100f);
         judgeText.rectTransform.offsetMax = new Vector2(-10f, -62f);
 
+        // 조리법별 묶음 (투명 컨테이너 - 패널과 같은 좌표계라 v2.5 좌표 그대로)
+        grillRoot = MakeStretch(panel, "GrillRoot");
+        sauteRoot = MakeStretch(panel, "SauteRoot");
+        boilRoot = MakeStretch(panel, "BoilRoot");
+
         BuildGrillUI();
         BuildSauteUI();
         BuildBoilUI();
+
+        // 판정 팝업은 언제나 맨 위 (엠블럼/칩 위로)
+        judgeText.transform.SetAsLastSibling();
     }
 
     private void BuildGrillUI()
     {
         // 트랙
-        grillTrack = MakeRect(panel, "GrillTrack", new Vector2(TRACK_W, 40f), Vector2.zero);
-        grillTrack.gameObject.AddComponent<Image>().color = new Color(0f, 0f, 0f, 0.55f);
+        grillTrack = MakeRect(grillRoot, "GrillTrack", new Vector2(TRACK_W, 40f), Vector2.zero);
+        Image trackImg = grillTrack.gameObject.AddComponent<Image>();
+        trackImg.color = new Color(0f, 0f, 0f, 0.55f);
+        if (skin) SetSprite(trackImg, SpriteBank.Get("ui_mg_grate"), Image.Type.Simple, Color.white);   // 무쇠 석쇠 + 숯불 (380x40 원본 크기)
 
         // Good 존 (중앙 44% 기준 - 판정 증강 시 확대)
         grillGoodZone = MakeRect(grillTrack, "GoodZone", new Vector2(TRACK_W * 0.44f, 40f), Vector2.zero);
-        grillGoodZone.gameObject.AddComponent<Image>().color = new Color(0.6f, 0.85f, 0.54f, 0.45f);
+        Image goodImg = grillGoodZone.gameObject.AddComponent<Image>();
+        goodImg.color = new Color(0.6f, 0.85f, 0.54f, 0.45f);
+        if (skin) SetSprite(goodImg, SpriteBank.Get("ui_mg_zone"), Image.Type.Sliced, ZONE_GOOD);
 
         // Perfect 존 (중앙 12% 기준 - 판정 증강 시 확대)
         grillPerfectZone = MakeRect(grillTrack, "PerfectZone", new Vector2(TRACK_W * 0.12f, 40f), Vector2.zero);
-        grillPerfectZone.gameObject.AddComponent<Image>().color = new Color(0.894f, 0.663f, 0.216f, 0.85f);
+        Image perfImg = grillPerfectZone.gameObject.AddComponent<Image>();
+        perfImg.color = new Color(0.894f, 0.663f, 0.216f, 0.85f);
+        if (skin) SetSprite(perfImg, SpriteBank.Get("ui_mg_zone"), Image.Type.Sliced, new Color(UIFactory.GOLD.r, UIFactory.GOLD.g, UIFactory.GOLD.b, 0.92f));
+
+        // 불꽃 띠 (트랙 아래, 커서보다 먼저 만들어 커서가 위에 그려진다)
+        if (skin) grillFlames = MakeFlameRow(grillTrack, -34f);
 
         // 커서
         grillCursor = MakeRect(grillTrack, "Cursor", new Vector2(9f, 56f), Vector2.zero);
-        grillCursor.gameObject.AddComponent<Image>().color = Color.white;
+        Image cursorImg = grillCursor.gameObject.AddComponent<Image>();
+        cursorImg.color = Color.white;
+        if (skin)
+        {
+            // 황동 꼬치 + 고기 한 점 (12x56)
+            SetSprite(cursorImg, SpriteBank.Get("ui_mg_cursor"), Image.Type.Simple, Color.white);
+            grillCursor.sizeDelta = new Vector2(12f, 56f);
+        }
+
+        // 라운드 고기 칩 3개 + "라운드" 라벨 (패널 우상단)
+        if (skin)
+        {
+            Sprite meat = SpriteBank.Get("ui_mg_meat");
+            for (int i = 0; i < 3; i++)
+                grillChips[i] = MakeImage(grillRoot, "RoundChip_" + i, meat, new Vector2(1f, 1f),
+                    new Vector2(-76f + i * 22f, -32f), new Vector2(16f, 16f));
+            Text lbl = UIFactory.CreateText(grillRoot, "RoundLabel", "라운드", 13, UIFactory.DIM, TextAnchor.MiddleRight);
+            lbl.rectTransform.anchorMin = new Vector2(1f, 1f); lbl.rectTransform.anchorMax = new Vector2(1f, 1f);
+            lbl.rectTransform.pivot = new Vector2(1f, 1f);
+            lbl.rectTransform.anchoredPosition = new Vector2(-92f, -22f);
+            lbl.rectTransform.sizeDelta = new Vector2(80f, 20f);
+        }
     }
 
     private void BuildSauteUI()
@@ -603,35 +726,69 @@ public class CookingMinigame : MonoBehaviour
         for (int i = 0; i < 6; i++)
         {
             // v2.3: 축소 패널에 맞춰 화살표 슬롯 간격/크기 축소
-            RectTransform slot = MakeRect(panel, "Arrow_" + i, new Vector2(54f, 54f),
+            RectTransform slot = MakeRect(sauteRoot, "Arrow_" + i, new Vector2(54f, 54f),
                 new Vector2(-152f + i * 61f, 0f));
             Image bg = slot.gameObject.AddComponent<Image>();
             bg.color = new Color(0f, 0f, 0f, 0.45f);
 
             Text t = UIFactory.CreateText(slot, "T", "?", 34, UIFactory.DIM, TextAnchor.MiddleCenter);
             arrowTexts[i] = t;
+
+            if (skin)
+            {
+                // 칩 = 무쇠 평판 + 상태색 테 + 화살표 글리프 (글자는 끈다)
+                UISkin.Plate(bg, Color.white);
+                arrowRings[i] = UISkin.AddRing(slot, UIFactory.DIM);
+                arrowImgs[i] = MakeImage(slot, "Glyph", arrowSprites[0], new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(32f, 32f));
+                arrowImgs[i].color = UIFactory.DIM;
+                t.enabled = false;
+            }
+        }
+
+        if (skin)
+        {
+            sauteFlames = MakeFlameRow(sauteRoot, -52f);
+            MakeImage(sauteRoot, "PanEmblem", SpriteBank.Get("ui_mg_pan"), new Vector2(1f, 1f), new Vector2(-60f, -46f), new Vector2(80f, 44f));
         }
     }
 
     private void BuildBoilUI()
     {
         // 세로 트랙 (왼쪽으로 치우침)
-        boilTrack = MakeRect(panel, "BoilTrack", new Vector2(52f, BOIL_H), new Vector2(-110f, 4f));
-        boilTrack.gameObject.AddComponent<Image>().color = new Color(0f, 0f, 0f, 0.55f);
+        boilTrack = MakeRect(boilRoot, "BoilTrack", new Vector2(52f, BOIL_H), new Vector2(-110f, 4f));
+        Image trackImg = boilTrack.gameObject.AddComponent<Image>();
+        trackImg.color = new Color(0f, 0f, 0f, 0.55f);
+        boilInner = boilTrack;
+        if (skin)
+        {
+            // 유리관(황동 캡) 안에 52x150 논리 트랙을 그대로 넣는다 - 테 6px 만큼 바깥이 커진다 (Fill/Zone 좌표 계산은 v2.5 그대로)
+            SetSprite(trackImg, SpriteBank.Get("ui_gauge_bg"), Image.Type.Sliced, Color.white);
+            boilTrack.sizeDelta = new Vector2(52f + 12f, BOIL_H + 12f);
+            GameObject innerGo = new GameObject("Inner");
+            boilInner = innerGo.AddComponent<RectTransform>();
+            boilInner.SetParent(boilTrack, false);
+            boilInner.anchorMin = new Vector2(0.5f, 0f);
+            boilInner.anchorMax = new Vector2(0.5f, 0f);
+            boilInner.pivot = new Vector2(0.5f, 0f);
+            boilInner.anchoredPosition = new Vector2(0f, 6f);
+            boilInner.sizeDelta = new Vector2(52f, BOIL_H);
+            boilBarW = 52f;
+        }
 
         // 안정존 (하단 기준 배치)
         GameObject zoneGo = new GameObject("Zone");
         boilZoneRect = zoneGo.AddComponent<RectTransform>();
-        boilZoneRect.SetParent(boilTrack, false);
+        boilZoneRect.SetParent(boilInner, false);
         boilZoneRect.anchorMin = new Vector2(0.5f, 0f);
         boilZoneRect.anchorMax = new Vector2(0.5f, 0f);
         boilZoneRect.pivot = new Vector2(0.5f, 0f);
-        zoneGo.AddComponent<Image>().color = new Color(0.6f, 0.85f, 0.54f, 0.5f);
+        Image zoneImg = zoneGo.AddComponent<Image>();
+        zoneImg.color = new Color(0.6f, 0.85f, 0.54f, 0.5f);
 
         // 게이지 채움 (하단 기준)
         GameObject fillGo = new GameObject("Fill");
         boilFillRect = fillGo.AddComponent<RectTransform>();
-        boilFillRect.SetParent(boilTrack, false);
+        boilFillRect.SetParent(boilInner, false);
         boilFillRect.anchorMin = new Vector2(0.5f, 0f);
         boilFillRect.anchorMax = new Vector2(0.5f, 0f);
         boilFillRect.pivot = new Vector2(0.5f, 0f);
@@ -639,8 +796,22 @@ public class CookingMinigame : MonoBehaviour
         Image fillImg = fillGo.AddComponent<Image>();
         fillImg.color = new Color(0.43f, 0.78f, 0.79f, 0.8f);
 
-        // 재료 투입 버튼 (오른쪽, 평소 숨김)
-        promptButton = UIFactory.CreateButton(panel, "PromptBtn", "재료 투입!\n(클릭)",
+        if (skin)
+        {
+            // 채움 = 청록 유리관 액체, 안정존 = 초록 판정 조각을 채움 위에 (채움이 가려도 존이 보이게)
+            SetSprite(fillImg, SpriteBank.Get("ui_gauge_fill"), Image.Type.Sliced, FILL_CYAN);
+            SetSprite(zoneImg, SpriteBank.Get("ui_mg_zone"), Image.Type.Sliced, new Color(ZONE_GOOD.r, ZONE_GOOD.g, ZONE_GOOD.b, 0.6f));
+            boilZoneRect.SetAsLastSibling();
+
+            Text lbl = UIFactory.CreateText(boilRoot, "PressureLabel", "압력", 13, UIFactory.DIM, TextAnchor.MiddleCenter);
+            lbl.rectTransform.anchorMin = new Vector2(0.5f, 0.5f); lbl.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+            lbl.rectTransform.anchoredPosition = new Vector2(-110f, 4f + (BOIL_H + 12f) * 0.5f + 12f);   // 유리관 바로 위
+            lbl.rectTransform.sizeDelta = new Vector2(80f, 20f);
+            MakeImage(boilRoot, "PotEmblem", SpriteBank.Get("ui_mg_pot"), new Vector2(1f, 1f), new Vector2(-60f, -50f), new Vector2(72f, 60f));
+        }
+
+        // 재료 투입 버튼 (오른쪽, 평소 숨김) - 스킨이면 UIFactory 가 무쇠 버튼(빨강 틴트)으로 만든다
+        promptButton = UIFactory.CreateButton(boilRoot, "PromptBtn", "재료 투입!\n(클릭)",
             new Vector2(150f, 70f), new Color(0.8f, 0.28f, 0.18f), Color.white, 20);
         RectTransform prt = promptButton.GetComponent<RectTransform>();
         prt.anchoredPosition = new Vector2(100f, 4f);
@@ -658,15 +829,85 @@ public class CookingMinigame : MonoBehaviour
         return rt;
     }
 
+    /// <summary>부모를 꽉 채우는 투명 컨테이너 (그림 없음 - 표시 전환용)</summary>
+    private RectTransform MakeStretch(Transform parent, string name)
+    {
+        GameObject go = new GameObject(name);
+        RectTransform rt = go.AddComponent<RectTransform>();
+        rt.SetParent(parent, false);
+        rt.anchorMin = Vector2.zero; rt.anchorMax = Vector2.one;
+        rt.offsetMin = Vector2.zero; rt.offsetMax = Vector2.zero;
+        return rt;
+    }
+
+    /// <summary>스프라이트 이미지 하나 (앵커 기준 pos 에 중앙 피벗, 클릭 통과)</summary>
+    private Image MakeImage(Transform parent, string name, Sprite sprite, Vector2 anchor, Vector2 pos, Vector2 size)
+    {
+        GameObject go = new GameObject(name);
+        RectTransform rt = go.AddComponent<RectTransform>();
+        rt.SetParent(parent, false);
+        rt.anchorMin = anchor; rt.anchorMax = anchor;
+        rt.anchoredPosition = pos; rt.sizeDelta = size;
+        Image img = go.AddComponent<Image>();
+        img.raycastTarget = false;
+        SetSprite(img, sprite, Image.Type.Simple, Color.white);
+        return img;
+    }
+
+    private static void SetSprite(Image img, Sprite sprite, Image.Type type, Color color)
+    {
+        img.sprite = sprite; img.type = type; img.color = color; img.raycastTarget = false;
+    }
+
+    /// <summary>불꽃 띠: 32x24 불꽃 FLAME_COUNT 개를 34px 간격으로 가운데 정렬 (y = 부모 중심 기준)</summary>
+    private Image[] MakeFlameRow(Transform parent, float y)
+    {
+        Image[] row = new Image[FLAME_COUNT];
+        float x0 = -(FLAME_COUNT - 1) * 34f * 0.5f;
+        for (int i = 0; i < FLAME_COUNT; i++)
+            row[i] = MakeImage(parent, "Flame_" + i, flameFrames[i % 3], new Vector2(0.5f, 0.5f),
+                new Vector2(x0 + i * 34f, y), new Vector2(32f, 24f));
+        return row;
+    }
+
+    /// <summary>불꽃 3프레임 순환 - 지금 보이는 띠만 갱신 (이웃 불꽃은 프레임을 하나씩 어긋나게)</summary>
+    private void AnimateFlames()
+    {
+        flameTimer += Time.deltaTime;
+        if (flameTimer < 1f / FLAME_FPS) return;
+        flameTimer = 0f;
+        flameFrame = (flameFrame + 1) % 3;
+        Image[] row = method == 0 ? grillFlames : method == 1 ? sauteFlames : null;
+        if (row == null) return;
+        for (int i = 0; i < row.Length; i++)
+            if (row[i] != null) row[i].sprite = flameFrames[(flameFrame + i) % 3];
+    }
+
+    /// <summary>라운드 고기 칩: 끝난 라운드 황금 / 진행 중 크림 / 남은 라운드 흐림</summary>
+    private void RefreshGrillChips()
+    {
+        if (!skin) return;
+        for (int i = 0; i < 3; i++)
+        {
+            if (grillChips[i] == null) continue;
+            grillChips[i].color = i < grillRound ? UIFactory.GOLD : i == grillRound ? UIFactory.CREAM : UISkin.BRASS_DIM;
+        }
+    }
+
     // 미니게임별 UI 표시 전환
     private void ShowMethodUI()
     {
+        grillRoot.gameObject.SetActive(method == 0);
+        sauteRoot.gameObject.SetActive(method == 1);
+        boilRoot.gameObject.SetActive(method == 2);
+
         grillTrack.gameObject.SetActive(method == 0);
         if (method == 0)
         {
             // 판정 증강에 맞춰 존 폭을 시각적으로도 반영
             grillGoodZone.sizeDelta = new Vector2(Mathf.Min(TRACK_W, TRACK_W * 0.44f * judgeMul), 40f);
             grillPerfectZone.sizeDelta = new Vector2(Mathf.Min(TRACK_W, TRACK_W * 0.12f * judgeMul), 40f);
+            RefreshGrillChips();
         }
 
         for (int i = 0; i < 6; i++)
@@ -674,8 +915,8 @@ public class CookingMinigame : MonoBehaviour
             arrowTexts[i].transform.parent.gameObject.SetActive(method == 1);
             if (method == 1)
             {
-                arrowTexts[i].text = ARROW_STR[sauteSeq[i]];
-                arrowTexts[i].color = UIFactory.DIM;
+                SetArrowGlyph(i, sauteSeq[i]);
+                SetArrowColor(i, UIFactory.DIM);
             }
         }
         if (method == 1) HighlightArrow();

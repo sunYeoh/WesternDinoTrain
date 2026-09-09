@@ -5,7 +5,8 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 /// <summary>
-/// [UISkin.cs] v1 (신규 파일) - "쇳냄새" 픽셀 UI 스킨 (2026-09-07, HUD 목업 v3 컨펌)
+/// [UISkin.cs] v1.1 - "쇳냄새" 픽셀 UI 스킨 (2026-09-07, HUD 목업 v3 컨펌)
+/// - v1.1 (v9.5): Relabel(명판 글자 바꾸기 + 폭 재계산) 추가 - 조리 미니게임 제목 명판용. 그 외 변경 없음
 ///
 /// Resources/Sprites/WDT/ui_*.png (파이프 프레임 / 무쇠 평판 / 테 / 버튼 / 황동 명판 / 위험 스트라이프 / 게이지 / 장식)를
 /// 코드 생성 UI 전부에 입힌다. 세 갈래:
@@ -165,6 +166,16 @@ public class UISkin : MonoBehaviour
         Text t = UIFactory.CreateText(go.transform, "Label", label, fontSize, INK, TextAnchor.MiddleCenter);
         t.rectTransform.offsetMin = new Vector2(6f, 0f); t.rectTransform.offsetMax = new Vector2(-6f, 0f);
         return rt;
+    }
+
+    /// <summary>명판 글자 바꾸기 - 폭도 새 글자 수에 맞춰 다시 잡는다 (조리 미니게임 제목처럼 내용이 바뀌는 명판용)</summary>
+    public static void Relabel(RectTransform plate, string label, int fontSize)
+    {
+        if (plate == null) return;
+        Transform lt = plate.Find("Label");
+        Text t = lt != null ? lt.GetComponent<Text>() : null;
+        if (t != null) { t.text = label; t.fontSize = fontSize; }
+        plate.sizeDelta = new Vector2(EstimateWidth(label, fontSize) + 28f, plate.sizeDelta.y);
     }
 
     /// <summary>장식 스프라이트 (게이지/밸브/그릴/위험 스트라이프). 앵커 기준 pos, 크기는 원본 픽셀</summary>

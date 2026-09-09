@@ -4,13 +4,14 @@ using UnityEditor;
 using UnityEngine;
 
 /// <summary>
-/// [WDTSpriteImporter.cs] v4 (Editor 전용) - 스프라이트 PNG 자동 임포트 설정 (2026-09-07, v9 픽셀 팩 + UI 스킨)
+/// [WDTSpriteImporter.cs] v4.1 (Editor 전용) - 스프라이트 PNG 자동 임포트 설정 (2026-09-07, v9 픽셀 팩 + UI 스킨)
 ///
 /// Assets/Resources/Sprites/WDT/ 아래 PNG가 임포트될 때 자동으로:
 ///   Texture Type = Sprite (Single) / Pixels Per Unit = 파일별 값 / Filter = Point(도트 선명) /
 ///   Compression = None / Mipmap 끔 / Pivot = 파일별 커스텀(게임 좌표와 1:1로 맞춘 값)
 /// 을 잡아준다. 그래서 유저는 PNG를 폴더에 복사하기만 하면 된다.
 ///
+/// v4.1: v9.5 조리대 st_grill/st_pan/st_pot (32ppu, 피벗 = 바닥 가운데) + 조리 미니게임 조각 ui_mg_* (ui_ 규칙, 판정 구간 ui_mg_zone 만 9-슬라이스 테 6)
 /// v4: UI 스킨 ui_*.png 규칙 - PPU 100(캔버스 1유닛 = 1px), Point, FullRect, 9-슬라이스 테두리(UI_BORDER 표). 타일/슬라이스는 UISkin.cs 가 Image.type 으로 정함
 /// v3: v9 픽셀 팩 - 전 스프라이트 32px/유닛(표 재생성: 기차/포탑/적/바위/작살/레버/굴뚝 + ground_ae/rails_ae/dust_0~3)
 /// v2: 유저 제작 셰프 도트 hero_*.png (32x32, 발이 아래에서 두 번째 줄) 규칙 - HERO_PPU 로 크기 조절
@@ -35,6 +36,7 @@ public class WDTSpriteImporter : AssetPostprocessor
             { "ui_gauge_fill", 4f },
             { "ui_gauge_round", 0f },
             { "ui_hazard", 0f },
+            { "ui_mg_zone", 6f },          // 조리 판정 구간 (그 외 ui_mg_* 는 표에 없음 = 0, 단순 그림)
             { "ui_nameplate", 12f },
             { "ui_pipe", 28f },
             { "ui_plate", 0f },
@@ -76,6 +78,9 @@ public class WDTSpriteImporter : AssetPostprocessor
             { "rock_ice", new Info(32f, 0.5053f, 0.5000f) },
             { "rock_meat", new Info(32f, 0.5053f, 0.5000f) },
             { "rock_poison", new Info(32f, 0.5053f, 0.5000f) },
+            { "st_grill", new Info(32f, 0.5000f, 0.0417f) },   // 조리대: 피벗 = 바닥 가운데 (GameBalance.StationY 가 발밑)
+            { "st_pan", new Info(32f, 0.5000f, 0.0455f) },
+            { "st_pot", new Info(32f, 0.5000f, 0.0385f) },
             { "t_barrel", new Info(32f, 0.0938f, 0.5000f) },
             { "t_barrel2", new Info(32f, 0.0938f, 0.5000f) },
             { "t_base", new Info(32f, 0.5000f, 0.4583f) },
