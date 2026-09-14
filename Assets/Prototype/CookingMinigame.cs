@@ -2,7 +2,12 @@
 using UnityEngine.UI;
 
 /// <summary>
-/// [CookingMinigame.cs] v2.6
+/// [CookingMinigame.cs] v2.7
+/// - v2.7 변경점 (교수 피드백 2026-09-14, A2/A3 - 조리 공정성):
+///   배율 하한 CookSpeedMulFloor/CookJudgeMulFloor (팬 마모 x 프테라 x 지역이 겹쳐 0.28배까지 떨어지던 것 차단)
+///   끓이기 = 총시간 하한(BoilMinTotalSec) + 투입 안내를 절대 초가 아니라 "진행률"로 배치 (25~40% / 55~72%),
+///           투입 창은 남은 시간 안에 반드시 들어간다 -> 배율이 낮아도 Perfect가 물리적으로 가능
+///   볶기   = 총시간 하한(SauteMinTotalSec). 피격 시 "지금 눌러야 할" 화살표는 잠그고 뒤쪽 화살표 하나만 바뀐다 (바뀐 칩은 붉게 번쩍)
 /// - v2.6 변경점 (v9.5 조리 미니게임 픽셀 스킨 - 조리 목업 v1 컨펌본):
 ///   UISkin + ui_mg_*.png 가 있을 때만 그림을 바꾼다. 판정/타이머/게이지 로직과 좌표 상수는 v2.5 그대로.
 ///   굽기  = 석쇠 트랙(ui_mg_grate) + 판정 구간 틴트 조각(ui_mg_zone: Good 초록 / Perfect 황금) + 꼬치 커서 + 트랙 아래 불꽃 띠 + 우상단 라운드 고기 칩 3개
@@ -105,6 +110,11 @@ public class CookingMinigame : MonoBehaviour
     private int boilPromptOk;
     private int boilPromptsLeft;
     private float boilNextPromptAt;
+    private float boilTotalTime;      // v2.7: 이번 끓이기 총시간 (진행률 계산용)
+    private float boilPrompt1At;      // v2.7: 첫/둘째 투입 안내 시점 (경과 초)
+    private float boilPrompt2At;
+    private int sauteFlashIdx = -1;   // v2.7: 피격으로 바뀐 화살표 칩 (붉게 번쩍)
+    private float sauteFlashUntil = 0f;
 
     // ── UI 요소 ──
     private Canvas canvas;
@@ -238,6 +248,10 @@ public class CookingMinigame : MonoBehaviour
         speedMul = Mathf.Min(speedMul, 2.6f);
         judgeMul = Mathf.Min(judgeMul, 2.6f);
 
+        // v2.7 (교수 피드백 A2): 하한 - 방해 요소가 겹쳐도 기본의 2배 어려움까지만 (0.28배 사고 차단)
+        speedMul = Mathf.Max(speedMul, GameBalance.CookSpeedMulFloor);
+        judgeMul = Mathf.Max(judgeMul, GameBalance.CookJudgeMulFloor);
+
         // 지역이 바뀐 뒤 첫 조리에서 1회만 안내 (스토리 감싸기)
         if (region < regionNoticeShown) regionNoticeShown = region;   // 새 런 시작 - 안내 재무장
         if (region >= 2 && region != regionNoticeShown)
@@ -270,18 +284,25 @@ public class CookingMinigame : MonoBehaviour
             SetTitle("볶기  -  " + foodName);
             for (int i = 0; i < 6; i++) sauteSeq[i] = Random.Range(0, 4);
             sauteIdx = 0; sauteMiss = 0;
-            sauteTimer = 6f * speedMul;    // 식칼 증강: 제한 시간 증가
+            sauteTimer = Mathf.Max(6f * speedMul, GameBalance.SauteMinTotalSec);    // 식칼 증강: 제한 시간 증가 / v2.7 하한
+            sauteFlashIdx = -1;
         }
         else
         {
             SetTitle("끓이기  -  " + foodName);
             boilGauge = 50f; boilHold = false;
-            boilTimer = 7f * speedMul;     // 식칼 증강: 제한 시간 증가
+            boilTimer = Mathf.Max(7f * speedMul, GameBalance.BoilMinTotalSec);     // 식칼 증강: 제한 시간 증가 / v2.7 하한
+            boilTotalTime = boilTimer;
             boilInZone = 0f; boilTotal = 0f;
             boilZonePhase = Random.Range(0f, 6.28f);
             boilZoneHalf = Mathf.Min(13f * judgeMul, 26f);   // 조리기구 증강: 안정존 확대
             boilPromptTimer = 0f; boilPromptOk = 0; boilPromptsLeft = 2;
-            boilNextPromptAt = boilTimer - (2.2f + Random.Range(0f, 1.2f));
+            // v2.7 (A2): 투입 안내는 진행률로 - 총시간이 짧아도 둘 다 시간 안에 들어온다
+            boilPrompt1At = boilTotalTime * Random.Range(GameBalance.BoilPrompt1Min, GameBalance.BoilPrompt1Max);
+            boilPrompt2At = boilTotalTime * Random.Range(GameBalance.BoilPrompt2Min, GameBalance.BoilPrompt2Max);
+            boilPrompt2At = Mathf.Min(boilPrompt2At, boilTotalTime - GameBalance.BoilPromptMinWindowSec - 0.1f);
+            boilPrompt1At = Mathf.Min(boilPrompt1At, boilPrompt2At - GameBalance.BoilPromptMinWindowSec - 0.1f);
+            boilNextPromptAt = boilTimer - boilPrompt1At;   // (호환용 - 판정은 boilPrompt1At/2At 사용)
         }
 
         panel.gameObject.SetActive(true);
@@ -305,11 +326,17 @@ public class CookingMinigame : MonoBehaviour
         }
         else if (method == 1)
         {
-            // 볶기: 아직 입력 안 한 다음 화살표가 다른 방향으로 바뀐다
-            if (sauteIdx < 6 && shake > 0.3f)
+            // v2.7 (교수 피드백 A3): 지금 눌러야 할 화살표는 잠근다 - 읽고 손을 움직이는 순간 정답이
+            // 바뀌면 자기 실수로 느낄 수 없다. 대신 뒤쪽(아직 차례가 안 온) 화살표 하나가 바뀌고 붉게 번쩍여 예고한다
+            if (sauteIdx < 5 && shake > 0.3f)
             {
-                sauteSeq[sauteIdx] = Random.Range(0, 4);
-                SetArrowGlyph(sauteIdx, sauteSeq[sauteIdx]);
+                int j = Random.Range(sauteIdx + 1, 6);
+                int nd = (sauteSeq[j] + Random.Range(1, 4)) % 4;   // 반드시 다른 방향
+                sauteSeq[j] = nd;
+                SetArrowGlyph(j, nd);
+                SetArrowColor(j, new Color(1f, 0.45f, 0.35f));
+                sauteFlashIdx = j;
+                sauteFlashUntil = Time.time + 0.5f;
             }
         }
         else
@@ -415,6 +442,13 @@ public class CookingMinigame : MonoBehaviour
     private void UpdateSaute()
     {
         sauteTimer -= Time.deltaTime;
+
+        // v2.7: 피격으로 바뀐 화살표의 붉은 번쩍임이 끝나면 원래 상태색으로
+        if (sauteFlashIdx >= 0 && Time.time >= sauteFlashUntil)
+        {
+            if (sauteFlashIdx > sauteIdx) SetArrowColor(sauteFlashIdx, UIFactory.DIM);
+            sauteFlashIdx = -1;
+        }
         infoText.text = "화살표/WASD 순서대로!   남은 시간 " + Mathf.Max(0f, sauteTimer).ToString("F1") +
                         "s   오입력 " + sauteMiss + " (0=PERFECT)";
 
@@ -497,13 +531,15 @@ public class CookingMinigame : MonoBehaviour
 
         boilTimer -= Time.deltaTime;
 
-        // 재료 투입 프롬프트 발동
-        if (boilPromptsLeft > 0 && boilTimer <= boilNextPromptAt)
+        // 재료 투입 프롬프트 발동 (v2.7: 진행률 기준 2회, 창은 남은 시간 안으로)
+        float elapsed = boilTotalTime - boilTimer;
+        if (boilPromptsLeft > 0 && boilPromptTimer <= 0f
+            && elapsed >= (boilPromptsLeft == 2 ? boilPrompt1At : boilPrompt2At))
         {
             boilPromptsLeft--;
-            boilPromptTimer = 1.2f;
+            float window = Mathf.Min(GameBalance.BoilPromptWindowSec, Mathf.Max(0.05f, boilTimer - 0.05f));
+            boilPromptTimer = Mathf.Max(window, Mathf.Min(GameBalance.BoilPromptMinWindowSec, boilTimer - 0.05f));
             promptButton.gameObject.SetActive(true);
-            boilNextPromptAt = boilTimer - (1.8f + Random.Range(0f, 1.0f));
         }
 
         // 프롬프트 시간 초과
@@ -577,6 +613,13 @@ public class CookingMinigame : MonoBehaviour
     /// 일시정지를 여는 이중 소비를 막는 데 사용)
     /// </summary>
     public static int EscConsumedFrame = -1;
+
+    /// <summary>v2.7: 외부(마지막 주문 선택창 등)에서 조리를 무손실 중단시킬 때</summary>
+    public void AbortExternal()
+    {
+        if (!running || finished) return;
+        AbortCook();
+    }
 
     /// <summary>B-1: [ESC] 조리 중단 - 재료는 돌려받고 진행만 잃는다 (도구 마모 없음)</summary>
     private void AbortCook()

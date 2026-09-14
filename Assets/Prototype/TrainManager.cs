@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.Events;
 
 /// <summary>
-/// [TrainManager.cs] v3
+/// [TrainManager.cs] v3.1 (교수 피드백 A4: AddMaxHP 회복 분리)
 /// 메카 티렉스 열차의 핵심 스탯을 관리합니다.
 /// - v3 변경점 (구시스템 정리):
 ///   1) 허기/포만감 시스템 완전 제거 (감소/등급/절전모드/스탯 페널티 전부 삭제)
@@ -165,11 +165,20 @@ public class TrainManager : MonoBehaviour
     }
 
     /// <summary>최대 HP 증감 (패시브 요리 / 증강 / 스피노 벌금). 음수여도 죽지는 않는다</summary>
-    public void AddMaxHP(float amount)
+    public void AddMaxHP(float amount) { AddMaxHP(amount, true); }
+
+    /// <summary>
+    /// 최대 HP 증감. healSameAmount = true면 늘어난 만큼 현재 HP도 같이 오른다(증강 획득 등 1회성).
+    /// v3.1 (교수 피드백 A4): 포탑 패시브(철판 정식/오메가)는 false로 호출한다 - 투입할 때마다 현재 HP가
+    /// 차던 것이 "넣고 빼고 반복 = 무료 회복" 루프였다. 패시브는 최대치만 넓히고, 회복은 하티/정비소가 한다.
+    /// </summary>
+    public void AddMaxHP(float amount, bool healSameAmount)
     {
         passiveBonusMaxHP += amount;
         currentMaxHP += amount;
-        currentHP += amount; // 늘어난(줄어든) 만큼 현재 HP도 조정
+        if (healSameAmount)
+            currentHP += amount; // 늘어난(줄어든) 만큼 현재 HP도 조정
+        // false면 현재 HP는 그대로 두고 아래 상한 클램프만 받는다 (패시브 회수 시 현재 HP를 깎지 않음)
 
         // Phase 2-1: 음수 적용 안전장치 - 벌금으로 즉사하는 일은 없게
         if (currentMaxHP < 100f) currentMaxHP = 100f;

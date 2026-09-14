@@ -3,9 +3,12 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [GameHUD.cs] v3 - 전투 중 핵심 HUD (전부 코드 생성 - Canvas 세팅 불필요)
+/// [GameHUD.cs] v3.1 (교수 피드백 A9 반영 2026-09-14) / v3 - 전투 중 핵심 HUD (전부 코드 생성 - Canvas 세팅 불필요)
 /// - 하단 바: 재료 6종 카운트 + 보유 요리 카드 목록 (2줄 그리드, 휠 가로 스크롤)
 /// - 요리 카드 클릭 -> 투입 모드 (슬롯 마커 클릭으로 투입)
+/// - v3.1 (A9): 하단 바 오른쪽 위 파이프에 칼/팬 상태 칩 2개 (명판). 마모가 콘솔에만 찍혀
+///   "판정이 왜 좁아졌는지" 알 수 없던 문제 - 0.25초마다 갱신, 60% 이하 호박색, 30% 이하 빨강 + "!".
+///   GameBalance.ToolWearEnabled 가 false(마모 off 실험)면 칩을 숨긴다
 /// - v3 변경점 (2026-09-07, "쇳냄새" 픽셀 스킨 - HUD 목업 v3 컨펌):
 ///   1) 하단 바 158 -> 184: 구리 파이프 프레임(테 28px) 안에 재료 2x3 + 요리 카드 2줄이 들어가도록
 ///   2) "재료"/"요리" 제목을 파이프 위에 걸린 황동 명판으로 (안쪽 높이 절약)
@@ -23,11 +26,28 @@ public class GameHUD : MonoBehaviour
     // 투입 모드: 선택된 요리 recipeId ("" = 모드 아님)
     public string placingRecipeId = "";
 
+    /// <summary>
+    /// v3.1: 우클릭으로 투입 모드를 취소한 시각 (unscaled). 이 Update는 버튼을 누르는 순간 취소하고
+    /// 슬롯 마커의 클릭 이벤트는 버튼을 뗄 때 오므로, 마커 쪽은 이 시각 직후의 우클릭을 "취소"로 취급한다
+    /// (취소하려던 우클릭이 커서 밑 포탑의 폐기 예고로 새는 것을 막는다)
+    /// </summary>
+    public static float LastPlacingCancelTime = -10f;
+
     private Canvas canvas;
     private Text[] matTexts = new Text[6];
     private RectTransform foodListRoot;    // 스크롤 내용물 (카드 부모)
     private Text placingBanner;
     private readonly List<GameObject> foodCards = new List<GameObject>();
+
+    // v3.1 (A9): 도구 상태 칩
+    private GameObject knifeChipGo, panChipGo;   // 칩 루트 (스킨 = 명판 / 단색 = 글자)
+    private Text knifeText, panText;             // 칩 글자
+    private ChefController chefRef;              // 마모 수치 출처 (씬에 1명)
+    private float toolRefreshAt;                 // 다음 갱신 시각 (unscaled)
+    private int lastKnifeShown = -1, lastPanShown = -1;
+    private bool chipsVisible = true;
+    private const float TOOL_REFRESH_SEC = 0.25f;
+    private const float CHIP_W = 92f;            // 칩 명판 폭
 
     private const float BAR_H = 184f;          // v3: 하단 바 높이 (v2 158)
     private const float FRAME = 28f;           // 파이프 테 두께 (ui_pipe 테두리 = 28px @1080p)
@@ -62,7 +82,12 @@ public class GameHUD : MonoBehaviour
     {
         // 우클릭 = 투입 모드 취소
         if (!string.IsNullOrEmpty(placingRecipeId) && Input.GetMouseButtonDown(1))
+        {
+            LastPlacingCancelTime = Time.unscaledTime;
             SetPlacing("");
+        }
+
+        UpdateToolChips();
     }
 
     // ──────────────────────────────────────
@@ -204,6 +229,32 @@ public class GameHUD : MonoBehaviour
             UISkin.AddOrnament(bottomBar, "vent", new Vector2(1f, 1f), new Vector2(-124f, -118f), new Vector2(64f, 24f));
         }
 
+        // ── v3.1 (A9): 칼/팬 상태 칩 - 바 오른쪽 위 파이프에 걸린 작은 명판 2개 (장식 위, 겹치지 않음) ──
+        if (skin)
+        {
+            RectTransform panPlate = UISkin.Nameplate(bottomBar, "Pan", "팬 100%", 15,
+                new Vector2(1f, 1f), new Vector2(-34f - CHIP_W, 4f), CHIP_W);
+            RectTransform knifePlate = UISkin.Nameplate(bottomBar, "Knife", "칼 100%", 15,
+                new Vector2(1f, 1f), new Vector2(-34f - CHIP_W * 2f - 6f, 4f), CHIP_W);
+            panChipGo = panPlate.gameObject;
+            knifeChipGo = knifePlate.gameObject;
+            panText = FindLabel(panPlate);
+            knifeText = FindLabel(knifePlate);
+        }
+        else
+        {
+            knifeText = UIFactory.CreateText(bottomBar, "KnifeChip", "칼 100%", 16, UIFactory.GOLD, TextAnchor.UpperRight);
+            knifeText.rectTransform.anchorMin = new Vector2(1f, 1f); knifeText.rectTransform.anchorMax = new Vector2(1f, 1f);
+            knifeText.rectTransform.pivot = new Vector2(1f, 1f);
+            knifeText.rectTransform.anchoredPosition = new Vector2(-118f, -8f); knifeText.rectTransform.sizeDelta = new Vector2(96f, 24f);
+            panText = UIFactory.CreateText(bottomBar, "PanChip", "팬 100%", 16, UIFactory.GOLD, TextAnchor.UpperRight);
+            panText.rectTransform.anchorMin = new Vector2(1f, 1f); panText.rectTransform.anchorMax = new Vector2(1f, 1f);
+            panText.rectTransform.pivot = new Vector2(1f, 1f);
+            panText.rectTransform.anchoredPosition = new Vector2(-16f, -8f); panText.rectTransform.sizeDelta = new Vector2(96f, 24f);
+            knifeChipGo = knifeText.gameObject;
+            panChipGo = panText.gameObject;
+        }
+
         // ── 투입 모드 안내 배너 (화면 상단 중앙, 웨이브 예고/안내 카드 아래) ──
         //    평판 + 황동 테 카드 (파이프 프레임은 테가 28px 라 72px 배너에선 글자가 파이프에 붙는다)
         //    글자 좌우 84px 안에 위험 스트라이프, 상하 10px 여백
@@ -221,6 +272,60 @@ public class GameHUD : MonoBehaviour
             UISkin.AddOrnament(bannerPanel, "hazard", new Vector2(1f, 0.5f), new Vector2(-72f, 8f), new Vector2(56f, 16f));
         }
         bannerPanel.gameObject.SetActive(false);
+    }
+
+    /// <summary>명판 안의 글자 컴포넌트 (UISkin.Nameplate 가 "Label" 이름으로 만든다)</summary>
+    private static Text FindLabel(RectTransform plate)
+    {
+        if (plate == null) return null;
+        Transform lt = plate.Find("Label");
+        return lt != null ? lt.GetComponent<Text>() : null;
+    }
+
+    // ──────────────────────────────────────
+    // v3.1 (A9): 칼/팬 상태 칩 갱신 (0.25초 간격, 값이 바뀔 때만 글자를 다시 쓴다)
+    // ──────────────────────────────────────
+    private void UpdateToolChips()
+    {
+        if (knifeText == null || panText == null) return;
+        if (Time.unscaledTime < toolRefreshAt) return;
+        toolRefreshAt = Time.unscaledTime + TOOL_REFRESH_SEC;
+
+        // 마모 off 실험(B3) 중에는 의미 없는 100% 칩을 치운다
+        bool show = GameBalance.ToolWearEnabled;
+        if (show != chipsVisible)
+        {
+            chipsVisible = show;
+            if (knifeChipGo != null) knifeChipGo.SetActive(show);
+            if (panChipGo != null) panChipGo.SetActive(show);
+        }
+        if (!show) return;
+
+        if (chefRef == null) chefRef = FindFirstObjectByType<ChefController>();
+        if (chefRef == null) return;
+
+        int knife = Mathf.RoundToInt(chefRef.knifeSharpness);
+        int pan = Mathf.RoundToInt(chefRef.panCondition);
+        if (knife != lastKnifeShown)
+        {
+            lastKnifeShown = knife;
+            knifeText.text = "칼 " + knife + "%" + (knife <= 30 ? " !" : "");
+            knifeText.color = ChipColor(knife);
+        }
+        if (pan != lastPanShown)
+        {
+            lastPanShown = pan;
+            panText.text = "팬 " + pan + "%" + (pan <= 30 ? " !" : "");
+            panText.color = ChipColor(pan);
+        }
+    }
+
+    /// <summary>칩 글자색: 30% 이하 빨강(경고와 같은 문턱), 60% 이하 호박색, 그 외 기본(명판 = 먹색 / 단색 = 금색)</summary>
+    private static Color ChipColor(int percent)
+    {
+        if (percent <= 30) return UISkin.HP_RED;
+        if (percent <= 60) return new Color(0.72f, 0.36f, 0.05f);
+        return UISkin.Available ? UISkin.INK : UIFactory.GOLD;
     }
 
     // ──────────────────────────────────────

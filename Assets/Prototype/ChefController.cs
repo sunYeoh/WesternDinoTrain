@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.Events;
 
 /// <summary>
-/// [ChefController.cs] v5 (통로 보행 2026-09-08) / v4 (B-1: 셰프의 몸 - 방향결정 2026-08-31)
+/// [ChefController.cs] v5.1 (교수 피드백 2026-09-14: 도구 경고 화면 표시 / 마모 스위치 / 전갈 대체 효과) / v5 (통로 보행 2026-09-08) / v4 (B-1: 셰프의 몸 - 방향결정 2026-08-31)
 /// 셰프 이동 + 도구 내구도 + 전투 연동(피격 연출/조리 디버프)을 담당합니다.
 ///
 /// - v5 변경점 (통로로 칸 건너기):
@@ -206,6 +206,9 @@ public class ChefController : MonoBehaviour
     /// <summary>조리 완료 시 도구 마모 (CookingMinigame이 호출). method: 0=굽기 1=볶기 2=끓이기</summary>
     public void WearToolsByMethod(int method)
     {
+        // v5.1 (교수 피드백 B3 실험 스위치): 마모 off면 아무것도 닳지 않는다
+        if (!GameBalance.ToolWearEnabled) return;
+
         // Phase 2-3 아이템 '휴대용 숫돌': 도구 마모 감소 (기본 1 = 그대로)
         float wearMul = ItemManager.ToolWearMul;
 
@@ -214,10 +217,46 @@ public class ChefController : MonoBehaviour
         else
             panCondition = Mathf.Max(0f, panCondition - 8f * wearMul);       // 볶기/끓이기 = 팬 마모
 
-        if (knifeSharpness <= 30f)
-            Debug.Log("[ChefController] 칼이 무뎌졌다! 정비소(G)에서 연마 필요 (" + Mathf.RoundToInt(knifeSharpness) + "%)");
-        if (panCondition <= 30f)
-            Debug.Log("[ChefController] 팬이 눌어붙었다! 정비소(G)에서 정비 필요 (" + Mathf.RoundToInt(panCondition) + "%)");
+        CheckToolWarnings();
+    }
+
+    // v5.1 (교수 피드백 A9): 마모 경고가 콘솔에만 찍히던 것을 화면 경고로. 30% 아래로 내려가는 순간 1회,
+    // 정비소에서 수리하면 다시 무장. (도구 상태 자체는 GameHUD 하단 바의 칼/팬 칩이 상시 표시)
+    private bool knifeWarned = false;
+    private bool panWarned = false;
+
+    private void CheckToolWarnings()
+    {
+        if (knifeSharpness <= 30f && !knifeWarned)
+        {
+            knifeWarned = true;
+            UIManager.Instance?.ShowDanger("칼이 무뎌졌다 (" + Mathf.RoundToInt(knifeSharpness) + "%) - 굽기 판정이 좁아진다. 정비소 [G]에서 연마");
+        }
+        else if (knifeSharpness > 30f) knifeWarned = false;
+
+        if (panCondition <= 30f && !panWarned)
+        {
+            panWarned = true;
+            UIManager.Instance?.ShowDanger("팬이 눌어붙었다 (" + Mathf.RoundToInt(panCondition) + "%) - 볶기·끓이기 시간이 줄어든다. 정비소 [G]에서 정비");
+        }
+        else if (panCondition > 30f) panWarned = false;
+    }
+
+    /// <summary>v5.1 (B3): 마모 off일 때 전갈 명중의 대체 효과 - 조리 속도 디버프 (Enemy가 호출)</summary>
+    public void ApplyScorpionAlt()
+    {
+        StartCoroutine(ScorpionAltCoroutine());
+    }
+
+    private IEnumerator ScorpionAltCoroutine()
+    {
+        // 프테라 디버프(0.5)보다 약하게, 이미 더 센 디버프가 걸려 있으면 덮어쓰지 않는다
+        if (cookingSpeedMultiplier > GameBalance.ScorpionAltCookSlow)
+            cookingSpeedMultiplier = GameBalance.ScorpionAltCookSlow;
+        UIManager.Instance?.ShowStatChange("[사막 전갈] 독이 손에 묻었다 - 조리 속도 -" + Mathf.RoundToInt((1f - GameBalance.ScorpionAltCookSlow) * 100f) + "% (" + Mathf.RoundToInt(GameBalance.ScorpionAltCookSlowSec) + "초)");
+        yield return new WaitForSeconds(GameBalance.ScorpionAltCookSlowSec);
+        if (cookingSpeedMultiplier <= GameBalance.ScorpionAltCookSlow + 0.001f && cookingSpeedMultiplier > 0.5f)
+            cookingSpeedMultiplier = 1.0f;
     }
 
     public void RepairKnife(float amount) { knifeSharpness = Mathf.Min(100f, knifeSharpness + amount); }
@@ -258,7 +297,8 @@ public class ChefController : MonoBehaviour
     {
         cookingSpeedMultiplier = 0.5f;
         Debug.Log("[독침 프테라] 조리 속도 -50%! " + duration + "초간");
-        FindFirstObjectByType<CookingUIManager>()?.ShowPoisonDebuff(duration);
+        // v5.1: 구 CookingUIManager는 씬에 없어 알림이 뜨지 않았다 -> HUD 경고로 (교수 피드백 15.5 항목)
+        UIManager.Instance?.ShowDanger("[독침 프테라] 독침에 맞았다 - 조리 속도 -50% (" + Mathf.RoundToInt(duration) + "초)");
         yield return new WaitForSeconds(duration);
         cookingSpeedMultiplier = 1.0f;
         Debug.Log("[독침 프테라] 조리 속도 정상화");

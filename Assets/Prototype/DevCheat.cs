@@ -1,58 +1,78 @@
 using UnityEngine;
 
 /// <summary>
-/// [DevCheat.cs]
-/// °³¹ß Å×½ºÆ®¿ë Ä¡Æ® Å° ¸ğÀ½ (ºôµå Àü Á¦°Å ¶Ç´Â ºñÈ°¼ºÈ­)
-/// GameSystems ¿ÀºêÁ§Æ®¿¡ ºÎÂø
+/// [DevCheat.cs] v1.1 (2026-09-14: F3 ì§§ì€ ëŸ° í† ê¸€)
+/// ê°œë°œ í…ŒìŠ¤íŠ¸ìš© ì¹˜íŠ¸ í‚¤ ëª¨ìŒ (ë¹Œë“œ ì „ ì œê±° ë˜ëŠ” ë¹„í™œì„±í™”)
+/// GameSystems ì˜¤ë¸Œì íŠ¸ì— ë¶€ì°©
 ///
-/// F5: Àç·á ÀüÁ¾ +10
-/// F6: T1 ¿ä¸® 21Á¾ ÀüºÎ +2 (µµ°¨ ÀüÃ¼ ¹ß°ß)
-/// F7: T2 ¿ä¸® 21Á¾ ÀüºÎ +1 (µµ°¨ ÀüÃ¼ ¹ß°ß)
-/// F8: ½½·Ô 8°³¿¡ ÃßÃµ Á¶ÇÕ ÀÚµ¿ ¼¼ÆÃ (µô·¯+¹öÆÛ+¼­Æ÷Æ® ¹ë·±½º)
-/// F9: ½½·Ô ÀüÃ¼ ºñ¿ì±â
-/// F10: ±âÂ÷ HP/Æ÷¸¸°¨ Ç® È¸º¹
-/// VS 2017 (C# 7.3) È£È¯
+/// F5: ì¬ë£Œ ì „ì¢… +10
+/// F6: T1 ìš”ë¦¬ 21ì¢… ì „ë¶€ +2 (ë„ê° ì „ì²´ ë°œê²¬)
+/// F7: T2 ìš”ë¦¬ 21ì¢… ì „ë¶€ +1 (ë„ê° ì „ì²´ ë°œê²¬)
+/// F8: ìŠ¬ë¡¯ 8ê°œì— ì¶”ì²œ ì¡°í•© ìë™ ì„¸íŒ… (ë”œëŸ¬+ë²„í¼+ì„œí¬íŠ¸ ë°¸ëŸ°ìŠ¤)
+/// F9: ìŠ¬ë¡¯ ì „ì²´ ë¹„ìš°ê¸°
+/// F10: ê¸°ì°¨ HP í’€ íšŒë³µ (í¬ë§Œê° ì‹œìŠ¤í…œì€ v2ì—ì„œ ì œê±°ë¨)
+/// F3: ì§§ì€ ëŸ° í† ê¸€ (ì§€ì—­ ê¸¸ì´ 8 <-> 3, ë¡œë¹„ì—ì„œ - ë‹¤ìŒ ëŸ°ë¶€í„° ì ìš©) - 2026-09-14 êµìˆ˜ í”¼ë“œë°± B6
+/// VS 2017 (C# 7.3) í˜¸í™˜
 /// </summary>
 public class DevCheat : MonoBehaviour
 {
-    [Header("Ä¡Æ® È°¼ºÈ­ ¿©ºÎ (ºôµå ½Ã ²¨µÎ±â)")]
+    [Header("ì¹˜íŠ¸ í™œì„±í™” ì—¬ë¶€ (ë¹Œë“œ ì‹œ êº¼ë‘ê¸°)")]
     public bool cheatEnabled = true;
 
     void Update()
     {
         if (!cheatEnabled) return;
 
-        // F5: Àç·á ÀüÁ¾ +10
+        // F3: ì§§ì€ ëŸ° í† ê¸€ - ì •ì‹ ê¸¸ì´(8)ê°€ ê¸°ë³¸ì´ë¯€ë¡œ ë¹ ë¥¸ í™•ì¸ì€ ì´ í‚¤ë¡œ (ëŸ° ì‹œì‘ ë•Œ WaveManagerê°€ ì½ëŠ”ë‹¤)
+        if (Input.GetKeyDown(KeyCode.F3))
+        {
+            // ëŸ° ë„ì¤‘ì— ë°”ê¾¸ë©´ ë³´ìŠ¤ ì›¨ì´ë¸Œ/ìµœì¢…ì „ íŒì •ì´ ì¦‰ì‹œ ì–´ê¸‹ë‚˜ë¯€ë¡œ(FinalWaveê°€ ì‹¤ì‹œê°„ ê³„ì‚°) ë¡œë¹„ì—ì„œë§Œ ë°›ëŠ”ë‹¤
+            if (GameManager.Instance != null && GameManager.Instance.currentState != GameManager.GameState.Lobby)
+            {
+                UIManager.Instance?.ShowStatChange("[ì¹˜íŠ¸] ì§€ì—­ ê¸¸ì´ëŠ” ë¡œë¹„ì—ì„œë§Œ ë°”ê¿€ ìˆ˜ ìˆë‹¤ (ëŸ° í¬ê¸° í›„ F3)");
+            }
+            else
+            {
+                bool toShort = GameBalance.RegionLength != GameBalance.ShortRunRegionLength;
+                GameBalance.RegionLength = toShort ? GameBalance.ShortRunRegionLength : 8;
+                string msg = "[ì¹˜íŠ¸] ì§€ì—­ ê¸¸ì´ " + GameBalance.RegionLength + " (ë³´ìŠ¤ " + GameBalance.RegionLength + "/"
+                    + (GameBalance.RegionLength * 2) + "/" + (GameBalance.RegionLength * 3) + ", ìµœì¢…ì „ " + GameBalance.FinalWave + "ì›¨ì´ë¸Œ)";
+                UIManager.Instance?.ShowStatChange(msg);
+                Debug.Log(msg);
+            }
+        }
+
+        // F5: ì¬ë£Œ ì „ì¢… +10
         if (Input.GetKeyDown(KeyCode.F5))
         {
             foreach (MaterialType t in System.Enum.GetValues(typeof(MaterialType)))
                 MaterialInventory.Instance.Add(t, 10);
-            Debug.Log("[Ä¡Æ®] Àç·á ÀüÁ¾ +10");
+            Debug.Log("[ì¹˜íŠ¸] ì¬ë£Œ ì „ì¢… +10");
         }
 
-        // F6: T1 ¿ä¸® ÀüºÎ +2
+        // F6: T1 ìš”ë¦¬ ì „ë¶€ +2
         if (Input.GetKeyDown(KeyCode.F6))
         {
             foreach (RecipeData r in RecipeDatabase.All)
                 if (r.tier == 1) FoodStock.Instance.Add(r.recipeId, 2);
-            Debug.Log("[Ä¡Æ®] T1 ¿ä¸® 21Á¾ +2 (µµ°¨ ¹ß°ß)");
+            Debug.Log("[ì¹˜íŠ¸] T1 ìš”ë¦¬ 21ì¢… +2 (ë„ê° ë°œê²¬)");
         }
 
-        // F7: T2 ¿ä¸® ÀüºÎ +1
+        // F7: T2 ìš”ë¦¬ ì „ë¶€ +1
         if (Input.GetKeyDown(KeyCode.F7))
         {
             foreach (RecipeData r in RecipeDatabase.All)
                 if (r.tier == 2) FoodStock.Instance.Add(r.recipeId, 1);
-            Debug.Log("[Ä¡Æ®] T2 ¿ä¸® 21Á¾ +1 (µµ°¨ ¹ß°ß)");
+            Debug.Log("[ì¹˜íŠ¸] T2 ìš”ë¦¬ 21ì¢… +1 (ë„ê° ë°œê²¬)");
         }
 
-        // F8: ÃßÃµ Á¶ÇÕ ÀÚµ¿ ¼¼ÆÃ
+        // F8: ì¶”ì²œ ì¡°í•© ìë™ ì„¸íŒ…
         if (Input.GetKeyDown(KeyCode.F8))
         {
             AutoLoadout();
         }
 
-        // F9: ½½·Ô ÀüÃ¼ ºñ¿ì±â
+        // F9: ìŠ¬ë¡¯ ì „ì²´ ë¹„ìš°ê¸°
         if (Input.GetKeyDown(KeyCode.F9))
         {
             if (TurretSlotManager.Instance == null) return;
@@ -61,10 +81,10 @@ public class DevCheat : MonoBehaviour
                 TurretSlot s = TurretSlotManager.Instance.slots[i];
                 if (s != null && !s.IsEmpty) s.Scrap();
             }
-            Debug.Log("[Ä¡Æ®] ½½·Ô ÀüÃ¼ ºñ¿ò");
+            Debug.Log("[ì¹˜íŠ¸] ìŠ¬ë¡¯ ì „ì²´ ë¹„ì›€");
         }
 
-        // F10: ±âÂ÷ È¸º¹
+        // F10: ê¸°ì°¨ íšŒë³µ
         if (Input.GetKeyDown(KeyCode.F10))
         {
             TrainManager tm = FindFirstObjectByType<TrainManager>();
@@ -73,35 +93,35 @@ public class DevCheat : MonoBehaviour
                 tm.Heal(99999f);
                 tm.FeedTrain(150f);
             }
-            Debug.Log("[Ä¡Æ®] ±âÂ÷ HP/Æ÷¸¸°¨ Ç® È¸º¹");
+            Debug.Log("[ì¹˜íŠ¸] ê¸°ì°¨ HP í’€ íšŒë³µ");
         }
     }
 
     /// <summary>
-    /// ½½·Ô 8°³ ÀÚµ¿ ¼¼ÆÃ - °ø°İÇüÅÂ/¿ªÇÒÀÌ °ñ°í·ç º¸ÀÌ´Â Å×½ºÆ® Á¶ÇÕ
-    /// [0][1]  °³Æ²¸µ(¿¬»ç)     ÁöÈÖ°üÀÇ¸¸Âù(¹°¸®¹öÇÁ)
-    /// [2][3]  °úºÎÇÏÄÚÀÏ(Ã¼ÀÎ)  ¿ë¾ÏÆøÅº¹ä(Æø¹ß)
-    /// [4][5]  ÇÃ¶óÁî¸¶ººÀ½(°üÅë) ¸Íµ¶È­¿°¹æ»ç(ºÎÃ¤²Ã)
-    /// [6][7]  Àı´ë¿µµµ¼öÇÁ(ÀåÆÇ) ÇØµ¶½ºÆ©(¸®Á¨)
+    /// ìŠ¬ë¡¯ 8ê°œ ìë™ ì„¸íŒ… - ê³µê²©í˜•íƒœ/ì—­í• ì´ ê³¨ê³ ë£¨ ë³´ì´ëŠ” í…ŒìŠ¤íŠ¸ ì¡°í•©
+    /// [0][1]  ê°œí‹€ë§(ì—°ì‚¬)     ì§€íœ˜ê´€ì˜ë§Œì°¬(ë¬¼ë¦¬ë²„í”„)
+    /// [2][3]  ê³¼ë¶€í•˜ì½”ì¼(ì²´ì¸)  ìš©ì•”í­íƒ„ë°¥(í­ë°œ)
+    /// [4][5]  í”Œë¼ì¦ˆë§ˆë³¶ìŒ(ê´€í†µ) ë§¹ë…í™”ì—¼ë°©ì‚¬(ë¶€ì±„ê¼´)
+    /// [6][7]  ì ˆëŒ€ì˜ë„ìˆ˜í”„(ì¥íŒ) í•´ë…ìŠ¤íŠœ(ë¦¬ì  )
     /// </summary>
     private void AutoLoadout()
     {
         if (TurretSlotManager.Instance == null)
         {
-            Debug.LogWarning("[Ä¡Æ®] TurretSlotManager ¾øÀ½");
+            Debug.LogWarning("[ì¹˜íŠ¸] TurretSlotManager ì—†ìŒ");
             return;
         }
 
         string[] loadout = new string[]
         {
-            "T2:elec+phys",                                            // °³Æ²¸µ Æ¼·º½º
-            RecipeDatabase.MakeTagKey(FoodTag.Def, FoodTag.Phys),      // ÁöÈÖ°üÀÇ ¸¸Âù
-            RecipeDatabase.MakeKey(MaterialType.Elec, MaterialType.Elec),   // °úºÎÇÏ ÄÚÀÏ
-            RecipeDatabase.MakeKey(MaterialType.Fire, MaterialType.Fire),   // ¿ë¾Ï ÆøÅº¹ä
-            RecipeDatabase.MakeKey(MaterialType.Elec, MaterialType.Fire),   // ÇÃ¶óÁî¸¶ ººÀ½
-            RecipeDatabase.MakeKey(MaterialType.Fire, MaterialType.Poison), // ¸Íµ¶ È­¿°¹æ»ç
-            RecipeDatabase.MakeKey(MaterialType.Ice, MaterialType.Ice),     // Àı´ë¿µµµ ¼öÇÁ
-            RecipeDatabase.MakeKey(MaterialType.Armor, MaterialType.Poison) // ÇØµ¶ ½ºÆ©
+            "T2:elec+phys",                                            // ê°œí‹€ë§ í‹°ë ‰ìŠ¤
+            RecipeDatabase.MakeTagKey(FoodTag.Def, FoodTag.Phys),      // ì§€íœ˜ê´€ì˜ ë§Œì°¬
+            RecipeDatabase.MakeKey(MaterialType.Elec, MaterialType.Elec),   // ê³¼ë¶€í•˜ ì½”ì¼
+            RecipeDatabase.MakeKey(MaterialType.Fire, MaterialType.Fire),   // ìš©ì•” í­íƒ„ë°¥
+            RecipeDatabase.MakeKey(MaterialType.Elec, MaterialType.Fire),   // í”Œë¼ì¦ˆë§ˆ ë³¶ìŒ
+            RecipeDatabase.MakeKey(MaterialType.Fire, MaterialType.Poison), // ë§¹ë… í™”ì—¼ë°©ì‚¬
+            RecipeDatabase.MakeKey(MaterialType.Ice, MaterialType.Ice),     // ì ˆëŒ€ì˜ë„ ìˆ˜í”„
+            RecipeDatabase.MakeKey(MaterialType.Armor, MaterialType.Poison) // í•´ë… ìŠ¤íŠœ
         };
 
         for (int i = 0; i < 8; i++)
@@ -109,18 +129,18 @@ public class DevCheat : MonoBehaviour
             TurretSlot s = TurretSlotManager.Instance.slots[i];
             if (s == null) continue;
 
-            // ±âÁ¸ ³»¿ë ºñ¿ì°í »õ·Î ÅõÀÔ
+            // ê¸°ì¡´ ë‚´ìš© ë¹„ìš°ê³  ìƒˆë¡œ íˆ¬ì…
             if (!s.IsEmpty) s.Scrap();
 
             RecipeData r = RecipeDatabase.Get(loadout[i]);
             if (r == null)
             {
-                Debug.LogWarning("[Ä¡Æ®] ·¹½ÃÇÇ ¸ø Ã£À½: " + loadout[i]);
+                Debug.LogWarning("[ì¹˜íŠ¸] ë ˆì‹œí”¼ ëª» ì°¾ìŒ: " + loadout[i]);
                 continue;
             }
             s.TryInsertFood(loadout[i]);
-            FoodStock.Instance.Add(loadout[i], 0); // µµ°¨ ¹ß°ß Ã³¸®¿ë (0°³ Ãß°¡ = ¹ß°ß¸¸)
+            FoodStock.Instance.Add(loadout[i], 0); // ë„ê° ë°œê²¬ ì²˜ë¦¬ìš© (0ê°œ ì¶”ê°€ = ë°œê²¬ë§Œ)
         }
-        Debug.Log("[Ä¡Æ®] ½½·Ô 8°³ ÀÚµ¿ ¼¼ÆÃ ¿Ï·á (¿¬»ç/¹öÇÁ/Ã¼ÀÎ/Æø¹ß/°üÅë/ºÎÃ¤²Ã/ÀåÆÇ/¸®Á¨)");
+        Debug.Log("[ì¹˜íŠ¸] ìŠ¬ë¡¯ 8ê°œ ìë™ ì„¸íŒ… ì™„ë£Œ (ì—°ì‚¬/ë²„í”„/ì²´ì¸/í­ë°œ/ê´€í†µ/ë¶€ì±„ê¼´/ì¥íŒ/ë¦¬ì  )");
     }
 }

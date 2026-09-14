@@ -3,64 +3,64 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 
 /// <summary>
-/// [WorkshopUI.cs] v2
-/// Á¤ºñ¼Ò - °ñµå¸¦ ¼Ò¸ğÇØ µµ±¸/±âÂ÷¸¦ Á¤ºñÇÏ°í Àç·á¸¦ ±¸¸ÅÇÏ´Â »óÁ¡
+/// [WorkshopUI.cs] v2.1 (2026-09-14: ì „íˆ¬ ì¤‘ ìˆ˜ë¦¬ ê¸°ë¡) / v2
+/// ì •ë¹„ì†Œ - ê³¨ë“œë¥¼ ì†Œëª¨í•´ ë„êµ¬/ê¸°ì°¨ë¥¼ ì •ë¹„í•˜ê³  ì¬ë£Œë¥¼ êµ¬ë§¤í•˜ëŠ” ìƒì 
 ///
-/// Á¶ÀÛ
-///  - È­¸é ¿ì»ó´Ü [Á¤ºñ] ¹öÆ° Å¬¸¯ ¶Ç´Â GÅ°·Î ¿­±â/´İ±â
-///  - ¿­·Á ÀÖ´Â µ¿¾È °ÔÀÓ ÀÏ½ÃÁ¤Áö (Time.timeScale = 0)
+/// ì¡°ì‘
+///  - í™”ë©´ ìš°ìƒë‹¨ [ì •ë¹„] ë²„íŠ¼ í´ë¦­ ë˜ëŠ” Gí‚¤ë¡œ ì—´ê¸°/ë‹«ê¸°
+///  - ì—´ë ¤ ìˆëŠ” ë™ì•ˆ ê²Œì„ ì¼ì‹œì •ì§€ (Time.timeScale = 0)
 ///
-/// ¸Ş´º
-///  [Á¤ºñ]
-///   1. Ä® ¿¬¸¶    150G : Ä® ¿¹¸®ÇÔ 100% º¹±¸
-///   2. ÆÒ Á¤ºñ    150G : ÆÒ »óÅÂ 100% º¹±¸
-///   3. ±âÂ÷ ¼ö¸®  200G : ±âÂ÷ HP 500 È¸º¹
-///   4. Àå°© º¸°­  400G : ±âÂ÷ ÃÖ´ë HP +150 ¿µ±¸
-///  [Àç·á ½ÃÀå] (v2 ½Å±Ô)
-///   - Á¶ÇÕ Àç·á 6Á¾À» °³´ç 60G¿¡ ±¸¸Å (MaterialInventory ¿¬µ¿)
+/// ë©”ë‰´
+///  [ì •ë¹„]
+///   1. ì¹¼ ì—°ë§ˆ    150G : ì¹¼ ì˜ˆë¦¬í•¨ 100% ë³µêµ¬
+///   2. íŒ¬ ì •ë¹„    150G : íŒ¬ ìƒíƒœ 100% ë³µêµ¬
+///   3. ê¸°ì°¨ ìˆ˜ë¦¬  200G : ê¸°ì°¨ HP 500 íšŒë³µ
+///   4. ì¥ê°‘ ë³´ê°•  400G : ê¸°ì°¨ ìµœëŒ€ HP +150 ì˜êµ¬
+///  [ì¬ë£Œ ì‹œì¥] (v2 ì‹ ê·œ)
+///   - ì¡°í•© ì¬ë£Œ 6ì¢…ì„ ê°œë‹¹ 60Gì— êµ¬ë§¤ (MaterialInventory ì—°ë™)
 ///
-/// »ç¿ë¹ı
-///  - "GameSystems" ¿ÀºêÁ§Æ®¿¡ ÀÌ ½ºÅ©¸³Æ®¸¸ Ãß°¡ (UI´Â ÄÚµå·Î ÀÚµ¿ »ı¼º)
-///  - KitchenEventManagerÀÇ UI ÇïÆÛ¸¦ Àç»ç¿ëÇÏ¹Ç·Î KitchenEventManager.cs ÇÊ¿ä
+/// ì‚¬ìš©ë²•
+///  - "GameSystems" ì˜¤ë¸Œì íŠ¸ì— ì´ ìŠ¤í¬ë¦½íŠ¸ë§Œ ì¶”ê°€ (UIëŠ” ì½”ë“œë¡œ ìë™ ìƒì„±)
+///  - KitchenEventManagerì˜ UI í—¬í¼ë¥¼ ì¬ì‚¬ìš©í•˜ë¯€ë¡œ KitchenEventManager.cs í•„ìš”
 ///
-/// VS 2017 (C# 7.3) È£È¯
+/// VS 2017 (C# 7.3) í˜¸í™˜
 /// </summary>
 public class WorkshopUI : MonoBehaviour
 {
     public static WorkshopUI Instance;
 
-    /// <summary>Á¤ºñ¼Ò°¡ ¿­·Á ÀÖ´ÂÁö (´Ù¸¥ ½Ã½ºÅÛ¿¡¼­ ÀÔ·Â Â÷´Ü¿ë)</summary>
+    /// <summary>ì •ë¹„ì†Œê°€ ì—´ë ¤ ìˆëŠ”ì§€ (ë‹¤ë¥¸ ì‹œìŠ¤í…œì—ì„œ ì…ë ¥ ì°¨ë‹¨ìš©)</summary>
     public static bool IsOpen
     {
         get { return Instance != null && Instance.isOpen; }
     }
 
-    [Header("Á¤ºñ °¡°İ")]
-    public int knifeCost = 150;      // Ä® ¿¬¸¶
-    public int panCost = 150;        // ÆÒ Á¤ºñ
-    public int repairCost = 200;     // ±âÂ÷ ¼ö¸®
+    [Header("ì •ë¹„ ê°€ê²©")]
+    public int knifeCost = 150;      // ì¹¼ ì—°ë§ˆ
+    public int panCost = 150;        // íŒ¬ ì •ë¹„
+    public int repairCost = 200;     // ê¸°ì°¨ ìˆ˜ë¦¬
     public float repairAmount = 500f;
-    public int armorCost = 400;      // Àå°© º¸°­
+    public int armorCost = 400;      // ì¥ê°‘ ë³´ê°•
     public float armorAmount = 150f;
 
-    [Header("Àç·á ½ÃÀå")]
-    public int materialCost = 60;    // Àç·á 1°³ °¡°İ
+    [Header("ì¬ë£Œ ì‹œì¥")]
+    public int materialCost = 60;    // ì¬ë£Œ 1ê°œ ê°€ê²©
 
     private bool isOpen;
 
-    // ---------- UI ÂüÁ¶ ----------
+    // ---------- UI ì°¸ì¡° ----------
     private Canvas canvas;
-    private RectTransform panelRoot;      // Á¤ºñ¼Ò ÆĞ³Î (¾ÏÀü Æ÷ÇÔ)
-    private Text goldText;                // º¸À¯ °ñµå
-    private Button gearButton;            // È­¸é ¿ì»ó´Ü ¿­±â ¹öÆ°
+    private RectTransform panelRoot;      // ì •ë¹„ì†Œ íŒ¨ë„ (ì•”ì „ í¬í•¨)
+    private Text goldText;                // ë³´ìœ  ê³¨ë“œ
+    private Button gearButton;            // í™”ë©´ ìš°ìƒë‹¨ ì—´ê¸° ë²„íŠ¼
 
-    // Á¤ºñ ¸Ş´º Çàº° ÂüÁ¶
+    // ì •ë¹„ ë©”ë‰´ í–‰ë³„ ì°¸ì¡°
     private Text knifeStatus; private Button knifeBtn;
     private Text panStatus; private Button panBtn;
     private Text repairStatus; private Button repairBtn;
     private Text armorStatus; private Button armorBtn;
 
-    // Àç·á ½ÃÀå Çà (Àç·á Á¾·ùº°)
+    // ì¬ë£Œ ì‹œì¥ í–‰ (ì¬ë£Œ ì¢…ë¥˜ë³„)
     private class MatRow
     {
         public MaterialType type;
@@ -69,7 +69,7 @@ public class WorkshopUI : MonoBehaviour
     }
     private List<MatRow> matRows = new List<MatRow>();
 
-    // ¿ÜºÎ ÂüÁ¶ Ä³½Ã
+    // ì™¸ë¶€ ì°¸ì¡° ìºì‹œ
     private ChefController chef;
     private TrainManager train;
 
@@ -82,17 +82,17 @@ public class WorkshopUI : MonoBehaviour
 
     void Update()
     {
-        // GÅ° Åä±Û
+        // Gí‚¤ í† ê¸€
         if (Input.GetKeyDown(KeyCode.G))
             Toggle();
 
-        // ¿­·Á ÀÖ´Â µ¿¾È ½Ç½Ã°£ °»½Å
+        // ì—´ë ¤ ìˆëŠ” ë™ì•ˆ ì‹¤ì‹œê°„ ê°±ì‹ 
         if (isOpen)
             RefreshAll();
     }
 
     // ==================================================================
-    //  ¿­±â / ´İ±â
+    //  ì—´ê¸° / ë‹«ê¸°
     // ==================================================================
 
     public void Toggle()
@@ -103,7 +103,7 @@ public class WorkshopUI : MonoBehaviour
 
     public void Open()
     {
-        // ´Ù¸¥ ÀüÃ¼È­¸é UI¿Í Ãæµ¹ ¹æÁö
+        // ë‹¤ë¥¸ ì „ì²´í™”ë©´ UIì™€ ì¶©ëŒ ë°©ì§€
         if (isOpen) return;
         if (PauseMenu.IsOpen) return;
         if (AugmentPickUI.IsOpen) return;
@@ -115,7 +115,7 @@ public class WorkshopUI : MonoBehaviour
         RefreshAll();
         panelRoot.gameObject.SetActive(true);
         Time.timeScale = 0f;
-        Debug.Log("[Á¤ºñ¼Ò] ¿­¸²");
+        Debug.Log("[ì •ë¹„ì†Œ] ì—´ë¦¼");
     }
 
     public void Close()
@@ -124,10 +124,10 @@ public class WorkshopUI : MonoBehaviour
         isOpen = false;
         panelRoot.gameObject.SetActive(false);
 
-        // Áõ°­ ¼±ÅÃÃ¢ÀÌ ¶° ÀÖÁö ¾ÊÀ» ¶§¸¸ ½Ã°£ Àç°³
-        if (!AugmentPickUI.IsOpen)
+        // ì¦ê°• ì„ íƒì°½/ì—´ëŒ íŒ¨ë„(A10)ì´ ë–  ìˆì§€ ì•Šì„ ë•Œë§Œ ì‹œê°„ ì¬ê°œ
+        if (!AugmentPickUI.IsOpen && !AugmentListUI.ReadingOpen)
             Time.timeScale = 1f;
-        Debug.Log("[Á¤ºñ¼Ò] ´İÈû");
+        Debug.Log("[ì •ë¹„ì†Œ] ë‹«í˜");
     }
 
     private void FindRefs()
@@ -137,7 +137,7 @@ public class WorkshopUI : MonoBehaviour
     }
 
     // ==================================================================
-    //  ±¸¸Å Ã³¸®
+    //  êµ¬ë§¤ ì²˜ë¦¬
     // ==================================================================
 
     private bool TrySpend(int cost)
@@ -152,7 +152,7 @@ public class WorkshopUI : MonoBehaviour
         if (chef == null || chef.knifeSharpness >= 100f) return;
         if (!TrySpend(knifeCost)) return;
         chef.RepairKnife(100f);
-        UIManager.Instance?.ShowStatChange("Ä® ¿¬¸¶ ¿Ï·á!");
+        UIManager.Instance?.ShowStatChange("ì¹¼ ì—°ë§ˆ ì™„ë£Œ!");
     }
 
     private void BuyPan()
@@ -161,7 +161,7 @@ public class WorkshopUI : MonoBehaviour
         if (chef == null || chef.panCondition >= 100f) return;
         if (!TrySpend(panCost)) return;
         chef.RepairPan(100f);
-        UIManager.Instance?.ShowStatChange("ÆÒ Á¤ºñ ¿Ï·á!");
+        UIManager.Instance?.ShowStatChange("íŒ¬ ì •ë¹„ ì™„ë£Œ!");
     }
 
     private void BuyRepair()
@@ -170,7 +170,14 @@ public class WorkshopUI : MonoBehaviour
         if (train == null || train.currentHP >= train.currentMaxHP) return;
         if (!TrySpend(repairCost)) return;
         train.Heal(repairAmount);
-        UIManager.Instance?.ShowStatChange("±âÂ÷ ¼ö¸® +" + Mathf.RoundToInt(repairAmount) + " HP!");
+        UIManager.Instance?.ShowStatChange("ê¸°ì°¨ ìˆ˜ë¦¬ +" + Mathf.RoundToInt(repairAmount) + " HP!");
+
+        // 2026-09-14 (êµìˆ˜ í”¼ë“œë°± C4): ì „íˆ¬ ì¤‘ ìˆ˜ë¦¬ëŠ” íšŸìˆ˜Â·ê³¨ë“œë¥¼ ê¸°ë¡í•´ ëŸ° ìš”ì•½ì— ë‚¨ê¸´ë‹¤ (ì„¤ê³„ íŒë‹¨ì€ ì¸¡ì • í›„)
+        if (GameManager.Instance != null && GameManager.Instance.currentState == GameManager.GameState.Battle)
+        {
+            GameManager.Instance.RepairsInBattle++;
+            GameManager.Instance.RepairGoldInBattle += repairCost;
+        }
     }
 
     private void BuyArmor()
@@ -179,12 +186,12 @@ public class WorkshopUI : MonoBehaviour
         if (train == null) return;
         if (!TrySpend(armorCost)) return;
         train.AddMaxHP(armorAmount);
-        UIManager.Instance?.ShowStatChange("Àå°© º¸°­! ÃÖ´ë HP +" + Mathf.RoundToInt(armorAmount));
+        UIManager.Instance?.ShowStatChange("ì¥ê°‘ ë³´ê°•! ìµœëŒ€ HP +" + Mathf.RoundToInt(armorAmount));
     }
 
     /// <summary>
-    /// v2.1 (°¨»ç 3-A): Àç·á ½ÃÀå ½Ç°¡°İ - Áö¿ªÀÌ ±í¾îÁú¼ö·Ï ºñ½ÎÁø´Ù (°ñµå ÀÎÇÃ·¹ Èí¼ö)
-    /// Áö¿ª 1 = ±âº»°¡, Áö¿ª 2 = +20G, Áö¿ª 3+ = +40G
+    /// v2.1 (ê°ì‚¬ 3-A): ì¬ë£Œ ì‹œì¥ ì‹¤ê°€ê²© - ì§€ì—­ì´ ê¹Šì–´ì§ˆìˆ˜ë¡ ë¹„ì‹¸ì§„ë‹¤ (ê³¨ë“œ ì¸í”Œë ˆ í¡ìˆ˜)
+    /// ì§€ì—­ 1 = ê¸°ë³¸ê°€, ì§€ì—­ 2 = +20G, ì§€ì—­ 3+ = +40G
     /// </summary>
     private int GetMaterialCost()
     {
@@ -198,24 +205,24 @@ public class WorkshopUI : MonoBehaviour
         if (MaterialInventory.Instance == null) return;
         if (!TrySpend(GetMaterialCost())) return;
         MaterialInventory.Instance.Add(t, 1);
-        UIManager.Instance?.ShowStatChange(MaterialKoreanName(t) + " ±¸¸Å! (-" + GetMaterialCost() + "G)");
+        UIManager.Instance?.ShowStatChange(MaterialKoreanName(t) + " êµ¬ë§¤! (-" + GetMaterialCost() + "G)");
     }
 
-    /// <summary>Àç·á enum -> ÇÑ±Û Ç¥½Ã ÀÌ¸§</summary>
+    /// <summary>ì¬ë£Œ enum -> í•œê¸€ í‘œì‹œ ì´ë¦„</summary>
     private string MaterialKoreanName(MaterialType t)
     {
         string key = t.ToString().ToLower();
-        if (key == "meat") return "°í±â";
-        if (key == "armor") return "µî½É(Àå°©)";
-        if (key == "fire") return "È­¿° Àç·á";
-        if (key == "ice") return "³Ã±â Àç·á";
-        if (key == "elec") return "Àü±â Àç·á";
-        if (key == "poison") return "µ¶ Àç·á";
+        if (key == "meat") return "ê³ ê¸°";
+        if (key == "armor") return "ë“±ì‹¬(ì¥ê°‘)";
+        if (key == "fire") return "í™”ì—¼ ì¬ë£Œ";
+        if (key == "ice") return "ëƒ‰ê¸° ì¬ë£Œ";
+        if (key == "elec") return "ì „ê¸° ì¬ë£Œ";
+        if (key == "poison") return "ë… ì¬ë£Œ";
         return t.ToString();
     }
 
     // ==================================================================
-    //  »óÅÂ °»½Å
+    //  ìƒíƒœ ê°±ì‹ 
     // ==================================================================
 
     private void RefreshAll()
@@ -223,40 +230,40 @@ public class WorkshopUI : MonoBehaviour
         FindRefs();
 
         int gold = GameManager.Instance != null ? GameManager.Instance.playerGold : 0;
-        goldText.text = "º¸À¯ °ñµå:  " + gold + " G";
+        goldText.text = "ë³´ìœ  ê³¨ë“œ:  " + gold + " G";
 
-        // Ä®
+        // ì¹¼
         float knife = chef != null ? chef.knifeSharpness : 0f;
-        knifeStatus.text = "Ä® ¿¬¸¶  -  ¿¹¸®ÇÔ " + Mathf.RoundToInt(knife) + "%";
+        knifeStatus.text = "ì¹¼ ì—°ë§ˆ  -  ì˜ˆë¦¬í•¨ " + Mathf.RoundToInt(knife) + "%";
         SetButtonState(knifeBtn, gold >= knifeCost && knife < 100f);
 
-        // ÆÒ
+        // íŒ¬
         float pan = chef != null ? chef.panCondition : 0f;
-        panStatus.text = "ÆÒ Á¤ºñ  -  »óÅÂ " + Mathf.RoundToInt(pan) + "%";
+        panStatus.text = "íŒ¬ ì •ë¹„  -  ìƒíƒœ " + Mathf.RoundToInt(pan) + "%";
         SetButtonState(panBtn, gold >= panCost && pan < 100f);
 
-        // ±âÂ÷ ¼ö¸®
+        // ê¸°ì°¨ ìˆ˜ë¦¬
         float hp = train != null ? train.currentHP : 0f;
         float maxHp = train != null ? train.currentMaxHP : 0f;
-        repairStatus.text = "±âÂ÷ ¼ö¸® (+" + Mathf.RoundToInt(repairAmount) + " HP)  -  ÇöÀç "
+        repairStatus.text = "ê¸°ì°¨ ìˆ˜ë¦¬ (+" + Mathf.RoundToInt(repairAmount) + " HP)  -  í˜„ì¬ "
             + Mathf.RoundToInt(hp) + "/" + Mathf.RoundToInt(maxHp);
         SetButtonState(repairBtn, gold >= repairCost && hp < maxHp);
 
-        // Àå°© º¸°­
-        armorStatus.text = "Àå°© º¸°­  -  ÃÖ´ë HP +" + Mathf.RoundToInt(armorAmount) + " (¿µ±¸)";
+        // ì¥ê°‘ ë³´ê°•
+        armorStatus.text = "ì¥ê°‘ ë³´ê°•  -  ìµœëŒ€ HP +" + Mathf.RoundToInt(armorAmount) + " (ì˜êµ¬)";
         SetButtonState(armorBtn, gold >= armorCost);
 
-        // Àç·á ½ÃÀå
+        // ì¬ë£Œ ì‹œì¥
         for (int i = 0; i < matRows.Count; i++)
         {
             MatRow row = matRows[i];
             int have = MaterialInventory.Instance != null ? MaterialInventory.Instance.Get(row.type) : 0;
-            row.status.text = MaterialKoreanName(row.type) + "  -  º¸À¯ " + have + "°³";
+            row.status.text = MaterialKoreanName(row.type) + "  -  ë³´ìœ  " + have + "ê°œ";
             SetButtonState(row.btn, gold >= GetMaterialCost() && MaterialInventory.Instance != null);
         }
     }
 
-    /// <summary>±¸¸Å °¡´É ¿©ºÎ¿¡ µû¶ó ¹öÆ° È°¼º/È¸»ö Ã³¸®</summary>
+    /// <summary>êµ¬ë§¤ ê°€ëŠ¥ ì—¬ë¶€ì— ë”°ë¼ ë²„íŠ¼ í™œì„±/íšŒìƒ‰ ì²˜ë¦¬</summary>
     private void SetButtonState(Button btn, bool canBuy)
     {
         if (btn == null) return;
@@ -271,7 +278,7 @@ public class WorkshopUI : MonoBehaviour
     }
 
     // ==================================================================
-    //  UI »ı¼º (KitchenEventManager ÇïÆÛ Àç»ç¿ë)
+    //  UI ìƒì„± (KitchenEventManager í—¬í¼ ì¬ì‚¬ìš©)
     // ==================================================================
 
     private void BuildUI()
@@ -280,40 +287,40 @@ public class WorkshopUI : MonoBehaviour
         canvasGo.transform.SetParent(transform, false);
         canvas = canvasGo.AddComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-        canvas.sortingOrder = 550;   // ÁÖ¹æ ÀÌº¥Æ®(500)º¸´Ù À§, Áõ°­Ã¢(600)º¸´Ù ¾Æ·¡
+        canvas.sortingOrder = 550;   // ì£¼ë°© ì´ë²¤íŠ¸(500)ë³´ë‹¤ ìœ„, ì¦ê°•ì°½(600)ë³´ë‹¤ ì•„ë˜
         CanvasScaler scaler = canvasGo.AddComponent<CanvasScaler>();
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
         scaler.referenceResolution = new Vector2(1920f, 1080f);
         scaler.matchWidthOrHeight = 0.5f;
         canvasGo.AddComponent<GraphicRaycaster>();
 
-        // ---------- ¿ì»ó´Ü Á¤ºñ¼Ò ¿­±â ¹öÆ° (Ç×»ó Ç¥½Ã) ----------
+        // ---------- ìš°ìƒë‹¨ ì •ë¹„ì†Œ ì—´ê¸° ë²„íŠ¼ (í•­ìƒ í‘œì‹œ) ----------
         gearButton = KitchenEventManager.MakeButton(
-            canvasGo.transform, "Á¤ºñ (G)", new Color(0.35f, 0.30f, 0.22f, 0.92f),
+            canvasGo.transform, "ì •ë¹„ (G)", new Color(0.35f, 0.30f, 0.22f, 0.92f),
             Vector2.zero, new Vector2(130f, 52f));
         RectTransform gearRt = gearButton.GetComponent<RectTransform>();
         gearRt.anchorMin = new Vector2(1f, 1f);
         gearRt.anchorMax = new Vector2(1f, 1f);
         gearRt.pivot = new Vector2(1f, 1f);
-        // HUD Á¤¸®: Çã°ø(-160)¿¡ ¶° ÀÖ´ø ¹öÆ°À» ¿ì»ó´Ü ±¸¼®¿¡ Á¤·Ä
+        // HUD ì •ë¦¬: í—ˆê³µ(-160)ì— ë–  ìˆë˜ ë²„íŠ¼ì„ ìš°ìƒë‹¨ êµ¬ì„ì— ì •ë ¬
         gearRt.anchoredPosition = new Vector2(-16f, -14f);
         gearButton.onClick.AddListener(delegate { Toggle(); });
 
-        // ---------- Á¤ºñ¼Ò ÆĞ³Î ----------
+        // ---------- ì •ë¹„ì†Œ íŒ¨ë„ ----------
         panelRoot = KitchenEventManager.MakeBox(canvasGo.transform, "WorkshopDim", new Color(0f, 0f, 0f, 0.75f));
         panelRoot.anchorMin = Vector2.zero;
         panelRoot.anchorMax = Vector2.one;
         panelRoot.offsetMin = Vector2.zero;
         panelRoot.offsetMax = Vector2.zero;
 
-        // º»Ã¼ (v2: Àç·á ½ÃÀå Ãß°¡·Î ¼¼·Î È®Àå)
+        // ë³¸ì²´ (v2: ì¬ë£Œ ì‹œì¥ ì¶”ê°€ë¡œ ì„¸ë¡œ í™•ì¥)
         RectTransform body = KitchenEventManager.MakeBox(panelRoot, "Body", new Color(0.12f, 0.10f, 0.08f, 0.98f));
         body.anchorMin = new Vector2(0.5f, 0.5f);
         body.anchorMax = new Vector2(0.5f, 0.5f);
         body.anchoredPosition = Vector2.zero;
         body.sizeDelta = new Vector2(720f, 880f);
 
-        // »ó´Ü ¶ì + Á¦¸ñ
+        // ìƒë‹¨ ë  + ì œëª©
         RectTransform band = KitchenEventManager.MakeBox(body, "Band", new Color(0.80f, 0.55f, 0.25f, 1f));
         band.anchorMin = new Vector2(0f, 1f);
         band.anchorMax = new Vector2(1f, 1f);
@@ -321,10 +328,10 @@ public class WorkshopUI : MonoBehaviour
         band.sizeDelta = new Vector2(0f, 54f);
         band.GetComponent<Image>().raycastTarget = false;
 
-        Text title = KitchenEventManager.MakeText(band, "Title", "Á¤ºñ¼Ò", 28, new Color(0.10f, 0.08f, 0.05f));
+        Text title = KitchenEventManager.MakeText(band, "Title", "ì •ë¹„ì†Œ", 28, new Color(0.10f, 0.08f, 0.05f));
         StretchFull(title.rectTransform);
 
-        // º¸À¯ °ñµå
+        // ë³´ìœ  ê³¨ë“œ
         goldText = KitchenEventManager.MakeText(body, "Gold", "", 23, new Color(1f, 0.85f, 0.35f));
         RectTransform goldRt = goldText.rectTransform;
         goldRt.anchorMin = new Vector2(0f, 1f);
@@ -333,20 +340,20 @@ public class WorkshopUI : MonoBehaviour
         goldRt.anchoredPosition = new Vector2(0f, -62f);
         goldRt.sizeDelta = new Vector2(0f, 32f);
 
-        // ---------- Á¤ºñ ¼½¼Ç ----------
-        MakeSectionLabel(body, "¦¡ Á¤ºñ ¦¡", -100f);
+        // ---------- ì •ë¹„ ì„¹ì…˜ ----------
+        MakeSectionLabel(body, "â”€ ì •ë¹„ â”€", -100f);
         knifeStatus = MakeRow(body, -128f, knifeCost, delegate { BuyKnife(); }, out knifeBtn);
         panStatus = MakeRow(body, -190f, panCost, delegate { BuyPan(); }, out panBtn);
         repairStatus = MakeRow(body, -252f, repairCost, delegate { BuyRepair(); }, out repairBtn);
         armorStatus = MakeRow(body, -314f, armorCost, delegate { BuyArmor(); }, out armorBtn);
 
-        // ---------- Àç·á ½ÃÀå ¼½¼Ç (v2) ----------
-        MakeSectionLabel(body, "¦¡ Àç·á ½ÃÀå (°³´ç " + materialCost + "G, Áö¿ª´ç +20G ÇÒÁõ) ¦¡", -388f);
+        // ---------- ì¬ë£Œ ì‹œì¥ ì„¹ì…˜ (v2) ----------
+        MakeSectionLabel(body, "â”€ ì¬ë£Œ ì‹œì¥ (ê°œë‹¹ " + materialCost + "G, ì§€ì—­ë‹¹ +20G í• ì¦) â”€", -388f);
 
         float matY = -416f;
         foreach (MaterialType t in System.Enum.GetValues(typeof(MaterialType)))
         {
-            MaterialType captured = t;   // Å¬·ÎÀú Ä¸Ã³ (C# 7.3 ÇÊ¼ö)
+            MaterialType captured = t;   // í´ë¡œì € ìº¡ì²˜ (C# 7.3 í•„ìˆ˜)
             MatRow row = new MatRow();
             row.type = t;
             row.status = MakeRow(body, matY, materialCost, delegate { BuyMaterial(captured); }, out row.btn);
@@ -354,9 +361,9 @@ public class WorkshopUI : MonoBehaviour
             matY -= 56f;
         }
 
-        // ´İ±â ¹öÆ° (º»Ã¼ ÇÏ´Ü)
+        // ë‹«ê¸° ë²„íŠ¼ (ë³¸ì²´ í•˜ë‹¨)
         Button closeBtn = KitchenEventManager.MakeButton(
-            body, "´İ±â (G)", new Color(0.45f, 0.25f, 0.20f, 1f),
+            body, "ë‹«ê¸° (G)", new Color(0.45f, 0.25f, 0.20f, 1f),
             new Vector2(0f, -390f), new Vector2(220f, 52f));
         RectTransform cRt = closeBtn.GetComponent<RectTransform>();
         cRt.anchorMin = new Vector2(0.5f, 0f);
@@ -366,7 +373,7 @@ public class WorkshopUI : MonoBehaviour
         closeBtn.onClick.AddListener(delegate { Close(); });
     }
 
-    /// <summary>¼½¼Ç ±¸ºĞ ¶óº§</summary>
+    /// <summary>ì„¹ì…˜ êµ¬ë¶„ ë¼ë²¨</summary>
     private void MakeSectionLabel(RectTransform parent, string label, float y)
     {
         Text t = KitchenEventManager.MakeText(parent, "Section", label, 19, new Color(0.75f, 0.65f, 0.50f));
@@ -378,11 +385,11 @@ public class WorkshopUI : MonoBehaviour
         rt.sizeDelta = new Vector2(0f, 26f);
     }
 
-    /// <summary>¸Ş´º ÇÑ ÁÙ »ı¼º: ¿ŞÂÊ »óÅÂ ÅØ½ºÆ® + ¿À¸¥ÂÊ ±¸¸Å ¹öÆ°. »óÅÂ ÅØ½ºÆ®¸¦ ¹İÈ¯</summary>
+    /// <summary>ë©”ë‰´ í•œ ì¤„ ìƒì„±: ì™¼ìª½ ìƒíƒœ í…ìŠ¤íŠ¸ + ì˜¤ë¥¸ìª½ êµ¬ë§¤ ë²„íŠ¼. ìƒíƒœ í…ìŠ¤íŠ¸ë¥¼ ë°˜í™˜</summary>
     private Text MakeRow(RectTransform parent, float y, int cost,
         UnityEngine.Events.UnityAction onBuy, out Button buyBtn)
     {
-        // Çà ¹è°æ
+        // í–‰ ë°°ê²½
         RectTransform row = KitchenEventManager.MakeBox(parent, "Row", new Color(1f, 1f, 1f, 0.06f));
         row.anchorMin = new Vector2(0f, 1f);
         row.anchorMax = new Vector2(1f, 1f);
@@ -393,7 +400,7 @@ public class WorkshopUI : MonoBehaviour
         row.sizeDelta = new Vector2(row.sizeDelta.x, 52f);
         row.GetComponent<Image>().raycastTarget = false;
 
-        // »óÅÂ ÅØ½ºÆ® (¿ŞÂÊ Á¤·Ä)
+        // ìƒíƒœ í…ìŠ¤íŠ¸ (ì™¼ìª½ ì •ë ¬)
         Text status = KitchenEventManager.MakeText(row, "Status", "", 20, new Color(0.92f, 0.90f, 0.85f));
         RectTransform sRt = status.rectTransform;
         sRt.anchorMin = new Vector2(0f, 0f);
@@ -402,7 +409,7 @@ public class WorkshopUI : MonoBehaviour
         sRt.offsetMax = Vector2.zero;
         status.alignment = TextAnchor.MiddleLeft;
 
-        // ±¸¸Å ¹öÆ° (¿À¸¥ÂÊ)
+        // êµ¬ë§¤ ë²„íŠ¼ (ì˜¤ë¥¸ìª½)
         buyBtn = KitchenEventManager.MakeButton(
             row, cost + " G", new Color(0.25f, 0.42f, 0.25f, 1f),
             Vector2.zero, new Vector2(140f, 40f));
@@ -416,7 +423,7 @@ public class WorkshopUI : MonoBehaviour
         return status;
     }
 
-    /// <summary>ºÎ¸ğ ¿µ¿ª¿¡ ²Ë Ã¤¿ì±â</summary>
+    /// <summary>ë¶€ëª¨ ì˜ì—­ì— ê½‰ ì±„ìš°ê¸°</summary>
     private void StretchFull(RectTransform rt)
     {
         rt.anchorMin = Vector2.zero;

@@ -1,8 +1,13 @@
 using UnityEngine;
 
 /// <summary>
-/// [TurretSlot.cs] v6 (고퀄 PNG 적용 2026-09-03) / v5 탑뷰 재스킨 (2026-09-02)
+/// [TurretSlot.cs] v6.1 (교수 피드백 반영 2026-09-14) / v6 (고퀄 PNG 적용 2026-09-03) / v5 탑뷰 재스킨 (2026-09-02)
 /// 포탑 슬롯 1개. 요리를 투입하면 포탑으로 가동한다.
+/// - v6.1 변경점 (교수 피드백 A4/B1/B2/B5):
+///   최대HP 패시브(철판 정식/오메가)를 슬롯별로 기록해 폐기·합체 소모 시 회수한다 (투입마다 무한 누적 + 회복 루프 차단)
+///   과열 자동 복구 스위치(OverheatAutoRecoverSec) / 시간 정규화 스위치(OverheatTimeNormalized)
+///   표적 우선 스위치(TargetPriorityEnabled): 힐러·서포터·자폭형을 먼저 노린다
+///   LastInsertTime: 프롤로그 조리 게이트가 "조리 -> 투입" 순서를 확인하는 데 쓴다
 /// - 같은 요리 반복 투입 -> 레벨업 (Lv1=C, 2=B, 3~4=A, 5+=S)
 /// - 발사형이면 쿨다운마다 가장 가까운 적 공격
 /// - 패시브/버프/오라는 TurretSlotManager가 일괄 처리
@@ -47,6 +52,13 @@ public class TurretSlot : MonoBehaviour
     private int shotsSinceCool = 0;        // 마지막 냉각 후 사격 수
     private int overheatThreshold = 0;     // 이번 과열 임계 (0 = 미정, 발사 시 롤)
     private float overheatImmuneUntil = 0f; // 냉각 직후 재과열 면역
+    private bool overheatActive = false;   // v6.1: 과열 진행 중 (자동 복구 만료를 감지해 마무리하려고)
+
+    // ── v6.1: 최대HP 패시브 기여량 (이 슬롯이 기차 최대 HP에 얹은 값 - 비울 때 회수) ──
+    private float appliedMaxHP = 0f;
+
+    /// <summary>마지막으로 어느 슬롯이든 요리가 투입된 시각 (Time.time, 0 = 없음). 프롤로그 조리 게이트용</summary>
+    public static float LastInsertTime = 0f;
 
     /// <summary>슬롯 마비 (보스 낙뢰 - 기존 호환용, 감전 표기)</summary>
     public void StunSlot(float seconds) { StunSlot(seconds, "감전"); }
@@ -67,12 +79,38 @@ public class TurretSlot : MonoBehaviour
     public void ClearStun()
     {
         if (StunKind == "과열")
-        {
-            overheatImmuneUntil = Time.time + GameBalance.OverheatImmuneTime;
-            shotsSinceCool = 0;
-            overheatThreshold = 0;
-        }
+            FinishOverheat();
         stunUntil = 0f;
+    }
+
+    /// <summary>v6.1: 과열 마무리 (수동 냉각·자동 복구 공통) - 면역 부여 + 발사 카운터 리셋</summary>
+    private void FinishOverheat()
+    {
+        overheatImmuneUntil = Time.time + GameBalance.OverheatImmuneTime;
+        shotsSinceCool = 0;
+        overheatThreshold = 0;
+        overheatActive = false;
+    }
+
+    /// <summary>v6.1: 최대HP 패시브 기여 적용/회수 (슬롯당 1회, 레벨 무관 - 설명 "+60"과 같은 값)</summary>
+    private void ApplyMaxHPPassive(RecipeData r)
+    {
+        RemoveMaxHPPassive();
+        if (r == null) return;
+        if (r.passiveType != "maxhp" && r.passiveType != "omega") return;
+        float amount = r.passiveType == "omega" ? 120f : r.passiveValue;
+        TrainManager tm = FindFirstObjectByType<TrainManager>();
+        if (tm == null) return;
+        tm.AddMaxHP(amount, false);   // 최대치만 - 현재 HP는 그대로 (회복 루프 차단)
+        appliedMaxHP = amount;
+    }
+
+    private void RemoveMaxHPPassive()
+    {
+        if (appliedMaxHP == 0f) return;
+        TrainManager tm = FindFirstObjectByType<TrainManager>();
+        if (tm != null) tm.AddMaxHP(-appliedMaxHP, false);
+        appliedMaxHP = 0f;
     }
 
     // 현재 투입된 레시피 데이터 (없으면 null)
@@ -136,23 +174,31 @@ public class TurretSlot : MonoBehaviour
             Debug.Log("[TurretSlot] 선대의 기본기 - " + r.displayName + " 시작 Lv" + level);
         }
 
-        // 최대HP형 패시브는 즉시 기차에 적용
-        if (r.passiveType == "maxhp" || r.passiveType == "omega")
-        {
-            TrainManager tm = FindFirstObjectByType<TrainManager>();
-            if (tm != null) tm.AddMaxHP(r.passiveType == "omega" ? 120f : r.passiveValue);
-        }
+        // 최대HP형 패시브: 새 포탑이 생길 때 슬롯당 1회만 (v6.1: 레벨업 투입은 누적하지 않음, 비울 때 회수)
+        if (wasEmpty) ApplyMaxHPPassive(r);
 
+        LastInsertTime = Time.time;
         Debug.Log("[TurretSlot] " + r.displayName + " 투입! " + GradeName + "등급 Lv" + level);
         return true;
     }
 
-    /// <summary>슬롯 비우기 (합체 재료로 소모 - 환급 없음)</summary>
+    /// <summary>슬롯 비우기 (합체 재료로 소모 - 환급 없음). v6.1: 패시브 회수 + 마비 상태 초기화</summary>
     public void ClearSlot()
     {
+        RemoveMaxHPPassive();
         recipeId = "";
         level = 0;
         cooldownTimer = 0f;
+        ResetStunState();
+    }
+
+    /// <summary>v6.1: 빈 슬롯이 마비/과열 상태를 물려받지 않게</summary>
+    private void ResetStunState()
+    {
+        stunUntil = 0f;
+        overheatActive = false;
+        shotsSinceCool = 0;
+        overheatThreshold = 0;
     }
 
     /// <summary>포탑 직접 설정 (합체 진화 결과용). 최대HP형 패시브는 1회 적용</summary>
@@ -165,11 +211,9 @@ public class TurretSlot : MonoBehaviour
         level = Mathf.Max(1, newLevel);
         cooldownTimer = 0f;
 
-        if (r.passiveType == "maxhp" || r.passiveType == "omega")
-        {
-            TrainManager tm = FindFirstObjectByType<TrainManager>();
-            if (tm != null) tm.AddMaxHP(r.passiveType == "omega" ? 120f : r.passiveValue);
-        }
+        // v6.1: 합체 결과의 패시브는 이전 기여를 회수하고 새로 1회 적용 (같은 값이면 순변화 0)
+        ApplyMaxHPPassive(r);
+        LastInsertTime = Time.time;
 
         Debug.Log("[TurretSlot] 합체 결과: " + r.displayName + " " + GradeName + "등급 Lv" + level);
     }
@@ -180,9 +224,11 @@ public class TurretSlot : MonoBehaviour
         if (IsEmpty) return 0;
         int refund = Mathf.Max(1, level);
         Debug.Log("[TurretSlot] " + Recipe.displayName + " 폐기, 재료 " + refund + "개 환급");
+        RemoveMaxHPPassive();   // v6.1: 최대HP 패시브 회수
         recipeId = "";
         level = 0;
         cooldownTimer = 0f;
+        ResetStunState();
         return refund;
     }
 
@@ -190,6 +236,12 @@ public class TurretSlot : MonoBehaviour
     public void TickFire(float deltaTime, float buffAttackSpeed, float buffDamage)
     {
         if (isLocked) return;
+        // v6.1 (B1): 과열이 자동 복구 시간으로 풀렸으면 수동 냉각과 같은 마무리 (면역 + 카운터 리셋)
+        if (overheatActive && !IsStunned && StunKind == "과열")
+        {
+            FinishOverheat();
+            UIManager.Instance?.ShowStatChange("포탑이 식었다 - 다시 가동");
+        }
         if (IsStunned) return;   // v3: 낙뢰 마비 중 발사 정지
         RecipeData r = Recipe;
         if (r == null) return;
@@ -226,9 +278,14 @@ public class TurretSlot : MonoBehaviour
         if (GameBalance.OverheatEnabled)
         {
             if (overheatThreshold <= 0)
-                overheatThreshold = Mathf.Max(10,
-                    Random.Range(GameBalance.OverheatShotsMin, GameBalance.OverheatShotsMax + 1)
-                    - (level - 1) * GameBalance.OverheatPerLevel);
+            {
+                int rolled = Random.Range(GameBalance.OverheatShotsMin, GameBalance.OverheatShotsMax + 1)
+                    - (level - 1) * GameBalance.OverheatPerLevel;
+                // v6.1 (B2 실험): 발사 간격으로 보정하면 연사 포탑과 중포의 "시간당" 과열 빈도가 같아진다
+                if (GameBalance.OverheatTimeNormalized && r.cooldown > 0f)
+                    rolled = Mathf.RoundToInt(rolled * Mathf.Clamp(1f / r.cooldown, 0.5f, 3f));
+                overheatThreshold = Mathf.Max(10, rolled);
+            }
 
             shotsSinceCool++;
             if (shotsSinceCool >= overheatThreshold
@@ -237,9 +294,15 @@ public class TurretSlot : MonoBehaviour
                 && TurretSlotManager.Instance.CanOverheatNow())
             {
                 TurretSlotManager.Instance.NoteOverheat();
-                StunSlot(9999f, "과열");
+                overheatActive = true;
+                // v6.1 (B1 실험): 자동 복구 시간이 설정돼 있으면 그 시간 뒤 스스로 식는다 ([E] 냉각은 즉시)
+                float dur = GameBalance.OverheatAutoRecoverSec > 0f ? GameBalance.OverheatAutoRecoverSec : 9999f;
+                StunSlot(dur, "과열");
                 SoundManager.Play("sfx_overheat");   // 클립 없으면 무시
-                UIManager.Instance?.ShowDanger("포탑 과열! 달려가서 [E]를 꾹 눌러 식혀라!");
+                if (GameBalance.OverheatAutoRecoverSec > 0f)
+                    UIManager.Instance?.ShowDanger("포탑 과열! [E]로 식히면 바로 복귀 (" + Mathf.RoundToInt(GameBalance.OverheatAutoRecoverSec) + "초 뒤 자동 복구)");
+                else
+                    UIManager.Instance?.ShowDanger("포탑 과열! 달려가서 [E]를 꾹 눌러 식혀라!");
                 Debug.Log("[TurretSlot] " + (Recipe != null ? Recipe.displayName : "?")
                     + " 과열 (사격 " + shotsSinceCool + "발)");
             }
@@ -253,7 +316,26 @@ public class TurretSlot : MonoBehaviour
         // 증강 사거리 배율 반영
         // 플레이테스트 픽스: 사거리는 GameBalance.TurretRange가 단일 소스 (구 15는 4칸
         // 기차에서 반대편을 무는 적이 사각에 들어갔다 - targetRange 필드는 무시)
-        float bestDist = GameBalance.TurretRange * AugmentManager.RangeMul;
+        float range = GameBalance.TurretRange * AugmentManager.RangeMul;
+
+        // v6.1 (B5 실험): 힐러(네크로)·서포터(파라사우)·자폭(플라이)이 사거리 안에 있으면 먼저 노린다
+        // - "힐러부터 잡아라"가 설명이 아니라 실제 조작 결과가 되게. 그 밖의 표적은 최근접
+        if (GameBalance.TargetPriorityEnabled)
+        {
+            float pDist = range;
+            for (int i = 0; i < all.Length; i++)
+            {
+                if (!all[i].IsAlive) continue;
+                Enemy.BehaviorPattern b = all[i].behavior;
+                if (b != Enemy.BehaviorPattern.Healer && b != Enemy.BehaviorPattern.Support
+                    && b != Enemy.BehaviorPattern.Suicide) continue;
+                float d = Vector3.Distance(transform.position, all[i].transform.position);
+                if (d < pDist) { pDist = d; best = all[i]; }
+            }
+            if (best != null) return best;
+        }
+
+        float bestDist = range;
         for (int i = 0; i < all.Length; i++)
         {
             if (!all[i].IsAlive) continue;

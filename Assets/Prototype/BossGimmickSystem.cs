@@ -1,11 +1,16 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 /// <summary>
-/// [BossGimmickSystem.cs] v4
+/// [BossGimmickSystem.cs] v4.1
 /// 보스전 전용 기믹 + 보스 UI를 관리합니다.
+///
+/// - v4.1 (교수 피드백 A6, 2026-09-14): 씬에 이 컴포넌트가 없으면 자동 생성한다.
+///   저장소 씬(08-25 커밋)에는 부착돼 있지 않았고, 호출부가 전부 Instance?. 라 보스 HP 바·그로기·[F] 투척·
+///   미끼/해동포/마지막 주문·베팅 정산이 오류 없이 통째로 빠지고 있었다. 이제 씬 의존 없음.
 ///
 /// - v4 변경점 (UI 재작성):
 ///   하이어라키 수동 패널 전부 제거 -> UI를 코드로 자동 생성 (겹침 문제 해결)
@@ -14,19 +19,45 @@ using UnityEngine.UI;
 ///   씬 세팅 필요 없음 - 기존 보스 HP/그로기 패널은 하이어라키에서 삭제할 것
 ///
 /// 동작 흐름:
-///   보스 HP 75/50/25% 도달 -> 그로기 발동 (10초 정지)
+///   보스 HP 75/50/25% 도달 -> 그로기 발동 (groggyDuration 7초 정지, 디 오리지널은 12%에 한 번 더 - C3)
 ///   그로기 중 보유한 디버프 요리를 자동 탐색해 표시
 ///   F키 -> FoodStock에서 1개 소모 -> 보스 DEF/RES 무력화
 ///
-/// 사용법: 씬에 빈 오브젝트 -> 이 스크립트 붙이기 (UI 자동 생성)
+/// 사용법: 없음 - 씬에 없으면 스스로 생성된다 (v4.1). 붙여 두어도 무방 (중복 생성 안 함)
 /// VS 2017 (C# 7.3) 호환
 /// </summary>
 public class BossGimmickSystem : MonoBehaviour
 {
     public static BossGimmickSystem Instance { get; private set; }
 
+    /// <summary>
+    /// v4.1: 씬에 없으면 스스로 생성 (다른 자동 생성 시스템과 같은 방식).
+    /// 런 포기/재도전은 씬을 다시 불러오므로(자동 생성 오브젝트도 함께 사라진다) 씬이 로드될 때마다 다시 확인한다.
+    /// </summary>
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+    private static void Bootstrap()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+        SceneManager.sceneLoaded += OnSceneLoaded;
+        EnsureExists();
+    }
+
+    private static void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        EnsureExists();
+    }
+
+    private static void EnsureExists()
+    {
+        if (Instance != null) return;
+        if (FindFirstObjectByType<BossGimmickSystem>() != null) return;
+        GameObject go = new GameObject("BossGimmickSystem(auto)");
+        go.AddComponent<BossGimmickSystem>();
+        Debug.Log("[BossGimmickSystem] 씬에 없어 자동 생성 (v4.1)");
+    }
+
     [Header("─ 설정 ─")]
-    public float groggyDuration = 10f;        // 그로기 지속 시간 (BossEnemy와 맞출 것)
+    public float groggyDuration = 7f;         // 그로기 지속 시간 (BossEnemy.groggyDuration 7초와 동일 - v4.1에서 10 -> 7 동기화)
 
     // ─────────────────────────────────────────────
     // 내부 상태
@@ -61,6 +92,12 @@ public class BossGimmickSystem : MonoBehaviour
     {
         bossRoot.gameObject.SetActive(false);
         groggyRoot.gameObject.SetActive(false);
+    }
+
+    private void OnDestroy()
+    {
+        // 씬 리로드로 사라질 때 죽은 참조를 남기지 않는다 (Instance?. 호출부가 파괴된 오브젝트를 건드리지 않게)
+        if (Instance == this) Instance = null;
     }
 
     // ─────────────────────────────────────────────
@@ -226,7 +263,8 @@ public class BossGimmickSystem : MonoBehaviour
             RefreshGuideText();
         }
 
-        if (Input.GetKeyDown(KeyCode.F))
+        // v4.1: 마지막 주문 선택창([R]/[F])이 떠 있는 동안, 그리고 선택창이 F를 막 소비한 프레임에는 던지지 않는다
+        if (Input.GetKeyDown(KeyCode.F) && !FinalOrderUI.QteOpen && FinalOrderUI.KeyConsumedFrame != Time.frameCount)
             TryThrowDebuffFood();
 
         if (!currentBoss.IsGroggy || groggyTimer >= groggyDuration)

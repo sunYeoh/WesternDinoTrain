@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.Events;
 
 /// <summary>
-/// [GameManager.cs] v4
+/// [GameManager.cs] v4.1 (2026-09-14: 런 통계 초기화 / 프롤로그 찬장 고기 고정 / 전투 중 수리 기록) / v4
 /// 게임 전체 상태를 관리하는 최상위 싱글톤 클래스.
 /// Cooking 페이즈 제거 — 게임 시작하면 바로 Battle.
 /// 조리는 전투 중 언제든 가능.
@@ -59,6 +59,10 @@ public class GameManager : MonoBehaviour
     public UnityEvent<GameState> OnGameStateChanged = new UnityEvent<GameState>();
 
     // 시작 보급품 지급 여부 (런당 1회)
+    // v4.1 (교수 피드백 C4): 전투 중 정비소 기차 수리 기록 - "돈으로 위기를 지우는가"를 재검증에서 잰다
+    public int RepairsInBattle = 0;
+    public int RepairGoldInBattle = 0;
+
     private bool starterKitGiven = false;
 
     // ─────────────────────────────────────────────
@@ -116,6 +120,8 @@ public class GameManager : MonoBehaviour
         if (!starterKitGiven)
         {
             starterKitGiven = true;
+            CookingBridge.ResetRunStats();   // v4.1: 런 통계 초기화 (프롤로그 조리 게이트·관찰 시트)
+            RepairsInBattle = 0; RepairGoldInBattle = 0;
             GiveStarterKit();
 
             // v4: 새 런 시작을 메타 기록에 등록 (런 카운트 +1)
@@ -171,11 +177,14 @@ public class GameManager : MonoBehaviour
         }
 
         // v5 (감사 3-D): 선대가 남긴 찬장 - 기본 랜덤 재료 2개 (첫 조리를 1분 안에)
+        // v4.1 (교수 피드백 A11): 1회차(프롤로그 예정)면 고기 2개로 고정 - 조리 게이트에서 더블 육포를 반드시 구울 수 있게
         if (MaterialInventory.Instance != null)
         {
+            bool prologuePending = GameBalance.PrologueEnabled && GameBalance.PrologueCookGate
+                && PlayerPrefs.GetInt("WDT_PrologueSeen", 0) == 0;
             for (int m = 0; m < 2; m++)
-                MaterialInventory.Instance.Add((MaterialType)Random.Range(0, 6), 1);
-            summary += " (+찬장 재료 2)";
+                MaterialInventory.Instance.Add(prologuePending ? MaterialType.Meat : (MaterialType)Random.Range(0, 6), 1);
+            summary += prologuePending ? " (+찬장 고기 2)" : " (+찬장 재료 2)";
         }
 
         // v4.1: 명성 상점 '재료 가방' - 시작 시 랜덤 재료 추가 지급

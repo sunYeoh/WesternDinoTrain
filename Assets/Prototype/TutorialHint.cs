@@ -3,24 +3,24 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [TutorialHint.cs] v1 - ÄÁÅØ½ºÆ® Æ®¸®°Å Æ©Åä¸®¾ó (¼³°è: Æ©Åä¸®¾ó_¿Âº¸µù_¼³°è_2026-08-18)
+/// [TutorialHint.cs] v1.1 (êµìˆ˜ í”¼ë“œë°± A13: í‘œì‹œ 5ì´ˆ + ì•„ë¬´ í‚¤ ë‹«ê¸° + ì¡°ë¦¬ ì¤‘ ëŒ€ê¸°) - ì»¨í…ìŠ¤íŠ¸ íŠ¸ë¦¬ê±° íŠœí† ë¦¬ì–¼ (ì„¤ê³„: íŠœí† ë¦¬ì–¼_ì˜¨ë³´ë”©_ì„¤ê³„_2026-08-18)
 ///
-/// ¸ô¾Æ¼­ °¡¸£Ä¡Áö ¾Ê´Â´Ù. °¢ ±â¹ÍÀ» "Ã³À½ ¸¶ÁÖÄ¡´Â ¼ø°£" 1È¸¸¸ ¹è³Ê·Î ¾È³»ÇÑ´Ù.
-/// - ¿µ±¸ ±â·Ï: PlayerPrefs "WDT_Tut_(id)" - 2È¸Â÷ºÎÅÍ ¹İº¹ ¾øÀ½ (´ÙÈ¸Â÷ ¸¶Âû ¹æÁö)
-/// - ´Ù¸¥ ÆÄÀÏ ¼öÁ¤ 0: ÀüºÎ °ÔÀÓ »óÅÂ Æú¸µ(0.3ÃÊ)À¸·Î °¨Áö. ÀüºÎ º¸°í ³ª¸é Æú¸µ Áß´Ü
-/// - [H] µµ¿ò¸» ¾ÆÄ«ÀÌºê: Áö³ª°£ ¾È³» Àç¿­¶÷ (¾ÆÁ÷ ¾È ¸¸³­ »óÈ²Àº Àá±è Ç¥½Ã)
-/// - ½Å±Ô ±â¹Í Ãß°¡ ½Ã: ¾Æ·¡ HINTS ¹è¿­¿¡ 1ÁÙ + CheckTrigger¿¡ Á¶°Ç 1ÁÙ
+/// ëª°ì•„ì„œ ê°€ë¥´ì¹˜ì§€ ì•ŠëŠ”ë‹¤. ê° ê¸°ë¯¹ì„ "ì²˜ìŒ ë§ˆì£¼ì¹˜ëŠ” ìˆœê°„" 1íšŒë§Œ ë°°ë„ˆë¡œ ì•ˆë‚´í•œë‹¤.
+/// - ì˜êµ¬ ê¸°ë¡: PlayerPrefs "WDT_Tut_(id)" - 2íšŒì°¨ë¶€í„° ë°˜ë³µ ì—†ìŒ (ë‹¤íšŒì°¨ ë§ˆì°° ë°©ì§€)
+/// - ë‹¤ë¥¸ íŒŒì¼ ìˆ˜ì • 0: ì „ë¶€ ê²Œì„ ìƒíƒœ í´ë§(0.3ì´ˆ)ìœ¼ë¡œ ê°ì§€. ì „ë¶€ ë³´ê³  ë‚˜ë©´ í´ë§ ì¤‘ë‹¨
+/// - [H] ë„ì›€ë§ ì•„ì¹´ì´ë¸Œ: ì§€ë‚˜ê°„ ì•ˆë‚´ ì¬ì—´ëŒ (ì•„ì§ ì•ˆ ë§Œë‚œ ìƒí™©ì€ ì ê¹€ í‘œì‹œ)
+/// - ì‹ ê·œ ê¸°ë¯¹ ì¶”ê°€ ì‹œ: ì•„ë˜ HINTS ë°°ì—´ì— 1ì¤„ + CheckTriggerì— ì¡°ê±´ 1ì¤„
 ///
-/// »ç¿ë¹ı: ¾øÀ½! ÆÄÀÏ¸¸ ³ÖÀ¸¸é ÀÚµ¿ »ı¼ºµÈ´Ù. (GameBalance.TutorialEnabled·Î ²ô±â)
-/// VS 2017 (C# 7.3) È£È¯
+/// ì‚¬ìš©ë²•: ì—†ìŒ! íŒŒì¼ë§Œ ë„£ìœ¼ë©´ ìë™ ìƒì„±ëœë‹¤. (GameBalance.TutorialEnabledë¡œ ë„ê¸°)
+/// VS 2017 (C# 7.3) í˜¸í™˜
 /// </summary>
 public class TutorialHint : MonoBehaviour
 {
     private static TutorialHint instance;
 
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
-    // ÈùÆ® Á¤ÀÇ (¾ÆÄ«ÀÌºê Ç¥½Ã ¼ø¼­ÀÌ±âµµ ÇÏ´Ù)
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // íŒíŠ¸ ì •ì˜ (ì•„ì¹´ì´ë¸Œ í‘œì‹œ ìˆœì„œì´ê¸°ë„ í•˜ë‹¤)
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     private struct HintDef
     {
         public string id;
@@ -34,57 +34,57 @@ public class TutorialHint : MonoBehaviour
 
     private static readonly HintDef[] HINTS =
     {
-        new HintDef("first_battle", "È²¾ß·Î Ãâ¹ß!",
-            "[WASD] ´Ş·Á¶ó, [Shift] ´ë½Ã! º¸±Ş ¿ä¸®¸¦ Æ÷Å¾ ÀÌ¸§Ç¥¿¡ Å¬¸¯ÇØ ÅõÀÔÇÏ¶ó"),
-        new HintDef("cook_ready", "Àç·á°¡ ¸ğ¿´´Ù",
-            "Àç·á 2°³ = ¿ä¸® 1°³. [E] °¡±î¿î Á¶¸®´ë / [Tab] ÁÖ¹æ ÀüÃ¼ ¸Ş´º"),
-        new HintDef("cook_start", "Á¶¸® °³½Ã",
-            "ÆÇÁ¤¿¡ ¸ÂÃç ¼ÕÀ» ¿òÁ÷¿©¶ó. [ESC] Áß´ÜÇÏ¸é Àç·á´Â µ¹·Á¹Ş´Â´Ù"),
-        new HintDef("merge_ready", "°°Àº ¿ä¸®´Â °ãÄ£´Ù",
-            "°¡µ¿ ÁßÀÎ Æ÷Å¾¿¡ °°Àº ¿ä¸®¸¦ ´Ù½Ã ÅõÀÔ = ·¹º§¾÷! °°Àº Æ÷Å¾ 2¹®Àº ÁÂÅ¬¸¯ ÇÕÃ¼"),
-        new HintDef("resonance_near", "°ø¸í ÀÓ¹Ú",
-            "°°Àº ¼Ó¼º 2¹®Â°´Ù. 3¹®À» ¸ğÀ¸¸é ¼Ó¼º °ø¸í µ¥¹ÌÁö +20%!"),
-        new HintDef("first_stun", "Æ÷Å¾ ¸¶ºñ!",
-            "´Ş·Á°¡¼­ [E]·Î µÇ»ì·Á¶ó. ¼­ ÀÖ´Â Æ÷Å¾Àº ¿ä¸®°ªÀ» ¸ø ÇÑ´Ù"),
-        new HintDef("first_overheat", "Æ÷Å¾ °ú¿­!",
-            "[E]¸¦ ²Ú ´­·¯ ½ÄÇô¶ó. Áß°£¿¡ ¼ÕÀ» ³õÀ¸¸é ´Ù½Ã ´Ş¾Æ¿À¸¥´Ù"),
-        new HintDef("first_event", "ÁÖ¹æ »ç°í!",
-            "È­»ìÇ¥¸¦ µû¶ó ´Ş·Á°¡¶ó - ÇöÀå¿¡ µµÂøÇØ¾ß ¼ö½ÀÀÌ ½ÃÀÛµÈ´Ù"),
-        new HintDef("first_crate", "°©ÆÇÀÇ Àü¸®Ç°",
-            "¶³¾îÁø »óÀÚ´Â ¹â¾Æ¼­ È¸¼öÇÑ´Ù"),
-        new HintDef("first_item", "À¯¹° È¹µæ",
-            "[V] ¼ÒÁöÇ° ¸ñ·ÏÀ» ºÁ¶ó - À¯¹°Àº ÇÏ³ª¾¿¸¸, È¿°ú´Â ¿µ±¸´Ù"),
-        new HintDef("first_rock", "±¤¸Æ ¹ÙÀ§ ¹ß°ß",
-            "±â°üÂ÷ ÀÛ»ìÆ÷ [E]·Î ³¬¾ÆÃ¤¶ó. °¡²û ±¾ÁÖ¸° °ÍµéÀÌ µş·Á¿Â´Ù"),
-        new HintDef("lever_hint", "±â°üÂ÷ ·¹¹ö",
-            "±â°üÂ÷ÀÇ ·¹¹ö [E] = Àü¼Ó ÁÖÇà. À§ÇèÇÑ ¸¸Å­ ¹úÀÌ°¡ ÁÁ´Ù"),
-        new HintDef("first_town", "°£ÀÌ¿ª Á¤Â÷",
-            "[G] Á¤ºñ¼Ò - ¼ö¸®¡¤¿¬¸¶¡¤Àç·á ½ÃÀå. µµ±¸°¡ »óÇÏ¸é Á¶¸®°¡ ¾î·Á¿öÁø´Ù"),
-        new HintDef("first_augment", "Áõ°­ ¼±ÅÃ",
-            "[1~3] ¼±ÅÃ / [0] °Ç³Ê¶Ù±â / [9] ¸®·Ñ. Áõ°­ÀÌ ÀÌ¹ø ·±ÀÇ ºôµå¸¦ ¸¸µç´Ù"),
-        new HintDef("first_route", "ºĞ±â ¼±·Î",
-            "À§Çè°ú º¸»óÀÇ ±³È¯ÀÌ´Ù. Æó¿ª¿¡´Â ¼±´ëÀÇ ±â·ÏÀÌ Àáµé¾î ÀÖ´Ù"),
-        new HintDef("boss_incoming", "º¸½º Á¢±Ù!",
-            "±×·Î±â(°¡½¿ ÇØÄ¡ °³¹æ) ¶§ [F]·Î µğ¹öÇÁ ¿ä¸®¸¦ ´øÁ®¶ó!"),
+        new HintDef("first_battle", "í™©ì•¼ë¡œ ì¶œë°œ!",
+            "[WASD] ë‹¬ë ¤ë¼, [Shift] ëŒ€ì‹œ! ë³´ê¸‰ ìš”ë¦¬ë¥¼ í¬íƒ‘ ì´ë¦„í‘œì— í´ë¦­í•´ íˆ¬ì…í•˜ë¼"),
+        new HintDef("cook_ready", "ì¬ë£Œê°€ ëª¨ì˜€ë‹¤",
+            "ì¬ë£Œ 2ê°œ = ìš”ë¦¬ 1ê°œ. [E] ê°€ê¹Œìš´ ì¡°ë¦¬ëŒ€ / [Tab] ì£¼ë°© ì „ì²´ ë©”ë‰´"),
+        new HintDef("cook_start", "ì¡°ë¦¬ ê°œì‹œ",
+            "íŒì •ì— ë§ì¶° ì†ì„ ì›€ì§ì—¬ë¼. [ESC] ì¤‘ë‹¨í•˜ë©´ ì¬ë£ŒëŠ” ëŒë ¤ë°›ëŠ”ë‹¤"),
+        new HintDef("merge_ready", "ê°™ì€ ìš”ë¦¬ëŠ” ê²¹ì¹œë‹¤",
+            "ê°€ë™ ì¤‘ì¸ í¬íƒ‘ì— ê°™ì€ ìš”ë¦¬ë¥¼ ë‹¤ì‹œ íˆ¬ì… = ë ˆë²¨ì—…! ê°™ì€ í¬íƒ‘ 2ë¬¸ì€ ì¢Œí´ë¦­ í•©ì²´"),
+        new HintDef("resonance_near", "ê³µëª… ì„ë°•",
+            "ê°™ì€ ì†ì„± 2ë¬¸ì§¸ë‹¤. 3ë¬¸ì„ ëª¨ìœ¼ë©´ ì†ì„± ê³µëª… ë°ë¯¸ì§€ +20%!"),
+        new HintDef("first_stun", "í¬íƒ‘ ë§ˆë¹„!",
+            "ë‹¬ë ¤ê°€ì„œ [E]ë¡œ ë˜ì‚´ë ¤ë¼. ì„œ ìˆëŠ” í¬íƒ‘ì€ ìš”ë¦¬ê°’ì„ ëª» í•œë‹¤"),
+        new HintDef("first_overheat", "í¬íƒ‘ ê³¼ì—´!",
+            "[E]ë¥¼ ê¾¹ ëˆŒëŸ¬ ì‹í˜€ë¼. ì¤‘ê°„ì— ì†ì„ ë†“ìœ¼ë©´ ë‹¤ì‹œ ë‹¬ì•„ì˜¤ë¥¸ë‹¤"),
+        new HintDef("first_event", "ì£¼ë°© ì‚¬ê³ !",
+            "í™”ì‚´í‘œë¥¼ ë”°ë¼ ë‹¬ë ¤ê°€ë¼ - í˜„ì¥ì— ë„ì°©í•´ì•¼ ìˆ˜ìŠµì´ ì‹œì‘ëœë‹¤"),
+        new HintDef("first_crate", "ê°‘íŒì˜ ì „ë¦¬í’ˆ",
+            "ë–¨ì–´ì§„ ìƒìëŠ” ë°Ÿì•„ì„œ íšŒìˆ˜í•œë‹¤"),
+        new HintDef("first_item", "ìœ ë¬¼ íšë“",
+            "[V] ì†Œì§€í’ˆ ëª©ë¡ì„ ë´ë¼ - ìœ ë¬¼ì€ í•˜ë‚˜ì”©ë§Œ, íš¨ê³¼ëŠ” ì˜êµ¬ë‹¤"),
+        new HintDef("first_rock", "ê´‘ë§¥ ë°”ìœ„ ë°œê²¬",
+            "ê¸°ê´€ì°¨ ì‘ì‚´í¬ [E]ë¡œ ë‚šì•„ì±„ë¼. ê°€ë” êµ¶ì£¼ë¦° ê²ƒë“¤ì´ ë”¸ë ¤ì˜¨ë‹¤"),
+        new HintDef("lever_hint", "ê¸°ê´€ì°¨ ë ˆë²„",
+            "ê¸°ê´€ì°¨ì˜ ë ˆë²„ [E] = ì „ì† ì£¼í–‰. ìœ„í—˜í•œ ë§Œí¼ ë²Œì´ê°€ ì¢‹ë‹¤"),
+        new HintDef("first_town", "ê°„ì´ì—­ ì •ì°¨",
+            "[G] ì •ë¹„ì†Œ - ìˆ˜ë¦¬Â·ì—°ë§ˆÂ·ì¬ë£Œ ì‹œì¥. ë„êµ¬ê°€ ìƒí•˜ë©´ ì¡°ë¦¬ê°€ ì–´ë ¤ì›Œì§„ë‹¤"),
+        new HintDef("first_augment", "ì¦ê°• ì„ íƒ",
+            "[1~5] ìˆ«ìí‚¤ë¡œ ì„ íƒ / [0] ê±´ë„ˆë›°ê¸°(+ëª…ì„±) / [9] ë¦¬ë¡¤(ê³¨ë“œ). ì¦ê°•ì´ ì´ë²ˆ ëŸ°ì˜ ë¹Œë“œë¥¼ ë§Œë“ ë‹¤"),
+        new HintDef("first_route", "ë¶„ê¸° ì„ ë¡œ",
+            "ìœ„í—˜ê³¼ ë³´ìƒì˜ êµí™˜ì´ë‹¤. íì—­ì—ëŠ” ì„ ëŒ€ì˜ ê¸°ë¡ì´ ì ë“¤ì–´ ìˆë‹¤"),
+        new HintDef("boss_incoming", "ë³´ìŠ¤ ì ‘ê·¼!",
+            "ê·¸ë¡œê¸°(ê°€ìŠ´ í•´ì¹˜ ê°œë°©) ë•Œ [F]ë¡œ ë””ë²„í”„ ìš”ë¦¬ë¥¼ ë˜ì ¸ë¼!"),
     };
 
-    private const string PREF_PREFIX = "WDT_Tut_";   // ¸ŞÅ¸(WDT_)¿Í °°Àº °è¿­, µ¶¸³ Å°
+    private const string PREF_PREFIX = "WDT_Tut_";   // ë©”íƒ€(WDT_)ì™€ ê°™ì€ ê³„ì—´, ë…ë¦½ í‚¤
 
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
-    // ³»ºÎ »óÅÂ
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
-    private readonly List<int> pending = new List<int>();  // Ç¥½Ã ´ë±â Å¥ (HINTS ÀÎµ¦½º)
-    private float showUntil = 0f;      // ÇöÀç ¹è³Ê Ç¥½Ã Á¾·á ½Ã°¢
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ë‚´ë¶€ ìƒíƒœ
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    private readonly List<int> pending = new List<int>();  // í‘œì‹œ ëŒ€ê¸° í (HINTS ì¸ë±ìŠ¤)
+    private float showUntil = 0f;      // í˜„ì¬ ë°°ë„ˆ í‘œì‹œ ì¢…ë£Œ ì‹œê°
     private float nextPollTime = 0f;
     private bool allSeen = false;
 
-    // ¹è³Ê UI
+    // ë°°ë„ˆ UI
     private Canvas bannerCanvas;
     private RectTransform bannerRoot;
     private Text bannerTitle;
     private Text bannerBody;
 
-    // ¾ÆÄ«ÀÌºê UI
+    // ì•„ì¹´ì´ë¸Œ UI
     private Canvas archiveCanvas;
     private RectTransform archiveRoot;
     private bool archiveOpen = false;
@@ -106,9 +106,9 @@ public class TutorialHint : MonoBehaviour
         RefreshAllSeen();
     }
 
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
-    // ±â·Ï (¿µ±¸)
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ê¸°ë¡ (ì˜êµ¬)
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     private static bool Seen(string id)
     {
         return PlayerPrefs.GetInt(PREF_PREFIX + id, 0) == 1;
@@ -127,43 +127,45 @@ public class TutorialHint : MonoBehaviour
             if (!Seen(HINTS[i].id)) { allSeen = false; return; }
     }
 
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
-    // ¸Å ÇÁ·¹ÀÓ: Æú¸µ + Å¥ Ç¥½Ã + [H] ¾ÆÄ«ÀÌºê
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ë§¤ í”„ë ˆì„: í´ë§ + í í‘œì‹œ + [H] ì•„ì¹´ì´ë¸Œ
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     private void Update()
     {
-        // [H] µµ¿ò¸» ¾ÆÄ«ÀÌºê (Æ©Åä¸®¾ó ½ºÀ§Ä¡¿Í ¹«°üÇÏ°Ô ¿­¶÷Àº Ç×»ó °¡´É)
+        // [H] ë„ì›€ë§ ì•„ì¹´ì´ë¸Œ (íŠœí† ë¦¬ì–¼ ìŠ¤ìœ„ì¹˜ì™€ ë¬´ê´€í•˜ê²Œ ì—´ëŒì€ í•­ìƒ ê°€ëŠ¥)
         if (Input.GetKeyDown(KeyCode.H) && !PauseMenu.IsOpen)
             ToggleArchive();
 
-        // °³¹ß Ä¡Æ® F4: Æ©Åä¸®¾ó+ÇÁ·Ñ·Î±× ±â·Ï ÀüÃ¼ ¸®¼Â (ÀçÅ×½ºÆ®¿ë - ºôµå Àü Ä¡Æ® Á¤¸® ´ë»ó)
+        // ê°œë°œ ì¹˜íŠ¸ F4: íŠœí† ë¦¬ì–¼+í”„ë¡¤ë¡œê·¸ ê¸°ë¡ ì „ì²´ ë¦¬ì…‹ (ì¬í…ŒìŠ¤íŠ¸ìš© - ë¹Œë“œ ì „ ì¹˜íŠ¸ ì •ë¦¬ ëŒ€ìƒ)
         if (Input.GetKeyDown(KeyCode.F4))
         {
             for (int i = 0; i < HINTS.Length; i++)
                 PlayerPrefs.DeleteKey(PREF_PREFIX + HINTS[i].id);
-            PlayerPrefs.DeleteKey("WDT_PrologueSeen");   // ÇÁ·Ñ·Î±×(¿şÀÌºê 1 ½ºÇÇ³ë ¾È³»)µµ ÃÊ±âÈ­
+            PlayerPrefs.DeleteKey("WDT_PrologueSeen");   // í”„ë¡¤ë¡œê·¸(ì›¨ì´ë¸Œ 1 ìŠ¤í”¼ë…¸ ì•ˆë‚´)ë„ ì´ˆê¸°í™”
             PlayerPrefs.Save();
             allSeen = false;
-            UIManager.Instance?.ShowStatChange("[Ä¡Æ®] Æ©Åä¸®¾ó/ÇÁ·Ñ·Î±× ±â·Ï ¸®¼Â - Ã³À½ ¿Â ¼ÎÇÁ°¡ µÆ´Ù");
-            Debug.Log("[TutorialHint] Ä¡Æ® F4 - ±â·Ï ÀüÃ¼ ¸®¼Â");
+            UIManager.Instance?.ShowStatChange("[ì¹˜íŠ¸] íŠœí† ë¦¬ì–¼/í”„ë¡¤ë¡œê·¸ ê¸°ë¡ ë¦¬ì…‹ - ì²˜ìŒ ì˜¨ ì…°í”„ê°€ ëë‹¤");
+            Debug.Log("[TutorialHint] ì¹˜íŠ¸ F4 - ê¸°ë¡ ì „ì²´ ë¦¬ì…‹");
         }
 
         if (!GameBalance.TutorialEnabled) { HideBannerIfExpired(true); return; }
 
-        // ¹è³Ê ¼ö¸í °ü¸®
+        // ë°°ë„ˆ ìˆ˜ëª… ê´€ë¦¬
         HideBannerIfExpired(false);
 
-        // Ç¥½Ã ÁßÀÌ ¾Æ´Ï°í ´ë±â Å¥°¡ ÀÖÀ¸¸é ´ÙÀ½ ÈùÆ® Ç¥½Ã
-        // (¿ÀÇÁ´× µî ÀüÃ¼ È­¸é ¿¬Ãâ Áß¿¡´Â ±â´Ù·È´Ù°¡ º¸¿©ÁØ´Ù)
+        // í‘œì‹œ ì¤‘ì´ ì•„ë‹ˆê³  ëŒ€ê¸° íê°€ ìˆìœ¼ë©´ ë‹¤ìŒ íŒíŠ¸ í‘œì‹œ
+        // (ì˜¤í”„ë‹ ë“± ì „ì²´ í™”ë©´ ì—°ì¶œ ì¤‘ì—ëŠ” ê¸°ë‹¤ë ¸ë‹¤ê°€ ë³´ì—¬ì¤€ë‹¤)
+        // v1.1 (êµìˆ˜ í”¼ë“œë°± A13): ì¡°ë¦¬ ë¯¸ë‹ˆê²Œì„ì´ ë–  ìˆëŠ” ë™ì•ˆ(íŒì • íŒì—… í¬í•¨)ì€ ê¸°ë‹¤ë¦°ë‹¤ -
+        // ì„±ê³µì„ ì„¤ëª…í•˜ëŠ” ì°½ì´ ì„±ê³µ ìì²´ë¥¼ ê°€ë¦¬ì§€ ì•Šê²Œ
         if (Time.unscaledTime >= showUntil && pending.Count > 0
-            && !PauseMenu.IsOpen && !StoryTexts.IsBlocking)
+            && !PauseMenu.IsOpen && !StoryTexts.IsBlocking && !CookingMinigame.IsActive)
         {
             int idx = pending[0];
             pending.RemoveAt(0);
             ShowBanner(HINTS[idx]);
         }
 
-        // »óÅÂ Æú¸µ (ÀüºÎ ºÃÀ¸¸é Áß´Ü - ºñ¿ë 0)
+        // ìƒíƒœ í´ë§ (ì „ë¶€ ë´¤ìœ¼ë©´ ì¤‘ë‹¨ - ë¹„ìš© 0)
         if (allSeen || Time.unscaledTime < nextPollTime) return;
         nextPollTime = Time.unscaledTime + 0.3f;
         PollTriggers();
@@ -177,13 +179,13 @@ public class TutorialHint : MonoBehaviour
             if (Seen(id) || pending.Contains(i)) continue;
             if (!CheckTrigger(id)) continue;
 
-            MarkSeen(id);          // Æ®¸®°Å Áï½Ã ±â·Ï (Å¥ ´ë±â Áß Áßº¹ ¹æÁö)
+            MarkSeen(id);          // íŠ¸ë¦¬ê±° ì¦‰ì‹œ ê¸°ë¡ (í ëŒ€ê¸° ì¤‘ ì¤‘ë³µ ë°©ì§€)
             pending.Add(i);
         }
         RefreshAllSeen();
     }
 
-    /// <summary>idº° ¹ßµ¿ Á¶°Ç - ÀüºÎ °ø°³ »óÅÂ¸¸ ÀĞ´Â´Ù (´Ù¸¥ ÆÄÀÏ ¹«¼öÁ¤)</summary>
+    /// <summary>idë³„ ë°œë™ ì¡°ê±´ - ì „ë¶€ ê³µê°œ ìƒíƒœë§Œ ì½ëŠ”ë‹¤ (ë‹¤ë¥¸ íŒŒì¼ ë¬´ìˆ˜ì •)</summary>
     private bool CheckTrigger(string id)
     {
         GameManager gm = GameManager.Instance;
@@ -219,7 +221,7 @@ public class TutorialHint : MonoBehaviour
             {
                 TurretSlot s = mgr.slots[i];
                 if (s == null || !s.IsStunned) continue;
-                bool overheated = s.StunKind == "°ú¿­";
+                bool overheated = s.StunKind == "ê³¼ì—´";
                 if (id == "first_overheat" && overheated) return true;
                 if (id == "first_stun" && !overheated) return true;
             }
@@ -235,8 +237,8 @@ public class TutorialHint : MonoBehaviour
                 TurretSlot sa = mgr.slots[a];
                 if (sa == null || sa.IsEmpty || sa.isLocked) continue;
 
-                // ÇÈ½º 2Â÷: ÇÕÃ¼ ¾È³»¸¦ ¾Õ´ç±ä´Ù - °¡µ¿ Æ÷Å¾°ú °°Àº ¿ä¸®°¡ "Àç°í"¿¡¸¸
-                // ÀÖ¾îµµ ¹ßµ¿ (½ÃÀÛ Æ÷Å¾ + º¸±Ş ¿ä¸® Á¶ÇÕÀÌ¸é Ã¹ ÀüÅõ ¸î ÃÊ ¾È¿¡ ¹è¿î´Ù)
+                // í”½ìŠ¤ 2ì°¨: í•©ì²´ ì•ˆë‚´ë¥¼ ì•ë‹¹ê¸´ë‹¤ - ê°€ë™ í¬íƒ‘ê³¼ ê°™ì€ ìš”ë¦¬ê°€ "ì¬ê³ "ì—ë§Œ
+                // ìˆì–´ë„ ë°œë™ (ì‹œì‘ í¬íƒ‘ + ë³´ê¸‰ ìš”ë¦¬ ì¡°í•©ì´ë©´ ì²« ì „íˆ¬ ëª‡ ì´ˆ ì•ˆì— ë°°ìš´ë‹¤)
                 if (id == "merge_ready" && FoodStock.Instance != null
                     && FoodStock.Instance.Get(sa.recipeId) >= 1) return true;
 
@@ -260,12 +262,12 @@ public class TutorialHint : MonoBehaviour
         return false;
     }
 
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
-    // ¹è³Ê (»ó´Ü Áß¾Ó - ±âÂ÷ ½ºÆ®¸³ ¾Æ·¡)
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ë°°ë„ˆ (ìƒë‹¨ ì¤‘ì•™ - ê¸°ì°¨ ìŠ¤íŠ¸ë¦½ ì•„ë˜)
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     private void BuildBanner()
     {
-        bannerCanvas = UIFactory.CreateCanvas("TutorialHint_Canvas", 610);   // Áõ°­(600) À§, °æ°í(640) ¾Æ·¡
+        bannerCanvas = UIFactory.CreateCanvas("TutorialHint_Canvas", 610);   // ì¦ê°•(600) ìœ„, ê²½ê³ (640) ì•„ë˜
 
         bannerRoot = UIFactory.CreatePanel(bannerCanvas.transform, "Banner",
             new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
@@ -282,7 +284,7 @@ public class TutorialHint : MonoBehaviour
         bannerBody.rectTransform.offsetMin = new Vector2(10f, 18f);
         bannerBody.rectTransform.offsetMax = new Vector2(-10f, -30f);
 
-        Text footer = UIFactory.CreateText(bannerRoot, "Footer", "[H] Áö³ª°£ ¾È³» ´Ù½Ã º¸±â", 11,
+        Text footer = UIFactory.CreateText(bannerRoot, "Footer", "[H] ì§€ë‚˜ê°„ ì•ˆë‚´ ë‹¤ì‹œ ë³´ê¸°", 11,
             UIFactory.DIM, TextAnchor.LowerRight);
         footer.rectTransform.offsetMin = new Vector2(10f, 3f);
         footer.rectTransform.offsetMax = new Vector2(-8f, -56f);
@@ -292,23 +294,31 @@ public class TutorialHint : MonoBehaviour
 
     private void ShowBanner(HintDef def)
     {
-        bannerTitle.text = "ÀÏÁö Á¶°¢ - " + def.title;
+        bannerTitle.text = "ì¼ì§€ ì¡°ê° - " + def.title;
         bannerBody.text = def.body;
         bannerRoot.gameObject.SetActive(true);
-        showUntil = Time.unscaledTime + 6.5f;
-        SoundManager.Play("sfx_ui_click");   // Å¬¸³ ¾øÀ¸¸é ¹«½Ã
+        showUntil = Time.unscaledTime + GameBalance.HintShowSec;   // v1.1: 6.5 -> GameBalance(5ì´ˆ)
+        bannerShownAt = Time.unscaledTime;
+        SoundManager.Play("sfx_ui_click");   // í´ë¦½ ì—†ìœ¼ë©´ ë¬´ì‹œ
     }
+
+    private float bannerShownAt = 0f;
 
     private void HideBannerIfExpired(bool force)
     {
-        if (bannerRoot != null && bannerRoot.gameObject.activeSelf
-            && (force || Time.unscaledTime >= showUntil))
+        if (bannerRoot == null || !bannerRoot.gameObject.activeSelf) return;
+        // v1.1 (A13): 0.6ì´ˆ ì§€ë‚œ ë’¤ ì•„ë¬´ í‚¤ë‚˜ ëˆ„ë¥´ë©´ ë¨¼ì € ë‹«íŒë‹¤ (ì½ì—ˆìœ¼ë©´ ë„˜ê¸´ë‹¤)
+        bool dismissed = Time.unscaledTime - bannerShownAt > 0.6f && Input.anyKeyDown;
+        if (force || dismissed || Time.unscaledTime >= showUntil)
+        {
             bannerRoot.gameObject.SetActive(false);
+            showUntil = Time.unscaledTime;
+        }
     }
 
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
-    // [H] µµ¿ò¸» ¾ÆÄ«ÀÌºê
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // [H] ë„ì›€ë§ ì•„ì¹´ì´ë¸Œ
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     private void ToggleArchive()
     {
         archiveOpen = !archiveOpen;
@@ -316,7 +326,7 @@ public class TutorialHint : MonoBehaviour
         else if (archiveRoot != null) Destroy(archiveRoot.gameObject);
     }
 
-    /// <summary>¿­ ¶§¸¶´Ù »õ·Î ±×¸°´Ù (º» Ç×¸ñÀÌ ´Ã¾úÀ» ¼ö ÀÖÀ¸´Ï)</summary>
+    /// <summary>ì—´ ë•Œë§ˆë‹¤ ìƒˆë¡œ ê·¸ë¦°ë‹¤ (ë³¸ í•­ëª©ì´ ëŠ˜ì—ˆì„ ìˆ˜ ìˆìœ¼ë‹ˆ)</summary>
     private void BuildArchive()
     {
         if (archiveCanvas == null)
@@ -330,7 +340,7 @@ public class TutorialHint : MonoBehaviour
             UIFactory.PANEL, UIFactory.COPPER, 2f);
 
         Text title = UIFactory.CreateText(archiveRoot, "Title",
-            "Â÷ÀåÀÇ ¾È³» ÀÏÁö - È²¾ß¿¡¼­ ¹è¿î °Íµé", 19, UIFactory.GOLD, TextAnchor.UpperCenter);
+            "ì°¨ì¥ì˜ ì•ˆë‚´ ì¼ì§€ - í™©ì•¼ì—ì„œ ë°°ìš´ ê²ƒë“¤", 19, UIFactory.GOLD, TextAnchor.UpperCenter);
         title.rectTransform.offsetMin = new Vector2(10f, height - 40f);
         title.rectTransform.offsetMax = new Vector2(-10f, -10f);
 
@@ -343,7 +353,7 @@ public class TutorialHint : MonoBehaviour
             float top = height - 52f - i * 30f;
             Text row = UIFactory.CreateText(archiveRoot, "Row" + i,
                 seen ? (HINTS[i].title + "  -  " + HINTS[i].body)
-                     : "???  -  ¾ÆÁ÷ ¸¸³ªÁö ¾ÊÀº »óÈ²ÀÌ´Ù",
+                     : "???  -  ì•„ì§ ë§Œë‚˜ì§€ ì•Šì€ ìƒí™©ì´ë‹¤",
                 13, seen ? UIFactory.CREAM : UIFactory.DIM, TextAnchor.MiddleLeft);
             row.rectTransform.anchorMin = new Vector2(0f, 0f);
             row.rectTransform.anchorMax = new Vector2(1f, 0f);
@@ -352,7 +362,7 @@ public class TutorialHint : MonoBehaviour
         }
 
         Text footer = UIFactory.CreateText(archiveRoot, "Footer",
-            "±â·Ï " + seenCount + " / " + HINTS.Length + "  -  [H] ´İ±â", 13,
+            "ê¸°ë¡ " + seenCount + " / " + HINTS.Length + "  -  [H] ë‹«ê¸°", 13,
             UIFactory.DIM, TextAnchor.LowerCenter);
         footer.rectTransform.offsetMin = new Vector2(10f, 8f);
         footer.rectTransform.offsetMax = new Vector2(-10f, -(height - 34f));

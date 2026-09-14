@@ -2,19 +2,21 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [JournalViewerUI.cs] v1 (½Å±Ô ÆÄÀÏ) - P1: ¼±´ëÀÇ ÀÏÁö ¿­¶÷ ÆĞ³Î (°¨»ç 4-B)
+/// [JournalViewerUI.cs] v1.1 (êµìˆ˜ í”¼ë“œë°± A10 ë°˜ì˜ 2026-09-14) / v1 - P1: ì„ ëŒ€ì˜ ì¼ì§€ ì—´ëŒ íŒ¨ë„ (ê°ì‚¬ 4-B)
 ///
-/// ¹è°æ: ÀÏÁö 12ÀåÀ» ¼öÁıÀº ÇÏ´Âµ¥ ´Ù½Ã º¼ °÷ÀÌ ¾ø¾ú´Ù - ¼öÁıÇü ¸ŞÅ¸ÀÇ º¸»ó È­¸é.
-/// [J] Å°·Î ¾ğÁ¦µç ¿­°í ´İ´Â´Ù. ¼öÁıÇÑ ÀåÀº Àü¹® Àç¿­¶÷, ¹Ì¼öÁı ÀåÀº ??? ·Î Ç¥½ÃµÇ¾î
-/// "¸î ÀåÀÌ ³²¾Ò´ÂÁö"°¡ °ğ ¼öÁı µ¿±â°¡ µÈ´Ù. (ÃßÈÄ ·Îºñ °³Æí ¶§ ·Îºñ ÁøÀÔÁ¡ Ãß°¡ ¿¹Á¤)
+/// ë°°ê²½: ì¼ì§€ 12ì¥ì„ ìˆ˜ì§‘ì€ í•˜ëŠ”ë° ë‹¤ì‹œ ë³¼ ê³³ì´ ì—†ì—ˆë‹¤ - ìˆ˜ì§‘í˜• ë©”íƒ€ì˜ ë³´ìƒ í™”ë©´.
+/// [J] í‚¤ë¡œ ì–¸ì œë“  ì—´ê³  ë‹«ëŠ”ë‹¤. ìˆ˜ì§‘í•œ ì¥ì€ ì „ë¬¸ ì¬ì—´ëŒ, ë¯¸ìˆ˜ì§‘ ì¥ì€ ??? ë¡œ í‘œì‹œë˜ì–´
+/// "ëª‡ ì¥ì´ ë‚¨ì•˜ëŠ”ì§€"ê°€ ê³§ ìˆ˜ì§‘ ë™ê¸°ê°€ ëœë‹¤. (ì¶”í›„ ë¡œë¹„ ê°œí¸ ë•Œ ë¡œë¹„ ì§„ì…ì  ì¶”ê°€ ì˜ˆì •)
+/// - v1.1 (A10): ì—´ë ¤ ìˆëŠ” ë™ì•ˆ ì„¸ê³„ê°€ ë©ˆì¶˜ë‹¤ (ì „íˆ¬ ì¤‘ ì¼ì§€ë¥¼ ì½ë‹¤ê°€ ë§ë˜ ë¬¸ì œ).
+///   ì´ë¯¸ ë©ˆì¶˜ í™”ë©´ ìœ„ì— ê²¹ì³ ì—´ë¦° ê²½ìš°ì—” ì‹œê°„ì„ ê±´ë“œë¦¬ì§€ ì•Šê³ , [ESC]ë¡œë„ ë‹«íŒë‹¤.
+///   ì¡°ë¦¬/ì¦ê°• ì„ íƒ/ì¦ê°• ëª©ë¡[V] ë“± ë‹¤ë¥¸ ì „ì²´í™”ë©´ UI ì¤‘ì—ëŠ” ì—´ë¦¬ì§€ ì•ŠëŠ”ë‹¤.
 ///
-/// »ç¿ë¹ı: ¾øÀ½! ÆÄÀÏ¸¸ ³ÖÀ¸¸é °ÔÀÓ ½ÃÀÛ ½Ã ½º½º·Î ÁØºñµÈ´Ù (¾À ÀÛ¾÷ 0).
-/// °ÔÀÓÀº ¸ØÃßÁö ¾Ê´Â´Ù (V Áõ°­ ¸ñ·Ï°ú µ¿ÀÏÇÑ °¡º­¿î ¿­¶÷ ÆĞ³Î).
-/// VS 2017 (C# 7.3) È£È¯.
+/// ì‚¬ìš©ë²•: ì—†ìŒ! íŒŒì¼ë§Œ ë„£ìœ¼ë©´ ê²Œì„ ì‹œì‘ ì‹œ ìŠ¤ìŠ¤ë¡œ ì¤€ë¹„ëœë‹¤ (ì”¬ ì‘ì—… 0).
+/// VS 2017 (C# 7.3) í˜¸í™˜.
 /// </summary>
 public class JournalViewerUI : MonoBehaviour
 {
-    /// <summary>ÆĞ³Î ¿­¸² ¿©ºÎ (¿ÜºÎ ÂüÁ¶¿ë)</summary>
+    /// <summary>íŒ¨ë„ ì—´ë¦¼ ì—¬ë¶€ (ì™¸ë¶€ ì°¸ì¡°ìš©)</summary>
     public static bool IsOpen { get; private set; }
 
     private static JournalViewerUI instance;
@@ -23,12 +25,13 @@ public class JournalViewerUI : MonoBehaviour
     private RectTransform panel;
     private Text titleText;
     private Text bodyText;
-    private Text[] entryLabels;   // 12Àå ¸ñ·Ï ¶óº§
+    private Text[] entryLabels;   // 12ì¥ ëª©ë¡ ë¼ë²¨
     private bool built = false;
+    private bool pausedByMe;      // ì´ íŒ¨ë„ì´ ì‹œê°„ì„ ë©ˆì¶˜ ì£¼ì²´ì¸ì§€ (ë‹¤ë¥¸ ì •ì§€ UI ìœ„ì— ê²¹ì³ ì—´ë¦° ê²½ìš°ì™€ êµ¬ë¶„)
 
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
-    // ÀÚµ¿ ºÎÆ®½ºÆ®·¦ (¾À ¸®·Îµå¿¡µµ À¯Áö)
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ìë™ ë¶€íŠ¸ìŠ¤íŠ¸ë© (ì”¬ ë¦¬ë¡œë“œì—ë„ ìœ ì§€)
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void Bootstrap()
     {
@@ -49,42 +52,76 @@ public class JournalViewerUI : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.J))
         {
             if (IsOpen) Close();
-            else Open();
+            else if (CanOpen()) Open();
+        }
+
+        if (IsOpen && Input.GetKeyDown(KeyCode.Escape))
+        {
+            CookingMinigame.EscConsumedFrame = Time.frameCount;   // ê°™ì€ í”„ë ˆì„ì— ì¼ì‹œì •ì§€ ë©”ë‰´ê°€ ì—´ë¦¬ì§€ ì•Šê²Œ
+            Close();
         }
     }
 
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
-    // ¿­±â/´İ±â
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    private void OnDestroy()
+    {
+        // ì”¬ ë¦¬ë¡œë“œ ì•ˆì „ì¥ì¹˜: ì´ íŒ¨ë„ì´ ë©ˆì¶˜ ì‹œê°„ì€ ë°˜ë“œì‹œ ëŒë ¤ë†“ëŠ”ë‹¤
+        if (pausedByMe) { pausedByMe = false; Time.timeScale = 1f; }
+        if (instance == this) IsOpen = false;
+    }
+
+    /// <summary>ë‹¤ë¥¸ ì „ì²´í™”ë©´ UI/ì—°ì¶œê³¼ ê²¹ì¹˜ì§€ ì•Šì„ ë•Œë§Œ ì—°ë‹¤</summary>
+    private static bool CanOpen()
+    {
+        return !CookingMinigame.IsActive && !AugmentPickUI.IsOpen && !PauseMenu.IsOpen && !WorkshopUI.IsOpen
+            && !AugmentListUI.IsOpen && !FinalOrderUI.QteOpen && !StoryTexts.IsBlocking
+            && !BranchRouteUI.IsOpen && !InfusingMinigame.IsActive;
+    }
+
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ì—´ê¸°/ë‹«ê¸°
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     private void Open()
     {
         if (!built) BuildUI();
         RefreshList();
 
-        bodyText.text = "³°Àº °¡Á× Ç¥Áö°¡ ¼Õ¿¡ ÀÍ´Â´Ù.\n\n¿ŞÂÊ¿¡¼­ ÀåÀ» ¼±ÅÃÇÏ¶ó.";
-        titleText.text = "¼±´ëÀÇ ÀÏÁö  (" + MetaProgress.CollectedJournalCount + "/"
-            + StoryTexts.JournalCount + ")   [J] ´İ±â";
+        bodyText.text = "ë‚¡ì€ ê°€ì£½ í‘œì§€ê°€ ì†ì— ìµëŠ”ë‹¤.\n\nì™¼ìª½ì—ì„œ ì¥ì„ ì„ íƒí•˜ë¼.";
+        titleText.text = "ì„ ëŒ€ì˜ ì¼ì§€  (" + MetaProgress.CollectedJournalCount + "/"
+            + StoryTexts.JournalCount + ")   [J] ë‹«ê¸°   (ì½ëŠ” ë™ì•ˆ ì‹œê°„ ì •ì§€)";
 
         canvasGo.SetActive(true);
         IsOpen = true;
         SoundManager.Play("sfx_ui_click");
+
+        // A10: ì½ëŠ” ë™ì•ˆ ì„¸ê³„ë¥¼ ë©ˆì¶˜ë‹¤. ì´ë¯¸ ë©ˆì¶° ìˆëŠ” í™”ë©´ ìœ„ì— ì—´ë ¸ë‹¤ë©´ ì†ëŒ€ì§€ ì•ŠëŠ”ë‹¤
+        pausedByMe = Time.timeScale > 0f;
+        if (pausedByMe) Time.timeScale = 0f;
     }
 
     private void Close()
     {
         if (canvasGo != null) canvasGo.SetActive(false);
         IsOpen = false;
+
+        if (pausedByMe)
+        {
+            pausedByMe = false;
+            // ì—´ëŒ ì¤‘ì— ë‹¤ë¥¸ ì •ì§€ UIê°€ ë–  ìˆìœ¼ë©´ ê·¸ìª½ì´ ë‹«í ë•Œ ì‹œê°„ì„ ëŒë ¤ì¤€ë‹¤
+            if (!PauseMenu.IsOpen && !AugmentPickUI.IsOpen && !WorkshopUI.IsOpen
+                && !FinalOrderUI.QteOpen && !BranchRouteUI.IsOpen)
+                Time.timeScale = 1f;
+        }
     }
 
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
-    // ¸ñ·Ï °»½Å (¼öÁı »óÅÂ ¹İ¿µ)
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ëª©ë¡ ê°±ì‹  (ìˆ˜ì§‘ ìƒíƒœ ë°˜ì˜)
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     private void RefreshList()
     {
         for (int n = 1; n <= StoryTexts.JournalCount; n++)
         {
             bool has = MetaProgress.IsJournalCollected(n);
-            entryLabels[n - 1].text = has ? ("Á¦ " + n + " Àå") : (n + " ...???");
+            entryLabels[n - 1].text = has ? ("ì œ " + n + " ì¥") : (n + " ...???");
             entryLabels[n - 1].color = has
                 ? new Color(0.95f, 0.88f, 0.7f)
                 : new Color(0.45f, 0.42f, 0.38f);
@@ -95,29 +132,29 @@ public class JournalViewerUI : MonoBehaviour
     {
         if (MetaProgress.IsJournalCollected(number))
         {
-            bodyText.text = "¼±´ëÀÇ ÀÏÁö  #" + number + "\n\n"
+            bodyText.text = "ì„ ëŒ€ì˜ ì¼ì§€  #" + number + "\n\n"
                 + StoryTexts.GetJournalText(number)
-                + "\n\n- ¼­¸íÀº ºÒÅº ÀÚ±¹»ÓÀÌ´Ù";
+                + "\n\n- ì„œëª…ì€ ë¶ˆíƒ„ ìêµ­ë¿ì´ë‹¤";
         }
         else
         {
-            bodyText.text = "¾ÆÁ÷ Ã£Áö ¸øÇÑ ÀåÀÌ´Ù.\n\nºĞ±â ¼±·Î [Æó¿ª]¿¡ ±â·ÏÀÌ Àáµé¾î ÀÖ´Ù.";
+            bodyText.text = "ì•„ì§ ì°¾ì§€ ëª»í•œ ì¥ì´ë‹¤.\n\në¶„ê¸° ì„ ë¡œ [íì—­]ì— ê¸°ë¡ì´ ì ë“¤ì–´ ìˆë‹¤.";
         }
         SoundManager.Play("sfx_ui_click");
     }
 
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
-    // UI »ı¼º (ÃÖÃÊ ¿­¶÷ ½Ã 1È¸)
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // UI ìƒì„± (ìµœì´ˆ ì—´ëŒ ì‹œ 1íšŒ)
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     private void BuildUI()
     {
         built = true;
 
         canvasGo = new GameObject("JournalCanvas");
-        canvasGo.transform.SetParent(transform, false);   // È£½ºÆ®¿Í ÇÔ²² ¾À ÀüÈ¯ »ıÁ¸
+        canvasGo.transform.SetParent(transform, false);   // í˜¸ìŠ¤íŠ¸ì™€ í•¨ê»˜ ì”¬ ì „í™˜ ìƒì¡´
         Canvas canvas = canvasGo.AddComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-        canvas.sortingOrder = 570;   // ¸í¼º»óÁ¡(560) À§, Áõ°­¸ñ·Ï(585) ¾Æ·¡
+        canvas.sortingOrder = 570;   // ëª…ì„±ìƒì (560) ìœ„, ì¦ê°•ëª©ë¡(585) ì•„ë˜
         CanvasScaler scaler = canvasGo.AddComponent<CanvasScaler>();
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
         scaler.referenceResolution = new Vector2(1920f, 1080f);
@@ -139,11 +176,11 @@ public class JournalViewerUI : MonoBehaviour
         tRt.anchoredPosition = new Vector2(0f, -12f);
         tRt.sizeDelta = new Vector2(-24f, 32f);
 
-        // ÁÂÃø: 12Àå ¸ñ·Ï (¹öÆ°)
+        // ì¢Œì¸¡: 12ì¥ ëª©ë¡ (ë²„íŠ¼)
         entryLabels = new Text[StoryTexts.JournalCount];
         for (int n = 1; n <= StoryTexts.JournalCount; n++)
         {
-            int captured = n;   // Å¬·ÎÀú Ä¸Ã³¿ë
+            int captured = n;   // í´ë¡œì € ìº¡ì²˜ìš©
 
             RectTransform row = KitchenEventManager.MakeBox(panel, "Entry" + n,
                 new Color(0.16f, 0.12f, 0.08f, 0.9f));
@@ -165,7 +202,7 @@ public class JournalViewerUI : MonoBehaviour
             entryLabels[n - 1] = label;
         }
 
-        // ¿ìÃø: º»¹® (ºÒÅº Á¾ÀÌ ´À³¦ÀÇ ¾îµÎ¿î ¹è°æÆÇ)
+        // ìš°ì¸¡: ë³¸ë¬¸ (ë¶ˆíƒ„ ì¢…ì´ ëŠë‚Œì˜ ì–´ë‘ìš´ ë°°ê²½íŒ)
         RectTransform bodyBox = KitchenEventManager.MakeBox(panel, "BodyBox",
             new Color(0.13f, 0.10f, 0.07f, 0.95f));
         bodyBox.anchorMin = new Vector2(0f, 0f); bodyBox.anchorMax = new Vector2(1f, 1f);

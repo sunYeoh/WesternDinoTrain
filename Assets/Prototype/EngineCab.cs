@@ -4,7 +4,7 @@ using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 
 /// <summary>
-/// [EngineCab.cs] v3 - B-3: 기관차 칸 = 기관사 페르소나 (방향결정 2026-08-31)
+/// [EngineCab.cs] v3.1 (교수 피드백 A10: 열람 패널 중 레버/작살 입력 차단 2026-09-14) / v3 - B-3: 기관차 칸 = 기관사 페르소나 (방향결정 2026-08-31)
 ///
 /// - v3 (고퀄 PNG 적용 2026-09-03): 작살포/레버/바위가 Resources/Sprites/WDT/ 의 harpoon / leverpost / leverhandle /
 ///   rock_<재료> PNG를 SpriteBank로 우선 사용. 없으면 v2 코드 도트. 좌표 동일.
@@ -186,7 +186,8 @@ public class EngineCab : MonoBehaviour
     private bool InBattle()
     {
         return GameManager.Instance != null
-            && GameManager.Instance.currentState == GameManager.GameState.Battle;
+            && GameManager.Instance.currentState == GameManager.GameState.Battle
+            && !WaveManager.TutorialGateActive;   // v3.1: 프롤로그 조리 게이트 중에는 바위·작살·레버 없음 (조리에만 집중)
     }
 
     // ─────────────────────────────────────────────
@@ -252,7 +253,8 @@ public class EngineCab : MonoBehaviour
 
         // UI/이벤트 진행 중엔 양보 (이벤트 E 연타가 레버를 당기는 사고 방지)
         if (CookingMinigame.IsActive || KitchenPanel.IsOpenStatic || PauseMenu.IsOpen
-            || AugmentPickUI.IsOpen || WorkshopUI.IsOpen || KitchenEventManager.IsActive)
+            || AugmentPickUI.IsOpen || WorkshopUI.IsOpen || KitchenEventManager.IsActive
+            || AugmentListUI.ReadingOpen)   // A10: 열람 패널(V/J) 중에는 멈춘 시간에 조작 불가
             return;
 
         if (!Input.GetKeyDown(KeyCode.E)) return;
@@ -312,7 +314,9 @@ public class EngineCab : MonoBehaviour
     {
         if (!InBattle())
         {
-            UIManager.Instance?.ShowStatChange("[작살포] 기차가 서 있다 - 달릴 때 낚아라");
+            UIManager.Instance?.ShowStatChange(WaveManager.TutorialGateActive
+                ? "[작살포] 지금은 조리 시간 - 첫 접시부터 굽자"
+                : "[작살포] 기차가 서 있다 - 달릴 때 낚아라");
             return;
         }
         if (Time.time < harpoonReadyTime)
@@ -398,7 +402,8 @@ public class EngineCab : MonoBehaviour
 
         bool uiBlocked = CookingMinigame.IsActive || KitchenPanel.IsOpenStatic
             || PauseMenu.IsOpen || AugmentPickUI.IsOpen || WorkshopUI.IsOpen
-            || KitchenEventManager.IsActive;   // 이벤트 중엔 E가 이벤트 몫 - 힌트도 숨김
+            || KitchenEventManager.IsActive    // 이벤트 중엔 E가 이벤트 몫 - 힌트도 숨김
+            || AugmentListUI.ReadingOpen;      // A10: 열람 패널 중에도 숨김
         float chefX = chefTransform != null ? chefTransform.position.x : -999f;
 
         // 작살 힌트

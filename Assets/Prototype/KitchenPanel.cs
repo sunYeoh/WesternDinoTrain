@@ -69,6 +69,7 @@ public class KitchenPanel : MonoBehaviour
         {
             if (CookingMinigame.IsActive) return;   // 미니게임 중엔 토글 금지
             if (PauseMenu.IsOpen) return;           // 일시정지 중엔 토글 금지
+            if (AugmentListUI.ReadingOpen) return;  // A10: 증강 목록[V]/일지[J] 열람 중엔 토글 금지
 
             if (isOpen) Close();
             else Open(-1);   // Tab은 항상 전체 보기

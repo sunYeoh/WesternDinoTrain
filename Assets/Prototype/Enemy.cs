@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// [Enemy.cs] v3
+/// [Enemy.cs] v3.1 (2026-09-14: 해빙 문구 / 전갈 마모 대체 스위치) / v3
 /// 모든 적 유닛의 기본 동작 + 전투 스탯(DEF/RES) + 상태이상(도트/방깎/마깎)
 /// - v3 변경점: 행동 패턴 시스템 (이름 기반 자동 배정 - 프리팹 설정 불필요)
 ///   1) 무리 사냥꾼(랩터): 주변 랩터가 많을수록 이동 속도 증가
@@ -695,7 +695,7 @@ public class Enemy : MonoBehaviour
         target.StunSlot(GameBalance.FreezeSlotSec, "빙결");
         nextFreezeAllowed = Time.time + GameBalance.FreezeGlobalCooldown;
 
-        UIManager.Instance?.ShowDanger("[아이스 모사] 냉기가 포탑을 덮쳤다! 빙결 - 클릭으로 해빙");
+        UIManager.Instance?.ShowDanger("[아이스 모사] 냉기가 포탑을 덮쳤다! 빙결 - 슬롯 곁에서 [E] 연타로 해빙");
         Debug.Log("[Enemy] 아이스 모사 빙결: " + (target.Recipe != null ? target.Recipe.displayName : "?"));
     }
 
@@ -721,10 +721,18 @@ public class Enemy : MonoBehaviour
             ChefController chef = FindFirstObjectByType<ChefController>();
             if (chef != null)
             {
-                float corrode = 3f * ItemManager.ToolWearMul;
-                chef.knifeSharpness = Mathf.Max(0f, chef.knifeSharpness - corrode);
-                chef.panCondition = Mathf.Max(0f, chef.panCondition - corrode);
-                Debug.Log("[사막 전갈] 독 공격 - 조리 도구 부식! (칼/팬 -" + corrode + ")");
+                if (GameBalance.ToolWearEnabled)
+                {
+                    float corrode = 3f * ItemManager.ToolWearMul;
+                    chef.knifeSharpness = Mathf.Max(0f, chef.knifeSharpness - corrode);
+                    chef.panCondition = Mathf.Max(0f, chef.panCondition - corrode);
+                    Debug.Log("[사막 전갈] 독 공격 - 조리 도구 부식! (칼/팬 -" + corrode + ")");
+                }
+                else
+                {
+                    // (교수 피드백 B3): 마모 off 실험 중에는 도구 대신 손을 노린다 - 조리 속도 디버프로 대체
+                    chef.ApplyScorpionAlt();
+                }
             }
         }
 
@@ -734,7 +742,7 @@ public class Enemy : MonoBehaviour
             CookingMinigame.ApplyOilSlip(GameBalance.OilSlipDuration);
 
         // P1 (감사 2-C): 아이스 모사 - 죽은 플레이버("바퀴 결빙")의 실기믹화
-        // 명중 시 확률로 가동 중인 포탑 슬롯 1기를 빙결 (낙뢰 마비와 같은 기믹 - 클릭으로 해빙)
+        // 명중 시 확률로 가동 중인 포탑 슬롯 1기를 빙결 (낙뢰 마비와 같은 기믹 - 슬롯 곁에서 [E] 연타로 해빙)
         // 전체 모사가 쿨타임을 공유해서 다중 모사 스턴락은 발생하지 않는다
         if (data.enemyName.Contains("모사")
             && Time.time >= nextFreezeAllowed

@@ -3,21 +3,22 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// [PauseMenu.cs] v1
-/// ESC ÀÏ½ÃÁ¤Áö ¸Ş´º: °è¼ÓÇÏ±â / ·± Æ÷±â(Àç½ÃÀÛ) / °ÔÀÓ Á¾·á
-/// ·Î±×¶óÀÌÅ© ÇÊ¼ö ÆíÀÇ - ¸ÁÇÑ ·±À» ºü¸£°Ô Á¢°í »õ ·±À» ½ÃÀÛÇÒ ¼ö ÀÖ´Ù.
+/// [PauseMenu.cs] v1.1 (êµìˆ˜ í”¼ë“œë°± A10 ë°˜ì˜ 2026-09-14) / v1
+/// ESC ì¼ì‹œì •ì§€ ë©”ë‰´: ê³„ì†í•˜ê¸° / ëŸ° í¬ê¸°(ì¬ì‹œì‘) / ê²Œì„ ì¢…ë£Œ
+/// - v1.1: ì—´ëŒ íŒ¨ë„(ì¦ê°• ëª©ë¡ [V] / ì¼ì§€ [J])ì´ ì—´ë ¤ ìˆìœ¼ë©´ ESCëŠ” ê·¸ìª½ ë‹«ê¸°ì— ì–‘ë³´
+/// ë¡œê·¸ë¼ì´í¬ í•„ìˆ˜ í¸ì˜ - ë§í•œ ëŸ°ì„ ë¹ ë¥´ê²Œ ì ‘ê³  ìƒˆ ëŸ°ì„ ì‹œì‘í•  ìˆ˜ ìˆë‹¤.
 ///
-/// »ç¿ë¹ı: "GameSystems" ¿ÀºêÁ§Æ®¿¡ ÀÌ ½ºÅ©¸³Æ® Ãß°¡ (UI´Â ÄÚµå »ı¼º)
-/// - Áõ°­ ¼±ÅÃ/¹Ì´Ï°ÔÀÓ/ÇÕÃ¼ ¼±ÅÃ Áß¿¡´Â ¿­¸®Áö ¾Ê´Â´Ù (ESC ¿ëµµ Ãæµ¹ ¹æÁö)
-/// - '·± Æ÷±â'´Â ¾ÀÀ» ´Ù½Ã ºÒ·¯¿Â´Ù. ÀÌ¶§ DontDestroyOnLoad·Î »ì¾Æ³²´Â
-///   ±¸ GameManager¸¦ Á¦°ÅÇØ¼­ ¿şÀÌºê/°ñµå°¡ ±ú²ıÇÏ°Ô ÃÊ±âÈ­µÇµµ·Ï ÇÑ´Ù.
-/// VS 2017 (C# 7.3) È£È¯
+/// ì‚¬ìš©ë²•: "GameSystems" ì˜¤ë¸Œì íŠ¸ì— ì´ ìŠ¤í¬ë¦½íŠ¸ ì¶”ê°€ (UIëŠ” ì½”ë“œ ìƒì„±)
+/// - ì¦ê°• ì„ íƒ/ë¯¸ë‹ˆê²Œì„/í•©ì²´ ì„ íƒ ì¤‘ì—ëŠ” ì—´ë¦¬ì§€ ì•ŠëŠ”ë‹¤ (ESC ìš©ë„ ì¶©ëŒ ë°©ì§€)
+/// - 'ëŸ° í¬ê¸°'ëŠ” ì”¬ì„ ë‹¤ì‹œ ë¶ˆëŸ¬ì˜¨ë‹¤. ì´ë•Œ DontDestroyOnLoadë¡œ ì‚´ì•„ë‚¨ëŠ”
+///   êµ¬ GameManagerë¥¼ ì œê±°í•´ì„œ ì›¨ì´ë¸Œ/ê³¨ë“œê°€ ê¹¨ë—í•˜ê²Œ ì´ˆê¸°í™”ë˜ë„ë¡ í•œë‹¤.
+/// VS 2017 (C# 7.3) í˜¸í™˜
 /// </summary>
 public class PauseMenu : MonoBehaviour
 {
     public static PauseMenu Instance;
 
-    /// <summary>ÀÏ½ÃÁ¤Áö ¸Ş´º°¡ ¿­·Á ÀÖ´ÂÁö (´Ù¸¥ ½Ã½ºÅÛ ÀÔ·Â Â÷´Ü¿ë)</summary>
+    /// <summary>ì¼ì‹œì •ì§€ ë©”ë‰´ê°€ ì—´ë ¤ ìˆëŠ”ì§€ (ë‹¤ë¥¸ ì‹œìŠ¤í…œ ì…ë ¥ ì°¨ë‹¨ìš©)</summary>
     public static bool IsOpen
     {
         get { return Instance != null && Instance.isOpen; }
@@ -44,18 +45,19 @@ public class PauseMenu : MonoBehaviour
             return;
         }
 
-        // ESC ¿ëµµ°¡ °ãÄ¡´Â »óÈ²¿¡¼­´Â ¿­Áö ¾Ê´Â´Ù
-        if (AugmentPickUI.IsOpen) return;        // Áõ°­ ¼±ÅÃ Áß
-        if (CookingMinigame.IsActive) return;    // ¹Ì´Ï°ÔÀÓ Áß
-        // B-1: °°Àº ÇÁ·¹ÀÓ¿¡ Á¶¸® Áß´Ü(ESC)ÀÌ ÀÌ¹Ì ¼ÒºñµÈ °æ¿ì - ÀÏ½ÃÁ¤Áö·Î »õÁö ¾Ê°Ô
+        // ESC ìš©ë„ê°€ ê²¹ì¹˜ëŠ” ìƒí™©ì—ì„œëŠ” ì—´ì§€ ì•ŠëŠ”ë‹¤
+        if (AugmentPickUI.IsOpen) return;        // ì¦ê°• ì„ íƒ ì¤‘
+        if (CookingMinigame.IsActive) return;    // ë¯¸ë‹ˆê²Œì„ ì¤‘
+        // B-1: ê°™ì€ í”„ë ˆì„ì— ì¡°ë¦¬ ì¤‘ë‹¨(ESC)ì´ ì´ë¯¸ ì†Œë¹„ëœ ê²½ìš° - ì¼ì‹œì •ì§€ë¡œ ìƒˆì§€ ì•Šê²Œ
         if (CookingMinigame.EscConsumedFrame == Time.frameCount) return;
-        if (WorkshopUI.IsOpen) return;           // Á¤ºñ¼Ò´Â G·Î ´İÀ½
-        if (SlotMarkerUI.MergeSelecting) return; // ÇÕÃ¼ ¼±ÅÃ Ãë¼Ò°¡ ¿ì¼±
-        if (BranchRouteUI.IsOpen) return;        // ºĞ±â ¼±·Î ¼±ÅÃ Áß
-        if (FinalOrderUI.QteOpen) return;        // C-2: ¸¶Áö¸· ÁÖ¹® QTE Áß (½Ã°£Á¤Áö Ãæµ¹ ¹æÁö)
-        if (InfusingMinigame.IsActive) return;   // P1: ÀÎÇ»Â¡ Áß (ESC = ÀÎÇ»Â¡ Ãë¼Ò°¡ ¿ì¼±)
-        if (SpinoBetUI.IsOpen) return;           // Phase 2-1: ½ºÇÇ³ë º£ÆÃ Áß (ESC = °ÅÀıÀÌ ¿ì¼±)
-        if (MerchantUI.IsOpen) return;           // Phase 2-3: Çà»óÀÎ ¾ÈÅ³·Î ÀÀ´ë Áß (ESC = ¶°³ª±â°¡ ¿ì¼±)
+        if (WorkshopUI.IsOpen) return;           // ì •ë¹„ì†ŒëŠ” Gë¡œ ë‹«ìŒ
+        if (SlotMarkerUI.MergeSelecting) return; // í•©ì²´ ì„ íƒ ì·¨ì†Œê°€ ìš°ì„ 
+        if (BranchRouteUI.IsOpen) return;        // ë¶„ê¸° ì„ ë¡œ ì„ íƒ ì¤‘
+        if (FinalOrderUI.QteOpen) return;        // C-2: ë§ˆì§€ë§‰ ì£¼ë¬¸ QTE ì¤‘ (ì‹œê°„ì •ì§€ ì¶©ëŒ ë°©ì§€)
+        if (InfusingMinigame.IsActive) return;   // P1: ì¸í“¨ì§• ì¤‘ (ESC = ì¸í“¨ì§• ì·¨ì†Œê°€ ìš°ì„ )
+        if (SpinoBetUI.IsOpen) return;           // Phase 2-1: ìŠ¤í”¼ë…¸ ë² íŒ… ì¤‘ (ESC = ê±°ì ˆì´ ìš°ì„ )
+        if (MerchantUI.IsOpen) return;           // Phase 2-3: í–‰ìƒì¸ ì•ˆí‚¬ë¡œ ì‘ëŒ€ ì¤‘ (ESC = ë– ë‚˜ê¸°ê°€ ìš°ì„ )
+        if (AugmentListUI.ReadingOpen) return;   // A10: ì¦ê°• ëª©ë¡[V]/ì¼ì§€[J] ì—´ëŒ ì¤‘ (ESC = ì—´ëŒ ë‹«ê¸°ê°€ ìš°ì„ )
 
         Open();
     }
@@ -72,18 +74,18 @@ public class PauseMenu : MonoBehaviour
         isOpen = false;
         root.gameObject.SetActive(false);
 
-        // ´Ù¸¥ ÀÏ½ÃÁ¤Áö UI°¡ ¾øÀ» ¶§¸¸ ½Ã°£ Àç°³
-        if (!AugmentPickUI.IsOpen && !WorkshopUI.IsOpen)
+        // ë‹¤ë¥¸ ì¼ì‹œì •ì§€ UIê°€ ì—†ì„ ë•Œë§Œ ì‹œê°„ ì¬ê°œ (A10: ì—´ëŒ íŒ¨ë„ë„ ì‹œê°„ì„ ì¡ëŠ”ë‹¤)
+        if (!AugmentPickUI.IsOpen && !WorkshopUI.IsOpen && !AugmentListUI.ReadingOpen)
             Time.timeScale = 1f;
     }
 
-    /// <summary>·± Æ÷±â - ¾À Àç½ÃÀÛ (»õ ·±)</summary>
+    /// <summary>ëŸ° í¬ê¸° - ì”¬ ì¬ì‹œì‘ (ìƒˆ ëŸ°)</summary>
     private void GiveUpRun()
     {
         Time.timeScale = 1f;
 
-        // DontDestroyOnLoad·Î »ì¾Æ³²´Â ±¸ GameManager Á¦°Å
-        // (³²°ÜµÎ¸é ¿şÀÌºê/°ñµå°¡ ÀÌÀü ·± °ªÀ¸·Î ÀÌ¾îÁö´Â ¹ö±×)
+        // DontDestroyOnLoadë¡œ ì‚´ì•„ë‚¨ëŠ” êµ¬ GameManager ì œê±°
+        // (ë‚¨ê²¨ë‘ë©´ ì›¨ì´ë¸Œ/ê³¨ë“œê°€ ì´ì „ ëŸ° ê°’ìœ¼ë¡œ ì´ì–´ì§€ëŠ” ë²„ê·¸)
         if (GameManager.Instance != null)
             Destroy(GameManager.Instance.gameObject);
 
@@ -92,44 +94,44 @@ public class PauseMenu : MonoBehaviour
 
     private void QuitGame()
     {
-        Debug.Log("[PauseMenu] °ÔÀÓ Á¾·á");
+        Debug.Log("[PauseMenu] ê²Œì„ ì¢…ë£Œ");
         Application.Quit();
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
 #endif
     }
 
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
-    // UI »ı¼º (KitchenEventManager ÇïÆÛ Àç»ç¿ë)
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // UI ìƒì„± (KitchenEventManager í—¬í¼ ì¬ì‚¬ìš©)
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     private void BuildUI()
     {
         GameObject canvasGo = new GameObject("PauseCanvas");
         canvasGo.transform.SetParent(transform, false);
         canvas = canvasGo.AddComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-        canvas.sortingOrder = 700;   // ¸ğµç UIº¸´Ù À§
+        canvas.sortingOrder = 700;   // ëª¨ë“  UIë³´ë‹¤ ìœ„
         CanvasScaler scaler = canvasGo.AddComponent<CanvasScaler>();
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
         scaler.referenceResolution = new Vector2(1920f, 1080f);
         scaler.matchWidthOrHeight = 0.5f;
         canvasGo.AddComponent<GraphicRaycaster>();
 
-        // ÀüÃ¼ ¾ÏÀü (µÚ Å¬¸¯ Â÷´Ü)
+        // ì „ì²´ ì•”ì „ (ë’¤ í´ë¦­ ì°¨ë‹¨)
         root = KitchenEventManager.MakeBox(canvasGo.transform, "PauseDim", new Color(0f, 0f, 0f, 0.8f));
         root.anchorMin = Vector2.zero;
         root.anchorMax = Vector2.one;
         root.offsetMin = Vector2.zero;
         root.offsetMax = Vector2.zero;
 
-        // º»Ã¼ ÆĞ³Î
+        // ë³¸ì²´ íŒ¨ë„
         RectTransform body = KitchenEventManager.MakeBox(root, "Body", new Color(0.12f, 0.10f, 0.08f, 0.98f));
         body.anchorMin = new Vector2(0.5f, 0.5f);
         body.anchorMax = new Vector2(0.5f, 0.5f);
         body.anchoredPosition = Vector2.zero;
         body.sizeDelta = new Vector2(420f, 380f);
 
-        Text title = KitchenEventManager.MakeText(body, "Title", "ÀÏ½Ã Á¤Áö", 30, new Color(1f, 0.85f, 0.4f));
+        Text title = KitchenEventManager.MakeText(body, "Title", "ì¼ì‹œ ì •ì§€", 30, new Color(1f, 0.85f, 0.4f));
         RectTransform tRt = title.rectTransform;
         tRt.anchorMin = new Vector2(0f, 1f);
         tRt.anchorMax = new Vector2(1f, 1f);
@@ -137,16 +139,16 @@ public class PauseMenu : MonoBehaviour
         tRt.anchoredPosition = new Vector2(0f, -24f);
         tRt.sizeDelta = new Vector2(0f, 40f);
 
-        // ¹öÆ° 3°³
-        Button resumeBtn = KitchenEventManager.MakeButton(body, "°è¼ÓÇÏ±â (ESC)",
+        // ë²„íŠ¼ 3ê°œ
+        Button resumeBtn = KitchenEventManager.MakeButton(body, "ê³„ì†í•˜ê¸° (ESC)",
             new Color(0.25f, 0.42f, 0.25f, 1f), new Vector2(0f, 20f), new Vector2(320f, 60f));
         resumeBtn.onClick.AddListener(delegate { Close(); });
 
-        Button giveUpBtn = KitchenEventManager.MakeButton(body, "·± Æ÷±â (´Ù½Ã ½ÃÀÛ)",
+        Button giveUpBtn = KitchenEventManager.MakeButton(body, "ëŸ° í¬ê¸° (ë‹¤ì‹œ ì‹œì‘)",
             new Color(0.45f, 0.32f, 0.18f, 1f), new Vector2(0f, -60f), new Vector2(320f, 60f));
         giveUpBtn.onClick.AddListener(delegate { GiveUpRun(); });
 
-        Button quitBtn = KitchenEventManager.MakeButton(body, "°ÔÀÓ Á¾·á",
+        Button quitBtn = KitchenEventManager.MakeButton(body, "ê²Œì„ ì¢…ë£Œ",
             new Color(0.45f, 0.22f, 0.18f, 1f), new Vector2(0f, -140f), new Vector2(320f, 60f));
         quitBtn.onClick.AddListener(delegate { QuitGame(); });
     }

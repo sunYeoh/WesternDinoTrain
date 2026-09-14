@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 
 /// <summary>
-/// [CookingStation.cs] v2
+/// [CookingStation.cs] v2.1 (교수 피드백 A10: 열람 패널 중 기구 상호작용 차단 2026-09-14) / v2
 /// 주방 기구(그릴/볶음팬/냄비) 오브젝트에 붙이는 스크립트입니다.
 /// 셰프가 상호작용 범위 안에서 E키를 누르면 조리창이 열립니다.
 ///
@@ -71,7 +71,8 @@ public class CookingStation : MonoBehaviour
     {
         // 다른 전체화면 UI 진행 중엔 기구 상호작용 차단
         if (CookingMinigame.IsActive || KitchenEventManager.IsActive ||
-            KitchenPanel.IsOpenStatic || WorkshopUI.IsOpen || AugmentPickUI.IsOpen)
+            KitchenPanel.IsOpenStatic || WorkshopUI.IsOpen || AugmentPickUI.IsOpen ||
+            AugmentListUI.ReadingOpen)   // A10: 열람 패널(V/J) 중에는 멈춘 시간에 조리 시작 불가
         {
             HidePrompt();
             return;

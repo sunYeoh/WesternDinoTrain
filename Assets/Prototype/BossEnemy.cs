@@ -1,8 +1,8 @@
-﻿using System.Collections;
+using System.Collections;
 using UnityEngine;
 
 /// <summary>
-/// [BossEnemy.cs] v6 - 보스 패턴 C단계 1차 (보스패턴설계 문서)
+/// [BossEnemy.cs] v7.1 (교수 피드백 C3: 디 오리지널 추가 그로기 / A8: 재가동 문구) / v6 - 보스 패턴 C단계 1차 (보스패턴설계 문서)
 /// - v6 변경점:
 ///   1) 미끼 도발 대응: 도발 중엔 미끼를 쫓아가고 물어뜯는다 (기차 무피해)
 ///   2) 디 오리지널 3페이즈:
@@ -30,7 +30,7 @@ using UnityEngine;
 ///      최종   "디 오리지널" (메카 티렉스, 핏빛)
 ///   2) 패턴 시스템: 예고(텔레그래프) -> 실행 -> 파훼 판정
 ///      - 사냥 호령(지역1): 랩터 소환. 예고 중 보스에게 스턴 명중 시 소환 절반
-///      - 낙뢰 폭격(지역2): 포탑 슬롯 감전 마비. 마커 클릭으로 즉시 재가동
+///      - 낙뢰 폭격(지역2): 포탑 슬롯 감전 마비. 슬롯 곁에서 [E]로 재가동 (ProximityInteract)
 ///      - 빙하 갑주(지역3): 받는 피해 90% 감소. 화상 스택 누적으로 파괴(+보너스 그로기)
 ///        (화염 도트는 갑주를 무시하고 태운다 - Enemy.ModifyIncomingDamage 주석 참조)
 ///      - 포효(최종): 정예 증원 소환
@@ -72,6 +72,20 @@ public class BossEnemy : Enemy
     private float groggyLockUntil = 0f;
     private float[] groggyThresholds = { 0.75f, 0.50f, 0.25f };
     private bool[] groggyTriggered = { false, false, false };
+    // v7.1 (교수 피드백 C3): 디 오리지널 전용 추가 그로기 (GameBalance.OriginalExtraGroggyRatio, 기본 12%)
+    // - 마지막 주문을 실패한 요리사에게 한 번 더 기회. 다른 보스에는 없음
+    private bool extraGroggyTriggered = false;
+
+    /// <summary>v7.1: 디 오리지널의 추가 그로기가 아직 남아 있는가 (마지막 주문 실패 문구용)</summary>
+    public bool HasExtraGroggyPending
+    {
+        get
+        {
+            return kind == BossKind.Original && GameBalance.OriginalExtraGroggyRatio > 0f
+                && !extraGroggyTriggered && IsAlive
+                && currentHP / bossMaxHP > GameBalance.OriginalExtraGroggyRatio;
+        }
+    }
 
     /// <summary>이번 그로기의 실제 지속 시간 (BossGimmickSystem이 게이지에 사용)</summary>
     public float CurrentGroggyDuration { get; private set; }
@@ -484,7 +498,7 @@ public class BossEnemy : Enemy
         }
 
         if (hitCount > 0)
-            UIManager.Instance?.ShowStatChange("포탑 " + hitCount + "기 감전! 마커 클릭으로 재가동!");
+            UIManager.Instance?.ShowStatChange("포탑 " + hitCount + "기 감전! 슬롯 곁에서 [E]로 재가동!");
         Debug.Log("[BossEnemy] 낙뢰 폭격 - 슬롯 " + hitCount + "곳 마비");
     }
 
@@ -659,8 +673,18 @@ public class BossEnemy : Enemy
             {
                 groggyTriggered[i] = true;
                 StartCoroutine(EnterGroggyState(groggyDuration));
-                break;
+                return;
             }
+        }
+
+        // v7.1 (C3): 디 오리지널 - 마지막 그로기(25%) 뒤 한 번 더 (기본 12%)
+        if (kind == BossKind.Original && !extraGroggyTriggered && !isGroggy
+            && GameBalance.OriginalExtraGroggyRatio > 0f
+            && hpRatio <= GameBalance.OriginalExtraGroggyRatio)
+        {
+            extraGroggyTriggered = true;
+            UIManager.Instance?.ShowWaveNotice("[디 오리지널] 마지막 틈", "손님이 다시 식탁 앞에 무릎을 꿇었다 - 마지막 기회");
+            StartCoroutine(EnterGroggyState(groggyDuration));
         }
     }
 
