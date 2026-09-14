@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// [WaveManager.cs] v6.5 (교수 피드백 반영 2026-09-14) / v6.4 (고퀄 PNG 적용 2026-09-03) / v6.3 탑뷰 재스킨
+/// [WaveManager.cs] v6.6 (v9.8: 위험 적 전용 PNG) / v6.5 (교수 피드백 반영 2026-09-14) / v6.4 (고퀄 PNG 적용 2026-09-03) / v6.3 탑뷰 재스킨
 /// 웨이브 단위로 적 유닛을 스폰하고, 모든 적 처치 시 웨이브 완료를 알립니다.
+/// - v6.6 변경점: 프리팹 없는 적의 PNG 선택에 전용 그림 4종(e_fly/e_parasaur/e_carno/e_mosa) 우선. 없으면 v6.4 매핑 그대로
 /// - v6.5 변경점:
 ///   1) (A1) 보스 스킵 버그: 스폰 코루틴이 끝나기 전에 "남은 적 0"이 되면 웨이브가 닫히던 문제 - spawnDone 플래그로
 ///      스폰이 전부 끝난 뒤에만 클리어 판정. JumpToNextBossWave(치트)도 같은 플래그를 리셋
@@ -761,8 +762,18 @@ public class WaveManager : MonoBehaviour
         else if (n.Contains("네크로")) kind = "necro";
         else kind = "raptor";   // 알 수 없는 종: 기본 랩터 실루엣
 
+        // v6.6: 전용 그림이 있는 종은 그것부터 (EnemySkin 규칙과 동일 - PNG 없으면 위 매핑으로)
+        string dedicated = null;
+        float dedicatedMul = 1f;
+        if (n.Contains("플라이")) { dedicated = "fly"; dedicatedMul = 1.2f; }
+        else if (n.Contains("파라사우")) dedicated = "parasaur";
+        else if (n.Contains("카르노")) dedicated = "carno";
+        else if (n.Contains("모사")) dedicated = "mosa";
+        Sprite sprite = dedicated != null ? SpriteBank.Get("e_" + dedicated) : null;
+        float pngMul = sprite != null ? dedicatedMul : 1f;
+
         // v6.4: PNG 우선 (e_raptor 등), 없으면 코드 도트 캐시
-        Sprite sprite = SpriteBank.Get("e_" + kind);
+        if (sprite == null) sprite = SpriteBank.Get("e_" + kind);
         bool png = sprite != null;
         if (!png && !fallbackSpriteCache.TryGetValue(kind, out sprite))
         {
@@ -772,7 +783,7 @@ public class WaveManager : MonoBehaviour
 
         SpriteRenderer sr = PixelPainter.Attach(go.transform, "Body", sprite, Vector3.zero, 5);
         sr.sortingOrder = 5;   // 데크(-6~-4)/포탑(-3~-1) 위, 처치 팝(58+) 아래
-        if (png) sr.transform.localScale = Vector3.one * EnemyPngScale;
+        if (png) sr.transform.localScale = Vector3.one * (EnemyPngScale * pngMul);
 
         go.transform.localScale = new Vector3(bulk, bulk, 1f);
         go.AddComponent<Enemy>();

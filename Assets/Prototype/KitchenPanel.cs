@@ -3,9 +3,11 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [KitchenPanel.cs] v2.1
+/// [KitchenPanel.cs] v2.2 (v9.8 재료 아이콘) / v2.1
 /// Tab키 주방 패널 (uGUI 코드 생성) - 조리 / 합성 / 도감 3탭
 /// GameSystems 오브젝트에 부착
+///
+/// - v2.2: 조리 탭 상단 재료 현황 바를 "아이콘 32px + 수량" 칸 6개로 (ui_mat_*.png 있을 때만, 없으면 v2.1 글자 줄). 로직 무변경
 ///
 /// - v2.1 (2026-09-07, "쇳냄새" 픽셀 스킨 - HUD 목업 v3 컨펌): UISkin 이 있을 때만
 ///   제목 "주 방" 을 파이프 위에 걸린 황동 명판으로, 닫기 힌트를 파이프 아래로, 내용 영역을 파이프 안쪽(30px)으로,
@@ -253,19 +255,46 @@ public class KitchenPanel : MonoBehaviour
             new Color(0.15f, 0.095f, 0.06f, 0.9f), UIFactory.COPPER, 2f);
         spawned.Add(matBar.gameObject);
 
+        // v2.2: 재료 아이콘이 있으면 "아이콘 + 이름 수량" 칸 6개, 없으면 한 줄 글자
+        bool matIcons = UISkin.Available && UISkin.MaterialIcon(MaterialType.Meat) != null;
         string matStr = "";
         int mi = 0;
         foreach (MaterialType t in System.Enum.GetValues(typeof(MaterialType)))
         {
-            matStr += MAT_KOR[mi] + " " + MaterialInventory.Instance.Get(t) + "   ";
+            int have = MaterialInventory.Instance.Get(t);
+            if (matIcons)
+            {
+                float cellX = 14f + mi * 128f;
+                UISkin.AddMaterialIcon(matBar, t, new Vector2(0f, 0.5f), new Vector2(cellX, 0f), 32f);
+                Text cnt = UIFactory.CreateText(matBar, "MatCnt" + mi, MAT_KOR[mi] + " " + have, 19,
+                    have > 0 ? UIFactory.CREAM : UIFactory.DIM, TextAnchor.MiddleLeft);
+                RectTransform cRt = cnt.rectTransform;
+                cRt.anchorMin = new Vector2(0f, 0f);
+                cRt.anchorMax = new Vector2(0f, 1f);
+                cRt.pivot = new Vector2(0f, 0.5f);
+                cRt.anchoredPosition = new Vector2(cellX + 38f, 0f);
+                cRt.sizeDelta = new Vector2(86f, 0f);
+            }
+            else
+                matStr += MAT_KOR[mi] + " " + have + "   ";
             mi++;
         }
-        // 조리대에서 열었으면 필터 안내 추가
-        if (stationFilter >= 0)
-            matStr += "     << [" + MethodName(stationFilter) + "] 전용 조리대 >>";
-
-        UIFactory.CreateText(matBar, "MatText", matStr, 19, UIFactory.CREAM, TextAnchor.MiddleLeft)
-            .rectTransform.offsetMin = new Vector2(16f, 0f);
+        // 조리대에서 열었으면 필터 안내 추가 (아이콘 모드에서는 오른쪽 끝에 따로)
+        string filterStr = stationFilter >= 0 ? "<< [" + MethodName(stationFilter) + "] 전용 조리대 >>" : "";
+        if (matIcons)
+        {
+            if (filterStr.Length > 0)
+            {
+                Text ft = UIFactory.CreateText(matBar, "FilterText", filterStr, 17, UIFactory.GOLD, TextAnchor.MiddleRight);
+                ft.rectTransform.offsetMax = new Vector2(-16f, 0f);
+            }
+        }
+        else
+        {
+            if (filterStr.Length > 0) matStr += "     " + filterStr;
+            UIFactory.CreateText(matBar, "MatText", matStr, 19, UIFactory.CREAM, TextAnchor.MiddleLeft)
+                .rectTransform.offsetMin = new Vector2(16f, 0f);
+        }
 
         // 선택된 레시피 바 + 조리 시작 버튼 (레시피 고유 조리법 1개만)
         float topY = -56f;

@@ -4,7 +4,9 @@ using UnityEditor;
 using UnityEngine;
 
 /// <summary>
-/// [WDTSpriteImporter.cs] v4.1 (Editor 전용) - 스프라이트 PNG 자동 임포트 설정 (2026-09-07, v9 픽셀 팩 + UI 스킨)
+/// [WDTSpriteImporter.cs] v4.2 (Editor 전용) - 스프라이트 PNG 자동 임포트 설정 (2026-09-07, v9 픽셀 팩 + UI 스킨)
+///
+/// v4.2: 위험 적 전용 그림 4종 e_fly / e_parasaur / e_carno / e_mosa (32ppu, 중앙 피벗) 표 추가
 ///
 /// Assets/Resources/Sprites/WDT/ 아래 PNG가 임포트될 때 자동으로:
 ///   Texture Type = Sprite (Single) / Pixels Per Unit = 파일별 값 / Filter = Point(도트 선명) /
@@ -59,7 +61,11 @@ public class WDTSpriteImporter : AssetPostprocessor
             { "dust_1", new Info(32f, 0.5000f, 0.5000f) },
             { "dust_2", new Info(32f, 0.5000f, 0.5000f) },
             { "dust_3", new Info(32f, 0.5000f, 0.5000f) },
+            { "e_carno", new Info(32f, 0.5000f, 0.5000f) },
+            { "e_fly", new Info(32f, 0.5000f, 0.5000f) },
+            { "e_mosa", new Info(32f, 0.5000f, 0.5000f) },
             { "e_necro", new Info(32f, 0.5000f, 0.5000f) },
+            { "e_parasaur", new Info(32f, 0.5000f, 0.5000f) },
             { "e_ptera", new Info(32f, 0.5200f, 0.5000f) },
             { "e_raptor", new Info(32f, 0.5000f, 0.5000f) },
             { "e_scorpion", new Info(32f, 0.5000f, 0.5000f) },

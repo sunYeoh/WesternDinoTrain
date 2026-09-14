@@ -5,7 +5,9 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 /// <summary>
-/// [UISkin.cs] v1.1 - "쇳냄새" 픽셀 UI 스킨 (2026-09-07, HUD 목업 v3 컨펌)
+/// [UISkin.cs] v1.2 - "쇳냄새" 픽셀 UI 스킨 (2026-09-07, HUD 목업 v3 컨펌)
+/// - v1.2 (v9.8): MaterialIcon / AddMaterialIcon 추가 - 재료 아이콘(ui_mat_*.png 32px)을 HUD 재료 칸·주방창 재료 바·정비소 재료 시장이 공용으로 쓴다.
+///   PNG 가 없으면 null 을 돌려주고 호출부는 예전 계열색 칩/글자로 남는다. 그 외 변경 없음
 /// - v1.1 (v9.5): Relabel(명판 글자 바꾸기 + 폭 재계산) 추가 - 조리 미니게임 제목 명판용. 그 외 변경 없음
 ///
 /// Resources/Sprites/WDT/ui_*.png (파이프 프레임 / 무쇠 평판 / 테 / 버튼 / 황동 명판 / 위험 스트라이프 / 게이지 / 장식)를
@@ -176,6 +178,38 @@ public class UISkin : MonoBehaviour
         Text t = lt != null ? lt.GetComponent<Text>() : null;
         if (t != null) { t.text = label; t.fontSize = fontSize; }
         plate.sizeDelta = new Vector2(EstimateWidth(label, fontSize) + 28f, plate.sizeDelta.y);
+    }
+
+    // ─────────────────────────────────────────────
+    // v1.2: 재료 아이콘 (ui_mat_meat / armor / elec / fire / ice / poison - 16px 디자인을 2배로 구운 32px, PPU 100)
+    // ─────────────────────────────────────────────
+    private static readonly string[] MAT_ICON_KEYS = { "meat", "armor", "elec", "fire", "ice", "poison" };
+
+    /// <summary>재료 아이콘 스프라이트. 파일이 없으면 null (호출부가 계열색 칩으로 폴백)</summary>
+    public static Sprite MaterialIcon(MaterialType t)
+    {
+        int i = (int)t;
+        if (i < 0 || i >= MAT_ICON_KEYS.Length) return null;
+        return SpriteBank.Get("ui_mat_" + MAT_ICON_KEYS[i]);
+    }
+
+    /// <summary>
+    /// 재료 아이콘 Image 를 만든다. anchor 기준, 피벗은 왼쪽 가운데(pos = 아이콘 왼쪽 가운데 점), 한 변 size.
+    /// PNG 가 없으면 아무것도 만들지 않고 null. 스캐너는 스프라이트가 있는 Image 를 건드리지 않으므로 별도 표시 불필요
+    /// </summary>
+    public static Image AddMaterialIcon(Transform parent, MaterialType t, Vector2 anchor, Vector2 pos, float size)
+    {
+        Sprite s = MaterialIcon(t);
+        if (s == null) return null;
+        GameObject go = new GameObject("MatIcon_" + t);
+        go.transform.SetParent(parent, false);
+        RectTransform rt = go.AddComponent<RectTransform>();
+        rt.anchorMin = anchor; rt.anchorMax = anchor; rt.pivot = new Vector2(0f, 0.5f);
+        rt.anchoredPosition = pos; rt.sizeDelta = new Vector2(size, size);
+        Image img = go.AddComponent<Image>();
+        img.sprite = s; img.type = Image.Type.Simple; img.preserveAspect = true; img.raycastTarget = false;
+        SetMark(img, 4);
+        return img;
     }
 
     /// <summary>장식 스프라이트 (게이지/밸브/그릴/위험 스트라이프). 앵커 기준 pos, 크기는 원본 픽셀</summary>

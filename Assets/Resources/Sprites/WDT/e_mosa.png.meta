@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 73d80f3fd2a754d44bd25846f5923263
+guid: 19bfc111777274542aa6956a40bba434
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 7582087811079786050
-    second: ui_ev_firewall_2_0
+      213: -69907397311846877
+    second: e_mosa_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -48,10 +48,10 @@ TextureImporter:
   compressionQuality: 50
   spriteMode: 1
   spriteExtrude: 1
-  spriteMeshType: 0
+  spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 100
+  spritePixelsToUnits: 32
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: ui_ev_firewall_2_0
+      name: e_mosa_0
       rect:
         serializedVersion: 2
-        x: 0
+        x: 1
         y: 0
-        width: 128
-        height: 95
+        width: 149
+        height: 70
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 24eca3b41bcf83960800000000000000
-      internalID: 7582087811079786050
+      spriteID: 3262e00b793a70ff0800000000000000
+      internalID: -69907397311846877
       vertices: []
       indices: 
       edges: []

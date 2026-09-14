@@ -2,7 +2,10 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// [EnemySkin.cs] v1 (신규 파일) - 프리팹 적에게 PNG 스프라이트 입히기 (2026-09-07)
+/// [EnemySkin.cs] v1.1 (v9.8: 위험 적 전용 스프라이트 규칙) / v1 (신규 파일) - 프리팹 적에게 PNG 스프라이트 입히기 (2026-09-07)
+///
+/// - v1.1: 규칙 표 맨 앞에 전용 그림 4종(플라이 e_fly / 파라사우 e_parasaur / 카르노 e_carno / 모사 e_mosa)을 추가.
+///   PNG 가 없으면 그 규칙은 건너뛰고 다음 맞는 규칙(예전 틴트 대체)으로 내려간다 -> PNG 만 넣으면 바뀌고, 빼면 원래대로
 ///
 /// 문제: WaveManager v6.4는 "프리팹이 없는 종"(코드 폴백)에만 e_*.png를 입혔다. 씬에 프리팹이 할당된 종은
 ///       프리팹의 placeholder 그림이 그대로 나와서 유저 눈에는 "몬스터 스프라이트가 안 만들어진" 것으로 보였다.
@@ -35,6 +38,11 @@ public class EnemySkin : MonoBehaviour
     // 먼저 맞는 항목이 이긴다 (강철 랩터가 "랩터"보다 앞에 있어야 함)
     private static readonly Rule[] RULES =
     {
+        // v1.1: 전용 그림 (교수 피드백 "위험한 적 구별" - 자폭/서포터/화염/결빙). PNG 없으면 아래 대체 규칙으로
+        new Rule("플라이", "fly", Color.white, 1.2f),
+        new Rule("파라사우", "parasaur", Color.white, 1f),
+        new Rule("카르노", "carno", Color.white, 1f),
+        new Rule("모사", "mosa", Color.white, 1f),
         new Rule("강철", "steel", Color.white, 1f),
         new Rule("전갈", "scorpion", Color.white, 1f),
         new Rule("거북", "tortoise", Color.white, 1f),
@@ -119,10 +127,17 @@ public class EnemySkin : MonoBehaviour
             }
         }
 
-        Rule rule = RULES[RULES.Length - 1];
+        // v1.1: 이름에 맞는 규칙을 앞에서부터 보되, 그 PNG 가 없으면 다음 맞는 규칙으로 (전용 그림 -> 틴트 대체 -> 랩터)
+        Rule rule = RULES[RULES.Length - 1];   // 기본 = 마지막(랩터)
+        Sprite sprite = null;
         for (int i = 0; i < RULES.Length; i++)
-            if (n.Contains(RULES[i].key)) { rule = RULES[i]; break; }
-        Sprite sprite = SpriteBank.Get("e_" + rule.png);
+        {
+            if (!n.Contains(RULES[i].key)) continue;
+            Sprite s = SpriteBank.Get("e_" + RULES[i].png);
+            if (s == null) continue;
+            rule = RULES[i]; sprite = s; break;
+        }
+        if (sprite == null) sprite = SpriteBank.Get("e_" + rule.png);
         if (sprite == null) return false;
 
         // 프리팹 placeholder 렌더러 끄기 (로직/충돌/태그는 그대로)

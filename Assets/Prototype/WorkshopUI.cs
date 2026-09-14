@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 
 /// <summary>
-/// [WorkshopUI.cs] v2.1 (2026-09-14: 전투 중 수리 기록) / v2
+/// [WorkshopUI.cs] v2.2 (v9.8: 재료 시장 행에 재료 아이콘) / v2.1 (2026-09-14: 전투 중 수리 기록) / v2
 /// 정비소 - 골드를 소모해 도구/기차를 정비하고 재료를 구매하는 상점
 ///
 /// 조작
@@ -357,6 +357,9 @@ public class WorkshopUI : MonoBehaviour
             MatRow row = new MatRow();
             row.type = t;
             row.status = MakeRow(body, matY, materialCost, delegate { BuyMaterial(captured); }, out row.btn);
+            // v2.2: 행 왼쪽에 재료 아이콘 (ui_mat_* 있을 때만) - 글자는 아이콘만큼 오른쪽으로
+            if (UISkin.AddMaterialIcon(row.status.transform.parent, t, new Vector2(0f, 0.5f), new Vector2(14f, 0f), 32f) != null)
+                row.status.rectTransform.offsetMin = new Vector2(56f, 0f);
             matRows.Add(row);
             matY -= 56f;
         }

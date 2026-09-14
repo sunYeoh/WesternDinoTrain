@@ -3,7 +3,9 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [GameHUD.cs] v3.1 (교수 피드백 A9 반영 2026-09-14) / v3 - 전투 중 핵심 HUD (전부 코드 생성 - Canvas 세팅 불필요)
+/// [GameHUD.cs] v3.2 (v9.8 재료 아이콘) / v3.1 (교수 피드백 A9 반영 2026-09-14) / v3 - 전투 중 핵심 HUD (전부 코드 생성 - Canvas 세팅 불필요)
+/// - v3.2: 재료 칸의 16px 계열색 판을 ui_mat_*.png 아이콘(32px)으로. 칸 폭 96 -> 102, 간격 100 -> 106 (3열 318 <= 재료 구역 326).
+///   PNG 가 없으면 v3.1 그대로(계열색 판 + 글자). 이벤트 "재료 흘림" 칩과 같은 그림이라 재료 = 한 그림으로 통일
 /// - 하단 바: 재료 6종 카운트 + 보유 요리 카드 목록 (2줄 그리드, 휠 가로 스크롤)
 /// - 요리 카드 클릭 -> 투입 모드 (슬롯 마커 클릭으로 투입)
 /// - v3.1 (A9): 하단 바 오른쪽 위 파이프에 칼/팬 상태 칩 2개 (명판). 마모가 콘솔에만 찍혀
@@ -132,6 +134,11 @@ public class GameHUD : MonoBehaviour
         matPanel.offsetMin = new Vector2(inset + 4f, inset);
         matPanel.offsetMax = new Vector2(inset + MAT_W, -topInset);
 
+        // v3.2: 재료 아이콘(ui_mat_*)이 있으면 32px 그림 + 글자, 없으면 v3.1 계열색 판 + 글자
+        bool matIcons = skin && UISkin.MaterialIcon(MaterialType.Meat) != null;
+        float cellW = matIcons ? 102f : 96f;
+        float cellGap = matIcons ? 106f : 100f;
+
         for (int i = 0; i < 6; i++)
         {
             int col = i % 3;
@@ -143,24 +150,35 @@ public class GameHUD : MonoBehaviour
             crt.anchorMin = new Vector2(0f, 1f);
             crt.anchorMax = new Vector2(0f, 1f);
             crt.pivot = new Vector2(0f, 1f);
-            crt.anchoredPosition = new Vector2(4f + col * 100f, -12f - row * 50f);
-            crt.sizeDelta = new Vector2(96f, 34f);
+            crt.anchoredPosition = new Vector2(4f + col * cellGap, -12f - row * 50f);
+            crt.sizeDelta = new Vector2(cellW, 34f);
 
-            // 계열색 판 (스킨: 틴트 평판, 아니면 색점)
-            GameObject dot = new GameObject("Chip");
-            RectTransform drt = dot.AddComponent<RectTransform>();
-            drt.SetParent(crt, false);
-            drt.anchorMin = new Vector2(0f, 0.5f);
-            drt.anchorMax = new Vector2(0f, 0.5f);
-            drt.anchoredPosition = new Vector2(9f, 0f);
-            drt.sizeDelta = new Vector2(16f, 16f);
-            Image dotImg = dot.AddComponent<Image>();
-            dotImg.color = UIFactory.TagColor(MAT_TAG[i]);
-            dotImg.raycastTarget = false;
-            if (skin) UISkin.Plate(dotImg, UIFactory.TagColor(MAT_TAG[i]));
+            float labelX;
+            if (matIcons)
+            {
+                // 재료 아이콘 32px (칸 왼쪽 가운데)
+                UISkin.AddMaterialIcon(crt, (MaterialType)i, new Vector2(0f, 0.5f), new Vector2(2f, 0f), 32f);
+                labelX = 40f;
+            }
+            else
+            {
+                // 계열색 판 (스킨: 틴트 평판, 아니면 색점)
+                GameObject dot = new GameObject("Chip");
+                RectTransform drt = dot.AddComponent<RectTransform>();
+                drt.SetParent(crt, false);
+                drt.anchorMin = new Vector2(0f, 0.5f);
+                drt.anchorMax = new Vector2(0f, 0.5f);
+                drt.anchoredPosition = new Vector2(9f, 0f);
+                drt.sizeDelta = new Vector2(16f, 16f);
+                Image dotImg = dot.AddComponent<Image>();
+                dotImg.color = UIFactory.TagColor(MAT_TAG[i]);
+                dotImg.raycastTarget = false;
+                if (skin) UISkin.Plate(dotImg, UIFactory.TagColor(MAT_TAG[i]));
+                labelX = 26f;
+            }
 
             Text label = UIFactory.CreateText(crt, "Label", MAT_SHORT[i] + " 0", 18, UIFactory.CREAM, TextAnchor.MiddleLeft);
-            label.rectTransform.offsetMin = new Vector2(26f, 0f);
+            label.rectTransform.offsetMin = new Vector2(labelX, 0f);
             matTexts[i] = label;
         }
 

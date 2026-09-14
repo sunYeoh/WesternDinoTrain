@@ -2,28 +2,33 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [LobbyUI.cs] v1 - ·Îºñ °³Æí (Æ©Åä¸®¾ó_¿Âº¸µù_¼³°è 6Àı + È­¸é °Ë¼ö "½ÃÀÛ ¹öÆ° ¹¯Èû")
+/// [LobbyUI.cs] v1.1 (v9.8: ì¹­í˜¸ í‘œì‹œ) / v1 - ë¡œë¹„ ê°œí¸ (íŠœí† ë¦¬ì–¼_ì˜¨ë³´ë”©_ì„¤ê³„ 6ì ˆ + í™”ë©´ ê²€ìˆ˜ "ì‹œì‘ ë²„íŠ¼ ë¬»í˜")
 ///
-/// ·Îºñ¸¦ °ÔÀÓÀÇ ´ë¹®À¸·Î ¸¸µç´Ù:
-/// - »ó´Ü: Å¸ÀÌÆ² + ºÎÁ¦
-/// - ÇÏ´Ü: Å« [Ãâ¹ßÇÑ´Ù!] ¹öÆ° (Å¬¸¯ ¶Ç´Â [Enter])
-/// - ¾È³»ÁÙ: [M] ¸í¼º »óÁ¡ / [J] ¼±´ëÀÇ ÀÏÁö / [H] Â÷ÀåÀÇ ¾È³» ÀÏÁö
-/// - ÁÂÇÏ´Ü: ¼Ò¸® ¼³Á¤ (¹è°æÀ½/È¿°úÀ½ [-][+] - SoundManagerÀÇ PlayerPrefs º¼·ı ¿¬µ¿)
-/// - ¿ìÇÏ´Ü: ¼­Ã¼ ¶óÀÌ¼±½º °íÁö (¹é·Î±× "·Îºñ Å©·¹µ÷" Ç×¸ñ)
-/// ¸í¼º »óÁ¡(Áß¾Ó ÆĞ³Î)Àº ±×´ë·Î µÎ°í ÀÌ È­¸éÀÌ À§¾Æ·¡·Î °¨½Ñ´Ù.
-/// ¾ÀÀÇ ±¸ lobbyPanel(¾îµÎ¿î ¹è°æ¿¡ ¹¯Èù ½ÃÀÛ ¹öÆ°)Àº ÀÚµ¿ ¼û±è (HideLegacyLobbyPanel).
+/// - v1.1: ë¶€ì œ ì•„ë˜ì— ì¹­í˜¸ ì¤„. ë„ê° 42ì¢…ì„ ì™„ì„±í•œ ì±„ ì—”ë”© Bë¥¼ ë³¸ ìš”ë¦¬ì‚¬(MetaProgress.MasterChefTitle)ì—ê²Œë§Œ
+///   "í™©ì•¼ì˜ ë§ˆìŠ¤í„° ì…°í”„" ì¹­í˜¸ê°€ ëœ¬ë‹¤ (êµìˆ˜ í”¼ë“œë°± C1 - ë„ê° ì™„ì„±ì˜ ëª…ì˜ˆ ë³´ìƒ). ë¡œë¹„ì— ë“¤ì–´ì˜¬ ë•Œë§ˆë‹¤ ê°±ì‹ 
 ///
-/// »ç¿ë¹ı: ¾øÀ½! ÆÄÀÏ¸¸ ³ÖÀ¸¸é ÀÚµ¿ »ı¼ºµÈ´Ù.
-/// VS 2017 (C# 7.3) È£È¯
+/// ë¡œë¹„ë¥¼ ê²Œì„ì˜ ëŒ€ë¬¸ìœ¼ë¡œ ë§Œë“ ë‹¤:
+/// - ìƒë‹¨: íƒ€ì´í‹€ + ë¶€ì œ
+/// - í•˜ë‹¨: í° [ì¶œë°œí•œë‹¤!] ë²„íŠ¼ (í´ë¦­ ë˜ëŠ” [Enter])
+/// - ì•ˆë‚´ì¤„: [M] ëª…ì„± ìƒì  / [J] ì„ ëŒ€ì˜ ì¼ì§€ / [H] ì°¨ì¥ì˜ ì•ˆë‚´ ì¼ì§€
+/// - ì¢Œí•˜ë‹¨: ì†Œë¦¬ ì„¤ì • (ë°°ê²½ìŒ/íš¨ê³¼ìŒ [-][+] - SoundManagerì˜ PlayerPrefs ë³¼ë¥¨ ì—°ë™)
+/// - ìš°í•˜ë‹¨: ì„œì²´ ë¼ì´ì„ ìŠ¤ ê³ ì§€ (ë°±ë¡œê·¸ "ë¡œë¹„ í¬ë ˆë”§" í•­ëª©)
+/// ëª…ì„± ìƒì (ì¤‘ì•™ íŒ¨ë„)ì€ ê·¸ëŒ€ë¡œ ë‘ê³  ì´ í™”ë©´ì´ ìœ„ì•„ë˜ë¡œ ê°ì‹¼ë‹¤.
+/// ì”¬ì˜ êµ¬ lobbyPanel(ì–´ë‘ìš´ ë°°ê²½ì— ë¬»íŒ ì‹œì‘ ë²„íŠ¼)ì€ ìë™ ìˆ¨ê¹€ (HideLegacyLobbyPanel).
+///
+/// ì‚¬ìš©ë²•: ì—†ìŒ! íŒŒì¼ë§Œ ë„£ìœ¼ë©´ ìë™ ìƒì„±ëœë‹¤.
+/// VS 2017 (C# 7.3) í˜¸í™˜
 /// </summary>
 public class LobbyUI : MonoBehaviour
 {
     private static LobbyUI instance;
 
     private Canvas canvas;
-    private GameObject root;      // ·Îºñ¿¡¼­¸¸ ÄÑ´Â ¹­À½
+    private GameObject root;      // ë¡œë¹„ì—ì„œë§Œ ì¼œëŠ” ë¬¶ìŒ
     private Text bgmLabel;
     private Text sfxLabel;
+    private Text titleBadge;      // v1.1: ì¹­í˜¸ ì¤„ (ì—†ìœ¼ë©´ ë¹ˆ ê¸€ì)
+    private bool wasLobby = false;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void Bootstrap()
@@ -48,39 +53,51 @@ public class LobbyUI : MonoBehaviour
 
         if (root != null && root.activeSelf != lobby)
             root.SetActive(lobby);
+        // v1.1: ë¡œë¹„ì— ë“¤ì–´ì˜¤ëŠ” ìˆœê°„ ì¹­í˜¸ ê°±ì‹  (ì—”ë”© B ì§í›„ ëŒì•„ì™”ì„ ë•Œ ë°”ë¡œ ë³´ì´ê²Œ)
+        if (lobby && !wasLobby) RefreshTitleBadge();
+        wasLobby = lobby;
         if (!lobby)
         {
-            // ·Îºñ¸¦ ¶°³ª¸é µµ°¨µµ ´İ´Â´Ù (Ãâ¹ß ÈÄ È­¸é¿¡ ³²Áö ¾Ê°Ô)
+            // ë¡œë¹„ë¥¼ ë– ë‚˜ë©´ ë„ê°ë„ ë‹«ëŠ”ë‹¤ (ì¶œë°œ í›„ í™”ë©´ì— ë‚¨ì§€ ì•Šê²Œ)
             if (collectionRoot != null) { Destroy(collectionRoot.gameObject); collectionRoot = null; }
             return;
         }
 
-        // ±¸ ¾À ·Îºñ ÆĞ³Î ¼û±è (Uimanager.ShowOnlyPanelÀÌ ´Ù½Ã ÄÑµµ ¸Å ÇÁ·¹ÀÓ ²¨¼­ À¯Áö)
+        // êµ¬ ì”¬ ë¡œë¹„ íŒ¨ë„ ìˆ¨ê¹€ (Uimanager.ShowOnlyPanelì´ ë‹¤ì‹œ ì¼œë„ ë§¤ í”„ë ˆì„ êº¼ì„œ ìœ ì§€)
         if (GameBalance.HideLegacyLobbyPanel && UIManager.Instance != null
             && UIManager.Instance.lobbyPanel != null
             && UIManager.Instance.lobbyPanel.activeSelf)
             UIManager.Instance.lobbyPanel.SetActive(false);
 
-        // [Enter] Ãâ¹ß (ÀÏÁö/ÀÏ½ÃÁ¤Áö°¡ ¿­·Á ÀÖÀ¸¸é ¾çº¸)
+        // [Enter] ì¶œë°œ (ì¼ì§€/ì¼ì‹œì •ì§€ê°€ ì—´ë ¤ ìˆìœ¼ë©´ ì–‘ë³´)
         if ((Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
             && !JournalViewerUI.IsOpen && !PauseMenu.IsOpen)
             StartRun();
     }
 
-    private void StartRun()
+    /// <summary>v1.1: ì¹­í˜¸ ì¤„ ê°±ì‹  - ë„ê° ì™„ì„± + ì—”ë”© B ê¸°ë¡ì´ ìˆì„ ë•Œë§Œ í‘œì‹œ</summary>
+    private void RefreshTitleBadge()
     {
-        SoundManager.Play("sfx_train_whistle");   // Ãâ¹ß ±âÀû (Å¬¸³ ¾øÀ¸¸é ¹«½Ã)
-        if (UIManager.Instance != null) UIManager.Instance.OnClickStartGame();
-        else GameManager.Instance?.ChangeState(GameManager.GameState.Battle);
-        Debug.Log("[LobbyUI] Ãâ¹ß! ·Îºñ -> ÀüÅõ");
+        if (titleBadge == null) return;
+        titleBadge.text = MetaProgress.MasterChefTitle
+            ? "[ì¹­í˜¸]  í™©ì•¼ì˜ ë§ˆìŠ¤í„° ì…°í”„  -  ìš”ë¦¬ì±… " + GameBalance.TrueEndingRecipesNeeded + "ì¢…ì„ ì™„ì„±í•˜ê³  ë§ˆì§€ë§‰ ì†ë‹˜ì„ ëŒ€ì ‘í•œ ìš”ë¦¬ì‚¬"
+            : "";
     }
 
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
-    // UI »ı¼º (ÄÚµå »ı¼º - ¾À ÀÛ¾÷ 0)
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    private void StartRun()
+    {
+        SoundManager.Play("sfx_train_whistle");   // ì¶œë°œ ê¸°ì  (í´ë¦½ ì—†ìœ¼ë©´ ë¬´ì‹œ)
+        if (UIManager.Instance != null) UIManager.Instance.OnClickStartGame();
+        else GameManager.Instance?.ChangeState(GameManager.GameState.Battle);
+        Debug.Log("[LobbyUI] ì¶œë°œ! ë¡œë¹„ -> ì „íˆ¬");
+    }
+
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // UI ìƒì„± (ì½”ë“œ ìƒì„± - ì”¬ ì‘ì—… 0)
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     private void BuildUI()
     {
-        canvas = UIFactory.CreateCanvas("Lobby_Canvas", 555);   // ¸í¼º »óÁ¡(560) ¹Ù·Î ¾Æ·¡
+        canvas = UIFactory.CreateCanvas("Lobby_Canvas", 555);   // ëª…ì„± ìƒì (560) ë°”ë¡œ ì•„ë˜
 
         root = new GameObject("Root");
         root.transform.SetParent(canvas.transform, false);
@@ -90,18 +107,23 @@ public class LobbyUI : MonoBehaviour
         rootRt.offsetMin = Vector2.zero;
         rootRt.offsetMax = Vector2.zero;
 
-        // ¦¡¦¡ »ó´Ü: Å¸ÀÌÆ² ¦¡¦¡
+        // â”€â”€ ìƒë‹¨: íƒ€ì´í‹€ â”€â”€
         Text title = UIFactory.CreateText(root.transform, "Title",
             "WESTERN DINO TRAIN", 46, UIFactory.GOLD, TextAnchor.MiddleCenter);
         SetTopStrip(title.rectTransform, -104f, -30f);
 
         Text subtitle = UIFactory.CreateText(root.transform, "Subtitle",
-            "È²¾ßÀÇ ¸¶½ºÅÍ ¼ÎÇÁ - ¹«Àå Á¶¸® ¿­Â÷ÀÇ ±â·Ï", 18, UIFactory.CREAM, TextAnchor.MiddleCenter);
+            "í™©ì•¼ì˜ ë§ˆìŠ¤í„° ì…°í”„ - ë¬´ì¥ ì¡°ë¦¬ ì—´ì°¨ì˜ ê¸°ë¡", 18, UIFactory.CREAM, TextAnchor.MiddleCenter);
         SetTopStrip(subtitle.rectTransform, -138f, -104f);
 
-        // ¦¡¦¡ ÇÏ´Ü: Ãâ¹ß ¹öÆ° ¦¡¦¡
+        // v1.1: ì¹­í˜¸ ì¤„ (ë¶€ì œ ì•„ë˜) - ìê²©ì´ ì—†ìœ¼ë©´ ë¹ˆ ê¸€ì
+        titleBadge = UIFactory.CreateText(root.transform, "TitleBadge", "", 16, UIFactory.GOLD, TextAnchor.MiddleCenter);
+        SetTopStrip(titleBadge.rectTransform, -166f, -140f);
+        RefreshTitleBadge();
+
+        // â”€â”€ í•˜ë‹¨: ì¶œë°œ ë²„íŠ¼ â”€â”€
         Button startBtn = UIFactory.CreateButton(root.transform, "StartBtn",
-            "Ãâ¹ßÇÑ´Ù!  [Enter]", new Vector2(340f, 62f),
+            "ì¶œë°œí•œë‹¤!  [Enter]", new Vector2(340f, 62f),
             UIFactory.COPPER, UIFactory.CREAM, 26);
         RectTransform startRt = startBtn.GetComponent<RectTransform>();
         startRt.anchorMin = new Vector2(0.5f, 0f);
@@ -109,10 +131,10 @@ public class LobbyUI : MonoBehaviour
         startRt.anchoredPosition = new Vector2(0f, 156f);
         startBtn.onClick.AddListener(StartRun);
 
-        // ¦¡¦¡ Ãâ¹ß ¹öÆ° ¹Ø: ¸í¼º »óÁ¡ / µµ°¨ ¹öÆ° (³ª¶õÈ÷) ¦¡¦¡
-        // »óÁ¡ÀÌ ·Îºñ¸¦ ÀÚµ¿À¸·Î µ¤Áö ¾Ê´Â´Ù - Ãâ¹ß Àü¿¡ ¿øÇÏ´Â »ç¶÷¸¸ ¿­¾î º»´Ù
+        // â”€â”€ ì¶œë°œ ë²„íŠ¼ ë°‘: ëª…ì„± ìƒì  / ë„ê° ë²„íŠ¼ (ë‚˜ë€íˆ) â”€â”€
+        // ìƒì ì´ ë¡œë¹„ë¥¼ ìë™ìœ¼ë¡œ ë®ì§€ ì•ŠëŠ”ë‹¤ - ì¶œë°œ ì „ì— ì›í•˜ëŠ” ì‚¬ëŒë§Œ ì—´ì–´ ë³¸ë‹¤
         Button shopBtn = UIFactory.CreateButton(root.transform, "FameShopBtn",
-            "¸í¼º »óÁ¡  [M]", new Vector2(214f, 42f),
+            "ëª…ì„± ìƒì   [M]", new Vector2(214f, 42f),
             UIFactory.PANEL, UIFactory.GOLD, 17);
         RectTransform shopRt = shopBtn.GetComponent<RectTransform>();
         shopRt.anchorMin = new Vector2(0.5f, 0f);
@@ -123,9 +145,9 @@ public class LobbyUI : MonoBehaviour
             if (FameShopUI.Instance != null) FameShopUI.Instance.ToggleShop();
         });
 
-        // µµ°¨ ¿­¶÷ (¼³°è 6Àı ÀÜ¿©): Áö±İ±îÁö ¹ß°ßÇÑ ¿ä¸®¸¦ Ãâ¹ß Àü¿¡ ÈÈ¾îº»´Ù
+        // ë„ê° ì—´ëŒ (ì„¤ê³„ 6ì ˆ ì”ì—¬): ì§€ê¸ˆê¹Œì§€ ë°œê²¬í•œ ìš”ë¦¬ë¥¼ ì¶œë°œ ì „ì— í›‘ì–´ë³¸ë‹¤
         Button bookBtn = UIFactory.CreateButton(root.transform, "CollectionBtn",
-            "¿ä¸® µµ°¨", new Vector2(214f, 42f),
+            "ìš”ë¦¬ ë„ê°", new Vector2(214f, 42f),
             UIFactory.PANEL, UIFactory.CREAM, 17);
         RectTransform bookRt = bookBtn.GetComponent<RectTransform>();
         bookRt.anchorMin = new Vector2(0.5f, 0f);
@@ -133,27 +155,27 @@ public class LobbyUI : MonoBehaviour
         bookRt.anchoredPosition = new Vector2(114f, 98f);
         bookBtn.onClick.AddListener(ToggleCollection);
 
-        // ¦¡¦¡ ¾È³»ÁÙ ¦¡¦¡
+        // â”€â”€ ì•ˆë‚´ì¤„ â”€â”€
         Text guide = UIFactory.CreateText(root.transform, "Guide",
-            "[J] ¼±´ëÀÇ ÀÏÁö   |   [H] Â÷ÀåÀÇ ¾È³» ÀÏÁö",
+            "[J] ì„ ëŒ€ì˜ ì¼ì§€   |   [H] ì°¨ì¥ì˜ ì•ˆë‚´ ì¼ì§€",
             14, UIFactory.DIM, TextAnchor.MiddleCenter);
         guide.rectTransform.anchorMin = new Vector2(0f, 0f);
         guide.rectTransform.anchorMax = new Vector2(1f, 0f);
         guide.rectTransform.offsetMin = new Vector2(0f, 52f);
         guide.rectTransform.offsetMax = new Vector2(0f, 78f);
 
-        // ¦¡¦¡ ÁÂÇÏ´Ü: ¼Ò¸® ¼³Á¤ ¦¡¦¡
+        // â”€â”€ ì¢Œí•˜ë‹¨: ì†Œë¦¬ ì„¤ì • â”€â”€
         Text soundTitle = UIFactory.CreateText(root.transform, "SoundTitle",
-            "- ¼Ò¸® ¼³Á¤ -", 14, UIFactory.CREAM, TextAnchor.MiddleLeft);
+            "- ì†Œë¦¬ ì„¤ì • -", 14, UIFactory.CREAM, TextAnchor.MiddleLeft);
         SetCorner(soundTitle.rectTransform, true, 16f, 96f, 200f, 22f);
 
         bgmLabel = MakeVolumeRow(true, 62f);
         sfxLabel = MakeVolumeRow(false, 28f);
         RefreshVolumeLabels();
 
-        // ¦¡¦¡ ¿ìÇÏ´Ü: ¼­Ã¼ °íÁö (Å©·¹µ÷) ¦¡¦¡
+        // â”€â”€ ìš°í•˜ë‹¨: ì„œì²´ ê³ ì§€ (í¬ë ˆë”§) â”€â”€
         Text credit = UIFactory.CreateText(root.transform, "Credit",
-            "¼­Ã¼: NeoµÕ±Ù¸ğ (¶óÀÌ¼±½º: FONT_LICENSE ÆÄÀÏ ÂüÁ¶)", 11,
+            "ì„œì²´: Neoë‘¥ê·¼ëª¨ (ë¼ì´ì„ ìŠ¤: FONT_LICENSE íŒŒì¼ ì°¸ì¡°)", 11,
             UIFactory.DIM, TextAnchor.MiddleRight);
         credit.rectTransform.anchorMin = new Vector2(1f, 0f);
         credit.rectTransform.anchorMax = new Vector2(1f, 0f);
@@ -161,10 +183,10 @@ public class LobbyUI : MonoBehaviour
         credit.rectTransform.sizeDelta = new Vector2(420f, 20f);
         credit.rectTransform.anchoredPosition = new Vector2(-14f, 12f);
 
-        root.SetActive(false);   // »óÅÂ Æú¸µÀÌ ·Îºñ¿¡¼­ ÄÒ´Ù
+        root.SetActive(false);   // ìƒíƒœ í´ë§ì´ ë¡œë¹„ì—ì„œ ì¼ ë‹¤
     }
 
-    /// <summary>º¼·ı Á¶Àı ÇÑ ÁÙ: ÀÌ¸§ [-] ¼öÄ¡ [+]</summary>
+    /// <summary>ë³¼ë¥¨ ì¡°ì ˆ í•œ ì¤„: ì´ë¦„ [-] ìˆ˜ì¹˜ [+]</summary>
     private Text MakeVolumeRow(bool bgm, float y)
     {
         string rowName = bgm ? "BgmRow" : "SfxRow";
@@ -186,9 +208,9 @@ public class LobbyUI : MonoBehaviour
         return label;
     }
 
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
-    // ¿ä¸® µµ°¨ ¿­¶÷ (ÀĞ±â Àü¿ë - ¹ß°ß = ÀÌ¸§, ¹Ì¹ß°ß = ???)
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ìš”ë¦¬ ë„ê° ì—´ëŒ (ì½ê¸° ì „ìš© - ë°œê²¬ = ì´ë¦„, ë¯¸ë°œê²¬ = ???)
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     private Canvas collectionCanvas;
     private RectTransform collectionRoot;
 
@@ -203,13 +225,13 @@ public class LobbyUI : MonoBehaviour
         BuildCollection();
     }
 
-    /// <summary>¿­ ¶§¸¶´Ù »õ·Î ±×¸°´Ù (¹ß°ß ¼ö°¡ ·±¸¶´Ù ´Ã¾î³ª´Ï)</summary>
+    /// <summary>ì—´ ë•Œë§ˆë‹¤ ìƒˆë¡œ ê·¸ë¦°ë‹¤ (ë°œê²¬ ìˆ˜ê°€ ëŸ°ë§ˆë‹¤ ëŠ˜ì–´ë‚˜ë‹ˆ)</summary>
     private void BuildCollection()
     {
         if (collectionCanvas == null)
-            collectionCanvas = UIFactory.CreateCanvas("LobbyCollection_Canvas", 565);   // ¸í¼º »óÁ¡(560) À§
+            collectionCanvas = UIFactory.CreateCanvas("LobbyCollection_Canvas", 565);   // ëª…ì„± ìƒì (560) ìœ„
 
-        // ¿ä¸® ¸ñ·ÏÀ» Æ¼¾îº°·Î ¸ğÀº´Ù
+        // ìš”ë¦¬ ëª©ë¡ì„ í‹°ì–´ë³„ë¡œ ëª¨ì€ë‹¤
         System.Collections.Generic.List<RecipeData> t1 = new System.Collections.Generic.List<RecipeData>();
         System.Collections.Generic.List<RecipeData> t2 = new System.Collections.Generic.List<RecipeData>();
         int found = 0, total = 0;
@@ -230,15 +252,15 @@ public class LobbyUI : MonoBehaviour
             UIFactory.PANEL, UIFactory.COPPER, 2f);
 
         Text title = UIFactory.CreateText(collectionRoot, "Title",
-            "È²¾ßÀÇ ¿ä¸® µµ°¨  -  ¹ß°ß " + found + " / " + total, 20, UIFactory.GOLD, TextAnchor.UpperCenter);
+            "í™©ì•¼ì˜ ìš”ë¦¬ ë„ê°  -  ë°œê²¬ " + found + " / " + total, 20, UIFactory.GOLD, TextAnchor.UpperCenter);
         title.rectTransform.offsetMin = new Vector2(10f, height - 44f);
         title.rectTransform.offsetMax = new Vector2(-10f, -10f);
 
         Text colA = UIFactory.CreateText(collectionRoot, "HeadT1",
-            "- ±âº» ¿ä¸® -", 15, UIFactory.CREAM, TextAnchor.MiddleCenter);
+            "- ê¸°ë³¸ ìš”ë¦¬ -", 15, UIFactory.CREAM, TextAnchor.MiddleCenter);
         SetBookRow(colA.rectTransform, true, height, -1);
         Text colB = UIFactory.CreateText(collectionRoot, "HeadT2",
-            "- Àü¼³ ¿ä¸® -", 15, UIFactory.T2PINK, TextAnchor.MiddleCenter);
+            "- ì „ì„¤ ìš”ë¦¬ -", 15, UIFactory.T2PINK, TextAnchor.MiddleCenter);
         SetBookRow(colB.rectTransform, false, height, -1);
 
         for (int i = 0; i < rows; i++)
@@ -248,7 +270,7 @@ public class LobbyUI : MonoBehaviour
         }
 
         Text footer = UIFactory.CreateText(collectionRoot, "Footer",
-            "¿ä¸®´Â Ã³À½ ¸¸µå´Â ¼ø°£ µµ°¨¿¡ »õ°ÜÁø´Ù - [¿ä¸® µµ°¨] ¹öÆ°À¸·Î ´İ±â", 12,
+            "ìš”ë¦¬ëŠ” ì²˜ìŒ ë§Œë“œëŠ” ìˆœê°„ ë„ê°ì— ìƒˆê²¨ì§„ë‹¤ - [ìš”ë¦¬ ë„ê°] ë²„íŠ¼ìœ¼ë¡œ ë‹«ê¸°", 12,
             UIFactory.DIM, TextAnchor.LowerCenter);
         footer.rectTransform.offsetMin = new Vector2(10f, 8f);
         footer.rectTransform.offsetMax = new Vector2(-10f, -(height - 30f));
@@ -265,7 +287,7 @@ public class LobbyUI : MonoBehaviour
         SetBookRow(t.rectTransform, left, height, row);
     }
 
-    /// <summary>µµ°¨ Çà ¹èÄ¡ (row -1 = ÄÃ·³ ¸Ó¸®±Û)</summary>
+    /// <summary>ë„ê° í–‰ ë°°ì¹˜ (row -1 = ì»¬ëŸ¼ ë¨¸ë¦¬ê¸€)</summary>
     private static void SetBookRow(RectTransform rt, bool left, float height, int row)
     {
         float top = height - 74f - (row + 1) * 24f + 24f;
@@ -281,7 +303,7 @@ public class LobbyUI : MonoBehaviour
         else
         {
             SoundManager.SfxVolume = SoundManager.SfxVolume + delta;
-            SoundManager.Play("sfx_ui_click");   // »õ Å©±â Áï½Ã µé·ÁÁÖ±â
+            SoundManager.Play("sfx_ui_click");   // ìƒˆ í¬ê¸° ì¦‰ì‹œ ë“¤ë ¤ì£¼ê¸°
         }
         RefreshVolumeLabels();
     }
@@ -289,15 +311,15 @@ public class LobbyUI : MonoBehaviour
     private void RefreshVolumeLabels()
     {
         if (bgmLabel != null)
-            bgmLabel.text = "¹è°æÀ½  " + Mathf.RoundToInt(SoundManager.BgmVolume * 100f) + "%";
+            bgmLabel.text = "ë°°ê²½ìŒ  " + Mathf.RoundToInt(SoundManager.BgmVolume * 100f) + "%";
         if (sfxLabel != null)
-            sfxLabel.text = "È¿°úÀ½  " + Mathf.RoundToInt(SoundManager.SfxVolume * 100f) + "%";
+            sfxLabel.text = "íš¨ê³¼ìŒ  " + Mathf.RoundToInt(SoundManager.SfxVolume * 100f) + "%";
     }
 
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
-    // ¹èÄ¡ ÇïÆÛ
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
-    /// <summary>È­¸é »ó´Ü °¡·ÎÁÙ (top ±âÁØ offsetY0 ~ offsetY1)</summary>
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ë°°ì¹˜ í—¬í¼
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    /// <summary>í™”ë©´ ìƒë‹¨ ê°€ë¡œì¤„ (top ê¸°ì¤€ offsetY0 ~ offsetY1)</summary>
     private static void SetTopStrip(RectTransform rt, float yMin, float yMax)
     {
         rt.anchorMin = new Vector2(0f, 1f);
@@ -306,7 +328,7 @@ public class LobbyUI : MonoBehaviour
         rt.offsetMax = new Vector2(0f, yMax);
     }
 
-    /// <summary>ÁÂ/¿ì ÇÏ´Ü ÄÚ³Ê °íÁ¤ (left=true¸é ÁÂÇÏ´Ü ±âÁØ x,y)</summary>
+    /// <summary>ì¢Œ/ìš° í•˜ë‹¨ ì½”ë„ˆ ê³ ì • (left=trueë©´ ì¢Œí•˜ë‹¨ ê¸°ì¤€ x,y)</summary>
     private static void SetCorner(RectTransform rt, bool left, float x, float y, float w, float h)
     {
         Vector2 a = left ? new Vector2(0f, 0f) : new Vector2(1f, 0f);
