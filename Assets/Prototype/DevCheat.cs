@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// [DevCheat.cs] v1.1 (2026-09-14: F3 짧은 런 토글)
+/// [DevCheat.cs] v1.2 (v9.8.1: 빌드에서는 GameBalance.CheatsInBuild 가 true 일 때만 동작) / v1.1 (2026-09-14: F3 짧은 런 토글)
 /// 개발 테스트용 치트 키 모음 (빌드 전 제거 또는 비활성화)
 /// GameSystems 오브젝트에 부착
 ///
@@ -22,6 +22,7 @@ public class DevCheat : MonoBehaviour
     void Update()
     {
         if (!cheatEnabled) return;
+        if (!GameBalance.CheatsAllowed) return;   // v9.8.1: 빌드에서는 GameBalance.CheatsInBuild 가 true 일 때만
 
         // F3: 짧은 런 토글 - 정식 길이(8)가 기본이므로 빠른 확인은 이 키로 (런 시작 때 WaveManager가 읽는다)
         if (Input.GetKeyDown(KeyCode.F3))

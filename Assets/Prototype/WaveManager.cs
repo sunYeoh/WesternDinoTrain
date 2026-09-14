@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// [WaveManager.cs] v6.6 (v9.8: 위험 적 전용 PNG) / v6.5 (교수 피드백 반영 2026-09-14) / v6.4 (고퀄 PNG 적용 2026-09-03) / v6.3 탑뷰 재스킨
+/// [WaveManager.cs] v6.7 (v9.8.1: B 점프는 GameBalance.CheatsAllowed 일 때만) / v6.6 (v9.8: 위험 적 전용 PNG) / v6.5 (교수 피드백 반영 2026-09-14) / v6.4 (고퀄 PNG 적용 2026-09-03) / v6.3 탑뷰 재스킨
 /// 웨이브 단위로 적 유닛을 스폰하고, 모든 적 처치 시 웨이브 완료를 알립니다.
 /// - v6.6 변경점: 프리팹 없는 적의 PNG 선택에 전용 그림 4종(e_fly/e_parasaur/e_carno/e_mosa) 우선. 없으면 v6.4 매핑 그대로
 /// - v6.5 변경점:
@@ -980,7 +980,7 @@ public class WaveManager : MonoBehaviour
     private void Update()
     {
         // [치트] B키: 다음 보스 웨이브로 점프 (테스트용 - 빌드 전 debugBossJumpEnabled false)
-        if (debugBossJumpEnabled && Input.GetKeyDown(KeyCode.B))
+        if (debugBossJumpEnabled && GameBalance.CheatsAllowed && Input.GetKeyDown(KeyCode.B))
         {
             JumpToNextBossWave();
             return;

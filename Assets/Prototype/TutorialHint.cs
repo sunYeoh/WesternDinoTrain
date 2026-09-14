@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [TutorialHint.cs] v1.1 (교수 피드백 A13: 표시 5초 + 아무 키 닫기 + 조리 중 대기) - 컨텍스트 트리거 튜토리얼 (설계: 튜토리얼_온보딩_설계_2026-08-18)
+/// [TutorialHint.cs] v1.2 (v9.8.1: F4 리셋은 GameBalance.CheatsAllowed 일 때만) / v1.1 (교수 피드백 A13: 표시 5초 + 아무 키 닫기 + 조리 중 대기) - 컨텍스트 트리거 튜토리얼 (설계: 튜토리얼_온보딩_설계_2026-08-18)
 ///
 /// 몰아서 가르치지 않는다. 각 기믹을 "처음 마주치는 순간" 1회만 배너로 안내한다.
 /// - 영구 기록: PlayerPrefs "WDT_Tut_(id)" - 2회차부터 반복 없음 (다회차 마찰 방지)
@@ -137,7 +137,7 @@ public class TutorialHint : MonoBehaviour
             ToggleArchive();
 
         // 개발 치트 F4: 튜토리얼+프롤로그 기록 전체 리셋 (재테스트용 - 빌드 전 치트 정리 대상)
-        if (Input.GetKeyDown(KeyCode.F4))
+        if (Input.GetKeyDown(KeyCode.F4) && GameBalance.CheatsAllowed)
         {
             for (int i = 0; i < HINTS.Length; i++)
                 PlayerPrefs.DeleteKey(PREF_PREFIX + HINTS[i].id);

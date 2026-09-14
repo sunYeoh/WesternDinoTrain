@@ -695,6 +695,19 @@ public static class GameBalance
 
     // ── 정비소 기록 (C4) ── (수치 없음: GameManager가 전투 중 수리 횟수·골드를 런 요약에 기록)
 
+    // ── 빌드 치트 (v9.8.1) ──
+    /// <summary>
+    /// 빌드(exe)에서도 개발 치트(F3~F12, B, F11 이벤트 강제, F4 기록 리셋)를 켤지. 에디터 Play 에서는 항상 켜진다.
+    /// 테스터·교수님께 주는 빌드는 false 그대로 = 치트 없음. 본인 확인용 빌드에서 치트가 필요하면 true.
+    /// </summary>
+    public static bool CheatsInBuild = false;
+
+    /// <summary>치트 입력을 받아도 되는가 (에디터 = 항상, 빌드 = CheatsInBuild)</summary>
+    public static bool CheatsAllowed
+    {
+        get { return Application.isEditor || CheatsInBuild; }
+    }
+
     // ==================================================================
     //  시작 보급품 - "포탑 없음 -> 파밍 불가 -> 사망" 데드락 방지
     //  웨이브 1 시작 시 FoodStock에 완성 요리를 지급한다 (바로 슬롯에 투입 가능)
