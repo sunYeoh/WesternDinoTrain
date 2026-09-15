@@ -1,8 +1,12 @@
 using UnityEngine;
 
 /// <summary>
-/// [TurretSlot.cs] v6.1 (교수 피드백 반영 2026-09-14) / v6 (고퀄 PNG 적용 2026-09-03) / v5 탑뷰 재스킨 (2026-09-02)
+/// [TurretSlot.cs] v6.2 (런 통계: 과열 횟수·정지 시간 2026-09-14) / v6.1 (교수 피드백 반영 2026-09-14) / v6 (고퀄 PNG 적용 2026-09-03)
 /// 포탑 슬롯 1개. 요리를 투입하면 포탑으로 가동한다.
+/// - v6.2 변경점 (스위치 실험 지표 - 반영계획 §5 관찰 시트):
+///   OverheatsThisRun / OverheatStunSecThisRun: 이번 런에 과열이 몇 번 났고, 과열로 포탑이 전투 중 몇 초 멈춰 있었는지.
+///   정지 시간은 TickFire(전투 상태에서만 호출)에서 프레임마다 누적하므로 자동 복구·수동 냉각·런 도중 사망 모두 같은 기준으로 잰다.
+///   GameManager가 런 시작 때 ResetRunStats()로 0으로 돌린다 (static 이라 씬 리로드 뒤에도 남기 때문). MetaProgress.RunStatsLine()이 읽는다.
 /// - v6.1 변경점 (교수 피드백 A4/B1/B2/B5):
 ///   최대HP 패시브(철판 정식/오메가)를 슬롯별로 기록해 폐기·합체 소모 시 회수한다 (투입마다 무한 누적 + 회복 루프 차단)
 ///   과열 자동 복구 스위치(OverheatAutoRecoverSec) / 시간 정규화 스위치(OverheatTimeNormalized)
@@ -59,6 +63,19 @@ public class TurretSlot : MonoBehaviour
 
     /// <summary>마지막으로 어느 슬롯이든 요리가 투입된 시각 (Time.time, 0 = 없음). 프롤로그 조리 게이트용</summary>
     public static float LastInsertTime = 0f;
+
+    // ── v6.2: 런 통계 (스위치 실험 지표) - 모든 슬롯 합산, 런 시작 때 GameManager가 ResetRunStats() ──
+    /// <summary>이번 런에 과열이 발생한 횟수 (슬롯 합산)</summary>
+    public static int OverheatsThisRun = 0;
+    /// <summary>이번 런에 과열 때문에 포탑이 발사를 못 한 전투 시간 합계 (초, 슬롯 합산)</summary>
+    public static float OverheatStunSecThisRun = 0f;
+
+    /// <summary>런 통계 초기화 - 새 런의 첫 웨이브 시작 때 1회 (GameManager)</summary>
+    public static void ResetRunStats()
+    {
+        OverheatsThisRun = 0;
+        OverheatStunSecThisRun = 0f;
+    }
 
     /// <summary>슬롯 마비 (보스 낙뢰 - 기존 호환용, 감전 표기)</summary>
     public void StunSlot(float seconds) { StunSlot(seconds, "감전"); }
@@ -242,6 +259,8 @@ public class TurretSlot : MonoBehaviour
             FinishOverheat();
             UIManager.Instance?.ShowStatChange("포탑이 식었다 - 다시 가동");
         }
+        // v6.2: 과열로 멈춰 있는 전투 시간 누적 (관찰 시트 "과열당 정지 시간" - 여기서만 재므로 냉각 방식과 무관)
+        if (IsStunned && StunKind == "과열") OverheatStunSecThisRun += deltaTime;
         if (IsStunned) return;   // v3: 낙뢰 마비 중 발사 정지
         RecipeData r = Recipe;
         if (r == null) return;
@@ -295,6 +314,7 @@ public class TurretSlot : MonoBehaviour
             {
                 TurretSlotManager.Instance.NoteOverheat();
                 overheatActive = true;
+                OverheatsThisRun++;   // v6.2: 런 통계
                 // v6.1 (B1 실험): 자동 복구 시간이 설정돼 있으면 그 시간 뒤 스스로 식는다 ([E] 냉각은 즉시)
                 float dur = GameBalance.OverheatAutoRecoverSec > 0f ? GameBalance.OverheatAutoRecoverSec : 9999f;
                 StunSlot(dur, "과열");

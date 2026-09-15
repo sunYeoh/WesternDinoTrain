@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.Events;
 
 /// <summary>
-/// [GameManager.cs] v4.1 (2026-09-14: 런 통계 초기화 / 프롤로그 찬장 고기 고정 / 전투 중 수리 기록) / v4
+/// [GameManager.cs] v4.2 (2026-09-14: 포탑 과열 런 통계 초기화 - TurretSlot.ResetRunStats) / v4.1 (런 통계 초기화 / 프롤로그 찬장 고기 고정 / 전투 중 수리 기록) / v4
 /// 게임 전체 상태를 관리하는 최상위 싱글톤 클래스.
 /// Cooking 페이즈 제거 — 게임 시작하면 바로 Battle.
 /// 조리는 전투 중 언제든 가능.
@@ -121,6 +121,7 @@ public class GameManager : MonoBehaviour
         {
             starterKitGiven = true;
             CookingBridge.ResetRunStats();   // v4.1: 런 통계 초기화 (프롤로그 조리 게이트·관찰 시트)
+            TurretSlot.ResetRunStats();      // v4.2: 과열 횟수·정지 시간 (static 이라 씬 리로드 뒤에도 남는다)
             RepairsInBattle = 0; RepairGoldInBattle = 0;
             GiveStarterKit();
 

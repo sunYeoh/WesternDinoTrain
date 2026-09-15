@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// [MetaProgress.cs] v1.1 (2026-09-14: 마스터 셰프 칭호 + 도감 완성 보너스) / v1 (신규 파일)
+/// [MetaProgress.cs] v1.2 (2026-09-14: 이번 런 클리어 웨이브 + 런 통계 한 줄 RunStatsLine) / v1.1 (마스터 셰프 칭호 + 도감 완성 보너스) / v1
 /// 런이 끝나도 사라지지 않는 "메타 진행" 저장소.
 ///
 /// - PlayerPrefs 기반 static 클래스라서 씬 배치, 오브젝트 연결이 전혀 필요 없다.
@@ -31,6 +31,9 @@ public static class MetaProgress
 
     // 이번 런에서 얻은 명성 (화면 표시용. 총합은 어차피 저장돼 있으므로 저장 안 함)
     public static int RunFame { get; private set; }
+
+    // v1.2: 이번 런에서 클리어한 마지막 웨이브 (관찰 시트 "웨이브 8 도달률" - BeginRun 에서 0)
+    public static int WaveClearedThisRun { get; private set; }
 
     // ─────────────────────────────────────────────
     // 읽기 프로퍼티 (어디서든 바로 사용 가능)
@@ -74,6 +77,7 @@ public static class MetaProgress
     {
         EnsureSaveVersion();
         RunFame = 0;
+        WaveClearedThisRun = 0;
         PlayerPrefs.SetInt(PREFIX + "RunsPlayed", RunsPlayed + 1);
         PlayerPrefs.Save();
         Debug.Log("[MetaProgress] " + RunsPlayed + "번째 런 시작 | 누적 명성 " + Fame
@@ -85,6 +89,9 @@ public static class MetaProgress
     {
         int gain = 10 + wave;
         RunFame += gain;
+        if (wave > WaveClearedThisRun) WaveClearedThisRun = wave;
+        // v1.2: 웨이브마다 통계 한 줄 (런을 포기하면 요약 창이 안 뜨므로 Console/Player.log 의 이 줄이 기록이 된다)
+        Debug.Log("[MetaProgress] 웨이브 " + wave + " 클리어 | " + RunStatsLine());
         PlayerPrefs.SetInt(PREFIX + "Fame", Fame + gain);
         PlayerPrefs.SetInt(PREFIX + "TotalWaves", TotalWavesCleared + 1);
         if (wave > BestWave)
@@ -107,10 +114,29 @@ public static class MetaProgress
         string s = "이번 런 명성 +" + RunFame
             + "  |  보유 명성 " + Fame
             + "  |  최고 기록 " + BestWave + "웨이브";
-        // v1.1 (교수 피드백 C4·관찰 시트): 조리 통계와 전투 중 수리 기록
-        s += "\n조리 " + CookingBridge.CooksThisRun + "회 (실패 " + CookingBridge.BadsThisRun + ")";
-        if (GameManager.Instance != null && GameManager.Instance.RepairsInBattle > 0)
-            s += "  |  전투 중 수리 " + GameManager.Instance.RepairsInBattle + "회 (" + GameManager.Instance.RepairGoldInBattle + "G)";
+        // v1.1 (교수 피드백 C4·관찰 시트): 조리 통계와 전투 중 수리 기록 -> v1.2: 한 줄 함수로 분리 (명성 상점도 같은 줄을 띄운다)
+        s += "\n" + RunStatsLine();
+        return s;
+    }
+
+    /// <summary>
+    /// v1.2: 이번 런 통계 한 줄 - 스위치 실험 관찰 시트에 그대로 옮겨 적는 값들.
+    /// "N웨이브 클리어 | 조리 N (실패 N) | 전투 중 수리 N회 NG | 과열 N회 정지 N초"
+    /// 게임오버 알림(3초)뿐 아니라 명성 상점 상단(FameShopUI)에 런이 끝나 있는 동안 계속 보인다.
+    /// </summary>
+    public static string RunStatsLine()
+    {
+        // 구분자는 한 칸 공백 - 명성 상점 패널(860px) 안에 17pt 한 줄로 들어가야 한다
+        string s = WaveClearedThisRun + "웨이브 클리어 | 조리 " + CookingBridge.CooksThisRun
+            + " (실패 " + CookingBridge.BadsThisRun + ")";
+        int repairs = 0, repairGold = 0;
+        if (GameManager.Instance != null)
+        {
+            repairs = GameManager.Instance.RepairsInBattle;
+            repairGold = GameManager.Instance.RepairGoldInBattle;
+        }
+        s += " | 전투 중 수리 " + repairs + "회 " + repairGold + "G";
+        s += " | 과열 " + TurretSlot.OverheatsThisRun + "회 정지 " + Mathf.RoundToInt(TurretSlot.OverheatStunSecThisRun) + "초";
         return s;
     }
 
