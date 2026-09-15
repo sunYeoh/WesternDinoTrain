@@ -2,8 +2,13 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [LobbyUI.cs] v1.1 (v9.8: 칭호 표시) / v1 - 로비 개편 (튜토리얼_온보딩_설계 6절 + 화면 검수 "시작 버튼 묻힘")
+/// [LobbyUI.cs] v1.2 (v9.9 2026-09-16: [T] 견습 운행 버튼 + 첫 실행 강조) / v1.1 (v9.8: 칭호 표시) / v1 - 로비 개편 (튜토리얼_온보딩_설계 6절 + 화면 검수 "시작 버튼 묻힘")
 ///
+/// - v1.2: 출발 버튼 아래 [T] 견습 운행 (340x44, y 130). 미완료(TutorialDirector.Done == false)면 목업 v2 (C) 대로
+///   위에 현장 마커 화살표(tut_arrow 2배)가 까딱이고, 버튼 양끝 경광등(ui_ev_beacon_0/1)이 0.3초마다 교대, 황동 테,
+///   오른쪽 황동 명판 "← 처음이면 이것부터". 완료면 "[T] 견습 운행 - 다시 보기" 만.
+///   자리 확보: 출발 y 156 -> 236, 상점/도감 y 98 -> 80, 안내줄 52~78 -> 28~50.
+///   로비 캔버스는 DontDestroyOnLoad - 씬 리로드(런 포기/견습 종료) 뒤에도 로비 UI 가 남는다 (v1.1 까지는 사라졌다)
 /// - v1.1: 부제 아래에 칭호 줄. 도감 42종을 완성한 채 엔딩 B를 본 요리사(MetaProgress.MasterChefTitle)에게만
 ///   "황야의 마스터 셰프" 칭호가 뜬다 (교수 피드백 C1 - 도감 완성의 명예 보상). 로비에 들어올 때마다 갱신
 ///
@@ -30,6 +35,18 @@ public class LobbyUI : MonoBehaviour
     private Text titleBadge;      // v1.1: 칭호 줄 (없으면 빈 글자)
     private bool wasLobby = false;
 
+    // v1.2: [T] 견습 운행 버튼 + 강조 부품
+    private Button tutorialBtn;
+    private Text tutorialLabel;
+    private Image tutorialRing;          // 황동 테 (스킨 있을 때)
+    private Image beaconL, beaconR;      // 경광등 2개
+    private Image tutorialArrow;         // 마커 화살표
+    private RectTransform tutorialHint;  // 명판 "← 처음이면 이것부터"
+    private Text tutorialHintFallback;
+    private Sprite beaconOff, beaconOn;
+    private bool highlightOn = false;
+    private const float TUT_BTN_Y = 130f;
+
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void Bootstrap()
     {
@@ -54,7 +71,7 @@ public class LobbyUI : MonoBehaviour
         if (root != null && root.activeSelf != lobby)
             root.SetActive(lobby);
         // v1.1: 로비에 들어오는 순간 칭호 갱신 (엔딩 B 직후 돌아왔을 때 바로 보이게)
-        if (lobby && !wasLobby) RefreshTitleBadge();
+        if (lobby && !wasLobby) { RefreshTitleBadge(); RefreshTutorialButton(); }
         wasLobby = lobby;
         if (!lobby)
         {
@@ -62,6 +79,13 @@ public class LobbyUI : MonoBehaviour
             if (collectionRoot != null) { Destroy(collectionRoot.gameObject); collectionRoot = null; }
             return;
         }
+
+        TickTutorialHighlight();
+
+        // v1.2: [T] 견습 운행 (일지/일시정지/브리핑이 열려 있으면 양보)
+        if (Input.GetKeyDown(KeyCode.T) && !JournalViewerUI.IsOpen && !PauseMenu.IsOpen && !BriefingUI.IsOpen
+            && !AugmentListUI.ReadingOpen && !FameShopUI.IsOpen)
+            StartTutorial();
 
         // 구 씬 로비 패널 숨김 (Uimanager.ShowOnlyPanel이 다시 켜도 매 프레임 꺼서 유지)
         if (GameBalance.HideLegacyLobbyPanel && UIManager.Instance != null
@@ -71,7 +95,8 @@ public class LobbyUI : MonoBehaviour
 
         // [Enter] 출발 (일지/일시정지가 열려 있으면 양보)
         if ((Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
-            && !JournalViewerUI.IsOpen && !PauseMenu.IsOpen)
+            && !JournalViewerUI.IsOpen && !PauseMenu.IsOpen
+            && !BriefingUI.IsOpen && BriefingUI.KeyConsumedFrame != Time.frameCount)   // v1.2: 카드를 닫은 Enter 로 출발하지 않게
             StartRun();
     }
 
@@ -92,12 +117,61 @@ public class LobbyUI : MonoBehaviour
         Debug.Log("[LobbyUI] 출발! 로비 -> 전투");
     }
 
+    /// <summary>v1.2: [T] 견습 운행 - 전용 튜토리얼 런 (TutorialDirector 가 진행)</summary>
+    private void StartTutorial()
+    {
+        if (!GameBalance.TutorialRunEnabled) return;
+        if (collectionRoot != null) { Destroy(collectionRoot.gameObject); collectionRoot = null; }
+        Debug.Log("[LobbyUI] [T] 견습 운행 -> TutorialDirector.Begin");
+        TutorialDirector.Begin();
+    }
+
+    /// <summary>v1.2: 버튼 글자/강조 상태 갱신 (로비 진입 때마다 - 견습을 마치고 돌아오면 바로 "다시 보기")</summary>
+    private void RefreshTutorialButton()
+    {
+        if (tutorialBtn == null) return;
+        bool enabled = GameBalance.TutorialRunEnabled;
+        tutorialBtn.gameObject.SetActive(enabled);
+        bool done = TutorialDirector.Done;
+        highlightOn = enabled && !done && GameBalance.TutorialFirstLaunchHighlight;
+        if (tutorialLabel != null)
+        {
+            tutorialLabel.text = done ? "[T] 견습 운행  -  다시 보기" : "[T] 견습 운행";
+            tutorialLabel.color = done ? UIFactory.CREAM : UIFactory.GOLD;
+        }
+        if (tutorialRing != null) tutorialRing.enabled = highlightOn;
+        if (beaconL != null) beaconL.gameObject.SetActive(highlightOn);
+        if (beaconR != null) beaconR.gameObject.SetActive(highlightOn);
+        if (tutorialArrow != null) tutorialArrow.gameObject.SetActive(highlightOn);
+        if (tutorialHint != null) tutorialHint.gameObject.SetActive(highlightOn);
+        if (tutorialHintFallback != null) tutorialHintFallback.gameObject.SetActive(highlightOn);
+    }
+
+    /// <summary>v1.2: 강조 애니메이션 - 경광등 0.3초 교대 + 화살표 위로 0~8px 까딱 (0.6초, unscaled)</summary>
+    private void TickTutorialHighlight()
+    {
+        if (!highlightOn) return;
+        bool on = Mathf.Repeat(Time.unscaledTime, 0.6f) < 0.3f;
+        if (beaconL != null && beaconOn != null && beaconOff != null)
+        {
+            beaconL.sprite = on ? beaconOn : beaconOff;
+            beaconR.sprite = on ? beaconOn : beaconOff;
+        }
+        if (tutorialArrow != null)
+        {
+            float t = Mathf.Repeat(Time.unscaledTime, 0.6f) / 0.6f;
+            float bob = 8f * (0.5f + 0.5f * Mathf.Sin(t * Mathf.PI * 2f));
+            tutorialArrow.rectTransform.anchoredPosition = new Vector2(0f, TUT_BTN_Y + 22f + 6f + bob);
+        }
+    }
+
     // ─────────────────────────────────────────────
     // UI 생성 (코드 생성 - 씬 작업 0)
     // ─────────────────────────────────────────────
     private void BuildUI()
     {
         canvas = UIFactory.CreateCanvas("Lobby_Canvas", 555);   // 명성 상점(560) 바로 아래
+        DontDestroyOnLoad(canvas.gameObject);                    // v1.2: 씬 리로드 뒤에도 로비 UI 유지 (이 오브젝트처럼)
 
         root = new GameObject("Root");
         root.transform.SetParent(canvas.transform, false);
@@ -128,8 +202,11 @@ public class LobbyUI : MonoBehaviour
         RectTransform startRt = startBtn.GetComponent<RectTransform>();
         startRt.anchorMin = new Vector2(0.5f, 0f);
         startRt.anchorMax = new Vector2(0.5f, 0f);
-        startRt.anchoredPosition = new Vector2(0f, 156f);
+        startRt.anchoredPosition = new Vector2(0f, 236f);   // v1.2: 156 -> 236 ([T] 버튼 + 마커 화살표 자리)
         startBtn.onClick.AddListener(StartRun);
+
+        // ── v1.2: 출발 버튼 아래 [T] 견습 운행 (목업 v2 (C)) ──
+        BuildTutorialButton();
 
         // ── 출발 버튼 밑: 명성 상점 / 도감 버튼 (나란히) ──
         // 상점이 로비를 자동으로 덮지 않는다 - 출발 전에 원하는 사람만 열어 본다
@@ -139,7 +216,7 @@ public class LobbyUI : MonoBehaviour
         RectTransform shopRt = shopBtn.GetComponent<RectTransform>();
         shopRt.anchorMin = new Vector2(0.5f, 0f);
         shopRt.anchorMax = new Vector2(0.5f, 0f);
-        shopRt.anchoredPosition = new Vector2(-114f, 98f);
+        shopRt.anchoredPosition = new Vector2(-114f, 80f);   // v1.2: 98 -> 80
         shopBtn.onClick.AddListener(delegate
         {
             if (FameShopUI.Instance != null) FameShopUI.Instance.ToggleShop();
@@ -152,7 +229,7 @@ public class LobbyUI : MonoBehaviour
         RectTransform bookRt = bookBtn.GetComponent<RectTransform>();
         bookRt.anchorMin = new Vector2(0.5f, 0f);
         bookRt.anchorMax = new Vector2(0.5f, 0f);
-        bookRt.anchoredPosition = new Vector2(114f, 98f);
+        bookRt.anchoredPosition = new Vector2(114f, 80f);    // v1.2: 98 -> 80
         bookBtn.onClick.AddListener(ToggleCollection);
 
         // ── 안내줄 ──
@@ -161,8 +238,8 @@ public class LobbyUI : MonoBehaviour
             14, UIFactory.DIM, TextAnchor.MiddleCenter);
         guide.rectTransform.anchorMin = new Vector2(0f, 0f);
         guide.rectTransform.anchorMax = new Vector2(1f, 0f);
-        guide.rectTransform.offsetMin = new Vector2(0f, 52f);
-        guide.rectTransform.offsetMax = new Vector2(0f, 78f);
+        guide.rectTransform.offsetMin = new Vector2(0f, 28f);   // v1.2: 52~78 -> 28~50
+        guide.rectTransform.offsetMax = new Vector2(0f, 50f);
 
         // ── 좌하단: 소리 설정 ──
         Text soundTitle = UIFactory.CreateText(root.transform, "SoundTitle",
@@ -184,6 +261,77 @@ public class LobbyUI : MonoBehaviour
         credit.rectTransform.anchoredPosition = new Vector2(-14f, 12f);
 
         root.SetActive(false);   // 상태 폴링이 로비에서 켠다
+    }
+
+    /// <summary>
+    /// v1.2: [T] 견습 운행 버튼 (340x44, 아래 앵커 y 130) + 강조 부품.
+    /// 미완료 = 황동 테 + 양끝 경광등(ui_ev_beacon) + 위 화살표(tut_arrow) + 오른쪽 명판. 전부 RefreshTutorialButton 이 켜고 끈다
+    /// </summary>
+    private void BuildTutorialButton()
+    {
+        tutorialBtn = UIFactory.CreateButton(root.transform, "TutorialBtn", "[T] 견습 운행", new Vector2(340f, 44f),
+            UIFactory.PANEL, UIFactory.GOLD, 18);
+        RectTransform rt = tutorialBtn.GetComponent<RectTransform>();
+        rt.anchorMin = new Vector2(0.5f, 0f);
+        rt.anchorMax = new Vector2(0.5f, 0f);
+        rt.anchoredPosition = new Vector2(0f, TUT_BTN_Y);
+        tutorialBtn.onClick.AddListener(StartTutorial);
+        Transform lt = tutorialBtn.transform.Find("Label");
+        tutorialLabel = lt != null ? lt.GetComponent<Text>() : null;
+
+        bool skin = UISkin.Available;
+        if (skin) tutorialRing = UISkin.AddRing(rt, UISkin.BRASS, 0f);
+
+        // 경광등 (이벤트 배너와 같은 그림). PNG 없으면 생략
+        beaconOff = SpriteBank.Get("ui_ev_beacon_0");
+        beaconOn = SpriteBank.Get("ui_ev_beacon_1");
+        if (beaconOff != null && beaconOn != null)
+        {
+            beaconL = MakeBeacon(rt, "BeaconL", new Vector2(0f, 0.5f), new Vector2(12f + 16f, 0f));
+            beaconR = MakeBeacon(rt, "BeaconR", new Vector2(1f, 0.5f), new Vector2(-12f - 16f, 0f));
+            beaconL.sprite = beaconOff; beaconR.sprite = beaconOff;   // 첫 프레임에 흰 사각형이 안 보이게
+        }
+
+        // 마커 화살표 (월드 마커와 같은 그림, 2배) - 끝점 = 버튼 윗변 6px 위, 위로만 까딱
+        Sprite arrow = SpriteBank.Get("tut_arrow");
+        if (arrow != null)
+        {
+            GameObject ago = new GameObject("TutorialArrow");
+            ago.transform.SetParent(root.transform, false);
+            RectTransform art = ago.AddComponent<RectTransform>();
+            art.anchorMin = new Vector2(0.5f, 0f); art.anchorMax = new Vector2(0.5f, 0f);
+            art.pivot = new Vector2(0.5f, 0f);
+            art.sizeDelta = new Vector2(arrow.rect.width * 2f, arrow.rect.height * 2f);
+            art.anchoredPosition = new Vector2(0f, TUT_BTN_Y + 22f + 6f);
+            tutorialArrow = ago.AddComponent<Image>();
+            tutorialArrow.sprite = arrow; tutorialArrow.preserveAspect = true; tutorialArrow.raycastTarget = false;
+        }
+
+        // 명판 "← 처음이면 이것부터" (버튼 오른쪽 14px, 세로 가운데). 스킨 없으면 금색 글자
+        if (skin)
+            tutorialHint = UISkin.Nameplate(root.transform, "TutHint", "←  처음이면 이것부터", 15,
+                new Vector2(0.5f, 0f), new Vector2(170f + 14f, TUT_BTN_Y + 16f));
+        else
+        {
+            tutorialHintFallback = UIFactory.CreateText(root.transform, "TutHint", "←  처음이면 이것부터", 15, UIFactory.GOLD, TextAnchor.MiddleLeft);
+            RectTransform hrt = tutorialHintFallback.rectTransform;
+            hrt.anchorMin = new Vector2(0.5f, 0f); hrt.anchorMax = new Vector2(0.5f, 0f); hrt.pivot = new Vector2(0f, 0.5f);
+            hrt.anchoredPosition = new Vector2(170f + 14f, TUT_BTN_Y); hrt.sizeDelta = new Vector2(240f, 24f);
+        }
+
+        RefreshTutorialButton();
+    }
+
+    private static Image MakeBeacon(RectTransform parent, string name, Vector2 anchor, Vector2 pos)
+    {
+        GameObject go = new GameObject(name);
+        go.transform.SetParent(parent, false);
+        RectTransform rt = go.AddComponent<RectTransform>();
+        rt.anchorMin = anchor; rt.anchorMax = anchor; rt.pivot = new Vector2(0.5f, 0.5f);
+        rt.anchoredPosition = pos; rt.sizeDelta = new Vector2(32f, 32f);
+        Image img = go.AddComponent<Image>();
+        img.raycastTarget = false;
+        return img;
     }
 
     /// <summary>볼륨 조절 한 줄: 이름 [-] 수치 [+]</summary>

@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// [WaveManager.cs] v6.7 (v9.8.1: B 점프는 GameBalance.CheatsAllowed 일 때만) / v6.6 (v9.8: 위험 적 전용 PNG) / v6.5 (교수 피드백 반영 2026-09-14) / v6.4 (고퀄 PNG 적용 2026-09-03) / v6.3 탑뷰 재스킨
+/// [WaveManager.cs] v6.8 (v9.9 2026-09-16: 견습 운행 - TutorialDirector 가 진행 중이면 StartWave/B 점프 거부, TutorialGateActive 에 디렉터의 BlockAmbient 포함, SpawnForTutorial) / v6.7 (v9.8.1: B 점프는 GameBalance.CheatsAllowed 일 때만) / v6.6 (v9.8: 위험 적 전용 PNG) / v6.5 (교수 피드백 반영 2026-09-14) / v6.4 (고퀄 PNG 적용 2026-09-03) / v6.3 탑뷰 재스킨
 /// 웨이브 단위로 적 유닛을 스폰하고, 모든 적 처치 시 웨이브 완료를 알립니다.
+/// - v6.8 변경점 (견습 운행): 튜토리얼 런은 웨이브 없이 디렉터가 손님을 직접 부른다(SpawnForTutorial - 각도 스폰, 프리팹 없으면 코드 폴백).
+///   TutorialGateActive 는 조리 게이트 또는 (TutorialDirector.Active && BlockAmbient) - 이벤트·바위·작살·난입이 같은 플래그로 쉰다.
 /// - v6.6 변경점: 프리팹 없는 적의 PNG 선택에 전용 그림 4종(e_fly/e_parasaur/e_carno/e_mosa) 우선. 없으면 v6.4 매핑 그대로
 /// - v6.5 변경점:
 ///   1) (A1) 보스 스킵 버그: 스폰 코루틴이 끝나기 전에 "남은 적 0"이 되면 웨이브가 닫히던 문제 - spawnDone 플래그로
@@ -140,8 +142,16 @@ public class WaveManager : MonoBehaviour
     private int cookGateBadsSeen = 0;
     private int cookGateResupplies = 0;
     private float cookGateHintTimer = 0f;
-    /// <summary>프롤로그 조리 게이트 진행 중 (주방 이벤트·스폰 요청이 이 동안은 쉬어야 한다)</summary>
-    public static bool TutorialGateActive { get; private set; }
+    /// <summary>
+    /// 프롤로그 조리 게이트 진행 중 (주방 이벤트·스폰 요청이 이 동안은 쉬어야 한다).
+    /// v6.8: 견습 운행(TutorialDirector) 이 이벤트·바위·작살·난입을 막는 동안(BlockAmbient)도 같은 플래그로 본다 -
+    ///   EngineCab / KitchenEventManager / SpawnEnemy 가 이미 이 값을 보고 있어 수정 없이 같이 쉰다
+    /// </summary>
+    public static bool TutorialGateActive
+    {
+        get { return cookGateStatic || (TutorialDirector.Active && TutorialDirector.BlockAmbient); }
+    }
+    private static bool cookGateStatic = false;
 
     // 프롤로그 (1회차 한정 - 설계: 튜토리얼_온보딩_설계 4절)
     private const string PROLOGUE_KEY = "WDT_PrologueSeen";
@@ -161,7 +171,7 @@ public class WaveManager : MonoBehaviour
     private void Awake()
     {
         Instance = this;
-        TutorialGateActive = false;   // v6.5: 게이트 도중 런 포기(씬 리로드) 시 정적 플래그가 남지 않게
+        cookGateStatic = false;       // v6.5: 게이트 도중 런 포기(씬 리로드) 시 정적 플래그가 남지 않게
     }
 
     private void Start()
@@ -188,6 +198,12 @@ public class WaveManager : MonoBehaviour
         if (isWaveActive)
         {
             Debug.LogWarning("[WaveManager] 이미 웨이브가 진행 중입니다.");
+            return;
+        }
+        // v6.8: 견습 운행 중에는 웨이브가 없다 - 손님은 TutorialDirector 가 SpawnForTutorial 로 직접 부른다
+        if (TutorialDirector.Active)
+        {
+            Debug.Log("[WaveManager] 견습 운행 중 - 웨이브 시작 요청 무시");
             return;
         }
 
@@ -577,7 +593,8 @@ public class WaveManager : MonoBehaviour
     /// <summary>지정 각도에서 스폰 (무리 러시/보스 증원용). 생성된 Enemy 반환</summary>
     private Enemy SpawnEnemyAt(GameObject prefab, Enemy.EnemyData enemyData, int waveNum, int playerLevel, float diffL, float angleDeg)
     {
-        if (prefab == null) return null;
+        // v6.8: 프리팹이 없으면 코드 폴백으로라도 (견습 운행·보스 증원이 조용히 비지 않게). 폴백도 꺼져 있으면 null
+        if (prefab == null && !GameBalance.EnemyFallbackVisuals) return null;
 
         Vector3 center = trainTransform != null ? trainTransform.position : Vector3.zero;
         float rad = angleDeg * Mathf.Deg2Rad;
@@ -586,7 +603,9 @@ public class WaveManager : MonoBehaviour
             center.x + Mathf.Cos(rad) * distance,
             center.y + Mathf.Sin(rad) * distance, 0f);
 
-        GameObject enemyObj = Instantiate(prefab, spawnPos, Quaternion.identity);
+        GameObject enemyObj = prefab != null
+            ? Instantiate(prefab, spawnPos, Quaternion.identity)
+            : BuildFallbackEnemy(enemyData, spawnPos);
         Enemy enemy = enemyObj.GetComponent<Enemy>();
         if (enemy != null)
         {
@@ -632,6 +651,41 @@ public class WaveManager : MonoBehaviour
         }
 
         Debug.Log("[WaveManager] 보스 증원 스폰: " + kind + " x" + count + " (배율 " + statMul + ")");
+    }
+
+    /// <summary>
+    /// v6.8 견습 운행: 디렉터가 부르는 손님. kind = "raptor"(스팀 랩터) / "ptera"(독침 프테라) / "bolt"(볼트 테라노돈).
+    /// 웨이브와 무관하게(isWaveActive 아님) 기차 둘레 랜덤 각도에서 스폰. statMul 로 약체/정식 조절. 생성된 Enemy 목록을 돌려준다
+    /// </summary>
+    public List<Enemy> SpawnForTutorial(string kind, int count, float statMul)
+    {
+        List<Enemy> made = new List<Enemy>();
+        GameObject prefab = steamRaptorPrefab;
+        Enemy.EnemyData ed = Enemy.SteamRaptor;
+        if (kind == "ptera") { prefab = poisonPteraPrefab; ed = Enemy.PoisonPtera; }
+        else if (kind == "bolt") { prefab = boltTeranodonPrefab; ed = Enemy.BoltTeranodon; }
+
+        if (trainTransform == null)
+        {
+            GameObject trainObj = GameObject.FindGameObjectWithTag("Train");
+            if (trainObj != null) trainTransform = trainObj.transform;
+        }
+
+        int playerLevel = GameManager.Instance != null ? GameManager.Instance.playerLevel : 1;
+        for (int i = 0; i < count; i++)
+        {
+            Enemy e = SpawnEnemyAt(prefab, ed, 1, playerLevel, GameBalance.EnemyDifficultyL, Random.Range(0f, 360f));
+            if (e == null) continue;
+            if (!Mathf.Approximately(statMul, 1f))
+            {
+                e.currentHP *= statMul;
+                e.scaledMaxHP = e.currentHP;
+                e.scaledATK *= statMul;
+            }
+            made.Add(e);
+        }
+        Debug.Log("[WaveManager] 견습 운행 손님: " + kind + " x" + made.Count + " (배율 " + statMul + ")");
+        return made;
     }
 
     /// <summary>v6.2: 위험 선로 등 - 이번 웨이브 적 스탯 배율 적용</summary>
@@ -980,7 +1034,7 @@ public class WaveManager : MonoBehaviour
     private void Update()
     {
         // [치트] B키: 다음 보스 웨이브로 점프 (테스트용 - 빌드 전 debugBossJumpEnabled false)
-        if (debugBossJumpEnabled && GameBalance.CheatsAllowed && Input.GetKeyDown(KeyCode.B))
+        if (debugBossJumpEnabled && GameBalance.CheatsAllowed && !TutorialDirector.Active && Input.GetKeyDown(KeyCode.B))
         {
             JumpToNextBossWave();
             return;
@@ -1019,7 +1073,7 @@ public class WaveManager : MonoBehaviour
     private void BeginCookGate()
     {
         cookGateActive = true;
-        TutorialGateActive = true;
+        cookGateStatic = true;
         cookGateStartTime = Time.time;
         cookGateBadsSeen = CookingBridge.BadsThisRun;
         cookGateResupplies = 0;
@@ -1103,7 +1157,7 @@ public class WaveManager : MonoBehaviour
     {
         cookGateActive = false;
         cookGateDone = true;
-        TutorialGateActive = false;
+        cookGateStatic = false;
         Debug.Log("[WaveManager] 프롤로그 조리 게이트 종료");
         OnAllEnemiesDefeated();
     }
@@ -1133,7 +1187,7 @@ public class WaveManager : MonoBehaviour
         cookGateActive = false;
         cookGateDone = true;      // 치트로 건너뛴 런에서는 게이트를 다시 열지 않는다
         prologueRun = false;
-        TutorialGateActive = false;
+        cookGateStatic = false;
         pendingRoute = null;
         activeRoute = null;
 

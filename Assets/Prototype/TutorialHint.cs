@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [TutorialHint.cs] v1.2 (v9.8.1: F4 리셋은 GameBalance.CheatsAllowed 일 때만) / v1.1 (교수 피드백 A13: 표시 5초 + 아무 키 닫기 + 조리 중 대기) - 컨텍스트 트리거 튜토리얼 (설계: 튜토리얼_온보딩_설계_2026-08-18)
+/// [TutorialHint.cs] v1.3 (v9.9 2026-09-16: 견습 운행·브리핑 카드 중엔 배너 쉼, F4 가 견습 완료 기록도 지움, 배너 캔버스 DontDestroyOnLoad) / v1.2 (v9.8.1: F4 리셋은 GameBalance.CheatsAllowed 일 때만) / v1.1 (교수 피드백 A13: 표시 5초 + 아무 키 닫기 + 조리 중 대기) - 컨텍스트 트리거 튜토리얼 (설계: 튜토리얼_온보딩_설계_2026-08-18)
 ///
 /// 몰아서 가르치지 않는다. 각 기믹을 "처음 마주치는 순간" 1회만 배너로 안내한다.
 /// - 영구 기록: PlayerPrefs "WDT_Tut_(id)" - 2회차부터 반복 없음 (다회차 마찰 방지)
@@ -142,13 +142,18 @@ public class TutorialHint : MonoBehaviour
             for (int i = 0; i < HINTS.Length; i++)
                 PlayerPrefs.DeleteKey(PREF_PREFIX + HINTS[i].id);
             PlayerPrefs.DeleteKey("WDT_PrologueSeen");   // 프롤로그(웨이브 1 스피노 안내)도 초기화
+            PlayerPrefs.DeleteKey(TutorialDirector.DONE_KEY);   // v1.3: 견습 운행 완료 기록도 (로비 [T] 강조가 다시 켜진다)
             PlayerPrefs.Save();
             allSeen = false;
-            UIManager.Instance?.ShowStatChange("[치트] 튜토리얼/프롤로그 기록 리셋 - 처음 온 셰프가 됐다");
+            UIManager.Instance?.ShowStatChange("[치트] 튜토리얼/프롤로그/견습 운행 기록 리셋 - 처음 온 셰프가 됐다");
             Debug.Log("[TutorialHint] 치트 F4 - 기록 전체 리셋");
         }
 
         if (!GameBalance.TutorialEnabled) { HideBannerIfExpired(true); return; }
+
+        // v1.3: 견습 운행 중(디렉터가 다 설명한다)과 브리핑 카드 위에서는 배너를 내리고 폴링도 쉰다
+        //  - "본 것"으로 기록하지 않으므로 정식 런에서 그 힌트를 제때 다시 만난다
+        if (TutorialDirector.Active || BriefingUI.IsOpen) { HideBannerIfExpired(true); return; }
 
         // 배너 수명 관리
         HideBannerIfExpired(false);
@@ -268,6 +273,7 @@ public class TutorialHint : MonoBehaviour
     private void BuildBanner()
     {
         bannerCanvas = UIFactory.CreateCanvas("TutorialHint_Canvas", 610);   // 증강(600) 위, 경고(640) 아래
+        DontDestroyOnLoad(bannerCanvas.gameObject);   // v1.3: 씬 리로드 뒤에도 배너가 남는다 (이 오브젝트처럼)
 
         bannerRoot = UIFactory.CreatePanel(bannerCanvas.transform, "Banner",
             new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),

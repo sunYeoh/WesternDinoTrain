@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 
 /// <summary>
-/// [KitchenEventManager.cs] v4.2 (v9.8.1: F11 강제 발생은 GameBalance.CheatsAllowed 일 때만) / v4.1 (2026-09-14: 마모 off 가중치 / 프롤로그 게이트 차단) / v4
+/// [KitchenEventManager.cs] v4.3 (v9.9 2026-09-16: 견습 운행 중 F11 무시 - 이벤트 자체는 WaveManager.TutorialGateActive 로 쉰다) / v4.2 (v9.8.1: F11 강제 발생은 GameBalance.CheatsAllowed 일 때만) / v4.1 (2026-09-14: 마모 off 가중치 / 프롤로그 게이트 차단) / v4
 /// 주방 돌발 이벤트 총괄 매니저 (기획 B-4)
 /// - v4 (v9.6, 2026-09-09): "화면 전체 경보" - 기차 안 작은 아이콘은 조리하다 놓친다는 피드백
 ///   * 경보 글로우: 화면 가장자리 붉은(이벤트별 색) 비네트가 0.6초 주기로 맥동 (삐뽀삐뽀). SetAlarm(color, strength)
@@ -200,8 +200,8 @@ public class KitchenEventManager : MonoBehaviour
         }
 
         // 디버그: F11로 즉시 발생 (전투 중에만 - 빌드 전 debugKeyEnabled를 꺼야 함)
-        if (debugKeyEnabled && GameBalance.CheatsAllowed && Input.GetKeyDown(KeyCode.F11) && currentEvent == null)
-            StartRandomEvent();
+        if (debugKeyEnabled && GameBalance.CheatsAllowed && !TutorialDirector.Active && Input.GetKeyDown(KeyCode.F11) && currentEvent == null)
+            StartRandomEvent();   // v9.9: 견습 운행 중엔 치트 무시
 
         // 진행 중인 이벤트가 있으면 그것만 돌린다
         if (currentEvent != null)

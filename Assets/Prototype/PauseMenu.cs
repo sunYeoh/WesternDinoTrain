@@ -3,8 +3,9 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// [PauseMenu.cs] v1.1 (교수 피드백 A10 반영 2026-09-14) / v1
+/// [PauseMenu.cs] v1.2 (v9.9 2026-09-16: 견습 운행 중엔 "런 포기" 대신 "견습 운행 그만두기", 브리핑 카드 위에선 안 열림) / v1.1 (교수 피드백 A10 반영 2026-09-14) / v1
 /// ESC 일시정지 메뉴: 계속하기 / 런 포기(재시작) / 게임 종료
+/// - v1.2: TutorialDirector.Active 면 가운데 버튼이 "견습 운행 그만두기" -> TutorialDirector.Quit() (완료 기록 없이 로비)
 /// - v1.1: 열람 패널(증강 목록 [V] / 일지 [J])이 열려 있으면 ESC는 그쪽 닫기에 양보
 /// 로그라이크 필수 편의 - 망한 런을 빠르게 접고 새 런을 시작할 수 있다.
 ///
@@ -57,7 +58,7 @@ public class PauseMenu : MonoBehaviour
         if (InfusingMinigame.IsActive) return;   // P1: 인퓨징 중 (ESC = 인퓨징 취소가 우선)
         if (SpinoBetUI.IsOpen) return;           // Phase 2-1: 스피노 베팅 중 (ESC = 거절이 우선)
         if (MerchantUI.IsOpen) return;           // Phase 2-3: 행상인 안킬로 응대 중 (ESC = 떠나기가 우선)
-        if (AugmentListUI.ReadingOpen) return;   // A10: 증강 목록[V]/일지[J] 열람 중 (ESC = 열람 닫기가 우선)
+        if (AugmentListUI.ReadingOpen) return;   // A10: 증강 목록[V]/일지[J] 열람 중 (ESC = 열람 닫기가 우선). v9.9: 브리핑 카드도 포함
 
         Open();
     }
@@ -67,7 +68,12 @@ public class PauseMenu : MonoBehaviour
         isOpen = true;
         root.gameObject.SetActive(true);
         Time.timeScale = 0f;
+        // v1.2: 견습 운행 중이면 가운데 버튼 글자를 바꾼다
+        if (giveUpLabel != null)
+            giveUpLabel.text = TutorialDirector.Active ? "견습 운행 그만두기" : "런 포기 (다시 시작)";
     }
+
+    private Text giveUpLabel;   // v1.2: 가운데 버튼 글자 (런 포기 / 견습 운행 그만두기)
 
     public void Close()
     {
@@ -79,9 +85,17 @@ public class PauseMenu : MonoBehaviour
             Time.timeScale = 1f;
     }
 
-    /// <summary>런 포기 - 씬 재시작 (새 런)</summary>
+    /// <summary>런 포기 - 씬 재시작 (새 런). v1.2: 견습 운행 중이면 디렉터의 그만두기 (기록 없이 로비)</summary>
     private void GiveUpRun()
     {
+        if (TutorialDirector.Active)
+        {
+            isOpen = false;
+            root.gameObject.SetActive(false);
+            TutorialDirector.Quit();   // 안에서 timeScale 1 + GameManager.EndTutorial (씬 리로드)
+            return;
+        }
+
         Time.timeScale = 1f;
 
         // DontDestroyOnLoad로 살아남는 구 GameManager 제거
@@ -147,6 +161,7 @@ public class PauseMenu : MonoBehaviour
         Button giveUpBtn = KitchenEventManager.MakeButton(body, "런 포기 (다시 시작)",
             new Color(0.45f, 0.32f, 0.18f, 1f), new Vector2(0f, -60f), new Vector2(320f, 60f));
         giveUpBtn.onClick.AddListener(delegate { GiveUpRun(); });
+        giveUpLabel = giveUpBtn.GetComponentInChildren<Text>();   // v1.2: 글자 교체용
 
         Button quitBtn = KitchenEventManager.MakeButton(body, "게임 종료",
             new Color(0.45f, 0.22f, 0.18f, 1f), new Vector2(0f, -140f), new Vector2(320f, 60f));

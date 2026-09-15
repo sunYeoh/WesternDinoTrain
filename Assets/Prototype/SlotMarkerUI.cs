@@ -3,7 +3,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 /// <summary>
-/// [SlotMarkerUI.cs] v5 (교수 피드백 A5/A12 반영 2026-09-14) / v4 (B-1: 근접 위기 대응 - 방향결정 2026-08-31)
+/// [SlotMarkerUI.cs] v5.1 (v9.9 2026-09-16: 4모서리 배치 - 남쪽 슬롯 마커는 발 아래, 폭 96->120(GameBalance.SlotMarkerWidth), 로비에서 숨김) / v5 (교수 피드백 A5/A12 반영 2026-09-14) / v4 (B-1: 근접 위기 대응 - 방향결정 2026-08-31)
 /// 슬롯 8개 위치에 화면 마커 표시 (월드 따라다님)
 /// - 좌클릭(투입 모드): 요리 투입
 /// - 좌클릭(평시): 합체 선택 -> 다른 포탑 클릭 = 합체 (기획 B-3)
@@ -203,7 +203,7 @@ public class SlotMarkerUI : MonoBehaviour
         GameObject go = new GameObject("SlotMarker_" + index);
         RectTransform rt = go.AddComponent<RectTransform>();
         rt.SetParent(canvas.transform, false);
-        rt.sizeDelta = new Vector2(96f, 52f);
+        rt.sizeDelta = new Vector2(GameBalance.SlotMarkerWidth, 52f);   // v5.1: 폭은 GameBalance (모서리 배치 120)
         markers[index] = rt;
 
         Image border = go.AddComponent<Image>();
@@ -234,6 +234,16 @@ public class SlotMarkerUI : MonoBehaviour
     {
         if (TurretSlotManager.Instance == null || Camera.main == null) return;
 
+        // v5.1: 로비(대기 화면)에서는 마커를 숨긴다 - 로비 UI 와 겹쳐 보이던 것
+        bool lobby = GameManager.Instance != null && GameManager.Instance.currentState == GameManager.GameState.Lobby;
+        if (lobby)
+        {
+            for (int i = 0; i < 8; i++)
+                if (markers[i] != null && markers[i].gameObject.activeSelf) markers[i].gameObject.SetActive(false);
+            if (tooltip.gameObject.activeSelf) tooltip.gameObject.SetActive(false);
+            return;
+        }
+
         for (int i = 0; i < 8; i++)
         {
             TurretSlot slot = TurretSlotManager.Instance.slots[i];
@@ -242,8 +252,10 @@ public class SlotMarkerUI : MonoBehaviour
             // 월드 -> 스크린 좌표 (마커가 슬롯을 따라다님)
             // B-2.2: 이제 슬롯 자리에 포탑 실물이 서 있으므로 칩은 머리 위로 띄운다
             //        (칩이 포탑/지붕선을 가리던 것이 "따로 논다"의 주범이었음)
+            // v5.1: 남쪽(섀시) 슬롯은 발 아래로 - 위로 띄우면 칸 바닥을 가린다
+            float markerDy = GameBalance.IsSouthSlot(i) ? -GameBalance.SlotMarkerYOffset : GameBalance.SlotMarkerYOffset;
             Vector3 screen = Camera.main.WorldToScreenPoint(
-                slot.transform.position + Vector3.up * GameBalance.SlotMarkerYOffset);
+                slot.transform.position + Vector3.up * markerDy);
             markers[i].gameObject.SetActive(screen.z > 0f);
             markers[i].position = screen;
 

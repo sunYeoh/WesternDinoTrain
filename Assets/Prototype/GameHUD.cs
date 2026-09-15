@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [GameHUD.cs] v3.2 (v9.8 재료 아이콘) / v3.1 (교수 피드백 A9 반영 2026-09-14) / v3 - 전투 중 핵심 HUD (전부 코드 생성 - Canvas 세팅 불필요)
+/// [GameHUD.cs] v3.3 (v9.9 2026-09-16: 로비에서는 하단 바 숨김 - 로비 버튼이 바 위에 겹쳐 있던 것) / v3.2 (v9.8 재료 아이콘) / v3.1 (교수 피드백 A9 반영 2026-09-14) / v3 - 전투 중 핵심 HUD (전부 코드 생성 - Canvas 세팅 불필요)
 /// - v3.2: 재료 칸의 16px 계열색 판을 ui_mat_*.png 아이콘(32px)으로. 칸 폭 96 -> 102, 간격 100 -> 106 (3열 318 <= 재료 구역 326).
 ///   PNG 가 없으면 v3.1 그대로(계열색 판 + 글자). 이벤트 "재료 흘림" 칩과 같은 그림이라 재료 = 한 그림으로 통일
 /// - 하단 바: 재료 6종 카운트 + 보유 요리 카드 목록 (2줄 그리드, 휠 가로 스크롤)
@@ -36,6 +36,7 @@ public class GameHUD : MonoBehaviour
     public static float LastPlacingCancelTime = -10f;
 
     private Canvas canvas;
+    private RectTransform bottomBarRt;     // v3.3: 로비에서 숨기기 위해 보관
     private Text[] matTexts = new Text[6];
     private RectTransform foodListRoot;    // 스크롤 내용물 (카드 부모)
     private Text placingBanner;
@@ -82,6 +83,12 @@ public class GameHUD : MonoBehaviour
 
     void Update()
     {
+        // v3.3: 로비(대기 화면)에서는 하단 바를 숨긴다 - 로비 UI(출발/[T]/상점 버튼)가 이 자리에 앉는다
+        bool lobby = GameManager.Instance != null && GameManager.Instance.currentState == GameManager.GameState.Lobby;
+        if (bottomBarRt != null && bottomBarRt.gameObject.activeSelf == lobby)
+            bottomBarRt.gameObject.SetActive(!lobby);
+        if (lobby) return;
+
         // 우클릭 = 투입 모드 취소
         if (!string.IsNullOrEmpty(placingRecipeId) && Input.GetMouseButtonDown(1))
         {
@@ -107,6 +114,7 @@ public class GameHUD : MonoBehaviour
             new Vector2(0f, 0f), new Vector2(1f, 0f),
             new Vector2(6f, 6f), new Vector2(-6f, 6f + BAR_H),
             UIFactory.PANEL, UIFactory.COPPER, 3f);
+        bottomBarRt = bottomBar;   // v3.3
 
         // ── 제목: 스킨이면 파이프 위에 걸린 황동 명판, 아니면 글자 ──
         if (skin)

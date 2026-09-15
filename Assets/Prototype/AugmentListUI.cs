@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [AugmentListUI.cs] v3 (교수 피드백 A10 반영 2026-09-14) / v2 - 감사 3-B 결정 사항 + Phase 2-3 아이템 표시
+/// [AugmentListUI.cs] v9.9 (2026-09-16: ReadingOpen 에 BriefingUI.IsOpen 포함) / v3 (교수 피드백 A10 반영 2026-09-14) / v2 - 감사 3-B 결정 사항 + Phase 2-3 아이템 표시
 /// 보유 증강 + 아이템(유물) 목록 패널 - V키로 열고 닫는다.
 /// "내가 지금 뭘 골랐더라?"를 언제든 확인 (레벨 시스템 절단의 대체 정보창).
 /// - v2: 증강 목록 아래에 보유 아이템도 이어서 표시 (희귀도 색)
@@ -19,10 +19,14 @@ public class AugmentListUI : MonoBehaviour
 {
     public static bool IsOpen { get; private set; }
 
-    /// <summary>A10: 열람 패널(증강 목록 [V] / 선대의 일지 [J]) 중 하나라도 열려 있는지 - 다른 시스템의 입력 차단용</summary>
+    /// <summary>
+    /// A10: 열람 패널(증강 목록 [V] / 선대의 일지 [J]) 중 하나라도 열려 있는지 - 다른 시스템의 입력 차단용.
+    /// v9.9: 브리핑 카드(BriefingUI - 견습 운행 단계 설명, 첫 등장 카드)도 "읽는 동안 시간 정지" 이므로 같이 본다 -
+    ///   이 플래그를 보는 7곳(일시정지·이벤트·슬롯 마커·기관실·조리대·주방창·정비소)이 수정 없이 카드 위 키 입력을 무시한다
+    /// </summary>
     public static bool ReadingOpen
     {
-        get { return IsOpen || JournalViewerUI.IsOpen; }
+        get { return IsOpen || JournalViewerUI.IsOpen || BriefingUI.IsOpen; }
     }
 
     private GameObject canvasGo;
@@ -68,7 +72,7 @@ public class AugmentListUI : MonoBehaviour
     {
         return !CookingMinigame.IsActive && !AugmentPickUI.IsOpen && !PauseMenu.IsOpen && !WorkshopUI.IsOpen
             && !JournalViewerUI.IsOpen && !FinalOrderUI.QteOpen && !StoryTexts.IsBlocking
-            && !BranchRouteUI.IsOpen && !InfusingMinigame.IsActive;
+            && !BranchRouteUI.IsOpen && !InfusingMinigame.IsActive && !BriefingUI.IsOpen;   // v9.9: 브리핑 카드 위에서는 안 연다
     }
 
     private void Open()

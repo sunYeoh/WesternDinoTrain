@@ -1,9 +1,10 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 
 /// <summary>
-/// [GameManager.cs] v4.2 (2026-09-14: 포탑 과열 런 통계 초기화 - TurretSlot.ResetRunStats) / v4.1 (런 통계 초기화 / 프롤로그 찬장 고기 고정 / 전투 중 수리 기록) / v4
+/// [GameManager.cs] v4.3 (v9.9 2026-09-16: 견습 운행 StartTutorial/EndTutorial - 튜토리얼 런은 웨이브·보급·메타 기록 없이 Battle 상태만 빌린다) / v4.2 (2026-09-14: 포탑 과열 런 통계 초기화 - TurretSlot.ResetRunStats) / v4.1 (런 통계 초기화 / 프롤로그 찬장 고기 고정 / 전투 중 수리 기록) / v4
 /// 게임 전체 상태를 관리하는 최상위 싱글톤 클래스.
 /// Cooking 페이즈 제거 — 게임 시작하면 바로 Battle.
 /// 조리는 전투 중 언제든 가능.
@@ -114,6 +115,16 @@ public class GameManager : MonoBehaviour
     // ─────────────────────────────────────────────
     private void HandleBattlePhase()
     {
+        // v4.3: 견습 운행 - 웨이브/보급/메타 기록/오프닝은 TutorialDirector 가 맡는다. 여기서는 상태만 Battle 로 두고 조리를 켠다
+        if (TutorialDirector.Active)
+        {
+            currentWave = 1;                         // 표시용 (디렉터가 "견습 운행" 으로 덮어쓴다)
+            chefController?.EnableCooking(true);
+            SoundManager.PlayBGM("bgm_main");
+            Debug.Log("[GameManager] 견습 운행 - Battle 상태 (웨이브 없음)");
+            return;
+        }
+
         currentWave++;
 
         // 첫 웨이브 시작 시 보급품 지급 (포탑 없음 -> 파밍 불가 데드락 방지)
@@ -212,6 +223,32 @@ public class GameManager : MonoBehaviour
         UIManager.Instance?.ShowStatChange(preInstalled
             ? "보급품 도착! " + summary + " - 포탑 1문은 선대가 걸어뒀다. 나머지는 셰프의 몫!"
             : "보급품 도착! " + summary + " - 슬롯에 투입해 포탑을 세워라!");
+    }
+
+    // ─────────────────────────────────────────────
+    // v4.3: 견습 운행 (전용 튜토리얼 런) 진입/종료 - TutorialDirector 가 부른다
+    // ─────────────────────────────────────────────
+    /// <summary>로비 -> 견습 운행. TutorialDirector.Active 가 먼저 true 여야 HandleBattlePhase 가 웨이브를 안 돌린다</summary>
+    public void StartTutorial()
+    {
+        if (currentState != GameState.Lobby)
+        {
+            Debug.LogWarning("[GameManager] 견습 운행은 로비에서만 시작한다 (현재 " + currentState + ")");
+            return;
+        }
+        if (UIManager.Instance != null) UIManager.Instance.OnClickStartGame();   // 로비 패널 정리 + Battle (LobbyUI.StartRun 과 같은 길)
+        else ChangeState(GameState.Battle);
+        SoundManager.Play("sfx_train_whistle");
+        Debug.Log("[GameManager] 견습 운행 진입");
+    }
+
+    /// <summary>견습 운행 종료 -> 로비. PauseMenu.GiveUpRun 과 같은 방식(GameManager 파괴 후 씬 리로드)이 가장 깨끗하다</summary>
+    public void EndTutorial()
+    {
+        Time.timeScale = 1f;
+        Debug.Log("[GameManager] 견습 운행 종료 - 로비로 (씬 리로드)");
+        Destroy(gameObject);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
     // ─────────────────────────────────────────────
@@ -345,6 +382,16 @@ public class GameManager : MonoBehaviour
 
     public void OnTrainDestroyed()
     {
+        // v4.3: 견습 운행 중에는 게임오버가 없다 - 기차를 고쳐 놓고 디렉터에게 알린다 (실전 단계는 그 단계만 재시작)
+        if (TutorialDirector.Active)
+        {
+            if (trainManager == null) trainManager = FindFirstObjectByType<TrainManager>();
+            if (trainManager != null) trainManager.Heal(trainManager.currentMaxHP);
+            if (TutorialDirector.Instance != null) TutorialDirector.Instance.OnTrainStopped();
+            Debug.Log("[GameManager] 견습 운행 - 기차 정지 -> 수리 후 디렉터에게 통보");
+            return;
+        }
+
         // 증강 '아홉 개의 목숨': 부활 충전이 있으면 게임오버 대신 부활
         if (AugmentManager.ReviveCharges > 0)
         {

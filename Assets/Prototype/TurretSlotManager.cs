@@ -1,8 +1,11 @@
 using UnityEngine;
 
 /// <summary>
-/// [TurretSlotManager.cs] v2
+/// [TurretSlotManager.cs] v2.1 (v9.9 2026-09-16: 슬롯 4모서리 배치 GameBalance.SlotPosition + 근접 판정 "가까운 벽 쪽 거리") / v2
 /// 포탑 슬롯 8개를 자동 생성/관리하는 매니저 (싱글톤)
+/// - v2.1: 슬롯 위치는 GameBalance.SlotPosition(i) 한 곳에서 (모서리 4 = 북 2 지붕선 위 / 남 2 섀시 위).
+///   FindStunnedSlotNear 는 셰프가 걸을 수 있는 띠(TrainWalkMinY~MaxY)로 슬롯 y 를 붙인 점까지의 거리로 잰다 -
+///   가로만 재면 같은 x 의 북/남 슬롯이 구분되지 않고, 직선 거리로 재면 지붕 위 슬롯에 영영 못 닿는다
 /// - 기차 오브젝트에 붙이면 시작 시 슬롯 8개(2x4)를 자식으로 생성
 /// - 매 프레임: 인접 버프 계산 + 각 슬롯 발사 + 패시브(재생/오라) 처리
 /// - v2 변경점: 슬롯 잠금 시스템
@@ -59,20 +62,17 @@ public class TurretSlotManager : MonoBehaviour
     {
         train = FindFirstObjectByType<TrainManager>();
 
-        // B-2: 슬롯 8개 = 포탑칸 가로 1열 배치 (트레일러 확장 - 방향결정 2026-08-31)
-        // [0][1][2][3] = 포탑칸 A   [4][5][6][7] = 포탑칸 B (6,7은 기본 잠금 - 증강 해금)
-        // B-2.2: 슬롯은 지붕 위(SlotY 1.95) - 셰프가 발밑에 서면 근접 [E]가 닿는다 (가로 거리 판정)
+        // B-2: 슬롯 8개 (트레일러 확장 - 방향결정 2026-08-31)
+        // v2.1 (v9.9): 배치는 GameBalance.SlotPosition(i) - 기본 = 칸당 4모서리 (0 NW / 1 NE / 2 SW / 3 SE = 포탑 A, 4~7 = 포탑 B)
+        //   6·7(포탑 B 남쪽)은 기본 잠금 - 증강 해금. SlotCornerLayout=false 면 종전 북쪽 1열 4+4
         for (int i = 0; i < 8; i++)
         {
-            int car = i / 4;    // 0 = 포탑 A, 1 = 포탑 B
-            int idx = i % 4;
-            float x = (car == 0 ? GameBalance.SlotRowAX : GameBalance.SlotRowBX)
-                      + idx * GameBalance.SlotGapX;
+            Vector2 p = GameBalance.SlotPosition(i);
 
             GameObject go = new GameObject("TurretSlot_" + i);
             go.transform.SetParent(transform);
             // B-2.1: 월드 좌표로 고정 (부모 오브젝트가 어디에 있든 데크 칸 위에 정확히 앉는다)
-            go.transform.position = new Vector3(x, GameBalance.SlotY, 0f);
+            go.transform.position = new Vector3(p.x, p.y, 0f);
 
             slots[i] = go.AddComponent<TurretSlot>();
         }
@@ -196,7 +196,15 @@ public class TurretSlotManager : MonoBehaviour
             if (string.IsNullOrEmpty(r.buffType)) continue;
 
             // 같은 칸(0~3 / 4~7) 안에서 바로 옆 슬롯만 인접으로 친다
-            bool adjacent = (i / 4 == index / 4) && Mathf.Abs(i - index) == 1;
+            // v2.1 (모서리 배치): 0 NW / 1 NE / 2 SW / 3 SE - 가로 이웃(0-1, 2-3)과 세로 이웃(0-2, 1-3)만, 대각선(0-3, 1-2)은 아니다
+            bool sameCar = (i / 4 == index / 4);
+            bool adjacent;
+            if (GameBalance.SlotCornerLayout)
+            {
+                int a = i % 4, b = index % 4;
+                adjacent = sameCar && ((a ^ b) == 1 || (a ^ b) == 2);
+            }
+            else adjacent = sameCar && Mathf.Abs(i - index) == 1;
             if (!adjacent) continue;
 
             // 증강 '주방 동선 최적화': 인접 버프 배율
@@ -489,8 +497,9 @@ public class TurretSlotManager : MonoBehaviour
     /// <summary>
     /// B-1: 셰프 근처의 마비된 포탑 중 가장 가까운 슬롯 인덱스 (-1 = 없음).
     /// SlotMarkerUI가 근접 [E] 해제 대상 결정에 사용.
-    /// B-2.2: 슬롯이 지붕 위(y 1.95)로 올라갔으므로 가로 거리만 본다
-    /// (직선 거리로 재면 갑판의 셰프가 영영 닿지 못한다)
+    /// v2.1 (v9.9 모서리 배치): 슬롯 y 를 셰프가 설 수 있는 띠(TrainWalkMinY~MaxY)로 붙인 점(벽 앞)까지의 거리.
+    ///   북쪽 슬롯(지붕 위 1.95)은 북쪽 벽 앞 y 1.5, 남쪽 슬롯(섀시 -1.45)은 남쪽 벽 앞 y -1.5 에서 재므로
+    ///   같은 x 의 북/남 포탑을 셰프가 서 있는 쪽으로 구분한다. 종전(가로 거리만)은 SlotCornerLayout=false 일 때
     /// </summary>
     public int FindStunnedSlotNear(Vector3 chefPos, float reach)
     {
@@ -500,10 +509,21 @@ public class TurretSlotManager : MonoBehaviour
         {
             TurretSlot s = slots[i];
             if (s == null || s.isLocked || s.IsEmpty || !s.IsStunned) continue;
-            float d = Mathf.Abs(chefPos.x - s.transform.position.x);
+            float d = SlotReachDistance(chefPos, s.transform.position);
             if (d <= bestDist) { bestDist = d; best = i; }
         }
         return best;
+    }
+
+    /// <summary>셰프 위치에서 슬롯까지의 "정비 거리" (v2.1). 다른 시스템(튜토리얼 마커 등)도 같은 자로 잰다</summary>
+    public static float SlotReachDistance(Vector3 chefPos, Vector3 slotPos)
+    {
+        if (!GameBalance.SlotCornerLayout)
+            return Mathf.Abs(chefPos.x - slotPos.x);
+        float wallY = Mathf.Clamp(slotPos.y, GameBalance.TrainWalkMinY, GameBalance.TrainWalkMaxY);
+        float dx = chefPos.x - slotPos.x;
+        float dy = chefPos.y - wallY;
+        return Mathf.Sqrt(dx * dx + dy * dy);
     }
 
     /// <summary>

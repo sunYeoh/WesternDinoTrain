@@ -81,9 +81,9 @@ public class BossEnemy : Enemy
     {
         get
         {
+            // HP가 이미 기준 아래여도 아직 안 터졌으면 다음 피격에 발동하므로 "남아 있음"으로 본다
             return kind == BossKind.Original && GameBalance.OriginalExtraGroggyRatio > 0f
-                && !extraGroggyTriggered && IsAlive
-                && currentHP / bossMaxHP > GameBalance.OriginalExtraGroggyRatio;
+                && !extraGroggyTriggered && IsAlive;
         }
     }
 

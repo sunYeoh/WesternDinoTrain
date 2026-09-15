@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// [GameBalance.cs] v1
+/// [GameBalance.cs] v1 (v9.9 2026-09-16: 포탑 4모서리 배치 SlotPosition + 견습 운행/브리핑 스위치 섹션)
 /// 게임 전체 밸런스 수치를 한 곳에 모은 설정 파일.
 ///
 /// 여기 값을 바꾸면 Inspector 값과 상관없이 게임에 적용된다
@@ -456,13 +456,44 @@ public static class GameBalance
         return CarEdgesX.Length - 2;
     }
 
-    /// <summary>슬롯 배치 (B-2: 포탑칸 가로 1열 4+4. 0~3=포탑 A, 4~7=포탑 B)</summary>
+    /// <summary>슬롯 배치 (B-2: 포탑칸 가로 1열 4+4. 0~3=포탑 A, 4~7=포탑 B) - v9.9 부터는 SlotCornerLayout 이 false 일 때만 쓰인다</summary>
     public static float SlotRowAX = 3.1f;      // 포탑 A 첫 슬롯 x
     public static float SlotRowBX = 7.6f;      // 포탑 B 첫 슬롯 x
     public static float SlotGapX = 1.1f;       // 슬롯 간격
     // B-2.2: 0.9(칸 몸통 속) -> 1.95(지붕 위). 포탑 받침이 지붕선(1.8)에 딱 앉는다 (원안 복원).
     // 근접 판정은 가로 거리만 보므로(FindStunnedSlotNear) 셰프는 여전히 발밑에서 정비 가능
     public static float SlotY = 1.95f;
+
+    // ── v9.9 (유저 결정 2026-09-16 "포탑끼리 한 라인에 붙어 있어 선택이 불편 - 모서리에 하나씩") ──
+    //  칸당 4모서리: 북쪽 2개 = 지붕선 위(SlotY 그대로), 남쪽 2개 = 섀시 위(SlotSouthY). 칸 양끝에서 SlotCornerInsetX 만큼 안쪽.
+    //  번호: 0 NW / 1 NE / 2 SW / 3 SE = 포탑 A,  4~7 같은 순서 = 포탑 B (6·7 = 남쪽 = 기본 잠금, 증강 해금)
+    //  마커 칩은 북쪽 슬롯은 머리 위(+SlotMarkerYOffset), 남쪽 슬롯은 발 아래(-SlotMarkerYOffset). 마운트 링 그림(car2.png)도 같은 자리
+    //  false 로 두면 종전 북쪽 1열 배치 (그림은 car2.png 의 링 4개가 북쪽 1열인 v9.8 판을 써야 맞는다)
+    public static bool SlotCornerLayout = true;
+    public static float SlotCornerInsetX = 0.95f;   // 칸 끝(CarEdgesX ± 0.12 여백)에서 안쪽으로
+    public static float SlotSouthY = -1.45f;        // 남쪽 슬롯 y (섀시 위 마운트 링 중심)
+    public static float SlotMarkerWidth = 120f;     // 마커 칩 폭 (종전 96 - 모서리 배치는 최소 간격 2.2u = 141px 라 여유)
+
+    /// <summary>슬롯 i 의 월드 위치 (배치 방식에 따라). TurretSlotManager 가 생성 시 1회 읽는다</summary>
+    public static Vector2 SlotPosition(int i)
+    {
+        int car = i / 4;          // 0 = 포탑 A, 1 = 포탑 B
+        int idx = i % 4;
+        if (!SlotCornerLayout)
+            return new Vector2((car == 0 ? SlotRowAX : SlotRowBX) + idx * SlotGapX, SlotY);
+
+        float left = CarEdgesX[2 + car] + 0.12f;          // 칸 몸체 왼쪽 끝 (칸 여백 0.12)
+        float right = CarEdgesX[3 + car] - 0.12f;         // 칸 몸체 오른쪽 끝
+        float x = (idx % 2 == 0) ? left + SlotCornerInsetX : right - SlotCornerInsetX;
+        float y = (idx < 2) ? SlotY : SlotSouthY;         // 0·1 = 북쪽, 2·3 = 남쪽
+        return new Vector2(x, y);
+    }
+
+    /// <summary>슬롯 i 가 남쪽(섀시) 슬롯인가 - 마커 칩·포신 기본 방향이 아래를 본다</summary>
+    public static bool IsSouthSlot(int i)
+    {
+        return SlotCornerLayout && (i % 4) >= 2;
+    }
 
     // ── B-2.2: 포탑 실물 비주얼 (TurretSlot이 코드 도형으로 그린다) ──
     public static bool TurretVisuals = true;       // false = 실물 끄기 (마커 칩만)
@@ -726,4 +757,40 @@ public static class GameBalance
         public int count;
         public StarterFood(string id, int n) { recipeId = id; count = n; }
     }
+
+    // ==================================================================
+    //  v9.9: 견습 운행 (전용 튜토리얼 런, TutorialDirector.cs) + 브리핑 카드 (BriefingUI.cs)
+    //  교수 요구 "제대로 된 튜토리얼" (계획: claude/튜토리얼_완성계획_2026-09-15.md v2)
+    // ==================================================================
+
+    /// <summary>로비 [T] 견습 운행 버튼을 보여줄지. false 면 종전 로비 그대로 (프롤로그만)</summary>
+    public static bool TutorialRunEnabled = true;
+
+    /// <summary>견습 운행 최초 완료 보상 명성 (0 = 없음). 재플레이는 보상 없음</summary>
+    public static int TutorialReward = 30;
+
+    /// <summary>미완료면 로비 [T] 버튼을 강조(마커 화살표 + 경광등 깜빡)할지</summary>
+    public static bool TutorialFirstLaunchHighlight = true;
+
+    /// <summary>견습 운행을 마치면 정식 런의 1회차 프롤로그(웨이브 1 조리 게이트)를 건너뛸지</summary>
+    public static bool TutorialSkipsPrologue = true;
+
+    /// <summary>견습 운행 중 기차가 피해를 받지 않는 단계(실전 방어 단계 제외)를 무적으로 둘지</summary>
+    public static bool TutorialGodMode = true;
+
+    /// <summary>브리핑 카드(단계 시작·정식 런 첫 등장) 사용 여부. false 면 카드가 뜨지 않고 바로 진행</summary>
+    public static bool BriefingEnabled = true;
+
+    /// <summary>브리핑 카드가 떠 있는 동안 시간을 멈출지 (false = 안 멈춤, 5초 뒤 자동 닫힘)</summary>
+    public static bool BriefingPausesTime = true;
+
+    /// <summary>시간을 안 멈출 때 자동으로 닫히기까지 (초)</summary>
+    public static float BriefingAutoCloseSec = 5f;
+
+    /// <summary>정식 런 첫 등장 브리핑(지역/새 손님/이벤트/베팅/보스)을 켤지 - 2차 팩에서 훅 연결</summary>
+    public static bool FirstEncounterBriefings = true;
+
+    /// <summary>현장 마커 화살표 까딱 폭 (월드 유닛, 4px @32ppu = 화면 8px) / 왕복 주기 (초)</summary>
+    public static float TutorialMarkerBob = 0.125f;
+    public static float TutorialMarkerBobSec = 0.6f;
 }

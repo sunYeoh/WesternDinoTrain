@@ -4,8 +4,9 @@ using UnityEditor;
 using UnityEngine;
 
 /// <summary>
-/// [WDTSpriteImporter.cs] v4.2 (Editor 전용) - 스프라이트 PNG 자동 임포트 설정 (2026-09-07, v9 픽셀 팩 + UI 스킨)
+/// [WDTSpriteImporter.cs] v4.3 (Editor 전용) - 스프라이트 PNG 자동 임포트 설정 (2026-09-07, v9 픽셀 팩 + UI 스킨)
 ///
+/// v4.3 (v9.9): 튜토리얼 현장 마커 tut_arrow(24x21, 피벗 = 뾰족한 끝 (11.5/24, 0)) / tut_ring(36x14, 중앙) 표 2줄 - 32ppu 월드 스프라이트
 /// v4.2: 위험 적 전용 그림 4종 e_fly / e_parasaur / e_carno / e_mosa (32ppu, 중앙 피벗) 표 추가
 ///
 /// Assets/Resources/Sprites/WDT/ 아래 PNG가 임포트될 때 자동으로:
@@ -97,6 +98,8 @@ public class WDTSpriteImporter : AssetPostprocessor
             { "t_dome_phys", new Info(32f, 0.5000f, 0.4583f) },
             { "t_dome_poison", new Info(32f, 0.5000f, 0.4583f) },
             { "tail", new Info(32f, 0.0000f, 0.5000f) },
+            { "tut_arrow", new Info(32f, 0.4792f, 0.0000f) },   // v4.3: 튜토리얼 마커 화살표 - 피벗 = 뾰족한 끝 (x 11.5/24, 맨 아래)
+            { "tut_ring", new Info(32f, 0.5000f, 0.5000f) },    // v4.3: 튜토리얼 발밑 링 - 중앙
     };
 
     /// <summary>메뉴 WDT > 스프라이트 재임포트: PNG를 스크립트보다 먼저 넣었을 때 한 번 눌러주면 설정이 다시 잡힌다</summary>

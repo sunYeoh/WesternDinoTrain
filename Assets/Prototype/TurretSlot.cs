@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// [TurretSlot.cs] v6.2 (런 통계: 과열 횟수·정지 시간 2026-09-14) / v6.1 (교수 피드백 반영 2026-09-14) / v6 (고퀄 PNG 적용 2026-09-03)
+/// [TurretSlot.cs] v6.3 (v9.9 2026-09-16: 남쪽 슬롯 포신 기본 방향 -90 = 남쪽 - 4모서리 배치) / v6.2 (런 통계: 과열 횟수·정지 시간 2026-09-14) / v6.1 (교수 피드백 반영 2026-09-14) / v6 (고퀄 PNG 적용 2026-09-03)
 /// 포탑 슬롯 1개. 요리를 투입하면 포탑으로 가동한다.
 /// - v6.2 변경점 (스위치 실험 지표 - 반영계획 §5 관찰 시트):
 ///   OverheatsThisRun / OverheatStunSecThisRun: 이번 런에 과열이 몇 번 났고, 과열로 포탑이 전투 중 몇 초 멈춰 있었는지.
@@ -393,8 +393,12 @@ public class TurretSlot : MonoBehaviour
     private void Awake()
     {
         idlePhase = Random.Range(0f, 6.28f);
+        // v6.3: 섀시(남쪽) 슬롯은 포신이 기본으로 남쪽을 본다 (표적이 없을 때 지붕 쪽을 겨누지 않게)
+        if (transform.position.y < 0f) { idleBase = -90f; barrelAngle = -90f; }
         RebuildVisual();
     }
+
+    private float idleBase = 90f;          // v6.3: 표적 없을 때 포신이 향하는 기본 각도 (북쪽 슬롯 90 / 남쪽 슬롯 -90)
 
     private void Update()
     {
@@ -437,7 +441,7 @@ public class TurretSlot : MonoBehaviour
         else
         {
             lastTarget = null;
-            want = 90f + Mathf.Sin(Time.time * 0.8f + idlePhase) * 22f;
+            want = idleBase + Mathf.Sin(Time.time * 0.8f + idlePhase) * 22f;   // v6.3: 남쪽 슬롯은 -90 기준
         }
         // 마비/과열 중엔 포신도 굳는다 (정지 상태가 눈에 보이게)
         float turnSpeed = IsStunned ? 0f : 420f;

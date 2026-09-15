@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [JournalViewerUI.cs] v1.1 (교수 피드백 A10 반영 2026-09-14) / v1 - P1: 선대의 일지 열람 패널 (감사 4-B)
+/// [JournalViewerUI.cs] v9.9 (2026-09-16: 브리핑 카드 위에서는 [J] 안 열림) / v1.1 (교수 피드백 A10 반영 2026-09-14) / v1 - P1: 선대의 일지 열람 패널 (감사 4-B)
 ///
 /// 배경: 일지 12장을 수집은 하는데 다시 볼 곳이 없었다 - 수집형 메타의 보상 화면.
 /// [J] 키로 언제든 열고 닫는다. 수집한 장은 전문 재열람, 미수집 장은 ??? 로 표시되어
@@ -74,7 +74,7 @@ public class JournalViewerUI : MonoBehaviour
     {
         return !CookingMinigame.IsActive && !AugmentPickUI.IsOpen && !PauseMenu.IsOpen && !WorkshopUI.IsOpen
             && !AugmentListUI.IsOpen && !FinalOrderUI.QteOpen && !StoryTexts.IsBlocking
-            && !BranchRouteUI.IsOpen && !InfusingMinigame.IsActive;
+            && !BranchRouteUI.IsOpen && !InfusingMinigame.IsActive && !BriefingUI.IsOpen;   // v9.9: 브리핑 카드 위에서는 안 연다
     }
 
     // ─────────────────────────────────────────────
