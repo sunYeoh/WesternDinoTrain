@@ -5,7 +5,8 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 /// <summary>
-/// [TutorialDirector.cs] v1 (신규, v9.9 2026-09-16) - "견습 운행": 로비 [T]로 들어가는 전용 튜토리얼 런
+/// [TutorialDirector.cs] v1.1 (v9.9.1: 1단계 목표 = 통로 건너 포탑 칸(셰프가 주방 한가운데서 시작해 즉시 통과되던 것) / 손님은 화면 오른쪽에서 /
+///   4단계는 재료가 찬 뒤 설명 / 단계 완료 뒤 "완료" 1.2초 비트 후 다음 카드) / v1 (신규, v9.9 2026-09-16) - "견습 운행": 로비 [T]로 들어가는 전용 튜토리얼 런
 ///
 /// 계획: claude/튜토리얼_완성계획_2026-09-15.md v2. 교수 요구 "제대로 된 튜토리얼" (마감 9/28 주).
 /// 1차 팩(v9.9) = 골격 + 단계 1~6 (이동 / 보급 투입 / 첫 손님 / 재료 / 굽기 / 레벨업). 7~12 는 2차 팩.
@@ -246,11 +247,12 @@ public class TutorialDirector : MonoBehaviour
         UIManager.Instance?.ShowStatChange("[견습 운행] 보급 요리 도착 - 더블 육포 1접시");
     }
 
-    // ── 1. 이동 ──
+    // ── 1. 이동: 통로를 건너 포탑 칸 A 로 (셰프는 주방 칸 한가운데서 시작한다 - 2단계 투입 슬롯이 바로 그 칸에 있다) ──
     private IEnumerator Step1_Move()
     {
-        BeginStep(1, "[WASD] 주방 칸으로 달려라", "[Shift] 대시\n화살표 자리까지", null, 0, 0);
-        Vector3 target = new Vector3(0f, 0.6f, 0f);          // 주방 칸 가운데 (조리대 위쪽 바닥)
+        BeginStep(1, "[WASD] 통로를 건너 포탑 칸으로 달려라", "[Shift] 대시\n칸 사이는 발판으로만 건넌다", null, 0, 0);
+        float carL = GameBalance.CarEdgesX[2] + 0.12f, carR = GameBalance.CarEdgesX[3] - 0.12f;
+        Vector3 target = new Vector3((carL + carR) * 0.5f, 0.3f, 0f);   // 포탑 칸 A 바닥 가운데 (약 4.75, 0.3)
         ShowMarkerAt(target, 0.9f);
         yield return Brief(BriefingTexts.Tutorial(1));
 
@@ -259,10 +261,10 @@ public class TutorialDirector : MonoBehaviour
         {
             Transform chef = Chef();
             if (chef != null && Vector2.Distance(chef.position, target) <= 1.0f) break;
-            if (Time.time > blinkAt) { blinkAt = float.MaxValue; UIManager.Instance?.ShowStatChange("[견습] 주방 칸은 기관실 오른쪽 - 통로 발판으로 건너라"); }
+            if (Time.time > blinkAt) { blinkAt = float.MaxValue; UIManager.Instance?.ShowStatChange("[견습] 포탑 칸은 주방 오른쪽 - 칸 사이 발판(통로)으로 건너라"); }
             yield return null;
         }
-        EndStep();
+        yield return EndStep();
     }
 
     // ── 2. 보급 요리 투입 ──
@@ -285,17 +287,20 @@ public class TutorialDirector : MonoBehaviour
             yield return null;
         }
         SetProgress(1, 1);
-        EndStep();
+        yield return EndStep();
     }
 
-    // ── 3. 첫 손님 (랩터 2, 약체, 기차 무적) ──
+    // ── 3. 첫 손님 (랩터 2, 약체, 기차 무적) - 기차 꼬리 오른쪽 화면 안에서 걸어온다 (보이는 자리에서 포탑이 잡게) ──
     private IEnumerator Step3_FirstGuests()
     {
         BeginStep(3, "첫 손님이다 - 포탑이 알아서 쏜다", "쓰러질 때까지 지켜봐라\n기차는 다치지 않는다", "손님", 0, 2);
         HideMarker();
         yield return Brief(BriefingTexts.Tutorial(3));
 
-        List<Enemy> guests = WaveManager.Instance != null ? WaveManager.Instance.SpawnForTutorial("raptor", 2, 0.7f) : null;
+        // 기차 오른쪽 끝(꼬리) 바깥 3.5u, 화면 안 (카메라 반폭 15.1u) - 기차 피벗은 0 이라 거리 = 꼬리 x + 3.5
+        float spawnDist = GameBalance.CarEdgesX[GameBalance.CarEdgesX.Length - 1] + 3.5f;
+        if (TrainManager.Instance != null) spawnDist -= TrainManager.Instance.transform.position.x;
+        List<Enemy> guests = WaveManager.Instance != null ? WaveManager.Instance.SpawnForTutorial("raptor", 2, 0.7f, 0f, spawnDist) : null;
         int need = guests == null ? 0 : guests.Count;         // 프리팹도 폴백도 없으면 0 - 바로 통과 (막히지 않게)
         Spino("[스피노] 애피타이저다 - 접시가 곧 탄환이지");
         float giveUpAt = Time.time + 90f;
@@ -309,14 +314,13 @@ public class TutorialDirector : MonoBehaviour
         }
         KillAll(guests);
         SetProgress(2, 2);
-        EndStep();
+        yield return EndStep();
     }
 
-    // ── 4. 재료 (자동 흡수 확인) ──
+    // ── 4. 재료 (자동 흡수 확인): 조각이 도착해 고기 2개가 찬 뒤에 설명 카드 (카드 문구가 "찼다"로 시작한다) ──
     private IEnumerator Step4_Materials()
     {
         BeginStep(4, "재료가 날아온다 - 하단 바를 봐라", "쓰러진 손님의 재료가\n기차로 빨려 온다", "고기", MeatCount(), 2);
-        yield return Brief(BriefingTexts.Tutorial(4));
 
         float fallbackAt = Time.time + 30f;
         while (!skipRequested)
@@ -333,7 +337,8 @@ public class TutorialDirector : MonoBehaviour
         }
         if (MeatCount() < 2 && MaterialInventory.Instance != null) MaterialInventory.Instance.Add(MaterialType.Meat, 2 - MeatCount());
         SetProgress(2, 2);
-        EndStep();
+        if (!skipRequested) yield return Brief(BriefingTexts.Tutorial(4));   // 재료 칸 설명은 찬 뒤에
+        yield return EndStep();
     }
 
     // ── 5. 굽기 (진짜 미니게임) ──
@@ -371,7 +376,7 @@ public class TutorialDirector : MonoBehaviour
         }
         if (!passedByGift && !skipRequested) Spino("[스피노] 그거다. 접시가 곧 탄환이다");
         SetProgress(1, 1);
-        EndStep();
+        yield return EndStep();
     }
 
     // ── 6. 투입 = 레벨업 ──
@@ -392,7 +397,7 @@ public class TutorialDirector : MonoBehaviour
             yield return null;
         }
         SetProgress(1, 1);
-        EndStep();
+        yield return EndStep();
     }
 
     // ── 완료 ──
@@ -434,17 +439,29 @@ public class TutorialDirector : MonoBehaviour
         Debug.Log("[Tutorial] 단계 " + n + " 시작: " + title);
     }
 
-    private void EndStep()
+    /// <summary>
+    /// 단계 마무리: 건너뛰었으면 기록만, 해냈으면 카드를 "완료" 상태로 바꿔 DONE_BEAT_SEC 동안 보여준 뒤 다음으로.
+    /// (해내자마자 다음 카드가 뜨면 "막무가내로 넘어가는" 느낌 - 유저 피드백 09-16)
+    /// </summary>
+    private IEnumerator EndStep()
     {
+        HideMarker();
         if (skipRequested)
         {
             skips++;
             Debug.Log("[Tutorial] 단계 " + step + " 건너뜀");
             skipRequested = false;
+            yield break;
         }
-        HideMarker();
-        SoundManager.Play("sfx_ui_click");
+        SoundManager.Play("sfx_wave_clear");
+        if (titleText != null) { titleText.text = "완료 - " + titleText.text; titleText.color = new Color(0.55f, 0.95f, 0.55f, 1f); }
+        if (linesText != null) linesText.text = "잘했다. 다음 -";
+        float until = Time.unscaledTime + DONE_BEAT_SEC;
+        while (Time.unscaledTime < until && Active) yield return null;
+        if (titleText != null) titleText.color = UIFactory.GOLD;
     }
+
+    private const float DONE_BEAT_SEC = 1.2f;
 
     /// <summary>브리핑 카드를 띄우고 닫힐 때까지 기다린다 (시간 정지 중에도 프레임은 돈다)</summary>
     private IEnumerator Brief(BriefingUI.BriefDef def)

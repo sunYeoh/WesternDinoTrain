@@ -655,9 +655,11 @@ public class WaveManager : MonoBehaviour
 
     /// <summary>
     /// v6.8 견습 운행: 디렉터가 부르는 손님. kind = "raptor"(스팀 랩터) / "ptera"(독침 프테라) / "bolt"(볼트 테라노돈).
-    /// 웨이브와 무관하게(isWaveActive 아님) 기차 둘레 랜덤 각도에서 스폰. statMul 로 약체/정식 조절. 생성된 Enemy 목록을 돌려준다
+    /// 웨이브와 무관하게(isWaveActive 아님) 스폰. statMul 로 약체/정식 조절. 생성된 Enemy 목록을 돌려준다.
+    /// angleDeg >= 0 이면 그 방향(±10도)에서, distance > 0 이면 그 거리(+0~1.5)에서 - 튜토리얼은 기차 꼬리 오른쪽 화면 안에서 걸어오게 한다.
+    /// (기본 스폰 거리 12~16 은 세로 방향이면 화면 밖이라 손님이 보이기도 전에 포탑 사거리 20 안에서 죽는다)
     /// </summary>
-    public List<Enemy> SpawnForTutorial(string kind, int count, float statMul)
+    public List<Enemy> SpawnForTutorial(string kind, int count, float statMul, float angleDeg = -1f, float distance = -1f)
     {
         List<Enemy> made = new List<Enemy>();
         GameObject prefab = steamRaptorPrefab;
@@ -672,9 +674,12 @@ public class WaveManager : MonoBehaviour
         }
 
         int playerLevel = GameManager.Instance != null ? GameManager.Instance.playerLevel : 1;
+        float savedMin = spawnDistanceMin, savedMax = spawnDistanceMax;
+        if (distance > 0f) { spawnDistanceMin = distance; spawnDistanceMax = distance + 1.5f; }
         for (int i = 0; i < count; i++)
         {
-            Enemy e = SpawnEnemyAt(prefab, ed, 1, playerLevel, GameBalance.EnemyDifficultyL, Random.Range(0f, 360f));
+            float ang = angleDeg >= 0f ? angleDeg + Random.Range(-10f, 10f) : Random.Range(0f, 360f);
+            Enemy e = SpawnEnemyAt(prefab, ed, 1, playerLevel, GameBalance.EnemyDifficultyL, ang);
             if (e == null) continue;
             if (!Mathf.Approximately(statMul, 1f))
             {
@@ -684,6 +689,7 @@ public class WaveManager : MonoBehaviour
             }
             made.Add(e);
         }
+        spawnDistanceMin = savedMin; spawnDistanceMax = savedMax;
         Debug.Log("[WaveManager] 견습 운행 손님: " + kind + " x" + made.Count + " (배율 " + statMul + ")");
         return made;
     }
