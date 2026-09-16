@@ -5,71 +5,98 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 /// <summary>
-/// [TutorialDirector.cs] v1.1 (v9.9.1: 1ë‹¨ê³„ ëª©í‘œ = í†µë¡œ ê±´ë„ˆ í¬íƒ‘ ì¹¸(ì…°í”„ê°€ ì£¼ë°© í•œê°€ìš´ë°ì„œ ì‹œì‘í•´ ì¦‰ì‹œ í†µê³¼ë˜ë˜ ê²ƒ) / ì†ë‹˜ì€ í™”ë©´ ì˜¤ë¥¸ìª½ì—ì„œ /
-///   4ë‹¨ê³„ëŠ” ì¬ë£Œê°€ ì°¬ ë’¤ ì„¤ëª… / ë‹¨ê³„ ì™„ë£Œ ë’¤ "ì™„ë£Œ" 1.2ì´ˆ ë¹„íŠ¸ í›„ ë‹¤ìŒ ì¹´ë“œ) / v1 (ì‹ ê·œ, v9.9 2026-09-16) - "ê²¬ìŠµ ìš´í–‰": ë¡œë¹„ [T]ë¡œ ë“¤ì–´ê°€ëŠ” ì „ìš© íŠœí† ë¦¬ì–¼ ëŸ°
+/// [TutorialDirector.cs] v1.2 (v9.9.2 2026-09-16: ´Ü°è 7~12 - ³«·Ú [E] / ÀÛ»ì / ·¹¹ö / ½ÇÀü ·¦ÅÍ 5 + ÇÁÅ×¶ó 1 (±âÂ÷ ÇÇÇØ ÄÔ, ¸ØÃß¸é ÀÌ ´Ü°è¸¸ Àç½ÃÀÛ) /
+///   Á¤»ê = ÁøÂ¥ Áõ°­ ¼±ÅÃ + [G] Á¤ºñ¼Ò / µµ¹Ú²Û¡¤¾Õ±æ Ä«µå. ¹ß¹Ø ¸µÀº ¿ÀºêÁ§Æ® "¹ß" ÀÚ¸®¿¡ ¿ÀºêÁ§Æ®º¸´Ù ³Ğ°Ô(tut_ring_l 72x26) - Æ÷Å¾¡¤ÀÛ»ì¡¤·¹¹ö ¹Ø¿¡ ±ò¸°´Ù (À¯Àú 09-16).
+///   ´Ü°èº° °É¸° ½Ã°£ ·Î±×) / v1.1 (v9.9.1: 1´Ü°è ¸ñÇ¥ = Åë·Î °Ç³Ê Æ÷Å¾ Ä­ / ¼Õ´ÔÀº È­¸é ¿À¸¥ÂÊ¿¡¼­ / 4´Ü°è´Â Àç·á°¡ Âù µÚ ¼³¸í / ¿Ï·á 1.2ÃÊ ºñÆ®)
+///   / v1 (½Å±Ô, v9.9 2026-09-16) - "°ß½À ¿îÇà": ·Îºñ [T]·Î µé¾î°¡´Â Àü¿ë Æ©Åä¸®¾ó ·±
 ///
-/// ê³„íš: claude/íŠœí† ë¦¬ì–¼_ì™„ì„±ê³„íš_2026-09-15.md v2. êµìˆ˜ ìš”êµ¬ "ì œëŒ€ë¡œ ëœ íŠœí† ë¦¬ì–¼" (ë§ˆê° 9/28 ì£¼).
-/// 1ì°¨ íŒ©(v9.9) = ê³¨ê²© + ë‹¨ê³„ 1~6 (ì´ë™ / ë³´ê¸‰ íˆ¬ì… / ì²« ì†ë‹˜ / ì¬ë£Œ / êµ½ê¸° / ë ˆë²¨ì—…). 7~12 ëŠ” 2ì°¨ íŒ©.
+/// °èÈ¹: claude/Æ©Åä¸®¾ó_¿Ï¼º°èÈ¹_2026-09-15.md v2. ±³¼ö ¿ä±¸ "Á¦´ë·Î µÈ Æ©Åä¸®¾ó" (¸¶°¨ 9/28 ÁÖ). ¸ñ¾÷ = WDT_Æ©Åä¸®¾ó¸ñ¾÷v3.png (ÄÁÆß 09-16).
+/// ´Ü°è: 1 ÀÌµ¿ / 2 º¸±Ş ÅõÀÔ / 3 Ã¹ ¼Õ´Ô / 4 Àç·á / 5 ±Á±â / 6 ·¹º§¾÷ / 7 ³«·Ú [E] / 8 ÀÛ»ì / 9 ·¹¹ö / 10 ½ÇÀü / 11 Á¤»ê / 12 µµ¹Ú²Û¡¤¾Õ±æ.
+/// ¸µ ±ÔÄ¢ (RingStyle): Æ÷Å¾ = Å« ¸µ, ¹ŞÄ§ Á¤·Ä(-3) µÚ z / ÀÛ»ì¡¤·¹¹ö = Á¤·Ä -4, z -0.01 (EngineCab ÀÌ ÀÛ»ì¡¤·¹¹ö¸¦ z -0.02 ·Î ¾Õ¿¡ µĞ´Ù) /
+///   Á¶¸®´ë = ÀÛÀº ¸µ, Á¤·Ä 0 (±×¸²ÀÚ 0 À§, Á¶¸®´ë 1 ¾Æ·¡) / ¹Ù´Ú ¸ñÇ¥ = ÀÛÀº ¸µ, Á¤·Ä -3.
+/// 8´Ü°èºÎÅÍ EngineCabUnlocked = true: EngineCab ÀÌ TutorialGateActive ¸¦ ¹«½ÃÇÏ°í ¹ÙÀ§¡¤ÀÛ»ì¡¤·¹¹ö¸¦ ÄÒ´Ù (¹æÇØ ÀÌº¥Æ®´Â °è¼Ó ¸·Èû - BlockAmbient).
 ///
-/// êµ¬ì¡°
-///  - ì •ì‹ ì”¬ ì—†ìŒ. ë¡œë¹„ì—ì„œ Begin() -> GameManager.StartTutorial() ì´ Battle ìƒíƒœë¡œ ë³´ë‚´ë˜, ì›¨ì´ë¸Œ/ë³´ê¸‰/ë©”íƒ€ ê¸°ë¡ì€
-///    WaveManager ê°€ ì•„ë‹ˆë¼ ì´ ë””ë ‰í„°ê°€ ë§¡ëŠ”ë‹¤ (GameManager.HandleBattlePhase ëŠ” Active ë©´ ë°”ë¡œ ëŒì•„ì˜¨ë‹¤).
-///  - ë‹¨ê³„ = ë¸Œë¦¬í•‘ ì¹´ë“œ(BriefingUI, ì‹œê°„ ì •ì§€) -> ëª©í‘œ ì¹´ë“œ(ìš°ìƒë‹¨ ì›¨ì´ë¸Œ íŒ ì•„ë˜) + í˜„ì¥ ë§ˆì»¤(ì›”ë“œ í™”ì‚´í‘œ/ë§) -> ì½”ë“œ ìƒíƒœë¡œ íŒì •.
-///  - [Enter] = ì´ ë‹¨ê³„ ê±´ë„ˆë›°ê¸° (ë¸Œë¦¬í•‘ì´ ë–  ìˆìœ¼ë©´ ë¸Œë¦¬í•‘ì´ ë¨¼ì € ë¨¹ëŠ”ë‹¤ - BriefingUI.KeyConsumedFrame).
-///  - [ESC] ì¼ì‹œì •ì§€ ë©”ë‰´ì˜ "ê²¬ìŠµ ìš´í–‰ ê·¸ë§Œë‘ê¸°" -> Quit() (ì™„ë£Œ ê¸°ë¡ ì—†ì´ ë¡œë¹„).
-///  - ì™„ë£Œ -> ìš”ì•½ ì¹´ë“œ -> PlayerPrefs WDT_TutorialDone=1 (+ WDT_PrologueSeen=1: ì •ì‹ ëŸ° í”„ë¡¤ë¡œê·¸ ìƒëµ) -> ëª…ì„± +30 (ìµœì´ˆ 1íšŒ)
-///    -> GameManager.EndTutorial() (GameManager íŒŒê´´ + ì”¬ ë¦¬ë¡œë“œ = ë¡œë¹„).
-///  - ë¬´ì : GameBalance.TutorialGodMode ë©´ ì‹¤ì „ ë°©ì–´ ë‹¨ê³„(2ì°¨ íŒ©) ì „ê¹Œì§€ ê¸°ì°¨ HP ë¥¼ ë§¤ í”„ë ˆì„ ê°€ë“ ì±„ìš´ë‹¤.
-///  - ë°©í•´ ì´ë²¤íŠ¸Â·ë°”ìœ„Â·ì‘ì‚´Â·ë ˆë²„ëŠ” BlockAmbient(ê¸°ë³¸ true) ë™ì•ˆ WaveManager.TutorialGateActive ë¥¼ í†µí•´ ë§‰íŒë‹¤.
-///  - ì”¬ì´ ë‹¤ì‹œ ë¡œë“œë˜ë©´(ëŸ° í¬ê¸° ë“±) ì¡°ìš©íˆ ì •ë¦¬ (ì •ì  Active ì”ì¡´ ë°©ì§€).
+/// ±¸Á¶
+///  - Á¤½Ä ¾À ¾øÀ½. ·Îºñ¿¡¼­ Begin() -> GameManager.StartTutorial() ÀÌ Battle »óÅÂ·Î º¸³»µÇ, ¿şÀÌºê/º¸±Ş/¸ŞÅ¸ ±â·ÏÀº
+///    WaveManager °¡ ¾Æ´Ï¶ó ÀÌ µğ·ºÅÍ°¡ ¸Ã´Â´Ù (GameManager.HandleBattlePhase ´Â Active ¸é ¹Ù·Î µ¹¾Æ¿Â´Ù).
+///  - ´Ü°è = ºê¸®ÇÎ Ä«µå(BriefingUI, ½Ã°£ Á¤Áö) -> ¸ñÇ¥ Ä«µå(¿ì»ó´Ü ¿şÀÌºê ÆÇ ¾Æ·¡) + ÇöÀå ¸¶Ä¿(¿ùµå È­»ìÇ¥/¸µ) -> ÄÚµå »óÅÂ·Î ÆÇÁ¤.
+///  - [Enter] = ÀÌ ´Ü°è °Ç³Ê¶Ù±â (ºê¸®ÇÎÀÌ ¶° ÀÖÀ¸¸é ºê¸®ÇÎÀÌ ¸ÕÀú ¸Ô´Â´Ù - BriefingUI.KeyConsumedFrame).
+///  - [ESC] ÀÏ½ÃÁ¤Áö ¸Ş´ºÀÇ "°ß½À ¿îÇà ±×¸¸µÎ±â" -> Quit() (¿Ï·á ±â·Ï ¾øÀÌ ·Îºñ).
+///  - ¿Ï·á -> ¿ä¾à Ä«µå -> PlayerPrefs WDT_TutorialDone=1 (+ WDT_PrologueSeen=1: Á¤½Ä ·± ÇÁ·Ñ·Î±× »ı·«) -> ¸í¼º +30 (ÃÖÃÊ 1È¸)
+///    -> GameManager.EndTutorial() (GameManager ÆÄ±« + ¾À ¸®·Îµå = ·Îºñ).
+///  - ¹«Àû: GameBalance.TutorialGodMode ¸é ½ÇÀü ¹æ¾î ´Ü°è(2Â÷ ÆÑ) Àü±îÁö ±âÂ÷ HP ¸¦ ¸Å ÇÁ·¹ÀÓ °¡µæ Ã¤¿î´Ù.
+///  - ¹æÇØ ÀÌº¥Æ®¡¤¹ÙÀ§¡¤ÀÛ»ì¡¤·¹¹ö´Â BlockAmbient(±âº» true) µ¿¾È WaveManager.TutorialGateActive ¸¦ ÅëÇØ ¸·Èù´Ù.
+///  - ¾ÀÀÌ ´Ù½Ã ·ÎµåµÇ¸é(·± Æ÷±â µî) Á¶¿ëÈ÷ Á¤¸® (Á¤Àû Active ÀÜÁ¸ ¹æÁö).
 ///
-/// ëª©í‘œ ì¹´ë“œ (ëª©ì—… v2 (A)): ìš°ìƒë‹¨ (-8,-128) 330x156 ë§ ì¹´ë“œ - ëª…íŒ "ëª©í‘œ n / 12" + ì œëª© 18 ê¸ˆìƒ‰ + ì§€ì‹œ 15 í¬ë¦¼ + ì§„í–‰ í• + [Enter] ê±´ë„ˆë›°ê¸°.
-/// í˜„ì¥ ë§ˆì»¤ (ëª©ì—… v2 (B)): tut_arrow(24x21, ëì  í”¼ë²—) ê°€ ëª©í‘œ ìœ„ +offset ì—ì„œ ìœ„ì•„ë˜ 4px ê¹Œë”± + tut_ring(36x14) ë°œë°‘. PNG ì—†ìœ¼ë©´ ì½”ë“œ ë„íŠ¸.
+/// ¸ñÇ¥ Ä«µå (¸ñ¾÷ v2 (A)): ¿ì»ó´Ü (-8,-128) 330x156 ¸µ Ä«µå - ¸íÆÇ "¸ñÇ¥ n / 12" + Á¦¸ñ 18 ±İ»ö + Áö½Ã 15 Å©¸² + ÁøÇà ÇÌ + [Enter] °Ç³Ê¶Ù±â.
+/// ÇöÀå ¸¶Ä¿ (¸ñ¾÷ v2 (B)): tut_arrow(24x21, ³¡Á¡ ÇÇ¹ş) °¡ ¸ñÇ¥ À§ +offset ¿¡¼­ À§¾Æ·¡ 4px ±îµü + tut_ring(36x14) ¹ß¹Ø. PNG ¾øÀ¸¸é ÄÚµå µµÆ®.
 ///
-/// ì‚¬ìš©ë²•: íŒŒì¼ë§Œ ë„£ìœ¼ë©´ ìë™ ìƒì„±. LobbyUI ê°€ TutorialDirector.Begin() ì„ ë¶€ë¥¸ë‹¤.
-/// VS 2017 (C# 7.3) í˜¸í™˜
+/// »ç¿ë¹ı: ÆÄÀÏ¸¸ ³ÖÀ¸¸é ÀÚµ¿ »ı¼º. LobbyUI °¡ TutorialDirector.Begin() À» ºÎ¸¥´Ù.
+/// VS 2017 (C# 7.3) È£È¯
 /// </summary>
 public class TutorialDirector : MonoBehaviour
 {
     public static TutorialDirector Instance { get; private set; }
 
-    /// <summary>ê²¬ìŠµ ìš´í–‰ ì§„í–‰ ì¤‘ì¸ê°€ (ë‹¤ë¥¸ ì‹œìŠ¤í…œ ê°€ë“œìš©: GameManager/WaveManager/ì¹˜íŠ¸/íŒíŠ¸)</summary>
+    /// <summary>°ß½À ¿îÇà ÁøÇà ÁßÀÎ°¡ (´Ù¸¥ ½Ã½ºÅÛ °¡µå¿ë: GameManager/WaveManager/Ä¡Æ®/ÈùÆ®)</summary>
     public static bool Active { get; private set; }
 
-    /// <summary>ê²¬ìŠµ ìš´í–‰ì„ í•œ ë²ˆì´ë¼ë„ ëê¹Œì§€ ë§ˆì³¤ëŠ”ê°€ (ë¡œë¹„ [T] ê°•ì¡° ì—¬ë¶€)</summary>
+    /// <summary>°ß½À ¿îÇàÀ» ÇÑ ¹øÀÌ¶óµµ ³¡±îÁö ¸¶ÃÆ´Â°¡ (·Îºñ [T] °­Á¶ ¿©ºÎ)</summary>
     public static bool Done
     {
         get { return PlayerPrefs.GetInt(DONE_KEY, 0) == 1; }
     }
 
-    /// <summary>true ë©´ ë°©í•´ ì´ë²¤íŠ¸Â·ìì› ë°”ìœ„Â·ì‘ì‚´Â·ë ˆë²„ê°€ ë§‰íŒë‹¤ (WaveManager.TutorialGateActive ê°€ ì½ëŠ”ë‹¤). ì‘ì‚´/ë ˆë²„ ë‹¨ê³„ì—ì„œ ì ê¹ false</summary>
+    /// <summary>true ¸é ¹æÇØ ÀÌº¥Æ®°¡ ¸·Èù´Ù (WaveManager.TutorialGateActive °¡ ÀĞ´Â´Ù). °ß½À ³»³» true - »ç°í´Â Á¤½Ä ·± Ã¹ µîÀå Ä«µå°¡ °¡¸£Ä£´Ù</summary>
     public static bool BlockAmbient = true;
+
+    /// <summary>v1.2: 8´Ü°èºÎÅÍ true - EngineCab ÀÌ °ÔÀÌÆ®¸¦ ¹«½ÃÇÏ°í ¹ÙÀ§¡¤ÀÛ»ì¡¤·¹¹ö¸¦ ÄÒ´Ù (ÀÌº¥Æ®´Â ¿©ÀüÈ÷ BlockAmbient)</summary>
+    public static bool EngineCabUnlocked = false;
 
     public const string DONE_KEY = "WDT_TutorialDone";
     public const int TOTAL_STEPS = 12;
-    private const int IMPLEMENTED_STEPS = 6;     // 1ì°¨ íŒ©: 1~6 (2ì°¨ íŒ©ì—ì„œ 12 ë¡œ)
+    private const int IMPLEMENTED_STEPS = 12;    // v1.2: ÀüºÎ
 
-    private const int CARD_SORT = 690;           // ì¡°ë¦¬ ë¯¸ë‹ˆê²Œì„(30)Â·ì¦ê°•(600)Â·ë°°ë„ˆ(610) ìœ„, ì¼ì‹œì •ì§€(700) ì•„ë˜
-    private const int RING_ORDER = -3;           // ê°‘íŒ(-6~-4) ìœ„. í¬íƒ‘ ë°›ì¹¨(-3)ê³¼ ê°™ì€ ê°’ì´ë¼ z ë¥¼ 0.05 ë’¤ë¡œ ë‘¬ì„œ ë°›ì¹¨ ë°‘ì— ê¹”ë¦°ë‹¤
-    private const int ARROW_ORDER = 7;           // ì…°í”„(6) ìœ„
-    private const string STARTER_RECIPE = "meat+meat";   // ë”ë¸” ìœ¡í¬ (GameBalance.StarterFoods[0] ì™€ ê°™ì€ ê²ƒ)
+    private const int CARD_SORT = 690;           // Á¶¸® ¹Ì´Ï°ÔÀÓ(30)¡¤Áõ°­(600)¡¤¹è³Ê(610) À§, ÀÏ½ÃÁ¤Áö(700) ¾Æ·¡
+    private const int ARROW_ORDER = 7;           // ¼ÎÇÁ(6) À§
+    private const string STARTER_RECIPE = "meat+meat";   // ´õºí À°Æ÷ (GameBalance.StarterFoods[0] ¿Í °°Àº °Í)
 
-    // â”€â”€ ì§„í–‰ ìƒíƒœ â”€â”€
+    /// <summary>¹ß¹Ø ¸µ ½ºÅ¸ÀÏ - ¿ÀºêÁ§Æ®¸¶´Ù "¹ß" ÀÚ¸®¡¤Á¤·ÄÀÌ ´Ù¸£´Ù (¸ñ¾÷ v3 ¸µ ¼öÁ¤: ¸µÀº ¿ÀºêÁ§Æ® ¹Ø¿¡ ±ò¸°´Ù)</summary>
+    private struct RingStyle
+    {
+        public bool large;      // tut_ring_l(72x26) / tut_ring(36x14)
+        public float dy;        // ¸ñÇ¥Á¡ ±âÁØ y ¿ÀÇÁ¼Â (¿ÀºêÁ§Æ® ¹ß ÀÚ¸®)
+        public int order;       // sortingOrder
+        public float z;         // °°Àº Á¤·Ä°ª ¾È¿¡¼­ ¾ÕµÚ (z+ °¡ ¸ÕÀú ±×·ÁÁø´Ù = µÚ)
+        public float scale;
+        public RingStyle(bool large, float dy, int order, float z, float scale)
+        { this.large = large; this.dy = dy; this.order = order; this.z = z; this.scale = scale; }
+    }
+    private static readonly RingStyle RING_TURRET = new RingStyle(true, -0.6f, -3, 0.05f, 1.0f);    // ¹ŞÄ§(-3) µÚ
+    private static readonly RingStyle RING_HARPOON = new RingStyle(true, -0.45f, -4, -0.01f, 1.3f); // ÀÛ»ì(-4, z -0.02) µÚ, µÎ»ó(-4, z 0) ¾Õ
+    private static readonly RingStyle RING_LEVER = new RingStyle(false, -0.5f, -4, -0.01f, 1.2f);   // ·¹¹ö ±âµÕ(-4, z -0.02) µÚ
+    private static readonly RingStyle RING_STATION = new RingStyle(false, 0f, 0, -0.01f, 1.0f);      // Á¶¸®´ë ±×¸²ÀÚ(0) À§, Á¶¸®´ë(1) ¾Æ·¡
+    private static readonly RingStyle RING_FLOOR = new RingStyle(false, 0f, -3, 0.05f, 1.0f);       // ¹Ù´Ú ¸ñÇ¥ (°©ÆÇ À§)
+
+    // ¦¡¦¡ ÁøÇà »óÅÂ ¦¡¦¡
     private int step = 0;
     private float runStartTime;                  // unscaled
-    private float stepStartTime;                 // scaled (ì¡°ë¦¬/íˆ¬ì… ì‹œê° ë¹„êµìš©)
+    private float stepStartTime;                 // scaled (Á¶¸®/ÅõÀÔ ½Ã°¢ ºñ±³¿ë)
+    private float stepStartUnscaled;             // v1.2: ´Ü°èº° °É¸° ½Ã°£ ·Î±×
+    private readonly float[] stepSeconds = new float[TOTAL_STEPS + 1];
     private int skips = 0;
     private int badsAtStart = 0;
+    private int retries10 = 0;                   // v1.2: ½ÇÀü ´Ü°è Àç½ÃÀÛ È½¼ö (·Î±×)
     private bool skipRequested = false;
     private bool godMode = false;
     private bool trainStoppedFlag = false;
     private Coroutine runRoutine;
 
-    // â”€â”€ ëª©í‘œ ì¹´ë“œ UI â”€â”€
+    // ¦¡¦¡ ¸ñÇ¥ Ä«µå UI ¦¡¦¡
     private Canvas cardCanvas;
     private GameObject cardRoot;
-    private RectTransform stepPlate;             // ìŠ¤í‚¨ ëª…íŒ
-    private Text stepFallback;                   // ìŠ¤í‚¨ ì—†ì„ ë•Œ
+    private RectTransform stepPlate;             // ½ºÅ² ¸íÆÇ
+    private Text stepFallback;                   // ½ºÅ² ¾øÀ» ¶§
     private Text titleText;
     private Text linesText;
     private Text progressText;
@@ -78,21 +105,23 @@ public class TutorialDirector : MonoBehaviour
     private static readonly Color PIP_ON = new Color(0.886f, 0.698f, 0.227f, 1f);
     private static readonly Color PIP_OFF = new Color(0.55f, 0.47f, 0.35f, 1f);
 
-    // â”€â”€ í˜„ì¥ ë§ˆì»¤ (ì›”ë“œ) â”€â”€
+    // ¦¡¦¡ ÇöÀå ¸¶Ä¿ (¿ùµå) ¦¡¦¡
     private GameObject markerRoot;
     private Transform ringTf, arrowTf;
+    private SpriteRenderer ringSr;
     private Transform followTarget;
     private Vector3 fixedTarget;
     private float arrowTipOffset = 1.0f;
+    private RingStyle ringStyle = RING_FLOOR;
     private bool markerOn = false;
-    private Sprite arrowSprite, ringSprite;
+    private Sprite arrowSprite, ringSprite, ringLargeSprite;
 
-    // â”€â”€ ì°¸ì¡° â”€â”€
+    // ¦¡¦¡ ÂüÁ¶ ¦¡¦¡
     private Transform chefTf;
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ë¶€íŠ¸ìŠ¤íŠ¸ë©
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ºÎÆ®½ºÆ®·¦
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void Bootstrap()
     {
@@ -106,8 +135,9 @@ public class TutorialDirector : MonoBehaviour
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
-        Active = false;          // ì”¬ ë¦¬ë¡œë“œ ëŒ€ë¹„ - ì •ì  í”Œë˜ê·¸ëŠ” ì—¬ê¸°ì„œ í•­ìƒ ë‚´ë¦°ë‹¤
+        Active = false;          // ¾À ¸®·Îµå ´ëºñ - Á¤Àû ÇÃ·¡±×´Â ¿©±â¼­ Ç×»ó ³»¸°´Ù
         BlockAmbient = true;
+        EngineCabUnlocked = false;
         SceneManager.sceneLoaded += OnSceneLoaded;
         BuildCard();
     }
@@ -118,22 +148,23 @@ public class TutorialDirector : MonoBehaviour
         if (Instance == this) { Instance = null; Active = false; }
     }
 
-    /// <summary>ì”¬ì´ ë‹¤ì‹œ ë¡œë“œë˜ë©´ ì§„í–‰ ì¤‘ì´ë˜ ê²¬ìŠµ ìš´í–‰ì€ ì¡°ìš©íˆ ëë‚œë‹¤ (ëŸ° í¬ê¸°/ì¬ì‹œì‘/EndTutorial ì „ë¶€)</summary>
+    /// <summary>¾ÀÀÌ ´Ù½Ã ·ÎµåµÇ¸é ÁøÇà ÁßÀÌ´ø °ß½À ¿îÇàÀº Á¶¿ëÈ÷ ³¡³­´Ù (·± Æ÷±â/Àç½ÃÀÛ/EndTutorial ÀüºÎ)</summary>
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         if (runRoutine != null) { StopCoroutine(runRoutine); runRoutine = null; }
         Active = false;
         BlockAmbient = true;
+        EngineCabUnlocked = false;
         godMode = false;
-        markerRoot = null; ringTf = null; arrowTf = null; markerOn = false;   // ì”¬ ì˜¤ë¸Œì íŠ¸ì˜€ìœ¼ë¯€ë¡œ ì´ë¯¸ ì‚¬ë¼ì¡Œë‹¤
+        markerRoot = null; ringTf = null; arrowTf = null; ringSr = null; markerOn = false;   // ¾À ¿ÀºêÁ§Æ®¿´À¸¹Ç·Î ÀÌ¹Ì »ç¶óÁ³´Ù
         chefTf = null;
         if (cardRoot != null) cardRoot.SetActive(false);
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ì§„ì… / ì¢…ë£Œ (ì •ì  API)
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    /// <summary>ë¡œë¹„ì—ì„œ [T]: ê²¬ìŠµ ìš´í–‰ ì‹œì‘</summary>
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ÁøÀÔ / Á¾·á (Á¤Àû API)
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    /// <summary>·Îºñ¿¡¼­ [T]: °ß½À ¿îÇà ½ÃÀÛ</summary>
     public static void Begin()
     {
         if (Instance == null) Bootstrap();
@@ -143,22 +174,23 @@ public class TutorialDirector : MonoBehaviour
 
         Active = true;
         BlockAmbient = true;
+        EngineCabUnlocked = false;
         BriefingUI.ClearQueue();
-        GameManager.Instance.StartTutorial();          // Battle ìƒíƒœë¡œ (ì›¨ì´ë¸Œ ì‹œì‘ ì—†ìŒ)
+        GameManager.Instance.StartTutorial();          // Battle »óÅÂ·Î (¿şÀÌºê ½ÃÀÛ ¾øÀ½)
         Instance.runRoutine = Instance.StartCoroutine(Instance.Run());
-        Debug.Log("[Tutorial] ê²¬ìŠµ ìš´í–‰ ì‹œì‘");
+        Debug.Log("[Tutorial] °ß½À ¿îÇà ½ÃÀÛ");
     }
 
-    /// <summary>ì¼ì‹œì •ì§€ ë©”ë‰´ "ê²¬ìŠµ ìš´í–‰ ê·¸ë§Œë‘ê¸°": ì™„ë£Œ ê¸°ë¡ ì—†ì´ ë¡œë¹„ë¡œ</summary>
+    /// <summary>ÀÏ½ÃÁ¤Áö ¸Ş´º "°ß½À ¿îÇà ±×¸¸µÎ±â": ¿Ï·á ±â·Ï ¾øÀÌ ·Îºñ·Î</summary>
     public static void Quit()
     {
         if (Instance == null || !Active) return;
-        Debug.Log("[Tutorial] ê·¸ë§Œë‘ê¸° - ë‹¨ê³„ " + Instance.step + " ì—ì„œ (ê¸°ë¡ ì—†ìŒ)");
+        Debug.Log("[Tutorial] ±×¸¸µÎ±â - ´Ü°è " + Instance.step + " ¿¡¼­ (±â·Ï ¾øÀ½)");
         Instance.Teardown();
         if (GameManager.Instance != null) GameManager.Instance.EndTutorial();
     }
 
-    /// <summary>GameManager.OnTrainDestroyed: ê²¬ìŠµ ìš´í–‰ ì¤‘ ê¸°ì°¨ê°€ ë©ˆì¶”ë©´ ê²Œì„ì˜¤ë²„ ëŒ€ì‹  ì´ìª½ (2ì°¨ íŒ© ì‹¤ì „ ë‹¨ê³„ì—ì„œ ì¬ì‹œì‘ ì²˜ë¦¬)</summary>
+    /// <summary>GameManager.OnTrainDestroyed: °ß½À ¿îÇà Áß ±âÂ÷°¡ ¸ØÃß¸é °ÔÀÓ¿À¹ö ´ë½Å ÀÌÂÊ (2Â÷ ÆÑ ½ÇÀü ´Ü°è¿¡¼­ Àç½ÃÀÛ Ã³¸®)</summary>
     public void OnTrainStopped()
     {
         trainStoppedFlag = true;
@@ -169,6 +201,7 @@ public class TutorialDirector : MonoBehaviour
         if (runRoutine != null) { StopCoroutine(runRoutine); runRoutine = null; }
         Active = false;
         BlockAmbient = true;
+        EngineCabUnlocked = false;
         godMode = false;
         HideMarker();
         if (cardRoot != null) cardRoot.SetActive(false);
@@ -176,18 +209,18 @@ public class TutorialDirector : MonoBehaviour
         Time.timeScale = 1f;
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ë§¤ í”„ë ˆì„: ê±´ë„ˆë›°ê¸° ì…ë ¥ / ë§ˆì»¤ ê¹Œë”± / ë¬´ì  / HUD ê¸€ì
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ¸Å ÇÁ·¹ÀÓ: °Ç³Ê¶Ù±â ÀÔ·Â / ¸¶Ä¿ ±îµü / ¹«Àû / HUD ±ÛÀÚ
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     private void Update()
     {
         if (!Active) return;
 
-        // [Enter] = ë‹¨ê³„ ê±´ë„ˆë›°ê¸°. ë¸Œë¦¬í•‘ ì¹´ë“œê°€ ê°™ì€ í”„ë ˆì„ì— Enter ë¥¼ ë¨¹ì—ˆìœ¼ë©´ ë¬´ì‹œ
+        // [Enter] = ´Ü°è °Ç³Ê¶Ù±â. ºê¸®ÇÎ Ä«µå°¡ °°Àº ÇÁ·¹ÀÓ¿¡ Enter ¸¦ ¸Ô¾úÀ¸¸é ¹«½Ã
         if ((Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
             && !BriefingUI.IsOpen && BriefingUI.KeyConsumedFrame != Time.frameCount
             && !PauseMenu.IsOpen && !CookingMinigame.IsActive && !AugmentListUI.ReadingOpen
-            && !WorkshopUI.IsOpen && !AugmentPickUI.IsOpen && !KitchenPanel.IsOpenStatic)   // ë‹¤ë¥¸ ì°½ì´ ì‹œê°„ì„ ì¡ê³  ìˆì„ ë•ŒëŠ” ì•ˆ ë„˜ì–´ê°„ë‹¤
+            && !WorkshopUI.IsOpen && !AugmentPickUI.IsOpen && !KitchenPanel.IsOpenStatic)   // ´Ù¸¥ Ã¢ÀÌ ½Ã°£À» Àâ°í ÀÖÀ» ¶§´Â ¾È ³Ñ¾î°£´Ù
             skipRequested = true;
 
         TickMarker();
@@ -197,30 +230,32 @@ public class TutorialDirector : MonoBehaviour
     {
         if (!Active) return;
 
-        // ë¬´ì : ì‹¤ì „ ë‹¨ê³„ ì „ê¹Œì§€ ê¸°ì°¨ëŠ” ë‹¤ì¹˜ì§€ ì•ŠëŠ”ë‹¤ (HP ë¥¼ ì±„ì›Œ ë‘ëŠ” ë°©ì‹ - TrainManager ë¬´ìˆ˜ì •)
+        // ¹«Àû: ½ÇÀü ´Ü°è Àü±îÁö ±âÂ÷´Â ´ÙÄ¡Áö ¾Ê´Â´Ù (HP ¸¦ Ã¤¿ö µÎ´Â ¹æ½Ä - TrainManager ¹«¼öÁ¤)
         if (godMode && GameBalance.TutorialGodMode && TrainManager.Instance != null)
             TrainManager.Instance.currentHP = TrainManager.Instance.currentMaxHP;
 
-        // ìš°ìƒë‹¨ íŒ ê¸€ì: ì›¨ì´ë¸Œ ëŒ€ì‹  "ê²¬ìŠµ ìš´í–‰", ìƒíƒœ "ê²¬ìŠµ ì¤‘" (UIManager.Update ê°€ ë§¤ í”„ë ˆì„ ë®ì–´ì“°ë¯€ë¡œ LateUpdate ì—ì„œ ë‹¤ì‹œ)
+        // ¿ì»ó´Ü ÆÇ ±ÛÀÚ: ¿şÀÌºê ´ë½Å "°ß½À ¿îÇà", »óÅÂ "°ß½À Áß" (UIManager.Update °¡ ¸Å ÇÁ·¹ÀÓ µ¤¾î¾²¹Ç·Î LateUpdate ¿¡¼­ ´Ù½Ã)
         UIManager um = UIManager.Instance;
         if (um != null)
         {
-            if (um.waveText != null) um.waveText.text = "ê²¬ìŠµ ìš´í–‰";
-            if (um.stateText != null) um.stateText.text = "ê²¬ìŠµ ì¤‘  " + step + " / " + TOTAL_STEPS;
+            if (um.waveText != null) um.waveText.text = "°ß½À ¿îÇà";
+            if (um.stateText != null) um.stateText.text = "°ß½À Áß  " + step + " / " + TOTAL_STEPS;
         }
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ëŸ° ë³¸ì²´ (ì½”ë£¨í‹´ ìƒíƒœê¸°ê³„)
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ·± º»Ã¼ (ÄÚ·çÆ¾ »óÅÂ±â°è)
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     private IEnumerator Run()
     {
-        yield return null;                                   // Battle ì „í™˜ì´ ëë‚˜ë„ë¡ í•œ í”„ë ˆì„
+        yield return null;                                   // Battle ÀüÈ¯ÀÌ ³¡³ªµµ·Ï ÇÑ ÇÁ·¹ÀÓ
         runStartTime = Time.unscaledTime;
         skips = 0;
+        retries10 = 0;
         badsAtStart = CookingBridge.BadsThisRun;
         godMode = true;
         trainStoppedFlag = false;
+        for (int i = 0; i < stepSeconds.Length; i++) stepSeconds[i] = 0f;
 
         SetupKit();
 
@@ -230,11 +265,17 @@ public class TutorialDirector : MonoBehaviour
         yield return Step4_Materials();
         yield return Step5_Grill();
         yield return Step6_LevelUp();
+        yield return Step7_Lightning();
+        yield return Step8_Harpoon();
+        yield return Step9_Lever();
+        yield return Step10_Defense();
+        yield return Step11_Settlement();
+        yield return Step12_Gambler();
 
         yield return Finish();
     }
 
-    /// <summary>ì‹œì‘ ìƒíƒœ: ìŠ¬ë¡¯ 0 = ë”ë¸” ìœ¡í¬ í”„ë¦¬ì…‹(ì„ ëŒ€ê°€ ê±¸ì–´ë‘” í¬íƒ‘), ë³´ê¸‰ ìš”ë¦¬ 1ì ‘ì‹œ (2ë‹¨ê³„ íˆ¬ì…ìš©), ì¬ë£Œ 0</summary>
+    /// <summary>½ÃÀÛ »óÅÂ: ½½·Ô 0 = ´õºí À°Æ÷ ÇÁ¸®¼Â(¼±´ë°¡ °É¾îµĞ Æ÷Å¾), º¸±Ş ¿ä¸® 1Á¢½Ã (2´Ü°è ÅõÀÔ¿ë), Àç·á 0</summary>
     private void SetupKit()
     {
         if (TurretSlotManager.Instance != null)
@@ -244,16 +285,16 @@ public class TutorialDirector : MonoBehaviour
         }
         if (FoodStock.Instance != null && FoodStock.Instance.Get(STARTER_RECIPE) < 1)
             FoodStock.Instance.Add(STARTER_RECIPE, 1);
-        UIManager.Instance?.ShowStatChange("[ê²¬ìŠµ ìš´í–‰] ë³´ê¸‰ ìš”ë¦¬ ë„ì°© - ë”ë¸” ìœ¡í¬ 1ì ‘ì‹œ");
+        UIManager.Instance?.ShowStatChange("[°ß½À ¿îÇà] º¸±Ş ¿ä¸® µµÂø - ´õºí À°Æ÷ 1Á¢½Ã");
     }
 
-    // â”€â”€ 1. ì´ë™: í†µë¡œë¥¼ ê±´ë„ˆ í¬íƒ‘ ì¹¸ A ë¡œ (ì…°í”„ëŠ” ì£¼ë°© ì¹¸ í•œê°€ìš´ë°ì„œ ì‹œì‘í•œë‹¤ - 2ë‹¨ê³„ íˆ¬ì… ìŠ¬ë¡¯ì´ ë°”ë¡œ ê·¸ ì¹¸ì— ìˆë‹¤) â”€â”€
+    // ¦¡¦¡ 1. ÀÌµ¿: Åë·Î¸¦ °Ç³Ê Æ÷Å¾ Ä­ A ·Î (¼ÎÇÁ´Â ÁÖ¹æ Ä­ ÇÑ°¡¿îµ¥¼­ ½ÃÀÛÇÑ´Ù - 2´Ü°è ÅõÀÔ ½½·ÔÀÌ ¹Ù·Î ±× Ä­¿¡ ÀÖ´Ù) ¦¡¦¡
     private IEnumerator Step1_Move()
     {
-        BeginStep(1, "[WASD] í†µë¡œë¥¼ ê±´ë„ˆ í¬íƒ‘ ì¹¸ìœ¼ë¡œ ë‹¬ë ¤ë¼", "[Shift] ëŒ€ì‹œ\nì¹¸ ì‚¬ì´ëŠ” ë°œíŒìœ¼ë¡œë§Œ ê±´ë„Œë‹¤", null, 0, 0);
+        BeginStep(1, "[WASD] Åë·Î¸¦ °Ç³Ê Æ÷Å¾ Ä­À¸·Î ´Ş·Á¶ó", "[Shift] ´ë½Ã\nÄ­ »çÀÌ´Â ¹ßÆÇÀ¸·Î¸¸ °Ç³Í´Ù", null, 0, 0);
         float carL = GameBalance.CarEdgesX[2] + 0.12f, carR = GameBalance.CarEdgesX[3] - 0.12f;
-        Vector3 target = new Vector3((carL + carR) * 0.5f, 0.3f, 0f);   // í¬íƒ‘ ì¹¸ A ë°”ë‹¥ ê°€ìš´ë° (ì•½ 4.75, 0.3)
-        ShowMarkerAt(target, 0.9f);
+        Vector3 target = new Vector3((carL + carR) * 0.5f, 0.3f, 0f);   // Æ÷Å¾ Ä­ A ¹Ù´Ú °¡¿îµ¥ (¾à 4.75, 0.3)
+        ShowMarkerAt(target, 0.9f, RING_FLOOR);
         yield return Brief(BriefingTexts.Tutorial(1));
 
         float blinkAt = Time.time + 20f;
@@ -261,55 +302,55 @@ public class TutorialDirector : MonoBehaviour
         {
             Transform chef = Chef();
             if (chef != null && Vector2.Distance(chef.position, target) <= 1.0f) break;
-            if (Time.time > blinkAt) { blinkAt = float.MaxValue; UIManager.Instance?.ShowStatChange("[ê²¬ìŠµ] í¬íƒ‘ ì¹¸ì€ ì£¼ë°© ì˜¤ë¥¸ìª½ - ì¹¸ ì‚¬ì´ ë°œíŒ(í†µë¡œ)ìœ¼ë¡œ ê±´ë„ˆë¼"); }
+            if (Time.time > blinkAt) { blinkAt = float.MaxValue; UIManager.Instance?.ShowStatChange("[°ß½À] Æ÷Å¾ Ä­Àº ÁÖ¹æ ¿À¸¥ÂÊ - Ä­ »çÀÌ ¹ßÆÇ(Åë·Î)À¸·Î °Ç³Ê¶ó"); }
             yield return null;
         }
         yield return EndStep();
     }
 
-    // â”€â”€ 2. ë³´ê¸‰ ìš”ë¦¬ íˆ¬ì… â”€â”€
+    // ¦¡¦¡ 2. º¸±Ş ¿ä¸® ÅõÀÔ ¦¡¦¡
     private IEnumerator Step2_Insert()
     {
         TurretSlot slot = SlotAt(1);
-        BeginStep(2, "ë³´ê¸‰ ìš”ë¦¬ë¥¼ í¬íƒ‘ ì´ë¦„í‘œì— íˆ¬ì…í•˜ë¼", "í•˜ë‹¨ ë°” ìš”ë¦¬ ì¹´ë“œ í´ë¦­\nâ†’ í™”ì‚´í‘œ ì•„ë˜ ì´ë¦„í‘œ í´ë¦­", "íˆ¬ì…", 0, 1);
+        BeginStep(2, "º¸±Ş ¿ä¸®¸¦ Æ÷Å¾ ÀÌ¸§Ç¥¿¡ ÅõÀÔÇÏ¶ó", "ÇÏ´Ü ¹Ù ¿ä¸® Ä«µå Å¬¸¯\n¡æ È­»ìÇ¥ ¾Æ·¡ ÀÌ¸§Ç¥ Å¬¸¯", "ÅõÀÔ", 0, 1);
         if (FoodStock.Instance != null && FoodStock.Instance.Get(STARTER_RECIPE) < 1) FoodStock.Instance.Add(STARTER_RECIPE, 1);
-        if (slot != null) ShowMarkerFollow(slot.transform, GameBalance.IsSouthSlot(1) ? 0.95f : GameBalance.SlotMarkerYOffset + 0.55f, true);
+        if (slot != null) ShowMarkerFollow(slot.transform, SlotArrowTip(1), RING_TURRET);
         yield return Brief(BriefingTexts.Tutorial(2));
 
         int filledAtStart = FilledSlotCount();
-        float insertMark2 = Time.time;                       // ë¸Œë¦¬í•‘ì´ ë‹«íŒ ë’¤ì˜ íˆ¬ì…ë§Œ ì¸ì • (í”„ë¦¬ì…‹ íˆ¬ì…ì€ ê·¸ ì „)
+        float insertMark2 = Time.time;                       // ºê¸®ÇÎÀÌ ´İÈù µÚÀÇ ÅõÀÔ¸¸ ÀÎÁ¤ (ÇÁ¸®¼Â ÅõÀÔÀº ±× Àü)
         float hintAt = Time.time + 15f;
         while (!skipRequested)
         {
-            // ë¹ˆ ì¹¸ì— ë„£ì–´ í¬íƒ‘ì´ ëŠ˜ì—ˆê±°ë‚˜, ì´ë¯¸ ìˆëŠ” í¬íƒ‘ì— ë„£ì–´ ë ˆë²¨ì—…í–ˆê±°ë‚˜ - ì–´ëŠ ìª½ì´ë“  "íˆ¬ì…"ì„ í•´ëƒˆë‹¤
+            // ºó Ä­¿¡ ³Ö¾î Æ÷Å¾ÀÌ ´Ã¾ú°Å³ª, ÀÌ¹Ì ÀÖ´Â Æ÷Å¾¿¡ ³Ö¾î ·¹º§¾÷Çß°Å³ª - ¾î´À ÂÊÀÌµç "ÅõÀÔ"À» ÇØ³Â´Ù
             if (FilledSlotCount() > filledAtStart || TurretSlot.LastInsertTime > insertMark2) break;
-            if (Time.time > hintAt) { hintAt = float.MaxValue; UIManager.Instance?.ShowStatChange("[ê²¬ìŠµ] ìš”ë¦¬ ì¹´ë“œë¥¼ ë¨¼ì € í´ë¦­í•˜ê³ , í¬íƒ‘ ìœ„ [+] ì´ë¦„í‘œë¥¼ í´ë¦­ - ë§ˆìš°ìŠ¤"); }
+            if (Time.time > hintAt) { hintAt = float.MaxValue; UIManager.Instance?.ShowStatChange("[°ß½À] ¿ä¸® Ä«µå¸¦ ¸ÕÀú Å¬¸¯ÇÏ°í, Æ÷Å¾ À§ [+] ÀÌ¸§Ç¥¸¦ Å¬¸¯ - ¸¶¿ì½º"); }
             yield return null;
         }
         SetProgress(1, 1);
         yield return EndStep();
     }
 
-    // â”€â”€ 3. ì²« ì†ë‹˜ (ë©í„° 2, ì•½ì²´, ê¸°ì°¨ ë¬´ì ) - ê¸°ì°¨ ê¼¬ë¦¬ ì˜¤ë¥¸ìª½ í™”ë©´ ì•ˆì—ì„œ ê±¸ì–´ì˜¨ë‹¤ (ë³´ì´ëŠ” ìë¦¬ì—ì„œ í¬íƒ‘ì´ ì¡ê²Œ) â”€â”€
+    // ¦¡¦¡ 3. Ã¹ ¼Õ´Ô (·¦ÅÍ 2, ¾àÃ¼, ±âÂ÷ ¹«Àû) - ±âÂ÷ ²¿¸® ¿À¸¥ÂÊ È­¸é ¾È¿¡¼­ °É¾î¿Â´Ù (º¸ÀÌ´Â ÀÚ¸®¿¡¼­ Æ÷Å¾ÀÌ Àâ°Ô) ¦¡¦¡
     private IEnumerator Step3_FirstGuests()
     {
-        BeginStep(3, "ì²« ì†ë‹˜ì´ë‹¤ - í¬íƒ‘ì´ ì•Œì•„ì„œ ìœë‹¤", "ì“°ëŸ¬ì§ˆ ë•Œê¹Œì§€ ì§€ì¼œë´ë¼\nê¸°ì°¨ëŠ” ë‹¤ì¹˜ì§€ ì•ŠëŠ”ë‹¤", "ì†ë‹˜", 0, 2);
+        BeginStep(3, "Ã¹ ¼Õ´ÔÀÌ´Ù - Æ÷Å¾ÀÌ ¾Ë¾Æ¼­ ½ğ´Ù", "¾²·¯Áú ¶§±îÁö ÁöÄÑºÁ¶ó\n±âÂ÷´Â ´ÙÄ¡Áö ¾Ê´Â´Ù", "¼Õ´Ô", 0, 2);
         HideMarker();
         yield return Brief(BriefingTexts.Tutorial(3));
 
-        // ê¸°ì°¨ ì˜¤ë¥¸ìª½ ë(ê¼¬ë¦¬) ë°”ê¹¥ 3.5u, í™”ë©´ ì•ˆ (ì¹´ë©”ë¼ ë°˜í­ 15.1u) - ê¸°ì°¨ í”¼ë²—ì€ 0 ì´ë¼ ê±°ë¦¬ = ê¼¬ë¦¬ x + 3.5
+        // ±âÂ÷ ¿À¸¥ÂÊ ³¡(²¿¸®) ¹Ù±ù 3.5u, È­¸é ¾È (Ä«¸Ş¶ó ¹İÆø 15.1u) - ±âÂ÷ ÇÇ¹şÀº 0 ÀÌ¶ó °Å¸® = ²¿¸® x + 3.5
         float spawnDist = GameBalance.CarEdgesX[GameBalance.CarEdgesX.Length - 1] + 3.5f;
         if (TrainManager.Instance != null) spawnDist -= TrainManager.Instance.transform.position.x;
         List<Enemy> guests = WaveManager.Instance != null ? WaveManager.Instance.SpawnForTutorial("raptor", 2, 0.7f, 0f, spawnDist) : null;
-        int need = guests == null ? 0 : guests.Count;         // í”„ë¦¬íŒ¹ë„ í´ë°±ë„ ì—†ìœ¼ë©´ 0 - ë°”ë¡œ í†µê³¼ (ë§‰íˆì§€ ì•Šê²Œ)
-        Spino("[ìŠ¤í”¼ë…¸] ì• í”¼íƒ€ì´ì €ë‹¤ - ì ‘ì‹œê°€ ê³§ íƒ„í™˜ì´ì§€");
+        int need = guests == null ? 0 : guests.Count;         // ÇÁ¸®ÆÕµµ Æú¹éµµ ¾øÀ¸¸é 0 - ¹Ù·Î Åë°ú (¸·È÷Áö ¾Ê°Ô)
+        Spino("[½ºÇÇ³ë] ¾ÖÇÇÅ¸ÀÌÀú´Ù - Á¢½Ã°¡ °ğ ÅºÈ¯ÀÌÁö");
         float giveUpAt = Time.time + 90f;
         while (!skipRequested && need > 0)
         {
             int dead = CountDead(guests);
             SetProgress(dead, 2);
             if (dead >= need) break;
-            if (Time.time > giveUpAt) break;                  // í¬íƒ‘ì´ ëª» ì¡ëŠ” ì´ìƒ ìƒí™© - ë§‰íˆì§€ ì•Šê²Œ
+            if (Time.time > giveUpAt) break;                  // Æ÷Å¾ÀÌ ¸ø Àâ´Â ÀÌ»ó »óÈ² - ¸·È÷Áö ¾Ê°Ô
             yield return null;
         }
         KillAll(guests);
@@ -317,10 +358,10 @@ public class TutorialDirector : MonoBehaviour
         yield return EndStep();
     }
 
-    // â”€â”€ 4. ì¬ë£Œ (ìë™ í¡ìˆ˜ í™•ì¸): ì¡°ê°ì´ ë„ì°©í•´ ê³ ê¸° 2ê°œê°€ ì°¬ ë’¤ì— ì„¤ëª… ì¹´ë“œ (ì¹´ë“œ ë¬¸êµ¬ê°€ "ì°¼ë‹¤"ë¡œ ì‹œì‘í•œë‹¤) â”€â”€
+    // ¦¡¦¡ 4. Àç·á (ÀÚµ¿ Èí¼ö È®ÀÎ): Á¶°¢ÀÌ µµÂøÇØ °í±â 2°³°¡ Âù µÚ¿¡ ¼³¸í Ä«µå (Ä«µå ¹®±¸°¡ "Ã¡´Ù"·Î ½ÃÀÛÇÑ´Ù) ¦¡¦¡
     private IEnumerator Step4_Materials()
     {
-        BeginStep(4, "ì¬ë£Œê°€ ë‚ ì•„ì˜¨ë‹¤ - í•˜ë‹¨ ë°”ë¥¼ ë´ë¼", "ì“°ëŸ¬ì§„ ì†ë‹˜ì˜ ì¬ë£Œê°€\nê¸°ì°¨ë¡œ ë¹¨ë ¤ ì˜¨ë‹¤", "ê³ ê¸°", MeatCount(), 2);
+        BeginStep(4, "Àç·á°¡ ³¯¾Æ¿Â´Ù - ÇÏ´Ü ¹Ù¸¦ ºÁ¶ó", "¾²·¯Áø ¼Õ´ÔÀÇ Àç·á°¡\n±âÂ÷·Î »¡·Á ¿Â´Ù", "°í±â", MeatCount(), 2);
 
         float fallbackAt = Time.time + 30f;
         while (!skipRequested)
@@ -330,23 +371,23 @@ public class TutorialDirector : MonoBehaviour
             if (Time.time > fallbackAt)
             {
                 if (MaterialInventory.Instance != null) MaterialInventory.Instance.Add(MaterialType.Meat, 2 - MeatCount());
-                UIManager.Instance?.ShowStatChange("[ê²¬ìŠµ] ì°¬ì¥ì—ì„œ ê³ ê¸°ë¥¼ êº¼ë‚´ ë’€ë‹¤");
+                UIManager.Instance?.ShowStatChange("[°ß½À] ÂùÀå¿¡¼­ °í±â¸¦ ²¨³» µ×´Ù");
                 break;
             }
             yield return null;
         }
         if (MeatCount() < 2 && MaterialInventory.Instance != null) MaterialInventory.Instance.Add(MaterialType.Meat, 2 - MeatCount());
         SetProgress(2, 2);
-        if (!skipRequested) yield return Brief(BriefingTexts.Tutorial(4));   // ì¬ë£Œ ì¹¸ ì„¤ëª…ì€ ì°¬ ë’¤ì—
+        if (!skipRequested) yield return Brief(BriefingTexts.Tutorial(4));   // Àç·á Ä­ ¼³¸íÀº Âù µÚ¿¡
         yield return EndStep();
     }
 
-    // â”€â”€ 5. êµ½ê¸° (ì§„ì§œ ë¯¸ë‹ˆê²Œì„) â”€â”€
+    // ¦¡¦¡ 5. ±Á±â (ÁøÂ¥ ¹Ì´Ï°ÔÀÓ) ¦¡¦¡
     private IEnumerator Step5_Grill()
     {
         CookingStation grill = FindStation(CookingStation.StationType.Grilling);
-        BeginStep(5, "[E] ê·¸ë¦´ ì¡°ë¦¬ëŒ€ - ë”ë¸” ìœ¡í¬ë¥¼ êµ¬ì›Œë¼", "ê·¸ë¦´ ê³ì—ì„œ [E] â†’ ë”ë¸” ìœ¡í¬\níŒì • ì¹¸ ì•ˆì—ì„œ [Space]", "ì¡°ë¦¬", 0, 1);
-        if (grill != null) ShowMarkerFollow(grill.transform, 1.0f, true);
+        BeginStep(5, "[E] ±×¸± Á¶¸®´ë - ´õºí À°Æ÷¸¦ ±¸¿ö¶ó", "±×¸± °ç¿¡¼­ [E] ¡æ ´õºí À°Æ÷\nÆÇÁ¤ Ä­ ¾È¿¡¼­ [Space]", "Á¶¸®", 0, 1);
+        if (grill != null) ShowMarkerFollow(grill.transform, 1.0f, RING_STATION);
         yield return Brief(BriefingTexts.Tutorial(5));
 
         float cookMark = Time.time;
@@ -357,7 +398,7 @@ public class TutorialDirector : MonoBehaviour
         {
             if (CookingBridge.LastGoodCookTime > cookMark) break;
 
-            // Bad íŒì •ìœ¼ë¡œ ì¬ë£Œë¥¼ ìƒì—ˆìœ¼ë©´ ë‹¤ì‹œ ì¤€ë‹¤ (3íšŒ) - 3íšŒ ë‹¤ íƒœìš°ë©´ ìš”ë¦¬ë¥¼ ì£¼ê³  ë„˜ê¸´ë‹¤ (ë§‰íˆì§€ ì•Šê²Œ)
+            // Bad ÆÇÁ¤À¸·Î Àç·á¸¦ ÀÒ¾úÀ¸¸é ´Ù½Ã ÁØ´Ù (3È¸) - 3È¸ ´Ù ÅÂ¿ì¸é ¿ä¸®¸¦ ÁÖ°í ³Ñ±ä´Ù (¸·È÷Áö ¾Ê°Ô)
             if (CookingBridge.BadsThisRun > badsSeen)
             {
                 badsSeen = CookingBridge.BadsThisRun;
@@ -365,27 +406,27 @@ public class TutorialDirector : MonoBehaviour
                 if (resupplies > 3)
                 {
                     if (FoodStock.Instance != null) FoodStock.Instance.Add(STARTER_RECIPE, 1);
-                    UIManager.Instance?.ShowStatChange("[ê²¬ìŠµ] ì ‘ì‹œë¥¼ í•˜ë‚˜ êµ¬ì›Œ ë’€ë‹¤ - êµ½ê¸°ëŠ” ë‚˜ì¤‘ì— ë” ì—°ìŠµí•˜ì");
+                    UIManager.Instance?.ShowStatChange("[°ß½À] Á¢½Ã¸¦ ÇÏ³ª ±¸¿ö µ×´Ù - ±Á±â´Â ³ªÁß¿¡ ´õ ¿¬½ÀÇÏÀÚ");
                     passedByGift = true;
                     break;
                 }
                 if (MaterialInventory.Instance != null && MeatCount() < 2) MaterialInventory.Instance.Add(MaterialType.Meat, 2 - MeatCount());
-                UIManager.Instance?.ShowStatChange("[ê²¬ìŠµ] íƒœì› ë‹¤. ê³ ê¸°ë¥¼ ë‹¤ì‹œ ì¤¬ë‹¤ - íŒì • ì¹¸ ì•ˆì—ì„œ [Space]");
+                UIManager.Instance?.ShowStatChange("[°ß½À] ÅÂ¿ü´Ù. °í±â¸¦ ´Ù½Ã Áá´Ù - ÆÇÁ¤ Ä­ ¾È¿¡¼­ [Space]");
             }
             yield return null;
         }
-        if (!passedByGift && !skipRequested) Spino("[ìŠ¤í”¼ë…¸] ê·¸ê±°ë‹¤. ì ‘ì‹œê°€ ê³§ íƒ„í™˜ì´ë‹¤");
+        if (!passedByGift && !skipRequested) Spino("[½ºÇÇ³ë] ±×°Å´Ù. Á¢½Ã°¡ °ğ ÅºÈ¯ÀÌ´Ù");
         SetProgress(1, 1);
         yield return EndStep();
     }
 
-    // â”€â”€ 6. íˆ¬ì… = ë ˆë²¨ì—… â”€â”€
+    // ¦¡¦¡ 6. ÅõÀÔ = ·¹º§¾÷ ¦¡¦¡
     private IEnumerator Step6_LevelUp()
     {
         TurretSlot first = SlotAt(0);
-        BeginStep(6, "ë§Œë“  ìš”ë¦¬ë¥¼ ì²« í¬íƒ‘ì— íˆ¬ì…í•˜ë¼", "ê°™ì€ ìš”ë¦¬ = ë ˆë²¨ì—…\në‹¤ë¥¸ í¬íƒ‘ì— ë„£ì–´ë„ ì¢‹ë‹¤", "íˆ¬ì…", 0, 1);
+        BeginStep(6, "¸¸µç ¿ä¸®¸¦ Ã¹ Æ÷Å¾¿¡ ÅõÀÔÇÏ¶ó", "°°Àº ¿ä¸® = ·¹º§¾÷\n´Ù¸¥ Æ÷Å¾¿¡ ³Ö¾îµµ ÁÁ´Ù", "ÅõÀÔ", 0, 1);
         if (FoodStock.Instance != null && TotalFood() < 1) FoodStock.Instance.Add(STARTER_RECIPE, 1);
-        if (first != null) ShowMarkerFollow(first.transform, GameBalance.IsSouthSlot(0) ? 0.95f : GameBalance.SlotMarkerYOffset + 0.55f, true);
+        if (first != null) ShowMarkerFollow(first.transform, SlotArrowTip(0), RING_TURRET);
         yield return Brief(BriefingTexts.Tutorial(6));
 
         float insertMark = Time.time;
@@ -393,17 +434,236 @@ public class TutorialDirector : MonoBehaviour
         while (!skipRequested)
         {
             if (TurretSlot.LastInsertTime > insertMark) break;
-            if (Time.time > hintAt) { hintAt = float.MaxValue; UIManager.Instance?.ShowStatChange("[ê²¬ìŠµ] í•˜ë‹¨ ë°”ì˜ ìš”ë¦¬ ì¹´ë“œë¥¼ í´ë¦­ â†’ í¬íƒ‘ ì´ë¦„í‘œ í´ë¦­"); }
+            if (Time.time > hintAt) { hintAt = float.MaxValue; UIManager.Instance?.ShowStatChange("[°ß½À] ÇÏ´Ü ¹ÙÀÇ ¿ä¸® Ä«µå¸¦ Å¬¸¯ ¡æ Æ÷Å¾ ÀÌ¸§Ç¥ Å¬¸¯"); }
             yield return null;
         }
         SetProgress(1, 1);
         yield return EndStep();
     }
 
-    // â”€â”€ ì™„ë£Œ â”€â”€
+
+    // ¦¡¦¡ 7. ³«·Ú: ½½·Ô 1(¾øÀ¸¸é ¾Æ¹« °¡µ¿ Æ÷Å¾)À» °¨Àü½ÃÅ°°í [E] ÇÑ ¹øÀ¸·Î ÅĞ°Ô ÇÑ´Ù (±âÂ÷´Â ¹«Àû) ¦¡¦¡
+    private IEnumerator Step7_Lightning()
+    {
+        TurretSlot target = SlotAt(1);
+        if (target == null || target.IsEmpty || target.isLocked)
+        {
+            target = null;
+            for (int i = 0; i < 8 && target == null; i++)
+            {
+                TurretSlot s = SlotAt(i);
+                if (s != null && !s.IsEmpty && !s.isLocked) target = s;
+            }
+        }
+        BeginStep(7, "³«·Ú! ¸ØÃá Æ÷Å¾¿¡ ´Ş·Á°¡ [E]", "°ç¿¡ ¼­¼­ [E] ÇÑ ¹ø\n½ºÆÄÅ©°¡ ²¨Áö¸é Àç°¡µ¿", "Æ÷Å¾", 0, 1);
+        HideMarker();
+
+        // ³«·Ú ¿¬Ãâ: Èò ¹øÂ½ + Èçµé¸² + °¨Àü (ºê¸®ÇÎÀº ±× µÚ - "Æ÷Å¾ÀÌ ¸ØÃè´Ù" ´Â °ú°ÅÇü)
+        WarningFX.Flash("³«·Ú!", 0.6f, new Color(1f, 0.96f, 0.7f));
+        GameFeel.Shake(0.2f);
+        SoundManager.Play("sfx_boss_warning");   // Å¬¸³ ¾øÀ¸¸é ¹«½Ã
+        if (target != null) target.StunSlot(999f, "°¨Àü");
+        yield return WaitUnscaled(0.7f);
+
+        yield return Brief(BriefingTexts.Tutorial(7));
+        if (target != null && target.IsStunned)
+            ShowMarkerFollow(target.transform, SlotArrowTip(SlotIndexOf(target)), RING_TURRET);
+
+        float hintAt = Time.time + 20f;
+        while (!skipRequested && target != null)
+        {
+            if (!target.IsStunned) break;                  // SlotMarkerUI °¡ [E] ÇÑ ¹ø¿¡ ClearStun
+            if (Time.time > hintAt) { hintAt = float.MaxValue; UIManager.Instance?.ShowStatChange("[°ß½À] °¨Àü Æ÷Å¾ ¹Ù·Î ¾Õ(º® ÂÊ)±îÁö °¡¼­ [E] ÇÑ ¹ø"); }
+            yield return null;
+        }
+        if (target != null && target.IsStunned) target.ClearStun();   // °Ç³Ê¶Ù±â - ¸ØÃá Ã¤·Î µÎÁö ¾Ê´Â´Ù
+        SetProgress(1, 1);
+        yield return EndStep();
+    }
+
+    // ¦¡¦¡ 8. ÀÛ»ì: ±â°ü½Ç ÀÛ»ìÆ÷ [E] - µğ·ºÅÍ°¡ ¹ÙÀ§¸¦ ¶ç¿î´Ù (ÀÚµ¿ ½ºÆùÀº 8´Ü°èºÎÅÍ EngineCabUnlocked ·Î ÇÔ²² ÄÑÁø´Ù) ¦¡¦¡
+    private IEnumerator Step8_Harpoon()
+    {
+        EngineCabUnlocked = true;
+        BeginStep(8, "ÀÛ»ìÆ÷·Î ¹ÙÀ§¸¦ ³¬¾Æ¶ó", "±â°ü½Ç ÀÛ»ìÆ÷ °ç¿¡¼­ [E]\n³õÄ¡¸é ¹ÙÀ§´Â ¶Ç ¿Â´Ù", "¹ÙÀ§", 0, 1);
+        ShowMarkerAt(new Vector3(GameBalance.HarpoonX, 1.7f, 0f), 1.0f, RING_HARPOON);
+        yield return Brief(BriefingTexts.Tutorial(8));
+
+        int mark = EngineCab.HarpoonRetrievals;
+        float nextRockAt = 0f;
+        float giveUpAt = Time.time + 40f;
+        float hintAt = Time.time + 15f;
+        while (!skipRequested)
+        {
+            if (EngineCab.HarpoonRetrievals > mark) break;
+            // ¹ÙÀ§°¡ ¾øÀ¸¸é È­¸é ¿ŞÂÊ¿¡¼­ ÇÏ³ª ¶ç¿î´Ù (Áö³ª°¡ ¹ö¸®¸é ¶Ç)
+            if (EngineCab.RockCount == 0 && Time.time >= nextRockAt)
+            {
+                EngineCab.SpawnRockNow(-13f);
+                nextRockAt = Time.time + 1.5f;
+            }
+            if (Time.time > hintAt) { hintAt = float.MaxValue; UIManager.Instance?.ShowStatChange("[°ß½À] ÀÛ»ìÆ÷ °ç(±â°ü½Ç ¿ŞÂÊ À§)¿¡¼­ [E] - ¹ÙÀ§°¡ »ç°Å¸® ¾ÈÀÌ¸é ¹Ù·Î ¸Â´Â´Ù"); }
+            if (Time.time > giveUpAt) { UIManager.Instance?.ShowStatChange("[°ß½À] ÀÛ»ìÀº Á¤½Ä ·±¿¡¼­ ´Ù½Ã - ³Ñ¾î°£´Ù"); break; }
+            yield return null;
+        }
+        SetProgress(1, 1);
+        yield return EndStep();
+    }
+
+    // ¦¡¦¡ 9. ·¹¹ö: [E] Àá±ñ ²Ú = Àü¼Ó ÁÖÇà (´Ù½Ã ´ç±â¸é ¼øÇ× - À¯Àú ¼±ÅÃ) ¦¡¦¡
+    private IEnumerator Step9_Lever()
+    {
+        BeginStep(9, "·¹¹ö¸¦ ´ç°Ü¶ó - Àü¼Ó ÁÖÇà", "±â°ü½Ç ·¹¹ö °ç¿¡¼­ [E] Àá±ñ ²Ú\n´Ù½Ã ´ç±â¸é ¿ø·¡´ë·Î", "·¹¹ö", 0, 1);
+        ShowMarkerAt(new Vector3(GameBalance.LeverX, 0.35f, 0f), 1.0f, RING_LEVER);
+        yield return Brief(BriefingTexts.Tutorial(9));
+
+        int mark = EngineCab.LeverPulls;
+        float giveUpAt = Time.time + 30f;
+        float hintAt = Time.time + 12f;
+        while (!skipRequested)
+        {
+            if (EngineCab.LeverPulls > mark) break;
+            if (Time.time > hintAt) { hintAt = float.MaxValue; UIManager.Instance?.ShowStatChange("[°ß½À] ·¹¹ö °ç¿¡¼­ [E] ¸¦ " + GameBalance.LeverHoldSec + "ÃÊ ²Ú - ¼ÕÀ» ¶¼¸é Ãë¼Ò"); }
+            if (Time.time > giveUpAt) { UIManager.Instance?.ShowStatChange("[°ß½À] ·¹¹ö´Â Á¤½Ä ·±¿¡¼­ ´Ù½Ã - ³Ñ¾î°£´Ù"); break; }
+            yield return null;
+        }
+        SetProgress(1, 1);
+        yield return EndStep();
+    }
+
+    // ¦¡¦¡ 10. ½ÇÀü: ·¦ÅÍ 5 + ÇÁÅ×¶ó 1 (Á¤½Ä ½ºÅÈ), ±âÂ÷ ÇÇÇØ ÄÔ. ±âÂ÷°¡ ¸ØÃß¸é ÀÌ ´Ü°è¸¸ ´Ù½Ã ¦¡¦¡
+    private IEnumerator Step10_Defense()
+    {
+        int RAPTORS = Mathf.Max(0, GameBalance.TutorialDefenseRaptors), PTERAS = Mathf.Max(0, GameBalance.TutorialDefensePteras);
+        BeginStep(10, "¼Õ´ÔÀÌ ¸ô·Á¿Â´Ù - ¹è¿î ´ë·Î ¸·¾Æ¶ó", "Á¢½Ã¸¦ ´Ã¸®°í, ¸ØÃá Æ÷Å¾Àº ÅĞ¾î¶ó\n±âÂ÷°¡ ¸ØÃß¸é ÀÌ ´Ü°è¸¸ ´Ù½Ã", "¼Õ´Ô", 0, RAPTORS + PTERAS);
+        HideMarker();
+        if (MaterialInventory.Instance != null && MeatCount() < 2) MaterialInventory.Instance.Add(MaterialType.Meat, 2 - MeatCount());   // ½Î¿ì¸é¼­ ±¸¿ï Àç·á
+        yield return Brief(BriefingTexts.Tutorial(10));
+        yield return Brief(BriefingTexts.TutorialPtera());   // Á¤½Ä ·± Ã¹ µîÀå Ä«µå¿Í °°Àº Çü½Ä (±â·ÏÀº ¾È ³²±ä´Ù)
+
+        godMode = false;                                     // ÀÌ ´Ü°è¸¸ ±âÂ÷°¡ ´ÙÄ£´Ù
+        float statMul = 1.0f;
+        int need = 0;
+        List<Enemy> guests = SpawnDefenseWave(RAPTORS, PTERAS, statMul, out need);
+        Spino("[½ºÇÇ³ë] ÁøÂ¥´Ù - Á¢½Ã¸¦ ´Ã·Á¶ó. ¸ØÃá Æ÷Å¾Àº ´Ş·Á°¡ ÅĞ¾î¶ó");
+        trainStoppedFlag = false;
+
+        while (!skipRequested && need > 0)
+        {
+            int dead = CountDead(guests);
+            SetProgress(dead, RAPTORS + PTERAS);
+            if (dead >= need) break;
+
+            if (trainStoppedFlag)
+            {
+                // GameManager.OnTrainDestroyed °¡ ±âÂ÷¸¦ °íÃÄ ³õ°í ¾Ë·È´Ù - ¼Õ´Ô Á¤¸® -> Àç½ÃÀÛ Ä«µå -> °°Àº ±¸¼º ´Ù½Ã (3È¸Â°ºÎÅÍ ¾àÃ¼)
+                trainStoppedFlag = false;
+                retries10++;
+                KillAll(guests);
+                godMode = true;
+                yield return Brief(BriefingTexts.TutorialRetry());
+                if (retries10 >= 2) statMul = 0.6f;
+                if (retries10 >= 4) { UIManager.Instance?.ShowStatChange("[°ß½À] ¼Õ´ÔµéÀÌ ¹°·¯°¬´Ù - Á¤½Ä ·±¿¡¼­ ´Ù½Ã ÇØº¸ÀÚ"); break; }
+                if (MaterialInventory.Instance != null && MeatCount() < 2) MaterialInventory.Instance.Add(MaterialType.Meat, 2 - MeatCount());
+                godMode = false;
+                guests = SpawnDefenseWave(RAPTORS, PTERAS, statMul, out need);
+                SetProgress(0, RAPTORS + PTERAS);
+                Debug.Log("[Tutorial] ´Ü°è 10 Àç½ÃÀÛ " + retries10 + "È¸ (¹èÀ² " + statMul + ")");
+            }
+            yield return null;
+        }
+        KillAll(guests);
+        godMode = true;
+        if (TrainManager.Instance != null) TrainManager.Instance.currentHP = TrainManager.Instance.currentMaxHP;
+        SetProgress(RAPTORS + PTERAS, RAPTORS + PTERAS);
+        yield return EndStep();
+    }
+
+    /// <summary>½ÇÀü ±¸¼º ½ºÆù: ·¦ÅÍ´Â ±âÂ÷ ²¿¸® ¿À¸¥ÂÊ È­¸é ¾È¿¡¼­, ÇÁÅ×¶ó´Â Á¶±İ ´õ ¸Ö¸®¼­. need = ½ÇÁ¦·Î ³ª¿Â ¼ö</summary>
+    private static List<Enemy> SpawnDefenseWave(int raptors, int pteras, float statMul, out int need)
+    {
+        List<Enemy> all = new List<Enemy>();
+        need = 0;
+        if (WaveManager.Instance == null) return all;
+        float spawnDist = GameBalance.CarEdgesX[GameBalance.CarEdgesX.Length - 1] + 3.5f;
+        if (TrainManager.Instance != null) spawnDist -= TrainManager.Instance.transform.position.x;
+        List<Enemy> a = WaveManager.Instance.SpawnForTutorial("raptor", raptors, statMul, 0f, spawnDist);
+        List<Enemy> b = WaveManager.Instance.SpawnForTutorial("ptera", pteras, statMul, 0f, spawnDist + 2.5f);
+        if (a != null) all.AddRange(a);
+        if (b != null) all.AddRange(b);
+        need = all.Count;
+        return all;
+    }
+
+    // ¦¡¦¡ 11. Á¤»ê: ÁøÂ¥ Áõ°­ ¼±ÅÃÃ¢ -> [G] Á¤ºñ¼Ò ÇÑ ¹ø ¿­±â ¦¡¦¡
+    private IEnumerator Step11_Settlement()
+    {
+        BeginStep(11, "Á¤»ê - Áõ°­°ú Á¤ºñ¼Ò", "[1~5] Áõ°­ ÇÏ³ª °í¸£±â\n[G] Á¤ºñ¼Ò¸¦ ¿­¾îºÁ¶ó", "Áõ°­¡¤Á¤ºñ¼Ò", 0, 2);
+        HideMarker();
+        yield return Brief(BriefingTexts.Tutorial(11));
+
+        bool picked = false;
+        if (AugmentPickUI.Instance != null) AugmentPickUI.Instance.Open(1, delegate { picked = true; });
+        else picked = true;
+        while (!picked && !skipRequested && AugmentPickUI.IsOpen) yield return null;
+        if (!picked && !skipRequested) yield return null;   // Äİ¹éÀÌ ´İÈû ´ÙÀ½ ÇÁ·¹ÀÓ¿¡ ¿À´Â °æ¿ì
+        SetProgress(1, 2);
+
+        float hintAt = Time.unscaledTime + 20f;
+        bool highlighted = false;
+        while (!skipRequested)
+        {
+            if (WorkshopUI.IsOpen) break;
+            if (WorkshopUI.Instance == null) { Debug.LogWarning("[Tutorial] WorkshopUI ¾øÀ½ - Á¤ºñ¼Ò ¹İÂÊÀº °Ç³Ê¶Ú´Ù"); break; }
+            if (!highlighted && Time.unscaledTime > hintAt)
+            {
+                highlighted = true;
+                if (linesText != null) { linesText.text = "[G] Á¤ºñ¼Ò - Áö±İ ´­·¯ºÁ¶ó\n(Á¤½Ä ·±¿¡¼± Á¤Â÷¿ª¸¶´Ù)"; linesText.color = new Color(1f, 0.9f, 0.3f, 1f); }
+                UIManager.Instance?.ShowStatChange("[°ß½À] [G] ¸¦ ´­·¯ Á¤ºñ¼Ò¸¦ ¿­¾îºÁ¶ó - ¼ö¸®¡¤¿¬¸¶¡¤Àç·á ½ÃÀå");
+            }
+            yield return null;
+        }
+        if (linesText != null) linesText.color = UIFactory.CREAM;
+        SetProgress(2, 2);
+        while (!skipRequested && WorkshopUI.IsOpen) yield return null;   // ±¸°æ ³¡³¯ ¶§±îÁö (´İÀ¸¸é ¿Ï·á)
+        yield return EndStep();
+    }
+
+    // ¦¡¦¡ 12. µµ¹Ú²Û / ¾Õ±æ: ½Ç½À ¾øÀÌ Ä«µå 2Àå ¦¡¦¡
+    private IEnumerator Step12_Gambler()
+    {
+        BeginStep(12, "µµ¹Ú²Û°ú ¾Õ±æ", "Ä«µå¸¦ ÀĞ¾î¶ó\n[Enter] ´ÙÀ½ Àå", null, 0, 0);
+        HideMarker();
+        yield return Brief(BriefingTexts.Tutorial(12));
+        yield return Brief(BriefingTexts.Tutorial(13));
+        yield return EndStep();
+    }
+
+    private IEnumerator WaitUnscaled(float sec)
+    {
+        float until = Time.unscaledTime + sec;
+        while (Time.unscaledTime < until && Active) yield return null;
+    }
+
+    /// <summary>½½·Ô À§ È­»ìÇ¥ ³¡Á¡ ³ôÀÌ: ¸¶Ä¿ Ä¨(ºÏ = ¸Ó¸® À§ / ³² = ¹ß ¾Æ·¡) °ú ¾È °ãÄ¡°Ô Ä¨ À§</summary>
+    private static float SlotArrowTip(int slotIndex)
+    {
+        return GameBalance.IsSouthSlot(slotIndex) ? 0.95f : GameBalance.SlotMarkerYOffset + 0.55f;
+    }
+
+    private static int SlotIndexOf(TurretSlot slot)
+    {
+        if (TurretSlotManager.Instance == null || slot == null) return 0;
+        for (int i = 0; i < TurretSlotManager.Instance.slots.Length; i++)
+            if (TurretSlotManager.Instance.slots[i] == slot) return i;
+        return 0;
+    }
+
+    // ¦¡¦¡ ¿Ï·á ¦¡¦¡
     private IEnumerator Finish()
     {
         HideMarker();
+        EngineCabUnlocked = false;
         bool first = !Done;
         float seconds = Time.unscaledTime - runStartTime;
         int cookFails = CookingBridge.BadsThisRun - badsAtStart;
@@ -413,8 +673,11 @@ public class TutorialDirector : MonoBehaviour
         PlayerPrefs.Save();
         if (first && GameBalance.TutorialReward > 0) MetaProgress.AddFame(GameBalance.TutorialReward);
 
-        Debug.Log("[Tutorial] ì™„ë£Œ " + Mathf.FloorToInt(seconds / 60f) + "ë¶„" + Mathf.FloorToInt(seconds % 60f) + "ì´ˆ | ìŠ¤í‚µ " + skips
-            + " | ì¡°ë¦¬ ì‹¤íŒ¨ " + cookFails + " | ë‹¨ê³„ " + IMPLEMENTED_STEPS + "/" + TOTAL_STEPS + (first ? " | ëª…ì„± +" + GameBalance.TutorialReward : " | ì¬í”Œë ˆì´"));
+        string perStep = "";
+        for (int i = 1; i <= TOTAL_STEPS; i++) perStep += (i > 1 ? " " : "") + i + ":" + Mathf.RoundToInt(stepSeconds[i]);
+        Debug.Log("[Tutorial] ¿Ï·á " + Mathf.FloorToInt(seconds / 60f) + "ºĞ" + Mathf.FloorToInt(seconds % 60f) + "ÃÊ | ½ºÅµ " + skips
+            + " | Á¶¸® ½ÇÆĞ " + cookFails + " | ½ÇÀü Àç½ÃÀÛ " + retries10 + " | ´Ü°è " + IMPLEMENTED_STEPS + "/" + TOTAL_STEPS
+            + (first ? " | ¸í¼º +" + GameBalance.TutorialReward : " | ÀçÇÃ·¹ÀÌ") + " | ´Ü°èº° ÃÊ " + perStep);
 
         if (cardRoot != null) cardRoot.SetActive(false);
         bool closed = false;
@@ -427,35 +690,37 @@ public class TutorialDirector : MonoBehaviour
         if (GameManager.Instance != null) GameManager.Instance.EndTutorial();
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ë‹¨ê³„ ê³µí†µ
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ´Ü°è °øÅë
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     private void BeginStep(int n, string title, string lines, string progLabel, int done, int total)
     {
         step = n;
         stepStartTime = Time.time;
+        stepStartUnscaled = Time.unscaledTime;
         skipRequested = false;
         ShowCard(n, title, lines, progLabel, done, total);
-        Debug.Log("[Tutorial] ë‹¨ê³„ " + n + " ì‹œì‘: " + title);
+        Debug.Log("[Tutorial] ´Ü°è " + n + " ½ÃÀÛ: " + title);
     }
 
     /// <summary>
-    /// ë‹¨ê³„ ë§ˆë¬´ë¦¬: ê±´ë„ˆë›°ì—ˆìœ¼ë©´ ê¸°ë¡ë§Œ, í•´ëƒˆìœ¼ë©´ ì¹´ë“œë¥¼ "ì™„ë£Œ" ìƒíƒœë¡œ ë°”ê¿” DONE_BEAT_SEC ë™ì•ˆ ë³´ì—¬ì¤€ ë’¤ ë‹¤ìŒìœ¼ë¡œ.
-    /// (í•´ë‚´ìë§ˆì ë‹¤ìŒ ì¹´ë“œê°€ ëœ¨ë©´ "ë§‰ë¬´ê°€ë‚´ë¡œ ë„˜ì–´ê°€ëŠ”" ëŠë‚Œ - ìœ ì € í”¼ë“œë°± 09-16)
+    /// ´Ü°è ¸¶¹«¸®: °Ç³Ê¶Ù¾úÀ¸¸é ±â·Ï¸¸, ÇØ³ÂÀ¸¸é Ä«µå¸¦ "¿Ï·á" »óÅÂ·Î ¹Ù²ã DONE_BEAT_SEC µ¿¾È º¸¿©ÁØ µÚ ´ÙÀ½À¸·Î.
+    /// (ÇØ³»ÀÚ¸¶ÀÚ ´ÙÀ½ Ä«µå°¡ ¶ß¸é "¸·¹«°¡³»·Î ³Ñ¾î°¡´Â" ´À³¦ - À¯Àú ÇÇµå¹é 09-16)
     /// </summary>
     private IEnumerator EndStep()
     {
         HideMarker();
+        if (step >= 1 && step <= TOTAL_STEPS) stepSeconds[step] = Time.unscaledTime - stepStartUnscaled;
         if (skipRequested)
         {
             skips++;
-            Debug.Log("[Tutorial] ë‹¨ê³„ " + step + " ê±´ë„ˆëœ€");
+            Debug.Log("[Tutorial] ´Ü°è " + step + " °Ç³Ê¶Ü");
             skipRequested = false;
             yield break;
         }
         SoundManager.Play("sfx_wave_clear");
-        if (titleText != null) { titleText.text = "ì™„ë£Œ - " + titleText.text; titleText.color = new Color(0.55f, 0.95f, 0.55f, 1f); }
-        if (linesText != null) linesText.text = "ì˜í–ˆë‹¤. ë‹¤ìŒ -";
+        if (titleText != null) { titleText.text = "¿Ï·á - " + titleText.text; titleText.color = new Color(0.55f, 0.95f, 0.55f, 1f); }
+        if (linesText != null) linesText.text = "ÀßÇß´Ù. ´ÙÀ½ -";
         float until = Time.unscaledTime + DONE_BEAT_SEC;
         while (Time.unscaledTime < until && Active) yield return null;
         if (titleText != null) titleText.color = UIFactory.GOLD;
@@ -463,7 +728,7 @@ public class TutorialDirector : MonoBehaviour
 
     private const float DONE_BEAT_SEC = 1.2f;
 
-    /// <summary>ë¸Œë¦¬í•‘ ì¹´ë“œë¥¼ ë„ìš°ê³  ë‹«í ë•Œê¹Œì§€ ê¸°ë‹¤ë¦°ë‹¤ (ì‹œê°„ ì •ì§€ ì¤‘ì—ë„ í”„ë ˆì„ì€ ëˆë‹¤)</summary>
+    /// <summary>ºê¸®ÇÎ Ä«µå¸¦ ¶ç¿ì°í ´İÈú ¶§±îÁö ±â´Ù¸°´Ù (½Ã°£ Á¤Áö Áß¿¡µµ ÇÁ·¹ÀÓÀº µ·´Ù)</summary>
     private IEnumerator Brief(BriefingUI.BriefDef def)
     {
         if (def == null) yield break;
@@ -471,17 +736,17 @@ public class TutorialDirector : MonoBehaviour
         def.onClose = delegate { closed = true; };
         BriefingUI.Show(def);
         while (!closed && Active) yield return null;
-        skipRequested = false;    // ì¹´ë“œë¥¼ ë‹«ì€ Enter ê°€ ê±´ë„ˆë›°ê¸°ë¡œ ìƒˆì§€ ì•Šê²Œ (ê°™ì€ í”„ë ˆì„ ê°€ë“œì— ë”í•´ í•œ ë²ˆ ë”)
+        skipRequested = false;    // Ä«µå¸¦ ´İÀº Enter °¡ °Ç³Ê¶Ù±â·Î »õÁö ¾Ê°Ô (°°Àº ÇÁ·¹ÀÓ °¡µå¿¡ ´õÇØ ÇÑ ¹ø ´õ)
     }
 
     private void Spino(string line)
     {
-        UIManager.Instance?.ShowWaveNotice("", line);    // ì˜ˆê³  ì¹´ë“œëŠ” ë¹„ìš°ê³  ì•ˆë‚´ ì¹´ë“œ(ì´ˆë¡ ì¤„)ë§Œ
+        UIManager.Instance?.ShowWaveNotice("", line);    // ¿¹°í Ä«µå´Â ºñ¿ì°í ¾È³» Ä«µå(ÃÊ·Ï ÁÙ)¸¸
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // íŒì • í—¬í¼
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ÆÇÁ¤ ÇïÆÛ
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     private Transform Chef()
     {
         if (chefTf != null) return chefTf;
@@ -547,16 +812,16 @@ public class TutorialDirector : MonoBehaviour
             if (list[i] != null && list[i].IsAlive) Destroy(list[i].gameObject);
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ëª©í‘œ ì¹´ë“œ (ìš°ìƒë‹¨ ì›¨ì´ë¸Œ íŒ ì•„ë˜ - ëª©ì—… v2 (A) ì¢Œí‘œ)
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ¸ñÇ¥ Ä«µå (¿ì»ó´Ü ¿şÀÌºê ÆÇ ¾Æ·¡ - ¸ñ¾÷ v2 (A) ÁÂÇ¥)
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     private const float CARD_W = 330f;
     private const float CARD_H = 156f;
 
     private void BuildCard()
     {
         cardCanvas = UIFactory.CreateCanvas("TutorialCard_Canvas", CARD_SORT);
-        cardCanvas.transform.SetParent(transform, false);      // ë””ë ‰í„°(DontDestroyOnLoad) ë°‘ - ì”¬ ë¦¬ë¡œë“œì—ë„ ë‚¨ëŠ”ë‹¤
+        cardCanvas.transform.SetParent(transform, false);      // µğ·ºÅÍ(DontDestroyOnLoad) ¹Ø - ¾À ¸®·Îµå¿¡µµ ³²´Â´Ù
 
         RectTransform card = UIFactory.CreatePanel(cardCanvas.transform, "GoalCard",
             new Vector2(1f, 1f), new Vector2(1f, 1f),
@@ -565,10 +830,10 @@ public class TutorialDirector : MonoBehaviour
         cardRoot = card.gameObject;
 
         if (UISkin.Available)
-            stepPlate = UISkin.Nameplate(card, "Step", "ëª©í‘œ  1 / " + TOTAL_STEPS, 16, new Vector2(0f, 1f), new Vector2(26f, 4f));
+            stepPlate = UISkin.Nameplate(card, "Step", "¸ñÇ¥  1 / " + TOTAL_STEPS, 16, new Vector2(0f, 1f), new Vector2(26f, 4f));
         else
         {
-            stepFallback = UIFactory.CreateText(card, "Step", "ëª©í‘œ  1 / " + TOTAL_STEPS, 15, UIFactory.GOLD, TextAnchor.MiddleLeft);
+            stepFallback = UIFactory.CreateText(card, "Step", "¸ñÇ¥  1 / " + TOTAL_STEPS, 15, UIFactory.GOLD, TextAnchor.MiddleLeft);
             PlaceTopLeft(stepFallback.rectTransform, 26f, -6f, 200f, 22f);
         }
 
@@ -598,7 +863,7 @@ public class TutorialDirector : MonoBehaviour
         progressText = UIFactory.CreateText(card, "Progress", "", 15, UIFactory.CREAM, TextAnchor.MiddleLeft);
         PlaceTopLeft(progressText.rectTransform, 26f, -100f, 240f, 20f);
 
-        Text footer = UIFactory.CreateText(card, "Footer", "[Enter] ê±´ë„ˆë›°ê¸°", 12, UIFactory.DIM, TextAnchor.LowerRight);
+        Text footer = UIFactory.CreateText(card, "Footer", "[Enter] °Ç³Ê¶Ù±â", 12, UIFactory.DIM, TextAnchor.LowerRight);
         footer.rectTransform.anchorMin = new Vector2(1f, 0f); footer.rectTransform.anchorMax = new Vector2(1f, 0f);
         footer.rectTransform.pivot = new Vector2(1f, 0f);
         footer.rectTransform.anchoredPosition = new Vector2(-16f, 8f); footer.rectTransform.sizeDelta = new Vector2(200f, 16f);
@@ -613,8 +878,8 @@ public class TutorialDirector : MonoBehaviour
     {
         if (cardRoot == null) return;
         cardRoot.SetActive(true);
-        if (stepPlate != null) UISkin.Relabel(stepPlate, "ëª©í‘œ  " + n + " / " + TOTAL_STEPS, 16);
-        if (stepFallback != null) stepFallback.text = "ëª©í‘œ  " + n + " / " + TOTAL_STEPS;
+        if (stepPlate != null) UISkin.Relabel(stepPlate, "¸ñÇ¥  " + n + " / " + TOTAL_STEPS, 16);
+        if (stepFallback != null) stepFallback.text = "¸ñÇ¥  " + n + " / " + TOTAL_STEPS;
         titleText.text = title;
         linesText.text = lines;
         progLabel = label ?? "";
@@ -647,41 +912,53 @@ public class TutorialDirector : MonoBehaviour
         rt.sizeDelta = new Vector2(w, h);
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // í˜„ì¥ ë§ˆì»¤ (ì›”ë“œ ìŠ¤í”„ë¼ì´íŠ¸ 2ê°œ: ë°œë°‘ ë§ + ìœ„ í™”ì‚´í‘œ) - ëª©ì—… v2 (B)
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ÇöÀå ¸¶Ä¿ (¿ùµå ½ºÇÁ¶óÀÌÆ® 2°³: ¹ß¹Ø ¸µ + À§ È­»ìÇ¥) - ¸ñ¾÷ v2 (B) + v3 ¸µ ±ÔÄ¢ (¿ÀºêÁ§Æ® ¹ß ÀÚ¸®, ¿ÀºêÁ§Æ®º¸´Ù ³Ğ°Ô, ¹Ø¿¡ ±ò¸²)
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     private void EnsureMarker()
     {
         if (markerRoot != null) return;
         if (arrowSprite == null) arrowSprite = SpriteBank.Get("tut_arrow") ?? PaintFallbackArrow();
-        if (ringSprite == null) ringSprite = SpriteBank.Get("tut_ring") ?? PaintFallbackRing();
+        if (ringSprite == null) ringSprite = SpriteBank.Get("tut_ring") ?? PaintFallbackRing(36, 14);
+        if (ringLargeSprite == null) ringLargeSprite = SpriteBank.Get("tut_ring_l") ?? PaintFallbackRing(72, 26);
 
         markerRoot = new GameObject("TutorialMarker");
-        SpriteRenderer ring = PixelPainter.Attach(markerRoot.transform, "Ring", ringSprite, Vector3.zero, RING_ORDER);
+        ringSr = PixelPainter.Attach(markerRoot.transform, "Ring", ringSprite, Vector3.zero, RING_FLOOR.order);
         SpriteRenderer arrow = PixelPainter.Attach(markerRoot.transform, "Arrow", arrowSprite, Vector3.zero, ARROW_ORDER);
-        ringTf = ring.transform; arrowTf = arrow.transform;
+        ringTf = ringSr.transform; arrowTf = arrow.transform;
     }
 
-    /// <summary>ê³ ì • ìœ„ì¹˜ ìœ„ì— ë§ˆì»¤</summary>
-    private void ShowMarkerAt(Vector3 pos, float tipOffset)
+    /// <summary>°íÁ¤ À§Ä¡ À§¿¡ ¸¶Ä¿</summary>
+    private void ShowMarkerAt(Vector3 pos, float tipOffset, RingStyle ring)
     {
         EnsureMarker();
         followTarget = null; fixedTarget = pos; arrowTipOffset = tipOffset;
+        ApplyRing(ring);
         markerOn = true;
         markerRoot.SetActive(true);
-        if (ringTf != null) ringTf.gameObject.SetActive(true);
         TickMarker();
     }
 
-    /// <summary>ì˜¤ë¸Œì íŠ¸(ìŠ¬ë¡¯/ì¡°ë¦¬ëŒ€)ë¥¼ ë”°ë¼ë‹¤ë‹ˆëŠ” ë§ˆì»¤. ring=false ë©´ ë§ ì—†ì´ í™”ì‚´í‘œë§Œ</summary>
-    private void ShowMarkerFollow(Transform t, float tipOffset, bool ring)
+    /// <summary>¿ÀºêÁ§Æ®(½½·Ô/Á¶¸®´ë)¸¦ µû¶ó´Ù´Ï´Â ¸¶Ä¿</summary>
+    private void ShowMarkerFollow(Transform t, float tipOffset, RingStyle ring)
     {
         EnsureMarker();
         followTarget = t; arrowTipOffset = tipOffset;
+        ApplyRing(ring);
         markerOn = true;
         markerRoot.SetActive(true);
-        if (ringTf != null) ringTf.gameObject.SetActive(ring);
         TickMarker();
+    }
+
+    /// <summary>¸µ ½ºÅ¸ÀÏ Àû¿ë: ½ºÇÁ¶óÀÌÆ®(ÀÛÀº/Å«), Á¤·Ä, ¹èÀ². À§Ä¡¡¤z ´Â TickMarker °¡ ¸Å ÇÁ·¹ÀÓ</summary>
+    private void ApplyRing(RingStyle style)
+    {
+        ringStyle = style;
+        if (ringSr == null) return;
+        ringSr.sprite = style.large ? ringLargeSprite : ringSprite;
+        ringSr.sortingOrder = style.order;
+        ringTf.localScale = new Vector3(style.scale, style.scale, 1f);
+        ringTf.gameObject.SetActive(true);
     }
 
     private void HideMarker()
@@ -695,43 +972,44 @@ public class TutorialDirector : MonoBehaviour
         if (!markerOn || markerRoot == null) return;
         Vector3 pos = followTarget != null ? followTarget.position : fixedTarget;
         pos.z = 0f;
-        // ê¹Œë”±: 0.6ì´ˆ ì™•ë³µ, 4px(0.125u) - ì‹œê°„ ì •ì§€ ì¤‘ì—ë„ ì›€ì§ì¸ë‹¤ (unscaled)
+        // ±îµü: 0.6ÃÊ ¿Õº¹, 4px(0.125u) - ½Ã°£ Á¤Áö Áß¿¡µµ ¿òÁ÷ÀÎ´Ù (unscaled)
         float t = Mathf.Repeat(Time.unscaledTime, GameBalance.TutorialMarkerBobSec) / GameBalance.TutorialMarkerBobSec;
         float bob = GameBalance.TutorialMarkerBob * (0.5f + 0.5f * Mathf.Sin(t * Mathf.PI * 2f));
-        if (ringTf != null) ringTf.position = new Vector3(pos.x, pos.y, 0.05f);   // ê°™ì€ ì •ë ¬ê°’(í¬íƒ‘ ë°›ì¹¨ -3)ì—ì„œëŠ” ë’¤(z+)ê°€ ë¨¼ì € ê·¸ë ¤ì§„ë‹¤
+        // ¸µ = ¿ÀºêÁ§Æ® ¹ß ÀÚ¸® (dy), °°Àº Á¤·Ä°ª ¾ÈÀÇ ¾ÕµÚ´Â z ·Î (z+ = µÚ = ¸ÕÀú ±×·ÁÁø´Ù)
+        if (ringTf != null) ringTf.position = new Vector3(pos.x, pos.y + ringStyle.dy, ringStyle.z);
         if (arrowTf != null) arrowTf.position = pos + Vector3.up * (arrowTipOffset + bob);
     }
 
-    /// <summary>PNG ì—†ì„ ë•Œ: êµ¬ë¦¬ìƒ‰ ì•„ë˜ í™”ì‚´í‘œ 24x21 (ëì  í”¼ë²—) - ëª¸í†µ 8x7 + ë¨¸ë¦¬(í­ 22 -> 1) + ê²€ì • 1px ì™¸ê³½</summary>
+    /// <summary>PNG ¾øÀ» ¶§: ±¸¸®»ö ¾Æ·¡ È­»ìÇ¥ 24x21 (³¡Á¡ ÇÇ¹ş) - ¸öÅë 8x7 + ¸Ó¸®(Æø 22 -> 1) + °ËÁ¤ 1px ¿Ü°û</summary>
     private static Sprite PaintFallbackArrow()
     {
         PixelPainter p = new PixelPainter(24, 21);
         Color32 cu = new Color32(184, 112, 52, 255), blk = new Color32(16, 14, 20, 255), hi = new Color32(232, 168, 96, 255);
-        p.Rect(8, 1, 15, 7, cu);                            // ëª¸í†µ (1~7í–‰, x 8~15)
-        p.Rect(8, 1, 15, 1, hi);                            // ìœ—ì¤„ í•˜ì´ë¼ì´íŠ¸
-        p.Rect(7, 0, 16, 0, blk);                           // ìœ„ ì™¸ê³½
+        p.Rect(8, 1, 15, 7, cu);                            // ¸öÅë (1~7Çà, x 8~15)
+        p.Rect(8, 1, 15, 1, hi);                            // À­ÁÙ ÇÏÀÌ¶óÀÌÆ®
+        p.Rect(7, 0, 16, 0, blk);                           // À§ ¿Ü°û
         for (int y = 1; y <= 7; y++) { p.Point(7, y, blk); p.Point(16, y, blk); }
-        p.Rect(0, 7, 6, 7, blk); p.Rect(17, 7, 23, 7, blk); // ì–´ê¹¨ ìœ„ ì™¸ê³½
-        for (int y = 8; y <= 18; y++)                       // ë¨¸ë¦¬: 8í–‰ í­ 22 (x 1~22) -> 18í–‰ í­ 2
+        p.Rect(0, 7, 6, 7, blk); p.Rect(17, 7, 23, 7, blk); // ¾î±ú À§ ¿Ü°û
+        for (int y = 8; y <= 18; y++)                       // ¸Ó¸®: 8Çà Æø 22 (x 1~22) -> 18Çà Æø 2
         {
             int half = 11 - (y - 8);
             p.Rect(12 - half, y, 11 + half, y, cu);
             p.Point(11 - half, y, blk); p.Point(12 + half, y, blk);
         }
-        p.Point(11, 19, cu); p.Point(10, 19, blk); p.Point(12, 19, blk);   // ë
-        p.Point(11, 20, blk);                                             // ë ì•„ë˜ ì™¸ê³½ (í”¼ë²— ì¤„)
+        p.Point(11, 19, cu); p.Point(10, 19, blk); p.Point(12, 19, blk);   // ³¡
+        p.Point(11, 20, blk);                                             // ³¡ ¾Æ·¡ ¿Ü°û (ÇÇ¹ş ÁÙ)
         return p.Bake(32f, 11.5f, 21f);
     }
 
-    /// <summary>PNG ì—†ì„ ë•Œ: í™©ë™ íƒ€ì› ë§ 36x14 (ì¤‘ì•™ í”¼ë²—)</summary>
-    private static Sprite PaintFallbackRing()
+    /// <summary>PNG ¾øÀ» ¶§: È²µ¿ Å¸¿ø ¸µ (Áß¾Ó ÇÇ¹ş) - 36x14 ÀÛÀº ¸µ / 72x26 Å« ¸µ</summary>
+    private static Sprite PaintFallbackRing(int w, int h)
     {
-        PixelPainter p = new PixelPainter(36, 14);
+        PixelPainter p = new PixelPainter(w, h);
         Color32 clear = new Color32(0, 0, 0, 0), brass = new Color32(214, 170, 72, 255), blk = new Color32(16, 14, 20, 200);
-        p.Ellipse(0, 0, 35, 13, clear, blk);
-        p.Ellipse(1, 1, 34, 12, clear, brass);
-        p.Ellipse(2, 2, 33, 11, clear, brass);
-        p.Ellipse(3, 3, 32, 10, clear, blk);
-        return p.Bake(32f, 18f, 7f);
+        int band = w >= 60 ? 3 : 2;
+        p.Ellipse(0, 0, w - 1, h - 1, clear, blk);
+        for (int i = 1; i <= band; i++) p.Ellipse(i, i, w - 1 - i, h - 1 - i, clear, brass);
+        p.Ellipse(band + 1, band + 1, w - 2 - band, h - 2 - band, clear, blk);
+        return p.Bake(32f, w * 0.5f, h * 0.5f);
     }
 }

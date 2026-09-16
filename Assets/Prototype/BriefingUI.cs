@@ -4,58 +4,60 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 /// <summary>
-/// [BriefingUI.cs] v1 (ì‹ ê·œ, v9.9 2026-09-16) - ë¸Œë¦¬í•‘ ì¹´ë“œ: "ì½ëŠ” ë™ì•ˆ ì„¸ê³„ê°€ ë©ˆì¶”ëŠ”" ì„¤ëª… ì°½
+/// [BriefingUI.cs] v1.1 (v9.9.2 2026-09-16: ÃÊ»ó + Å° µ¿½Ã ¹èÄ¡(½Ç·ç¿§ 1¹è À§ + Å° ¾Æ·¡) / ÃÊ»ó Æ¾Æ®(EnemySkin ±ÔÄ¢) / Áõ°­ ¼±ÅÃÃ¢ À§¿¡µµ ¿­¸°´Ù - ½Â°İ Ä«µå "Áõ°­ ¼±ÅÃ"¿ë)
+///   / v1 (½Å±Ô, v9.9 2026-09-16) - ºê¸®ÇÎ Ä«µå: "ÀĞ´Â µ¿¾È ¼¼°è°¡ ¸ØÃß´Â" ¼³¸í Ã¢
 ///
-/// íŠœí† ë¦¬ì–¼ ê³„íš v2 Â§5. ê²¬ìŠµ ìš´í–‰(TutorialDirector)ì˜ ë‹¨ê³„ ì‹œì‘ë§ˆë‹¤, ê·¸ë¦¬ê³  ì •ì‹ ëŸ°ì—ì„œ ì²˜ìŒ ë§Œë‚˜ëŠ” ê²ƒ
-/// (ì§€ì—­ / ìƒˆ ì†ë‹˜ / ë°©í•´ ì´ë²¤íŠ¸ / ë„ë°•ê¾¼ ë² íŒ… / ë³´ìŠ¤ - 2ì°¨ íŒ©ì—ì„œ í›… ì—°ê²°)ì„ ê°™ì€ ì¹´ë“œë¡œ ì„¤ëª…í•œë‹¤.
+/// Æ©Åä¸®¾ó °èÈ¹ v2 ¡×5. °ß½À ¿îÇà(TutorialDirector)ÀÇ ´Ü°è ½ÃÀÛ¸¶´Ù, ±×¸®°í Á¤½Ä ·±¿¡¼­ Ã³À½ ¸¸³ª´Â °Í
+/// (Áö¿ª / »õ ¼Õ´Ô / ¹æÇØ ÀÌº¥Æ® / µµ¹Ú²Û º£ÆÃ / º¸½º - 2Â÷ ÆÑ¿¡¼­ ÈÅ ¿¬°á)À» °°Àº Ä«µå·Î ¼³¸íÇÑ´Ù.
 ///
-/// í™”ë©´: ì–´ë‘¡ê²Œ(0.55) + ê°€ìš´ë° ìœ„ íŒŒì´í”„ ì°½ 860x300 (center ì•µì»¤, (0,+180) = í™”ë©´ y 210~510, ê¸°ì°¨ ìœ„ìª½)
-///   - ì™¼ìª½ ìœ„ í™©ë™ ëª…íŒ = í™”ì("ìŠ¤í”¼ë…¸" / "ìƒˆ ì†ë‹˜" / "ì§€ì—­" ...)
-///   - ì œëª© 22pt ê¸ˆìƒ‰ + ë³¸ë¬¸ 17pt í¬ë¦¼ ìµœëŒ€ 4ì¤„
-///   - ì˜¤ë¥¸ìª½ ì´ˆìƒ íŒ 220x220 (ë§ ì¹´ë“œ): ì†ë‹˜ ìŠ¤í”„ë¼ì´íŠ¸(e_*.png 2ë°°) ë˜ëŠ” í‚¤ ì¹´ë“œ(í° í‚¤ ê¸€ì + í•œ ì¤„)
-///   - ì™¼ìª½ ì•„ë˜ "ì‹œê°„ ì •ì§€ ì¤‘" / ì˜¤ë¥¸ìª½ ì•„ë˜ "[Enter] ì•Œê² ë‹¤"
-/// ë‹«ê¸° = Enter / KeypadEnter / ë§ˆìš°ìŠ¤ í´ë¦­ (ì—´ë¦° ë’¤ 0.15ì´ˆ ì§€ë‚˜ì•¼ - ì—´ë¦¬ê²Œ í•œ í‚¤ê°€ ë°”ë¡œ ë‹«ì§€ ì•Šê²Œ).
-///   ë‹«íŒ í”„ë ˆì„ì€ KeyConsumedFrame ì— ë‚¨ê¸´ë‹¤ - ê°™ì€ í”„ë ˆì„ì— [Enter] = ë‹¨ê³„ ê±´ë„ˆë›°ê¸° ë“±ì´ ì´ì¤‘ ì†Œë¹„ë˜ì§€ ì•Šê²Œ.
-/// ì‹œê°„: GameBalance.BriefingPausesTime ì´ë©´ timeScale 0 (AugmentListUI ì˜ pausedByMe íŒ¨í„´ - ì´ë¯¸ ë©ˆì¶˜ í™”ë©´ ìœ„ë©´ ì†ëŒ€ì§€ ì•ŠëŠ”ë‹¤).
-///   ì•ˆ ë©ˆì¶”ë©´ BriefingAutoCloseSec ë’¤ ìë™ìœ¼ë¡œ ë‹«íŒë‹¤.
-/// í: ì—¬ëŸ¬ ì¥ì´ ê²¹ì¹˜ë©´ ìˆœì„œëŒ€ë¡œ í•œ ì¥ì”©. ì”¬ì´ ë‹¤ì‹œ ë¡œë“œë˜ë©´ íë¥¼ ë¹„ìš°ê³  ë‹«ëŠ”ë‹¤(ì½œë°± ì—†ì´).
-/// ì…ë ¥ ì°¨ë‹¨: AugmentListUI.ReadingOpen ì´ BriefingUI.IsOpen ì„ í¬í•¨í•œë‹¤ - ì´ë¯¸ ê·¸ í”Œë˜ê·¸ë¥¼ ë³´ëŠ” ì‹œìŠ¤í…œ
-///   (ì¼ì‹œì •ì§€Â·ì´ë²¤íŠ¸Â·ìŠ¬ë¡¯ ë§ˆì»¤Â·ê¸°ê´€ì‹¤Â·ì¡°ë¦¬ëŒ€Â·ì£¼ë°©ì°½Â·ì •ë¹„ì†Œ)ì´ ì¹´ë“œê°€ ë–  ìˆëŠ” ë™ì•ˆ í‚¤ë¥¼ ë¬´ì‹œí•œë‹¤.
-///   í´ë¦­ì€ ì–´ë‘¡ê²Œ íŒ(raycastTarget)ì´ ì•„ë˜ ìº”ë²„ìŠ¤ë¡œ ê°€ëŠ” í´ë¦­ì„ ë§‰ëŠ”ë‹¤.
-/// 1íšŒì„±: ShowOnce(id, def) - PlayerPrefs "WDT_Brief_<id>" ê°€ 1ì´ë©´ ì•ˆ ë„ìš°ê³  false. F4 ì¹˜íŠ¸ê°€ ì§€ìš´ë‹¤.
+/// È­¸é: ¾îµÓ°Ô(0.55) + °¡¿îµ¥ À§ ÆÄÀÌÇÁ Ã¢ 860x300 (center ¾ŞÄ¿, (0,+180) = È­¸é y 210~510, ±âÂ÷ À§ÂÊ)
+///   - ¿ŞÂÊ À§ È²µ¿ ¸íÆÇ = È­ÀÚ("½ºÇÇ³ë" / "»õ ¼Õ´Ô" / "Áö¿ª" ...)
+///   - Á¦¸ñ 22pt ±İ»ö + º»¹® 17pt Å©¸² ÃÖ´ë 4ÁÙ
+///   - ¿À¸¥ÂÊ ÃÊ»ó ÆÇ 220x220 (¸µ Ä«µå): ¼Õ´Ô ½ºÇÁ¶óÀÌÆ®(e_*.png 2¹è) ¶Ç´Â Å° Ä«µå(Å« Å° ±ÛÀÚ + ÇÑ ÁÙ)
+///   - ¿ŞÂÊ ¾Æ·¡ "½Ã°£ Á¤Áö Áß" / ¿À¸¥ÂÊ ¾Æ·¡ "[Enter] ¾Ë°Ú´Ù"
+/// ´İ±â = Enter / KeypadEnter / ¸¶¿ì½º Å¬¸¯ (¿­¸° µÚ 0.15ÃÊ Áö³ª¾ß - ¿­¸®°Ô ÇÑ Å°°¡ ¹Ù·Î ´İÁö ¾Ê°Ô).
+///   ´İÈù ÇÁ·¹ÀÓÀº KeyConsumedFrame ¿¡ ³²±ä´Ù - °°Àº ÇÁ·¹ÀÓ¿¡ [Enter] = ´Ü°è °Ç³Ê¶Ù±â µîÀÌ ÀÌÁß ¼ÒºñµÇÁö ¾Ê°Ô.
+/// ½Ã°£: GameBalance.BriefingPausesTime ÀÌ¸é timeScale 0 (AugmentListUI ÀÇ pausedByMe ÆĞÅÏ - ÀÌ¹Ì ¸ØÃá È­¸é À§¸é ¼Õ´ëÁö ¾Ê´Â´Ù).
+///   ¾È ¸ØÃß¸é BriefingAutoCloseSec µÚ ÀÚµ¿À¸·Î ´İÈù´Ù.
+/// Å¥: ¿©·¯ ÀåÀÌ °ãÄ¡¸é ¼ø¼­´ë·Î ÇÑ Àå¾¿. ¾ÀÀÌ ´Ù½Ã ·ÎµåµÇ¸é Å¥¸¦ ºñ¿ì°í ´İ´Â´Ù(Äİ¹é ¾øÀÌ).
+/// ÀÔ·Â Â÷´Ü: AugmentListUI.ReadingOpen ÀÌ BriefingUI.IsOpen À» Æ÷ÇÔÇÑ´Ù - ÀÌ¹Ì ±× ÇÃ·¡±×¸¦ º¸´Â ½Ã½ºÅÛ
+///   (ÀÏ½ÃÁ¤Áö¡¤ÀÌº¥Æ®¡¤½½·Ô ¸¶Ä¿¡¤±â°ü½Ç¡¤Á¶¸®´ë¡¤ÁÖ¹æÃ¢¡¤Á¤ºñ¼Ò)ÀÌ Ä«µå°¡ ¶° ÀÖ´Â µ¿¾È Å°¸¦ ¹«½ÃÇÑ´Ù.
+///   Å¬¸¯Àº ¾îµÓ°Ô ÆÇ(raycastTarget)ÀÌ ¾Æ·¡ Äµ¹ö½º·Î °¡´Â Å¬¸¯À» ¸·´Â´Ù.
+/// 1È¸¼º: ShowOnce(id, def) - PlayerPrefs "WDT_Brief_<id>" °¡ 1ÀÌ¸é ¾È ¶ç¿ì°í false. F4 Ä¡Æ®°¡ Áö¿î´Ù.
 ///
-/// ì‚¬ìš©ë²•: íŒŒì¼ë§Œ ë„£ìœ¼ë©´ ìë™ ìƒì„±. í˜¸ì¶œì€ ì •ì  API
-///   BriefingUI.Show(def)                       - íì— ë„£ê³  ì°¨ë¡€ê°€ ì˜¤ë©´ ë„ìš´ë‹¤
-///   BriefingUI.ShowOnce("enemy_ptera", def)    - ì²˜ìŒ í•œ ë²ˆë§Œ
-///   def = new BriefingUI.BriefDef { speaker, title, lines, keyGlyph/keyLabel ë˜ëŠ” portrait, ring, onClose }
-/// VS 2017 (C# 7.3) í˜¸í™˜
+/// »ç¿ë¹ı: ÆÄÀÏ¸¸ ³ÖÀ¸¸é ÀÚµ¿ »ı¼º. È£ÃâÀº Á¤Àû API
+///   BriefingUI.Show(def)                       - Å¥¿¡ ³Ö°í Â÷·Ê°¡ ¿À¸é ¶ç¿î´Ù
+///   BriefingUI.ShowOnce("enemy_ptera", def)    - Ã³À½ ÇÑ ¹ø¸¸
+///   def = new BriefingUI.BriefDef { speaker, title, lines, keyGlyph/keyLabel ¶Ç´Â portrait, ring, onClose }
+/// VS 2017 (C# 7.3) È£È¯
 /// </summary>
 public class BriefingUI : MonoBehaviour
 {
-    /// <summary>ë¸Œë¦¬í•‘ í•œ ì¥</summary>
+    /// <summary>ºê¸®ÇÎ ÇÑ Àå</summary>
     public class BriefDef
     {
-        public string id = "";              // 1íšŒì„± í‚¤ (ShowOnce) / ë¡œê·¸ìš©
-        public string speaker = "ìŠ¤í”¼ë…¸";    // ëª…íŒ ê¸€ì
-        public string title = "";           // ì œëª© (ê¸ˆìƒ‰ 22pt)
-        public string[] lines;              // ë³¸ë¬¸ (ìµœëŒ€ 4ì¤„ ê¶Œì¥)
-        public string keyGlyph = "";        // í‚¤ ì¹´ë“œ í° ê¸€ì (ì˜ˆ: "[E] ê¾¹") - portrait ê°€ ì—†ì„ ë•Œ
-        public string keyLabel = "";        // í‚¤ ì¹´ë“œ ì•„ë˜ í•œ ì¤„ (ì˜ˆ: "ë©ˆì¶˜ í¬íƒ‘ ê³ì—ì„œ")
-        public string portrait = "";        // ì´ˆìƒ ìŠ¤í”„ë¼ì´íŠ¸ ì´ë¦„ (SpriteBank, ì˜ˆ: "e_ptera") - ìˆìœ¼ë©´ í‚¤ ì¹´ë“œ ëŒ€ì‹ 
-        public Color ring = new Color(0.84f, 0.667f, 0.282f, 1f);   // ì´ˆìƒ íŒ í…Œ ìƒ‰ (ê¸°ë³¸ í™©ë™)
-        public System.Action onClose;       // ë‹«íŒ ë’¤ í˜¸ì¶œ (null ê°€ëŠ¥)
+        public string id = "";              // 1È¸¼º Å° (ShowOnce) / ·Î±×¿ë
+        public string speaker = "½ºÇÇ³ë";    // ¸íÆÇ ±ÛÀÚ
+        public string title = "";           // Á¦¸ñ (±İ»ö 22pt)
+        public string[] lines;              // º»¹® (ÃÖ´ë 4ÁÙ ±ÇÀå)
+        public string keyGlyph = "";        // Å° Ä«µå Å« ±ÛÀÚ (¿¹: "[E] ²Ú") - portrait °¡ ¾øÀ» ¶§
+        public string keyLabel = "";        // Å° Ä«µå ¾Æ·¡ ÇÑ ÁÙ (¿¹: "¸ØÃá Æ÷Å¾ °ç¿¡¼­")
+        public string portrait = "";        // ÃÊ»ó ½ºÇÁ¶óÀÌÆ® ÀÌ¸§ (SpriteBank, ¿¹: "e_ptera" / "ui_npc_spino"). Å°¿Í °°ÀÌ ÀÖÀ¸¸é ÃÊ»ó 1¹è À§ + Å° ¾Æ·¡
+        public Color portraitTint = Color.white;   // v1.1: ÃÊ»ó Æ¾Æ® (EnemySkin.PortraitFor °¡ ÁØ´Ù - °ÔÀÓ ¾È ±×¸²°ú °°Àº »ö)
+        public Color ring = new Color(0.84f, 0.667f, 0.282f, 1f);   // ÃÊ»ó ÆÇ Å× »ö (±âº» È²µ¿)
+        public System.Action onClose;       // ´İÈù µÚ È£Ãâ (null °¡´É)
     }
 
     public static BriefingUI Instance { get; private set; }
 
-    /// <summary>ì¹´ë“œê°€ ë–  ìˆëŠ”ì§€ (AugmentListUI.ReadingOpen ì´ ì´ ê°’ì„ í¬í•¨ - ë‹¤ë¥¸ ì‹œìŠ¤í…œ ì…ë ¥ ì°¨ë‹¨)</summary>
+    /// <summary>Ä«µå°¡ ¶° ÀÖ´ÂÁö (AugmentListUI.ReadingOpen ÀÌ ÀÌ °ªÀ» Æ÷ÇÔ - ´Ù¸¥ ½Ã½ºÅÛ ÀÔ·Â Â÷´Ü)</summary>
     public static bool IsOpen { get; private set; }
 
-    /// <summary>Enter/í´ë¦­ìœ¼ë¡œ ì¹´ë“œê°€ ë‹«íŒ í”„ë ˆì„ - ê°™ì€ í”„ë ˆì„ì˜ [Enter] ì´ì¤‘ ì†Œë¹„ ë°©ì§€ (TutorialDirector ê±´ë„ˆë›°ê¸° ë“±)</summary>
+    /// <summary>Enter/Å¬¸¯À¸·Î Ä«µå°¡ ´İÈù ÇÁ·¹ÀÓ - °°Àº ÇÁ·¹ÀÓÀÇ [Enter] ÀÌÁß ¼Òºñ ¹æÁö (TutorialDirector °Ç³Ê¶Ù±â µî)</summary>
     public static int KeyConsumedFrame = -1;
 
     private const string PREF_PREFIX = "WDT_Brief_";
-    private const float MIN_OPEN_SEC = 0.15f;    // ì—´ë¦° ì§í›„ ì´ ì‹œê°„ì€ ë‹«ê¸° ì…ë ¥ì„ ë¬´ì‹œ (ì—´ë¦¬ê²Œ í•œ í‚¤/í´ë¦­ì´ ë°”ë¡œ ë‹«ì§€ ì•Šê²Œ)
+    private const float MIN_OPEN_SEC = 0.15f;    // ¿­¸° Á÷ÈÄ ÀÌ ½Ã°£Àº ´İ±â ÀÔ·ÂÀ» ¹«½Ã (¿­¸®°Ô ÇÑ Å°/Å¬¸¯ÀÌ ¹Ù·Î ´İÁö ¾Ê°Ô)
 
     private static readonly List<BriefDef> queue = new List<BriefDef>();
 
@@ -63,13 +65,13 @@ public class BriefingUI : MonoBehaviour
     private GameObject root;
     private RectTransform panel;
     private RectTransform speakerPlate;
-    private Text speakerFallback;            // ìŠ¤í‚¨ì´ ì—†ì„ ë•Œ ëª…íŒ ëŒ€ì‹  ê¸€ì
+    private Text speakerFallback;            // ½ºÅ²ÀÌ ¾øÀ» ¶§ ¸íÆÇ ´ë½Å ±ÛÀÚ
     private Text titleText;
     private Text bodyText;
     private RectTransform portraitCard;
     private Image portraitImg;
-    private Image portraitRing;              // ìŠ¤í‚¨ ë§ (ìƒ‰ ê°±ì‹ ìš©, ì—†ìœ¼ë©´ null)
-    private Image portraitBorderImg;         // ë‹¨ìƒ‰ í´ë°± í…Œ
+    private Image portraitRing;              // ½ºÅ² ¸µ (»ö °»½Å¿ë, ¾øÀ¸¸é null)
+    private Image portraitBorderImg;         // ´Ü»ö Æú¹é Å×
     private Text keyGlyphText;
     private Text keyLabelText;
     private Text pauseNote;
@@ -79,9 +81,9 @@ public class BriefingUI : MonoBehaviour
     private bool pausedByMe;
     private float openedAt;                  // unscaled
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ë¶€íŠ¸ìŠ¤íŠ¸ë© (ì”¬ ì˜¤ë¸Œì íŠ¸ ë¶ˆí•„ìš”)
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ºÎÆ®½ºÆ®·¦ (¾À ¿ÀºêÁ§Æ® ºÒÇÊ¿ä)
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void Bootstrap()
     {
@@ -103,35 +105,35 @@ public class BriefingUI : MonoBehaviour
     private void OnDestroy()
     {
         SceneManager.sceneLoaded -= OnSceneLoaded;
-        // ì”¬ ë¦¬ë¡œë“œ ì•ˆì „ì¥ì¹˜: ì´ ì¹´ë“œê°€ ë©ˆì¶˜ ì‹œê°„ì€ ë°˜ë“œì‹œ ëŒë ¤ë†“ëŠ”ë‹¤
+        // ¾À ¸®·Îµå ¾ÈÀüÀåÄ¡: ÀÌ Ä«µå°¡ ¸ØÃá ½Ã°£Àº ¹İµå½Ã µ¹·Á³õ´Â´Ù
         if (pausedByMe) { pausedByMe = false; Time.timeScale = 1f; }
         if (Instance == this) { Instance = null; IsOpen = false; }
     }
 
-    /// <summary>ì”¬ì´ ë‹¤ì‹œ ë¡œë“œë˜ë©´(ëŸ° í¬ê¸°/ì¬ì‹œì‘) ë‚¨ì€ ì¹´ë“œëŠ” ì „ë¶€ ë²„ë¦°ë‹¤ - ì½œë°± ì—†ì´ ë‹«ëŠ”ë‹¤</summary>
+    /// <summary>¾ÀÀÌ ´Ù½Ã ·ÎµåµÇ¸é(·± Æ÷±â/Àç½ÃÀÛ) ³²Àº Ä«µå´Â ÀüºÎ ¹ö¸°´Ù - Äİ¹é ¾øÀÌ ´İ´Â´Ù</summary>
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         queue.Clear();
         if (IsOpen) CloseInternal(false);
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ì •ì  API
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    /// <summary>ì¹´ë“œë¥¼ íì— ë„£ëŠ”ë‹¤. ì•„ë¬´ê²ƒë„ ì•ˆ ë–  ìˆìœ¼ë©´ ë‹¤ìŒ í”„ë ˆì„ì— ëœ¬ë‹¤</summary>
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // Á¤Àû API
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    /// <summary>Ä«µå¸¦ Å¥¿¡ ³Ö´Â´Ù. ¾Æ¹«°Íµµ ¾È ¶° ÀÖÀ¸¸é ´ÙÀ½ ÇÁ·¹ÀÓ¿¡ ¶á´Ù</summary>
     public static void Show(BriefDef def)
     {
         if (def == null) return;
         if (!GameBalance.BriefingEnabled)
         {
-            // ì¹´ë“œë¥¼ ëˆ ìƒíƒœ: ì•ˆ ë³´ì—¬ì£¼ê³  ì½œë°±ë§Œ ë°”ë¡œ (ì§„í–‰ì´ ë§‰íˆì§€ ì•Šê²Œ)
+            // Ä«µå¸¦ ²ö »óÅÂ: ¾È º¸¿©ÁÖ°í Äİ¹é¸¸ ¹Ù·Î (ÁøÇàÀÌ ¸·È÷Áö ¾Ê°Ô)
             if (def.onClose != null) def.onClose();
             return;
         }
         queue.Add(def);
     }
 
-    /// <summary>ì²˜ìŒ í•œ ë²ˆë§Œ ë„ìš´ë‹¤. ì´ë¯¸ ë³¸ ì¹´ë“œë©´ false (ì½œë°±ë„ ì•ˆ ë¶€ë¥¸ë‹¤)</summary>
+    /// <summary>Ã³À½ ÇÑ ¹ø¸¸ ¶ç¿î´Ù. ÀÌ¹Ì º» Ä«µå¸é false (Äİ¹éµµ ¾È ºÎ¸¥´Ù)</summary>
     public static bool ShowOnce(string id, BriefDef def)
     {
         if (def == null || string.IsNullOrEmpty(id)) return false;
@@ -143,26 +145,26 @@ public class BriefingUI : MonoBehaviour
         return true;
     }
 
-    /// <summary>ì´ ì¹´ë“œë¥¼ ë³¸ ì ì´ ìˆëŠ”ê°€</summary>
+    /// <summary>ÀÌ Ä«µå¸¦ º» ÀûÀÌ ÀÖ´Â°¡</summary>
     public static bool HasSeen(string id)
     {
         return PlayerPrefs.GetInt(PREF_PREFIX + id, 0) == 1;
     }
 
-    /// <summary>ëŒ€ê¸° ì¤‘ì¸ ì¹´ë“œ ì „ë¶€ ë²„ë¦¬ê¸° (íŠœí† ë¦¬ì–¼ ê·¸ë§Œë‘ê¸° ë“±)</summary>
+    /// <summary>´ë±â ÁßÀÎ Ä«µå ÀüºÎ ¹ö¸®±â (Æ©Åä¸®¾ó ±×¸¸µÎ±â µî)</summary>
     public static void ClearQueue()
     {
         queue.Clear();
     }
 
-    /// <summary>ë–  ìˆëŠ” ì¹´ë“œ + í ì „ë¶€ ë‹«ê¸° (ì½œë°± ì—†ì´)</summary>
+    /// <summary>¶° ÀÖ´Â Ä«µå + Å¥ ÀüºÎ ´İ±â (Äİ¹é ¾øÀÌ)</summary>
     public static void CloseAll()
     {
         queue.Clear();
         if (Instance != null && IsOpen) Instance.CloseInternal(false);
     }
 
-    /// <summary>1íšŒì„± ê¸°ë¡ ì „ì²´ ì‚­ì œ (ì¹˜íŠ¸ F4). ids = ì§€ìš¸ í‚¤ ëª©ë¡ì´ ì—†ìœ¼ë©´ ì•Œë ¤ì§„ ì ‘ë‘ì–´ë¡œëŠ” ì§€ìš¸ ìˆ˜ ì—†ìœ¼ë¯€ë¡œ í˜¸ì¶œë¶€ê°€ ëª©ë¡ì„ ì¤€ë‹¤</summary>
+    /// <summary>1È¸¼º ±â·Ï ÀüÃ¼ »èÁ¦ (Ä¡Æ® F4). ids = Áö¿ï Å° ¸ñ·ÏÀÌ ¾øÀ¸¸é ¾Ë·ÁÁø Á¢µÎ¾î·Î´Â Áö¿ï ¼ö ¾øÀ¸¹Ç·Î È£ÃâºÎ°¡ ¸ñ·ÏÀ» ÁØ´Ù</summary>
     public static void ResetSeen(string[] ids)
     {
         if (ids == null) return;
@@ -170,15 +172,15 @@ public class BriefingUI : MonoBehaviour
         PlayerPrefs.Save();
     }
 
-    /// <summary>íì— ì¹´ë“œê°€ ë‚¨ì•„ ìˆê±°ë‚˜ ë–  ìˆëŠ”ê°€ (ë””ë ‰í„°ê°€ "ë‹¤ ì½ì—ˆë‚˜" í™•ì¸ìš©)</summary>
+    /// <summary>Å¥¿¡ Ä«µå°¡ ³²¾Æ ÀÖ°Å³ª ¶° ÀÖ´Â°¡ (µğ·ºÅÍ°¡ "´Ù ÀĞ¾ú³ª" È®ÀÎ¿ë)</summary>
     public static bool Busy
     {
         get { return IsOpen || queue.Count > 0; }
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ë§¤ í”„ë ˆì„
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ¸Å ÇÁ·¹ÀÓ
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     private void Update()
     {
         if (!IsOpen)
@@ -187,7 +189,7 @@ public class BriefingUI : MonoBehaviour
             return;
         }
 
-        // ìë™ ë‹«í˜ (ì‹œê°„ì„ ì•ˆ ë©ˆì¶”ëŠ” ì„¤ì •)
+        // ÀÚµ¿ ´İÈû (½Ã°£À» ¾È ¸ØÃß´Â ¼³Á¤)
         if (!GameBalance.BriefingPausesTime && Time.unscaledTime - openedAt >= GameBalance.BriefingAutoCloseSec)
         {
             CloseInternal(true);
@@ -205,12 +207,13 @@ public class BriefingUI : MonoBehaviour
         }
     }
 
-    /// <summary>ë‹¤ë¥¸ ì „ì²´ í™”ë©´ ì—°ì¶œ/ë©”ë‰´ê°€ ë–  ìˆìœ¼ë©´ ê·¸ ë’¤ì— ë„ìš´ë‹¤</summary>
+    /// <summary>´Ù¸¥ ÀüÃ¼ È­¸é ¿¬Ãâ/¸Ş´º°¡ ¶° ÀÖÀ¸¸é ±× µÚ¿¡ ¶ç¿î´Ù</summary>
     private static bool CanOpenNow()
     {
-        // ë‹¤ë¥¸ ì •ì§€ ì°½(ì •ë¹„ì†Œ/ì—´ëŒ/ì¦ê°• ì„ íƒ) ìœ„ì— ì—´ë¦¬ë©´ ì‹œê°„ ì†Œìœ ê¶Œì´ ê¼¬ì¸ë‹¤ - ê·¸ìª½ì´ ë‹«í ë•Œê¹Œì§€ ê¸°ë‹¤ë¦°ë‹¤
+        // ´Ù¸¥ Á¤Áö Ã¢(Á¤ºñ¼Ò/¿­¶÷) À§¿¡ ¿­¸®¸é ½Ã°£ ¼ÒÀ¯±ÇÀÌ ²¿ÀÎ´Ù - ±×ÂÊÀÌ ´İÈú ¶§±îÁö ±â´Ù¸°´Ù.
+        // v1.1: Áõ°­ ¼±ÅÃÃ¢ À§¿¡´Â ¿¬´Ù (ÀÌ¹Ì ¸ØÃá È­¸éÀÌ¶ó pausedByMe °¡ false - ½Ã°£Àº ±×ÂÊÀÌ µ¹·ÁÁØ´Ù). ½Â°İ Ä«µå "Áõ°­ ¼±ÅÃ" ÀÌ ±× À§¿¡¼­ ÀĞÇô¾ß ÇÑ´Ù
         return !StoryTexts.IsBlocking && !PauseMenu.IsOpen && !CookingMinigame.IsActive
-            && !WorkshopUI.IsOpen && !AugmentListUI.ReadingOpen && !AugmentPickUI.IsOpen;
+            && !WorkshopUI.IsOpen && !AugmentListUI.ReadingOpen;
     }
 
     private void OpenNext()
@@ -225,13 +228,13 @@ public class BriefingUI : MonoBehaviour
 
         if (GameBalance.BriefingPausesTime)
         {
-            pausedByMe = Time.timeScale > 0f;    // ì´ë¯¸ ë©ˆì¶˜ í™”ë©´ ìœ„ë©´ ì†ëŒ€ì§€ ì•ŠëŠ”ë‹¤
+            pausedByMe = Time.timeScale > 0f;    // ÀÌ¹Ì ¸ØÃá È­¸é À§¸é ¼Õ´ëÁö ¾Ê´Â´Ù
             if (pausedByMe) Time.timeScale = 0f;
         }
         else pausedByMe = false;
 
-        SoundManager.Play("sfx_ui_click");   // í´ë¦½ ì—†ìœ¼ë©´ ë¬´ì‹œ
-        Debug.Log("[BriefingUI] ì¹´ë“œ: " + (string.IsNullOrEmpty(current.id) ? current.title : current.id));
+        SoundManager.Play("sfx_ui_click");   // Å¬¸³ ¾øÀ¸¸é ¹«½Ã
+        Debug.Log("[BriefingUI] Ä«µå: " + (string.IsNullOrEmpty(current.id) ? current.title : current.id));
     }
 
     private void CloseInternal(bool invokeCallback)
@@ -244,7 +247,7 @@ public class BriefingUI : MonoBehaviour
         if (pausedByMe)
         {
             pausedByMe = false;
-            // ë‹¤ë¥¸ ì •ì§€ UI ê°€ ë–  ìˆìœ¼ë©´ ê·¸ìª½ì´ ë‹«í ë•Œ ì‹œê°„ì„ ëŒë ¤ì¤€ë‹¤
+            // ´Ù¸¥ Á¤Áö UI °¡ ¶° ÀÖÀ¸¸é ±×ÂÊÀÌ ´İÈú ¶§ ½Ã°£À» µ¹·ÁÁØ´Ù
             if (!PauseMenu.IsOpen && !AugmentPickUI.IsOpen && !WorkshopUI.IsOpen
                 && !FinalOrderUI.QteOpen && !BranchRouteUI.IsOpen && !AugmentListUI.IsOpen && !JournalViewerUI.IsOpen)
                 Time.timeScale = 1f;
@@ -253,12 +256,12 @@ public class BriefingUI : MonoBehaviour
         if (invokeCallback && closed != null && closed.onClose != null) closed.onClose();
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ë‚´ìš© ì±„ìš°ê¸°
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ³»¿ë Ã¤¿ì±â
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     private void Fill(BriefDef def)
     {
-        // í™”ì ëª…íŒ
+        // È­ÀÚ ¸íÆÇ
         if (speakerPlate != null) UISkin.Relabel(speakerPlate, def.speaker, 16);
         if (speakerFallback != null) speakerFallback.text = def.speaker;
 
@@ -270,46 +273,84 @@ public class BriefingUI : MonoBehaviour
                 body += (i > 0 ? "\n" : "") + def.lines[i];
         bodyText.text = body;
 
-        // ì´ˆìƒ / í‚¤ ì¹´ë“œ
+        // ÃÊ»ó / Å° Ä«µå - v1.1 ±ÔÄ¢: ÃÊ»ó + Å° = ÃÊ»ó 1¹è(À§) + Å° ¾Æ·¡ / ÃÊ»ó¸¸ = 2¹è / Å°¸¸ = Å« Å° ±ÛÀÚ
         Sprite p = string.IsNullOrEmpty(def.portrait) ? null : SpriteBank.Get(def.portrait);
         bool hasPortrait = p != null;
+        bool hasKey = !string.IsNullOrEmpty(def.keyGlyph);
         portraitImg.gameObject.SetActive(hasPortrait);
-        keyGlyphText.gameObject.SetActive(!hasPortrait);
-        keyLabelText.gameObject.SetActive(!hasPortrait);
+        keyGlyphText.gameObject.SetActive(hasKey || !hasPortrait);
+        keyLabelText.gameObject.SetActive(hasKey || !hasPortrait);
         if (hasPortrait)
         {
             portraitImg.sprite = p;
-            // ì›”ë“œ ìŠ¤í”„ë¼ì´íŠ¸(32ppu)ëŠ” í”½ì…€ í¬ê¸° ê·¸ëŒ€ë¡œ 2ë°° (200 ì„ ë„˜ìœ¼ë©´ 1ë°°) - ë„íŠ¸ê°€ ë­‰ê°œì§€ì§€ ì•Šê²Œ ì •ìˆ˜ ë°°
+            portraitImg.color = def.portraitTint;
             float w = p.rect.width, h = p.rect.height;
-            float k = (Mathf.Max(w, h) * 2f <= 200f) ? 2f : 1f;
-            portraitImg.rectTransform.sizeDelta = new Vector2(w * k, h * k);
+            if (hasKey)
+            {
+                // À§ÂÊ 100px ¿µ¿ª¿¡ 1¹è (110 ³ÑÀ¸¸é ¹İ¹è, ±×·¡µµ Å©¸é ¸ÂÃç ÁÙÀÓ) - ½Ç·ç¿§ 96x96 / ¼Õ´Ô ½ºÇÁ¶óÀÌÆ®
+                float mx = Mathf.Max(w, h);
+                float k = mx <= 110f ? 1f : (mx <= 220f ? 0.5f : 100f / mx);
+                portraitImg.rectTransform.sizeDelta = new Vector2(w * k, h * k);
+                portraitImg.rectTransform.anchoredPosition = new Vector2(0f, 42f);
+            }
+            else
+            {
+                // ¿ùµå ½ºÇÁ¶óÀÌÆ®(32ppu)´Â ÇÈ¼¿ Å©±â ±×´ë·Î 2¹è (200 À» ³ÑÀ¸¸é 1¹è, ±×·¡µµ Å©¸é 200 ¿¡ ¸ÂÃã) - µµÆ®°¡ ¹¶°³ÁöÁö ¾Ê°Ô Á¤¼ö ¹è ¿ì¼±
+                float mx = Mathf.Max(w, h);
+                float k = (mx * 2f <= 200f) ? 2f : (mx <= 200f ? 1f : 200f / mx);
+                portraitImg.rectTransform.sizeDelta = new Vector2(w * k, h * k);
+                portraitImg.rectTransform.anchoredPosition = Vector2.zero;
+            }
         }
-        else
+        if (hasKey || !hasPortrait)
         {
             keyGlyphText.text = def.keyGlyph;
             keyLabelText.text = def.keyLabel;
+            LayoutKeyCard(hasPortrait);
         }
         Color ring = def.ring; ring.a = 1f;
         if (portraitRing != null) portraitRing.color = ring;
         if (portraitBorderImg != null) portraitBorderImg.color = ring;
 
-        pauseNote.text = GameBalance.BriefingPausesTime ? "ì‹œê°„ ì •ì§€ ì¤‘" : "";
-        closeHint.text = "[Enter] ì•Œê² ë‹¤";
+        pauseNote.text = GameBalance.BriefingPausesTime ? "½Ã°£ Á¤Áö Áß" : "";
+        closeHint.text = "[Enter] ¾Ë°Ú´Ù";
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // UI ìƒì„± (ëª©ì—… v2 (D) ì¢Œí‘œ)
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    /// <summary>Å° Ä«µå ¹èÄ¡: ÃÊ»ó°ú °°ÀÌ¸é ¾Æ·¡ÂÊ(±ÛÀÚ 40pt, ¶óº§ y 12) / Å°¸¸ÀÌ¸é ÆÇ À§ÂÊ Àı¹İ(54pt, ¶óº§ y 24)</summary>
+    private void LayoutKeyCard(bool withPortrait)
+    {
+        RectTransform g = keyGlyphText.rectTransform, l = keyLabelText.rectTransform;
+        if (withPortrait)
+        {
+            g.anchorMin = new Vector2(0f, 0f); g.anchorMax = new Vector2(1f, 0f); g.pivot = new Vector2(0.5f, 0f);
+            g.anchoredPosition = new Vector2(0f, 40f); g.sizeDelta = new Vector2(-12f, 48f);
+            keyGlyphText.resizeTextMinSize = 20; keyGlyphText.resizeTextMaxSize = 40;
+            l.anchoredPosition = new Vector2(0f, 12f); l.sizeDelta = new Vector2(-12f, 24f);
+            keyLabelText.fontSize = 15;
+        }
+        else
+        {
+            g.anchorMin = new Vector2(0f, 0.5f); g.anchorMax = new Vector2(1f, 1f); g.pivot = new Vector2(0.5f, 0.5f);
+            g.offsetMin = new Vector2(6f, -40f); g.offsetMax = new Vector2(-6f, -40f);
+            keyGlyphText.resizeTextMinSize = 24; keyGlyphText.resizeTextMaxSize = 54;
+            l.anchoredPosition = new Vector2(0f, 24f); l.sizeDelta = new Vector2(-12f, 30f);
+            keyLabelText.fontSize = 16;
+        }
+    }
+
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // UI »ı¼º (¸ñ¾÷ v2 (D) ÁÂÇ¥)
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     private const float PANEL_W = 860f;
     private const float PANEL_H = 300f;
-    private const float PANEL_CY = 180f;     // center ì•µì»¤ ê¸°ì¤€ y (+ = ìœ„)
+    private const float PANEL_CY = 180f;     // center ¾ŞÄ¿ ±âÁØ y (+ = À§)
 
     private void BuildUI()
     {
-        canvas = UIFactory.CreateCanvas("Briefing_Canvas", 720);   // ì¼ì‹œì •ì§€(700) ìœ„
+        canvas = UIFactory.CreateCanvas("Briefing_Canvas", 720);   // ÀÏ½ÃÁ¤Áö(700) À§
         canvas.transform.SetParent(transform, false);
 
-        // ì–´ë‘¡ê²Œ (í´ë¦­ ì°¨ë‹¨ - raycastTarget)
+        // ¾îµÓ°Ô (Å¬¸¯ Â÷´Ü - raycastTarget)
         root = new GameObject("Dim");
         root.transform.SetParent(canvas.transform, false);
         RectTransform dimRt = root.AddComponent<RectTransform>();
@@ -319,7 +360,7 @@ public class BriefingUI : MonoBehaviour
         dim.color = new Color(0f, 0f, 0f, 0.55f);
         dim.raycastTarget = true;
 
-        // íŒŒì´í”„ ì°½ (860x300 >= 600x150 + í…Œ 3 = íŒŒì´í”„ í”„ë ˆì„. ìŠ¤í‚¨ ì—†ìœ¼ë©´ ë‹¨ìƒ‰ ë°•ìŠ¤ + êµ¬ë¦¬ í…Œ)
+        // ÆÄÀÌÇÁ Ã¢ (860x300 >= 600x150 + Å× 3 = ÆÄÀÌÇÁ ÇÁ·¹ÀÓ. ½ºÅ² ¾øÀ¸¸é ´Ü»ö ¹Ú½º + ±¸¸® Å×)
         panel = UIFactory.CreatePanel(root.transform, "BriefingPanel",
             new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
             new Vector2(-PANEL_W * 0.5f, PANEL_CY - PANEL_H * 0.5f),
@@ -328,25 +369,25 @@ public class BriefingUI : MonoBehaviour
 
         bool skin = UISkin.Available;
 
-        // í™”ì ëª…íŒ (íŒŒì´í”„ ìœ„ì— 4px ê±¸ë¦¼) - ìŠ¤í‚¨ ì—†ìœ¼ë©´ ê¸ˆìƒ‰ ê¸€ì
+        // È­ÀÚ ¸íÆÇ (ÆÄÀÌÇÁ À§¿¡ 4px °É¸²) - ½ºÅ² ¾øÀ¸¸é ±İ»ö ±ÛÀÚ
         if (skin)
-            speakerPlate = UISkin.Nameplate(panel, "Speaker", "ìŠ¤í”¼ë…¸", 16, new Vector2(0f, 1f), new Vector2(26f, 4f));
+            speakerPlate = UISkin.Nameplate(panel, "Speaker", "½ºÇÇ³ë", 16, new Vector2(0f, 1f), new Vector2(26f, 4f));
         else
         {
-            speakerFallback = UIFactory.CreateText(panel, "Speaker", "ìŠ¤í”¼ë…¸", 16, UIFactory.GOLD, TextAnchor.MiddleLeft);
+            speakerFallback = UIFactory.CreateText(panel, "Speaker", "½ºÇÇ³ë", 16, UIFactory.GOLD, TextAnchor.MiddleLeft);
             PlaceTopLeft(speakerFallback.rectTransform, 40f, -12f, 300f, 26f);
         }
 
-        // ì œëª© / ë³¸ë¬¸
+        // Á¦¸ñ / º»¹®
         titleText = UIFactory.CreateText(panel, "Title", "", 22, UIFactory.GOLD, TextAnchor.MiddleLeft);
         PlaceTopLeft(titleText.rectTransform, 40f, -44f, 560f, 32f);
 
         bodyText = UIFactory.CreateText(panel, "Body", "", 17, UIFactory.CREAM, TextAnchor.UpperLeft);
         PlaceTopLeft(bodyText.rectTransform, 40f, -90f, 560f, 130f);
         bodyText.lineSpacing = 1.3f;
-        bodyText.horizontalOverflow = HorizontalWrapMode.Wrap;   // ê¸´ ì¤„ì€ ì ‘ëŠ”ë‹¤ (560 í­)
+        bodyText.horizontalOverflow = HorizontalWrapMode.Wrap;   // ±ä ÁÙÀº Á¢´Â´Ù (560 Æø)
 
-        // ì´ˆìƒ íŒ 220x200 (ì˜¤ë¥¸ìª½ ìœ„ (-30,-40), ì•„ë˜ ë y 60 = "[Enter] ì•Œê² ë‹¤" ì¤„ ìœ„) - ë§ ì¹´ë“œ
+        // ÃÊ»ó ÆÇ 220x200 (¿À¸¥ÂÊ À§ (-30,-40), ¾Æ·¡ ³¡ y 60 = "[Enter] ¾Ë°Ú´Ù" ÁÙ À§) - ¸µ Ä«µå
         portraitCard = UIFactory.CreatePanel(panel, "Portrait",
             new Vector2(1f, 1f), new Vector2(1f, 1f),
             new Vector2(-30f - 220f, -40f - 200f), new Vector2(-30f, -40f),
@@ -354,7 +395,7 @@ public class BriefingUI : MonoBehaviour
         portraitBorderImg = portraitCard.GetComponent<Image>();
         if (skin)
         {
-            // CreatePanel ì´ ë°”ê¹¥ ì´ë¯¸ì§€ë¥¼ ë§ìœ¼ë¡œ ì…í˜”ë‹¤ - ìƒ‰ ê°±ì‹ ì€ ê·¸ ì´ë¯¸ì§€ì—
+            // CreatePanel ÀÌ ¹Ù±ù ÀÌ¹ÌÁö¸¦ ¸µÀ¸·Î ÀÔÇû´Ù - »ö °»½ÅÀº ±× ÀÌ¹ÌÁö¿¡
             portraitRing = portraitBorderImg;
             portraitBorderImg = null;
         }
@@ -370,7 +411,7 @@ public class BriefingUI : MonoBehaviour
 
         keyGlyphText = UIFactory.CreateText(portraitCard, "KeyGlyph", "", 54, UIFactory.GOLD, TextAnchor.MiddleCenter);
         keyGlyphText.rectTransform.anchorMin = new Vector2(0f, 0.5f); keyGlyphText.rectTransform.anchorMax = new Vector2(1f, 1f);
-        keyGlyphText.rectTransform.offsetMin = new Vector2(6f, -40f); keyGlyphText.rectTransform.offsetMax = new Vector2(-6f, -40f);   // íŒ ìœ„ìª½ ì ˆë°˜, ê°€ìš´ë° (ëª©ì—… y 96)
+        keyGlyphText.rectTransform.offsetMin = new Vector2(6f, -40f); keyGlyphText.rectTransform.offsetMax = new Vector2(-6f, -40f);   // ÆÇ À§ÂÊ Àı¹İ, °¡¿îµ¥ (¸ñ¾÷ y 96)
         keyGlyphText.resizeTextForBestFit = true; keyGlyphText.resizeTextMinSize = 24; keyGlyphText.resizeTextMaxSize = 54;
         keyGlyphText.horizontalOverflow = HorizontalWrapMode.Wrap;
 
@@ -379,13 +420,13 @@ public class BriefingUI : MonoBehaviour
         keyLabelText.rectTransform.pivot = new Vector2(0.5f, 0f);
         keyLabelText.rectTransform.anchoredPosition = new Vector2(0f, 24f); keyLabelText.rectTransform.sizeDelta = new Vector2(-12f, 30f);
 
-        // ì•„ë˜ ì¤„
-        pauseNote = UIFactory.CreateText(panel, "PauseNote", "ì‹œê°„ ì •ì§€ ì¤‘", 13, UIFactory.DIM, TextAnchor.LowerLeft);
+        // ¾Æ·¡ ÁÙ
+        pauseNote = UIFactory.CreateText(panel, "PauseNote", "½Ã°£ Á¤Áö Áß", 13, UIFactory.DIM, TextAnchor.LowerLeft);
         pauseNote.rectTransform.anchorMin = new Vector2(0f, 0f); pauseNote.rectTransform.anchorMax = new Vector2(0f, 0f);
         pauseNote.rectTransform.pivot = new Vector2(0f, 0f);
         pauseNote.rectTransform.anchoredPosition = new Vector2(40f, 34f); pauseNote.rectTransform.sizeDelta = new Vector2(300f, 20f);
 
-        closeHint = UIFactory.CreateText(panel, "CloseHint", "[Enter] ì•Œê² ë‹¤", 15, UIFactory.DIM, TextAnchor.LowerRight);
+        closeHint = UIFactory.CreateText(panel, "CloseHint", "[Enter] ¾Ë°Ú´Ù", 15, UIFactory.DIM, TextAnchor.LowerRight);
         closeHint.rectTransform.anchorMin = new Vector2(1f, 0f); closeHint.rectTransform.anchorMax = new Vector2(1f, 0f);
         closeHint.rectTransform.pivot = new Vector2(1f, 0f);
         closeHint.rectTransform.anchoredPosition = new Vector2(-40f, 34f); closeHint.rectTransform.sizeDelta = new Vector2(300f, 22f);

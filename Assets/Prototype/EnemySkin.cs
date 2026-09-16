@@ -2,31 +2,31 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// [EnemySkin.cs] v1.1 (v9.8: ìœ„í—˜ ì  ì „ìš© ìŠ¤í”„ë¼ì´íŠ¸ ê·œì¹™) / v1 (ì‹ ê·œ íŒŒì¼) - í”„ë¦¬íŒ¹ ì ì—ê²Œ PNG ìŠ¤í”„ë¼ì´íŠ¸ ì…íˆê¸° (2026-09-07)
+/// [EnemySkin.cs] v1.2 (v9.9.2 2026-09-16: PortraitFor - ºê¸®ÇÎ Ä«µå ÃÊ»ó¿ë ½ºÇÁ¶óÀÌÆ®¡¤Æ¾Æ® Á¶È¸, ±ÔÄ¢ Ç¥ °ø¿ë) / v1.1 (v9.8: À§Çè Àû Àü¿ë ½ºÇÁ¶óÀÌÆ® ±ÔÄ¢) / v1 (½Å±Ô ÆÄÀÏ) - ÇÁ¸®ÆÕ Àû¿¡°Ô PNG ½ºÇÁ¶óÀÌÆ® ÀÔÈ÷±â (2026-09-07)
 ///
-/// - v1.1: ê·œì¹™ í‘œ ë§¨ ì•ì— ì „ìš© ê·¸ë¦¼ 4ì¢…(í”Œë¼ì´ e_fly / íŒŒë¼ì‚¬ìš° e_parasaur / ì¹´ë¥´ë…¸ e_carno / ëª¨ì‚¬ e_mosa)ì„ ì¶”ê°€.
-///   PNG ê°€ ì—†ìœ¼ë©´ ê·¸ ê·œì¹™ì€ ê±´ë„ˆë›°ê³  ë‹¤ìŒ ë§ëŠ” ê·œì¹™(ì˜ˆì „ í‹´íŠ¸ ëŒ€ì²´)ìœ¼ë¡œ ë‚´ë ¤ê°„ë‹¤ -> PNG ë§Œ ë„£ìœ¼ë©´ ë°”ë€Œê³ , ë¹¼ë©´ ì›ë˜ëŒ€ë¡œ
+/// - v1.1: ±ÔÄ¢ Ç¥ ¸Ç ¾Õ¿¡ Àü¿ë ±×¸² 4Á¾(ÇÃ¶óÀÌ e_fly / ÆÄ¶ó»ç¿ì e_parasaur / Ä«¸£³ë e_carno / ¸ğ»ç e_mosa)À» Ãß°¡.
+///   PNG °¡ ¾øÀ¸¸é ±× ±ÔÄ¢Àº °Ç³Ê¶Ù°í ´ÙÀ½ ¸Â´Â ±ÔÄ¢(¿¹Àü Æ¾Æ® ´ëÃ¼)À¸·Î ³»·Á°£´Ù -> PNG ¸¸ ³ÖÀ¸¸é ¹Ù²î°í, »©¸é ¿ø·¡´ë·Î
 ///
-/// ë¬¸ì œ: WaveManager v6.4ëŠ” "í”„ë¦¬íŒ¹ì´ ì—†ëŠ” ì¢…"(ì½”ë“œ í´ë°±)ì—ë§Œ e_*.pngë¥¼ ì…í˜”ë‹¤. ì”¬ì— í”„ë¦¬íŒ¹ì´ í• ë‹¹ëœ ì¢…ì€
-///       í”„ë¦¬íŒ¹ì˜ placeholder ê·¸ë¦¼ì´ ê·¸ëŒ€ë¡œ ë‚˜ì™€ì„œ ìœ ì € ëˆˆì—ëŠ” "ëª¬ìŠ¤í„° ìŠ¤í”„ë¼ì´íŠ¸ê°€ ì•ˆ ë§Œë“¤ì–´ì§„" ê²ƒìœ¼ë¡œ ë³´ì˜€ë‹¤.
-/// í•´ê²°: 0.2ì´ˆë§ˆë‹¤ ì‚´ì•„ìˆëŠ” Enemyë¥¼ í›‘ì–´ ì•„ì§ ìŠ¤í‚¨ì´ ì—†ëŠ” ì ì—ê²Œ PNG ìì‹("Skin")ì„ ë¶™ì´ê³  í”„ë¦¬íŒ¹ ë Œë”ëŸ¬ëŠ” ëˆë‹¤.
-///       WaveManager/Enemy/í”„ë¦¬íŒ¹ì€ ê±´ë“œë¦¬ì§€ ì•ŠëŠ”ë‹¤ (ìŠ¤í° ê²½ë¡œê°€ ëª‡ ê°œë“  ì „ë¶€ ì¡íŒë‹¤). ë³´ìŠ¤(BossEnemy)ëŠ” ì œì™¸.
+/// ¹®Á¦: WaveManager v6.4´Â "ÇÁ¸®ÆÕÀÌ ¾ø´Â Á¾"(ÄÚµå Æú¹é)¿¡¸¸ e_*.png¸¦ ÀÔÇû´Ù. ¾À¿¡ ÇÁ¸®ÆÕÀÌ ÇÒ´çµÈ Á¾Àº
+///       ÇÁ¸®ÆÕÀÇ placeholder ±×¸²ÀÌ ±×´ë·Î ³ª¿Í¼­ À¯Àú ´«¿¡´Â "¸ó½ºÅÍ ½ºÇÁ¶óÀÌÆ®°¡ ¾È ¸¸µé¾îÁø" °ÍÀ¸·Î º¸¿´´Ù.
+/// ÇØ°á: 0.2ÃÊ¸¶´Ù »ì¾ÆÀÖ´Â Enemy¸¦ ÈÈ¾î ¾ÆÁ÷ ½ºÅ²ÀÌ ¾ø´Â Àû¿¡°Ô PNG ÀÚ½Ä("Skin")À» ºÙÀÌ°í ÇÁ¸®ÆÕ ·»´õ·¯´Â ²ö´Ù.
+///       WaveManager/Enemy/ÇÁ¸®ÆÕÀº °Çµå¸®Áö ¾Ê´Â´Ù (½ºÆù °æ·Î°¡ ¸î °³µç ÀüºÎ ÀâÈù´Ù). º¸½º(BossEnemy)´Â Á¦¿Ü.
 ///
-/// ì¢… ë§¤í•‘ (ì´ë¦„ í‚¤ì›Œë“œ -> PNG): 6ì¢…ì€ ì „ìš© ê·¸ë¦¼, ë‚˜ë¨¸ì§€ 10ì¢…ì€ **ê°€ì¥ ë¹„ìŠ·í•œ ê·¸ë¦¼ + ìƒ‰ í‹´íŠ¸ + í¬ê¸°**ë¡œ ì„ì‹œ ëŒ€ì²´
-///   (ì „ìš© ê·¸ë¦¼ì´ ë‚˜ì˜¤ë©´ e_<ì´ë¦„>.png ë§Œ ì¶”ê°€í•˜ê³  í‘œì˜ png ì´ë¦„ì„ ë°”ê¾¸ë©´ ëœë‹¤)
-///   ê°•ì²  -> e_steel / ì „ê°ˆ -> e_scorpion / ê±°ë¶ -> e_tortoise / ë„¤í¬ë¡œÂ·ìŠ¤í”¼ë…¸ -> e_necro / ë©í„° -> e_raptor
-///   í…Œë¼ë…¸ëˆ(ë…¸ë‘)Â·í”„í…Œë¼(ë³´ë¼)Â·í”Œë¼ì´(í•˜ëŠ˜, ì‘ê²Œ)Â·ìµë£¡Â·í”„í…Œë¡œ(ì£¼í™©) -> e_ptera
-///   ì•„ë¥´ë§ˆë”œë¡œÂ·ì•ˆí‚¬ë¡œ(ë…¹íšŒìƒ‰, ì‘ê²Œ)Â·íŒŒí‚¤(ë¶„í™)Â·ë§˜ëª¨ìŠ¤(ì²­ë°±, í¬ê²Œ) -> e_tortoise
-///   ìº‘í„°ìŠ¤(ì´ˆë¡, ì‘ê²Œ) -> e_necro / íŒŒë¼ì‚¬ìš°(ìí™) -> e_raptor / ì¹´ë¥´ë…¸(ì£¼í™, í¬ê²Œ) -> e_raptor / ëª¨ì‚¬(í•˜ëŠ˜, í¬ê²Œ) -> e_steel
-/// í¬ê¸°: WaveManager í´ë°±ê³¼ ë™ì¼ ê·œì¹™ (PNG_SCALE 0.6 x ì²´ë ¥ ë©ì¹˜ 0.85~1.4 x ì¢… ë°°ìœ¨), í”„ë¦¬íŒ¹ ë£¨íŠ¸ ìŠ¤ì¼€ì¼ì€ ë³´ì •
-/// ì •ë ¬ 5 (ë°í¬/í¬íƒ‘ ìœ„, ì²˜ì¹˜ íŒ ì•„ë˜). ê·¸ë¦¼ì€ +xë¥¼ í–¥í•´ ê·¸ë ¤ì ¸ ìˆê³  Enemyê°€ ì´ë™ ë°©í–¥ìœ¼ë¡œ íšŒì „ì‹œí‚¨ë‹¤
+/// Á¾ ¸ÅÇÎ (ÀÌ¸§ Å°¿öµå -> PNG): 6Á¾Àº Àü¿ë ±×¸², ³ª¸ÓÁö 10Á¾Àº **°¡Àå ºñ½ÁÇÑ ±×¸² + »ö Æ¾Æ® + Å©±â**·Î ÀÓ½Ã ´ëÃ¼
+///   (Àü¿ë ±×¸²ÀÌ ³ª¿À¸é e_<ÀÌ¸§>.png ¸¸ Ãß°¡ÇÏ°í Ç¥ÀÇ png ÀÌ¸§À» ¹Ù²Ù¸é µÈ´Ù)
+///   °­Ã¶ -> e_steel / Àü°¥ -> e_scorpion / °ÅºÏ -> e_tortoise / ³×Å©·Î¡¤½ºÇÇ³ë -> e_necro / ·¦ÅÍ -> e_raptor
+///   Å×¶ó³ëµ·(³ë¶û)¡¤ÇÁÅ×¶ó(º¸¶ó)¡¤ÇÃ¶óÀÌ(ÇÏ´Ã, ÀÛ°Ô)¡¤ÀÍ·æ¡¤ÇÁÅ×·Î(ÁÖÈ²) -> e_ptera
+///   ¾Æ¸£¸¶µô·Î¡¤¾ÈÅ³·Î(³ìÈ¸»ö, ÀÛ°Ô)¡¤ÆÄÅ°(ºĞÈ«)¡¤¸¾¸ğ½º(Ã»¹é, Å©°Ô) -> e_tortoise
+///   Ä´ÅÍ½º(ÃÊ·Ï, ÀÛ°Ô) -> e_necro / ÆÄ¶ó»ç¿ì(ÀÚÈ«) -> e_raptor / Ä«¸£³ë(ÁÖÈ«, Å©°Ô) -> e_raptor / ¸ğ»ç(ÇÏ´Ã, Å©°Ô) -> e_steel
+/// Å©±â: WaveManager Æú¹é°ú µ¿ÀÏ ±ÔÄ¢ (PNG_SCALE 0.6 x Ã¼·Â µ¢Ä¡ 0.85~1.4 x Á¾ ¹èÀ²), ÇÁ¸®ÆÕ ·çÆ® ½ºÄÉÀÏÀº º¸Á¤
+/// Á¤·Ä 5 (µ¥Å©/Æ÷Å¾ À§, Ã³Ä¡ ÆË ¾Æ·¡). ±×¸²Àº +x¸¦ ÇâÇØ ±×·ÁÁ® ÀÖ°í Enemy°¡ ÀÌµ¿ ¹æÇâÀ¸·Î È¸Àü½ÃÅ²´Ù
 ///
-/// ì‚¬ìš©ë²•: ì—†ìŒ! íŒŒì¼ë§Œ ë„£ìœ¼ë©´ ê²Œì„ ì‹œì‘ ì‹œ ìŠ¤ìŠ¤ë¡œ ìƒì„±ëœë‹¤. (SpriteBank.cs + e_*.png í•„ìš”)
-/// VS 2017 (C# 7.3) í˜¸í™˜
+/// »ç¿ë¹ı: ¾øÀ½! ÆÄÀÏ¸¸ ³ÖÀ¸¸é °ÔÀÓ ½ÃÀÛ ½Ã ½º½º·Î »ı¼ºµÈ´Ù. (SpriteBank.cs + e_*.png ÇÊ¿ä)
+/// VS 2017 (C# 7.3) È£È¯
 /// </summary>
 public class EnemySkin : MonoBehaviour
 {
-    private const float PNG_SCALE = 0.6f;       // WaveManager.EnemyPngScale ê³¼ ë™ì¼
+    private const float PNG_SCALE = 0.6f;       // WaveManager.EnemyPngScale °ú µ¿ÀÏ
     private const int SORT_ORDER = 5;
 
     private struct Rule
@@ -35,41 +35,41 @@ public class EnemySkin : MonoBehaviour
         public Rule(string key, string png, Color tint, float scale) { this.key = key; this.png = png; this.tint = tint; this.scale = scale; }
     }
 
-    // ë¨¼ì € ë§ëŠ” í•­ëª©ì´ ì´ê¸´ë‹¤ (ê°•ì²  ë©í„°ê°€ "ë©í„°"ë³´ë‹¤ ì•ì— ìˆì–´ì•¼ í•¨)
+    // ¸ÕÀú ¸Â´Â Ç×¸ñÀÌ ÀÌ±ä´Ù (°­Ã¶ ·¦ÅÍ°¡ "·¦ÅÍ"º¸´Ù ¾Õ¿¡ ÀÖ¾î¾ß ÇÔ)
     private static readonly Rule[] RULES =
     {
-        // v1.1: ì „ìš© ê·¸ë¦¼ (êµìˆ˜ í”¼ë“œë°± "ìœ„í—˜í•œ ì  êµ¬ë³„" - ìí­/ì„œí¬í„°/í™”ì—¼/ê²°ë¹™). PNG ì—†ìœ¼ë©´ ì•„ë˜ ëŒ€ì²´ ê·œì¹™ìœ¼ë¡œ
-        new Rule("í”Œë¼ì´", "fly", Color.white, 1.2f),
-        new Rule("íŒŒë¼ì‚¬ìš°", "parasaur", Color.white, 1f),
-        new Rule("ì¹´ë¥´ë…¸", "carno", Color.white, 1f),
-        new Rule("ëª¨ì‚¬", "mosa", Color.white, 1f),
-        new Rule("ê°•ì² ", "steel", Color.white, 1f),
-        new Rule("ì „ê°ˆ", "scorpion", Color.white, 1f),
-        new Rule("ê±°ë¶", "tortoise", Color.white, 1f),
-        new Rule("ë„¤í¬ë¡œ", "necro", Color.white, 1f),
-        new Rule("ìŠ¤í”¼ë…¸", "necro", Color.white, 1f),
-        new Rule("í…Œë¼ë…¸ëˆ", "ptera", new Color(1f, 0.95f, 0.6f), 1f),
-        new Rule("í”„í…Œë¼", "ptera", new Color(0.8f, 0.62f, 1f), 1f),
-        new Rule("í”Œë¼ì´", "ptera", new Color(0.75f, 0.9f, 1f), 0.7f),
-        new Rule("ìµë£¡", "ptera", new Color(1f, 0.62f, 0.4f), 1f),
-        new Rule("í”„í…Œë¡œ", "ptera", new Color(1f, 0.62f, 0.4f), 1f),
-        new Rule("ì•„ë¥´ë§ˆë”œë¡œ", "tortoise", new Color(0.75f, 0.85f, 0.7f), 0.85f),
-        new Rule("ì•ˆí‚¬ë¡œ", "tortoise", new Color(0.75f, 0.85f, 0.7f), 0.85f),
-        new Rule("ìº‘í„°ìŠ¤", "necro", new Color(0.55f, 1f, 0.55f), 0.8f),
-        new Rule("íŒŒë¼ì‚¬ìš°", "raptor", new Color(1f, 0.7f, 1f), 1.1f),
-        new Rule("ëª¨ì‚¬", "steel", new Color(0.7f, 0.9f, 1f), 1.2f),
-        new Rule("íŒŒí‚¤", "tortoise", new Color(1f, 0.8f, 0.95f), 1.1f),
-        new Rule("ì¹´ë¥´ë…¸", "raptor", new Color(1f, 0.55f, 0.35f), 1.3f),
-        new Rule("ë§˜ëª¨ìŠ¤", "tortoise", new Color(0.8f, 0.9f, 1f), 1.4f),
-        new Rule("ë©í„°", "raptor", Color.white, 1f),
+        // v1.1: Àü¿ë ±×¸² (±³¼ö ÇÇµå¹é "À§ÇèÇÑ Àû ±¸º°" - ÀÚÆø/¼­Æ÷ÅÍ/È­¿°/°áºù). PNG ¾øÀ¸¸é ¾Æ·¡ ´ëÃ¼ ±ÔÄ¢À¸·Î
+        new Rule("ÇÃ¶óÀÌ", "fly", Color.white, 1.2f),
+        new Rule("ÆÄ¶ó»ç¿ì", "parasaur", Color.white, 1f),
+        new Rule("Ä«¸£³ë", "carno", Color.white, 1f),
+        new Rule("¸ğ»ç", "mosa", Color.white, 1f),
+        new Rule("°­Ã¶", "steel", Color.white, 1f),
+        new Rule("Àü°¥", "scorpion", Color.white, 1f),
+        new Rule("°ÅºÏ", "tortoise", Color.white, 1f),
+        new Rule("³×Å©·Î", "necro", Color.white, 1f),
+        new Rule("½ºÇÇ³ë", "necro", Color.white, 1f),
+        new Rule("Å×¶ó³ëµ·", "ptera", new Color(1f, 0.95f, 0.6f), 1f),
+        new Rule("ÇÁÅ×¶ó", "ptera", new Color(0.8f, 0.62f, 1f), 1f),
+        new Rule("ÇÃ¶óÀÌ", "ptera", new Color(0.75f, 0.9f, 1f), 0.7f),
+        new Rule("ÀÍ·æ", "ptera", new Color(1f, 0.62f, 0.4f), 1f),
+        new Rule("ÇÁÅ×·Î", "ptera", new Color(1f, 0.62f, 0.4f), 1f),
+        new Rule("¾Æ¸£¸¶µô·Î", "tortoise", new Color(0.75f, 0.85f, 0.7f), 0.85f),
+        new Rule("¾ÈÅ³·Î", "tortoise", new Color(0.75f, 0.85f, 0.7f), 0.85f),
+        new Rule("Ä´ÅÍ½º", "necro", new Color(0.55f, 1f, 0.55f), 0.8f),
+        new Rule("ÆÄ¶ó»ç¿ì", "raptor", new Color(1f, 0.7f, 1f), 1.1f),
+        new Rule("¸ğ»ç", "steel", new Color(0.7f, 0.9f, 1f), 1.2f),
+        new Rule("ÆÄÅ°", "tortoise", new Color(1f, 0.8f, 0.95f), 1.1f),
+        new Rule("Ä«¸£³ë", "raptor", new Color(1f, 0.55f, 0.35f), 1.3f),
+        new Rule("¸¾¸ğ½º", "tortoise", new Color(0.8f, 0.9f, 1f), 1.4f),
+        new Rule("·¦ÅÍ", "raptor", Color.white, 1f),
     };
 
-    /// <summary>ì´ ì ì—ê²Œ ì…íŒ ìŠ¤í”„ë¼ì´íŠ¸ (ë‹¤ë¥¸ ì½”ë“œê°€ í‹´íŠ¸/ê¹œë¹¡ì„ì— ì“°ê³  ì‹¶ì„ ë•Œ)</summary>
+    /// <summary>ÀÌ Àû¿¡°Ô ÀÔÈù ½ºÇÁ¶óÀÌÆ® (´Ù¸¥ ÄÚµå°¡ Æ¾Æ®/±ôºıÀÓ¿¡ ¾²°í ½ÍÀ» ¶§)</summary>
     public SpriteRenderer skin;
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ìŠ¤ìºë„ˆ (ì‹±ê¸€í„´) - ìƒˆ ì ì„ ì°¾ì•„ ìŠ¤í‚¨ì„ ì…íŒë‹¤
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ½ºÄ³³Ê (½Ì±ÛÅÏ) - »õ ÀûÀ» Ã£¾Æ ½ºÅ²À» ÀÔÈù´Ù
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     private class Scanner : MonoBehaviour
     {
         private const float SCAN_INTERVAL = 0.2f;
@@ -89,7 +89,7 @@ public class EnemySkin : MonoBehaviour
                 if (!Apply(e) && !loggedMissing)
                 {
                     loggedMissing = true;
-                    Debug.LogWarning("[EnemySkin] e_*.png ë¥¼ ì°¾ì§€ ëª»í–ˆë‹¤ - í”„ë¦¬íŒ¹ ê·¸ë¦¼ ìœ ì§€ (Resources/Sprites/WDT/e_raptor.png ë“± í™•ì¸)");
+                    Debug.LogWarning("[EnemySkin] e_*.png ¸¦ Ã£Áö ¸øÇß´Ù - ÇÁ¸®ÆÕ ±×¸² À¯Áö (Resources/Sprites/WDT/e_raptor.png µî È®ÀÎ)");
                 }
             }
         }
@@ -101,20 +101,20 @@ public class EnemySkin : MonoBehaviour
     private static void Bootstrap()
     {
         if (scanner != null) return;
-        if (!SpriteBank.Has("e_raptor")) { Debug.Log("[EnemySkin] e_raptor.png ì—†ìŒ - ì  ìŠ¤í‚¨ ìƒëµ"); return; }
+        if (!SpriteBank.Has("e_raptor")) { Debug.Log("[EnemySkin] e_raptor.png ¾øÀ½ - Àû ½ºÅ² »ı·«"); return; }
         GameObject go = new GameObject("EnemySkinScanner");
         DontDestroyOnLoad(go);
         scanner = go.AddComponent<Scanner>();
-        Debug.Log("[EnemySkin] ì  PNG ìŠ¤í‚¨ ìŠ¤ìºë„ˆ ì¤€ë¹„");
+        Debug.Log("[EnemySkin] Àû PNG ½ºÅ² ½ºÄ³³Ê ÁØºñ");
     }
 
-    /// <summary>ì  í•˜ë‚˜ì— PNG ìŠ¤í‚¨ ì ìš©. ì´ë¦„ì´ ì•„ì§ ì—†ìœ¼ë©´(ìŠ¤í° ì§í›„) ë‹¤ìŒ ìŠ¤ìº”ì— ë‹¤ì‹œ ì‹œë„</summary>
+    /// <summary>Àû ÇÏ³ª¿¡ PNG ½ºÅ² Àû¿ë. ÀÌ¸§ÀÌ ¾ÆÁ÷ ¾øÀ¸¸é(½ºÆù Á÷ÈÄ) ´ÙÀ½ ½ºÄµ¿¡ ´Ù½Ã ½Ãµµ</summary>
     private static bool Apply(Enemy e)
     {
         string n = e.data.enemyName;
-        if (string.IsNullOrEmpty(n)) return true;   // ì•„ì§ data ë¯¸ì„¤ì • - ë‹¤ìŒì—
+        if (string.IsNullOrEmpty(n)) return true;   // ¾ÆÁ÷ data ¹Ì¼³Á¤ - ´ÙÀ½¿¡
 
-        // WaveManager ì½”ë“œ í´ë°±ì´ ì´ë¯¸ PNG "Body"ë¥¼ ë¶™ì¸ ì ì´ë©´ ë§ˆì»¤ë§Œ ë‹¬ê³  ë
+        // WaveManager ÄÚµå Æú¹éÀÌ ÀÌ¹Ì PNG "Body"¸¦ ºÙÀÎ ÀûÀÌ¸é ¸¶Ä¿¸¸ ´Ş°í ³¡
         Transform body = e.transform.Find("Body");
         if (body != null)
         {
@@ -127,8 +127,8 @@ public class EnemySkin : MonoBehaviour
             }
         }
 
-        // v1.1: ì´ë¦„ì— ë§ëŠ” ê·œì¹™ì„ ì•ì—ì„œë¶€í„° ë³´ë˜, ê·¸ PNG ê°€ ì—†ìœ¼ë©´ ë‹¤ìŒ ë§ëŠ” ê·œì¹™ìœ¼ë¡œ (ì „ìš© ê·¸ë¦¼ -> í‹´íŠ¸ ëŒ€ì²´ -> ë©í„°)
-        Rule rule = RULES[RULES.Length - 1];   // ê¸°ë³¸ = ë§ˆì§€ë§‰(ë©í„°)
+        // v1.1: ÀÌ¸§¿¡ ¸Â´Â ±ÔÄ¢À» ¾Õ¿¡¼­ºÎÅÍ º¸µÇ, ±× PNG °¡ ¾øÀ¸¸é ´ÙÀ½ ¸Â´Â ±ÔÄ¢À¸·Î (Àü¿ë ±×¸² -> Æ¾Æ® ´ëÃ¼ -> ·¦ÅÍ)
+        Rule rule = RULES[RULES.Length - 1];   // ±âº» = ¸¶Áö¸·(·¦ÅÍ)
         Sprite sprite = null;
         for (int i = 0; i < RULES.Length; i++)
         {
@@ -140,11 +140,11 @@ public class EnemySkin : MonoBehaviour
         if (sprite == null) sprite = SpriteBank.Get("e_" + rule.png);
         if (sprite == null) return false;
 
-        // í”„ë¦¬íŒ¹ placeholder ë Œë”ëŸ¬ ë„ê¸° (ë¡œì§/ì¶©ëŒ/íƒœê·¸ëŠ” ê·¸ëŒ€ë¡œ)
+        // ÇÁ¸®ÆÕ placeholder ·»´õ·¯ ²ô±â (·ÎÁ÷/Ãæµ¹/ÅÂ±×´Â ±×´ë·Î)
         SpriteRenderer[] old = e.GetComponentsInChildren<SpriteRenderer>(true);
         for (int i = 0; i < old.Length; i++) old[i].enabled = false;
 
-        // ì²´ë ¥ì´ í´ìˆ˜ë¡ ë©ì¹˜ë„ ì¡°ê¸ˆ í¬ê²Œ (WaveManager í´ë°±ê³¼ ë™ì¼) + í”„ë¦¬íŒ¹ ë£¨íŠ¸ ìŠ¤ì¼€ì¼ ë³´ì •
+        // Ã¼·ÂÀÌ Å¬¼ö·Ï µ¢Ä¡µµ Á¶±İ Å©°Ô (WaveManager Æú¹é°ú µ¿ÀÏ) + ÇÁ¸®ÆÕ ·çÆ® ½ºÄÉÀÏ º¸Á¤
         float bulk = Mathf.Clamp(0.85f + e.data.baseHP / 500f, 0.85f, 1.4f);
         float rootScale = Mathf.Abs(e.transform.localScale.x);
         if (rootScale < 0.01f) rootScale = 1f;
@@ -163,5 +163,23 @@ public class EnemySkin : MonoBehaviour
         EnemySkin marker = e.gameObject.AddComponent<EnemySkin>();
         marker.skin = sr;
         return true;
+    }
+
+    /// <summary>
+    /// v1.2: ¼Õ´Ô ÀÌ¸§À¸·Î ÃÊ»ó ½ºÇÁ¶óÀÌÆ® ÀÌ¸§("e_xxx")°ú Æ¾Æ®¸¦ µ¹·ÁÁØ´Ù - ºê¸®ÇÎ Ä«µå(Ã¹ µîÀå "»õ ¼Õ´Ô")¿ë.
+    /// °ÔÀÓ ¾È ½ºÅ²°ú °°Àº ±ÔÄ¢ Ç¥¸¦ ¾²¹Ç·Î Ä«µå ÃÊ»ó = ½ÇÁ¦ µîÀå ±×¸². PNG °¡ ¾ø´Â ±ÔÄ¢Àº °Ç³Ê¶Ù°í, ¾Æ¹«°Íµµ ¾øÀ¸¸é "e_raptor".
+    /// </summary>
+    public static string PortraitFor(string enemyName, out Color tint)
+    {
+        tint = Color.white;
+        string n = enemyName ?? "";
+        for (int i = 0; i < RULES.Length; i++)
+        {
+            if (!n.Contains(RULES[i].key)) continue;
+            if (!SpriteBank.Has("e_" + RULES[i].png)) continue;
+            tint = RULES[i].tint;
+            return "e_" + RULES[i].png;
+        }
+        return "e_raptor";
     }
 }

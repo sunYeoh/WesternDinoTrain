@@ -1,135 +1,135 @@
 using UnityEngine;
 
 /// <summary>
-/// [GameBalance.cs] v1 (v9.9 2026-09-16: í¬íƒ‘ 4ëª¨ì„œë¦¬ ë°°ì¹˜ SlotPosition + ê²¬ìŠµ ìš´í–‰/ë¸Œë¦¬í•‘ ìŠ¤ìœ„ì¹˜ ì„¹ì…˜)
-/// ê²Œì„ ì „ì²´ ë°¸ëŸ°ìŠ¤ ìˆ˜ì¹˜ë¥¼ í•œ ê³³ì— ëª¨ì€ ì„¤ì • íŒŒì¼.
+/// [GameBalance.cs] v1 (v9.9 2026-09-16: Æ÷Å¾ 4¸ğ¼­¸® ¹èÄ¡ SlotPosition + °ß½À ¿îÇà/ºê¸®ÇÎ ½ºÀ§Ä¡ ¼½¼Ç)
+/// °ÔÀÓ ÀüÃ¼ ¹ë·±½º ¼öÄ¡¸¦ ÇÑ °÷¿¡ ¸ğÀº ¼³Á¤ ÆÄÀÏ.
 ///
-/// ì—¬ê¸° ê°’ì„ ë°”ê¾¸ë©´ Inspector ê°’ê³¼ ìƒê´€ì—†ì´ ê²Œì„ì— ì ìš©ëœë‹¤
-/// (TrainManager / GameManagerê°€ Startì—ì„œ ì´ ê°’ìœ¼ë¡œ ë®ì–´ì“´ë‹¤).
-/// ë°¸ëŸ°ìŠ¤ ì¡°ì •ì€ ì´ íŒŒì¼ë§Œ ê³ ì¹˜ë©´ ëœë‹¤.
+/// ¿©±â °ªÀ» ¹Ù²Ù¸é Inspector °ª°ú »ó°ü¾øÀÌ °ÔÀÓ¿¡ Àû¿ëµÈ´Ù
+/// (TrainManager / GameManager°¡ Start¿¡¼­ ÀÌ °ªÀ¸·Î µ¤¾î¾´´Ù).
+/// ¹ë·±½º Á¶Á¤Àº ÀÌ ÆÄÀÏ¸¸ °íÄ¡¸é µÈ´Ù.
 ///
-/// VS 2017 (C# 7.3) í˜¸í™˜
+/// VS 2017 (C# 7.3) È£È¯
 /// </summary>
 public static class GameBalance
 {
     // ==================================================================
-    //  ê¸°ì°¨ (í”Œë ˆì´ì–´) - ì¦ê°•/í¬íƒ‘ ì„±ì¥ì´ ìƒê²¼ìœ¼ë¯€ë¡œ ê¸°ì € ìŠ¤íƒ¯ í•˜í–¥
+    //  ±âÂ÷ (ÇÃ·¹ÀÌ¾î) - Áõ°­/Æ÷Å¾ ¼ºÀåÀÌ »ı°åÀ¸¹Ç·Î ±âÀú ½ºÅÈ ÇÏÇâ
     // ==================================================================
 
-    /// <summary>ê¸°ì°¨ ì‹œì‘ ìµœëŒ€ HP (ê¸°ì¡´ 1000 -> 500. ê°•ì²  ë¦¬ë²³/ìš”ìƒˆ/ì•¼ì „ ì •ë¹„ë°˜ìœ¼ë¡œ ì„±ì¥)</summary>
+    /// <summary>±âÂ÷ ½ÃÀÛ ÃÖ´ë HP (±âÁ¸ 1000 -> 500. °­Ã¶ ¸®ºª/¿ä»õ/¾ßÀü Á¤ºñ¹İÀ¸·Î ¼ºÀå)</summary>
     public static float TrainStartHP = 500f;
 
     /// <summary>
-    /// ëª¨ë“  í¬íƒ‘ ë°ë¯¸ì§€ ì „ì—­ ë°°ìœ¨.
-    /// í”Œë ˆì´í…ŒìŠ¤íŠ¸ 2ì°¨: 0.7 -> 0.85. "í¬íƒ‘ì´ ë„ˆë¬´ ì•½í•´ ê°•í™”ì— ë°”ë¹  í…ìŠ¤íŠ¸ ì½ì„ í‹ˆì´ ì—†ë‹¤"
-    /// - ìë™ ì „íˆ¬ê°€ ì´ˆë°˜ì„ ì–´ëŠ ì •ë„ ë²„í…¨ì¤˜ì•¼ ìŠ¤í† ë¦¬/ì¦ê°•ì„ ì½ëŠ”ë‹¤ (ì¦ê°• ì„±ì¥ ì—¬ì§€ëŠ” ìœ ì§€)
+    /// ¸ğµç Æ÷Å¾ µ¥¹ÌÁö Àü¿ª ¹èÀ².
+    /// ÇÃ·¹ÀÌÅ×½ºÆ® 2Â÷: 0.7 -> 0.85. "Æ÷Å¾ÀÌ ³Ê¹« ¾àÇØ °­È­¿¡ ¹Ùºü ÅØ½ºÆ® ÀĞÀ» Æ´ÀÌ ¾ø´Ù"
+    /// - ÀÚµ¿ ÀüÅõ°¡ ÃÊ¹İÀ» ¾î´À Á¤µµ ¹öÅßÁà¾ß ½ºÅä¸®/Áõ°­À» ÀĞ´Â´Ù (Áõ°­ ¼ºÀå ¿©Áö´Â À¯Áö)
     /// </summary>
     public static float TurretDamageMul = 0.85f;
 
-    /// <summary>ì‹œì‘ ê³¨ë“œ (ê¸°ì¡´ 500 -> 200. ì •ë¹„ì†Œ/ë„ë°• ì¦ê°•ì˜ ë¬´ê²Œë¥¼ ì‚´ë¦¼)</summary>
+    /// <summary>½ÃÀÛ °ñµå (±âÁ¸ 500 -> 200. Á¤ºñ¼Ò/µµ¹Ú Áõ°­ÀÇ ¹«°Ô¸¦ »ì¸²)</summary>
     public static int StartGold = 200;
 
-    // â”€â”€ ê°ì‚¬ 3-A: ê³¨ë“œ ì»¤ë¸Œ (ì¸í”Œë ˆì´ì…˜ ì–µì œ) â”€â”€
-    /// <summary>ì›¨ì´ë¸Œ í´ë¦¬ì–´ ê³¨ë“œ = TownGoldBase + ì›¨ì´ë¸Œ x TownGoldPerWave</summary>
+    // ¦¡¦¡ °¨»ç 3-A: °ñµå Ä¿ºê (ÀÎÇÃ·¹ÀÌ¼Ç ¾ïÁ¦) ¦¡¦¡
+    /// <summary>¿şÀÌºê Å¬¸®¾î °ñµå = TownGoldBase + ¿şÀÌºê x TownGoldPerWave</summary>
     public static int TownGoldBase = 80;
     public static int TownGoldPerWave = 18;
-    /// <summary>ë³´ìŠ¤ ì›¨ì´ë¸Œ í´ë¦¬ì–´ ì¶”ê°€ ë³´ë„ˆìŠ¤</summary>
+    /// <summary>º¸½º ¿şÀÌºê Å¬¸®¾î Ãß°¡ º¸³Ê½º</summary>
     public static int BossClearGold = 300;
 
-    /// <summary>ì¦ê°• ê±´ë„ˆë›°ê¸° ë³´ìƒ ëª…ì„± (ê°ì‚¬ 2-A)</summary>
+    /// <summary>Áõ°­ °Ç³Ê¶Ù±â º¸»ó ¸í¼º (°¨»ç 2-A)</summary>
     public static int AugmentSkipFame = 15;
 
-    /// <summary>ê¸°ë³¸ í•´ê¸ˆ í¬íƒ‘ ìŠ¬ë¡¯ ìˆ˜ (ì´ 8ì¹¸ ì¤‘. ë‚˜ë¨¸ì§€ëŠ” ì¦ê°• 'ì¦ì¶•ëœ ì£¼ë°© ì¹¸'ìœ¼ë¡œ í™•ì¥)</summary>
+    /// <summary>±âº» ÇØ±İ Æ÷Å¾ ½½·Ô ¼ö (ÃÑ 8Ä­ Áß. ³ª¸ÓÁö´Â Áõ°­ 'ÁõÃàµÈ ÁÖ¹æ Ä­'À¸·Î È®Àå)</summary>
     public static int BaseSlotCount = 6;
 
     // ==================================================================
-    //  ì†ì„± ê³µëª… (B-5) - ê°™ì€ ì†ì„± í¬íƒ‘ì„ ëª¨ìœ¼ë©´ ì„¸íŠ¸ ë³´ë„ˆìŠ¤
+    //  ¼Ó¼º °ø¸í (B-5) - °°Àº ¼Ó¼º Æ÷Å¾À» ¸ğÀ¸¸é ¼¼Æ® º¸³Ê½º
     // ==================================================================
 
     // ==================================================================
-    //  ìŠ¬ë¡¯ ë°°ì¹˜ (TurretSlotManagerê°€ Startì—ì„œ ì ìš© - Inspector ë¬´ì‹œ)
-    //  B-2: êµ¬ 2ì—´ 4í–‰(SlotOrigin/Spacing) íê¸° -> í¬íƒ‘ì¹¸ ê°€ë¡œ 1ì—´ ë°°ì¹˜ëŠ”
-    //  ì•„ë˜ "B-2" ì„¹ì…˜ì˜ SlotRowAX/SlotRowBX/SlotGapX/SlotYê°€ ë‹´ë‹¹í•œë‹¤
+    //  ½½·Ô ¹èÄ¡ (TurretSlotManager°¡ Start¿¡¼­ Àû¿ë - Inspector ¹«½Ã)
+    //  B-2: ±¸ 2¿­ 4Çà(SlotOrigin/Spacing) Æó±â -> Æ÷Å¾Ä­ °¡·Î 1¿­ ¹èÄ¡´Â
+    //  ¾Æ·¡ "B-2" ¼½¼ÇÀÇ SlotRowAX/SlotRowBX/SlotGapX/SlotY°¡ ´ã´çÇÑ´Ù
     // ==================================================================
 
-    /// <summary>ê³µëª… ë°œë™ì— í•„ìš”í•œ ê°™ì€ ì†ì„± í¬íƒ‘ ìˆ˜</summary>
+    /// <summary>°ø¸í ¹ßµ¿¿¡ ÇÊ¿äÇÑ °°Àº ¼Ó¼º Æ÷Å¾ ¼ö</summary>
     public static int ResonanceCount = 3;
 
-    /// <summary>ê³µëª… ì‹œ í•´ë‹¹ ì†ì„± ë°ë¯¸ì§€ ë³´ë„ˆìŠ¤ (0.20 = +20%). ë°©ì–´ ì†ì„±ì€ í”¼í•´ê°ì†Œ +10%ë¡œ ëŒ€ì²´</summary>
+    /// <summary>°ø¸í ½Ã ÇØ´ç ¼Ó¼º µ¥¹ÌÁö º¸³Ê½º (0.20 = +20%). ¹æ¾î ¼Ó¼ºÀº ÇÇÇØ°¨¼Ò +10%·Î ´ëÃ¼</summary>
     public static float ResonanceBonus = 0.20f;
 
     // ==================================================================
-    //  ëŸ° êµ¬ì¡° - 3ì§€ì—­ x Nì›¨ì´ë¸Œ + ìµœì¢…ì „ (ê¸°íš: ìŠ¬ë”ìŠ¤ 3ë§‰ êµ¬ì¡°)
-    //  ì§€ì—­ 1: êµ¬ë¦¬ ì‚¬ë§‰ / ì§€ì—­ 2: í…ŒìŠ¬ë¼ í˜‘ê³¡ / ì§€ì—­ 3: ì½”ë°œíŠ¸ ê´‘ì‚°
-    //  ê° ì§€ì—­ ë§ˆì§€ë§‰ ì›¨ì´ë¸Œì— ë³´ìŠ¤, ìµœì¢… ì›¨ì´ë¸Œ(FinalWave)ì— ìµœì¢… ë³´ìŠ¤
+    //  ·± ±¸Á¶ - 3Áö¿ª x N¿şÀÌºê + ÃÖÁ¾Àü (±âÈ¹: ½½´õ½º 3¸· ±¸Á¶)
+    //  Áö¿ª 1: ±¸¸® »ç¸· / Áö¿ª 2: Å×½½¶ó Çù°î / Áö¿ª 3: ÄÚ¹ßÆ® ±¤»ê
+    //  °¢ Áö¿ª ¸¶Áö¸· ¿şÀÌºê¿¡ º¸½º, ÃÖÁ¾ ¿şÀÌºê(FinalWave)¿¡ ÃÖÁ¾ º¸½º
     // ==================================================================
 
     /// <summary>
-    /// ì§€ì—­ í•˜ë‚˜ì˜ ì›¨ì´ë¸Œ ìˆ˜. ì •ì‹ 8 -> ë³´ìŠ¤ 8/16/24, ìµœì¢…ì „ 25 (ì •ì‹ 25ì›¨ì´ë¸Œ ëŸ°).
-    /// êµìˆ˜ í”¼ë“œë°±(09-14) ë°˜ì˜: ì •ì‹ ê¸¸ì´ë¥¼ ê¸°ë³¸ê°’ìœ¼ë¡œ ë³µêµ¬í•˜ê³ , ë¹ ë¥¸ í™•ì¸ì€ ë¡œë¹„ì—ì„œ
-    /// DevCheat [F3] 'ì§§ì€ ëŸ°' í† ê¸€(ShortRunRegionLength)ë¡œ í•œë‹¤. ì´ ê°’ì€ ëŸ° ì‹œì‘ ì‹œ WaveManagerê°€ ì½ëŠ”ë‹¤.
+    /// Áö¿ª ÇÏ³ªÀÇ ¿şÀÌºê ¼ö. Á¤½Ä 8 -> º¸½º 8/16/24, ÃÖÁ¾Àü 25 (Á¤½Ä 25¿şÀÌºê ·±).
+    /// ±³¼ö ÇÇµå¹é(09-14) ¹İ¿µ: Á¤½Ä ±æÀÌ¸¦ ±âº»°ªÀ¸·Î º¹±¸ÇÏ°í, ºü¸¥ È®ÀÎÀº ·Îºñ¿¡¼­
+    /// DevCheat [F3] 'ÂªÀº ·±' Åä±Û(ShortRunRegionLength)·Î ÇÑ´Ù. ÀÌ °ªÀº ·± ½ÃÀÛ ½Ã WaveManager°¡ ÀĞ´Â´Ù.
     /// </summary>
     public static int RegionLength = 8;
 
-    /// <summary>[ì¹˜íŠ¸] ì§§ì€ ëŸ° ëª¨ë“œì˜ ì§€ì—­ ê¸¸ì´ (F3 í† ê¸€, ë³´ìŠ¤ 3/6/9, ìµœì¢…ì „ 10)</summary>
+    /// <summary>[Ä¡Æ®] ÂªÀº ·± ¸ğµåÀÇ Áö¿ª ±æÀÌ (F3 Åä±Û, º¸½º 3/6/9, ÃÖÁ¾Àü 10)</summary>
     public static int ShortRunRegionLength = 3;
 
-    /// <summary>ìµœì¢…ì „ ì›¨ì´ë¸Œ ë²ˆí˜¸ (ì§€ì—­ 3ê°œ + 1)</summary>
+    /// <summary>ÃÖÁ¾Àü ¿şÀÌºê ¹øÈ£ (Áö¿ª 3°³ + 1)</summary>
     public static int FinalWave { get { return RegionLength * 3 + 1; } }
 
-    /// <summary>ì´ ì›¨ì´ë¸Œê°€ ì†í•œ ì§€ì—­ ë²ˆí˜¸ (1~3, ìµœì¢…ì „ì€ 4)</summary>
+    /// <summary>ÀÌ ¿şÀÌºê°¡ ¼ÓÇÑ Áö¿ª ¹øÈ£ (1~3, ÃÖÁ¾ÀüÀº 4)</summary>
     public static int RegionOf(int wave)
     {
-        if (wave >= FinalWave) return 4;                 // ìµœì¢…ì „
+        if (wave >= FinalWave) return 4;                 // ÃÖÁ¾Àü
         int r = (wave - 1) / RegionLength + 1;
         return Mathf.Clamp(r, 1, 3);
     }
 
-    /// <summary>ì§€ì—­ ì•ˆì—ì„œì˜ ì§„í–‰ë„ 0.0~1.0 (ì  ë¬¼ëŸ‰ ê³„ì‚°ìš©)</summary>
+    /// <summary>Áö¿ª ¾È¿¡¼­ÀÇ ÁøÇàµµ 0.0~1.0 (Àû ¹°·® °è»ê¿ë)</summary>
     public static float RegionProgress(int wave)
     {
         if (wave >= FinalWave) return 1f;
-        int t = (wave - 1) % RegionLength + 1;           // ì§€ì—­ ë‚´ 1~RegionLength
+        int t = (wave - 1) % RegionLength + 1;           // Áö¿ª ³» 1~RegionLength
         return (float)t / RegionLength;
     }
 
-    /// <summary>ë³´ìŠ¤ ì›¨ì´ë¸Œì¸ê°€? (ê° ì§€ì—­ ë§ˆì§€ë§‰ + ìµœì¢…ì „)</summary>
+    /// <summary>º¸½º ¿şÀÌºêÀÎ°¡? (°¢ Áö¿ª ¸¶Áö¸· + ÃÖÁ¾Àü)</summary>
     public static bool IsBossWave(int wave)
     {
         return (wave % RegionLength == 0 && wave <= RegionLength * 3) || wave == FinalWave;
     }
 
     // ==================================================================
-    //  ì  ë‚œì´ë„
+    //  Àû ³­ÀÌµµ
     // ==================================================================
 
     /// <summary>
-    /// ì  ìŠ¤ì¼€ì¼ë§ ë‚œì´ë„ ê³„ìˆ˜ L. ê³µì‹: Final = Base * (1 + Wave * 0.15 / L)
-    /// Lì´ ë‚®ì„ìˆ˜ë¡ ì›¨ì´ë¸Œë‹¹ ì ì´ ë¹¨ë¦¬ ê°•í•´ì§„ë‹¤. (ê¸°ì¡´ 2.0 = Easy -> 1.5)
+    /// Àû ½ºÄÉÀÏ¸µ ³­ÀÌµµ °è¼ö L. °ø½Ä: Final = Base * (1 + Wave * 0.15 / L)
+    /// LÀÌ ³·À»¼ö·Ï ¿şÀÌºê´ç ÀûÀÌ »¡¸® °­ÇØÁø´Ù. (±âÁ¸ 2.0 = Easy -> 1.5)
     /// </summary>
     public static float EnemyDifficultyL = 1.5f;
 
-    /// <summary>ì¼ë°˜ ì  ì²´ë ¥ ì „ì—­ ë°°ìœ¨ (ì›¨ì´ë¸Œ ìŠ¤ì¼€ì¼ë§ ì´í›„ ê³±í•´ì§)</summary>
+    /// <summary>ÀÏ¹İ Àû Ã¼·Â Àü¿ª ¹èÀ² (¿şÀÌºê ½ºÄÉÀÏ¸µ ÀÌÈÄ °öÇØÁü)</summary>
     public static float EnemyHPMul = 1.0f;
 
-    /// <summary>ì¼ë°˜ ì  ê³µê²©ë ¥ ì „ì—­ ë°°ìœ¨</summary>
+    /// <summary>ÀÏ¹İ Àû °ø°İ·Â Àü¿ª ¹èÀ²</summary>
     public static float EnemyATKMul = 0.9f;
 
     // ==================================================================
-    //  ì—°ì† í”¼ê²© ì™„ì¶© - ë¬´ë¦¬ ëŸ¬ì‹œê°€ ê°™ì€ ìˆœê°„ì— ìš°ë¥´ë¥´ ë•Œë ¤ë„ ì¦‰ì‚¬í•˜ì§€ ì•Šê²Œ
-    //  ê°™ì€ ì‹œê°„ ì°½(BurstHitWindow) ì•ˆì—ì„œ BurstFreeHitsë²ˆì§¸ê¹Œì§€ëŠ” ì •ìƒ í”¼í•´,
-    //  ê·¸ ì´í›„ íƒ€ê²©ì€ BurstExtraHitMul ë°°ìœ¨ë¡œ ê°ì†Œ
+    //  ¿¬¼Ó ÇÇ°İ ¿ÏÃæ - ¹«¸® ·¯½Ã°¡ °°Àº ¼ø°£¿¡ ¿ì¸£¸£ ¶§·Áµµ Áï»çÇÏÁö ¾Ê°Ô
+    //  °°Àº ½Ã°£ Ã¢(BurstHitWindow) ¾È¿¡¼­ BurstFreeHits¹øÂ°±îÁö´Â Á¤»ó ÇÇÇØ,
+    //  ±× ÀÌÈÄ Å¸°İÀº BurstExtraHitMul ¹èÀ²·Î °¨¼Ò
     // ==================================================================
 
-    public static float BurstHitWindow = 0.8f;   // íŒì • ì‹œê°„ ì°½(ì´ˆ)
-    public static int BurstFreeHits = 2;         // ì •ìƒ í”¼í•´ë¡œ ë“¤ì–´ì˜¤ëŠ” íƒ€ê²© ìˆ˜
-    public static float BurstExtraHitMul = 0.5f; // ì´ˆê³¼ íƒ€ê²© ë°ë¯¸ì§€ ë°°ìœ¨
+    public static float BurstHitWindow = 0.8f;   // ÆÇÁ¤ ½Ã°£ Ã¢(ÃÊ)
+    public static int BurstFreeHits = 2;         // Á¤»ó ÇÇÇØ·Î µé¾î¿À´Â Å¸°İ ¼ö
+    public static float BurstExtraHitMul = 0.5f; // ÃÊ°ú Å¸°İ µ¥¹ÌÁö ¹èÀ²
 
     // ==================================================================
-    //  ë³´ìŠ¤ (BossEnemyê°€ ì‚¬ìš© - ê³ ì • ìŠ¤íƒ¯ ëŒ€ì‹  ì›¨ì´ë¸Œ ë¹„ë¡€ ê³µì‹)
-    //  ë³´ìŠ¤ HP = BossHPBase + ì›¨ì´ë¸Œ x BossHPPerWave
-    //  ë³´ìŠ¤ ATK = BossATKBase + ì›¨ì´ë¸Œ x BossATKPerWave
-    //  ì˜ˆ) ì›¨ì´ë¸Œ 3: HP 1550 / ATK 64   ì›¨ì´ë¸Œ 10: HP 3300 / ATK 120
+    //  º¸½º (BossEnemy°¡ »ç¿ë - °íÁ¤ ½ºÅÈ ´ë½Å ¿şÀÌºê ºñ·Ê °ø½Ä)
+    //  º¸½º HP = BossHPBase + ¿şÀÌºê x BossHPPerWave
+    //  º¸½º ATK = BossATKBase + ¿şÀÌºê x BossATKPerWave
+    //  ¿¹) ¿şÀÌºê 3: HP 1550 / ATK 64   ¿şÀÌºê 10: HP 3300 / ATK 120
     // ==================================================================
 
     public static float BossHPBase = 800f;
@@ -138,157 +138,157 @@ public static class GameBalance
     public static float BossATKPerWave = 8f;
 
     // ==================================================================
-    //  ë³´ìŠ¤ íŒ¨í„´ (Aë‹¨ê³„) - ë³´ìŠ¤íŒ¨í„´ì„¤ê³„ ë¬¸ì„œ ì°¸ì¡°. ìˆ˜ì¹˜ëŠ” ì „ë¶€ ê°€ì„¤, ì—¬ê¸°ì„œ ì¡°ì •
+    //  º¸½º ÆĞÅÏ (A´Ü°è) - º¸½ºÆĞÅÏ¼³°è ¹®¼­ ÂüÁ¶. ¼öÄ¡´Â ÀüºÎ °¡¼³, ¿©±â¼­ Á¶Á¤
     // ==================================================================
 
-    public static float BossPatternFirstDelay = 8f;    // ì „íˆ¬ ì‹œì‘ í›„ ì²« íŒ¨í„´ê¹Œì§€
-    public static float BossPatternInterval = 13f;     // íŒ¨í„´ ê°„ê²© (+-2ì´ˆ ëœë¤)
-    public static float BossTelegraphSec = 2f;         // íŒ¨í„´ ì˜ˆê³  ì‹œê°„
+    public static float BossPatternFirstDelay = 8f;    // ÀüÅõ ½ÃÀÛ ÈÄ Ã¹ ÆĞÅÏ±îÁö
+    public static float BossPatternInterval = 13f;     // ÆĞÅÏ °£°İ (+-2ÃÊ ·£´ı)
+    public static float BossTelegraphSec = 2f;         // ÆĞÅÏ ¿¹°í ½Ã°£
 
-    // ì§€ì—­ 1 'ë…¹ìŠ¨ ë°œí†±' - ì‚¬ëƒ¥ í˜¸ë ¹ (ì†Œí™˜. ì˜ˆê³  ì¤‘ ìŠ¤í„´ ëª…ì¤‘ ì‹œ ì ˆë°˜)
+    // Áö¿ª 1 '³ì½¼ ¹ßÅé' - »ç³É È£·É (¼ÒÈ¯. ¿¹°í Áß ½ºÅÏ ¸íÁß ½Ã Àı¹İ)
     public static int HowlSummonCount = 5;
 
-    // ì§€ì—­ 2 'ì²œë‘¥ ë‘¥ì§€' - ë‚™ë¢° í­ê²© (í¬íƒ‘ ìŠ¬ë¡¯ ë§ˆë¹„. ìŠ¬ë¡¯ ê³ì—ì„œ [E]ë¡œ ì¬ê°€ë™)
+    // Áö¿ª 2 'ÃµµÕ µÕÁö' - ³«·Ú Æø°İ (Æ÷Å¾ ½½·Ô ¸¶ºñ. ½½·Ô °ç¿¡¼­ [E]·Î Àç°¡µ¿)
     public static int LightningSlotCount = 2;
     public static float LightningStunSec = 6f;
 
-    // ì§€ì—­ 3 'ë™ë©´ì' - ë¹™í•˜ ê°‘ì£¼ (í”¼í•´ 90% ê°ì†Œ. í™”ìƒ ìŠ¤íƒ ëˆ„ì ìœ¼ë¡œ íŒŒê´´)
-    public static float GlacierArmorDR = 0.9f;         // ê°‘ì£¼ í”¼í•´ ê°ì†Œìœ¨
-    public static int GlacierBreakBurnStacks = 5;      // íŒŒê´´ì— í•„ìš”í•œ í™”ìƒ ìŠ¤íƒ ëˆ„ì 
-    public static float GlacierBreakGroggySec = 3f;    // íŒŒê´´ ì‹œ ë³´ë„ˆìŠ¤ ê·¸ë¡œê¸°
+    // Áö¿ª 3 'µ¿¸éÀÚ' - ºùÇÏ °©ÁÖ (ÇÇÇØ 90% °¨¼Ò. È­»ó ½ºÅÃ ´©ÀûÀ¸·Î ÆÄ±«)
+    public static float GlacierArmorDR = 0.9f;         // °©ÁÖ ÇÇÇØ °¨¼ÒÀ²
+    public static int GlacierBreakBurnStacks = 5;      // ÆÄ±«¿¡ ÇÊ¿äÇÑ È­»ó ½ºÅÃ ´©Àû
+    public static float GlacierBreakGroggySec = 3f;    // ÆÄ±« ½Ã º¸³Ê½º ±×·Î±â
 
-    // ìµœì¢… 'ë”” ì˜¤ë¦¬ì§€ë„' - í¬íš¨ (ì •ì˜ˆ ì¦ì› ì†Œí™˜)
+    // ÃÖÁ¾ 'µğ ¿À¸®Áö³Î' - Æ÷È¿ (Á¤¿¹ Áõ¿ø ¼ÒÈ¯)
     public static int OriginalRoarCount = 4;
 
-    // â”€â”€ C-2: ë§ˆì§€ë§‰ ì£¼ë¬¸ (ì§„ì—”ë”© B) â”€â”€
+    // ¦¡¦¡ C-2: ¸¶Áö¸· ÁÖ¹® (Áø¿£µù B) ¦¡¦¡
     /// <summary>
-    /// ë„ê° ì™„ì„± ê¸°ì¤€: 42 (ì „ ìš”ë¦¬). êµìˆ˜ í”¼ë“œë°±(09-14, ì‚¬ìš©ì ê²°ì • C1)ìœ¼ë¡œ ì§„ì—”ë”©ì˜ í•„ìˆ˜ ì¡°ê±´ì—ì„œëŠ”
-    /// ë¹ ì¡Œê³ , ì™„ì„± ì‹œ ì¹­í˜¸Â·ëª…ì„± ë³´ë„ˆìŠ¤Â·ì—”ë”© B ì¶”ê°€ ì¥ë©´(DexCompleteFameBonus)ìœ¼ë¡œ ë³´ìƒí•œë‹¤.
+    /// µµ°¨ ¿Ï¼º ±âÁØ: 42 (Àü ¿ä¸®). ±³¼ö ÇÇµå¹é(09-14, »ç¿ëÀÚ °áÁ¤ C1)À¸·Î Áø¿£µùÀÇ ÇÊ¼ö Á¶°Ç¿¡¼­´Â
+    /// ºüÁ³°í, ¿Ï¼º ½Ã ÄªÈ£¡¤¸í¼º º¸³Ê½º¡¤¿£µù B Ãß°¡ Àå¸é(DexCompleteFameBonus)À¸·Î º¸»óÇÑ´Ù.
     /// </summary>
     public static int TrueEndingRecipesNeeded = 42;
 
     /// <summary>
-    /// ì§„ì—”ë”©(ë§ˆì§€ë§‰ ì£¼ë¬¸) ìê²© - ì´ì •í‘œ ë°©ì‹ (ì‚¬ìš©ì ê²°ì • C1, 2026-09-14):
-    /// ì„ ëŒ€ì˜ ì¼ì§€ 12ì¥ ì „ë¶€ + ì „ì„¤ ìš”ë¦¬(T2) 1ì¢… ì´ìƒ ë³´ìœ (ì¬ê³  ë˜ëŠ” ë°°ì¹˜). ì„¸ ì§€ì—­ ë³´ìŠ¤ ê²©íŒŒëŠ”
-    /// ìµœì¢…ì „(ì›¨ì´ë¸Œ 25)ì— ë„ë‹¬í•œ ê²ƒìœ¼ë¡œ ì´ë¯¸ ì¶©ì¡±ëœë‹¤. ë„ê° 42ì¢… ì™„ì„±ì€ ë³„ë„ ëª…ì˜ˆ ë³´ìƒ.
+    /// Áø¿£µù(¸¶Áö¸· ÁÖ¹®) ÀÚ°İ - ÀÌÁ¤Ç¥ ¹æ½Ä (»ç¿ëÀÚ °áÁ¤ C1, 2026-09-14):
+    /// ¼±´ëÀÇ ÀÏÁö 12Àå ÀüºÎ + Àü¼³ ¿ä¸®(T2) 1Á¾ ÀÌ»ó º¸À¯(Àç°í ¶Ç´Â ¹èÄ¡). ¼¼ Áö¿ª º¸½º °İÆÄ´Â
+    /// ÃÖÁ¾Àü(¿şÀÌºê 25)¿¡ µµ´ŞÇÑ °ÍÀ¸·Î ÀÌ¹Ì ÃæÁ·µÈ´Ù. µµ°¨ 42Á¾ ¿Ï¼ºÀº º°µµ ¸í¿¹ º¸»ó.
     /// </summary>
     public static bool TrueEndingMilestoneMode = true;
     public static int TrueEndingJournalsNeeded = 12;
     public static int TrueEndingT2Needed = 1;
-    /// <summary>ë„ê° 42ì¢… ì™„ì„± ìƒíƒœë¡œ ì—”ë”© Bë¥¼ ë³´ë©´ ì¶”ê°€ ëª…ì„± (+ ì¶”ê°€ ì¥ë©´ 1ì¤„)</summary>
+    /// <summary>µµ°¨ 42Á¾ ¿Ï¼º »óÅÂ·Î ¿£µù B¸¦ º¸¸é Ãß°¡ ¸í¼º (+ Ãß°¡ Àå¸é 1ÁÙ)</summary>
     public static int DexCompleteFameBonus = 300;
 
     /// <summary>
-    /// [C3] ë”” ì˜¤ë¦¬ì§€ë„ ì „ìš© ì¶”ê°€ ê·¸ë¡œê¸° HP ë¹„ìœ¨ (ê¸°ë³¸ ê·¸ë¡œê¸° 75/50/25% ë’¤ í•œ ë²ˆ ë”).
-    /// ë§ˆì§€ë§‰ ì£¼ë¬¸ ì‹¤íŒ¨ ì‹œ ì¬ë„ì „ ê¸°íšŒ. 0 ì´í•˜ë©´ ì—†ìŒ.
+    /// [C3] µğ ¿À¸®Áö³Î Àü¿ë Ãß°¡ ±×·Î±â HP ºñÀ² (±âº» ±×·Î±â 75/50/25% µÚ ÇÑ ¹ø ´õ).
+    /// ¸¶Áö¸· ÁÖ¹® ½ÇÆĞ ½Ã ÀçµµÀü ±âÈ¸. 0 ÀÌÇÏ¸é ¾øÀ½.
     /// </summary>
     public static float OriginalExtraGroggyRatio = 0.12f;
 
-    /// <summary>í’€ì½”ìŠ¤ QTE ë¼ìš´ë“œ ìˆ˜ / ì„±ê³µ í•„ìš” ìˆ˜</summary>
+    /// <summary>Ç®ÄÚ½º QTE ¶ó¿îµå ¼ö / ¼º°ø ÇÊ¿ä ¼ö</summary>
     public static int FinalOrderRounds = 3;
     public static int FinalOrderNeeded = 2;
 
-    /// <summary>ì—”ë”© B ë‹¬ì„± ë³´ë„ˆìŠ¤ ëª…ì„±</summary>
+    /// <summary>¿£µù B ´Ş¼º º¸³Ê½º ¸í¼º</summary>
     public static int EndingBFame = 500;
 
     // ==================================================================
-    //  ë³´ìŠ¤ íŒ¨í„´ (Bë‹¨ê³„) - íŒ¨ë§ / í•´ë™í¬ / ë°œì•…
+    //  º¸½º ÆĞÅÏ (B´Ü°è) - ÆĞ¸µ / ÇØµ¿Æ÷ / ¹ß¾Ç
     // ==================================================================
 
-    // ë²ˆê°œ ë³‘ íŒ¨ë§ (ì²œë‘¥ ë‘¥ì§€): ë‚™ë¢° ì˜ˆê³  ë§ˆì§€ë§‰ ìˆœê°„ì— Space
-    public static float ParryWindowSec = 0.6f;      // ì˜ˆê³  ì¢…ë£Œ ì§ì „ íŒì • ì°½
-    public static int ParryChargesForCounter = 3;   // ì´ ìˆ˜ë§Œí¼ ëª¨ìœ¼ë©´ ë˜ì˜ê¸°(ê°•ì œ ê·¸ë¡œê¸°)
-    public static float ParryCounterGroggySec = 4f; // ë˜ì˜ê¸° ê·¸ë¡œê¸° ì‹œê°„
+    // ¹ø°³ º´ ÆĞ¸µ (ÃµµÕ µÕÁö): ³«·Ú ¿¹°í ¸¶Áö¸· ¼ø°£¿¡ Space
+    public static float ParryWindowSec = 0.6f;      // ¿¹°í Á¾·á Á÷Àü ÆÇÁ¤ Ã¢
+    public static int ParryChargesForCounter = 3;   // ÀÌ ¼ö¸¸Å­ ¸ğÀ¸¸é µÇ½î±â(°­Á¦ ±×·Î±â)
+    public static float ParryCounterGroggySec = 4f; // µÇ½î±â ±×·Î±â ½Ã°£
 
-    // í•´ë™í¬ (ë™ë©´ì): í™”ì—¼ì„ íƒœì›Œ ì˜ëŠ” ê´‘ì‚° ì—´ì°¨í¬
-    public static float ThawChargeMax = 100f;       // ë°œì‚¬ì— í•„ìš”í•œ ì¶©ì „ëŸ‰
-    public static float ThawChargePerMaterial = 25f;// í™”ì—¼ ì¬ë£Œ 1ê°œ ì¥ì „ëŸ‰
-    public static float ThawChargePerFood = 50f;    // í™”ì—¼ ìš”ë¦¬ 1ê°œ ì¥ì „ëŸ‰
-    public static float ThawPerfectDamage = 300f;   // ì••ë ¥ ì •ì¤‘ì•™ ë°œì‚¬
-    public static float ThawGoodDamage = 150f;      // ì••ë ¥ ì¡´ ì•ˆ ë°œì‚¬
-    public static float ThawMissDamage = 80f;       // ì¡´ ë°– ë°œì‚¬
+    // ÇØµ¿Æ÷ (µ¿¸éÀÚ): È­¿°À» ÅÂ¿ö ½î´Â ±¤»ê ¿­Â÷Æ÷
+    public static float ThawChargeMax = 100f;       // ¹ß»ç¿¡ ÇÊ¿äÇÑ ÃæÀü·®
+    public static float ThawChargePerMaterial = 25f;// È­¿° Àç·á 1°³ ÀåÀü·®
+    public static float ThawChargePerFood = 50f;    // È­¿° ¿ä¸® 1°³ ÀåÀü·®
+    public static float ThawPerfectDamage = 300f;   // ¾Ğ·Â Á¤Áß¾Ó ¹ß»ç
+    public static float ThawGoodDamage = 150f;      // ¾Ğ·Â Á¸ ¾È ¹ß»ç
+    public static float ThawMissDamage = 80f;       // Á¸ ¹Û ¹ß»ç
 
-    // ë°œì•… (HP 50% ì´í•˜): íŒ¨í„´ ê°€ì† + ê·œëª¨ ì¦ê°€
+    // ¹ß¾Ç (HP 50% ÀÌÇÏ): ÆĞÅÏ °¡¼Ó + ±Ô¸ğ Áõ°¡
     public static float EnrageHPRatio = 0.5f;
-    public static float EnragePatternIntervalMul = 0.7f;  // íŒ¨í„´ ê°„ê²© ë°°ìœ¨
-    public static int EnrageExtraSummon = 2;              // í˜¸ë ¹/í¬íš¨ ì†Œí™˜ ì¶”ê°€
-    public static int EnrageExtraLightning = 1;           // ë‚™ë¢° ë§ˆë¹„ ìŠ¬ë¡¯ ì¶”ê°€
+    public static float EnragePatternIntervalMul = 0.7f;  // ÆĞÅÏ °£°İ ¹èÀ²
+    public static int EnrageExtraSummon = 2;              // È£·É/Æ÷È¿ ¼ÒÈ¯ Ãß°¡
+    public static int EnrageExtraLightning = 1;           // ³«·Ú ¸¶ºñ ½½·Ô Ãß°¡
 
     // ==================================================================
-    //  ë³´ìŠ¤ íŒ¨í„´ (Cë‹¨ê³„) - ë¯¸ë¼ í™”ë• / ë”” ì˜¤ë¦¬ì§€ë„ 3í˜ì´ì¦ˆ
+    //  º¸½º ÆĞÅÏ (C´Ü°è) - ¹Ì³¢ È­´ö / µğ ¿À¸®Áö³Î 3ÆäÀÌÁî
     // ==================================================================
 
-    // ë¯¸ë¼ í™”ë• (ë…¹ìŠ¨ ë°œí†±): ê³ ê¸° 1ê°œë¥¼ êµ¬ì›Œ ë˜ì ¸ ë¬´ë¦¬+ë³´ìŠ¤ë¥¼ ìœ ì¸
-    public static float BaitDurationPerfect = 8f;   // êµ½ê¸° íŒì •ë³„ ìœ ì¸ ì‹œê°„
+    // ¹Ì³¢ È­´ö (³ì½¼ ¹ßÅé): °í±â 1°³¸¦ ±¸¿ö ´øÁ® ¹«¸®+º¸½º¸¦ À¯ÀÎ
+    public static float BaitDurationPerfect = 8f;   // ±Á±â ÆÇÁ¤º° À¯ÀÎ ½Ã°£
     public static float BaitDurationGood = 6f;
     public static float BaitDurationMiss = 4f;
-    public static float BaitCooldown = 6f;          // ë¯¸ë¼ ì¬ì‚¬ìš© ëŒ€ê¸°
-    public static float BaitDistance = 7f;          // ê¸°ì°¨ë¡œë¶€í„° ë¯¸ë¼ ì„¤ì¹˜ ê±°ë¦¬
+    public static float BaitCooldown = 6f;          // ¹Ì³¢ Àç»ç¿ë ´ë±â
+    public static float BaitDistance = 7f;          // ±âÂ÷·ÎºÎÅÍ ¹Ì³¢ ¼³Ä¡ °Å¸®
 
-    // ë”” ì˜¤ë¦¬ì§€ë„ 3í˜ì´ì¦ˆ
-    public static float FeedPhaseStartRatio = 0.70f;  // P2 í­ì‹ ì‹œì‘ HP ë¹„ìœ¨
-    public static float HatchPhaseStartRatio = 0.35f; // P3 í•´ì¹˜ ê°œë°© HP ë¹„ìœ¨
-    public static float FeedHealPerFragment = 60f;    // ì¡°ê° 1ê°œ í¡ìˆ˜ ì‹œ íšŒë³µ
-    public static float FeedHealCapRatio = 0.15f;     // ì´ íšŒë³µ ìƒí•œ (ìµœëŒ€ HP ë¹„ìœ¨)
-    public static float FeedAtkPerFragment = 0.04f;   // ì¡°ê°ë‹¹ ê³µê²©ë ¥ +4%
-    public static float FeedAtkCap = 0.5f;            // ê³µê²©ë ¥ ì¦ê°€ ìƒí•œ (+50%)
-    public static float FeedContestChance = 0.6f;     // ì¡°ê°ì´ ìŸíƒˆ ëŒ€ìƒì´ ë  í™•ë¥ 
-    public static float HatchDamageTakenMul = 1.3f;   // í•´ì¹˜ ê°œë°© ì¤‘ ë°›ëŠ” í”¼í•´ ë°°ìœ¨
+    // µğ ¿À¸®Áö³Î 3ÆäÀÌÁî
+    public static float FeedPhaseStartRatio = 0.70f;  // P2 Æø½Ä ½ÃÀÛ HP ºñÀ²
+    public static float HatchPhaseStartRatio = 0.35f; // P3 ÇØÄ¡ °³¹æ HP ºñÀ²
+    public static float FeedHealPerFragment = 60f;    // Á¶°¢ 1°³ Èí¼ö ½Ã È¸º¹
+    public static float FeedHealCapRatio = 0.15f;     // ÃÑ È¸º¹ »óÇÑ (ÃÖ´ë HP ºñÀ²)
+    public static float FeedAtkPerFragment = 0.04f;   // Á¶°¢´ç °ø°İ·Â +4%
+    public static float FeedAtkCap = 0.5f;            // °ø°İ·Â Áõ°¡ »óÇÑ (+50%)
+    public static float FeedContestChance = 0.6f;     // Á¶°¢ÀÌ ÀïÅ» ´ë»óÀÌ µÉ È®·ü
+    public static float HatchDamageTakenMul = 1.3f;   // ÇØÄ¡ °³¹æ Áß ¹Ş´Â ÇÇÇØ ¹èÀ²
 
     // ==================================================================
-    //  ì¡°ë¦¬ ë‚œì´ë„ (P1, ê°ì‚¬ 1-A) - "í˜‘ê³¡ì—ì„œëŠ” ì†ë„ ë–¨ë¦°ë‹¤"
-    //  ì§€ì—­ì´ ê¹Šì–´ì§ˆìˆ˜ë¡ ì»¤ì„œê°€ ë¹¨ë¼ì§€ê³  íŒì •ì´ ì¢ì•„ì§„ë‹¤.
-    //  í”Œë ˆì´í…ŒìŠ¤íŠ¸ì—ì„œ "ì§œì¦ë‚œë‹¤" ì‹¶ìœ¼ë©´ ìˆ˜ì¹˜ë¥¼ ì ˆë°˜ìœ¼ë¡œ (ê°ì‚¬ ì…€í”„í”¼ë“œë°± 1 ì°¸ì¡°).
+    //  Á¶¸® ³­ÀÌµµ (P1, °¨»ç 1-A) - "Çù°î¿¡¼­´Â ¼Õµµ ¶³¸°´Ù"
+    //  Áö¿ªÀÌ ±í¾îÁú¼ö·Ï Ä¿¼­°¡ »¡¶óÁö°í ÆÇÁ¤ÀÌ Á¼¾ÆÁø´Ù.
+    //  ÇÃ·¹ÀÌÅ×½ºÆ®¿¡¼­ "Â¥Áõ³­´Ù" ½ÍÀ¸¸é ¼öÄ¡¸¦ Àı¹İÀ¸·Î (°¨»ç ¼¿ÇÁÇÇµå¹é 1 ÂüÁ¶).
     // ==================================================================
 
-    /// <summary>ì§€ì—­ë³„ ì¡°ë¦¬ ì••ë°•(ì»¤ì„œ ì†ë„/ì‹œê°„ ê°€ì†ë¥ ): [ì§€ì—­1, ì§€ì—­2, ì§€ì—­3, ìµœì¢…]</summary>
+    /// <summary>Áö¿ªº° Á¶¸® ¾Ğ¹Ú(Ä¿¼­ ¼Óµµ/½Ã°£ °¡¼Ó·ü): [Áö¿ª1, Áö¿ª2, Áö¿ª3, ÃÖÁ¾]</summary>
     public static float[] CookRegionSpeedUp = { 0f, 0.12f, 0.25f, 0.25f };
 
-    /// <summary>ì§€ì—­ë³„ íŒì • ì¡´ ì¶•ì†Œìœ¨: [ì§€ì—­1, ì§€ì—­2, ì§€ì—­3, ìµœì¢…]</summary>
+    /// <summary>Áö¿ªº° ÆÇÁ¤ Á¸ Ãà¼ÒÀ²: [Áö¿ª1, Áö¿ª2, Áö¿ª3, ÃÖÁ¾]</summary>
     public static float[] CookRegionJudgeShrink = { 0f, 0f, 0.10f, 0.10f };
 
-    // ì˜¤ì¼ ìº‘í„°ìŠ¤ 'ê¸°ë¦„ íŠ' (ì£½ì€ í”Œë ˆì´ë²„ì˜ ì‹¤ê¸°ë¯¹í™”, ê°ì‚¬ 2-C)
-    public static float OilSlipDuration = 6f;    // ëª…ì¤‘ ì‹œ ì¡°ë¦¬ëŒ€ ë¯¸ë„ëŸ¬ì§ ì§€ì†(ì´ˆ)
-    public static float OilSlipWobble = 0.45f;   // êµ½ê¸° ì»¤ì„œ ìš”ë™ ê°•ë„ (0ì´ë©´ ê¸°ë¯¹ êº¼ì§)
+    // ¿ÀÀÏ Ä´ÅÍ½º '±â¸§ Æ¦' (Á×Àº ÇÃ·¹ÀÌ¹öÀÇ ½Ç±â¹ÍÈ­, °¨»ç 2-C)
+    public static float OilSlipDuration = 6f;    // ¸íÁß ½Ã Á¶¸®´ë ¹Ì²ô·¯Áü Áö¼Ó(ÃÊ)
+    public static float OilSlipWobble = 0.45f;   // ±Á±â Ä¿¼­ ¿äµ¿ °­µµ (0ÀÌ¸é ±â¹Í ²¨Áü)
 
-    // ì¸í“¨ì§• (P1, ê°ì‚¬ 1-A ì²˜ë°© 2): T2 ì§„í™” ë¯¸ë‹ˆê²Œì„ - InfusingMinigame.csê°€ ì‚¬ìš©
-    // ì‹¤íŒ¨í•´ë„ ì§„í™”ëŠ” ì„±ê³µ (ë³´ë„ˆìŠ¤ë§Œ ì—†ìŒ). ì§€ì—­ ë‚œì´ë„ëŠ” ì ìš©í•˜ì§€ ì•ŠìŒ (ì´ë¯¸ ê³ ë¶€ë‹´ ìˆœê°„)
-    public static int InfuseBonusScoreNeed = 3;  // íŒì • í•©ê³„(ë¼ìš´ë“œë‹¹ PERFECT 2/Good 1) ì´ ì´ìƒ = ë³´ë„ˆìŠ¤
-    public static int InfuseBonusLevel = 1;      // ë³´ë„ˆìŠ¤ ë ˆë²¨ (+1ë¡œ íƒ„ìƒ)
-    public static float InfuseGrillSpeed = 70f;  // 1ë¼ìš´ë“œ(ì •ìˆ˜ ì¶”ì¶œ) ì»¤ì„œ ì†ë„
-    public static float InfuseBoilTime = 4f;     // 2ë¼ìš´ë“œ(ìœµí•© ì•ˆì •í™”) ìœ ì§€ ì‹œê°„(ì´ˆ)
+    // ÀÎÇ»Â¡ (P1, °¨»ç 1-A Ã³¹æ 2): T2 ÁøÈ­ ¹Ì´Ï°ÔÀÓ - InfusingMinigame.cs°¡ »ç¿ë
+    // ½ÇÆĞÇØµµ ÁøÈ­´Â ¼º°ø (º¸³Ê½º¸¸ ¾øÀ½). Áö¿ª ³­ÀÌµµ´Â Àû¿ëÇÏÁö ¾ÊÀ½ (ÀÌ¹Ì °íºÎ´ã ¼ø°£)
+    public static int InfuseBonusScoreNeed = 3;  // ÆÇÁ¤ ÇÕ°è(¶ó¿îµå´ç PERFECT 2/Good 1) ÀÌ ÀÌ»ó = º¸³Ê½º
+    public static int InfuseBonusLevel = 1;      // º¸³Ê½º ·¹º§ (+1·Î Åº»ı)
+    public static float InfuseGrillSpeed = 70f;  // 1¶ó¿îµå(Á¤¼ö ÃßÃâ) Ä¿¼­ ¼Óµµ
+    public static float InfuseBoilTime = 4f;     // 2¶ó¿îµå(À¶ÇÕ ¾ÈÁ¤È­) À¯Áö ½Ã°£(ÃÊ)
 
     // ==================================================================
-    //  ìš”ë¦¬ ìˆ™ë ¨ (P1+, ì‚¬ìš©ì ê²°ì • 2026-08-24: ë‹¨ê³¨ ë©”ë‰´ì˜ ì˜êµ¬í™”)
-    //  ë ˆì‹œí”¼ë³„ "í‰ìƒ" ì¡°ë¦¬ íšŸìˆ˜ ëˆ„ì  - ì£½ì–´ë„ ë¦¬ì…‹ ì•ˆ ë¨ (ê°™ì€ ì…°í”„ë‹ˆê¹Œ).
-    //  ë°°ì—´ì€ ì „ë¶€ í‹°ì–´ ìˆœì„œ ëŒ€ì‘: [3íšŒ, 5íšŒ, 10íšŒ, 20íšŒ, 30íšŒ, 50íšŒ, 100íšŒ]
+    //  ¿ä¸® ¼÷·Ã (P1+, »ç¿ëÀÚ °áÁ¤ 2026-08-24: ´Ü°ñ ¸Ş´ºÀÇ ¿µ±¸È­)
+    //  ·¹½ÃÇÇº° "Æò»ı" Á¶¸® È½¼ö ´©Àû - Á×¾îµµ ¸®¼Â ¾È µÊ (°°Àº ¼ÎÇÁ´Ï±î).
+    //  ¹è¿­Àº ÀüºÎ Æ¼¾î ¼ø¼­ ´ëÀÀ: [3È¸, 5È¸, 10È¸, 20È¸, 30È¸, 50È¸, 100È¸]
     // ==================================================================
 
-    /// <summary>ìˆ™ë ¨ ë§ˆì¼ìŠ¤í†¤ (ëˆ„ì  ì¡°ë¦¬ íšŸìˆ˜)</summary>
+    /// <summary>¼÷·Ã ¸¶ÀÏ½ºÅæ (´©Àû Á¶¸® È½¼ö)</summary>
     public static int[] MasteryThresholds = { 3, 5, 10, 20, 30, 50, 100 };
 
-    /// <summary>í‹°ì–´ë³„ ì¹­í˜¸ (ì•Œë¦¼/íˆ´íŒ í‘œê¸°)</summary>
+    /// <summary>Æ¼¾îº° ÄªÈ£ (¾Ë¸²/ÅøÆÁ Ç¥±â)</summary>
     public static string[] MasteryTitles =
-        { "ë‹¨ê³¨ ë©”ë‰´", "ì…ì†Œë¬¸", "ìµìˆ™í•œ ì†ê¸¸", "ë‹¨ê³¨ì˜ ë§›", "ì¥ì¸ì˜ ê¸¸", "ì¥ì¸ì˜ ê°ê°", "ë§ˆìŠ¤í„° ìš”ë¦¬" };
+        { "´Ü°ñ ¸Ş´º", "ÀÔ¼Ò¹®", "ÀÍ¼÷ÇÑ ¼Õ±æ", "´Ü°ñÀÇ ¸À", "ÀåÀÎÀÇ ±æ", "ÀåÀÎÀÇ °¨°¢", "¸¶½ºÅÍ ¿ä¸®" };
 
-    /// <summary>í‹°ì–´ë³„ ê·¸ ë ˆì‹œí”¼ í¬íƒ‘ ê³µê²©ë ¥ ë³´ë„ˆìŠ¤ (ëŒ€ì²´ ë°©ì‹ - ì¤‘ì²© ì•„ë‹˜)</summary>
+    /// <summary>Æ¼¾îº° ±× ·¹½ÃÇÇ Æ÷Å¾ °ø°İ·Â º¸³Ê½º (´ëÃ¼ ¹æ½Ä - ÁßÃ¸ ¾Æ´Ô)</summary>
     public static float[] MasteryAtkBonus =
         { 0.04f, 0.06f, 0.08f, 0.10f, 0.12f, 0.15f, 0.20f };
 
-    /// <summary>í‹°ì–´ë³„ ê·¸ ë ˆì‹œí”¼ ì¡°ë¦¬ íŒì • ì¡´ ë³´ë„ˆìŠ¤ (10íšŒë¶€í„°)</summary>
+    /// <summary>Æ¼¾îº° ±× ·¹½ÃÇÇ Á¶¸® ÆÇÁ¤ Á¸ º¸³Ê½º (10È¸ºÎÅÍ)</summary>
     public static float[] MasteryJudgeBonus =
         { 0f, 0f, 0.05f, 0.08f, 0.08f, 0.10f, 0.12f };
 
-    /// <summary>ì´ í‹°ì–´(50íšŒ)ë¶€í„°: ë¹ˆ ìŠ¬ë¡¯ì— ë°°ì¹˜ ì‹œ ì‹œì‘ ë ˆë²¨ +1</summary>
+    /// <summary>ÀÌ Æ¼¾î(50È¸)ºÎÅÍ: ºó ½½·Ô¿¡ ¹èÄ¡ ½Ã ½ÃÀÛ ·¹º§ +1</summary>
     public static int MasteryStartLevelTier = 5;
 
-    /// <summary>ì´ í‹°ì–´(100íšŒ)ë¶€í„°: PERFECT ì¡°ë¦¬ íšë“ ìˆ˜ëŸ‰ +1 (2 -> 3)</summary>
+    /// <summary>ÀÌ Æ¼¾î(100È¸)ºÎÅÍ: PERFECT Á¶¸® È¹µæ ¼ö·® +1 (2 -> 3)</summary>
     public static int MasteryPerfectTier = 6;
 
-    /// <summary>100íšŒ ìµœì´ˆ ë‹¬ì„± ì‹œ 1íšŒ ì§€ê¸‰ ëª…ì„±</summary>
+    /// <summary>100È¸ ÃÖÃÊ ´Ş¼º ½Ã 1È¸ Áö±Ş ¸í¼º</summary>
     public static int MasteryFame = 100;
 
-    /// <summary>ëˆ„ì  íšŸìˆ˜ -> í˜„ì¬ í‹°ì–´ (-1 = ì•„ì§ ì—†ìŒ)</summary>
+    /// <summary>´©Àû È½¼ö -> ÇöÀç Æ¼¾î (-1 = ¾ÆÁ÷ ¾øÀ½)</summary>
     public static int MasteryTier(int count)
     {
         int tier = -1;
@@ -297,158 +297,158 @@ public static class GameBalance
         return tier;
     }
 
-    // ì•„ì´ìŠ¤ ëª¨ì‚¬ ìŠ¬ë¡¯ ë¹™ê²° (P1, ê°ì‚¬ 2-C): ì£½ì€ í”Œë ˆì´ë²„("ë°”í€´ ê²°ë¹™")ì˜ ì‹¤ê¸°ë¯¹í™”
-    public static float FreezeChance = 0.5f;        // ëª¨ì‚¬ ëª…ì¤‘ ì‹œ ë¹™ê²° ë°œë™ í™•ë¥ 
-    public static float FreezeSlotSec = 4f;         // ìŠ¬ë¡¯ ë¹™ê²° ì§€ì†(ì´ˆ) - ìŠ¬ë¡¯ ê³ì—ì„œ [E] 3ì—°íƒ€ë¡œ í•´ë¹™
-    public static float FreezeGlobalCooldown = 7f;  // ì „ì²´ ëª¨ì‚¬ ê³µìœ  ì¿¨íƒ€ì„ (ë‹¤ì¤‘ ëª¨ì‚¬ ìŠ¤í„´ë½ ë°©ì§€)
+    // ¾ÆÀÌ½º ¸ğ»ç ½½·Ô ºù°á (P1, °¨»ç 2-C): Á×Àº ÇÃ·¹ÀÌ¹ö("¹ÙÄû °áºù")ÀÇ ½Ç±â¹ÍÈ­
+    public static float FreezeChance = 0.5f;        // ¸ğ»ç ¸íÁß ½Ã ºù°á ¹ßµ¿ È®·ü
+    public static float FreezeSlotSec = 4f;         // ½½·Ô ºù°á Áö¼Ó(ÃÊ) - ½½·Ô °ç¿¡¼­ [E] 3¿¬Å¸·Î ÇØºù
+    public static float FreezeGlobalCooldown = 7f;  // ÀüÃ¼ ¸ğ»ç °øÀ¯ ÄğÅ¸ÀÓ (´ÙÁß ¸ğ»ç ½ºÅÏ¶ô ¹æÁö)
 
     // ==================================================================
-    //  ìŠ¤í”¼ë…¸ ë² íŒ… (Phase 2-1) - ë³´ìŠ¤ ì§ì „ ì •ì°¨ì˜ ë„ë°•ì‚¬
-    //  ì¼ë°˜ ë² íŒ… = ì‹¤íŒ¨í•´ë„ ë¬´ì†ì‹¤ / ë„ë°• ë² íŒ… = í™”ëˆí•œ ëŒ€ê°€ (ì‚¬ìš©ì ê²°ì • 2026-08-25)
-    //  ì¡°ê±´ ì¶”ì /ì •ì‚°ì€ SpinoBet.cs, ë“±ì¥ UIëŠ” SpinoBetUI.cs
+    //  ½ºÇÇ³ë º£ÆÃ (Phase 2-1) - º¸½º Á÷Àü Á¤Â÷ÀÇ µµ¹Ú»ç
+    //  ÀÏ¹İ º£ÆÃ = ½ÇÆĞÇØµµ ¹«¼Õ½Ç / µµ¹Ú º£ÆÃ = È­²öÇÑ ´ë°¡ (»ç¿ëÀÚ °áÁ¤ 2026-08-25)
+    //  Á¶°Ç ÃßÀû/Á¤»êÀº SpinoBet.cs, µîÀå UI´Â SpinoBetUI.cs
     // ==================================================================
 
-    // [ì¼ë°˜] ì •ì‹œ ë°°ì‹: ì œí•œ ì‹œê°„ ë‚´ ë³´ìŠ¤ ê²©íŒŒ
+    // [ÀÏ¹İ] Á¤½Ã ¹è½Ä: Á¦ÇÑ ½Ã°£ ³» º¸½º °İÆÄ
     public static float BetOnTimeSec = 120f;
     public static int BetOnTimeGold = 150;
 
-    // [ì¼ë°˜] ì™„ë²½í•œ ì ‘ì‹œ: ë³´ìŠ¤ì „ ì¤‘ PERFECT ì¡°ë¦¬
+    // [ÀÏ¹İ] ¿Ïº®ÇÑ Á¢½Ã: º¸½ºÀü Áß PERFECT Á¶¸®
     public static int BetPerfectNeed = 2;
-    public static int BetPerfectMats = 4;      // ë³´ìƒ: ëœë¤ ì¬ë£Œ ìˆ˜
+    public static int BetPerfectMats = 4;      // º¸»ó: ·£´ı Àç·á ¼ö
 
-    // [ì¼ë°˜] ì² ë²½ ì£¼ë°©: ê¸°ì°¨ í”¼ê²© ì œí•œ
+    // [ÀÏ¹İ] Ã¶º® ÁÖ¹æ: ±âÂ÷ ÇÇ°İ Á¦ÇÑ
     public static int BetTankHitsMax = 8;
-    public static float BetTankMaxHP = 80f;    // ë³´ìƒ: ìµœëŒ€ HP (ëŸ° í•œì •)
+    public static float BetTankMaxHP = 80f;    // º¸»ó: ÃÖ´ë HP (·± ÇÑÁ¤)
 
-    // [ë„ë°•] ì™¸ìƒ ì¥ë¶€: íŒëˆ ì„ ë¶ˆ, ê·¸ë¡œê¸° íˆ¬ì²™ ëª…ì¤‘
+    // [µµ¹Ú] ¿Ü»ó ÀåºÎ: ÆÇµ· ¼±ºÒ, ±×·Î±â ÅõÃ´ ¸íÁß
     public static int BetLedgerStake = 150;
-    public static int BetLedgerPayoutMul = 4;  // ì„±ê³µ ë°°ìˆ˜ (150 -> 600)
+    public static int BetLedgerPayoutMul = 4;  // ¼º°ø ¹è¼ö (150 -> 600)
     public static int BetLedgerThrowNeed = 2;
-    // ì‹¤íŒ¨: íŒëˆ ëª°ìˆ˜ + ì¬ë£Œ ì „ ì¢…ë¥˜ ì ˆë°˜ ì••ë¥˜
+    // ½ÇÆĞ: ÆÇµ· ¸ô¼ö + Àç·á Àü Á¾·ù Àı¹İ ¾Ğ·ù
 
-    // [ë„ë°•] ì†ì „ì†ê²°: ì œí•œ ì‹œê°„ ë‚´ ê²©íŒŒ
+    // [µµ¹Ú] ¼ÓÀü¼Ó°á: Á¦ÇÑ ½Ã°£ ³» °İÆÄ
     public static float BetRushSec = 90f;
     public static int BetRushGold = 500;
-    public static float BetRushHPPenalty = 50f;   // ì‹¤íŒ¨: ìµœëŒ€ HP ê°ì†Œ (+ê²©íŒŒ ë³´ë„ˆìŠ¤ ëª°ìˆ˜)
+    public static float BetRushHPPenalty = 50f;   // ½ÇÆĞ: ÃÖ´ë HP °¨¼Ò (+°İÆÄ º¸³Ê½º ¸ô¼ö)
 
-    // [ë„ë°•] êµ¶ì£¼ë¦° ì‹íƒ: ì ì€ í¬íƒ‘ìœ¼ë¡œ ê²©íŒŒ
+    // [µµ¹Ú] ±¾ÁÖ¸° ½ÄÅ¹: ÀûÀº Æ÷Å¾À¸·Î °İÆÄ
     public static int BetFeastSlotsMax = 4;
-    public static int BetFeastMats = 4;        // ì„±ê³µ: ì „ ì¬ë£Œ +4
+    public static int BetFeastMats = 4;        // ¼º°ø: Àü Àç·á +4
     public static int BetFeastFame = 50;
-    // ì‹¤íŒ¨: ê³¨ë“œ ì ˆë°˜ ì••ë¥˜ + ê²©íŒŒ ë³´ë„ˆìŠ¤ ëª°ìˆ˜
+    // ½ÇÆĞ: °ñµå Àı¹İ ¾Ğ·ù + °İÆÄ º¸³Ê½º ¸ô¼ö
 
     // ==================================================================
-    //  ì¦ê°• í™•ì¥ (Phase 2-2) - ë¦¬ë¡¤ / ìµœí›„ì˜ ë§Œì°¬
+    //  Áõ°­ È®Àå (Phase 2-2) - ¸®·Ñ / ÃÖÈÄÀÇ ¸¸Âù
     // ==================================================================
 
-    /// <summary>ì¦ê°• ë¦¬ë¡¤ ê¸°ë³¸ ë¹„ìš© (ê³¨ë“œ). ì‚¬ìš©í•  ë•Œë§ˆë‹¤ Growthë§Œí¼ ë¹„ì‹¸ì§„ë‹¤ (ëŸ° ë‹¨ìœ„ ë¦¬ì…‹)</summary>
+    /// <summary>Áõ°­ ¸®·Ñ ±âº» ºñ¿ë (°ñµå). »ç¿ëÇÒ ¶§¸¶´Ù Growth¸¸Å­ ºñ½ÎÁø´Ù (·± ´ÜÀ§ ¸®¼Â)</summary>
     public static int RerollBaseCost = 80;
     public static int RerollCostGrowth = 40;
 
-    /// <summary>ì¦ê°• 'ìµœí›„ì˜ ë§Œì°¬': ì´ HP ë¹„ìœ¨ ì´í•˜ì¼ ë•Œ ê³µì† ë°°ìœ¨ ë°œë™</summary>
+    /// <summary>Áõ°­ 'ÃÖÈÄÀÇ ¸¸Âù': ÀÌ HP ºñÀ² ÀÌÇÏÀÏ ¶§ °ø¼Ó ¹èÀ² ¹ßµ¿</summary>
     public static float LastSupperHPRatio = 0.4f;
     public static float LastSupperAspdMul = 1.5f;
 
     // ==================================================================
-    //  ì•„ì´í…œ(ìœ ë¬¼) + í–‰ìƒì¸ ì•ˆí‚¬ë¡œ (Phase 2-3) - ItemSystem/MerchantUIê°€ ì‚¬ìš©
+    //  ¾ÆÀÌÅÛ(À¯¹°) + Çà»óÀÎ ¾ÈÅ³·Î (Phase 2-3) - ItemSystem/MerchantUI°¡ »ç¿ë
     // ==================================================================
 
-    /// <summary>ì •ì°¨ ì‹œ í–‰ìƒì¸ ë“±ì¥ í™•ë¥  (ë³´ìŠ¤ ì§ì „ ì •ì°¨ ì œì™¸, ê° ì§€ì—­ ì²« ì •ì°¨ëŠ” í™•ì • ë“±ì¥)</summary>
+    /// <summary>Á¤Â÷ ½Ã Çà»óÀÎ µîÀå È®·ü (º¸½º Á÷Àü Á¤Â÷ Á¦¿Ü, °¢ Áö¿ª Ã¹ Á¤Â÷´Â È®Á¤ µîÀå)</summary>
     public static float MerchantChance = 0.35f;
 
-    /// <summary>ì•„ì´í…œ ê°€ê²© ì „ì²´ ë°°ìœ¨ (ê²½ì œ ì¡°ì´ê¸°/í’€ê¸°ìš© - ê°œë³„ ê°€ê²©ì€ ItemSystem.cs)</summary>
+    /// <summary>¾ÆÀÌÅÛ °¡°İ ÀüÃ¼ ¹èÀ² (°æÁ¦ Á¶ÀÌ±â/Ç®±â¿ë - °³º° °¡°İÀº ItemSystem.cs)</summary>
     public static float ItemPriceMul = 1f;
 
-    /// <summary>ì  ì²˜ì¹˜ ì‹œ ì•„ì´í…œ ë“œë í™•ë¥  (ì¼ë°˜ / ë³´ìŠ¤ / ì¹¨ì…ì ê²©í‡´)</summary>
+    /// <summary>Àû Ã³Ä¡ ½Ã ¾ÆÀÌÅÛ µå¶ø È®·ü (ÀÏ¹İ / º¸½º / Ä§ÀÔÀÚ °İÅğ)</summary>
     public static float ItemDropChance = 0.008f;
     public static float ItemDropChanceBoss = 0.25f;
     public static float ItemDropChanceIntruder = 0.12f;
 
-    /// <summary>íì—­ ì„ ë¡œ í´ë¦¬ì–´ ì‹œ ì•„ì´í…œ íšë“ í™•ë¥ </summary>
+    /// <summary>Æó¿ª ¼±·Î Å¬¸®¾î ½Ã ¾ÆÀÌÅÛ È¹µæ È®·ü</summary>
     public static float RouteRelicChance = 0.35f;
 
     // ==================================================================
-    //  ì¦ê°• í™•ì¥ (Phase 2-3) - ì‹ ê·œ ì¦ê°• 10ì¢… ê³„ìˆ˜
+    //  Áõ°­ È®Àå (Phase 2-3) - ½Å±Ô Áõ°­ 10Á¾ °è¼ö
     // ==================================================================
 
-    /// <summary>ë§ˆì§€ë§‰ ì„œë¹„ìŠ¤: ì²˜ì¹˜í•œ ì  í­ë°œ (ì²˜ì¹˜ ë°ë¯¸ì§€ ë¹„ìœ¨ / ë°˜ê²½)</summary>
+    /// <summary>¸¶Áö¸· ¼­ºñ½º: Ã³Ä¡ÇÑ Àû Æø¹ß (Ã³Ä¡ µ¥¹ÌÁö ºñÀ² / ¹İ°æ)</summary>
     public static float CorpseServiceRatio = 0.25f;
     public static float CorpseServiceRadius = 2.6f;
 
-    /// <summary>ì˜† í…Œì´ë¸” ê³„ì‚°ì„œ: ì´ˆê³¼ ë°ë¯¸ì§€ ì´ì›” íƒìƒ‰ ë²”ìœ„</summary>
+    /// <summary>¿· Å×ÀÌºí °è»ê¼­: ÃÊ°ú µ¥¹ÌÁö ÀÌ¿ù Å½»ö ¹üÀ§</summary>
     public static float OverkillCarryRange = 8f;
 
-    /// <summary>ê°€ì‹œì² ì¡°ë§ ë„ê¸ˆ: ë°˜ê²© = ê¸°ì°¨ DEF x ì´ ê°’ x ìŠ¤íƒ (ì¿¨íƒ€ì„ ì•ˆì— 1íšŒ)</summary>
+    /// <summary>°¡½ÃÃ¶Á¶¸Á µµ±İ: ¹İ°İ = ±âÂ÷ DEF x ÀÌ °ª x ½ºÅÃ (ÄğÅ¸ÀÓ ¾È¿¡ 1È¸)</summary>
     public static float ThornsDefRatio = 1.5f;
     public static float ThornsRadius = 6f;
     public static float ThornsCooldown = 0.5f;
 
-    /// <summary>ê°•ì² ì˜ ì‹¬ì¥: ìµœëŒ€ HP 100ë‹¹ ë°ë¯¸ì§€ ì¦ê°€ìœ¨ (ì „ì²´ ìƒí•œ +100%)</summary>
+    /// <summary>°­Ã¶ÀÇ ½ÉÀå: ÃÖ´ë HP 100´ç µ¥¹ÌÁö Áõ°¡À² (ÀüÃ¼ »óÇÑ +100%)</summary>
     public static float SteelHeartPer100 = 0.02f;
 
-    /// <summary>ì„ ëŒ€ì˜ ê¸°ë³¸ê¸°: T1 í¬íƒ‘ ë°ë¯¸ì§€ ì¦ê°€ìœ¨</summary>
+    /// <summary>¼±´ëÀÇ ±âº»±â: T1 Æ÷Å¾ µ¥¹ÌÁö Áõ°¡À²</summary>
     public static float BasicsT1Bonus = 0.65f;
 
-    /// <summary>ì£¼ë°©ì¥ì€ í•˜ë‚˜ë‹¤: ê¸°ë³¸ ë³´ë„ˆìŠ¤ / ì²˜ì¹˜ë‹¹ ëˆ„ì  / ëˆ„ì  ìƒí•œ / ë‚˜ë¨¸ì§€ í¬íƒ‘ ê°ì†Œìœ¨</summary>
+    /// <summary>ÁÖ¹æÀåÀº ÇÏ³ª´Ù: ±âº» º¸³Ê½º / Ã³Ä¡´ç ´©Àû / ´©Àû »óÇÑ / ³ª¸ÓÁö Æ÷Å¾ °¨¼ÒÀ²</summary>
     public static float OneChefBonus = 0.5f;
     public static float OneChefPerKill = 0.02f;
     public static int OneChefMaxStacks = 100;
     public static float OneChefOthersPenalty = 0.2f;
 
-    /// <summary>ë„˜ì¹˜ëŠ” ì†¥: ì¦ê¸° ë³´í˜¸ë§‰ ìƒí•œ (ìµœëŒ€ HP ë¹„ìœ¨)</summary>
+    /// <summary>³ÑÄ¡´Â ¼Ü: Áõ±â º¸È£¸· »óÇÑ (ÃÖ´ë HP ºñÀ²)</summary>
     public static float OverflowShieldCap = 0.25f;
 
-    /// <summary>ê³¨ë™í’ˆ ê°ì •ê°€: ë³´ìœ  ì•„ì´í…œ 1ê°œë‹¹ ë°ë¯¸ì§€ ì¦ê°€ìœ¨</summary>
+    /// <summary>°ñµ¿Ç° °¨Á¤°¡: º¸À¯ ¾ÆÀÌÅÛ 1°³´ç µ¥¹ÌÁö Áõ°¡À²</summary>
     public static float CollectorPerItem = 0.06f;
 
     // ==================================================================
-    //  B-1: ì…°í”„ì˜ ëª¸ (ë°©í–¥ê²°ì • 2026-08-31) - ì´ë™ê° + ê·¼ì ‘ ìœ„ê¸° ëŒ€ì‘
-    //  ProximityInteract = false ë¡œ ë‘ë©´ ìœ„ê¸° ëŒ€ì‘ì´ ê¸°ì¡´ í´ë¦­ ë°©ì‹ìœ¼ë¡œ ë³µê·€
+    //  B-1: ¼ÎÇÁÀÇ ¸ö (¹æÇâ°áÁ¤ 2026-08-31) - ÀÌµ¿°¨ + ±ÙÁ¢ À§±â ´ëÀÀ
+    //  ProximityInteract = false ·Î µÎ¸é À§±â ´ëÀÀÀÌ ±âÁ¸ Å¬¸¯ ¹æ½ÄÀ¸·Î º¹±Í
     // ==================================================================
 
-    /// <summary>ì…°í”„ ì´ë™ ì†ë„ (ê¸°ì¡´ 3 - ëª¸ì´ ì£¼ì¸ê³µì´ ë˜ë©´ì„œ ìƒí–¥)</summary>
+    /// <summary>¼ÎÇÁ ÀÌµ¿ ¼Óµµ (±âÁ¸ 3 - ¸öÀÌ ÁÖÀÎ°øÀÌ µÇ¸é¼­ »óÇâ)</summary>
     public static float ChefMoveSpeed = 4.2f;
-    public static float ChefAccel = 30f;          // ê°€ì† (ìœ ë‹›/ì´ˆ^2)
-    public static float ChefDecel = 40f;          // ê°ì†
+    public static float ChefAccel = 30f;          // °¡¼Ó (À¯´Ö/ÃÊ^2)
+    public static float ChefDecel = 40f;          // °¨¼Ó
 
-    /// <summary>ëŒ€ì‹œ (Shift): ìˆœê°„ ê°€ì† + í™ë¨¼ì§€. ì¡°ë¦¬ ì¤‘ì—ëŠ” ì´ë™ ìì²´ê°€ ì ê²¨ ë°œë™ ë¶ˆê°€</summary>
+    /// <summary>´ë½Ã (Shift): ¼ø°£ °¡¼Ó + Èë¸ÕÁö. Á¶¸® Áß¿¡´Â ÀÌµ¿ ÀÚÃ¼°¡ Àá°Ü ¹ßµ¿ ºÒ°¡</summary>
     public static float ChefDashSpeed = 12f;
     public static float ChefDashTime = 0.16f;
     public static float ChefDashCooldown = 1.2f;
 
-    /// <summary>ì…°í”„ í™œë™ ë²”ìœ„ (B-2: íŠ¸ë ˆì¼ëŸ¬ 4ì¹¸ìœ¼ë¡œ í™•ì¥ë¨)</summary>
+    /// <summary>¼ÎÇÁ È°µ¿ ¹üÀ§ (B-2: Æ®·¹ÀÏ·¯ 4Ä­À¸·Î È®ÀåµÊ)</summary>
     public static float TrainWalkMinX = -6.3f;
     public static float TrainWalkMaxX = 11.3f;
     public static float TrainWalkMinY = -1.5f;
     public static float TrainWalkMaxY = 1.5f;
 
-    /// <summary>ìœ„ê¸° ëŒ€ì‘ ê·¼ì ‘ ì „í™˜ ìŠ¤ìœ„ì¹˜ (false = ë¹™ê²°/ê°ì „ í•´ì œê°€ í´ë¦­ìœ¼ë¡œ ë³µê·€)</summary>
+    /// <summary>À§±â ´ëÀÀ ±ÙÁ¢ ÀüÈ¯ ½ºÀ§Ä¡ (false = ºù°á/°¨Àü ÇØÁ¦°¡ Å¬¸¯À¸·Î º¹±Í)</summary>
     public static bool ProximityInteract = true;
 
-    /// <summary>ë§ˆë¹„(ë¹™ê²°/ê°ì „/ê³¼ì—´) í¬íƒ‘ í•´ì œ ê·¼ì ‘ ë°˜ê²½ (ì…°í”„-ìŠ¬ë¡¯ ê±°ë¦¬)</summary>
+    /// <summary>¸¶ºñ(ºù°á/°¨Àü/°ú¿­) Æ÷Å¾ ÇØÁ¦ ±ÙÁ¢ ¹İ°æ (¼ÎÇÁ-½½·Ô °Å¸®)</summary>
     public static float SlotReach = 1.3f;
 
-    /// <summary>ìœ„ì¹˜í˜• ì£¼ë°© ì´ë²¤íŠ¸: ì¡°ì‘ ê°€ëŠ¥ ê·¼ì ‘ ë°˜ê²½ (X ê±°ë¦¬)</summary>
+    /// <summary>À§Ä¡Çü ÁÖ¹æ ÀÌº¥Æ®: Á¶ÀÛ °¡´É ±ÙÁ¢ ¹İ°æ (X °Å¸®)</summary>
     public static float EventReachX = 1.8f;
 
-    /// <summary>ì´ë²¤íŠ¸ ë°œìƒ ì§€ì  ë²”ìœ„ (B-2: ê¸°ì°¨ ì „ì²´ ì¹¸ì—ì„œ í„°ì§„ë‹¤)</summary>
+    /// <summary>ÀÌº¥Æ® ¹ß»ı ÁöÁ¡ ¹üÀ§ (B-2: ±âÂ÷ ÀüÃ¼ Ä­¿¡¼­ ÅÍÁø´Ù)</summary>
     public static float EventAnchorMinX = -6.0f;
     public static float EventAnchorMaxX = 11.0f;
 
-    /// <summary>ìœ„ì¹˜í˜• ì´ë²¤íŠ¸ ì œí•œì‹œê°„ ë³´ì • (+ì´ˆ, ë‹¬ë ¤ê°€ëŠ” ì‹œê°„ë§Œí¼ ì—¬ìœ )</summary>
-    // ë°¸ëŸ°ìŠ¤ 1ì°¨: 2.5 -> 4.0. ìµœì•… ëŒ€ê°(í¬íƒ‘B ë -> ê¸°ê´€ì°¨, 17ìœ ë‹› = ê±·ê¸° 4ì´ˆ)
-    // + ì¡°ë¦¬ ì¤‘ë‹¨ ë°˜ì‘ 1ì´ˆë¥¼ ë”í•˜ë©´ 2.5ì´ˆë¡œëŠ” ë„ë‹¬ ì „ ì‹¤íŒ¨ê°€ ë‚œë‹¤ (í—Œë²• ìœ„ë°˜)
+    /// <summary>À§Ä¡Çü ÀÌº¥Æ® Á¦ÇÑ½Ã°£ º¸Á¤ (+ÃÊ, ´Ş·Á°¡´Â ½Ã°£¸¸Å­ ¿©À¯)</summary>
+    // ¹ë·±½º 1Â÷: 2.5 -> 4.0. ÃÖ¾Ç ´ë°¢(Æ÷Å¾B ³¡ -> ±â°üÂ÷, 17À¯´Ö = °È±â 4ÃÊ)
+    // + Á¶¸® Áß´Ü ¹İÀÀ 1ÃÊ¸¦ ´õÇÏ¸é 2.5ÃÊ·Î´Â µµ´Ş Àü ½ÇÆĞ°¡ ³­´Ù (Çå¹ı À§¹İ)
     public static float EventReachGrace = 4.0f;
 
     // ==================================================================
-    //  B-2: íŠ¸ë ˆì¼ëŸ¬ 4ì¹¸ + ê³¼ì—´ + ì¹´ë©”ë¼ + ê°‘íŒ ì „ë¦¬í’ˆ (ë°©í–¥ê²°ì • 2026-08-31)
+    //  B-2: Æ®·¹ÀÏ·¯ 4Ä­ + °ú¿­ + Ä«¸Ş¶ó + °©ÆÇ Àü¸®Ç° (¹æÇâ°áÁ¤ 2026-08-31)
     // ==================================================================
 
-    /// <summary>ì¹¸ ê²½ê³„ X (5ê°œ ê°’ = 4ì¹¸): ê¸°ê´€ì°¨ / ì£¼ë°© / í¬íƒ‘ A / í¬íƒ‘ B</summary>
+    /// <summary>Ä­ °æ°è X (5°³ °ª = 4Ä­): ±â°üÂ÷ / ÁÖ¹æ / Æ÷Å¾ A / Æ÷Å¾ B</summary>
     public static float[] CarEdgesX = { -6.5f, -2.5f, 2.5f, 7f, 11.5f };
-    public static string[] CarNames = { "ê¸°ê´€ì°¨", "ì£¼ë°©", "í¬íƒ‘ A", "í¬íƒ‘ B" };
+    public static string[] CarNames = { "±â°üÂ÷", "ÁÖ¹æ", "Æ÷Å¾ A", "Æ÷Å¾ B" };
 
-    /// <summary>x ì¢Œí‘œê°€ ì†í•œ ì¹¸ ì¸ë±ìŠ¤ (0~3, ë²”ìœ„ ë°–ì€ ê°€ì¥ ê°€ê¹Œìš´ ì¹¸)</summary>
+    /// <summary>x ÁÂÇ¥°¡ ¼ÓÇÑ Ä­ ÀÎµ¦½º (0~3, ¹üÀ§ ¹ÛÀº °¡Àå °¡±î¿î Ä­)</summary>
     public static int CarIndexOf(float x)
     {
         for (int i = 1; i < CarEdgesX.Length - 1; i++)
@@ -456,299 +456,299 @@ public static class GameBalance
         return CarEdgesX.Length - 2;
     }
 
-    /// <summary>ìŠ¬ë¡¯ ë°°ì¹˜ (B-2: í¬íƒ‘ì¹¸ ê°€ë¡œ 1ì—´ 4+4. 0~3=í¬íƒ‘ A, 4~7=í¬íƒ‘ B) - v9.9 ë¶€í„°ëŠ” SlotCornerLayout ì´ false ì¼ ë•Œë§Œ ì“°ì¸ë‹¤</summary>
-    public static float SlotRowAX = 3.1f;      // í¬íƒ‘ A ì²« ìŠ¬ë¡¯ x
-    public static float SlotRowBX = 7.6f;      // í¬íƒ‘ B ì²« ìŠ¬ë¡¯ x
-    public static float SlotGapX = 1.1f;       // ìŠ¬ë¡¯ ê°„ê²©
-    // B-2.2: 0.9(ì¹¸ ëª¸í†µ ì†) -> 1.95(ì§€ë¶• ìœ„). í¬íƒ‘ ë°›ì¹¨ì´ ì§€ë¶•ì„ (1.8)ì— ë”± ì•‰ëŠ”ë‹¤ (ì›ì•ˆ ë³µì›).
-    // ê·¼ì ‘ íŒì •ì€ ê°€ë¡œ ê±°ë¦¬ë§Œ ë³´ë¯€ë¡œ(FindStunnedSlotNear) ì…°í”„ëŠ” ì—¬ì „íˆ ë°œë°‘ì—ì„œ ì •ë¹„ ê°€ëŠ¥
+    /// <summary>½½·Ô ¹èÄ¡ (B-2: Æ÷Å¾Ä­ °¡·Î 1¿­ 4+4. 0~3=Æ÷Å¾ A, 4~7=Æ÷Å¾ B) - v9.9 ºÎÅÍ´Â SlotCornerLayout ÀÌ false ÀÏ ¶§¸¸ ¾²ÀÎ´Ù</summary>
+    public static float SlotRowAX = 3.1f;      // Æ÷Å¾ A Ã¹ ½½·Ô x
+    public static float SlotRowBX = 7.6f;      // Æ÷Å¾ B Ã¹ ½½·Ô x
+    public static float SlotGapX = 1.1f;       // ½½·Ô °£°İ
+    // B-2.2: 0.9(Ä­ ¸öÅë ¼Ó) -> 1.95(ÁöºØ À§). Æ÷Å¾ ¹ŞÄ§ÀÌ ÁöºØ¼±(1.8)¿¡ µü ¾É´Â´Ù (¿ø¾È º¹¿ø).
+    // ±ÙÁ¢ ÆÇÁ¤Àº °¡·Î °Å¸®¸¸ º¸¹Ç·Î(FindStunnedSlotNear) ¼ÎÇÁ´Â ¿©ÀüÈ÷ ¹ß¹Ø¿¡¼­ Á¤ºñ °¡´É
     public static float SlotY = 1.95f;
 
-    // â”€â”€ v9.9 (ìœ ì € ê²°ì • 2026-09-16 "í¬íƒ‘ë¼ë¦¬ í•œ ë¼ì¸ì— ë¶™ì–´ ìˆì–´ ì„ íƒì´ ë¶ˆí¸ - ëª¨ì„œë¦¬ì— í•˜ë‚˜ì”©") â”€â”€
-    //  ì¹¸ë‹¹ 4ëª¨ì„œë¦¬: ë¶ìª½ 2ê°œ = ì§€ë¶•ì„  ìœ„(SlotY ê·¸ëŒ€ë¡œ), ë‚¨ìª½ 2ê°œ = ì„€ì‹œ ìœ„(SlotSouthY). ì¹¸ ì–‘ëì—ì„œ SlotCornerInsetX ë§Œí¼ ì•ˆìª½.
-    //  ë²ˆí˜¸: 0 NW / 1 NE / 2 SW / 3 SE = í¬íƒ‘ A,  4~7 ê°™ì€ ìˆœì„œ = í¬íƒ‘ B (6Â·7 = ë‚¨ìª½ = ê¸°ë³¸ ì ê¸ˆ, ì¦ê°• í•´ê¸ˆ)
-    //  ë§ˆì»¤ ì¹©ì€ ë¶ìª½ ìŠ¬ë¡¯ì€ ë¨¸ë¦¬ ìœ„(+SlotMarkerYOffset), ë‚¨ìª½ ìŠ¬ë¡¯ì€ ë°œ ì•„ë˜(-SlotMarkerYOffset). ë§ˆìš´íŠ¸ ë§ ê·¸ë¦¼(car2.png)ë„ ê°™ì€ ìë¦¬
-    //  false ë¡œ ë‘ë©´ ì¢…ì „ ë¶ìª½ 1ì—´ ë°°ì¹˜ (ê·¸ë¦¼ì€ car2.png ì˜ ë§ 4ê°œê°€ ë¶ìª½ 1ì—´ì¸ v9.8 íŒì„ ì¨ì•¼ ë§ëŠ”ë‹¤)
+    // ¦¡¦¡ v9.9 (À¯Àú °áÁ¤ 2026-09-16 "Æ÷Å¾³¢¸® ÇÑ ¶óÀÎ¿¡ ºÙ¾î ÀÖ¾î ¼±ÅÃÀÌ ºÒÆí - ¸ğ¼­¸®¿¡ ÇÏ³ª¾¿") ¦¡¦¡
+    //  Ä­´ç 4¸ğ¼­¸®: ºÏÂÊ 2°³ = ÁöºØ¼± À§(SlotY ±×´ë·Î), ³²ÂÊ 2°³ = ¼¨½Ã À§(SlotSouthY). Ä­ ¾ç³¡¿¡¼­ SlotCornerInsetX ¸¸Å­ ¾ÈÂÊ.
+    //  ¹øÈ£: 0 NW / 1 NE / 2 SW / 3 SE = Æ÷Å¾ A,  4~7 °°Àº ¼ø¼­ = Æ÷Å¾ B (6¡¤7 = ³²ÂÊ = ±âº» Àá±İ, Áõ°­ ÇØ±İ)
+    //  ¸¶Ä¿ Ä¨Àº ºÏÂÊ ½½·ÔÀº ¸Ó¸® À§(+SlotMarkerYOffset), ³²ÂÊ ½½·ÔÀº ¹ß ¾Æ·¡(-SlotMarkerYOffset). ¸¶¿îÆ® ¸µ ±×¸²(car2.png)µµ °°Àº ÀÚ¸®
+    //  false ·Î µÎ¸é Á¾Àü ºÏÂÊ 1¿­ ¹èÄ¡ (±×¸²Àº car2.png ÀÇ ¸µ 4°³°¡ ºÏÂÊ 1¿­ÀÎ v9.8 ÆÇÀ» ½á¾ß ¸Â´Â´Ù)
     public static bool SlotCornerLayout = true;
-    public static float SlotCornerInsetX = 0.95f;   // ì¹¸ ë(CarEdgesX Â± 0.12 ì—¬ë°±)ì—ì„œ ì•ˆìª½ìœ¼ë¡œ
-    public static float SlotSouthY = -1.45f;        // ë‚¨ìª½ ìŠ¬ë¡¯ y (ì„€ì‹œ ìœ„ ë§ˆìš´íŠ¸ ë§ ì¤‘ì‹¬)
-    public static float SlotMarkerWidth = 120f;     // ë§ˆì»¤ ì¹© í­ (ì¢…ì „ 96 - ëª¨ì„œë¦¬ ë°°ì¹˜ëŠ” ìµœì†Œ ê°„ê²© 2.2u = 141px ë¼ ì—¬ìœ )
+    public static float SlotCornerInsetX = 0.95f;   // Ä­ ³¡(CarEdgesX ¡¾ 0.12 ¿©¹é)¿¡¼­ ¾ÈÂÊÀ¸·Î
+    public static float SlotSouthY = -1.45f;        // ³²ÂÊ ½½·Ô y (¼¨½Ã À§ ¸¶¿îÆ® ¸µ Áß½É)
+    public static float SlotMarkerWidth = 120f;     // ¸¶Ä¿ Ä¨ Æø (Á¾Àü 96 - ¸ğ¼­¸® ¹èÄ¡´Â ÃÖ¼Ò °£°İ 2.2u = 141px ¶ó ¿©À¯)
 
-    /// <summary>ìŠ¬ë¡¯ i ì˜ ì›”ë“œ ìœ„ì¹˜ (ë°°ì¹˜ ë°©ì‹ì— ë”°ë¼). TurretSlotManager ê°€ ìƒì„± ì‹œ 1íšŒ ì½ëŠ”ë‹¤</summary>
+    /// <summary>½½·Ô i ÀÇ ¿ùµå À§Ä¡ (¹èÄ¡ ¹æ½Ä¿¡ µû¶ó). TurretSlotManager °¡ »ı¼º ½Ã 1È¸ ÀĞ´Â´Ù</summary>
     public static Vector2 SlotPosition(int i)
     {
-        int car = i / 4;          // 0 = í¬íƒ‘ A, 1 = í¬íƒ‘ B
+        int car = i / 4;          // 0 = Æ÷Å¾ A, 1 = Æ÷Å¾ B
         int idx = i % 4;
         if (!SlotCornerLayout)
             return new Vector2((car == 0 ? SlotRowAX : SlotRowBX) + idx * SlotGapX, SlotY);
 
-        float left = CarEdgesX[2 + car] + 0.12f;          // ì¹¸ ëª¸ì²´ ì™¼ìª½ ë (ì¹¸ ì—¬ë°± 0.12)
-        float right = CarEdgesX[3 + car] - 0.12f;         // ì¹¸ ëª¸ì²´ ì˜¤ë¥¸ìª½ ë
+        float left = CarEdgesX[2 + car] + 0.12f;          // Ä­ ¸öÃ¼ ¿ŞÂÊ ³¡ (Ä­ ¿©¹é 0.12)
+        float right = CarEdgesX[3 + car] - 0.12f;         // Ä­ ¸öÃ¼ ¿À¸¥ÂÊ ³¡
         float x = (idx % 2 == 0) ? left + SlotCornerInsetX : right - SlotCornerInsetX;
-        float y = (idx < 2) ? SlotY : SlotSouthY;         // 0Â·1 = ë¶ìª½, 2Â·3 = ë‚¨ìª½
+        float y = (idx < 2) ? SlotY : SlotSouthY;         // 0¡¤1 = ºÏÂÊ, 2¡¤3 = ³²ÂÊ
         return new Vector2(x, y);
     }
 
-    /// <summary>ìŠ¬ë¡¯ i ê°€ ë‚¨ìª½(ì„€ì‹œ) ìŠ¬ë¡¯ì¸ê°€ - ë§ˆì»¤ ì¹©Â·í¬ì‹  ê¸°ë³¸ ë°©í–¥ì´ ì•„ë˜ë¥¼ ë³¸ë‹¤</summary>
+    /// <summary>½½·Ô i °¡ ³²ÂÊ(¼¨½Ã) ½½·ÔÀÎ°¡ - ¸¶Ä¿ Ä¨¡¤Æ÷½Å ±âº» ¹æÇâÀÌ ¾Æ·¡¸¦ º»´Ù</summary>
     public static bool IsSouthSlot(int i)
     {
         return SlotCornerLayout && (i % 4) >= 2;
     }
 
-    // â”€â”€ B-2.2: í¬íƒ‘ ì‹¤ë¬¼ ë¹„ì£¼ì–¼ (TurretSlotì´ ì½”ë“œ ë„í˜•ìœ¼ë¡œ ê·¸ë¦°ë‹¤) â”€â”€
-    public static bool TurretVisuals = true;       // false = ì‹¤ë¬¼ ë„ê¸° (ë§ˆì»¤ ì¹©ë§Œ)
-    public static float SlotMarkerYOffset = 1.05f; // ë§ˆì»¤ ì¹©ì„ í¬íƒ‘ ë¨¸ë¦¬ ìœ„ë¡œ (ì›”ë“œ ìœ ë‹›)
-    public static float StationScale = 0.55f;      // ì¡°ë¦¬ëŒ€ í†µì¼ ìŠ¤ì¼€ì¼ (ì”¬ 0.4 -> ì‹œì¸ì„± ì—…)
-    public static bool ClearStunsOnTown = true;    // ì •ë¹„ ì‹œê°„ ì§„ì… ì‹œ ë§ˆë¹„/ê³¼ì—´ ì „ì²´ í•´ì œ
+    // ¦¡¦¡ B-2.2: Æ÷Å¾ ½Ç¹° ºñÁÖ¾ó (TurretSlotÀÌ ÄÚµå µµÇüÀ¸·Î ±×¸°´Ù) ¦¡¦¡
+    public static bool TurretVisuals = true;       // false = ½Ç¹° ²ô±â (¸¶Ä¿ Ä¨¸¸)
+    public static float SlotMarkerYOffset = 1.05f; // ¸¶Ä¿ Ä¨À» Æ÷Å¾ ¸Ó¸® À§·Î (¿ùµå À¯´Ö)
+    public static float StationScale = 0.55f;      // Á¶¸®´ë ÅëÀÏ ½ºÄÉÀÏ (¾À 0.4 -> ½ÃÀÎ¼º ¾÷)
+    public static bool ClearStunsOnTown = true;    // Á¤ºñ ½Ã°£ ÁøÀÔ ½Ã ¸¶ºñ/°ú¿­ ÀüÃ¼ ÇØÁ¦
 
-    // ë°¸ëŸ°ìŠ¤ 1ì°¨: ì¸ì ‘ ë²„í”„ ë³´ì •. B-2 ê°€ë¡œ 1ì—´ ì¬ë°°ì¹˜ë¡œ ë²„í”„ ìˆ˜í˜œ ìŠ¬ë¡¯ì´
-    // í‰ê·  ~3ê°œ(êµ¬ 2x4 ê²©ì) -> ìµœëŒ€ 2ê°œ(ì–‘ì˜†)ë¡œ ì¤„ì—ˆë‹¤ - ë²„í”„í˜• í¬íƒ‘ ê°€ì¹˜ ë³µì›
-    // (ì˜ˆ: ë¬¼ë¦¬ +40% -> ì‹¤íš¨ +60%. ìˆ˜í˜œ í­ ì ˆë°˜ x 1.5ë°° = êµ¬ ê°€ì¹˜ì˜ ~75%)
+    // ¹ë·±½º 1Â÷: ÀÎÁ¢ ¹öÇÁ º¸Á¤. B-2 °¡·Î 1¿­ Àç¹èÄ¡·Î ¹öÇÁ ¼öÇı ½½·ÔÀÌ
+    // Æò±Õ ~3°³(±¸ 2x4 °İÀÚ) -> ÃÖ´ë 2°³(¾ç¿·)·Î ÁÙ¾ú´Ù - ¹öÇÁÇü Æ÷Å¾ °¡Ä¡ º¹¿ø
+    // (¿¹: ¹°¸® +40% -> ½ÇÈ¿ +60%. ¼öÇı Æø Àı¹İ x 1.5¹è = ±¸ °¡Ä¡ÀÇ ~75%)
     public static float AdjBuffScale = 1.5f;
 
     /// <summary>
-    /// ë¹„ì£¼ì–¼ ì •ë ¬ (B-2.1): êµ¬ ê¸°ì°¨ ìŠ¤í”„ë¼ì´íŠ¸(ì”¬ì˜ 5x5 ì‚¬ê°í˜•)ë¥¼ ìˆ¨ê¸´ë‹¤.
-    /// 4ì¹¸ ë°í¬ê°€ ê¸°ì°¨ ë³¸ì²´ ì—­í• ì„ ì´ì–´ë°›ëŠ”ë‹¤. ë Œë”ëŸ¬ë§Œ ë„ê³  ë¡œì§/íƒœê·¸ëŠ” ìœ ì§€.
+    /// ºñÁÖ¾ó Á¤·Ä (B-2.1): ±¸ ±âÂ÷ ½ºÇÁ¶óÀÌÆ®(¾ÀÀÇ 5x5 »ç°¢Çü)¸¦ ¼û±ä´Ù.
+    /// 4Ä­ µ¥Å©°¡ ±âÂ÷ º»Ã¼ ¿ªÇÒÀ» ÀÌ¾î¹Ş´Â´Ù. ·»´õ·¯¸¸ ²ô°í ·ÎÁ÷/ÅÂ±×´Â À¯Áö.
     /// </summary>
     public static bool HideLegacyTrainVisual = true;
 
-    /// <summary>ë¹„ì£¼ì–¼ ì •ë ¬ (B-2.1): ì¡°ë¦¬ëŒ€ 3ëŒ€ë¥¼ ì£¼ë°©ì¹¸ ì•ˆ ì •ìœ„ì¹˜ë¡œ ìë™ ì •ë ¬ (false=ì”¬ ë°°ì¹˜ ê·¸ëŒ€ë¡œ)</summary>
+    /// <summary>ºñÁÖ¾ó Á¤·Ä (B-2.1): Á¶¸®´ë 3´ë¸¦ ÁÖ¹æÄ­ ¾È Á¤À§Ä¡·Î ÀÚµ¿ Á¤·Ä (false=¾À ¹èÄ¡ ±×´ë·Î)</summary>
     public static bool AlignStations = true;
-    public static float StationY = -0.7f;                      // ì¡°ë¦¬ëŒ€ ë†’ì´ (ê°‘íŒ ìœ„)
-    public static float[] StationXs = { -1.6f, 0f, 1.6f };     // ê·¸ë¦´ / ë³¶ìŒíŒ¬ / ëƒ„ë¹„ x
+    public static float StationY = -0.7f;                      // Á¶¸®´ë ³ôÀÌ (°©ÆÇ À§)
+    public static float[] StationXs = { -1.6f, 0f, 1.6f };     // ±×¸± / ººÀ½ÆÒ / ³¿ºñ x
 
-    /// <summary>í¬íƒ‘ ê³¼ì—´: ì—°ì† ì‚¬ê²©ì´ ìŒ“ì´ë©´ ì •ì§€, ê·¼ì ‘ [E] í™€ë“œë¡œ ëƒ‰ê° (0=ë”)</summary>
+    /// <summary>Æ÷Å¾ °ú¿­: ¿¬¼Ó »ç°İÀÌ ½×ÀÌ¸é Á¤Áö, ±ÙÁ¢ [E] È¦µå·Î ³Ã°¢ (0=²û)</summary>
     public static bool OverheatEnabled = true;
-    public static int OverheatShotsMin = 22;       // ê³¼ì—´ê¹Œì§€ ì‚¬ê²© ìˆ˜ (ëœë¤ í•˜í•œ)
-    public static int OverheatShotsMax = 34;       // (ëœë¤ ìƒí•œ)
-    public static int OverheatPerLevel = 2;        // í¬íƒ‘ ë ˆë²¨ë‹¹ ì„ê³„ ê°ì†Œ (ìºë¦¬ì¼ìˆ˜ë¡ ì†ì´ ê°„ë‹¤)
-    public static float OverheatCoolHold = 0.8f;   // [E] í™€ë“œ ëƒ‰ê° ì‹œê°„
-    public static float OverheatImmuneTime = 14f;  // ëƒ‰ê° í›„ ê·¸ í¬íƒ‘ ì¬ê³¼ì—´ ë©´ì—­
-    // ë°¸ëŸ°ìŠ¤ 1ì°¨: 25 -> 30. 60ì´ˆ ì›¨ì´ë¸Œ ê¸°ì¤€ ì™•ë³µ 2.4íšŒ -> 2.0íšŒ,
-    // ë³´ìŠ¤ì „(90~120ì´ˆ)ì€ 4íšŒ -> 3íšŒ (ë‚™ë¢° ë§ˆë¹„ ëŒ€ì‘ê³¼ ê²¹ì¹˜ëŠ” í”¼ë¡œ ì™„í™”)
-    public static float OverheatGlobalGap = 30f;   // ê¸°ì°¨ ì „ì²´ ê³¼ì—´ ìµœì†Œ ê°„ê²© (ë¹ˆë„ ìƒí•œ)
+    public static int OverheatShotsMin = 22;       // °ú¿­±îÁö »ç°İ ¼ö (·£´ı ÇÏÇÑ)
+    public static int OverheatShotsMax = 34;       // (·£´ı »óÇÑ)
+    public static int OverheatPerLevel = 2;        // Æ÷Å¾ ·¹º§´ç ÀÓ°è °¨¼Ò (Ä³¸®ÀÏ¼ö·Ï ¼ÕÀÌ °£´Ù)
+    public static float OverheatCoolHold = 0.8f;   // [E] È¦µå ³Ã°¢ ½Ã°£
+    public static float OverheatImmuneTime = 14f;  // ³Ã°¢ ÈÄ ±× Æ÷Å¾ Àç°ú¿­ ¸é¿ª
+    // ¹ë·±½º 1Â÷: 25 -> 30. 60ÃÊ ¿şÀÌºê ±âÁØ ¿Õº¹ 2.4È¸ -> 2.0È¸,
+    // º¸½ºÀü(90~120ÃÊ)Àº 4È¸ -> 3È¸ (³«·Ú ¸¶ºñ ´ëÀÀ°ú °ãÄ¡´Â ÇÇ·Î ¿ÏÈ­)
+    public static float OverheatGlobalGap = 30f;   // ±âÂ÷ ÀüÃ¼ °ú¿­ ÃÖ¼Ò °£°İ (ºóµµ »óÇÑ)
 
-    /// <summary>ì¹´ë©”ë¼: ì…°í”„ ì†Œí”„íŠ¸ íŒ”ë¡œìš° (B-2)</summary>
+    /// <summary>Ä«¸Ş¶ó: ¼ÎÇÁ ¼ÒÇÁÆ® ÆÈ·Î¿ì (B-2)</summary>
     public static bool CamFollowChef = true;
-    public static float CamDefaultZoom = 8.5f;     // ê¸°ë³¸ ì¤Œ (7 -> 8.5, ê¸´ ê¸°ì°¨ í”„ë ˆì´ë°)
-    public static float CamDeadzone = 1.5f;        // ì´ ê±°ë¦¬ê¹Œì§€ëŠ” ì¹´ë©”ë¼ê°€ ì•ˆ ë”°ë¼ì˜¨ë‹¤
-    public static float CamFollowLerp = 4f;        // ë”°ë¼ì˜¤ëŠ” ì†ë„
-    public static float CamFollowMinX = -2.5f;     // ì¹´ë©”ë¼ ì´ë™ í•œê³„ (ì „ì¥ì´ í™”ë©´ ë°–ìœ¼ë¡œ ì•ˆ ë‚˜ê°€ê²Œ)
+    public static float CamDefaultZoom = 8.5f;     // ±âº» ÁÜ (7 -> 8.5, ±ä ±âÂ÷ ÇÁ·¹ÀÌ¹Ö)
+    public static float CamDeadzone = 1.5f;        // ÀÌ °Å¸®±îÁö´Â Ä«¸Ş¶ó°¡ ¾È µû¶ó¿Â´Ù
+    public static float CamFollowLerp = 4f;        // µû¶ó¿À´Â ¼Óµµ
+    public static float CamFollowMinX = -2.5f;     // Ä«¸Ş¶ó ÀÌµ¿ ÇÑ°è (ÀüÀåÀÌ È­¸é ¹ÛÀ¸·Î ¾È ³ª°¡°Ô)
     public static float CamFollowMaxX = 4.5f;
 
-    /// <summary>ê°‘íŒ ì „ë¦¬í’ˆ ìƒì (ì•„ì´í…œ íšë“ì´ ìƒìë¡œ ë–¨ì–´ì§ - ë°Ÿì•„ì„œ íšŒìˆ˜. false=ì¦‰ì‹œ ì§€ê¸‰)</summary>
+    /// <summary>°©ÆÇ Àü¸®Ç° »óÀÚ (¾ÆÀÌÅÛ È¹µæÀÌ »óÀÚ·Î ¶³¾îÁü - ¹â¾Æ¼­ È¸¼ö. false=Áï½Ã Áö±Ş)</summary>
     public static bool DeckLootEnabled = true;
-    public static float DeckLootY = -1.25f;        // ìƒìê°€ ë†“ì´ëŠ” ê°‘íŒ ë†’ì´
+    public static float DeckLootY = -1.25f;        // »óÀÚ°¡ ³õÀÌ´Â °©ÆÇ ³ôÀÌ
     public static float DeckLootPickupRange = 0.9f;
 
     // ==================================================================
-    //  B-3: ì‘ì‚´í¬ + ê¸°ê´€ì°¨ ë ˆë²„ (ë°©í–¥ê²°ì • 2026-08-31 - ì´ì¤‘ í˜ë¥´ì†Œë‚˜ ì™„ì„±)
+    //  B-3: ÀÛ»ìÆ÷ + ±â°üÂ÷ ·¹¹ö (¹æÇâ°áÁ¤ 2026-08-31 - ÀÌÁß Æä¸£¼Ò³ª ¿Ï¼º)
     // ==================================================================
 
-    /// <summary>ì‘ì‚´í¬ (ê¸°ê´€ì°¨ ì•): ì§€ë‚˜ê°€ëŠ” ìì› ë°”ìœ„ë¥¼ [E]ë¡œ ë‚šëŠ”ë‹¤ (false=ë”)</summary>
+    /// <summary>ÀÛ»ìÆ÷ (±â°üÂ÷ ¾Õ): Áö³ª°¡´Â ÀÚ¿ø ¹ÙÀ§¸¦ [E]·Î ³¬´Â´Ù (false=²û)</summary>
     public static bool HarpoonEnabled = true;
-    public static float HarpoonX = -5.8f;          // ê±°ì¹˜ëŒ€ ìœ„ì¹˜
-    public static float HarpoonReach = 1.2f;       // ì¡°ì‘ ê·¼ì ‘ ë°˜ê²½
-    public static float HarpoonRange = 14f;        // ì‘ì‚´ ì‚¬ê±°ë¦¬ (ë°”ìœ„ íƒìƒ‰)
+    public static float HarpoonX = -5.8f;          // °ÅÄ¡´ë À§Ä¡
+    public static float HarpoonReach = 1.2f;       // Á¶ÀÛ ±ÙÁ¢ ¹İ°æ
+    public static float HarpoonRange = 14f;        // ÀÛ»ì »ç°Å¸® (¹ÙÀ§ Å½»ö)
     public static float HarpoonCooldown = 12f;
-    // ë°¸ëŸ°ìŠ¤ 1ì°¨: 3~5 -> 2~4. í¬ì†Œ ì¬ë£Œ(ì „ê¸°/í™”ì—¼/ì–¼ìŒ/ë…)ë¥¼ ê³¨ë¼ ë‚šëŠ” ê²Œ ì‘ì‚´ì˜ ê°€ì¹˜ë¼
-    // í‰ê·  4ê°œ/12ì´ˆëŠ” ë””ë²„í”„ ìš”ë¦¬ ì¬ë£Œê°€ í•­ìƒ ë‚¨ì•„ë„ëŠ” ìˆ˜ì¤€ì´ì—ˆë‹¤ (ê¸°ëŒ€ê°’ í•˜í–¥)
-    public static int HarpoonMatMin = 2;           // ëª…ì¤‘ ë³´ìƒ ì¬ë£Œ ìˆ˜
+    // ¹ë·±½º 1Â÷: 3~5 -> 2~4. Èñ¼Ò Àç·á(Àü±â/È­¿°/¾óÀ½/µ¶)¸¦ °ñ¶ó ³¬´Â °Ô ÀÛ»ìÀÇ °¡Ä¡¶ó
+    // Æò±Õ 4°³/12ÃÊ´Â µğ¹öÇÁ ¿ä¸® Àç·á°¡ Ç×»ó ³²¾Æµµ´Â ¼öÁØÀÌ¾ú´Ù (±â´ë°ª ÇÏÇâ)
+    public static int HarpoonMatMin = 2;           // ¸íÁß º¸»ó Àç·á ¼ö
     public static int HarpoonMatMax = 4;
-    public static float HarpoonAggroChance = 0.25f; // ì›ì•ˆì˜ ë¦¬íŠ¸ë¦¬ë²Œ ë¦¬ìŠ¤í¬
+    public static float HarpoonAggroChance = 0.25f; // ¿ø¾ÈÀÇ ¸®Æ®¸®¹ú ¸®½ºÅ©
     public static int HarpoonAggroMin = 1;
-    public static int HarpoonAggroMax = 3;         // ë°¸ëŸ°ìŠ¤ 1ì°¨: 2 -> 3 (ë„ë°•ì€ í™”ëˆí•˜ê²Œ)
+    public static int HarpoonAggroMax = 3;         // ¹ë·±½º 1Â÷: 2 -> 3 (µµ¹ÚÀº È­²öÇÏ°Ô)
 
-    /// <summary>ìì› ë°”ìœ„: ì „íˆ¬ ì¤‘ ê¸¸ê°€ë¥¼ í˜ëŸ¬ê°€ëŠ” í‘œì </summary>
+    /// <summary>ÀÚ¿ø ¹ÙÀ§: ÀüÅõ Áß ±æ°¡¸¦ Èê·¯°¡´Â Ç¥Àû</summary>
     public static float RockSpawnIntervalMin = 9f;
     public static float RockSpawnIntervalMax = 16f;
     public static int RockMaxAlive = 2;
-    public static float RockSpeed = 3.2f;          // ì™¼ìª½ìœ¼ë¡œ íë¥´ëŠ” ì†ë„
-    public static float RockY = -2.55f;            // ê¸¸ê°€ ë†’ì´ (ë°í¬ ì•„ë˜)
+    public static float RockSpeed = 3.2f;          // ¿ŞÂÊÀ¸·Î Èå¸£´Â ¼Óµµ
+    public static float RockY = -2.55f;            // ±æ°¡ ³ôÀÌ (µ¥Å© ¾Æ·¡)
 
-    /// <summary>ê¸°ê´€ì°¨ ë ˆë²„: ìˆœí•­ <-> ì „ì† í† ê¸€ (false=ë”)</summary>
+    /// <summary>±â°üÂ÷ ·¹¹ö: ¼øÇ× <-> Àü¼Ó Åä±Û (false=²û)</summary>
     public static bool LeverEnabled = true;
-    public static float LeverX = -3.2f;            // ë ˆë²„ ìœ„ì¹˜ (ê¸°ê´€ì°¨ ë’¤ìª½ = ìš´ì „ì„)
+    public static float LeverX = -3.2f;            // ·¹¹ö À§Ä¡ (±â°üÂ÷ µÚÂÊ = ¿îÀü¼®)
     public static float LeverReach = 1.2f;
-    public static float LeverSpawnMul = 0.65f;     // ì „ì†: ì  ìŠ¤í° ê°„ê²© ë°°ìœ¨ (-35%)
-    public static float LeverJudgePenalty = 0.10f; // ì „ì†: ì¡°ë¦¬ íŒì • ì¡´ -10%
-    public static float LeverParallaxMul = 1.8f;   // ì „ì†: ì£¼í–‰ ì—°ì¶œ ê°€ì†
-    // ë°¸ëŸ°ìŠ¤ 1ì°¨: ì „ì†ì˜ ë³´ìƒ ì‹ ì„¤. ê¸°ì¡´ì—” "ì›¨ì´ë¸Œê°€ ë¹¨ë¦¬ ëë‚œë‹¤"ë¿ì´ë¼ íŒì • í˜ë„í‹°ë§Œ
-    // ì²´ê°ë˜ëŠ” í•¨ì • ë ˆë²„ì˜€ë‹¤ - ì „ì† ì¤‘ ì²˜ì¹˜ ê³¨ë“œ +25%ë¡œ ë¦¬í„´ì„ ëˆˆì— ë³´ì´ê²Œ (Enemy.Die ì ìš©)
+    public static float LeverSpawnMul = 0.65f;     // Àü¼Ó: Àû ½ºÆù °£°İ ¹èÀ² (-35%)
+    public static float LeverJudgePenalty = 0.10f; // Àü¼Ó: Á¶¸® ÆÇÁ¤ Á¸ -10%
+    public static float LeverParallaxMul = 1.8f;   // Àü¼Ó: ÁÖÇà ¿¬Ãâ °¡¼Ó
+    // ¹ë·±½º 1Â÷: Àü¼ÓÀÇ º¸»ó ½Å¼³. ±âÁ¸¿£ "¿şÀÌºê°¡ »¡¸® ³¡³­´Ù"»ÓÀÌ¶ó ÆÇÁ¤ Æä³ÎÆ¼¸¸
+    // Ã¼°¨µÇ´Â ÇÔÁ¤ ·¹¹ö¿´´Ù - Àü¼Ó Áß Ã³Ä¡ °ñµå +25%·Î ¸®ÅÏÀ» ´«¿¡ º¸ÀÌ°Ô (Enemy.Die Àû¿ë)
     public static float LeverGoldMul = 1.25f;
 
     /// <summary>
-    /// ì •ì°¨ì—­ ë¼ì´íŠ¸ (ê°ì‚¬ 3-C, StationStop.cs): ì „íˆ¬ê°€ ì•„ë‹ˆë©´ ê¸°ì°¨ê°€ ì‹¤ì œë¡œ ë©ˆì¶˜ë‹¤.
-    /// Town ì§„ì… = ê°„ì´ì—­ ì •ì°¨ ì—°ì¶œ(ê¸°ì /ëœì»¹/ì—­ ì´ë¦„ ë°°ë„ˆ), Battle ì§„ì… = ì¶œë°œ ì¬ê°€ì†.
+    /// Á¤Â÷¿ª ¶óÀÌÆ® (°¨»ç 3-C, StationStop.cs): ÀüÅõ°¡ ¾Æ´Ï¸é ±âÂ÷°¡ ½ÇÁ¦·Î ¸ØÃá´Ù.
+    /// Town ÁøÀÔ = °£ÀÌ¿ª Á¤Â÷ ¿¬Ãâ(±âÀû/´úÄÈ/¿ª ÀÌ¸§ ¹è³Ê), Battle ÁøÀÔ = Ãâ¹ß Àç°¡¼Ó.
     /// </summary>
     public static bool StationStopEnabled = true;
 
     /// <summary>
-    /// ì»¨í…ìŠ¤íŠ¸ íŠœí† ë¦¬ì–¼ (TutorialHint.cs): ê° ê¸°ë¯¹ì„ ì²˜ìŒ ë§ˆì£¼ì¹˜ëŠ” ìˆœê°„ 1íšŒ ì•ˆë‚´.
-    /// ê¸°ë¡ì€ PlayerPrefs "WDT_Tut_" - ë³¸ íŒíŠ¸ëŠ” ë‹¤ì‹œ ì•ˆ ëœ¬ë‹¤. [H] ì•„ì¹´ì´ë¸Œ ì¬ì—´ëŒ.
+    /// ÄÁÅØ½ºÆ® Æ©Åä¸®¾ó (TutorialHint.cs): °¢ ±â¹ÍÀ» Ã³À½ ¸¶ÁÖÄ¡´Â ¼ø°£ 1È¸ ¾È³».
+    /// ±â·ÏÀº PlayerPrefs "WDT_Tut_" - º» ÈùÆ®´Â ´Ù½Ã ¾È ¶á´Ù. [H] ¾ÆÄ«ÀÌºê Àç¿­¶÷.
     /// </summary>
     public static bool TutorialEnabled = true;
 
-    /// <summary>ë¡œë¹„ ê°œí¸ (LobbyUI.cs): ì”¬ì˜ êµ¬ ë¡œë¹„ íŒ¨ë„(ë¬»íŒ ì‹œì‘ ë²„íŠ¼)ì„ ìë™ ìˆ¨ê¹€</summary>
+    /// <summary>·Îºñ °³Æí (LobbyUI.cs): ¾ÀÀÇ ±¸ ·Îºñ ÆĞ³Î(¹¯Èù ½ÃÀÛ ¹öÆ°)À» ÀÚµ¿ ¼û±è</summary>
     public static bool HideLegacyLobbyPanel = true;
 
     /// <summary>
-    /// ì  ì½”ë“œ í´ë°± (WaveManager.BuildFallbackEnemy): í”„ë¦¬íŒ¹ì´ ì—†ëŠ” ì ì„ ë„í˜•ìœ¼ë¡œ ìƒì„±.
-    /// ì „ê°ˆ/ê±°ë¶/ê°•ì² ë©í„°/í™”ì—¼ìµë£¡/ë„¤í¬ë¡œìŠ¤í”¼ë…¸ê°€ ìŠ¤í° ìŠ¤í‚µë˜ë˜ ë¬¸ì œ í•´ì†Œ.
-    /// ì•„íŠ¸ í”„ë¦¬íŒ¹ì„ ì”¬ì— í• ë‹¹í•˜ë©´ ê·¸ ì¢…ì€ ìë™ìœ¼ë¡œ í”„ë¦¬íŒ¹ì´ ìš°ì„ í•œë‹¤.
+    /// Àû ÄÚµå Æú¹é (WaveManager.BuildFallbackEnemy): ÇÁ¸®ÆÕÀÌ ¾ø´Â ÀûÀ» µµÇüÀ¸·Î »ı¼º.
+    /// Àü°¥/°ÅºÏ/°­Ã¶·¦ÅÍ/È­¿°ÀÍ·æ/³×Å©·Î½ºÇÇ³ë°¡ ½ºÆù ½ºÅµµÇ´ø ¹®Á¦ ÇØ¼Ò.
+    /// ¾ÆÆ® ÇÁ¸®ÆÕÀ» ¾À¿¡ ÇÒ´çÇÏ¸é ±× Á¾Àº ÀÚµ¿À¸·Î ÇÁ¸®ÆÕÀÌ ¿ì¼±ÇÑ´Ù.
     /// </summary>
     public static bool EnemyFallbackVisuals = true;
 
-    // â”€â”€ í”Œë ˆì´í…ŒìŠ¤íŠ¸ í”½ìŠ¤ 1ì°¨ (2026-09-02) â”€â”€
+    // ¦¡¦¡ ÇÃ·¹ÀÌÅ×½ºÆ® ÇÈ½º 1Â÷ (2026-09-02) ¦¡¦¡
 
     /// <summary>
-    /// í¬íƒ‘ íƒìƒ‰ ì‚¬ê±°ë¦¬ (êµ¬ TurretSlot.targetRange 15 ëŒ€ì²´ - Inspector ë¬´ì‹œ).
-    /// í”Œë ˆì´í…ŒìŠ¤íŠ¸: ê¸°ì°¨ê°€ 4ì¹¸(-6.5~11.5)ìœ¼ë¡œ ê¸¸ì–´ì¡ŒëŠ”ë° 15ë¡œëŠ” ë°˜ëŒ€í¸(ê¸°ê´€ì°¨ ìª½)ì„
-    /// ë¬´ëŠ” ì ì´ í¬íƒ‘ ì‚¬ê°ì— ë“¤ì–´ê°€ ì˜ì˜ ì•ˆ ë§ì•˜ë‹¤. 20 = ì „ ìŠ¬ë¡¯ì´ ì „ì¥ ëŒ€ë¶€ë¶„ ì»¤ë²„.
+    /// Æ÷Å¾ Å½»ö »ç°Å¸® (±¸ TurretSlot.targetRange 15 ´ëÃ¼ - Inspector ¹«½Ã).
+    /// ÇÃ·¹ÀÌÅ×½ºÆ®: ±âÂ÷°¡ 4Ä­(-6.5~11.5)À¸·Î ±æ¾îÁ³´Âµ¥ 15·Î´Â ¹İ´ëÆí(±â°üÂ÷ ÂÊ)À»
+    /// ¹«´Â ÀûÀÌ Æ÷Å¾ »ç°¢¿¡ µé¾î°¡ ¿µ¿µ ¾È ¸Â¾Ò´Ù. 20 = Àü ½½·ÔÀÌ ÀüÀå ´ëºÎºĞ Ä¿¹ö.
     /// </summary>
     public static float TurretRange = 20f;
 
     /// <summary>
-    /// ì •ì°¨ ì„±ì—­ (í”Œë ˆì´í…ŒìŠ¤íŠ¸: ì„ ë¡œ/ë² íŒ… ê³ ë¥´ëŠ” ì •ë¹„ í„´ì— ëŠ¦ê²Œ ë„ì°©í•œ ì ì—ê²Œ ë¬¼ë ¤ ì‚¬ë§).
-    /// trueë©´ ë¹„ì „íˆ¬ ìƒíƒœì—ì„œ 1) ê¸°ì°¨ ë¬´í”¼í•´ 2) ë‚¨ì€ ì ì€ ì–´ë‘  ì†ìœ¼ë¡œ ë¬¼ëŸ¬ë‚œë‹¤(ë³´ìƒ ì—†ìŒ).
-    /// ìŠ¤í° ì½”ë£¨í‹´ ì¤‘ë‹¨ì€ ìŠ¤ìœ„ì¹˜ì™€ ë¬´ê´€í•˜ê²Œ í•­ìƒ ì ìš© (ê·¸ê±´ ìˆœìˆ˜ ë²„ê·¸).
+    /// Á¤Â÷ ¼º¿ª (ÇÃ·¹ÀÌÅ×½ºÆ®: ¼±·Î/º£ÆÃ °í¸£´Â Á¤ºñ ÅÏ¿¡ ´Ê°Ô µµÂøÇÑ Àû¿¡°Ô ¹°·Á »ç¸Á).
+    /// true¸é ºñÀüÅõ »óÅÂ¿¡¼­ 1) ±âÂ÷ ¹«ÇÇÇØ 2) ³²Àº ÀûÀº ¾îµÒ ¼ÓÀ¸·Î ¹°·¯³­´Ù(º¸»ó ¾øÀ½).
+    /// ½ºÆù ÄÚ·çÆ¾ Áß´ÜÀº ½ºÀ§Ä¡¿Í ¹«°üÇÏ°Ô Ç×»ó Àû¿ë (±×°Ç ¼ø¼ö ¹ö±×).
     /// </summary>
     public static bool TownSanctuary = true;
 
     /// <summary>
-    /// í”„ë¡¤ë¡œê·¸ (1íšŒì°¨ í•œì •, WaveManager): ì²« ëŸ°ì˜ ì›¨ì´ë¸Œ 1ì„ ìŠ¤í”¼ë…¸ ì•ˆë‚´ ë¬´ëŒ€ë¡œ êµì²´
-    /// (ë©í„° 3ë§ˆë¦¬ + ëŒ€ì‚¬ ì²´ì¸). ê¸°ë¡ "WDT_PrologueSeen" - ì¹˜íŠ¸ F4ê°€ íŠœí† ë¦¬ì–¼ê³¼ í•¨ê»˜ ë¦¬ì…‹.
+    /// ÇÁ·Ñ·Î±× (1È¸Â÷ ÇÑÁ¤, WaveManager): Ã¹ ·±ÀÇ ¿şÀÌºê 1À» ½ºÇÇ³ë ¾È³» ¹«´ë·Î ±³Ã¼
+    /// (·¦ÅÍ 3¸¶¸® + ´ë»ç Ã¼ÀÎ). ±â·Ï "WDT_PrologueSeen" - Ä¡Æ® F4°¡ Æ©Åä¸®¾ó°ú ÇÔ²² ¸®¼Â.
     /// </summary>
     public static bool PrologueEnabled = true;
 
-    // â”€â”€ í”Œë ˆì´í…ŒìŠ¤íŠ¸ í”½ìŠ¤ 2ì°¨: ìƒí˜¸ì‘ìš© ë³€ì£¼ ("ì „ë¶€ E í•œ ë²ˆì´ë¼ ë˜‘ê°™ì€ ëŠë‚Œ") â”€â”€
-    // ê°ì „ = [E] íƒ í„¸ê¸°(1íšŒ) / ë¹™ê²° = [E] ì—°íƒ€ë¡œ ì–¼ìŒ ê¹¨ê¸° / ê³¼ì—´ = [E] ê¾¹ + ë¶€ì±„ì§ˆ /
-    // ë ˆë²„ = [E] ê¾¹ ë‹¹ê¸°ê¸°(ì˜¤ë°œ ë°©ì§€ ê²¸) / ì‘ì‚´Â·ì¡°ë¦¬ëŒ€ = [E] 1íšŒ ìœ ì§€ - ì†ë§› 3ê³„ì—´ ë¶„ë¦¬
+    // ¦¡¦¡ ÇÃ·¹ÀÌÅ×½ºÆ® ÇÈ½º 2Â÷: »óÈ£ÀÛ¿ë º¯ÁÖ ("ÀüºÎ E ÇÑ ¹øÀÌ¶ó ¶È°°Àº ´À³¦") ¦¡¦¡
+    // °¨Àü = [E] Å¹ ÅĞ±â(1È¸) / ºù°á = [E] ¿¬Å¸·Î ¾óÀ½ ±ú±â / °ú¿­ = [E] ²Ú + ºÎÃ¤Áú /
+    // ·¹¹ö = [E] ²Ú ´ç±â±â(¿À¹ß ¹æÁö °â) / ÀÛ»ì¡¤Á¶¸®´ë = [E] 1È¸ À¯Áö - ¼Õ¸À 3°è¿­ ºĞ¸®
 
-    /// <summary>ë¹™ê²° í•´ì œì— í•„ìš”í•œ [E] ì—°íƒ€ ìˆ˜ (ê¹¡, ê¹¡, ê¹¡!)</summary>
+    /// <summary>ºù°á ÇØÁ¦¿¡ ÇÊ¿äÇÑ [E] ¿¬Å¸ ¼ö (±ø, ±ø, ±ø!)</summary>
     public static int UnfreezeTaps = 3;
 
-    /// <summary>ë ˆë²„ëŠ” ê¾¹ ëˆŒëŸ¬ ë‹¹ê¸´ë‹¤ (ì´ˆ). ì§§ì§€ë§Œ ë¬µì§í•˜ê²Œ + ì§€ë‚˜ê°€ë‹¤ ì˜¤ë°œ ë°©ì§€</summary>
+    /// <summary>·¹¹ö´Â ²Ú ´­·¯ ´ç±ä´Ù (ÃÊ). ÂªÁö¸¸ ¹¬Á÷ÇÏ°Ô + Áö³ª°¡´Ù ¿À¹ß ¹æÁö</summary>
     public static float LeverHoldSec = 0.35f;
 
-    /// <summary>ê³¼ì—´ ëƒ‰ê° ë¶€ì±„ì§ˆ: ë§ˆìš°ìŠ¤ë¥¼ íœ˜ì €ìœ¼ë©´ ëƒ‰ê° ê°€ì† (í”½ì…€ë‹¹ ë³´ë„ˆìŠ¤, ìƒí•œ ë°°ìœ¨)</summary>
+    /// <summary>°ú¿­ ³Ã°¢ ºÎÃ¤Áú: ¸¶¿ì½º¸¦ ÈÖÀúÀ¸¸é ³Ã°¢ °¡¼Ó (ÇÈ¼¿´ç º¸³Ê½º, »óÇÑ ¹èÀ²)</summary>
     public static float OverheatValveBonus = 0.05f;
-    public static float OverheatValveMax = 1.0f;   // ìµœëŒ€ 2ë°°ì† (ê¸°ë³¸ 1 + ë³´ë„ˆìŠ¤ 1)
+    public static float OverheatValveMax = 1.0f;   // ÃÖ´ë 2¹è¼Ó (±âº» 1 + º¸³Ê½º 1)
 
-    // â”€â”€ ìŠ¤í° ê°ë„ ìŠ¤ìœ„ì¹˜ â”€â”€
-    // â˜… ì•„íŠ¸ ë°©í–¥ í™•ì • (2026-09-02, ì‚¬ìš©ì): íƒ‘ë·°(ì‚´ì§ ê¸°ìš¸ì¸ 2.5D).
-    // íƒ‘ë·°ì—ì„œëŠ” 360ë„ ì‚¬ë°© ìŠ¤í°ì´ ìì—°ìŠ¤ëŸ¬ìš°ë¯€ë¡œ ê¸°ë³¸ false (êµ¬ ë°©ì‹ ìœ ì§€).
-    // ì‚¬ì´ë“œë·°ìš© ì½”ë“œ(ì§€ìƒ=ì¢Œìš°/ë¹„í–‰=ìƒê³µ)ëŠ” ë‚¨ê²¨ë‘ë˜ ì“°ì§€ ì•ŠëŠ”ë‹¤.
+    // ¦¡¦¡ ½ºÆù °¢µµ ½ºÀ§Ä¡ ¦¡¦¡
+    // ¡Ú ¾ÆÆ® ¹æÇâ È®Á¤ (2026-09-02, »ç¿ëÀÚ): Å¾ºä(»ìÂ¦ ±â¿ïÀÎ 2.5D).
+    // Å¾ºä¿¡¼­´Â 360µµ »ç¹æ ½ºÆùÀÌ ÀÚ¿¬½º·¯¿ì¹Ç·Î ±âº» false (±¸ ¹æ½Ä À¯Áö).
+    // »çÀÌµåºä¿ë ÄÚµå(Áö»ó=ÁÂ¿ì/ºñÇà=»ó°ø)´Â ³²°ÜµÎµÇ ¾²Áö ¾Ê´Â´Ù.
     public static bool SideViewSpawn = false;
-    public static float GroundSpawnYMin = -1.2f;   // ì§€ë©´ ë†’ì´ëŒ€ (ë ˆì¼ ë¶€ê·¼)
+    public static float GroundSpawnYMin = -1.2f;   // Áö¸é ³ôÀÌ´ë (·¹ÀÏ ºÎ±Ù)
     public static float GroundSpawnYMax = 0.2f;
-    public static float FlyerSpawnYMin = 2.5f;     // ìƒê³µ (ì§€ë¶• ìœ„ ~ í•˜ëŠ˜)
+    public static float FlyerSpawnYMin = 2.5f;     // »ó°ø (ÁöºØ À§ ~ ÇÏ´Ã)
     public static float FlyerSpawnYMax = 5.5f;
 
     // ==================================================================
-    //  ê²Œì„í•„ (P1) - ì…°ì´í¬ / íˆíŠ¸ìŠ¤í†± / ì²˜ì¹˜ íŒ (GameFeel.csê°€ ì‚¬ìš©)
-    //  ì „ë¶€ 0ìœ¼ë¡œ ë§Œë“¤ë©´ í•´ë‹¹ ì—°ì¶œì´ ì™„ì „íˆ êº¼ì§„ë‹¤.
-    //  í”Œë ˆì´í…ŒìŠ¤íŠ¸ì—ì„œ "ê³¼í•˜ë‹¤/ë©€ë¯¸ë‚œë‹¤" ì‹¶ìœ¼ë©´ GameFeelMaster í•˜ë‚˜ë§Œ ë‚®ì¶œ ê²ƒ.
+    //  °ÔÀÓÇÊ (P1) - ¼ÎÀÌÅ© / È÷Æ®½ºÅé / Ã³Ä¡ ÆË (GameFeel.cs°¡ »ç¿ë)
+    //  ÀüºÎ 0À¸·Î ¸¸µé¸é ÇØ´ç ¿¬ÃâÀÌ ¿ÏÀüÈ÷ ²¨Áø´Ù.
+    //  ÇÃ·¹ÀÌÅ×½ºÆ®¿¡¼­ "°úÇÏ´Ù/¸Ö¹Ì³­´Ù" ½ÍÀ¸¸é GameFeelMaster ÇÏ³ª¸¸ ³·Ãâ °Í.
     // ==================================================================
 
-    /// <summary>ê²Œì„í•„ ì „ì²´ ê°•ë„ ë°°ìœ¨ (1=ê¸°ë³¸, 0.5=ì ˆë°˜, 0=ì „ë¶€ ë„ê¸°)</summary>
+    /// <summary>°ÔÀÓÇÊ ÀüÃ¼ °­µµ ¹èÀ² (1=±âº», 0.5=Àı¹İ, 0=ÀüºÎ ²ô±â)</summary>
     public static float GameFeelMaster = 1.0f;
 
-    public static float ShakeTrainHit = 0.22f;     // ê¸°ì°¨ í”¼ê²© ì…°ì´í¬ (ìì£¼ ë°œìƒ - ì•½í•˜ê²Œ)
-    public static float ShakeExplosion = 0.08f;    // í¬íƒ‘ í­ë°œ ì…°ì´í¬ (ë§¤ìš° ì¦ìŒ - ë¯¸ì„¸í•œ ëŸ¼ë¸” ìˆ˜ì¤€)
-    public static float ShakeBoss = 0.45f;         // ë³´ìŠ¤ ì„íŒ©íŠ¸ ê³µìš© (ëŸ°ì§€ ì°©ì§€/ê·¸ë¡œê¸° ì§„ì…/ì²˜ì¹˜, ì¿¨íƒ€ì„ ì—†ìŒ)
+    public static float ShakeTrainHit = 0.22f;     // ±âÂ÷ ÇÇ°İ ¼ÎÀÌÅ© (ÀÚÁÖ ¹ß»ı - ¾àÇÏ°Ô)
+    public static float ShakeExplosion = 0.08f;    // Æ÷Å¾ Æø¹ß ¼ÎÀÌÅ© (¸Å¿ì ÀæÀ½ - ¹Ì¼¼ÇÑ ·³ºí ¼öÁØ)
+    public static float ShakeBoss = 0.45f;         // º¸½º ÀÓÆÑÆ® °ø¿ë (·±Áö ÂøÁö/±×·Î±â ÁøÀÔ/Ã³Ä¡, ÄğÅ¸ÀÓ ¾øÀ½)
 
-    // ì…°ì´í¬ ì¿¨íƒ€ì„: ì¦ì€ ì´ë²¤íŠ¸ê°€ í™”ë©´ì„ ì‰¬ì§€ ì•Šê³  í”ë“¤ë©´ í”¼ë¡œí•´ì§„ë‹¤ (ì‚¬ìš©ì í”¼ë“œë°± ë°˜ì˜)
-    // ì¿¨íƒ€ì„ ë™ì•ˆì˜ ê°™ì€ ì¢…ë¥˜ ì¶©ê²©ì€ ì¡°ìš©íˆ ë¬´ì‹œ. ë³´ìŠ¤ ì„íŒ©íŠ¸ëŠ” ë“œë¬¼ì–´ì„œ ì¿¨íƒ€ì„ ë¯¸ì ìš©
-    public static float ShakeTrainHitCooldown = 1.5f;  // ê¸°ì°¨ í”¼ê²© ì…°ì´í¬ ìµœì†Œ ê°„ê²© (ì´ˆ)
-    public static float ShakeExplosionCooldown = 2.5f; // í­ë°œ ëŸ¼ë¸” ìµœì†Œ ê°„ê²© (ì´ˆ)
+    // ¼ÎÀÌÅ© ÄğÅ¸ÀÓ: ÀæÀº ÀÌº¥Æ®°¡ È­¸éÀ» ½¬Áö ¾Ê°í Èçµé¸é ÇÇ·ÎÇØÁø´Ù (»ç¿ëÀÚ ÇÇµå¹é ¹İ¿µ)
+    // ÄğÅ¸ÀÓ µ¿¾ÈÀÇ °°Àº Á¾·ù Ãæ°İÀº Á¶¿ëÈ÷ ¹«½Ã. º¸½º ÀÓÆÑÆ®´Â µå¹°¾î¼­ ÄğÅ¸ÀÓ ¹ÌÀû¿ë
+    public static float ShakeTrainHitCooldown = 1.5f;  // ±âÂ÷ ÇÇ°İ ¼ÎÀÌÅ© ÃÖ¼Ò °£°İ (ÃÊ)
+    public static float ShakeExplosionCooldown = 2.5f; // Æø¹ß ·³ºí ÃÖ¼Ò °£°İ (ÃÊ)
 
-    public static float HitstopBossGroggy = 0.12f; // ê·¸ë¡œê¸° ì§„ì… íˆíŠ¸ìŠ¤í†± (ì‹¤ì‹œê°„ ì´ˆ)
-    public static float HitstopBossKill = 0.22f;   // ë³´ìŠ¤ ì²˜ì¹˜ íˆíŠ¸ìŠ¤í†±
+    public static float HitstopBossGroggy = 0.12f; // ±×·Î±â ÁøÀÔ È÷Æ®½ºÅé (½Ç½Ã°£ ÃÊ)
+    public static float HitstopBossKill = 0.22f;   // º¸½º Ã³Ä¡ È÷Æ®½ºÅé
 
-    public static float DeathPopScale = 1.0f;      // ì  ì²˜ì¹˜ íŒ í¬ê¸° ë°°ìœ¨ (0=ë„ê¸°)
+    public static float DeathPopScale = 1.0f;      // Àû Ã³Ä¡ ÆË Å©±â ¹èÀ² (0=²ô±â)
 
     // ==================================================================
-    //  êµìˆ˜ í”¼ë“œë°± ë°˜ì˜ (2026-09-14) - ê¸°ì¤€ ë¹Œë“œ í”½ìŠ¤ + ì‹¤í—˜ ìŠ¤ìœ„ì¹˜
-    //  ìŠ¤ìœ„ì¹˜ì˜ ê¸°ë³¸ê°’ì€ ì „ë¶€ "í˜„í–‰ ê·œì¹™"ì´ë‹¤. ë¹„êµ ì‹¤í—˜ ë•Œ í•œ ë²ˆì— í•˜ë‚˜ì”©ë§Œ ë°”ê¾¼ë‹¤.
+    //  ±³¼ö ÇÇµå¹é ¹İ¿µ (2026-09-14) - ±âÁØ ºôµå ÇÈ½º + ½ÇÇè ½ºÀ§Ä¡
+    //  ½ºÀ§Ä¡ÀÇ ±âº»°ªÀº ÀüºÎ "ÇöÇà ±ÔÄ¢"ÀÌ´Ù. ºñ±³ ½ÇÇè ¶§ ÇÑ ¹ø¿¡ ÇÏ³ª¾¿¸¸ ¹Ù²Û´Ù.
     // ==================================================================
 
-    // â”€â”€ ì¡°ë¦¬ ê³µì •ì„± (A2, í•˜í•œ) â”€â”€
-    /// <summary>ì¡°ë¦¬ ì‹œê°„ ë°°ìœ¨ í•˜í•œ (íŒ¬ ë§ˆëª¨ x í”„í…Œë¼ ë””ë²„í”„ x ì§€ì—­ì´ ê²¹ì³ë„ ê¸°ë³¸ì˜ 2ë°° ì–´ë ¤ì›€ê¹Œì§€ë§Œ)</summary>
+    // ¦¡¦¡ Á¶¸® °øÁ¤¼º (A2, ÇÏÇÑ) ¦¡¦¡
+    /// <summary>Á¶¸® ½Ã°£ ¹èÀ² ÇÏÇÑ (ÆÒ ¸¶¸ğ x ÇÁÅ×¶ó µğ¹öÇÁ x Áö¿ªÀÌ °ãÃÄµµ ±âº»ÀÇ 2¹è ¾î·Á¿ò±îÁö¸¸)</summary>
     public static float CookSpeedMulFloor = 0.5f;
-    /// <summary>íŒì • ì¡´ ë°°ìœ¨ í•˜í•œ</summary>
+    /// <summary>ÆÇÁ¤ Á¸ ¹èÀ² ÇÏÇÑ</summary>
     public static float CookJudgeMulFloor = 0.5f;
-    /// <summary>ë“ì´ê¸° ì´ì‹œê°„ ìµœì†Œê°’ (ì´ˆ). íˆ¬ì… 2íšŒ + ë°˜ì‘ ì‹œê°„ì´ ë¬¼ë¦¬ì ìœ¼ë¡œ ë“¤ì–´ê°€ëŠ” ê¸¸ì´</summary>
+    /// <summary>²úÀÌ±â ÃÑ½Ã°£ ÃÖ¼Ò°ª (ÃÊ). ÅõÀÔ 2È¸ + ¹İÀÀ ½Ã°£ÀÌ ¹°¸®ÀûÀ¸·Î µé¾î°¡´Â ±æÀÌ</summary>
     public static float BoilMinTotalSec = 4.0f;
-    /// <summary>ë³¶ê¸° ì´ì‹œê°„ ìµœì†Œê°’ (ì´ˆ)</summary>
+    /// <summary>ºº±â ÃÑ½Ã°£ ÃÖ¼Ò°ª (ÃÊ)</summary>
     public static float SauteMinTotalSec = 3.0f;
-    /// <summary>ë“ì´ê¸° íˆ¬ì… ì•ˆë‚´ ì‹œì  - ì´ì‹œê°„ ëŒ€ë¹„ ì§„í–‰ë¥  (ì²« ë²ˆì§¸ / ë‘ ë²ˆì§¸). ì ˆëŒ€ ì´ˆê°€ ì•„ë‹ˆë¼ ì§„í–‰ë¥ </summary>
+    /// <summary>²úÀÌ±â ÅõÀÔ ¾È³» ½ÃÁ¡ - ÃÑ½Ã°£ ´ëºñ ÁøÇà·ü (Ã¹ ¹øÂ° / µÎ ¹øÂ°). Àı´ë ÃÊ°¡ ¾Æ´Ï¶ó ÁøÇà·ü</summary>
     public static float BoilPrompt1Min = 0.25f, BoilPrompt1Max = 0.40f;
     public static float BoilPrompt2Min = 0.55f, BoilPrompt2Max = 0.72f;
-    /// <summary>íˆ¬ì… ì°½ ê¸¸ì´ (ì´ˆ) / ì´ì‹œê°„ì´ ì§§ì„ ë•Œì˜ ìµœì†Œ ì°½</summary>
+    /// <summary>ÅõÀÔ Ã¢ ±æÀÌ (ÃÊ) / ÃÑ½Ã°£ÀÌ ÂªÀ» ¶§ÀÇ ÃÖ¼Ò Ã¢</summary>
     public static float BoilPromptWindowSec = 1.2f;
     public static float BoilPromptMinWindowSec = 0.8f;
 
-    // â”€â”€ ì¡°ì‘ (A5) â”€â”€
-    /// <summary>í¬íƒ‘ íê¸° í™•ì • ëŒ€ê¸°: ê°™ì€ ìŠ¬ë¡¯ì„ ì´ ì‹œê°„ ì•ˆì— ìš°í´ë¦­ 2íšŒ = íê¸° (ì²« ìš°í´ë¦­ì€ ì˜ˆê³ )</summary>
+    // ¦¡¦¡ Á¶ÀÛ (A5) ¦¡¦¡
+    /// <summary>Æ÷Å¾ Æó±â È®Á¤ ´ë±â: °°Àº ½½·ÔÀ» ÀÌ ½Ã°£ ¾È¿¡ ¿ìÅ¬¸¯ 2È¸ = Æó±â (Ã¹ ¿ìÅ¬¸¯Àº ¿¹°í)</summary>
     public static float ScrapArmSec = 2.0f;
 
-    // â”€â”€ ê³¼ì—´ ì‹¤í—˜ (B1, B2) â”€â”€
-    /// <summary>ê³¼ì—´ í›„ ìë™ ë³µêµ¬ ì‹œê°„ (ì´ˆ). 0 = í˜„í–‰(ìˆ˜ë™ [E] ëƒ‰ê° ì „ê¹Œì§€ ì •ì§€). ì‹¤í—˜ì•ˆ 4~6</summary>
+    // ¦¡¦¡ °ú¿­ ½ÇÇè (B1, B2) ¦¡¦¡
+    /// <summary>°ú¿­ ÈÄ ÀÚµ¿ º¹±¸ ½Ã°£ (ÃÊ). 0 = ÇöÇà(¼öµ¿ [E] ³Ã°¢ Àü±îÁö Á¤Áö). ½ÇÇè¾È 4~6</summary>
     public static float OverheatAutoRecoverSec = 0f;
-    /// <summary>trueë©´ ê³¼ì—´ ì„ê³„ë¥¼ ë°œì‚¬ ê°„ê²©ìœ¼ë¡œ ë³´ì •í•´ "ì‹œê°„ë‹¹" ê³¼ì—´ ë¹ˆë„ë¥¼ í¬íƒ‘ ì¢…ë¥˜ì™€ ë¬´ê´€í•˜ê²Œ ë§ì¶˜ë‹¤ (ì—°ì‚¬ í¬íƒ‘ ë¶ˆë¦¬ í•´ì†Œ ì‹¤í—˜)</summary>
+    /// <summary>true¸é °ú¿­ ÀÓ°è¸¦ ¹ß»ç °£°İÀ¸·Î º¸Á¤ÇØ "½Ã°£´ç" °ú¿­ ºóµµ¸¦ Æ÷Å¾ Á¾·ù¿Í ¹«°üÇÏ°Ô ¸ÂÃá´Ù (¿¬»ç Æ÷Å¾ ºÒ¸® ÇØ¼Ò ½ÇÇè)</summary>
     public static bool OverheatTimeNormalized = false;
 
-    // â”€â”€ ë„êµ¬ ë§ˆëª¨ ì‹¤í—˜ (B3) â”€â”€
-    /// <summary>falseë©´ ì¡°ë¦¬ ë§ˆëª¨ ì—†ìŒ. ì „ê°ˆì˜ ë§ˆëª¨ ê³µê²©ì€ ì¡°ë¦¬ ì†ë„ ë””ë²„í”„ë¡œ ëŒ€ì²´, íœ´ëŒ€ìš© ìˆ«ëŒì€ ì•„ì´í…œ í’€ì—ì„œ ì œì™¸</summary>
+    // ¦¡¦¡ µµ±¸ ¸¶¸ğ ½ÇÇè (B3) ¦¡¦¡
+    /// <summary>false¸é Á¶¸® ¸¶¸ğ ¾øÀ½. Àü°¥ÀÇ ¸¶¸ğ °ø°İÀº Á¶¸® ¼Óµµ µğ¹öÇÁ·Î ´ëÃ¼, ÈŞ´ë¿ë ¼ıµ¹Àº ¾ÆÀÌÅÛ Ç®¿¡¼­ Á¦¿Ü</summary>
     public static bool ToolWearEnabled = true;
-    /// <summary>ë§ˆëª¨ offì¼ ë•Œ ì „ê°ˆ ëª…ì¤‘ ëŒ€ì²´ íš¨ê³¼: ì¡°ë¦¬ ì†ë„ ë°°ìœ¨ / ì§€ì† ì´ˆ</summary>
+    /// <summary>¸¶¸ğ offÀÏ ¶§ Àü°¥ ¸íÁß ´ëÃ¼ È¿°ú: Á¶¸® ¼Óµµ ¹èÀ² / Áö¼Ó ÃÊ</summary>
     public static float ScorpionAltCookSlow = 0.8f;
     public static float ScorpionAltCookSlowSec = 8f;
 
-    // â”€â”€ Bad íŒì • í™˜ê¸‰ ì‹¤í—˜ (B4) â”€â”€
-    /// <summary>Bad íŒì • ì‹œ ëŒë ¤ì£¼ëŠ” ì¬ë£Œ ìˆ˜ (0 = í˜„í–‰ ì „ëŸ‰ ì†ì‹¤, ì‹¤í—˜ì•ˆ 1). ì•ì¹˜ë§ˆ ì•„ì´í…œì€ í•­ìƒ 2</summary>
+    // ¦¡¦¡ Bad ÆÇÁ¤ È¯±Ş ½ÇÇè (B4) ¦¡¦¡
+    /// <summary>Bad ÆÇÁ¤ ½Ã µ¹·ÁÁÖ´Â Àç·á ¼ö (0 = ÇöÇà Àü·® ¼Õ½Ç, ½ÇÇè¾È 1). ¾ÕÄ¡¸¶ ¾ÆÀÌÅÛÀº Ç×»ó 2</summary>
     public static int BadRefundCount = 0;
 
-    // â”€â”€ í‘œì  ìš°ì„  ì‹¤í—˜ (B5) â”€â”€
-    /// <summary>trueë©´ ì‚¬ê±°ë¦¬ ì•ˆì˜ íëŸ¬Â·ì„œí¬í„°Â·ìí­í˜•ì„ ë¨¼ì € ë…¸ë¦°ë‹¤ (ê·¸ ì™¸ëŠ” ìµœê·¼ì ‘)</summary>
+    // ¦¡¦¡ Ç¥Àû ¿ì¼± ½ÇÇè (B5) ¦¡¦¡
+    /// <summary>true¸é »ç°Å¸® ¾ÈÀÇ Èú·¯¡¤¼­Æ÷ÅÍ¡¤ÀÚÆøÇüÀ» ¸ÕÀú ³ë¸°´Ù (±× ¿Ü´Â ÃÖ±ÙÁ¢)</summary>
     public static bool TargetPriorityEnabled = false;
 
-    // â”€â”€ ì¦ê°• ì¤‘ì²© ìƒí•œ (C2, ì‚¬ìš©ì ê²°ì •) â”€â”€
-    /// <summary>ê°™ì€ ì¦ê°• në²ˆì§¸ íšë“ì˜ íš¨ê³¼ ë°°ìˆ˜ ìƒí•œ. ì ì¦(1, 2, 3...)ì€ ìœ ì§€í•˜ë˜ ì´ ê°’ì—ì„œ ë©ˆì¶˜ë‹¤</summary>
+    // ¦¡¦¡ Áõ°­ ÁßÃ¸ »óÇÑ (C2, »ç¿ëÀÚ °áÁ¤) ¦¡¦¡
+    /// <summary>°°Àº Áõ°­ n¹øÂ° È¹µæÀÇ È¿°ú ¹è¼ö »óÇÑ. Á¡Áõ(1, 2, 3...)Àº À¯ÁöÇÏµÇ ÀÌ °ª¿¡¼­ ¸ØÃá´Ù</summary>
     public static int AugmentStackMulCap = 3;
 
-    // â”€â”€ íŠœí† ë¦¬ì–¼ (A11, A13) â”€â”€
-    /// <summary>1íšŒì°¨ í”„ë¡¤ë¡œê·¸ ë’¤ "ì§ì ‘ ì¡°ë¦¬ 1íšŒ -> íˆ¬ì…" ìœ ë„ ë‹¨ê³„ (íŠœí† ë¦¬ì–¼ ì„¤ê³„ Â§4 ë³µì›). [Enter] ê±´ë„ˆë›°ê¸° ê°€ëŠ¥</summary>
+    // ¦¡¦¡ Æ©Åä¸®¾ó (A11, A13) ¦¡¦¡
+    /// <summary>1È¸Â÷ ÇÁ·Ñ·Î±× µÚ "Á÷Á¢ Á¶¸® 1È¸ -> ÅõÀÔ" À¯µµ ´Ü°è (Æ©Åä¸®¾ó ¼³°è ¡×4 º¹¿ø). [Enter] °Ç³Ê¶Ù±â °¡´É</summary>
     public static bool PrologueCookGate = true;
-    /// <summary>íŠœí† ë¦¬ì–¼ íŒíŠ¸ í‘œì‹œ ì‹œê°„ (ì´ˆ). ì•„ë¬´ í‚¤ë¡œ ë¨¼ì € ë‹«ì„ ìˆ˜ ìˆë‹¤</summary>
+    /// <summary>Æ©Åä¸®¾ó ÈùÆ® Ç¥½Ã ½Ã°£ (ÃÊ). ¾Æ¹« Å°·Î ¸ÕÀú ´İÀ» ¼ö ÀÖ´Ù</summary>
     public static float HintShowSec = 5f;
 
-    // â”€â”€ ì •ë¹„ì†Œ ê¸°ë¡ (C4) â”€â”€ (ìˆ˜ì¹˜ ì—†ìŒ: GameManagerê°€ ì „íˆ¬ ì¤‘ ìˆ˜ë¦¬ íšŸìˆ˜Â·ê³¨ë“œë¥¼ ëŸ° ìš”ì•½ì— ê¸°ë¡)
+    // ¦¡¦¡ Á¤ºñ¼Ò ±â·Ï (C4) ¦¡¦¡ (¼öÄ¡ ¾øÀ½: GameManager°¡ ÀüÅõ Áß ¼ö¸® È½¼ö¡¤°ñµå¸¦ ·± ¿ä¾à¿¡ ±â·Ï)
 
-    // â”€â”€ ë¹Œë“œ ì¹˜íŠ¸ (v9.8.1) â”€â”€
+    // ¦¡¦¡ ºôµå Ä¡Æ® (v9.8.1) ¦¡¦¡
     /// <summary>
-    /// ë¹Œë“œ(exe)ì—ì„œë„ ê°œë°œ ì¹˜íŠ¸(F3~F12, B, F11 ì´ë²¤íŠ¸ ê°•ì œ, F4 ê¸°ë¡ ë¦¬ì…‹)ë¥¼ ì¼¤ì§€. ì—ë””í„° Play ì—ì„œëŠ” í•­ìƒ ì¼œì§„ë‹¤.
-    /// í…ŒìŠ¤í„°Â·êµìˆ˜ë‹˜ê»˜ ì£¼ëŠ” ë¹Œë“œëŠ” false ê·¸ëŒ€ë¡œ = ì¹˜íŠ¸ ì—†ìŒ. ë³¸ì¸ í™•ì¸ìš© ë¹Œë“œì—ì„œ ì¹˜íŠ¸ê°€ í•„ìš”í•˜ë©´ true.
+    /// ºôµå(exe)¿¡¼­µµ °³¹ß Ä¡Æ®(F3~F12, B, F11 ÀÌº¥Æ® °­Á¦, F4 ±â·Ï ¸®¼Â)¸¦ ÄÓÁö. ¿¡µğÅÍ Play ¿¡¼­´Â Ç×»ó ÄÑÁø´Ù.
+    /// Å×½ºÅÍ¡¤±³¼ö´Ô²² ÁÖ´Â ºôµå´Â false ±×´ë·Î = Ä¡Æ® ¾øÀ½. º»ÀÎ È®ÀÎ¿ë ºôµå¿¡¼­ Ä¡Æ®°¡ ÇÊ¿äÇÏ¸é true.
     /// </summary>
     public static bool CheatsInBuild = false;
 
-    /// <summary>ì¹˜íŠ¸ ì…ë ¥ì„ ë°›ì•„ë„ ë˜ëŠ”ê°€ (ì—ë””í„° = í•­ìƒ, ë¹Œë“œ = CheatsInBuild)</summary>
+    /// <summary>Ä¡Æ® ÀÔ·ÂÀ» ¹Ş¾Æµµ µÇ´Â°¡ (¿¡µğÅÍ = Ç×»ó, ºôµå = CheatsInBuild)</summary>
     public static bool CheatsAllowed
     {
         get { return Application.isEditor || CheatsInBuild; }
     }
 
     // ==================================================================
-    //  ì‹œì‘ ë³´ê¸‰í’ˆ - "í¬íƒ‘ ì—†ìŒ -> íŒŒë° ë¶ˆê°€ -> ì‚¬ë§" ë°ë“œë½ ë°©ì§€
-    //  ì›¨ì´ë¸Œ 1 ì‹œì‘ ì‹œ FoodStockì— ì™„ì„± ìš”ë¦¬ë¥¼ ì§€ê¸‰í•œë‹¤ (ë°”ë¡œ ìŠ¬ë¡¯ì— íˆ¬ì… ê°€ëŠ¥)
+    //  ½ÃÀÛ º¸±ŞÇ° - "Æ÷Å¾ ¾øÀ½ -> ÆÄ¹Ö ºÒ°¡ -> »ç¸Á" µ¥µå¶ô ¹æÁö
+    //  ¿şÀÌºê 1 ½ÃÀÛ ½Ã FoodStock¿¡ ¿Ï¼º ¿ä¸®¸¦ Áö±ŞÇÑ´Ù (¹Ù·Î ½½·Ô¿¡ ÅõÀÔ °¡´É)
     // ==================================================================
 
-    /// <summary>ì‹œì‘ ì§€ê¸‰ ìš”ë¦¬ ëª©ë¡: (ë ˆì‹œí”¼ id, ìˆ˜ëŸ‰)</summary>
+    /// <summary>½ÃÀÛ Áö±Ş ¿ä¸® ¸ñ·Ï: (·¹½ÃÇÇ id, ¼ö·®)</summary>
     public static readonly StarterFood[] StarterFoods = new StarterFood[]
     {
-        new StarterFood("meat+meat", 2),   // ë”ë¸” ìœ¡í¬ x2 (ê¸°ë³¸ ë¬¼ë¦¬ í¬íƒ‘)
-        new StarterFood("armor+meat", 1),  // í•˜í‹° ìŠ¤í…Œì´í¬ x1 (ëª…ì¤‘ ì‹œ ê¸°ì°¨ íšŒë³µ)
+        new StarterFood("meat+meat", 2),   // ´õºí À°Æ÷ x2 (±âº» ¹°¸® Æ÷Å¾)
+        new StarterFood("armor+meat", 1),  // ÇÏÆ¼ ½ºÅ×ÀÌÅ© x1 (¸íÁß ½Ã ±âÂ÷ È¸º¹)
     };
 
     public struct StarterFood
@@ -759,38 +759,50 @@ public static class GameBalance
     }
 
     // ==================================================================
-    //  v9.9: ê²¬ìŠµ ìš´í–‰ (ì „ìš© íŠœí† ë¦¬ì–¼ ëŸ°, TutorialDirector.cs) + ë¸Œë¦¬í•‘ ì¹´ë“œ (BriefingUI.cs)
-    //  êµìˆ˜ ìš”êµ¬ "ì œëŒ€ë¡œ ëœ íŠœí† ë¦¬ì–¼" (ê³„íš: claude/íŠœí† ë¦¬ì–¼_ì™„ì„±ê³„íš_2026-09-15.md v2)
+    //  v9.9: °ß½À ¿îÇà (Àü¿ë Æ©Åä¸®¾ó ·±, TutorialDirector.cs) + ºê¸®ÇÎ Ä«µå (BriefingUI.cs)
+    //  ±³¼ö ¿ä±¸ "Á¦´ë·Î µÈ Æ©Åä¸®¾ó" (°èÈ¹: claude/Æ©Åä¸®¾ó_¿Ï¼º°èÈ¹_2026-09-15.md v2)
     // ==================================================================
 
-    /// <summary>ë¡œë¹„ [T] ê²¬ìŠµ ìš´í–‰ ë²„íŠ¼ì„ ë³´ì—¬ì¤„ì§€. false ë©´ ì¢…ì „ ë¡œë¹„ ê·¸ëŒ€ë¡œ (í”„ë¡¤ë¡œê·¸ë§Œ)</summary>
+    /// <summary>·Îºñ [T] °ß½À ¿îÇà ¹öÆ°À» º¸¿©ÁÙÁö. false ¸é Á¾Àü ·Îºñ ±×´ë·Î (ÇÁ·Ñ·Î±×¸¸)</summary>
     public static bool TutorialRunEnabled = true;
 
-    /// <summary>ê²¬ìŠµ ìš´í–‰ ìµœì´ˆ ì™„ë£Œ ë³´ìƒ ëª…ì„± (0 = ì—†ìŒ). ì¬í”Œë ˆì´ëŠ” ë³´ìƒ ì—†ìŒ</summary>
+    /// <summary>°ß½À ¿îÇà ÃÖÃÊ ¿Ï·á º¸»ó ¸í¼º (0 = ¾øÀ½). ÀçÇÃ·¹ÀÌ´Â º¸»ó ¾øÀ½</summary>
     public static int TutorialReward = 30;
 
-    /// <summary>ë¯¸ì™„ë£Œë©´ ë¡œë¹„ [T] ë²„íŠ¼ì„ ê°•ì¡°(ë§ˆì»¤ í™”ì‚´í‘œ + ê²½ê´‘ë“± ê¹œë¹¡)í• ì§€</summary>
+    /// <summary>¹Ì¿Ï·á¸é ·Îºñ [T] ¹öÆ°À» °­Á¶(¸¶Ä¿ È­»ìÇ¥ + °æ±¤µî ±ôºı)ÇÒÁö</summary>
     public static bool TutorialFirstLaunchHighlight = true;
 
-    /// <summary>ê²¬ìŠµ ìš´í–‰ì„ ë§ˆì¹˜ë©´ ì •ì‹ ëŸ°ì˜ 1íšŒì°¨ í”„ë¡¤ë¡œê·¸(ì›¨ì´ë¸Œ 1 ì¡°ë¦¬ ê²Œì´íŠ¸)ë¥¼ ê±´ë„ˆë›¸ì§€</summary>
+    /// <summary>°ß½À ¿îÇàÀ» ¸¶Ä¡¸é Á¤½Ä ·±ÀÇ 1È¸Â÷ ÇÁ·Ñ·Î±×(¿şÀÌºê 1 Á¶¸® °ÔÀÌÆ®)¸¦ °Ç³Ê¶ÛÁö</summary>
     public static bool TutorialSkipsPrologue = true;
 
-    /// <summary>ê²¬ìŠµ ìš´í–‰ ì¤‘ ê¸°ì°¨ê°€ í”¼í•´ë¥¼ ë°›ì§€ ì•ŠëŠ” ë‹¨ê³„(ì‹¤ì „ ë°©ì–´ ë‹¨ê³„ ì œì™¸)ë¥¼ ë¬´ì ìœ¼ë¡œ ë‘˜ì§€</summary>
+    /// <summary>°ß½À ¿îÇà Áß ±âÂ÷°¡ ÇÇÇØ¸¦ ¹ŞÁö ¾Ê´Â ´Ü°è(½ÇÀü ¹æ¾î ´Ü°è Á¦¿Ü)¸¦ ¹«ÀûÀ¸·Î µÑÁö</summary>
     public static bool TutorialGodMode = true;
 
-    /// <summary>ë¸Œë¦¬í•‘ ì¹´ë“œ(ë‹¨ê³„ ì‹œì‘Â·ì •ì‹ ëŸ° ì²« ë“±ì¥) ì‚¬ìš© ì—¬ë¶€. false ë©´ ì¹´ë“œê°€ ëœ¨ì§€ ì•Šê³  ë°”ë¡œ ì§„í–‰</summary>
+    /// <summary>ºê¸®ÇÎ Ä«µå(´Ü°è ½ÃÀÛ¡¤Á¤½Ä ·± Ã¹ µîÀå) »ç¿ë ¿©ºÎ. false ¸é Ä«µå°¡ ¶ßÁö ¾Ê°í ¹Ù·Î ÁøÇà</summary>
     public static bool BriefingEnabled = true;
 
-    /// <summary>ë¸Œë¦¬í•‘ ì¹´ë“œê°€ ë–  ìˆëŠ” ë™ì•ˆ ì‹œê°„ì„ ë©ˆì¶œì§€ (false = ì•ˆ ë©ˆì¶¤, 5ì´ˆ ë’¤ ìë™ ë‹«í˜)</summary>
+    /// <summary>ºê¸®ÇÎ Ä«µå°¡ ¶° ÀÖ´Â µ¿¾È ½Ã°£À» ¸ØÃâÁö (false = ¾È ¸ØÃã, 5ÃÊ µÚ ÀÚµ¿ ´İÈû)</summary>
     public static bool BriefingPausesTime = true;
 
-    /// <summary>ì‹œê°„ì„ ì•ˆ ë©ˆì¶œ ë•Œ ìë™ìœ¼ë¡œ ë‹«íˆê¸°ê¹Œì§€ (ì´ˆ)</summary>
+    /// <summary>½Ã°£À» ¾È ¸ØÃâ ¶§ ÀÚµ¿À¸·Î ´İÈ÷±â±îÁö (ÃÊ)</summary>
     public static float BriefingAutoCloseSec = 5f;
 
-    /// <summary>ì •ì‹ ëŸ° ì²« ë“±ì¥ ë¸Œë¦¬í•‘(ì§€ì—­/ìƒˆ ì†ë‹˜/ì´ë²¤íŠ¸/ë² íŒ…/ë³´ìŠ¤)ì„ ì¼¤ì§€ - 2ì°¨ íŒ©ì—ì„œ í›… ì—°ê²°</summary>
+    /// <summary>Á¤½Ä ·± Ã¹ µîÀå ºê¸®ÇÎ(Áö¿ª/»õ ¼Õ´Ô/ÀÌº¥Æ®/º£ÆÃ/º¸½º)À» ÄÓÁö - 2Â÷ ÆÑ¿¡¼­ ÈÅ ¿¬°á</summary>
     public static bool FirstEncounterBriefings = true;
 
-    /// <summary>í˜„ì¥ ë§ˆì»¤ í™”ì‚´í‘œ ê¹Œë”± í­ (ì›”ë“œ ìœ ë‹›, 4px @32ppu = í™”ë©´ 8px) / ì™•ë³µ ì£¼ê¸° (ì´ˆ)</summary>
+    /// <summary>ÇöÀå ¸¶Ä¿ È­»ìÇ¥ ±îµü Æø (¿ùµå À¯´Ö, 4px @32ppu = È­¸é 8px) / ¿Õº¹ ÁÖ±â (ÃÊ)</summary>
     public static float TutorialMarkerBob = 0.125f;
     public static float TutorialMarkerBobSec = 0.6f;
+
+    // ¦¡¦¡ v9.9.2: °ß½À ¿îÇà 2Â÷ (´Ü°è 7~12) + ¸¶ºñ Ç¥½Ã ¦¡¦¡
+    /// <summary>½ÇÀü ´Ü°è(10) ¼Õ´Ô ±¸¼º: ·¦ÅÍ / µ¶Ä§ ÇÁÅ×¶ó ¼ö (Á¤½Ä ½ºÅÈ). ±âÂ÷°¡ ¸ØÃß¸é °°Àº ±¸¼º Àç½ÃÀÛ, 2È¸Â°ºÎÅÍ ¹èÀ² 0.6</summary>
+    public static int TutorialDefenseRaptors = 5;
+    public static int TutorialDefensePteras = 1;
+
+    /// <summary>¸¶ºñ(°¨Àü/ºù°á/°ú¿­) Æ÷Å¾ÀÇ ¸¶Ä¿ Ä¨ À§ °æ±¤µî ±ôºıÀÓ (À¯Àú 09-16 "·±¿¡ ¹Ù·Î ¹İ¿µ") / ±³´ë ÁÖ±â (ÃÊ)</summary>
+    public static bool StunChipBeacons = true;
+    public static float StunChipBeaconSec = 0.3f;
+
+    /// <summary>¸¶ºñ Æ÷Å¾ À§ ½ºÆÄÅ©(°¨Àü¡¤ºù°á)/¿¬±â(°ú¿­) Ç¥½Ã (TurretSlot). false ¸é Æ¾Æ®¸¸</summary>
+    public static bool TurretStunFx = true;
 }

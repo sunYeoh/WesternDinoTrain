@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [SpinoBetUI.cs] v1 (신규 파일) - Phase 2-1: 도박사 스피노 등장/베팅 UI
+/// [SpinoBetUI.cs] v1.1 (v9.9.2 2026-09-16: 첫 등장 카드 "베팅" 을 창이 뜨기 직전 1회 + 카드가 떠 있는 동안 숫자키 무시 + 창 머리에 스피노 실루엣) / v1 (신규 파일) - Phase 2-1: 도박사 스피노 등장/베팅 UI
 ///
 /// 세계관: 스피노는 디 오리지널의 마지막 기관사. 우리에게 베팅을 거는 진짜 이유는
 /// "이번 요리사는 끝까지 가는지 판돈을 걸어보는 것" (스토리바이블 3절).
@@ -36,6 +36,9 @@ public class SpinoBetUI : MonoBehaviour
     {
         if (IsOpen) { if (onClosedCallback != null) onClosedCallback(); return; }
 
+        // v1.1: 처음 만나는 베팅은 카드로 먼저 설명 (창 위에 뜬다 - 정렬 720 > 595)
+        if (GameBalance.FirstEncounterBriefings) BriefingUI.ShowOnce("bet_first", BriefingTexts.BetFirst());
+
         GameObject go = new GameObject("SpinoBetUI");
         SpinoBetUI ui = go.AddComponent<SpinoBetUI>();
         ui.onClosed = onClosedCallback;
@@ -67,6 +70,7 @@ public class SpinoBetUI : MonoBehaviour
     private void Update()
     {
         if (closing) return;
+        if (BriefingUI.IsOpen) return;   // v1.1: 설명 카드를 읽는 동안은 고르지 않는다
 
         if (Input.GetKeyDown(KeyCode.Alpha1)) PickCard(cardA);
         else if (Input.GetKeyDown(KeyCode.Alpha2)) PickCard(cardB);
@@ -177,6 +181,19 @@ public class SpinoBetUI : MonoBehaviour
         nRt.anchoredPosition = new Vector2(0f, -10f);
         nRt.sizeDelta = new Vector2(-24f, 28f);
         name.alignment = TextAnchor.MiddleLeft;
+
+        // v1.1: 스피노 실루엣 - 판 오른쪽 위 모서리에 걸터앉듯 2배 (ui_npc_spino 96x96, 없으면 생략)
+        Sprite bust = SpriteBank.Get("ui_npc_spino");
+        if (bust != null)
+        {
+            GameObject bustGo = new GameObject("Bust");
+            bustGo.transform.SetParent(panel, false);
+            RectTransform brt = bustGo.AddComponent<RectTransform>();
+            brt.anchorMin = new Vector2(1f, 1f); brt.anchorMax = new Vector2(1f, 1f); brt.pivot = new Vector2(1f, 0f);
+            brt.anchoredPosition = new Vector2(-24f, -6f); brt.sizeDelta = new Vector2(192f, 192f);
+            Image bustImg = bustGo.AddComponent<Image>();
+            bustImg.sprite = bust; bustImg.preserveAspect = true; bustImg.raycastTarget = false;
+        }
 
         // 대사
         speechText = KitchenEventManager.MakeText(panel, "Speech", "", 19,

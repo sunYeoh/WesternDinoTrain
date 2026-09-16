@@ -1,106 +1,106 @@
 using UnityEngine;
 
 /// <summary>
-/// [TurretSlot.cs] v6.3 (v9.9 2026-09-16: ë‚¨ìª½ ìŠ¬ë¡¯ í¬ì‹  ê¸°ë³¸ ë°©í–¥ -90 = ë‚¨ìª½ - 4ëª¨ì„œë¦¬ ë°°ì¹˜) / v6.2 (ëŸ° í†µê³„: ê³¼ì—´ íšŸìˆ˜Â·ì •ì§€ ì‹œê°„ 2026-09-14) / v6.1 (êµìˆ˜ í”¼ë“œë°± ë°˜ì˜ 2026-09-14) / v6 (ê³ í€„ PNG ì ìš© 2026-09-03)
-/// í¬íƒ‘ ìŠ¬ë¡¯ 1ê°œ. ìš”ë¦¬ë¥¼ íˆ¬ì…í•˜ë©´ í¬íƒ‘ìœ¼ë¡œ ê°€ë™í•œë‹¤.
-/// - v6.2 ë³€ê²½ì  (ìŠ¤ìœ„ì¹˜ ì‹¤í—˜ ì§€í‘œ - ë°˜ì˜ê³„íš Â§5 ê´€ì°° ì‹œíŠ¸):
-///   OverheatsThisRun / OverheatStunSecThisRun: ì´ë²ˆ ëŸ°ì— ê³¼ì—´ì´ ëª‡ ë²ˆ ë‚¬ê³ , ê³¼ì—´ë¡œ í¬íƒ‘ì´ ì „íˆ¬ ì¤‘ ëª‡ ì´ˆ ë©ˆì¶° ìˆì—ˆëŠ”ì§€.
-///   ì •ì§€ ì‹œê°„ì€ TickFire(ì „íˆ¬ ìƒíƒœì—ì„œë§Œ í˜¸ì¶œ)ì—ì„œ í”„ë ˆì„ë§ˆë‹¤ ëˆ„ì í•˜ë¯€ë¡œ ìë™ ë³µêµ¬Â·ìˆ˜ë™ ëƒ‰ê°Â·ëŸ° ë„ì¤‘ ì‚¬ë§ ëª¨ë‘ ê°™ì€ ê¸°ì¤€ìœ¼ë¡œ ì°ë‹¤.
-///   GameManagerê°€ ëŸ° ì‹œì‘ ë•Œ ResetRunStats()ë¡œ 0ìœ¼ë¡œ ëŒë¦°ë‹¤ (static ì´ë¼ ì”¬ ë¦¬ë¡œë“œ ë’¤ì—ë„ ë‚¨ê¸° ë•Œë¬¸). MetaProgress.RunStatsLine()ì´ ì½ëŠ”ë‹¤.
-/// - v6.1 ë³€ê²½ì  (êµìˆ˜ í”¼ë“œë°± A4/B1/B2/B5):
-///   ìµœëŒ€HP íŒ¨ì‹œë¸Œ(ì² íŒ ì •ì‹/ì˜¤ë©”ê°€)ë¥¼ ìŠ¬ë¡¯ë³„ë¡œ ê¸°ë¡í•´ íê¸°Â·í•©ì²´ ì†Œëª¨ ì‹œ íšŒìˆ˜í•œë‹¤ (íˆ¬ì…ë§ˆë‹¤ ë¬´í•œ ëˆ„ì  + íšŒë³µ ë£¨í”„ ì°¨ë‹¨)
-///   ê³¼ì—´ ìë™ ë³µêµ¬ ìŠ¤ìœ„ì¹˜(OverheatAutoRecoverSec) / ì‹œê°„ ì •ê·œí™” ìŠ¤ìœ„ì¹˜(OverheatTimeNormalized)
-///   í‘œì  ìš°ì„  ìŠ¤ìœ„ì¹˜(TargetPriorityEnabled): íëŸ¬Â·ì„œí¬í„°Â·ìí­í˜•ì„ ë¨¼ì € ë…¸ë¦°ë‹¤
-///   LastInsertTime: í”„ë¡¤ë¡œê·¸ ì¡°ë¦¬ ê²Œì´íŠ¸ê°€ "ì¡°ë¦¬ -> íˆ¬ì…" ìˆœì„œë¥¼ í™•ì¸í•˜ëŠ” ë° ì“´ë‹¤
-/// - ê°™ì€ ìš”ë¦¬ ë°˜ë³µ íˆ¬ì… -> ë ˆë²¨ì—… (Lv1=C, 2=B, 3~4=A, 5+=S)
-/// - ë°œì‚¬í˜•ì´ë©´ ì¿¨ë‹¤ìš´ë§ˆë‹¤ ê°€ì¥ ê°€ê¹Œìš´ ì  ê³µê²©
-/// - íŒ¨ì‹œë¸Œ/ë²„í”„/ì˜¤ë¼ëŠ” TurretSlotManagerê°€ ì¼ê´„ ì²˜ë¦¬
-/// - v2 ë³€ê²½ì : ì¦ê°• ì—°ë™ (ê³µê²©ì†ë„ AspdMul / ì‚¬ê±°ë¦¬ RangeMul)
-/// - v3 ë³€ê²½ì : ë³´ìŠ¤ ë‚™ë¢° íŒ¨í„´ìš© ìŠ¬ë¡¯ ë§ˆë¹„ ì¶”ê°€
-/// - v4 ë³€ê²½ì  (í”Œë ˆì´ í”¼ë“œë°± "í¬íƒ‘ì´ë‘ ê¸°ì°¨ê°€ ë”°ë¡œ ë…¼ë‹¤"):
-///   ì§€ê¸ˆê¹Œì§€ ìŠ¬ë¡¯ì€ ì›”ë“œ ê·¸ë¦¼ì´ 0ê°œì˜€ë‹¤ - í™”ë©´ì˜ ë§ˆì»¤ ì¹©(ì´ë¦„í‘œ)ì´ í¬íƒ‘ í–‰ì„¸ë¥¼
-///   í•˜ë©° ì§€ë¶•ì„ ì„ ê°€ë¦¬ë˜ ê²ƒì´ ì–´ìƒ‰í•¨ì˜ ì •ì²´. ë°›ì¹¨+ëª¸í†µ+í¬ì‹ +ì†ì„± ë¨í”„ë¥¼
-///   ì½”ë“œ ë„í˜•ìœ¼ë¡œ ì§€ë¶• ìœ„ì— ì„¸ìš´ë‹¤ (ì•„íŠ¸ ë°˜ì˜ ì „ ì„ì‹œ, TurretVisuals ìŠ¤ìœ„ì¹˜).
-///   ë ˆë²¨ì—… = ì¡°ê¸ˆì”© ì»¤ì§ / 2í‹°ì–´ = ìš°ëŒ+ì•ˆí…Œë‚˜ / ë§ˆë¹„ = ëª¸í†µ í‹´íŠ¸(ë‹¬ì•„ì˜¤ë¦„Â·ì„œë¦¬Â·ìŠ¤íŒŒí¬)
-/// - v5 (íƒ‘ë·° ì¬ìŠ¤í‚¨ - ëª©ì—… v2 ì»¨íŒ): ë„í˜• ì¡°í•© -> ë„íŠ¸ ìŠ¤í”„ë¼ì´íŠ¸ (PixelPainter.cs ì‹ ê·œ)
-///   ë¬´ì‡  ë² ì´ìŠ¤ ë§(ë³¼íŠ¸ 8) + ì†ì„± ë°œê´‘ ë§ + êµ¬ë¦¬ ë” + ì¤‘ëŸ‰ í¬ì‹ (ì™¸ê³½6/ëª¸4/ìƒë‹¨ê´‘1) + ë¨¸ì¦ ë¸Œë ˆì´í¬
-///   í¬ì‹ ì€ ë§ˆì§€ë§‰ í‘œì ì„ í–¥í•´ íšŒì „, í‘œì ì´ ì—†ìœ¼ë©´ ë¶ìª½ì„ ë³´ë©° ì²œì²œíˆ í”ë“¤ë¦°ë‹¤.
-///   ì¢Œí‘œ/íŒì •/ë¡œì§ì€ v4 ê·¸ëŒ€ë¡œ - ë°”ë€ ê±´ ê·¸ë¦¬ëŠ” ë¬¸ë²•ë¿. (ë§ˆë¹„ í‹´íŠ¸ëŠ” ë”ì— ì ìš©, 2í‹°ì–´ = í¬ì‹  2ì—°ì¥)
-/// - v6: Resources/Sprites/WDT/ ì˜ t_base / t_dome_<ì†ì„±> / t_barrel / t_barrel2 PNGë¥¼ SpriteBankë¡œ ìš°ì„  ì‚¬ìš©.
-///   ì—†ìœ¼ë©´ v5 ì½”ë“œ ë„íŠ¸ë¡œ í´ë°±. ì†ì„± í‚¤: fire/elec/ice/poison/def/phys
-/// VS 2017 (C# 7.3) í˜¸í™˜
+/// [TurretSlot.cs] v6.4 (v9.9.2 2026-09-16: ¸¶ºñ FX - °¨Àü¡¤ºù°á = ½ºÆÄÅ© 3Á¡(ui_ev_spark_0/1 ±³´ë, ºù°áÀº ¾óÀ½»ö), °ú¿­ = ¿¬±â(ui_ev_smoke_0/1). GameBalance.TurretStunFx) / v6.3 (v9.9 2026-09-16: ³²ÂÊ ½½·Ô Æ÷½Å ±âº» ¹æÇâ -90 = ³²ÂÊ - 4¸ğ¼­¸® ¹èÄ¡) / v6.2 (·± Åë°è: °ú¿­ È½¼ö¡¤Á¤Áö ½Ã°£ 2026-09-14) / v6.1 (±³¼ö ÇÇµå¹é ¹İ¿µ 2026-09-14) / v6 (°íÄ÷ PNG Àû¿ë 2026-09-03)
+/// Æ÷Å¾ ½½·Ô 1°³. ¿ä¸®¸¦ ÅõÀÔÇÏ¸é Æ÷Å¾À¸·Î °¡µ¿ÇÑ´Ù.
+/// - v6.2 º¯°æÁ¡ (½ºÀ§Ä¡ ½ÇÇè ÁöÇ¥ - ¹İ¿µ°èÈ¹ ¡×5 °üÂû ½ÃÆ®):
+///   OverheatsThisRun / OverheatStunSecThisRun: ÀÌ¹ø ·±¿¡ °ú¿­ÀÌ ¸î ¹ø ³µ°í, °ú¿­·Î Æ÷Å¾ÀÌ ÀüÅõ Áß ¸î ÃÊ ¸ØÃç ÀÖ¾ú´ÂÁö.
+///   Á¤Áö ½Ã°£Àº TickFire(ÀüÅõ »óÅÂ¿¡¼­¸¸ È£Ãâ)¿¡¼­ ÇÁ·¹ÀÓ¸¶´Ù ´©ÀûÇÏ¹Ç·Î ÀÚµ¿ º¹±¸¡¤¼öµ¿ ³Ã°¢¡¤·± µµÁß »ç¸Á ¸ğµÎ °°Àº ±âÁØÀ¸·Î Àé´Ù.
+///   GameManager°¡ ·± ½ÃÀÛ ¶§ ResetRunStats()·Î 0À¸·Î µ¹¸°´Ù (static ÀÌ¶ó ¾À ¸®·Îµå µÚ¿¡µµ ³²±â ¶§¹®). MetaProgress.RunStatsLine()ÀÌ ÀĞ´Â´Ù.
+/// - v6.1 º¯°æÁ¡ (±³¼ö ÇÇµå¹é A4/B1/B2/B5):
+///   ÃÖ´ëHP ÆĞ½Ãºê(Ã¶ÆÇ Á¤½Ä/¿À¸Ş°¡)¸¦ ½½·Ôº°·Î ±â·ÏÇØ Æó±â¡¤ÇÕÃ¼ ¼Ò¸ğ ½Ã È¸¼öÇÑ´Ù (ÅõÀÔ¸¶´Ù ¹«ÇÑ ´©Àû + È¸º¹ ·çÇÁ Â÷´Ü)
+///   °ú¿­ ÀÚµ¿ º¹±¸ ½ºÀ§Ä¡(OverheatAutoRecoverSec) / ½Ã°£ Á¤±ÔÈ­ ½ºÀ§Ä¡(OverheatTimeNormalized)
+///   Ç¥Àû ¿ì¼± ½ºÀ§Ä¡(TargetPriorityEnabled): Èú·¯¡¤¼­Æ÷ÅÍ¡¤ÀÚÆøÇüÀ» ¸ÕÀú ³ë¸°´Ù
+///   LastInsertTime: ÇÁ·Ñ·Î±× Á¶¸® °ÔÀÌÆ®°¡ "Á¶¸® -> ÅõÀÔ" ¼ø¼­¸¦ È®ÀÎÇÏ´Â µ¥ ¾´´Ù
+/// - °°Àº ¿ä¸® ¹İº¹ ÅõÀÔ -> ·¹º§¾÷ (Lv1=C, 2=B, 3~4=A, 5+=S)
+/// - ¹ß»çÇüÀÌ¸é Äğ´Ù¿î¸¶´Ù °¡Àå °¡±î¿î Àû °ø°İ
+/// - ÆĞ½Ãºê/¹öÇÁ/¿À¶ó´Â TurretSlotManager°¡ ÀÏ°ı Ã³¸®
+/// - v2 º¯°æÁ¡: Áõ°­ ¿¬µ¿ (°ø°İ¼Óµµ AspdMul / »ç°Å¸® RangeMul)
+/// - v3 º¯°æÁ¡: º¸½º ³«·Ú ÆĞÅÏ¿ë ½½·Ô ¸¶ºñ Ãß°¡
+/// - v4 º¯°æÁ¡ (ÇÃ·¹ÀÌ ÇÇµå¹é "Æ÷Å¾ÀÌ¶û ±âÂ÷°¡ µû·Î ³í´Ù"):
+///   Áö±İ±îÁö ½½·ÔÀº ¿ùµå ±×¸²ÀÌ 0°³¿´´Ù - È­¸éÀÇ ¸¶Ä¿ Ä¨(ÀÌ¸§Ç¥)ÀÌ Æ÷Å¾ Çà¼¼¸¦
+///   ÇÏ¸ç ÁöºØ¼±À» °¡¸®´ø °ÍÀÌ ¾î»öÇÔÀÇ Á¤Ã¼. ¹ŞÄ§+¸öÅë+Æ÷½Å+¼Ó¼º ·¥ÇÁ¸¦
+///   ÄÚµå µµÇüÀ¸·Î ÁöºØ À§¿¡ ¼¼¿î´Ù (¾ÆÆ® ¹İ¿µ Àü ÀÓ½Ã, TurretVisuals ½ºÀ§Ä¡).
+///   ·¹º§¾÷ = Á¶±İ¾¿ Ä¿Áü / 2Æ¼¾î = ¿ì¶÷+¾ÈÅ×³ª / ¸¶ºñ = ¸öÅë Æ¾Æ®(´Ş¾Æ¿À¸§¡¤¼­¸®¡¤½ºÆÄÅ©)
+/// - v5 (Å¾ºä Àç½ºÅ² - ¸ñ¾÷ v2 ÄÁÆß): µµÇü Á¶ÇÕ -> µµÆ® ½ºÇÁ¶óÀÌÆ® (PixelPainter.cs ½Å±Ô)
+///   ¹«¼è º£ÀÌ½º ¸µ(º¼Æ® 8) + ¼Ó¼º ¹ß±¤ ¸µ + ±¸¸® µ¼ + Áß·® Æ÷½Å(¿Ü°û6/¸ö4/»ó´Ü±¤1) + ¸ÓÁñ ºê·¹ÀÌÅ©
+///   Æ÷½ÅÀº ¸¶Áö¸· Ç¥ÀûÀ» ÇâÇØ È¸Àü, Ç¥ÀûÀÌ ¾øÀ¸¸é ºÏÂÊÀ» º¸¸ç ÃµÃµÈ÷ Èçµé¸°´Ù.
+///   ÁÂÇ¥/ÆÇÁ¤/·ÎÁ÷Àº v4 ±×´ë·Î - ¹Ù²ï °Ç ±×¸®´Â ¹®¹ı»Ó. (¸¶ºñ Æ¾Æ®´Â µ¼¿¡ Àû¿ë, 2Æ¼¾î = Æ÷½Å 2¿¬Àå)
+/// - v6: Resources/Sprites/WDT/ ÀÇ t_base / t_dome_<¼Ó¼º> / t_barrel / t_barrel2 PNG¸¦ SpriteBank·Î ¿ì¼± »ç¿ë.
+///   ¾øÀ¸¸é v5 ÄÚµå µµÆ®·Î Æú¹é. ¼Ó¼º Å°: fire/elec/ice/poison/def/phys
+/// VS 2017 (C# 7.3) È£È¯
 /// </summary>
 public class TurretSlot : MonoBehaviour
 {
-    [Header("â”€ ìŠ¬ë¡¯ ìƒíƒœ (ëŸ°íƒ€ì„) â”€")]
-    public string recipeId = "";   // íˆ¬ì…ëœ ìš”ë¦¬ í‚¤ ("" = ë¹ˆ ìŠ¬ë¡¯)
-    public int level = 0;          // í˜„ì¬ ë ˆë²¨
-    public bool isLocked = false;  // ì ê¸ˆ ìŠ¬ë¡¯ (ì¦ê°• 'ì¦ì¶•ëœ ì£¼ë°© ì¹¸'ìœ¼ë¡œ í•´ê¸ˆ)
+    [Header("¦¡ ½½·Ô »óÅÂ (·±Å¸ÀÓ) ¦¡")]
+    public string recipeId = "";   // ÅõÀÔµÈ ¿ä¸® Å° ("" = ºó ½½·Ô)
+    public int level = 0;          // ÇöÀç ·¹º§
+    public bool isLocked = false;  // Àá±İ ½½·Ô (Áõ°­ 'ÁõÃàµÈ ÁÖ¹æ Ä­'À¸·Î ÇØ±İ)
 
-    [Header("â”€ ë°œì‚¬ ì„¤ì • â”€")]
-    public float targetRange = 15f;    // íƒ€ê²Ÿ íƒìƒ‰ ì‚¬ê±°ë¦¬
-    public Transform firePoint;        // ë°œì‚¬ ìœ„ì¹˜ (ì—†ìœ¼ë©´ ìê¸° ìœ„ì¹˜)
+    [Header("¦¡ ¹ß»ç ¼³Á¤ ¦¡")]
+    public float targetRange = 15f;    // Å¸°Ù Å½»ö »ç°Å¸®
+    public Transform firePoint;        // ¹ß»ç À§Ä¡ (¾øÀ¸¸é ÀÚ±â À§Ä¡)
 
     private float cooldownTimer = 0f;
 
-    // â”€â”€ v3: ìŠ¬ë¡¯ ë§ˆë¹„ (ë³´ìŠ¤ 'ë‚™ë¢° í­ê²©' / P1: ëª¨ì‚¬ ë¹™ê²° / B-2: ê³¼ì—´) â”€â”€
-    // ë§ˆë¹„ ì¤‘ì—ëŠ” ë°œì‚¬ ì •ì§€. í•´ì œëŠ” ê·¼ì ‘ [E] (ê°ì „/ë¹™ê²° = ì¦‰ì‹œ, ê³¼ì—´ = í™€ë“œ ëƒ‰ê°)
+    // ¦¡¦¡ v3: ½½·Ô ¸¶ºñ (º¸½º '³«·Ú Æø°İ' / P1: ¸ğ»ç ºù°á / B-2: °ú¿­) ¦¡¦¡
+    // ¸¶ºñ Áß¿¡´Â ¹ß»ç Á¤Áö. ÇØÁ¦´Â ±ÙÁ¢ [E] (°¨Àü/ºù°á = Áï½Ã, °ú¿­ = È¦µå ³Ã°¢)
     private float stunUntil = 0f;
 
-    /// <summary>ë§ˆë¹„ ì¢…ë¥˜ í‘œê¸° ("ê°ì „"/"ë¹™ê²°"/"ê³¼ì—´") - SlotMarkerUIê°€ í‘œì‹œì— ì‚¬ìš©</summary>
-    public string StunKind = "ê°ì „";
+    /// <summary>¸¶ºñ Á¾·ù Ç¥±â ("°¨Àü"/"ºù°á"/"°ú¿­") - SlotMarkerUI°¡ Ç¥½Ã¿¡ »ç¿ë</summary>
+    public string StunKind = "°¨Àü";
 
     public bool IsStunned { get { return Time.time < stunUntil; } }
 
-    // â”€â”€ B-2: ê³¼ì—´ ìƒíƒœ (ì—°ì† ì‚¬ê²© ëˆ„ì  - ë³‘ê¸° ìœ ì§€ ì†ë§›) â”€â”€
-    private int shotsSinceCool = 0;        // ë§ˆì§€ë§‰ ëƒ‰ê° í›„ ì‚¬ê²© ìˆ˜
-    private int overheatThreshold = 0;     // ì´ë²ˆ ê³¼ì—´ ì„ê³„ (0 = ë¯¸ì •, ë°œì‚¬ ì‹œ ë¡¤)
-    private float overheatImmuneUntil = 0f; // ëƒ‰ê° ì§í›„ ì¬ê³¼ì—´ ë©´ì—­
-    private bool overheatActive = false;   // v6.1: ê³¼ì—´ ì§„í–‰ ì¤‘ (ìë™ ë³µêµ¬ ë§Œë£Œë¥¼ ê°ì§€í•´ ë§ˆë¬´ë¦¬í•˜ë ¤ê³ )
+    // ¦¡¦¡ B-2: °ú¿­ »óÅÂ (¿¬¼Ó »ç°İ ´©Àû - º´±â À¯Áö ¼Õ¸À) ¦¡¦¡
+    private int shotsSinceCool = 0;        // ¸¶Áö¸· ³Ã°¢ ÈÄ »ç°İ ¼ö
+    private int overheatThreshold = 0;     // ÀÌ¹ø °ú¿­ ÀÓ°è (0 = ¹ÌÁ¤, ¹ß»ç ½Ã ·Ñ)
+    private float overheatImmuneUntil = 0f; // ³Ã°¢ Á÷ÈÄ Àç°ú¿­ ¸é¿ª
+    private bool overheatActive = false;   // v6.1: °ú¿­ ÁøÇà Áß (ÀÚµ¿ º¹±¸ ¸¸·á¸¦ °¨ÁöÇØ ¸¶¹«¸®ÇÏ·Á°í)
 
-    // â”€â”€ v6.1: ìµœëŒ€HP íŒ¨ì‹œë¸Œ ê¸°ì—¬ëŸ‰ (ì´ ìŠ¬ë¡¯ì´ ê¸°ì°¨ ìµœëŒ€ HPì— ì–¹ì€ ê°’ - ë¹„ìš¸ ë•Œ íšŒìˆ˜) â”€â”€
+    // ¦¡¦¡ v6.1: ÃÖ´ëHP ÆĞ½Ãºê ±â¿©·® (ÀÌ ½½·ÔÀÌ ±âÂ÷ ÃÖ´ë HP¿¡ ¾ñÀº °ª - ºñ¿ï ¶§ È¸¼ö) ¦¡¦¡
     private float appliedMaxHP = 0f;
 
-    /// <summary>ë§ˆì§€ë§‰ìœ¼ë¡œ ì–´ëŠ ìŠ¬ë¡¯ì´ë“  ìš”ë¦¬ê°€ íˆ¬ì…ëœ ì‹œê° (Time.time, 0 = ì—†ìŒ). í”„ë¡¤ë¡œê·¸ ì¡°ë¦¬ ê²Œì´íŠ¸ìš©</summary>
+    /// <summary>¸¶Áö¸·À¸·Î ¾î´À ½½·ÔÀÌµç ¿ä¸®°¡ ÅõÀÔµÈ ½Ã°¢ (Time.time, 0 = ¾øÀ½). ÇÁ·Ñ·Î±× Á¶¸® °ÔÀÌÆ®¿ë</summary>
     public static float LastInsertTime = 0f;
 
-    // â”€â”€ v6.2: ëŸ° í†µê³„ (ìŠ¤ìœ„ì¹˜ ì‹¤í—˜ ì§€í‘œ) - ëª¨ë“  ìŠ¬ë¡¯ í•©ì‚°, ëŸ° ì‹œì‘ ë•Œ GameManagerê°€ ResetRunStats() â”€â”€
-    /// <summary>ì´ë²ˆ ëŸ°ì— ê³¼ì—´ì´ ë°œìƒí•œ íšŸìˆ˜ (ìŠ¬ë¡¯ í•©ì‚°)</summary>
+    // ¦¡¦¡ v6.2: ·± Åë°è (½ºÀ§Ä¡ ½ÇÇè ÁöÇ¥) - ¸ğµç ½½·Ô ÇÕ»ê, ·± ½ÃÀÛ ¶§ GameManager°¡ ResetRunStats() ¦¡¦¡
+    /// <summary>ÀÌ¹ø ·±¿¡ °ú¿­ÀÌ ¹ß»ıÇÑ È½¼ö (½½·Ô ÇÕ»ê)</summary>
     public static int OverheatsThisRun = 0;
-    /// <summary>ì´ë²ˆ ëŸ°ì— ê³¼ì—´ ë•Œë¬¸ì— í¬íƒ‘ì´ ë°œì‚¬ë¥¼ ëª» í•œ ì „íˆ¬ ì‹œê°„ í•©ê³„ (ì´ˆ, ìŠ¬ë¡¯ í•©ì‚°)</summary>
+    /// <summary>ÀÌ¹ø ·±¿¡ °ú¿­ ¶§¹®¿¡ Æ÷Å¾ÀÌ ¹ß»ç¸¦ ¸ø ÇÑ ÀüÅõ ½Ã°£ ÇÕ°è (ÃÊ, ½½·Ô ÇÕ»ê)</summary>
     public static float OverheatStunSecThisRun = 0f;
 
-    /// <summary>ëŸ° í†µê³„ ì´ˆê¸°í™” - ìƒˆ ëŸ°ì˜ ì²« ì›¨ì´ë¸Œ ì‹œì‘ ë•Œ 1íšŒ (GameManager)</summary>
+    /// <summary>·± Åë°è ÃÊ±âÈ­ - »õ ·±ÀÇ Ã¹ ¿şÀÌºê ½ÃÀÛ ¶§ 1È¸ (GameManager)</summary>
     public static void ResetRunStats()
     {
         OverheatsThisRun = 0;
         OverheatStunSecThisRun = 0f;
     }
 
-    /// <summary>ìŠ¬ë¡¯ ë§ˆë¹„ (ë³´ìŠ¤ ë‚™ë¢° - ê¸°ì¡´ í˜¸í™˜ìš©, ê°ì „ í‘œê¸°)</summary>
-    public void StunSlot(float seconds) { StunSlot(seconds, "ê°ì „"); }
+    /// <summary>½½·Ô ¸¶ºñ (º¸½º ³«·Ú - ±âÁ¸ È£È¯¿ë, °¨Àü Ç¥±â)</summary>
+    public void StunSlot(float seconds) { StunSlot(seconds, "°¨Àü"); }
 
-    /// <summary>ìŠ¬ë¡¯ ë§ˆë¹„ + ì¢…ë¥˜ ì§€ì • (P1: ëª¨ì‚¬ ë¹™ê²° ë“± - ê°™ì€ ê¸°ë¯¹, ë‹¤ë¥¸ í‘œê¸°)</summary>
+    /// <summary>½½·Ô ¸¶ºñ + Á¾·ù ÁöÁ¤ (P1: ¸ğ»ç ºù°á µî - °°Àº ±â¹Í, ´Ù¸¥ Ç¥±â)</summary>
     public void StunSlot(float seconds, string kind)
     {
-        // B-2: ê³¼ì—´ ì¤‘ì—ëŠ” ë‚™ë¢°/ë¹™ê²°ì´ ë®ì–´ì“°ì§€ ëª»í•œë‹¤
-        // (ì§§ì€ ë§ˆë¹„ë¡œ ë®ì´ë©´ ëƒ‰ê° ì‘ì—… ì—†ì´ ê³¼ì—´ì´ í’€ë¦¬ëŠ” ì‚¬ê³  ë°©ì§€)
-        if (IsStunned && StunKind == "ê³¼ì—´" && kind != "ê³¼ì—´") return;
+        // B-2: °ú¿­ Áß¿¡´Â ³«·Ú/ºù°áÀÌ µ¤¾î¾²Áö ¸øÇÑ´Ù
+        // (ÂªÀº ¸¶ºñ·Î µ¤ÀÌ¸é ³Ã°¢ ÀÛ¾÷ ¾øÀÌ °ú¿­ÀÌ Ç®¸®´Â »ç°í ¹æÁö)
+        if (IsStunned && StunKind == "°ú¿­" && kind != "°ú¿­") return;
 
-        // Phase 2-2 ì¦ê°• 'ë¶€ë™ì•¡ ë°°ê´€': ê°ì „/ë¹™ê²° ì§€ì† ë‹¨ì¶• (ê³¼ì—´ì€ ë¬´ê¸°í•œì´ë¼ ë¬´ê´€)
+        // Phase 2-2 Áõ°­ 'ºÎµ¿¾× ¹è°ü': °¨Àü/ºù°á Áö¼Ó ´ÜÃà (°ú¿­Àº ¹«±âÇÑÀÌ¶ó ¹«°ü)
         stunUntil = Time.time + seconds * AugmentManager.SlotStunDurMul;
         StunKind = kind;
     }
 
-    /// <summary>ë§ˆë¹„ ì¦‰ì‹œ í•´ì œ. ê³¼ì—´ì´ì—ˆë‹¤ë©´ ëƒ‰ê° í›„ ë©´ì—­ ì‹œê°„ ë¶€ì—¬</summary>
+    /// <summary>¸¶ºñ Áï½Ã ÇØÁ¦. °ú¿­ÀÌ¾ú´Ù¸é ³Ã°¢ ÈÄ ¸é¿ª ½Ã°£ ºÎ¿©</summary>
     public void ClearStun()
     {
-        if (StunKind == "ê³¼ì—´")
+        if (StunKind == "°ú¿­")
             FinishOverheat();
         stunUntil = 0f;
     }
 
-    /// <summary>v6.1: ê³¼ì—´ ë§ˆë¬´ë¦¬ (ìˆ˜ë™ ëƒ‰ê°Â·ìë™ ë³µêµ¬ ê³µí†µ) - ë©´ì—­ ë¶€ì—¬ + ë°œì‚¬ ì¹´ìš´í„° ë¦¬ì…‹</summary>
+    /// <summary>v6.1: °ú¿­ ¸¶¹«¸® (¼öµ¿ ³Ã°¢¡¤ÀÚµ¿ º¹±¸ °øÅë) - ¸é¿ª ºÎ¿© + ¹ß»ç Ä«¿îÅÍ ¸®¼Â</summary>
     private void FinishOverheat()
     {
         overheatImmuneUntil = Time.time + GameBalance.OverheatImmuneTime;
@@ -109,7 +109,7 @@ public class TurretSlot : MonoBehaviour
         overheatActive = false;
     }
 
-    /// <summary>v6.1: ìµœëŒ€HP íŒ¨ì‹œë¸Œ ê¸°ì—¬ ì ìš©/íšŒìˆ˜ (ìŠ¬ë¡¯ë‹¹ 1íšŒ, ë ˆë²¨ ë¬´ê´€ - ì„¤ëª… "+60"ê³¼ ê°™ì€ ê°’)</summary>
+    /// <summary>v6.1: ÃÖ´ëHP ÆĞ½Ãºê ±â¿© Àû¿ë/È¸¼ö (½½·Ô´ç 1È¸, ·¹º§ ¹«°ü - ¼³¸í "+60"°ú °°Àº °ª)</summary>
     private void ApplyMaxHPPassive(RecipeData r)
     {
         RemoveMaxHPPassive();
@@ -118,7 +118,7 @@ public class TurretSlot : MonoBehaviour
         float amount = r.passiveType == "omega" ? 120f : r.passiveValue;
         TrainManager tm = FindFirstObjectByType<TrainManager>();
         if (tm == null) return;
-        tm.AddMaxHP(amount, false);   // ìµœëŒ€ì¹˜ë§Œ - í˜„ì¬ HPëŠ” ê·¸ëŒ€ë¡œ (íšŒë³µ ë£¨í”„ ì°¨ë‹¨)
+        tm.AddMaxHP(amount, false);   // ÃÖ´ëÄ¡¸¸ - ÇöÀç HP´Â ±×´ë·Î (È¸º¹ ·çÇÁ Â÷´Ü)
         appliedMaxHP = amount;
     }
 
@@ -130,7 +130,7 @@ public class TurretSlot : MonoBehaviour
         appliedMaxHP = 0f;
     }
 
-    // í˜„ì¬ íˆ¬ì…ëœ ë ˆì‹œí”¼ ë°ì´í„° (ì—†ìœ¼ë©´ null)
+    // ÇöÀç ÅõÀÔµÈ ·¹½ÃÇÇ µ¥ÀÌÅÍ (¾øÀ¸¸é null)
     public RecipeData Recipe
     {
         get { return string.IsNullOrEmpty(recipeId) ? null : RecipeDatabase.Get(recipeId); }
@@ -138,13 +138,13 @@ public class TurretSlot : MonoBehaviour
 
     public bool IsEmpty { get { return string.IsNullOrEmpty(recipeId); } }
 
-    // ë ˆë²¨ ë°°ìœ¨: 1 + 0.6 * (Lv-1)  (í”„ë¡œí† íƒ€ì… v3 ê²€ì¦ê°’)
+    // ·¹º§ ¹èÀ²: 1 + 0.6 * (Lv-1)  (ÇÁ·ÎÅäÅ¸ÀÔ v3 °ËÁõ°ª)
     public float LevelMult
     {
         get { return level <= 0 ? 1f : 1f + 0.6f * (level - 1); }
     }
 
-    // ë“±ê¸‰ ë¬¸ìì—´ (UIìš©)
+    // µî±Ş ¹®ÀÚ¿­ (UI¿ë)
     public string GradeName
     {
         get
@@ -156,50 +156,50 @@ public class TurretSlot : MonoBehaviour
         }
     }
 
-    /// <summary>ìš”ë¦¬ íˆ¬ì… ì‹œë„. ì„±ê³µí•˜ë©´ true</summary>
+    /// <summary>¿ä¸® ÅõÀÔ ½Ãµµ. ¼º°øÇÏ¸é true</summary>
     public bool TryInsertFood(string id)
     {
-        // ì ê¸ˆ ìŠ¬ë¡¯ì—ëŠ” íˆ¬ì… ë¶ˆê°€
+        // Àá±İ ½½·Ô¿¡´Â ÅõÀÔ ºÒ°¡
         if (isLocked)
         {
-            Debug.Log("[TurretSlot] ì ê¸´ ìŠ¬ë¡¯ - ì¦ê°• 'ì¦ì¶•ëœ ì£¼ë°© ì¹¸'ìœ¼ë¡œ í•´ê¸ˆ í•„ìš”");
+            Debug.Log("[TurretSlot] Àá±ä ½½·Ô - Áõ°­ 'ÁõÃàµÈ ÁÖ¹æ Ä­'À¸·Î ÇØ±İ ÇÊ¿ä");
             return false;
         }
 
-        // ë¹ˆ ìŠ¬ë¡¯ì´ê±°ë‚˜ ê°™ì€ ìš”ë¦¬ë§Œ ê°€ëŠ¥
+        // ºó ½½·ÔÀÌ°Å³ª °°Àº ¿ä¸®¸¸ °¡´É
         if (!IsEmpty && recipeId != id) return false;
 
         RecipeData r = RecipeDatabase.Get(id);
         if (r == null) return false;
 
-        bool wasEmpty = IsEmpty;   // P1+: ìƒˆ í¬íƒ‘ íƒ„ìƒì¸ì§€ (ë ˆë²¨ì—… íˆ¬ì…ê³¼ êµ¬ë¶„)
+        bool wasEmpty = IsEmpty;   // P1+: »õ Æ÷Å¾ Åº»ıÀÎÁö (·¹º§¾÷ ÅõÀÔ°ú ±¸ºĞ)
 
         recipeId = id;
         level += 1;
 
-        // P1+: ìš”ë¦¬ ìˆ™ë ¨ 'ì¥ì¸ì˜ ê°ê°'(50íšŒ) - ë¹ˆ ìŠ¬ë¡¯ì— ìƒˆë¡œ ë°°ì¹˜í•  ë•Œ ì‹œì‘ ë ˆë²¨ +1
+        // P1+: ¿ä¸® ¼÷·Ã 'ÀåÀÎÀÇ °¨°¢'(50È¸) - ºó ½½·Ô¿¡ »õ·Î ¹èÄ¡ÇÒ ¶§ ½ÃÀÛ ·¹º§ +1
         if (wasEmpty && MetaProgress.GetMasteryTier(id) >= GameBalance.MasteryStartLevelTier)
         {
             level += 1;
-            Debug.Log("[TurretSlot] ì¥ì¸ì˜ ê°ê° - " + r.displayName + " ì‹œì‘ Lv" + level);
+            Debug.Log("[TurretSlot] ÀåÀÎÀÇ °¨°¢ - " + r.displayName + " ½ÃÀÛ Lv" + level);
         }
 
-        // Phase 2-3 ì¦ê°• 'ì„ ëŒ€ì˜ ê¸°ë³¸ê¸°': T1 ìƒˆ ë°°ì¹˜ ì‹œì‘ ë ˆë²¨ +1 (ìˆ™ë ¨ ë³´ë„ˆìŠ¤ì™€ ì¤‘ì²© ê°€ëŠ¥)
+        // Phase 2-3 Áõ°­ '¼±´ëÀÇ ±âº»±â': T1 »õ ¹èÄ¡ ½ÃÀÛ ·¹º§ +1 (¼÷·Ã º¸³Ê½º¿Í ÁßÃ¸ °¡´É)
         if (wasEmpty && AugmentManager.BasicsDoctrine && r.tier == 1)
         {
             level += 1;
-            Debug.Log("[TurretSlot] ì„ ëŒ€ì˜ ê¸°ë³¸ê¸° - " + r.displayName + " ì‹œì‘ Lv" + level);
+            Debug.Log("[TurretSlot] ¼±´ëÀÇ ±âº»±â - " + r.displayName + " ½ÃÀÛ Lv" + level);
         }
 
-        // ìµœëŒ€HPí˜• íŒ¨ì‹œë¸Œ: ìƒˆ í¬íƒ‘ì´ ìƒê¸¸ ë•Œ ìŠ¬ë¡¯ë‹¹ 1íšŒë§Œ (v6.1: ë ˆë²¨ì—… íˆ¬ì…ì€ ëˆ„ì í•˜ì§€ ì•ŠìŒ, ë¹„ìš¸ ë•Œ íšŒìˆ˜)
+        // ÃÖ´ëHPÇü ÆĞ½Ãºê: »õ Æ÷Å¾ÀÌ »ı±æ ¶§ ½½·Ô´ç 1È¸¸¸ (v6.1: ·¹º§¾÷ ÅõÀÔÀº ´©ÀûÇÏÁö ¾ÊÀ½, ºñ¿ï ¶§ È¸¼ö)
         if (wasEmpty) ApplyMaxHPPassive(r);
 
         LastInsertTime = Time.time;
-        Debug.Log("[TurretSlot] " + r.displayName + " íˆ¬ì…! " + GradeName + "ë“±ê¸‰ Lv" + level);
+        Debug.Log("[TurretSlot] " + r.displayName + " ÅõÀÔ! " + GradeName + "µî±Ş Lv" + level);
         return true;
     }
 
-    /// <summary>ìŠ¬ë¡¯ ë¹„ìš°ê¸° (í•©ì²´ ì¬ë£Œë¡œ ì†Œëª¨ - í™˜ê¸‰ ì—†ìŒ). v6.1: íŒ¨ì‹œë¸Œ íšŒìˆ˜ + ë§ˆë¹„ ìƒíƒœ ì´ˆê¸°í™”</summary>
+    /// <summary>½½·Ô ºñ¿ì±â (ÇÕÃ¼ Àç·á·Î ¼Ò¸ğ - È¯±Ş ¾øÀ½). v6.1: ÆĞ½Ãºê È¸¼ö + ¸¶ºñ »óÅÂ ÃÊ±âÈ­</summary>
     public void ClearSlot()
     {
         RemoveMaxHPPassive();
@@ -209,7 +209,7 @@ public class TurretSlot : MonoBehaviour
         ResetStunState();
     }
 
-    /// <summary>v6.1: ë¹ˆ ìŠ¬ë¡¯ì´ ë§ˆë¹„/ê³¼ì—´ ìƒíƒœë¥¼ ë¬¼ë ¤ë°›ì§€ ì•Šê²Œ</summary>
+    /// <summary>v6.1: ºó ½½·ÔÀÌ ¸¶ºñ/°ú¿­ »óÅÂ¸¦ ¹°·Á¹ŞÁö ¾Ê°Ô</summary>
     private void ResetStunState()
     {
         stunUntil = 0f;
@@ -218,7 +218,7 @@ public class TurretSlot : MonoBehaviour
         overheatThreshold = 0;
     }
 
-    /// <summary>í¬íƒ‘ ì§ì ‘ ì„¤ì • (í•©ì²´ ì§„í™” ê²°ê³¼ìš©). ìµœëŒ€HPí˜• íŒ¨ì‹œë¸ŒëŠ” 1íšŒ ì ìš©</summary>
+    /// <summary>Æ÷Å¾ Á÷Á¢ ¼³Á¤ (ÇÕÃ¼ ÁøÈ­ °á°ú¿ë). ÃÖ´ëHPÇü ÆĞ½Ãºê´Â 1È¸ Àû¿ë</summary>
     public void SetTurret(string id, int newLevel)
     {
         RecipeData r = RecipeDatabase.Get(id);
@@ -228,20 +228,20 @@ public class TurretSlot : MonoBehaviour
         level = Mathf.Max(1, newLevel);
         cooldownTimer = 0f;
 
-        // v6.1: í•©ì²´ ê²°ê³¼ì˜ íŒ¨ì‹œë¸ŒëŠ” ì´ì „ ê¸°ì—¬ë¥¼ íšŒìˆ˜í•˜ê³  ìƒˆë¡œ 1íšŒ ì ìš© (ê°™ì€ ê°’ì´ë©´ ìˆœë³€í™” 0)
+        // v6.1: ÇÕÃ¼ °á°úÀÇ ÆĞ½Ãºê´Â ÀÌÀü ±â¿©¸¦ È¸¼öÇÏ°í »õ·Î 1È¸ Àû¿ë (°°Àº °ªÀÌ¸é ¼øº¯È­ 0)
         ApplyMaxHPPassive(r);
         LastInsertTime = Time.time;
 
-        Debug.Log("[TurretSlot] í•©ì²´ ê²°ê³¼: " + r.displayName + " " + GradeName + "ë“±ê¸‰ Lv" + level);
+        Debug.Log("[TurretSlot] ÇÕÃ¼ °á°ú: " + r.displayName + " " + GradeName + "µî±Ş Lv" + level);
     }
 
-    /// <summary>ìŠ¬ë¡¯ ë¹„ìš°ê¸° (íê¸°). ë°˜í™˜ê°’: í™˜ê¸‰ ì¬ë£Œ ìˆ˜</summary>
+    /// <summary>½½·Ô ºñ¿ì±â (Æó±â). ¹İÈ¯°ª: È¯±Ş Àç·á ¼ö</summary>
     public int Scrap()
     {
         if (IsEmpty) return 0;
         int refund = Mathf.Max(1, level);
-        Debug.Log("[TurretSlot] " + Recipe.displayName + " íê¸°, ì¬ë£Œ " + refund + "ê°œ í™˜ê¸‰");
-        RemoveMaxHPPassive();   // v6.1: ìµœëŒ€HP íŒ¨ì‹œë¸Œ íšŒìˆ˜
+        Debug.Log("[TurretSlot] " + Recipe.displayName + " Æó±â, Àç·á " + refund + "°³ È¯±Ş");
+        RemoveMaxHPPassive();   // v6.1: ÃÖ´ëHP ÆĞ½Ãºê È¸¼ö
         recipeId = "";
         level = 0;
         cooldownTimer = 0f;
@@ -249,33 +249,33 @@ public class TurretSlot : MonoBehaviour
         return refund;
     }
 
-    /// <summary>ë§¤ í”„ë ˆì„ ë°œì‚¬ ì²˜ë¦¬ (TurretSlotManagerê°€ í˜¸ì¶œ)</summary>
+    /// <summary>¸Å ÇÁ·¹ÀÓ ¹ß»ç Ã³¸® (TurretSlotManager°¡ È£Ãâ)</summary>
     public void TickFire(float deltaTime, float buffAttackSpeed, float buffDamage)
     {
         if (isLocked) return;
-        // v6.1 (B1): ê³¼ì—´ì´ ìë™ ë³µêµ¬ ì‹œê°„ìœ¼ë¡œ í’€ë ¸ìœ¼ë©´ ìˆ˜ë™ ëƒ‰ê°ê³¼ ê°™ì€ ë§ˆë¬´ë¦¬ (ë©´ì—­ + ì¹´ìš´í„° ë¦¬ì…‹)
-        if (overheatActive && !IsStunned && StunKind == "ê³¼ì—´")
+        // v6.1 (B1): °ú¿­ÀÌ ÀÚµ¿ º¹±¸ ½Ã°£À¸·Î Ç®·ÈÀ¸¸é ¼öµ¿ ³Ã°¢°ú °°Àº ¸¶¹«¸® (¸é¿ª + Ä«¿îÅÍ ¸®¼Â)
+        if (overheatActive && !IsStunned && StunKind == "°ú¿­")
         {
             FinishOverheat();
-            UIManager.Instance?.ShowStatChange("í¬íƒ‘ì´ ì‹ì—ˆë‹¤ - ë‹¤ì‹œ ê°€ë™");
+            UIManager.Instance?.ShowStatChange("Æ÷Å¾ÀÌ ½Ä¾ú´Ù - ´Ù½Ã °¡µ¿");
         }
-        // v6.2: ê³¼ì—´ë¡œ ë©ˆì¶° ìˆëŠ” ì „íˆ¬ ì‹œê°„ ëˆ„ì  (ê´€ì°° ì‹œíŠ¸ "ê³¼ì—´ë‹¹ ì •ì§€ ì‹œê°„" - ì—¬ê¸°ì„œë§Œ ì¬ë¯€ë¡œ ëƒ‰ê° ë°©ì‹ê³¼ ë¬´ê´€)
-        if (IsStunned && StunKind == "ê³¼ì—´") OverheatStunSecThisRun += deltaTime;
-        if (IsStunned) return;   // v3: ë‚™ë¢° ë§ˆë¹„ ì¤‘ ë°œì‚¬ ì •ì§€
+        // v6.2: °ú¿­·Î ¸ØÃç ÀÖ´Â ÀüÅõ ½Ã°£ ´©Àû (°üÂû ½ÃÆ® "°ú¿­´ç Á¤Áö ½Ã°£" - ¿©±â¼­¸¸ Àç¹Ç·Î ³Ã°¢ ¹æ½Ä°ú ¹«°ü)
+        if (IsStunned && StunKind == "°ú¿­") OverheatStunSecThisRun += deltaTime;
+        if (IsStunned) return;   // v3: ³«·Ú ¸¶ºñ Áß ¹ß»ç Á¤Áö
         RecipeData r = Recipe;
         if (r == null) return;
         if (r.shape == AttackShape.Passive || r.shape == AttackShape.Aura) return;
-        if (!string.IsNullOrEmpty(r.buffType)) return; // ë²„í”„í˜•ì€ ë°œì‚¬ ì•ˆ í•¨
+        if (!string.IsNullOrEmpty(r.buffType)) return; // ¹öÇÁÇüÀº ¹ß»ç ¾È ÇÔ
 
         cooldownTimer -= deltaTime;
         if (cooldownTimer > 0f) return;
 
-        // ê°€ì¥ ê°€ê¹Œìš´ ì  íƒìƒ‰
+        // °¡Àå °¡±î¿î Àû Å½»ö
         Enemy target = FindNearestEnemy();
         if (target == null) return;
 
-        // ì¿¨ë‹¤ìš´ ë¦¬ì…‹ (ì¸ì ‘ ë²„í”„ + ì¦ê°• ê³µì† ë°˜ì˜)
-        // Phase 2-2 ì¦ê°• 'ìµœí›„ì˜ ë§Œì°¬': ê¸°ì°¨ ì €ì²´ë ¥ì´ë©´ ê³µì† ìƒìŠ¹ (ë°°ìˆ˜ì§„ì˜ í™”ë ¥)
+        // Äğ´Ù¿î ¸®¼Â (ÀÎÁ¢ ¹öÇÁ + Áõ°­ °ø¼Ó ¹İ¿µ)
+        // Phase 2-2 Áõ°­ 'ÃÖÈÄÀÇ ¸¸Âù': ±âÂ÷ ÀúÃ¼·ÂÀÌ¸é °ø¼Ó »ó½Â (¹è¼öÁøÀÇ È­·Â)
         float rushMul = 1f;
         if (AugmentManager.LastSupperRush && TrainManager.Instance != null
             && TrainManager.Instance.HPRatio <= GameBalance.LastSupperHPRatio)
@@ -283,24 +283,24 @@ public class TurretSlot : MonoBehaviour
 
         cooldownTimer = r.cooldown / ((1f + buffAttackSpeed) * AugmentManager.AspdMul * rushMul);
 
-        // ìµœì¢… ë°ë¯¸ì§€ = ê¸°ë³¸ x ë ˆë²¨ë°°ìœ¨ x (1+ë²„í”„)
-        // (ì „ì—­ ë°°ìœ¨/ì¦ê°• ë°ë¯¸ì§€ëŠ” TurretAttackExecutor.DealDamageì—ì„œ ì ìš©)
+        // ÃÖÁ¾ µ¥¹ÌÁö = ±âº» x ·¹º§¹èÀ² x (1+¹öÇÁ)
+        // (Àü¿ª ¹èÀ²/Áõ°­ µ¥¹ÌÁö´Â TurretAttackExecutor.DealDamage¿¡¼­ Àû¿ë)
         float finalDamage = r.damage * LevelMult * (1f + buffDamage);
 
         Vector3 origin = firePoint != null ? firePoint.position : transform.position;
         TurretAttackExecutor.Execute(r, origin, target, finalDamage);
-        lastTarget = target;   // v5: í¬ì‹ ì´ ì´ìª½ì„ í–¥í•œë‹¤
+        lastTarget = target;   // v5: Æ÷½ÅÀÌ ÀÌÂÊÀ» ÇâÇÑ´Ù
 
-        // â”€â”€ B-2 ê³¼ì—´: ì‰¬ì§€ ì•Šê³  ë¶ˆì„ ë¿œìœ¼ë©´ ì‡³ë¬¼ë„ ì§€ì¹œë‹¤ â”€â”€
-        // ì„ê³„ëŠ” í¬íƒ‘ë§ˆë‹¤ ëœë¤ + ë ˆë²¨ ë†’ì„ìˆ˜ë¡ ë¹¨ë¦¬ (ìºë¦¬ í¬íƒ‘ì¼ìˆ˜ë¡ ì†ì´ ê°„ë‹¤)
-        // ë¹ˆë„ ì œì–´: ê¸°ì°¨ ì „ì²´ ìµœì†Œ ê°„ê²© + ë‹¤ë¥¸ ë§ˆë¹„ì™€ ë™ì‹œ ë°œìƒ ê¸ˆì§€ (í—Œë²•: ë™ì‹œ ìœ„ê¸° 1)
+        // ¦¡¦¡ B-2 °ú¿­: ½¬Áö ¾Ê°í ºÒÀ» »ÕÀ¸¸é ¼í¹°µµ ÁöÄ£´Ù ¦¡¦¡
+        // ÀÓ°è´Â Æ÷Å¾¸¶´Ù ·£´ı + ·¹º§ ³ôÀ»¼ö·Ï »¡¸® (Ä³¸® Æ÷Å¾ÀÏ¼ö·Ï ¼ÕÀÌ °£´Ù)
+        // ºóµµ Á¦¾î: ±âÂ÷ ÀüÃ¼ ÃÖ¼Ò °£°İ + ´Ù¸¥ ¸¶ºñ¿Í µ¿½Ã ¹ß»ı ±İÁö (Çå¹ı: µ¿½Ã À§±â 1)
         if (GameBalance.OverheatEnabled)
         {
             if (overheatThreshold <= 0)
             {
                 int rolled = Random.Range(GameBalance.OverheatShotsMin, GameBalance.OverheatShotsMax + 1)
                     - (level - 1) * GameBalance.OverheatPerLevel;
-                // v6.1 (B2 ì‹¤í—˜): ë°œì‚¬ ê°„ê²©ìœ¼ë¡œ ë³´ì •í•˜ë©´ ì—°ì‚¬ í¬íƒ‘ê³¼ ì¤‘í¬ì˜ "ì‹œê°„ë‹¹" ê³¼ì—´ ë¹ˆë„ê°€ ê°™ì•„ì§„ë‹¤
+                // v6.1 (B2 ½ÇÇè): ¹ß»ç °£°İÀ¸·Î º¸Á¤ÇÏ¸é ¿¬»ç Æ÷Å¾°ú ÁßÆ÷ÀÇ "½Ã°£´ç" °ú¿­ ºóµµ°¡ °°¾ÆÁø´Ù
                 if (GameBalance.OverheatTimeNormalized && r.cooldown > 0f)
                     rolled = Mathf.RoundToInt(rolled * Mathf.Clamp(1f / r.cooldown, 0.5f, 3f));
                 overheatThreshold = Mathf.Max(10, rolled);
@@ -314,17 +314,17 @@ public class TurretSlot : MonoBehaviour
             {
                 TurretSlotManager.Instance.NoteOverheat();
                 overheatActive = true;
-                OverheatsThisRun++;   // v6.2: ëŸ° í†µê³„
-                // v6.1 (B1 ì‹¤í—˜): ìë™ ë³µêµ¬ ì‹œê°„ì´ ì„¤ì •ë¼ ìˆìœ¼ë©´ ê·¸ ì‹œê°„ ë’¤ ìŠ¤ìŠ¤ë¡œ ì‹ëŠ”ë‹¤ ([E] ëƒ‰ê°ì€ ì¦‰ì‹œ)
+                OverheatsThisRun++;   // v6.2: ·± Åë°è
+                // v6.1 (B1 ½ÇÇè): ÀÚµ¿ º¹±¸ ½Ã°£ÀÌ ¼³Á¤µÅ ÀÖÀ¸¸é ±× ½Ã°£ µÚ ½º½º·Î ½Ä´Â´Ù ([E] ³Ã°¢Àº Áï½Ã)
                 float dur = GameBalance.OverheatAutoRecoverSec > 0f ? GameBalance.OverheatAutoRecoverSec : 9999f;
-                StunSlot(dur, "ê³¼ì—´");
-                SoundManager.Play("sfx_overheat");   // í´ë¦½ ì—†ìœ¼ë©´ ë¬´ì‹œ
+                StunSlot(dur, "°ú¿­");
+                SoundManager.Play("sfx_overheat");   // Å¬¸³ ¾øÀ¸¸é ¹«½Ã
                 if (GameBalance.OverheatAutoRecoverSec > 0f)
-                    UIManager.Instance?.ShowDanger("í¬íƒ‘ ê³¼ì—´! [E]ë¡œ ì‹íˆë©´ ë°”ë¡œ ë³µê·€ (" + Mathf.RoundToInt(GameBalance.OverheatAutoRecoverSec) + "ì´ˆ ë’¤ ìë™ ë³µêµ¬)");
+                    UIManager.Instance?.ShowDanger("Æ÷Å¾ °ú¿­! [E]·Î ½ÄÈ÷¸é ¹Ù·Î º¹±Í (" + Mathf.RoundToInt(GameBalance.OverheatAutoRecoverSec) + "ÃÊ µÚ ÀÚµ¿ º¹±¸)");
                 else
-                    UIManager.Instance?.ShowDanger("í¬íƒ‘ ê³¼ì—´! ë‹¬ë ¤ê°€ì„œ [E]ë¥¼ ê¾¹ ëˆŒëŸ¬ ì‹í˜€ë¼!");
+                    UIManager.Instance?.ShowDanger("Æ÷Å¾ °ú¿­! ´Ş·Á°¡¼­ [E]¸¦ ²Ú ´­·¯ ½ÄÇô¶ó!");
                 Debug.Log("[TurretSlot] " + (Recipe != null ? Recipe.displayName : "?")
-                    + " ê³¼ì—´ (ì‚¬ê²© " + shotsSinceCool + "ë°œ)");
+                    + " °ú¿­ (»ç°İ " + shotsSinceCool + "¹ß)");
             }
         }
     }
@@ -333,13 +333,13 @@ public class TurretSlot : MonoBehaviour
     {
         Enemy[] all = FindObjectsByType<Enemy>(FindObjectsSortMode.None);
         Enemy best = null;
-        // ì¦ê°• ì‚¬ê±°ë¦¬ ë°°ìœ¨ ë°˜ì˜
-        // í”Œë ˆì´í…ŒìŠ¤íŠ¸ í”½ìŠ¤: ì‚¬ê±°ë¦¬ëŠ” GameBalance.TurretRangeê°€ ë‹¨ì¼ ì†ŒìŠ¤ (êµ¬ 15ëŠ” 4ì¹¸
-        // ê¸°ì°¨ì—ì„œ ë°˜ëŒ€í¸ì„ ë¬´ëŠ” ì ì´ ì‚¬ê°ì— ë“¤ì–´ê°”ë‹¤ - targetRange í•„ë“œëŠ” ë¬´ì‹œ)
+        // Áõ°­ »ç°Å¸® ¹èÀ² ¹İ¿µ
+        // ÇÃ·¹ÀÌÅ×½ºÆ® ÇÈ½º: »ç°Å¸®´Â GameBalance.TurretRange°¡ ´ÜÀÏ ¼Ò½º (±¸ 15´Â 4Ä­
+        // ±âÂ÷¿¡¼­ ¹İ´ëÆíÀ» ¹«´Â ÀûÀÌ »ç°¢¿¡ µé¾î°¬´Ù - targetRange ÇÊµå´Â ¹«½Ã)
         float range = GameBalance.TurretRange * AugmentManager.RangeMul;
 
-        // v6.1 (B5 ì‹¤í—˜): íëŸ¬(ë„¤í¬ë¡œ)Â·ì„œí¬í„°(íŒŒë¼ì‚¬ìš°)Â·ìí­(í”Œë¼ì´)ì´ ì‚¬ê±°ë¦¬ ì•ˆì— ìˆìœ¼ë©´ ë¨¼ì € ë…¸ë¦°ë‹¤
-        // - "íëŸ¬ë¶€í„° ì¡ì•„ë¼"ê°€ ì„¤ëª…ì´ ì•„ë‹ˆë¼ ì‹¤ì œ ì¡°ì‘ ê²°ê³¼ê°€ ë˜ê²Œ. ê·¸ ë°–ì˜ í‘œì ì€ ìµœê·¼ì ‘
+        // v6.1 (B5 ½ÇÇè): Èú·¯(³×Å©·Î)¡¤¼­Æ÷ÅÍ(ÆÄ¶ó»ç¿ì)¡¤ÀÚÆø(ÇÃ¶óÀÌ)ÀÌ »ç°Å¸® ¾È¿¡ ÀÖÀ¸¸é ¸ÕÀú ³ë¸°´Ù
+        // - "Èú·¯ºÎÅÍ Àâ¾Æ¶ó"°¡ ¼³¸íÀÌ ¾Æ´Ï¶ó ½ÇÁ¦ Á¶ÀÛ °á°ú°¡ µÇ°Ô. ±× ¹ÛÀÇ Ç¥ÀûÀº ÃÖ±ÙÁ¢
         if (GameBalance.TargetPriorityEnabled)
         {
             float pDist = range;
@@ -366,39 +366,47 @@ public class TurretSlot : MonoBehaviour
     }
 
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    //  v5: í¬íƒ‘ ì‹¤ë¬¼ ë¹„ì£¼ì–¼ (íƒ‘ë·° ë„íŠ¸ - ëª©ì—… v2 turret() ì¢Œí‘œë¥¼ ì˜®ê¹€)
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    /// <summary>í¬íƒ‘ ë„íŠ¸ ë°°ìœ¨ (ê¸°ì°¨ 20ë³´ë‹¤ ì´˜ì´˜í•˜ê²Œ - ì‘ì€ ë¬¼ê±´ì´ë¼ ë””í…Œì¼ í™•ë³´)</summary>
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    //  v5: Æ÷Å¾ ½Ç¹° ºñÁÖ¾ó (Å¾ºä µµÆ® - ¸ñ¾÷ v2 turret() ÁÂÇ¥¸¦ ¿Å±è)
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    /// <summary>Æ÷Å¾ µµÆ® ¹èÀ² (±âÂ÷ 20º¸´Ù ÃÎÃÎÇÏ°Ô - ÀÛÀº ¹°°ÇÀÌ¶ó µğÅ×ÀÏ È®º¸)</summary>
     private const float TURRET_PPU = 32f;
-    private const int SORT_BASE = -3;      // ë°í¬(-6~-4) ìœ„
+    private const int SORT_BASE = -3;      // µ¥Å©(-6~-4) À§
     private const int SORT_BARREL = -2;
-    private const int SORT_DOME = -1;      // ì…°í”„/ì (0+) ì•„ë˜
+    private const int SORT_DOME = -1;      // ¼ÎÇÁ/Àû(0+) ¾Æ·¡
 
-    private static Sprite baseSprite;      // ë² ì´ìŠ¤ ë§ (ê³µìš© ìºì‹œ)
-    private static Sprite pinSprite;       // ë¹ˆ ìŠ¬ë¡¯ í˜ê·¸ (ê³µìš© ìºì‹œ)
-    private static Sprite barrelSprite;    // ë‹¨ì¼ í¬ì‹ 
-    private static Sprite barrelSprite2;   // 2í‹°ì–´: 2ì—°ì¥ í¬ì‹ 
+    private static Sprite baseSprite;      // º£ÀÌ½º ¸µ (°ø¿ë Ä³½Ã)
+    private static Sprite pinSprite;       // ºó ½½·Ô Æä±× (°ø¿ë Ä³½Ã)
+    private static Sprite barrelSprite;    // ´ÜÀÏ Æ÷½Å
+    private static Sprite barrelSprite2;   // 2Æ¼¾î: 2¿¬Àå Æ÷½Å
 
-    private Transform visualRoot;          // ìƒíƒœê°€ ë°”ë€Œë©´ í†µì§¸ë¡œ ë‹¤ì‹œ ê·¸ë¦°ë‹¤
-    private Transform barrelPivot;         // íšŒì „í•˜ëŠ” í¬ì‹ 
-    private SpriteRenderer bodySr;         // ë” ë Œë”ëŸ¬ (ë§ˆë¹„ í‹´íŠ¸ìš©)
-    private string vRecipeId = null;       // ë§ˆì§€ë§‰ìœ¼ë¡œ ê·¸ë¦° ìƒíƒœ ìºì‹œ
+    private Transform visualRoot;          // »óÅÂ°¡ ¹Ù²î¸é ÅëÂ°·Î ´Ù½Ã ±×¸°´Ù
+    private Transform barrelPivot;         // È¸ÀüÇÏ´Â Æ÷½Å
+    private SpriteRenderer bodySr;         // µ¼ ·»´õ·¯ (¸¶ºñ Æ¾Æ®¿ë)
+
+    // v6.4: ¸¶ºñ FX (½½·Ô ÀÚ½Ä - visualRoot ´Â »óÅÂ º¯È­¸¶´Ù ´Ù½Ã ±×·ÁÁö¹Ç·Î µû·Î µĞ´Ù)
+    private Transform stunFxRoot;
+    private SpriteRenderer[] stunFxSr;
+    private float stunFxNext = 0f;
+    private int stunFxFrame = 0;
+    private string stunFxKind = "";
+    private static readonly Vector2[] STUN_FX_OFFSETS = { new Vector2(-0.5f, 0.3f), new Vector2(0.5f, 0.5f), new Vector2(0.05f, 0.85f) };
+    private string vRecipeId = null;       // ¸¶Áö¸·À¸·Î ±×¸° »óÅÂ Ä³½Ã
     private int vLevel = -1;
     private bool vLocked = false;
-    private Enemy lastTarget;              // í¬ì‹ ì´ í–¥í•  í‘œì 
-    private float barrelAngle = 90f;       // í˜„ì¬ í¬ì‹  ê°ë„ (0=ë™, 90=ë¶)
-    private float idlePhase;               // ìŠ¬ë¡¯ë§ˆë‹¤ ë‹¤ë¥¸ í”ë“¤ë¦¼ ìœ„ìƒ
+    private Enemy lastTarget;              // Æ÷½ÅÀÌ ÇâÇÒ Ç¥Àû
+    private float barrelAngle = 90f;       // ÇöÀç Æ÷½Å °¢µµ (0=µ¿, 90=ºÏ)
+    private float idlePhase;               // ½½·Ô¸¶´Ù ´Ù¸¥ Èçµé¸² À§»ó
 
     private void Awake()
     {
         idlePhase = Random.Range(0f, 6.28f);
-        // v6.3: ì„€ì‹œ(ë‚¨ìª½) ìŠ¬ë¡¯ì€ í¬ì‹ ì´ ê¸°ë³¸ìœ¼ë¡œ ë‚¨ìª½ì„ ë³¸ë‹¤ (í‘œì ì´ ì—†ì„ ë•Œ ì§€ë¶• ìª½ì„ ê²¨ëˆ„ì§€ ì•Šê²Œ)
+        // v6.3: ¼¨½Ã(³²ÂÊ) ½½·ÔÀº Æ÷½ÅÀÌ ±âº»À¸·Î ³²ÂÊÀ» º»´Ù (Ç¥ÀûÀÌ ¾øÀ» ¶§ ÁöºØ ÂÊÀ» °Ü´©Áö ¾Ê°Ô)
         if (transform.position.y < 0f) { idleBase = -90f; barrelAngle = -90f; }
         RebuildVisual();
     }
 
-    private float idleBase = 90f;          // v6.3: í‘œì  ì—†ì„ ë•Œ í¬ì‹ ì´ í–¥í•˜ëŠ” ê¸°ë³¸ ê°ë„ (ë¶ìª½ ìŠ¬ë¡¯ 90 / ë‚¨ìª½ ìŠ¬ë¡¯ -90)
+    private float idleBase = 90f;          // v6.3: Ç¥Àû ¾øÀ» ¶§ Æ÷½ÅÀÌ ÇâÇÏ´Â ±âº» °¢µµ (ºÏÂÊ ½½·Ô 90 / ³²ÂÊ ½½·Ô -90)
 
     private void Update()
     {
@@ -408,27 +416,83 @@ public class TurretSlot : MonoBehaviour
             return;
         }
 
-        // ìƒíƒœ(ìš”ë¦¬/ë ˆë²¨/ì ê¸ˆ)ê°€ ë°”ë€ í”„ë ˆì„ì—ë§Œ ë‹¤ì‹œ ê·¸ë¦°ë‹¤
+        // »óÅÂ(¿ä¸®/·¹º§/Àá±İ)°¡ ¹Ù²ï ÇÁ·¹ÀÓ¿¡¸¸ ´Ù½Ã ±×¸°´Ù
         if (recipeId != vRecipeId || level != vLevel || isLocked != vLocked)
             RebuildVisual();
 
-        // ë§ˆë¹„ í‹´íŠ¸: ê³¼ì—´=ë‹¬ì•„ì˜¤ë¦„ / ë¹™ê²°=ì„œë¦¬ / ë§ˆë¹„=ìŠ¤íŒŒí¬ìƒ‰ (í•´ì œë˜ë©´ êµ¬ë¦¬ë¡œ ë³µê·€)
+        // ¸¶ºñ Æ¾Æ®: °ú¿­=´Ş¾Æ¿À¸§ / ºù°á=¼­¸® / ¸¶ºñ=½ºÆÄÅ©»ö (ÇØÁ¦µÇ¸é ±¸¸®·Î º¹±Í)
         if (bodySr != null)
         {
             Color c = Color.white;
             if (IsStunned)
             {
-                if (StunKind == "ê³¼ì—´") c = Color.Lerp(c, new Color(1f, 0.25f, 0.1f), 0.75f);
-                else if (StunKind == "ë¹™ê²°") c = Color.Lerp(c, new Color(0.5f, 0.8f, 1f), 0.65f);
+                if (StunKind == "°ú¿­") c = Color.Lerp(c, new Color(1f, 0.25f, 0.1f), 0.75f);
+                else if (StunKind == "ºù°á") c = Color.Lerp(c, new Color(0.5f, 0.8f, 1f), 0.65f);
                 else c = Color.Lerp(c, new Color(1f, 0.95f, 0.3f), 0.5f);
             }
             bodySr.color = c;
         }
 
         TickBarrel();
+        TickStunFx();
     }
 
-    /// <summary>í¬ì‹  íšŒì „: í‘œì ì´ ì‚´ì•„ ìˆìœ¼ë©´ ì¡°ì¤€, ì—†ìœ¼ë©´ ë¶ìª½ì„ ë³´ë©° ì²œì²œíˆ í”ë“¤ë¦¼</summary>
+    /// <summary>
+    /// v6.4: ¸¶ºñ Ç¥½Ã - °¨Àü/ºù°áÀº Æ÷Å¾ À§ ½ºÆÄÅ© 3Á¡ÀÌ 0.15ÃÊ¸¶´Ù ±³´ë(unscaled - ½Ã°£ Á¤Áö Ä«µå À§¿¡¼­µµ), °ú¿­Àº ¿¬±â.
+    /// ½ºÇÁ¶óÀÌÆ®(ui_ev_spark_0/1, ui_ev_smoke_0/1)°¡ ¾øÀ¸¸é Æ¾Æ®¸¸. Á¤½Ä ·± ³«·Ú¡¤ºù°á¡¤°ú¿­°ú °ß½À 7´Ü°è°¡ °°Àº Ç¥½Ã¸¦ ¾´´Ù.
+    /// </summary>
+    private void TickStunFx()
+    {
+        bool on = GameBalance.TurretStunFx && IsStunned && !isLocked && !IsEmpty;
+        if (!on)
+        {
+            if (stunFxRoot != null && stunFxRoot.gameObject.activeSelf) stunFxRoot.gameObject.SetActive(false);
+            return;
+        }
+        string kind = StunKind == "°ú¿­" ? "smoke" : "spark";
+        if (stunFxRoot == null || stunFxKind != kind)
+        {
+            if (stunFxRoot != null) Destroy(stunFxRoot.gameObject);
+            Sprite a = SpriteBank.Get("ui_ev_" + kind + "_0"), b = SpriteBank.Get("ui_ev_" + kind + "_1");
+            if (a == null || b == null) { stunFxKind = kind; return; }
+            stunFxKind = kind;
+            GameObject root = new GameObject("StunFX");
+            root.transform.SetParent(transform, false);
+            stunFxRoot = root.transform;
+            stunFxSr = new SpriteRenderer[STUN_FX_OFFSETS.Length];
+            for (int i = 0; i < STUN_FX_OFFSETS.Length; i++)
+            {
+                GameObject g = new GameObject("Fx" + i);
+                g.transform.SetParent(root.transform, false);
+                g.transform.localPosition = new Vector3(STUN_FX_OFFSETS[i].x, STUN_FX_OFFSETS[i].y, -0.01f);
+                g.transform.localScale = new Vector3(2f, 2f, 1f);           // UI ½ºÇÁ¶óÀÌÆ®(PPU 100) 32px = 0.32u -> 2¹è
+                SpriteRenderer sr = g.AddComponent<SpriteRenderer>();
+                sr.sprite = (i % 2 == 0) ? a : b;
+                sr.sortingOrder = SORT_DOME + 1;
+                stunFxSr[i] = sr;
+            }
+        }
+        if (stunFxRoot == null) return;
+        if (!stunFxRoot.gameObject.activeSelf) stunFxRoot.gameObject.SetActive(true);
+        Color tint = StunKind == "ºù°á" ? new Color(0.6f, 0.9f, 1f, 1f) : Color.white;
+        if (Time.unscaledTime >= stunFxNext)
+        {
+            stunFxNext = Time.unscaledTime + 0.15f;
+            stunFxFrame++;
+            Sprite a = SpriteBank.Get("ui_ev_" + stunFxKind + "_0"), b = SpriteBank.Get("ui_ev_" + stunFxKind + "_1");
+            for (int i = 0; i < stunFxSr.Length; i++)
+            {
+                if (stunFxSr[i] == null) continue;
+                stunFxSr[i].sprite = ((i + stunFxFrame) % 2 == 0) ? a : b;
+                stunFxSr[i].color = tint;
+                // »ìÂ¦ ÀÚ¸®¸¦ ¹Ù²ã "Æ¢´Â" ´À³¦ (°ú¿­ ¿¬±â´Â À§·Î Èçµé)
+                float jx = ((stunFxFrame + i) % 3 - 1) * 0.06f, jy = stunFxKind == "smoke" ? (stunFxFrame % 2) * 0.08f : ((stunFxFrame + i) % 2) * 0.05f;
+                stunFxSr[i].transform.localPosition = new Vector3(STUN_FX_OFFSETS[i].x + jx, STUN_FX_OFFSETS[i].y + jy, -0.01f);
+            }
+        }
+    }
+
+    /// <summary>Æ÷½Å È¸Àü: Ç¥ÀûÀÌ »ì¾Æ ÀÖÀ¸¸é Á¶ÁØ, ¾øÀ¸¸é ºÏÂÊÀ» º¸¸ç ÃµÃµÈ÷ Èçµé¸²</summary>
     private void TickBarrel()
     {
         if (barrelPivot == null) return;
@@ -441,15 +505,15 @@ public class TurretSlot : MonoBehaviour
         else
         {
             lastTarget = null;
-            want = idleBase + Mathf.Sin(Time.time * 0.8f + idlePhase) * 22f;   // v6.3: ë‚¨ìª½ ìŠ¬ë¡¯ì€ -90 ê¸°ì¤€
+            want = idleBase + Mathf.Sin(Time.time * 0.8f + idlePhase) * 22f;   // v6.3: ³²ÂÊ ½½·ÔÀº -90 ±âÁØ
         }
-        // ë§ˆë¹„/ê³¼ì—´ ì¤‘ì—” í¬ì‹ ë„ êµ³ëŠ”ë‹¤ (ì •ì§€ ìƒíƒœê°€ ëˆˆì— ë³´ì´ê²Œ)
+        // ¸¶ºñ/°ú¿­ Áß¿£ Æ÷½Åµµ ±»´Â´Ù (Á¤Áö »óÅÂ°¡ ´«¿¡ º¸ÀÌ°Ô)
         float turnSpeed = IsStunned ? 0f : 420f;
         barrelAngle = Mathf.MoveTowardsAngle(barrelAngle, want, turnSpeed * Time.deltaTime);
         barrelPivot.localEulerAngles = new Vector3(0f, 0f, barrelAngle);
     }
 
-    /// <summary>í¬íƒ‘ ë¹„ì£¼ì–¼ì„ í˜„ ìƒíƒœì— ë§ê²Œ ë‹¤ì‹œ ê·¸ë¦°ë‹¤ (ì ê¸ˆ/ë¹ˆ ìŠ¬ë¡¯/ê°€ë™ ì¤‘)</summary>
+    /// <summary>Æ÷Å¾ ºñÁÖ¾óÀ» Çö »óÅÂ¿¡ ¸Â°Ô ´Ù½Ã ±×¸°´Ù (Àá±İ/ºó ½½·Ô/°¡µ¿ Áß)</summary>
     private void RebuildVisual()
     {
         vRecipeId = recipeId;
@@ -463,20 +527,20 @@ public class TurretSlot : MonoBehaviour
 
         GameObject rootGo = new GameObject("TurretVisual");
         visualRoot = rootGo.transform;
-        visualRoot.SetParent(transform, false);   // ìŠ¬ë¡¯(ì§€ë¶• ìë¦¬)ì„ ë”°ë¼ë‹¤ë‹Œë‹¤
+        visualRoot.SetParent(transform, false);   // ½½·Ô(ÁöºØ ÀÚ¸®)À» µû¶ó´Ù´Ñ´Ù
         visualRoot.localPosition = new Vector3(0f, -0.07f, 0f);
 
-        // ë² ì´ìŠ¤ ë§ì€ ì–´ëŠ ìƒíƒœì—ì„œë‚˜ (ì ê¸ˆì€ ì–´ë‘¡ê²Œ)
+        // º£ÀÌ½º ¸µÀº ¾î´À »óÅÂ¿¡¼­³ª (Àá±İÀº ¾îµÓ°Ô)
         SpriteRenderer baseSr = SpriteBank.Attach(visualRoot, "Base", "t_base", GetBaseSprite(), Vector3.zero, SORT_BASE);
         if (isLocked)
         {
-            baseSr.color = new Color(0.55f, 0.55f, 0.55f);   // ì ê¸ˆ ìŠ¬ë¡¯: ì–´ë‘ìš´ ë¹ˆ ë°›ì¹¨ (ë§ˆì»¤ ì¹©ì´ "ì ê¸ˆ" í‘œì‹œ)
+            baseSr.color = new Color(0.55f, 0.55f, 0.55f);   // Àá±İ ½½·Ô: ¾îµÎ¿î ºó ¹ŞÄ§ (¸¶Ä¿ Ä¨ÀÌ "Àá±İ" Ç¥½Ã)
             return;
         }
 
         if (IsEmpty)
         {
-            // ë¹ˆ ìŠ¬ë¡¯: êµ¬ë¦¬ í˜ê·¸ - "ì—¬ê¸° ìš”ë¦¬ë¥¼ ê½‚ì•„ë¼" ìë¦¬ í‘œì‹œ
+            // ºó ½½·Ô: ±¸¸® Æä±× - "¿©±â ¿ä¸®¸¦ ²È¾Æ¶ó" ÀÚ¸® Ç¥½Ã
             PixelPainter.Attach(visualRoot, "Pin", GetPinSprite(), Vector3.zero, SORT_DOME);
             return;
         }
@@ -484,11 +548,11 @@ public class TurretSlot : MonoBehaviour
         RecipeData r = Recipe;
         bool tier2 = r != null && r.tier >= 2;
 
-        // ë ˆë²¨ì´ ì˜¤ë¥¼ìˆ˜ë¡ ì¡°ê¸ˆì”© ì»¤ì§„ë‹¤ (C 1.0 ~ Sê¸‰ ì–¸ì €ë¦¬ 1.27)
+        // ·¹º§ÀÌ ¿À¸¦¼ö·Ï Á¶±İ¾¿ Ä¿Áø´Ù (C 1.0 ~ S±Ş ¾ğÀú¸® 1.27)
         float grow = Mathf.Min(1.27f, 1f + 0.09f * (level - 1));
         visualRoot.localScale = new Vector3(grow, grow, 1f);
 
-        // í¬ì‹  (íšŒì „ í”¼ë²—) - 2í‹°ì–´ëŠ” 2ì—°ì¥
+        // Æ÷½Å (È¸Àü ÇÇ¹ş) - 2Æ¼¾î´Â 2¿¬Àå
         GameObject pivotGo = new GameObject("BarrelPivot");
         barrelPivot = pivotGo.transform;
         barrelPivot.SetParent(visualRoot, false);
@@ -496,25 +560,25 @@ public class TurretSlot : MonoBehaviour
         SpriteBank.Attach(barrelPivot, "Barrel", tier2 ? "t_barrel2" : "t_barrel",
             tier2 ? GetBarrelSprite(true) : GetBarrelSprite(false), Vector3.zero, SORT_BARREL);
 
-        // êµ¬ë¦¬ ë” + ì†ì„± ì½”ì–´ ë¨í”„ + ë°œê´‘ ë§ (ë¨í”„ ìƒ‰ = ê³µëª… HUDì™€ ê°™ì€ ê¸°ì¤€)
+        // ±¸¸® µ¼ + ¼Ó¼º ÄÚ¾î ·¥ÇÁ + ¹ß±¤ ¸µ (·¥ÇÁ »ö = °ø¸í HUD¿Í °°Àº ±âÁØ)
         Sprite domePng = SpriteBank.Get("t_dome_" + TagKey(r));
         bodySr = PixelPainter.Attach(visualRoot, "Dome", domePng != null ? domePng : PaintDome(TagColor(r)), Vector3.zero, SORT_DOME);
     }
 
-    // â”€â”€ ë„íŠ¸ ê·¸ë¦¬ê¸° (ìº”ë²„ìŠ¤ 48x48, í¬íƒ‘ ì¤‘ì‹¬ = (24,26)) â”€â”€
+    // ¦¡¦¡ µµÆ® ±×¸®±â (Äµ¹ö½º 48x48, Æ÷Å¾ Áß½É = (24,26)) ¦¡¦¡
     private static Sprite GetBaseSprite()
     {
         if (baseSprite != null) return baseSprite;
         PixelPainter p = new PixelPainter(48, 48);
-        p.Shadow(15, 33, 33, 39);                                                   // ì§€ë¶• ê·¸ë¦¼ì
-        p.Ellipse(14, 18, 34, 37, PixelPainter.BLK, PixelPainter.BLK_O);            // ë² ì´ìŠ¤ ë§ (ê²€ì • ì„€ì‹œ)
-        p.Ellipse(14, 18, 34, 29, PixelPainter.BLK_L, PixelPainter.BLK_O);          // ë§ ìœ—ë©´
-        p.Ellipse(17, 20, 31, 26, PixelPainter.GREY, PixelPainter.CLEAR);           // ìœ—ë©´ ê´‘
-        for (int a = 0; a < 360; a += 45)                                           // ë³¼íŠ¸ 8ê°œ
+        p.Shadow(15, 33, 33, 39);                                                   // ÁöºØ ±×¸²ÀÚ
+        p.Ellipse(14, 18, 34, 37, PixelPainter.BLK, PixelPainter.BLK_O);            // º£ÀÌ½º ¸µ (°ËÁ¤ ¼¨½Ã)
+        p.Ellipse(14, 18, 34, 29, PixelPainter.BLK_L, PixelPainter.BLK_O);          // ¸µ À­¸é
+        p.Ellipse(17, 20, 31, 26, PixelPainter.GREY, PixelPainter.CLEAR);           // À­¸é ±¤
+        for (int a = 0; a < 360; a += 45)                                           // º¼Æ® 8°³
         {
             int bx = 24 + Mathf.RoundToInt(8f * Mathf.Cos(a * Mathf.Deg2Rad));
             int by = 24 + Mathf.RoundToInt(8f * Mathf.Sin(a * Mathf.Deg2Rad) * 0.8f);
-            p.Point(bx, by, PixelPainter.GOLD);                                      // ê¸ˆ ë³¼íŠ¸
+            p.Point(bx, by, PixelPainter.GOLD);                                      // ±İ º¼Æ®
         }
         baseSprite = p.Bake(TURRET_PPU, 24f, 26f);
         return baseSprite;
@@ -524,13 +588,13 @@ public class TurretSlot : MonoBehaviour
     {
         if (pinSprite != null) return pinSprite;
         PixelPainter p = new PixelPainter(48, 48);
-        p.Ellipse(20, 22, 28, 30, PixelPainter.GOLD_D, PixelPainter.BLK_O);         // í˜ê·¸ ë°›ì¹¨ (ê¸ˆ)
-        p.Ellipse(22, 22, 26, 26, PixelPainter.GOLD_L, PixelPainter.CLEAR);         // í˜ê·¸ ë¨¸ë¦¬ ê´‘
+        p.Ellipse(20, 22, 28, 30, PixelPainter.GOLD_D, PixelPainter.BLK_O);         // Æä±× ¹ŞÄ§ (±İ)
+        p.Ellipse(22, 22, 26, 26, PixelPainter.GOLD_L, PixelPainter.CLEAR);         // Æä±× ¸Ó¸® ±¤
         pinSprite = p.Bake(TURRET_PPU, 24f, 26f);
         return pinSprite;
     }
 
-    /// <summary>í¬ì‹ : +x ë°©í–¥ìœ¼ë¡œ ë»—ìŒ, í”¼ë²— = ë¿Œë¦¬. ì™¸ê³½6 / ëª¸4 / ë¶ìª½ ê´‘1 + ë¨¸ì¦ ë¸Œë ˆì´í¬ í‹± + ì´êµ¬</summary>
+    /// <summary>Æ÷½Å: +x ¹æÇâÀ¸·Î »¸À½, ÇÇ¹ş = »Ñ¸®. ¿Ü°û6 / ¸ö4 / ºÏÂÊ ±¤1 + ¸ÓÁñ ºê·¹ÀÌÅ© Æ½ + ÃÑ±¸</summary>
     private static Sprite GetBarrelSprite(bool twin)
     {
         if (twin && barrelSprite2 != null) return barrelSprite2;
@@ -544,9 +608,9 @@ public class TurretSlot : MonoBehaviour
             p.Line(3, y, 24, y, PixelPainter.BLK_O, 6);
             p.Line(3, y, 24, y, PixelPainter.BLK_L, 4);
             p.Line(4, y - 1, 23, y - 1, PixelPainter.GREY, 1);
-            p.Line(12, y - 3, 12, y + 3, PixelPainter.GOLD, 2);                      // ê¸ˆ ë°´ë“œ
-            p.Line(19, y - 4, 19, y + 4, PixelPainter.BLK_O, 2);                     // ë¨¸ì¦ ë¸Œë ˆì´í¬
-            p.Ellipse(21, y - 3, 27, y + 3, PixelPainter.BLK_O, PixelPainter.CLEAR); // ì´êµ¬
+            p.Line(12, y - 3, 12, y + 3, PixelPainter.GOLD, 2);                      // ±İ ¹êµå
+            p.Line(19, y - 4, 19, y + 4, PixelPainter.BLK_O, 2);                     // ¸ÓÁñ ºê·¹ÀÌÅ©
+            p.Ellipse(21, y - 3, 27, y + 3, PixelPainter.BLK_O, PixelPainter.CLEAR); // ÃÑ±¸
             p.Point(24, y, PixelPainter.BLK); p.Point(24, y - 1, PixelPainter.GREY_L);
         }
         Sprite s = p.Bake(TURRET_PPU, 3f, twin ? 7.5f : 8f);
@@ -558,16 +622,16 @@ public class TurretSlot : MonoBehaviour
     {
         Color32 c = lamp;
         PixelPainter p = new PixelPainter(48, 48);
-        p.Ellipse(16, 18, 32, 34, PixelPainter.CLEAR, c);                            // ì†ì„± ë°œê´‘ ë§
-        p.Ellipse(17, 19, 31, 33, PixelPainter.RED, PixelPainter.RED_O);            // ë¹¨ê°• ì¥ê°‘ ë”
-        p.Ellipse(19, 21, 29, 31, PixelPainter.CLEAR, PixelPainter.GOLD);           // ê¸ˆ íŠ¸ë¦¼
-        p.Ellipse(18, 19, 27, 25, PixelPainter.RED_L, PixelPainter.CLEAR);          // ë” í•˜ì´ë¼ì´íŠ¸
-        p.Ellipse(22, 24, 26, 28, c, PixelPainter.CLEAR);                           // ì½”ì–´ ë¨í”„
-        p.Point(20, 26, c); p.Point(28, 26, c); p.Point(24, 22, c); p.Point(24, 30, c);   // ê¸€ë¡œìš°
+        p.Ellipse(16, 18, 32, 34, PixelPainter.CLEAR, c);                            // ¼Ó¼º ¹ß±¤ ¸µ
+        p.Ellipse(17, 19, 31, 33, PixelPainter.RED, PixelPainter.RED_O);            // »¡°­ Àå°© µ¼
+        p.Ellipse(19, 21, 29, 31, PixelPainter.CLEAR, PixelPainter.GOLD);           // ±İ Æ®¸²
+        p.Ellipse(18, 19, 27, 25, PixelPainter.RED_L, PixelPainter.CLEAR);          // µ¼ ÇÏÀÌ¶óÀÌÆ®
+        p.Ellipse(22, 24, 26, 28, c, PixelPainter.CLEAR);                           // ÄÚ¾î ·¥ÇÁ
+        p.Point(20, 26, c); p.Point(28, 26, c); p.Point(24, 22, c); p.Point(24, 30, c);   // ±Û·Î¿ì
         return p.Bake(TURRET_PPU, 24f, 26f);
     }
 
-    /// <summary>ì†ì„± -> PNG ì´ë¦„ í‚¤ (t_dome_fire ë“±)</summary>
+    /// <summary>¼Ó¼º -> PNG ÀÌ¸§ Å° (t_dome_fire µî)</summary>
     private static string TagKey(RecipeData r)
     {
         if (r == null) return "phys";
@@ -579,15 +643,15 @@ public class TurretSlot : MonoBehaviour
         return "phys";
     }
 
-    /// <summary>ì†ì„± ë¨í”„ ìƒ‰ (FoodTag = ê³µëª… HUDì™€ ê°™ì€ ê¸°ì¤€)</summary>
+    /// <summary>¼Ó¼º ·¥ÇÁ »ö (FoodTag = °ø¸í HUD¿Í °°Àº ±âÁØ)</summary>
     private Color TagColor(RecipeData r)
     {
         if (r == null) return new Color(0.85f, 0.8f, 0.7f);
-        if (r.tag == FoodTag.Fire) return new Color(1f, 0.45f, 0.15f);      // í™”ì—¼ ì£¼í™©
-        if (r.tag == FoodTag.Elec) return new Color(1f, 0.85f, 0.25f);      // ì „ê¸° ë…¸ë‘
-        if (r.tag == FoodTag.Ice) return new Color(0.45f, 0.85f, 1f);       // ë¹™ê²° í•˜ëŠ˜
-        if (r.tag == FoodTag.Poison) return new Color(0.72f, 0.42f, 0.9f);  // ë… ë³´ë¼
-        if (r.tag == FoodTag.Def) return new Color(0.4f, 0.8f, 0.45f);      // ë°©ì–´ ì´ˆë¡
-        return new Color(0.85f, 0.8f, 0.7f);                                // ë¬¼ë¦¬ ê°•ì² ìƒ‰
+        if (r.tag == FoodTag.Fire) return new Color(1f, 0.45f, 0.15f);      // È­¿° ÁÖÈ²
+        if (r.tag == FoodTag.Elec) return new Color(1f, 0.85f, 0.25f);      // Àü±â ³ë¶û
+        if (r.tag == FoodTag.Ice) return new Color(0.45f, 0.85f, 1f);       // ºù°á ÇÏ´Ã
+        if (r.tag == FoodTag.Poison) return new Color(0.72f, 0.42f, 0.9f);  // µ¶ º¸¶ó
+        if (r.tag == FoodTag.Def) return new Color(0.4f, 0.8f, 0.45f);      // ¹æ¾î ÃÊ·Ï
+        return new Color(0.85f, 0.8f, 0.7f);                                // ¹°¸® °­Ã¶»ö
     }
 }

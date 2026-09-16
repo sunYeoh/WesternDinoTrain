@@ -4,34 +4,35 @@ using UnityEditor;
 using UnityEngine;
 
 /// <summary>
-/// [WDTSpriteImporter.cs] v4.3 (Editor ì „ìš©) - ìŠ¤í”„ë¼ì´íŠ¸ PNG ìë™ ì„í¬íŠ¸ ì„¤ì • (2026-09-07, v9 í”½ì…€ íŒ© + UI ìŠ¤í‚¨)
+/// [WDTSpriteImporter.cs] v4.4 (Editor Àü¿ë) - ½ºÇÁ¶óÀÌÆ® PNG ÀÚµ¿ ÀÓÆ÷Æ® ¼³Á¤ (2026-09-07, v9 ÇÈ¼¿ ÆÑ + UI ½ºÅ²)
 ///
-/// v4.3 (v9.9): íŠœí† ë¦¬ì–¼ í˜„ì¥ ë§ˆì»¤ tut_arrow(24x21, í”¼ë²— = ë¾°ì¡±í•œ ë (11.5/24, 0)) / tut_ring(36x14, ì¤‘ì•™) í‘œ 2ì¤„ - 32ppu ì›”ë“œ ìŠ¤í”„ë¼ì´íŠ¸
-/// v4.2: ìœ„í—˜ ì  ì „ìš© ê·¸ë¦¼ 4ì¢… e_fly / e_parasaur / e_carno / e_mosa (32ppu, ì¤‘ì•™ í”¼ë²—) í‘œ ì¶”ê°€
+/// v4.4 (v9.9.2): tut_ring_l(72x26, Áß¾Ó) 1ÁÙ. ui_npc_spino / ui_npc_ankylo ´Â ui_ ±ÔÄ¢ ±×´ë·Î (PPU 100, ´Ü¼ø ±×¸²)
+/// v4.3 (v9.9): Æ©Åä¸®¾ó ÇöÀå ¸¶Ä¿ tut_arrow(24x21, ÇÇ¹ş = »ÏÁ·ÇÑ ³¡ (11.5/24, 0)) / tut_ring(36x14, Áß¾Ó) Ç¥ 2ÁÙ - 32ppu ¿ùµå ½ºÇÁ¶óÀÌÆ®
+/// v4.2: À§Çè Àû Àü¿ë ±×¸² 4Á¾ e_fly / e_parasaur / e_carno / e_mosa (32ppu, Áß¾Ó ÇÇ¹ş) Ç¥ Ãß°¡
 ///
-/// Assets/Resources/Sprites/WDT/ ì•„ë˜ PNGê°€ ì„í¬íŠ¸ë  ë•Œ ìë™ìœ¼ë¡œ:
-///   Texture Type = Sprite (Single) / Pixels Per Unit = íŒŒì¼ë³„ ê°’ / Filter = Point(ë„íŠ¸ ì„ ëª…) /
-///   Compression = None / Mipmap ë” / Pivot = íŒŒì¼ë³„ ì»¤ìŠ¤í…€(ê²Œì„ ì¢Œí‘œì™€ 1:1ë¡œ ë§ì¶˜ ê°’)
-/// ì„ ì¡ì•„ì¤€ë‹¤. ê·¸ë˜ì„œ ìœ ì €ëŠ” PNGë¥¼ í´ë”ì— ë³µì‚¬í•˜ê¸°ë§Œ í•˜ë©´ ëœë‹¤.
+/// Assets/Resources/Sprites/WDT/ ¾Æ·¡ PNG°¡ ÀÓÆ÷Æ®µÉ ¶§ ÀÚµ¿À¸·Î:
+///   Texture Type = Sprite (Single) / Pixels Per Unit = ÆÄÀÏº° °ª / Filter = Point(µµÆ® ¼±¸í) /
+///   Compression = None / Mipmap ²û / Pivot = ÆÄÀÏº° Ä¿½ºÅÒ(°ÔÀÓ ÁÂÇ¥¿Í 1:1·Î ¸ÂÃá °ª)
+/// À» Àâ¾ÆÁØ´Ù. ±×·¡¼­ À¯Àú´Â PNG¸¦ Æú´õ¿¡ º¹»çÇÏ±â¸¸ ÇÏ¸é µÈ´Ù.
 ///
-/// v4.1: v9.5 ì¡°ë¦¬ëŒ€ st_grill/st_pan/st_pot (32ppu, í”¼ë²— = ë°”ë‹¥ ê°€ìš´ë°) + ì¡°ë¦¬ ë¯¸ë‹ˆê²Œì„ ì¡°ê° ui_mg_* (ui_ ê·œì¹™, íŒì • êµ¬ê°„ ui_mg_zone ë§Œ 9-ìŠ¬ë¼ì´ìŠ¤ í…Œ 6)
-/// v4: UI ìŠ¤í‚¨ ui_*.png ê·œì¹™ - PPU 100(ìº”ë²„ìŠ¤ 1ìœ ë‹› = 1px), Point, FullRect, 9-ìŠ¬ë¼ì´ìŠ¤ í…Œë‘ë¦¬(UI_BORDER í‘œ). íƒ€ì¼/ìŠ¬ë¼ì´ìŠ¤ëŠ” UISkin.cs ê°€ Image.type ìœ¼ë¡œ ì •í•¨
-/// v3: v9 í”½ì…€ íŒ© - ì „ ìŠ¤í”„ë¼ì´íŠ¸ 32px/ìœ ë‹›(í‘œ ì¬ìƒì„±: ê¸°ì°¨/í¬íƒ‘/ì /ë°”ìœ„/ì‘ì‚´/ë ˆë²„/êµ´ëš + ground_ae/rails_ae/dust_0~3)
-/// v2: ìœ ì € ì œì‘ ì…°í”„ ë„íŠ¸ hero_*.png (32x32, ë°œì´ ì•„ë˜ì—ì„œ ë‘ ë²ˆì§¸ ì¤„) ê·œì¹™ - HERO_PPU ë¡œ í¬ê¸° ì¡°ì ˆ
-///     (32 = ê¸°ì°¨ì™€ ê°™ì€ ë„íŠ¸ ë°€ë„(í™•ì •), 1080pì—ì„œ ì•½ 60px í‚¤ / 24 = 1.33ë°° í¬ê²Œ / 21 = 1.5ë°° í¬ê²Œ)
+/// v4.1: v9.5 Á¶¸®´ë st_grill/st_pan/st_pot (32ppu, ÇÇ¹ş = ¹Ù´Ú °¡¿îµ¥) + Á¶¸® ¹Ì´Ï°ÔÀÓ Á¶°¢ ui_mg_* (ui_ ±ÔÄ¢, ÆÇÁ¤ ±¸°£ ui_mg_zone ¸¸ 9-½½¶óÀÌ½º Å× 6)
+/// v4: UI ½ºÅ² ui_*.png ±ÔÄ¢ - PPU 100(Äµ¹ö½º 1À¯´Ö = 1px), Point, FullRect, 9-½½¶óÀÌ½º Å×µÎ¸®(UI_BORDER Ç¥). Å¸ÀÏ/½½¶óÀÌ½º´Â UISkin.cs °¡ Image.type À¸·Î Á¤ÇÔ
+/// v3: v9 ÇÈ¼¿ ÆÑ - Àü ½ºÇÁ¶óÀÌÆ® 32px/À¯´Ö(Ç¥ Àç»ı¼º: ±âÂ÷/Æ÷Å¾/Àû/¹ÙÀ§/ÀÛ»ì/·¹¹ö/±¼¶Ò + ground_ae/rails_ae/dust_0~3)
+/// v2: À¯Àú Á¦ÀÛ ¼ÎÇÁ µµÆ® hero_*.png (32x32, ¹ßÀÌ ¾Æ·¡¿¡¼­ µÎ ¹øÂ° ÁÙ) ±ÔÄ¢ - HERO_PPU ·Î Å©±â Á¶Àı
+///     (32 = ±âÂ÷¿Í °°Àº µµÆ® ¹Ğµµ(È®Á¤), 1080p¿¡¼­ ¾à 60px Å° / 24 = 1.33¹è Å©°Ô / 21 = 1.5¹è Å©°Ô)
 ///
-/// ì´ íŒŒì¼ì€ ë°˜ë“œì‹œ "Editor" í´ë” ì•ˆì— ìˆì–´ì•¼ í•œë‹¤ (ì˜ˆ: Assets/Prototype/Editor/WDTSpriteImporter.cs).
-/// PNGë¥¼ ë¨¼ì € ë„£ê³  ì´ íŒŒì¼ì„ ë‚˜ì¤‘ì— ë„£ì—ˆë‹¤ë©´: Project ì°½ì—ì„œ Sprites/WDT í´ë” ìš°í´ë¦­ -> Reimport í•œ ë²ˆ.
+/// ÀÌ ÆÄÀÏÀº ¹İµå½Ã "Editor" Æú´õ ¾È¿¡ ÀÖ¾î¾ß ÇÑ´Ù (¿¹: Assets/Prototype/Editor/WDTSpriteImporter.cs).
+/// PNG¸¦ ¸ÕÀú ³Ö°í ÀÌ ÆÄÀÏÀ» ³ªÁß¿¡ ³Ö¾ú´Ù¸é: Project Ã¢¿¡¼­ Sprites/WDT Æú´õ ¿ìÅ¬¸¯ -> Reimport ÇÑ ¹ø.
 /// </summary>
 public class WDTSpriteImporter : AssetPostprocessor
 {
     private struct Info
     {
-        public float ppu, px, py;   // px, py = ì •ê·œí™” í”¼ë²— (0~1, ì™¼ìª½ ì•„ë˜ ì›ì )
+        public float ppu, px, py;   // px, py = Á¤±ÔÈ­ ÇÇ¹ş (0~1, ¿ŞÂÊ ¾Æ·¡ ¿øÁ¡)
         public Info(float ppu, float px, float py) { this.ppu = ppu; this.px = px; this.py = py; }
     }
 
-    // UI ìŠ¤í‚¨ 9-ìŠ¬ë¼ì´ìŠ¤ í…Œë‘ë¦¬ (px). 0 = í…Œë‘ë¦¬ ì—†ìŒ (íƒ€ì¼/ë‹¨ìˆœ)
+    // UI ½ºÅ² 9-½½¶óÀÌ½º Å×µÎ¸® (px). 0 = Å×µÎ¸® ¾øÀ½ (Å¸ÀÏ/´Ü¼ø)
     private static readonly Dictionary<string, float> UI_BORDER = new Dictionary<string, float>
     {
             { "ui_button", 16f },
@@ -39,7 +40,7 @@ public class WDTSpriteImporter : AssetPostprocessor
             { "ui_gauge_fill", 4f },
             { "ui_gauge_round", 0f },
             { "ui_hazard", 0f },
-            { "ui_mg_zone", 6f },          // ì¡°ë¦¬ íŒì • êµ¬ê°„ (ê·¸ ì™¸ ui_mg_* ëŠ” í‘œì— ì—†ìŒ = 0, ë‹¨ìˆœ ê·¸ë¦¼)
+            { "ui_mg_zone", 6f },          // Á¶¸® ÆÇÁ¤ ±¸°£ (±× ¿Ü ui_mg_* ´Â Ç¥¿¡ ¾øÀ½ = 0, ´Ü¼ø ±×¸²)
             { "ui_nameplate", 12f },
             { "ui_pipe", 28f },
             { "ui_plate", 0f },
@@ -48,10 +49,10 @@ public class WDTSpriteImporter : AssetPostprocessor
             { "ui_vent", 0f },
     };
 
-    private const float HERO_PPU = 32f;                 // ì…°í”„(hero_*) í¬ê¸°: ë‚®ì¶œìˆ˜ë¡ í™”ë©´ì—ì„œ ì»¤ì§„ë‹¤ (32 = ê¸°ì°¨ì™€ ê°™ì€ ë°€ë„(í™•ì •), 24 / 21 = í¬ê²Œ)
-    private const float HERO_PIVOT_Y = 1f / 32f;        // ë°œë°”ë‹¥ = ì•„ë˜ì—ì„œ ë‘ ë²ˆì§¸ í”½ì…€ ì¤„ (ìœ ì € ë„íŠ¸ ê¸°ì¤€)
+    private const float HERO_PPU = 32f;                 // ¼ÎÇÁ(hero_*) Å©±â: ³·Ãâ¼ö·Ï È­¸é¿¡¼­ Ä¿Áø´Ù (32 = ±âÂ÷¿Í °°Àº ¹Ğµµ(È®Á¤), 24 / 21 = Å©°Ô)
+    private const float HERO_PIVOT_Y = 1f / 32f;        // ¹ß¹Ù´Ú = ¾Æ·¡¿¡¼­ µÎ ¹øÂ° ÇÈ¼¿ ÁÙ (À¯Àú µµÆ® ±âÁØ)
 
-    // íŒŒì¼ ì´ë¦„(í™•ì¥ì ì œì™¸) -> í”½ì…€/ìœ ë‹› + í”¼ë²—. (ë Œë”ëŸ¬ meta.jsonì—ì„œ ìƒì„±)
+    // ÆÄÀÏ ÀÌ¸§(È®ÀåÀÚ Á¦¿Ü) -> ÇÈ¼¿/À¯´Ö + ÇÇ¹ş. (·»´õ·¯ meta.json¿¡¼­ »ı¼º)
     private static readonly Dictionary<string, Info> TABLE = new Dictionary<string, Info>
     {
             { "car0", new Info(32f, 0.5000f, 0.6082f) },
@@ -85,7 +86,7 @@ public class WDTSpriteImporter : AssetPostprocessor
             { "rock_ice", new Info(32f, 0.5053f, 0.5000f) },
             { "rock_meat", new Info(32f, 0.5053f, 0.5000f) },
             { "rock_poison", new Info(32f, 0.5053f, 0.5000f) },
-            { "st_grill", new Info(32f, 0.5000f, 0.0417f) },   // ì¡°ë¦¬ëŒ€: í”¼ë²— = ë°”ë‹¥ ê°€ìš´ë° (GameBalance.StationY ê°€ ë°œë°‘)
+            { "st_grill", new Info(32f, 0.5000f, 0.0417f) },   // Á¶¸®´ë: ÇÇ¹ş = ¹Ù´Ú °¡¿îµ¥ (GameBalance.StationY °¡ ¹ß¹Ø)
             { "st_pan", new Info(32f, 0.5000f, 0.0455f) },
             { "st_pot", new Info(32f, 0.5000f, 0.0385f) },
             { "t_barrel", new Info(32f, 0.0938f, 0.5000f) },
@@ -98,16 +99,17 @@ public class WDTSpriteImporter : AssetPostprocessor
             { "t_dome_phys", new Info(32f, 0.5000f, 0.4583f) },
             { "t_dome_poison", new Info(32f, 0.5000f, 0.4583f) },
             { "tail", new Info(32f, 0.0000f, 0.5000f) },
-            { "tut_arrow", new Info(32f, 0.4792f, 0.0000f) },   // v4.3: íŠœí† ë¦¬ì–¼ ë§ˆì»¤ í™”ì‚´í‘œ - í”¼ë²— = ë¾°ì¡±í•œ ë (x 11.5/24, ë§¨ ì•„ë˜)
-            { "tut_ring", new Info(32f, 0.5000f, 0.5000f) },    // v4.3: íŠœí† ë¦¬ì–¼ ë°œë°‘ ë§ - ì¤‘ì•™
+            { "tut_arrow", new Info(32f, 0.4792f, 0.0000f) },   // v4.3: Æ©Åä¸®¾ó ¸¶Ä¿ È­»ìÇ¥ - ÇÇ¹ş = »ÏÁ·ÇÑ ³¡ (x 11.5/24, ¸Ç ¾Æ·¡)
+            { "tut_ring", new Info(32f, 0.5000f, 0.5000f) },
+            { "tut_ring_l", new Info(32f, 0.5000f, 0.5000f) },     // v4.4 (v9.9.2): Å« ¹ß¹Ø ¸µ 72x26 (Æ÷Å¾¡¤ÀÛ»ì ¹Ø)    // v4.3: Æ©Åä¸®¾ó ¹ß¹Ø ¸µ - Áß¾Ó
     };
 
-    /// <summary>ë©”ë‰´ WDT > ìŠ¤í”„ë¼ì´íŠ¸ ì¬ì„í¬íŠ¸: PNGë¥¼ ìŠ¤í¬ë¦½íŠ¸ë³´ë‹¤ ë¨¼ì € ë„£ì—ˆì„ ë•Œ í•œ ë²ˆ ëˆŒëŸ¬ì£¼ë©´ ì„¤ì •ì´ ë‹¤ì‹œ ì¡íŒë‹¤</summary>
-    [MenuItem("WDT/ìŠ¤í”„ë¼ì´íŠ¸ ì¬ì„í¬íŠ¸ (Sprites/WDT)")]
+    /// <summary>¸Ş´º WDT > ½ºÇÁ¶óÀÌÆ® ÀçÀÓÆ÷Æ®: PNG¸¦ ½ºÅ©¸³Æ®º¸´Ù ¸ÕÀú ³Ö¾úÀ» ¶§ ÇÑ ¹ø ´­·¯ÁÖ¸é ¼³Á¤ÀÌ ´Ù½Ã ÀâÈù´Ù</summary>
+    [MenuItem("WDT/½ºÇÁ¶óÀÌÆ® ÀçÀÓÆ÷Æ® (Sprites/WDT)")]
     private static void ReimportAll()
     {
         AssetDatabase.ImportAsset("Assets/Resources/Sprites/WDT", ImportAssetOptions.ImportRecursive | ImportAssetOptions.ForceUpdate);
-        Debug.Log("[WDTSpriteImporter] Sprites/WDT ì¬ì„í¬íŠ¸ ì™„ë£Œ");
+        Debug.Log("[WDTSpriteImporter] Sprites/WDT ÀçÀÓÆ÷Æ® ¿Ï·á");
     }
 
     private void OnPreprocessTexture()
@@ -129,7 +131,7 @@ public class WDTSpriteImporter : AssetPostprocessor
         Info info;
         if (name.StartsWith("ui_"))
         {
-            // UI ìŠ¤í‚¨: ìº”ë²„ìŠ¤ í”½ì…€ 1:1 (PPU 100 = uGUI ê¸°ë³¸), ì¤‘ì•™ í”¼ë²—, 9-ìŠ¬ë¼ì´ìŠ¤ í…Œë‘ë¦¬
+            // UI ½ºÅ²: Äµ¹ö½º ÇÈ¼¿ 1:1 (PPU 100 = uGUI ±âº»), Áß¾Ó ÇÇ¹ş, 9-½½¶óÀÌ½º Å×µÎ¸®
             ti.spritePixelsPerUnit = 100f;
             float bd;
             if (!UI_BORDER.TryGetValue(name, out bd)) bd = 0f;
@@ -143,7 +145,7 @@ public class WDTSpriteImporter : AssetPostprocessor
         }
         if (name.StartsWith("hero_"))
         {
-            // ìœ ì € ì œì‘ ì…°í”„ ë„íŠ¸: í‘œ ëŒ€ì‹  ì ‘ë‘ì–´ ê·œì¹™ (ìƒˆ í”„ë ˆì„ì„ ì¶”ê°€í•´ë„ í‘œ ìˆ˜ì • ë¶ˆí•„ìš”)
+            // À¯Àú Á¦ÀÛ ¼ÎÇÁ µµÆ®: Ç¥ ´ë½Å Á¢µÎ¾î ±ÔÄ¢ (»õ ÇÁ·¹ÀÓÀ» Ãß°¡ÇØµµ Ç¥ ¼öÁ¤ ºÒÇÊ¿ä)
             info = new Info(HERO_PPU, 0.5f, HERO_PIVOT_Y);
             ApplyPivot(ti, info);
         }
@@ -153,8 +155,8 @@ public class WDTSpriteImporter : AssetPostprocessor
         }
         else
         {
-            ti.spritePixelsPerUnit = 32f;   // í‘œì— ì—†ëŠ” ìƒˆ íŒŒì¼: ê¸°ë³¸ 32px/ìœ ë‹›, ì¤‘ì•™ í”¼ë²—
-            Debug.LogWarning("[WDTSpriteImporter] í”¼ë²— í‘œì— ì—†ëŠ” ìŠ¤í”„ë¼ì´íŠ¸: " + name + " (ì¤‘ì•™ í”¼ë²—ìœ¼ë¡œ ì„í¬íŠ¸)");
+            ti.spritePixelsPerUnit = 32f;   // Ç¥¿¡ ¾ø´Â »õ ÆÄÀÏ: ±âº» 32px/À¯´Ö, Áß¾Ó ÇÇ¹ş
+            Debug.LogWarning("[WDTSpriteImporter] ÇÇ¹ş Ç¥¿¡ ¾ø´Â ½ºÇÁ¶óÀÌÆ®: " + name + " (Áß¾Ó ÇÇ¹şÀ¸·Î ÀÓÆ÷Æ®)");
         }
     }
 

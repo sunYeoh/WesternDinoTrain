@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [MerchantUI.cs] v1 (신규 파일) - Phase 2-3: 등짐장수 안킬로 (아이템 행상인)
+/// [MerchantUI.cs] v1.1 (v9.9.2 2026-09-16: 창 머리에 안킬로 실루엣 ui_npc_ankylo - "이름만 있으면 불편" 유저 09-16) / v1 (신규 파일) - Phase 2-3: 등짐장수 안킬로 (아이템 행상인)
 ///
 /// 세계관: 등껍질에 냄비며 부지깽이를 주렁주렁 매단 안킬로사우르스 행상인.
 /// 도박꾼 스피노와 대비되는 캐릭터 - 느긋하고, 값은 정직하다.
@@ -206,6 +206,19 @@ public class MerchantUI : MonoBehaviour
         nRt.anchoredPosition = new Vector2(0f, -10f);
         nRt.sizeDelta = new Vector2(-24f, 28f);
         name.alignment = TextAnchor.MiddleLeft;
+
+        // v1.1: 안킬로 실루엣 - 판 오른쪽 위 모서리에 걸터앉듯 2배 (ui_npc_ankylo 96x96, 없으면 생략)
+        Sprite bust = SpriteBank.Get("ui_npc_ankylo");
+        if (bust != null)
+        {
+            GameObject bustGo = new GameObject("Bust");
+            bustGo.transform.SetParent(panel, false);
+            RectTransform brt = bustGo.AddComponent<RectTransform>();
+            brt.anchorMin = new Vector2(1f, 1f); brt.anchorMax = new Vector2(1f, 1f); brt.pivot = new Vector2(1f, 0f);
+            brt.anchoredPosition = new Vector2(-24f, -6f); brt.sizeDelta = new Vector2(192f, 192f);
+            Image bustImg = bustGo.AddComponent<Image>();
+            bustImg.sprite = bust; bustImg.preserveAspect = true; bustImg.raycastTarget = false;
+        }
 
         // 대사
         speechText = KitchenEventManager.MakeText(panel, "Speech", "", 19,

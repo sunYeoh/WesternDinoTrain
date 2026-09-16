@@ -3,85 +3,85 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 
 /// <summary>
-/// [KitchenEventManager.cs] v4.3 (v9.9 2026-09-16: ê²¬ìŠµ ìš´í–‰ ì¤‘ F11 ë¬´ì‹œ - ì´ë²¤íŠ¸ ìì²´ëŠ” WaveManager.TutorialGateActive ë¡œ ì‰°ë‹¤) / v4.2 (v9.8.1: F11 ê°•ì œ ë°œìƒì€ GameBalance.CheatsAllowed ì¼ ë•Œë§Œ) / v4.1 (2026-09-14: ë§ˆëª¨ off ê°€ì¤‘ì¹˜ / í”„ë¡¤ë¡œê·¸ ê²Œì´íŠ¸ ì°¨ë‹¨) / v4
-/// ì£¼ë°© ëŒë°œ ì´ë²¤íŠ¸ ì´ê´„ ë§¤ë‹ˆì € (ê¸°íš B-4)
-/// - v4 (v9.6, 2026-09-09): "í™”ë©´ ì „ì²´ ê²½ë³´" - ê¸°ì°¨ ì•ˆ ì‘ì€ ì•„ì´ì½˜ì€ ì¡°ë¦¬í•˜ë‹¤ ë†“ì¹œë‹¤ëŠ” í”¼ë“œë°±
-///   * ê²½ë³´ ê¸€ë¡œìš°: í™”ë©´ ê°€ì¥ìë¦¬ ë¶‰ì€(ì´ë²¤íŠ¸ë³„ ìƒ‰) ë¹„ë„¤íŠ¸ê°€ 0.6ì´ˆ ì£¼ê¸°ë¡œ ë§¥ë™ (ì‚ë½€ì‚ë½€). SetAlarm(color, strength)
-///   * êµ¬ë¦¬ ê²½ê´‘ë“± 2ê°œê°€ í™”ë©´ ìœ„ì—ì„œ ë²ˆê°ˆì•„ ê¹œë¹¡ + ì´ë²¤íŠ¸ ì‹œì‘ ì‚¬ì´ë Œ sfx_alarm (í´ë¦½ ì—†ìœ¼ë©´ ì¡°ìš©íˆ ë¬´ì‹œ)
-///   * OverlayRoot: ê° ì´ë²¤íŠ¸ê°€ í™”ë©´ ì „ì²´ ì—°ì¶œ(ë°œí†± ìêµ­ / ë¶ˆì˜ ë²½ / ë…¸ì´ì¦ˆ ì¤„)ì„ ë¶™ì´ëŠ” ì „ì²´ í™”ë©´ ì˜ì—­ (CustomRoot ì•„ë˜ ì¸µ)
-///   * ë°°ë„ˆë¥¼ HUD(184) ìœ„ 288 ë¡œ ì˜¬ë¦¼ (ë¶ˆì˜ ë²½ 96px ìë¦¬) + ìŠ¤í‚¨: í‰íŒ + ë¹¨ê°„ í…Œ + ìœ„í—˜ ìŠ¤íŠ¸ë¼ì´í”„ + ê²Œì´ì§€ ìœ ë¦¬ ì±„ì›€
-///   * ìŠ¤í‚¨ ê·¸ë¦¼(ui_ev_*.png)ì´ ì—†ìœ¼ë©´ v3 ë‹¨ìƒ‰ UI ê·¸ëŒ€ë¡œ (SkinReady ë¡œ ë¶„ê¸°)
-///   ì´ë²¤íŠ¸ ë°œìƒ ì£¼ê¸° / ê°€ì¤‘ì¹˜ / ë³´ìƒ / í˜ë„í‹° / ì•µì»¤ ë¡œì§ì€ v3.5 ì™€ ë™ì¼
-/// - v2: ì¦ê°• ì—°ë™ (ë³´í—˜ ê³„ì•½ = í˜ë„í‹° ê°ì†Œ / ë¶€ì±„ì§ˆ ì¥ì¸ = ë°œìƒ 2ë°° + ë³´ìƒ 3ë°°)
-/// - v3: ì´ë²¤íŠ¸ ë§¥ë½ ê°€ì¤‘ì¹˜ - "ì™œ ì§€ê¸ˆ ì´ ì´ë²¤íŠ¸ì¸ê°€"ê°€ ì „ì¥ ìƒí™©ì—ì„œ ë‚˜ì˜¨ë‹¤
-///   * ëª¬ìŠ¤í„° ì¹¨ì…: ê¸°ì°¨ ê·¼ì²˜ ì ì´ ë§ì„ìˆ˜ë¡ í™•ë¥  ì¦ê°€
-///   * í™”ì¬: í™”ì—¼ ê³„ì—´ ì (ì¹´ë¥´ë…¸/ìµë£¡)ì´ ê°€ê¹Œì´ ìˆì„ ë•Œ í™•ë¥  ê¸‰ì¦
-///   * ì¬ë£Œ í˜ë¦¼: ìµœê·¼ í° í”¼í•´ë¥¼ ë°›ì•˜ì„ìˆ˜ë¡ í™•ë¥  ì¦ê°€
-///   * ê¸°êµ¬ ê³ ì¥: ë„êµ¬(ì¹¼/íŒ¬)ê°€ ë‚¡ì„ìˆ˜ë¡ í™•ë¥  ì¦ê°€
+/// [KitchenEventManager.cs] v4.4 (v9.9.2 2026-09-16: »ç°í Á¾·ùº° Ã¹ µîÀå Ä«µå - StartEvent ¿¡¼­ BriefingUI.ShowOnce("event_<Á¾·ù>"), Ä«µå°¡ ¶ß¸é ½Ã°£ÀÌ ¸ØÃç Á¦ÇÑ ½Ã°£Àº ±× µÚ Èå¸¥´Ù) / v4.3 (v9.9 2026-09-16: °ß½À ¿îÇà Áß F11 ¹«½Ã - ÀÌº¥Æ® ÀÚÃ¼´Â WaveManager.TutorialGateActive ·Î ½®´Ù) / v4.2 (v9.8.1: F11 °­Á¦ ¹ß»ıÀº GameBalance.CheatsAllowed ÀÏ ¶§¸¸) / v4.1 (2026-09-14: ¸¶¸ğ off °¡ÁßÄ¡ / ÇÁ·Ñ·Î±× °ÔÀÌÆ® Â÷´Ü) / v4
+/// ÁÖ¹æ µ¹¹ß ÀÌº¥Æ® ÃÑ°ı ¸Å´ÏÀú (±âÈ¹ B-4)
+/// - v4 (v9.6, 2026-09-09): "È­¸é ÀüÃ¼ °æº¸" - ±âÂ÷ ¾È ÀÛÀº ¾ÆÀÌÄÜÀº Á¶¸®ÇÏ´Ù ³õÄ£´Ù´Â ÇÇµå¹é
+///   * °æº¸ ±Û·Î¿ì: È­¸é °¡ÀåÀÚ¸® ºÓÀº(ÀÌº¥Æ®º° »ö) ºñ³×Æ®°¡ 0.6ÃÊ ÁÖ±â·Î ¸Æµ¿ (»ß»Ç»ß»Ç). SetAlarm(color, strength)
+///   * ±¸¸® °æ±¤µî 2°³°¡ È­¸é À§¿¡¼­ ¹ø°¥¾Æ ±ôºı + ÀÌº¥Æ® ½ÃÀÛ »çÀÌ·» sfx_alarm (Å¬¸³ ¾øÀ¸¸é Á¶¿ëÈ÷ ¹«½Ã)
+///   * OverlayRoot: °¢ ÀÌº¥Æ®°¡ È­¸é ÀüÃ¼ ¿¬Ãâ(¹ßÅé ÀÚ±¹ / ºÒÀÇ º® / ³ëÀÌÁî ÁÙ)À» ºÙÀÌ´Â ÀüÃ¼ È­¸é ¿µ¿ª (CustomRoot ¾Æ·¡ Ãş)
+///   * ¹è³Ê¸¦ HUD(184) À§ 288 ·Î ¿Ã¸² (ºÒÀÇ º® 96px ÀÚ¸®) + ½ºÅ²: ÆòÆÇ + »¡°£ Å× + À§Çè ½ºÆ®¶óÀÌÇÁ + °ÔÀÌÁö À¯¸® Ã¤¿ò
+///   * ½ºÅ² ±×¸²(ui_ev_*.png)ÀÌ ¾øÀ¸¸é v3 ´Ü»ö UI ±×´ë·Î (SkinReady ·Î ºĞ±â)
+///   ÀÌº¥Æ® ¹ß»ı ÁÖ±â / °¡ÁßÄ¡ / º¸»ó / Æä³ÎÆ¼ / ¾ŞÄ¿ ·ÎÁ÷Àº v3.5 ¿Í µ¿ÀÏ
+/// - v2: Áõ°­ ¿¬µ¿ (º¸Çè °è¾à = Æä³ÎÆ¼ °¨¼Ò / ºÎÃ¤Áú ÀåÀÎ = ¹ß»ı 2¹è + º¸»ó 3¹è)
+/// - v3: ÀÌº¥Æ® ¸Æ¶ô °¡ÁßÄ¡ - "¿Ö Áö±İ ÀÌ ÀÌº¥Æ®ÀÎ°¡"°¡ ÀüÀå »óÈ²¿¡¼­ ³ª¿Â´Ù
+///   * ¸ó½ºÅÍ Ä§ÀÔ: ±âÂ÷ ±ÙÃ³ ÀûÀÌ ¸¹À»¼ö·Ï È®·ü Áõ°¡
+///   * È­Àç: È­¿° °è¿­ Àû(Ä«¸£³ë/ÀÍ·æ)ÀÌ °¡±îÀÌ ÀÖÀ» ¶§ È®·ü ±ŞÁõ
+///   * Àç·á Èê¸²: ÃÖ±Ù Å« ÇÇÇØ¸¦ ¹Ş¾ÒÀ»¼ö·Ï È®·ü Áõ°¡
+///   * ±â±¸ °íÀå: µµ±¸(Ä®/ÆÒ)°¡ ³°À»¼ö·Ï È®·ü Áõ°¡
 ///
-/// ì—­í• 
-/// 1) ì¼ì • ì£¼ê¸°ë§ˆë‹¤ ëœë¤ ì£¼ë°© ì´ë²¤íŠ¸ë¥¼ ë°œìƒì‹œí‚¨ë‹¤
-/// 2) ì´ë²¤íŠ¸ ê³µìš© UI(ì œëª©/ì•ˆë‚´/ì§„í–‰ ê²Œì´ì§€/ë‚¨ì€ ì‹œê°„)ë¥¼ ì½”ë“œë¡œ ìƒì„±í•´ ê´€ë¦¬í•œë‹¤
-/// 3) ì„±ê³µ/ì‹¤íŒ¨ì— ë”°ë¥¸ ë³´ìƒê³¼ í˜ë„í‹°ë¥¼ ê¸°ì°¨ì— ì ìš©í•œë‹¤
+/// ¿ªÇÒ
+/// 1) ÀÏÁ¤ ÁÖ±â¸¶´Ù ·£´ı ÁÖ¹æ ÀÌº¥Æ®¸¦ ¹ß»ı½ÃÅ²´Ù
+/// 2) ÀÌº¥Æ® °ø¿ë UI(Á¦¸ñ/¾È³»/ÁøÇà °ÔÀÌÁö/³²Àº ½Ã°£)¸¦ ÄÚµå·Î »ı¼ºÇØ °ü¸®ÇÑ´Ù
+/// 3) ¼º°ø/½ÇÆĞ¿¡ µû¸¥ º¸»ó°ú Æä³ÎÆ¼¸¦ ±âÂ÷¿¡ Àû¿ëÇÑ´Ù
 ///
-/// ì‚¬ìš©ë²•
-/// - "GameSystems" ì˜¤ë¸Œì íŠ¸ì— ì´ ìŠ¤í¬ë¦½íŠ¸ë¥¼ ì¶”ê°€í•˜ë©´ ë (UIëŠ” ìë™ ìƒì„±)
-/// - ì¡°ë¦¬ ë¯¸ë‹ˆê²Œì„(CookingMinigame) ì§„í–‰ ì¤‘ì—ëŠ” ì´ë²¤íŠ¸ë¥¼ ë°œìƒì‹œí‚¤ì§€ ì•ŠëŠ”ë‹¤ (í‚¤ ì¶©ëŒ ë°©ì§€)
+/// »ç¿ë¹ı
+/// - "GameSystems" ¿ÀºêÁ§Æ®¿¡ ÀÌ ½ºÅ©¸³Æ®¸¦ Ãß°¡ÇÏ¸é ³¡ (UI´Â ÀÚµ¿ »ı¼º)
+/// - Á¶¸® ¹Ì´Ï°ÔÀÓ(CookingMinigame) ÁøÇà Áß¿¡´Â ÀÌº¥Æ®¸¦ ¹ß»ı½ÃÅ°Áö ¾Ê´Â´Ù (Å° Ãæµ¹ ¹æÁö)
 ///
-/// VS 2017 (C# 7.3) í˜¸í™˜
+/// VS 2017 (C# 7.3) È£È¯
 /// </summary>
 public class KitchenEventManager : MonoBehaviour
 {
     public static KitchenEventManager Instance;
 
-    /// <summary>ì´ë²¤íŠ¸ ì§„í–‰ ì¤‘ì¸ì§€ ì—¬ë¶€ (CookingStation ë“±ì—ì„œ ì¡°ì‘ ì¶©ëŒ ë°©ì§€ìš©ìœ¼ë¡œ í™•ì¸)</summary>
+    /// <summary>ÀÌº¥Æ® ÁøÇà ÁßÀÎÁö ¿©ºÎ (CookingStation µî¿¡¼­ Á¶ÀÛ Ãæµ¹ ¹æÁö¿ëÀ¸·Î È®ÀÎ)</summary>
     public static bool IsActive
     {
         get { return Instance != null && Instance.currentEvent != null; }
     }
 
-    [Header("ë°œìƒ ì£¼ê¸° ì„¤ì •")]
-    public bool eventEnabled = true;          // ì „ì²´ on/off
-    public float firstDelay = 25f;            // ê²Œì„ ì‹œì‘ í›„ ì²« ì´ë²¤íŠ¸ê¹Œì§€ ëŒ€ê¸° ì‹œê°„
-    public float minInterval = 20f;           // ë‹¤ìŒ ì´ë²¤íŠ¸ê¹Œì§€ ìµœì†Œ ê°„ê²©
-    public float maxInterval = 35f;           // ë‹¤ìŒ ì´ë²¤íŠ¸ê¹Œì§€ ìµœëŒ€ ê°„ê²©
+    [Header("¹ß»ı ÁÖ±â ¼³Á¤")]
+    public bool eventEnabled = true;          // ÀüÃ¼ on/off
+    public float firstDelay = 25f;            // °ÔÀÓ ½ÃÀÛ ÈÄ Ã¹ ÀÌº¥Æ®±îÁö ´ë±â ½Ã°£
+    public float minInterval = 20f;           // ´ÙÀ½ ÀÌº¥Æ®±îÁö ÃÖ¼Ò °£°İ
+    public float maxInterval = 35f;           // ´ÙÀ½ ÀÌº¥Æ®±îÁö ÃÖ´ë °£°İ
 
-    [Header("ë””ë²„ê·¸")]
-    public bool debugKeyEnabled = true;       // F11ë¡œ ì´ë²¤íŠ¸ ê°•ì œ ë°œìƒ (ë¹Œë“œ ì „ false)
+    [Header("µğ¹ö±×")]
+    public bool debugKeyEnabled = true;       // F11·Î ÀÌº¥Æ® °­Á¦ ¹ß»ı (ºôµå Àü false)
 
-    // í˜„ì¬ ì§„í–‰ ì¤‘ì¸ ì´ë²¤íŠ¸
+    // ÇöÀç ÁøÇà ÁßÀÎ ÀÌº¥Æ®
     private IKitchenEvent currentEvent;
-    private float eventTimeLeft;              // ë‚¨ì€ ì œí•œ ì‹œê°„
-    private float eventTimeMax;               // ì œí•œ ì‹œê°„ ì›ë³¸ (ê²Œì´ì§€ ë¹„ìœ¨ ê³„ì‚°ìš©)
-    private float nextEventTime;              // ë‹¤ìŒ ì´ë²¤íŠ¸ ë°œìƒ ì‹œê°
-    private int firedCount;                   // ì§€ê¸ˆê¹Œì§€ ë°œìƒí•œ ì´ë²¤íŠ¸ ìˆ˜ (ë‚œì´ë„ ê³„ì‚°ìš©)
+    private float eventTimeLeft;              // ³²Àº Á¦ÇÑ ½Ã°£
+    private float eventTimeMax;               // Á¦ÇÑ ½Ã°£ ¿øº» (°ÔÀÌÁö ºñÀ² °è»ê¿ë)
+    private float nextEventTime;              // ´ÙÀ½ ÀÌº¥Æ® ¹ß»ı ½Ã°¢
+    private int firedCount;                   // Áö±İ±îÁö ¹ß»ıÇÑ ÀÌº¥Æ® ¼ö (³­ÀÌµµ °è»ê¿ë)
 
-    // ---------- UI ì°¸ì¡° ----------
+    // ---------- UI ÂüÁ¶ ----------
     private Canvas canvas;
-    private RectTransform panelRoot;          // ì´ë²¤íŠ¸ ë°°ë„ˆ ì „ì²´
+    private RectTransform panelRoot;          // ÀÌº¥Æ® ¹è³Ê ÀüÃ¼
     private Text titleText;
     private Text guideText;
-    private Text eventHpText;                 // ê¸°ì°¨ HP ì‹¤ì‹œê°„ í‘œì‹œ
-    private RectTransform gaugeFill;          // ì§„í–‰ë„ ê²Œì´ì§€ (ì´ˆë¡)
-    private RectTransform timeFill;           // ë‚¨ì€ ì‹œê°„ ê²Œì´ì§€ (ì£¼í™©)
-    private RectTransform customRoot;         // ê° ì´ë²¤íŠ¸ê°€ ììœ ë¡­ê²Œ ì“°ëŠ” ì˜ì—­
-    private TrainManager cachedTrain;         // HP í‘œì‹œìš© ìºì‹œ
+    private Text eventHpText;                 // ±âÂ÷ HP ½Ç½Ã°£ Ç¥½Ã
+    private RectTransform gaugeFill;          // ÁøÇàµµ °ÔÀÌÁö (ÃÊ·Ï)
+    private RectTransform timeFill;           // ³²Àº ½Ã°£ °ÔÀÌÁö (ÁÖÈ²)
+    private RectTransform customRoot;         // °¢ ÀÌº¥Æ®°¡ ÀÚÀ¯·Ó°Ô ¾²´Â ¿µ¿ª
+    private TrainManager cachedTrain;         // HP Ç¥½Ã¿ë Ä³½Ã
 
-    // ---------- v4 ê²½ë³´ ë ˆì´ì–´ ----------
-    private RectTransform overlayRoot;        // í™”ë©´ ì „ì²´ ì—°ì¶œ ì˜ì—­ (ë°œí†± / ë¶ˆì˜ ë²½ / ë…¸ì´ì¦ˆ) - CustomRoot ì•„ë˜
-    private Image alarmVignette;              // ê°€ì¥ìë¦¬ ê¸€ë¡œìš° (ì „ì²´ í™”ë©´, ì•ŒíŒŒ ë§¥ë™)
-    private Image[] beacons = new Image[2];   // ê²½ê´‘ë“± 2ê°œ
-    private Image bannerRing;                 // ë°°ë„ˆ í…Œ (ìŠ¤í‚¨)
+    // ---------- v4 °æº¸ ·¹ÀÌ¾î ----------
+    private RectTransform overlayRoot;        // È­¸é ÀüÃ¼ ¿¬Ãâ ¿µ¿ª (¹ßÅé / ºÒÀÇ º® / ³ëÀÌÁî) - CustomRoot ¾Æ·¡
+    private Image alarmVignette;              // °¡ÀåÀÚ¸® ±Û·Î¿ì (ÀüÃ¼ È­¸é, ¾ËÆÄ ¸Æµ¿)
+    private Image[] beacons = new Image[2];   // °æ±¤µî 2°³
+    private Image bannerRing;                 // ¹è³Ê Å× (½ºÅ²)
     private Color alarmColor = new Color(0.84f, 0.16f, 0.16f, 1f);
-    private float alarmStrength = 0f;         // 0 = êº¼ì§. ì´ë²¤íŠ¸ê°€ SetAlarm ìœ¼ë¡œ ì¼ ë‹¤
+    private float alarmStrength = 0f;         // 0 = ²¨Áü. ÀÌº¥Æ®°¡ SetAlarm À¸·Î ÄÒ´Ù
     private float alarmTime = 0f;
-    private const float ALARM_PERIOD = 0.6f;  // ì‚ë½€ì‚ë½€ ì£¼ê¸° (ì´ˆ)
-    private const float BEACON_BLINK = 0.3f;  // ê²½ê´‘ë“± êµëŒ€ ì£¼ê¸° (ì´ˆ)
-    private const float BANNER_Y = 288f;      // ë°°ë„ˆ ì•„ë˜ ê¸°ì¤€ ìœ„ì¹˜ (HUD 184 + ë¶ˆì˜ ë²½ 96 + 8)
+    private const float ALARM_PERIOD = 0.6f;  // »ß»Ç»ß»Ç ÁÖ±â (ÃÊ)
+    private const float BEACON_BLINK = 0.3f;  // °æ±¤µî ±³´ë ÁÖ±â (ÃÊ)
+    private const float BANNER_Y = 288f;      // ¹è³Ê ¾Æ·¡ ±âÁØ À§Ä¡ (HUD 184 + ºÒÀÇ º® 96 + 8)
 
     private static bool skinChecked, skinReady;
 
-    /// <summary>v4: ê²½ë³´ ê·¸ë¦¼(ui_ev_vignette ë“±)ê³¼ UI ìŠ¤í‚¨ì´ ìˆëŠ”ê°€ - ì´ë²¤íŠ¸ í´ë˜ìŠ¤ë“¤ì´ ê·¸ë¦¼/ë‹¨ìƒ‰ì„ ê³ ë¥¼ ë•Œ ë³¸ë‹¤</summary>
+    /// <summary>v4: °æº¸ ±×¸²(ui_ev_vignette µî)°ú UI ½ºÅ²ÀÌ ÀÖ´Â°¡ - ÀÌº¥Æ® Å¬·¡½ºµéÀÌ ±×¸²/´Ü»öÀ» °í¸¦ ¶§ º»´Ù</summary>
     public static bool SkinReady
     {
         get
@@ -92,40 +92,40 @@ public class KitchenEventManager : MonoBehaviour
                 skinReady = UISkin.Available && SpriteBank.Has("ui_ev_vignette") && SpriteBank.Has("ui_ev_claw")
                     && SpriteBank.Has("ui_ev_firewall_0") && SpriteBank.Has("ui_ev_fire_0") && SpriteBank.Has("ui_mat_meat");
                 if (UISkin.Available && !skinReady)
-                    Debug.LogWarning("[ì£¼ë°©ì´ë²¤íŠ¸] ui_ev_*.png / ui_mat_*.png ê°€ ë¹ ì ¸ ì´ë²¤íŠ¸ëŠ” ë‹¨ìƒ‰ UIë¡œ í‘œì‹œ (Resources/Sprites/WDT í™•ì¸)");
+                    Debug.LogWarning("[ÁÖ¹æÀÌº¥Æ®] ui_ev_*.png / ui_mat_*.png °¡ ºüÁ® ÀÌº¥Æ®´Â ´Ü»ö UI·Î Ç¥½Ã (Resources/Sprites/WDT È®ÀÎ)");
             }
             return skinReady;
         }
     }
 
-    /// <summary>v4: í™”ë©´ ì „ì²´ ì—°ì¶œì„ ë¶™ì¼ ë¶€ëª¨ (ì „ì²´ í™”ë©´ í¬ê¸°, CustomRoot ì•„ë˜ ì¸µ)</summary>
+    /// <summary>v4: È­¸é ÀüÃ¼ ¿¬ÃâÀ» ºÙÀÏ ºÎ¸ğ (ÀüÃ¼ È­¸é Å©±â, CustomRoot ¾Æ·¡ Ãş)</summary>
     public RectTransform OverlayRoot { get { return overlayRoot; } }
 
-    // ë§¥ë½ ê°€ì¤‘ì¹˜ìš© (v3): ìµœê·¼ ë°›ì€ í”¼í•´ ì¶”ì 
+    // ¸Æ¶ô °¡ÁßÄ¡¿ë (v3): ÃÖ±Ù ¹ŞÀº ÇÇÇØ ÃßÀû
     private float prevTrainHP = -1f;
-    private float recentDamage = 0f;          // ìµœê·¼ í”¼í•´ ëˆ„ì  (ì´ˆë‹¹ 8ì”© ê°ì‡ )
+    private float recentDamage = 0f;          // ÃÖ±Ù ÇÇÇØ ´©Àû (ÃÊ´ç 8¾¿ °¨¼è)
 
-    /// <summary>ì´ë²¤íŠ¸ë³„ ì»¤ìŠ¤í…€ ì˜¤ë¸Œì íŠ¸ë¥¼ ë¶™ì¼ ë¶€ëª¨ (ì „ì²´ í™”ë©´ í¬ê¸°)</summary>
+    /// <summary>ÀÌº¥Æ®º° Ä¿½ºÅÒ ¿ÀºêÁ§Æ®¸¦ ºÙÀÏ ºÎ¸ğ (ÀüÃ¼ È­¸é Å©±â)</summary>
     public RectTransform CustomRoot { get { return customRoot; } }
 
     // ==================================================================
-    //  B-1: ì´ë²¤íŠ¸ ìœ„ì¹˜ ì•µì»¤ (ë°©í–¥ê²°ì • 2026-08-31)
-    //  ì´ë²¤íŠ¸ê°€ "ì–´ë”˜ê°€ì—ì„œ" í„°ì§€ê³ , ì…°í”„ê°€ ê·¸ ê³ì— ìˆì–´ì•¼ ì¡°ì‘ì´ ë¨¹íŒë‹¤.
-    //  í˜ë¦¼(ë§ˆìš°ìŠ¤ ì¤ê¸°)ì€ ì œì™¸. GameBalance.ProximityInteract=falseë©´ ì „ë¶€ ìœ„ì¹˜ ë¬´ê´€.
+    //  B-1: ÀÌº¥Æ® À§Ä¡ ¾ŞÄ¿ (¹æÇâ°áÁ¤ 2026-08-31)
+    //  ÀÌº¥Æ®°¡ "¾îµò°¡¿¡¼­" ÅÍÁö°í, ¼ÎÇÁ°¡ ±× °ç¿¡ ÀÖ¾î¾ß Á¶ÀÛÀÌ ¸ÔÈù´Ù.
+    //  Èê¸²(¸¶¿ì½º Áİ±â)Àº Á¦¿Ü. GameBalance.ProximityInteract=false¸é ÀüºÎ À§Ä¡ ¹«°ü.
     // ==================================================================
 
-    /// <summary>ì´ë²ˆ ì´ë²¤íŠ¸ì˜ ì›”ë“œ X ì•µì»¤ (HasAnchorì¼ ë•Œë§Œ ìœ íš¨)</summary>
+    /// <summary>ÀÌ¹ø ÀÌº¥Æ®ÀÇ ¿ùµå X ¾ŞÄ¿ (HasAnchorÀÏ ¶§¸¸ À¯È¿)</summary>
     public static float AnchorX { get; private set; }
 
-    /// <summary>ì´ë²ˆ ì´ë²¤íŠ¸ê°€ ìœ„ì¹˜í˜•ì¸ê°€</summary>
+    /// <summary>ÀÌ¹ø ÀÌº¥Æ®°¡ À§Ä¡ÇüÀÎ°¡</summary>
     public static bool HasAnchor { get; private set; }
 
-    /// <summary>ì…°í”„ê°€ ì•µì»¤ ê·¼ì²˜ì— ìˆëŠ”ê°€ (ìœ„ì¹˜í˜• ì´ë²¤íŠ¸ì˜ ì…ë ¥ ê²Œì´íŠ¸ - ê° ì´ë²¤íŠ¸ê°€ ì½ìŒ)</summary>
+    /// <summary>¼ÎÇÁ°¡ ¾ŞÄ¿ ±ÙÃ³¿¡ ÀÖ´Â°¡ (À§Ä¡Çü ÀÌº¥Æ®ÀÇ ÀÔ·Â °ÔÀÌÆ® - °¢ ÀÌº¥Æ®°¡ ÀĞÀ½)</summary>
     public static bool ChefInReach { get; private set; }
 
-    private Transform chefTransform;   // ê·¼ì ‘ íŒì •ìš© ìºì‹œ
+    private Transform chefTransform;   // ±ÙÁ¢ ÆÇÁ¤¿ë Ä³½Ã
 
-    /// <summary>ì•µì»¤ì˜ ìº”ë²„ìŠ¤ X ì¢Œí‘œ (ì´ë²¤íŠ¸ ì•„ì´ì½˜ ë°°ì¹˜ìš©, 1920 ê¸°ì¤€. ì•µì»¤ ì—†ìœ¼ë©´ 0)</summary>
+    /// <summary>¾ŞÄ¿ÀÇ Äµ¹ö½º X ÁÂÇ¥ (ÀÌº¥Æ® ¾ÆÀÌÄÜ ¹èÄ¡¿ë, 1920 ±âÁØ. ¾ŞÄ¿ ¾øÀ¸¸é 0)</summary>
     public float AnchorCanvasX()
     {
         if (!HasAnchor || Camera.main == null) return 0f;
@@ -134,7 +134,7 @@ public class KitchenEventManager : MonoBehaviour
         return Mathf.Clamp(canvasX, -700f, 700f);
     }
 
-    /// <summary>ë§¤ í”„ë ˆì„ ì…°í”„-ì•µì»¤ ê·¼ì ‘ ê°±ì‹  (RunCurrentEventì—ì„œ í˜¸ì¶œ)</summary>
+    /// <summary>¸Å ÇÁ·¹ÀÓ ¼ÎÇÁ-¾ŞÄ¿ ±ÙÁ¢ °»½Å (RunCurrentEvent¿¡¼­ È£Ãâ)</summary>
     private void UpdateChefReach()
     {
         if (!HasAnchor) { ChefInReach = true; return; }
@@ -144,7 +144,7 @@ public class KitchenEventManager : MonoBehaviour
             GameObject chefObj = GameObject.Find("Chef");
             if (chefObj != null) chefTransform = chefObj.transform;
         }
-        // ì…°í”„ë¥¼ ëª» ì°¾ìœ¼ë©´ ë§‰ì§€ ì•ŠëŠ”ë‹¤ (ì•ˆì „)
+        // ¼ÎÇÁ¸¦ ¸ø Ã£À¸¸é ¸·Áö ¾Ê´Â´Ù (¾ÈÀü)
         ChefInReach = chefTransform == null
             || Mathf.Abs(chefTransform.position.x - AnchorX) <= GameBalance.EventReachX;
     }
@@ -154,7 +154,7 @@ public class KitchenEventManager : MonoBehaviour
     void Awake()
     {
         Instance = this;
-        ChefInReach = true;   // B-1: ì´ë²¤íŠ¸ ì—†ì„ ë•Œ ê¸°ë³¸ê°’ (ê²Œì´íŠ¸ ì ê¹€ ë°©ì§€)
+        ChefInReach = true;   // B-1: ÀÌº¥Æ® ¾øÀ» ¶§ ±âº»°ª (°ÔÀÌÆ® Àá±è ¹æÁö)
         HasAnchor = false;
         BuildUI();
         nextEventTime = Time.time + firstDelay;
@@ -163,27 +163,27 @@ public class KitchenEventManager : MonoBehaviour
 
     void Update()
     {
-        // ìµœê·¼ í”¼í•´ ì¶”ì  (ì¬ë£Œ í˜ë¦¼ ì´ë²¤íŠ¸ ê°€ì¤‘ì¹˜ìš©)
+        // ÃÖ±Ù ÇÇÇØ ÃßÀû (Àç·á Èê¸² ÀÌº¥Æ® °¡ÁßÄ¡¿ë)
         TrackRecentDamage();
 
-        // v4: ê²½ë³´ ê¸€ë¡œìš° ë§¥ë™ + ê²½ê´‘ë“± êµëŒ€ (ì´ë²¤íŠ¸ ì§„í–‰ ì¤‘ì—ë§Œ ì¼œì ¸ ìˆë‹¤)
+        // v4: °æº¸ ±Û·Î¿ì ¸Æµ¿ + °æ±¤µî ±³´ë (ÀÌº¥Æ® ÁøÇà Áß¿¡¸¸ ÄÑÁ® ÀÖ´Ù)
         UpdateAlarm();
 
         if (!eventEnabled) return;
 
-        // v3.2: ì¦ê°• ì„ íƒ / ì¼ì‹œì •ì§€ / ì •ë¹„ì†Œê°€ ë–  ìˆëŠ” ë™ì•ˆ ì´ë²¤íŠ¸ ì™„ì „ ë™ê²°
-        // (ì‹œê°„ì´ ë©ˆì¶°ë„ Updateì™€ í‚¤ ì…ë ¥ì€ ì‚´ì•„ ìˆì–´ì„œ, ë©ˆì¶˜ ì‹œê°„ì— ê³µì§œë¡œ
-        //  ì´ë²¤íŠ¸ë¥¼ í•´ê²°í•˜ëŠ” ê¼¼ìˆ˜ê°€ ê°€ëŠ¥í–ˆìŒ -> ì…ë ¥ ì²˜ë¦¬ ìì²´ë¥¼ ì°¨ë‹¨)
+        // v3.2: Áõ°­ ¼±ÅÃ / ÀÏ½ÃÁ¤Áö / Á¤ºñ¼Ò°¡ ¶° ÀÖ´Â µ¿¾È ÀÌº¥Æ® ¿ÏÀü µ¿°á
+        // (½Ã°£ÀÌ ¸ØÃçµµ Update¿Í Å° ÀÔ·ÂÀº »ì¾Æ ÀÖ¾î¼­, ¸ØÃá ½Ã°£¿¡ °øÂ¥·Î
+        //  ÀÌº¥Æ®¸¦ ÇØ°áÇÏ´Â ²Ä¼ö°¡ °¡´ÉÇßÀ½ -> ÀÔ·Â Ã³¸® ÀÚÃ¼¸¦ Â÷´Ü)
         if (AugmentPickUI.IsOpen || PauseMenu.IsOpen || WorkshopUI.IsOpen
-            || AugmentListUI.ReadingOpen)   // A10: ì—´ëŒ íŒ¨ë„(V/J)ë„ ì‹œê°„ì„ ë©ˆì¶”ë¯€ë¡œ ê°™ì€ ì·¨ê¸‰
+            || AugmentListUI.ReadingOpen)   // A10: ¿­¶÷ ÆĞ³Î(V/J)µµ ½Ã°£À» ¸ØÃß¹Ç·Î °°Àº Ãë±Ş
             return;
 
-        // v3.1: ì „íˆ¬ ì¤‘ì´ ì•„ë‹ˆë©´(ë¡œë¹„/ë§ˆì„ ì •ë¹„/ê²Œì„ì˜¤ë²„) ì´ë²¤íŠ¸ ê¸ˆì§€
-        // - ì§„í–‰ ì¤‘ì´ë˜ ì´ë²¤íŠ¸ëŠ” í˜ë„í‹° ì—†ì´ ì¡°ìš©íˆ ì •ë¦¬
-        // - íƒ€ì´ë¨¸ë¥¼ firstDelayë¡œ ê³„ì† ë°€ì–´ì„œ, ì „íˆ¬ ì‹œì‘ í›„ì—ë„ ìµœì†Œ firstDelayë§Œí¼ ì—¬ìœ ë¥¼ ì¤€ë‹¤
+        // v3.1: ÀüÅõ ÁßÀÌ ¾Æ´Ï¸é(·Îºñ/¸¶À» Á¤ºñ/°ÔÀÓ¿À¹ö) ÀÌº¥Æ® ±İÁö
+        // - ÁøÇà ÁßÀÌ´ø ÀÌº¥Æ®´Â Æä³ÎÆ¼ ¾øÀÌ Á¶¿ëÈ÷ Á¤¸®
+        // - Å¸ÀÌ¸Ó¸¦ firstDelay·Î °è¼Ó ¹Ğ¾î¼­, ÀüÅõ ½ÃÀÛ ÈÄ¿¡µµ ÃÖ¼Ò firstDelay¸¸Å­ ¿©À¯¸¦ ÁØ´Ù
         bool inBattle = GameManager.Instance != null
             && GameManager.Instance.currentState == GameManager.GameState.Battle
-            && !WaveManager.TutorialGateActive;   // v4.1: í”„ë¡¤ë¡œê·¸ ì¡°ë¦¬ ê²Œì´íŠ¸ ì¤‘ì—ëŠ” ì´ë²¤íŠ¸ ì—†ìŒ
+            && !WaveManager.TutorialGateActive;   // v4.1: ÇÁ·Ñ·Î±× Á¶¸® °ÔÀÌÆ® Áß¿¡´Â ÀÌº¥Æ® ¾øÀ½
         if (!inBattle)
         {
             if (currentEvent != null) CancelCurrentEvent();
@@ -191,34 +191,34 @@ public class KitchenEventManager : MonoBehaviour
             return;
         }
 
-        // v3.3: ë¶„ê¸° ì„ ë¡œ 'ì•ˆê°œ ì„ ë¡œ' - ì „íˆ¬ ì‹œì‘ í›„ ì´ë²¤íŠ¸ë¥¼ ì´ë¥´ê²Œ ë‹¹ê¸´ë‹¤
+        // v3.3: ºĞ±â ¼±·Î '¾È°³ ¼±·Î' - ÀüÅõ ½ÃÀÛ ÈÄ ÀÌº¥Æ®¸¦ ÀÌ¸£°Ô ´ç±ä´Ù
         if (earlyEventPending)
         {
             earlyEventPending = false;
             nextEventTime = Time.time + 8f;
-            Debug.Log("[ì£¼ë°©ì´ë²¤íŠ¸] ì•ˆê°œ ì„ ë¡œ - ì´ë²¤íŠ¸ ì¡°ê¸° ë°œìƒ ì˜ˆì•½ (8ì´ˆ í›„)");
+            Debug.Log("[ÁÖ¹æÀÌº¥Æ®] ¾È°³ ¼±·Î - ÀÌº¥Æ® Á¶±â ¹ß»ı ¿¹¾à (8ÃÊ ÈÄ)");
         }
 
-        // ë””ë²„ê·¸: F11ë¡œ ì¦‰ì‹œ ë°œìƒ (ì „íˆ¬ ì¤‘ì—ë§Œ - ë¹Œë“œ ì „ debugKeyEnabledë¥¼ êº¼ì•¼ í•¨)
+        // µğ¹ö±×: F11·Î Áï½Ã ¹ß»ı (ÀüÅõ Áß¿¡¸¸ - ºôµå Àü debugKeyEnabled¸¦ ²¨¾ß ÇÔ)
         if (debugKeyEnabled && GameBalance.CheatsAllowed && !TutorialDirector.Active && Input.GetKeyDown(KeyCode.F11) && currentEvent == null)
-            StartRandomEvent();   // v9.9: ê²¬ìŠµ ìš´í–‰ ì¤‘ì—” ì¹˜íŠ¸ ë¬´ì‹œ
+            StartRandomEvent();   // v9.9: °ß½À ¿îÇà Áß¿£ Ä¡Æ® ¹«½Ã
 
-        // ì§„í–‰ ì¤‘ì¸ ì´ë²¤íŠ¸ê°€ ìˆìœ¼ë©´ ê·¸ê²ƒë§Œ ëŒë¦°ë‹¤
+        // ÁøÇà ÁßÀÎ ÀÌº¥Æ®°¡ ÀÖÀ¸¸é ±×°Í¸¸ µ¹¸°´Ù
         if (currentEvent != null)
         {
             RunCurrentEvent();
             return;
         }
 
-        // ì¡°ë¦¬ ë¯¸ë‹ˆê²Œì„ ì¤‘ì—ëŠ” ì´ë²¤íŠ¸ë¥¼ ë¯¸ë£¬ë‹¤ (E / ë°©í–¥í‚¤ ì…ë ¥ì´ ê²¹ì¹˜ê¸° ë•Œë¬¸)
+        // Á¶¸® ¹Ì´Ï°ÔÀÓ Áß¿¡´Â ÀÌº¥Æ®¸¦ ¹Ì·é´Ù (E / ¹æÇâÅ° ÀÔ·ÂÀÌ °ãÄ¡±â ¶§¹®)
         if (CookingMinigame.IsActive)
         {
             nextEventTime = Mathf.Max(nextEventTime, Time.time + 2f);
             return;
         }
 
-        // v3.4: ë³´ìŠ¤ì „ ì¤‘ì—ëŠ” ìƒˆ ì´ë²¤íŠ¸ ì‹œì‘ ê¸ˆì§€ (ë³´ìŠ¤ íŒ¨í„´ì´ ë°©í•´ ì—­í• ì„ ëŒ€ì‹  - ì¸ì§€ ê³¼ë¶€í•˜ ë°©ì§€)
-        // ì§„í–‰ ì¤‘ì´ë˜ ì´ë²¤íŠ¸ëŠ” ìœ„ì—ì„œ ì •ìƒ ì²˜ë¦¬ëœë‹¤
+        // v3.4: º¸½ºÀü Áß¿¡´Â »õ ÀÌº¥Æ® ½ÃÀÛ ±İÁö (º¸½º ÆĞÅÏÀÌ ¹æÇØ ¿ªÇÒÀ» ´ë½Å - ÀÎÁö °úºÎÇÏ ¹æÁö)
+        // ÁøÇà ÁßÀÌ´ø ÀÌº¥Æ®´Â À§¿¡¼­ Á¤»ó Ã³¸®µÈ´Ù
         if (BossGimmickSystem.Instance != null && BossGimmickSystem.Instance.HasActiveBoss)
         {
             nextEventTime = Mathf.Max(nextEventTime, Time.time + 5f);
@@ -230,10 +230,10 @@ public class KitchenEventManager : MonoBehaviour
     }
 
     // ==================================================================
-    //  ì´ë²¤íŠ¸ ì§„í–‰ íë¦„
+    //  ÀÌº¥Æ® ÁøÇà Èå¸§
     // ==================================================================
 
-    /// <summary>ìµœê·¼ í”¼í•´ ì¶”ì  (ì´ˆë‹¹ 8ì”© ê°ì‡ ) - ì¬ë£Œ í˜ë¦¼ ê°€ì¤‘ì¹˜ìš©</summary>
+    /// <summary>ÃÖ±Ù ÇÇÇØ ÃßÀû (ÃÊ´ç 8¾¿ °¨¼è) - Àç·á Èê¸² °¡ÁßÄ¡¿ë</summary>
     private void TrackRecentDamage()
     {
         if (cachedTrain == null) cachedTrain = Object.FindFirstObjectByType<TrainManager>();
@@ -248,10 +248,10 @@ public class KitchenEventManager : MonoBehaviour
         recentDamage = Mathf.Max(0f, recentDamage - 8f * Time.deltaTime);
     }
 
-    /// <summary>ì „ì¥ ìƒí™© ê¸°ë°˜ ê°€ì¤‘ì¹˜ë¡œ ì´ë²¤íŠ¸ 1ê°œë¥¼ ë½‘ì•„ ì‹œì‘ (v3)</summary>
+    /// <summary>ÀüÀå »óÈ² ±â¹İ °¡ÁßÄ¡·Î ÀÌº¥Æ® 1°³¸¦ »Ì¾Æ ½ÃÀÛ (v3)</summary>
     public void StartRandomEvent()
     {
-        // â”€â”€ ìƒí™© ìˆ˜ì§‘ â”€â”€
+        // ¦¡¦¡ »óÈ² ¼öÁı ¦¡¦¡
         Vector3 trainPos = cachedTrain != null ? cachedTrain.transform.position : Vector3.zero;
         int nearbyCount = 0;
         bool fireThreat = false;
@@ -262,20 +262,20 @@ public class KitchenEventManager : MonoBehaviour
             if (!all[i].IsAlive) continue;
             float d = Vector3.Distance(all[i].transform.position, trainPos);
             if (d <= 4f) nearbyCount++;
-            if (d <= 9f && (all[i].data.enemyName.Contains("ì¹´ë¥´ë…¸") || all[i].data.enemyName.Contains("ìµë£¡")))
+            if (d <= 9f && (all[i].data.enemyName.Contains("Ä«¸£³ë") || all[i].data.enemyName.Contains("ÀÍ·æ")))
                 fireThreat = true;
         }
 
         ChefController chef = Object.FindFirstObjectByType<ChefController>();
         float toolWear = chef != null ? (200f - chef.knifeSharpness - chef.panCondition) : 50f;
-        // v4.1 (êµìˆ˜ í”¼ë“œë°± B3): ë§ˆëª¨ off ì‹¤í—˜ ì¤‘ì—ëŠ” ë§ˆëª¨ í•­ì´ 0 - ê³ ì¥ ì´ë²¤íŠ¸ê°€ ì—‰ëš±í•˜ê²Œ ëŠ˜ê±°ë‚˜ ì¤„ì§€ ì•Šê²Œ
+        // v4.1 (±³¼ö ÇÇµå¹é B3): ¸¶¸ğ off ½ÇÇè Áß¿¡´Â ¸¶¸ğ Ç×ÀÌ 0 - °íÀå ÀÌº¥Æ®°¡ ¾û¶×ÇÏ°Ô ´Ã°Å³ª ÁÙÁö ¾Ê°Ô
         if (!GameBalance.ToolWearEnabled) toolWear = 50f;
 
-        // â”€â”€ ê°€ì¤‘ì¹˜ ê³„ì‚°: "ì™œ ì§€ê¸ˆ ì´ ì´ë²¤íŠ¸ì¸ê°€"ê°€ ì „ì¥ì—ì„œ ë‚˜ì˜¨ë‹¤ â”€â”€
-        float wIntrude = 1f + nearbyCount * 1.2f;              // ì ì´ ë¶™ì–´ ìˆìœ¼ë©´ ì¹¨ì…
-        float wFire = fireThreat ? 4f : 0.6f;                  // í™”ì—¼ ì ì´ ìˆìœ¼ë©´ í™”ì¬
-        float wSpill = recentDamage >= 40f ? 3f : 0.8f;        // ë‘ë“¤ê²¨ ë§ì•˜ìœ¼ë©´ í˜ë¦¼
-        float wBreak = 0.6f + toolWear / 80f;                  // ë„êµ¬ê°€ ë‚¡ì•˜ìœ¼ë©´ ê³ ì¥
+        // ¦¡¦¡ °¡ÁßÄ¡ °è»ê: "¿Ö Áö±İ ÀÌ ÀÌº¥Æ®ÀÎ°¡"°¡ ÀüÀå¿¡¼­ ³ª¿Â´Ù ¦¡¦¡
+        float wIntrude = 1f + nearbyCount * 1.2f;              // ÀûÀÌ ºÙ¾î ÀÖÀ¸¸é Ä§ÀÔ
+        float wFire = fireThreat ? 4f : 0.6f;                  // È­¿° ÀûÀÌ ÀÖÀ¸¸é È­Àç
+        float wSpill = recentDamage >= 40f ? 3f : 0.8f;        // µÎµé°Ü ¸Â¾ÒÀ¸¸é Èê¸²
+        float wBreak = 0.6f + toolWear / 80f;                  // µµ±¸°¡ ³°¾ÒÀ¸¸é °íÀå
 
         float total = wIntrude + wFire + wSpill + wBreak;
         float roll = Random.Range(0f, total);
@@ -283,56 +283,63 @@ public class KitchenEventManager : MonoBehaviour
         IKitchenEvent ev;
         string reason;
         if (roll < wIntrude)
-        { ev = new MonsterIntrusionEvent(); reason = "ê·¼ì²˜ ì  " + nearbyCount + "ë§ˆë¦¬"; }
+        { ev = new MonsterIntrusionEvent(); reason = "±ÙÃ³ Àû " + nearbyCount + "¸¶¸®"; }
         else if (roll < wIntrude + wFire)
-        { ev = new KitchenFireEvent(); reason = fireThreat ? "í™”ì—¼ ì  ì ‘ê·¼" : "ë¬´ì‘ìœ„"; }
+        { ev = new KitchenFireEvent(); reason = fireThreat ? "È­¿° Àû Á¢±Ù" : "¹«ÀÛÀ§"; }
         else if (roll < wIntrude + wFire + wSpill)
-        { ev = new MaterialSpillEvent(); reason = "ìµœê·¼ í”¼í•´ " + Mathf.RoundToInt(recentDamage); }
+        { ev = new MaterialSpillEvent(); reason = "ÃÖ±Ù ÇÇÇØ " + Mathf.RoundToInt(recentDamage); }
         else
-        { ev = new EquipmentBreakEvent(); reason = "ë„êµ¬ ë§ˆëª¨ " + Mathf.RoundToInt(toolWear); }
+        { ev = new EquipmentBreakEvent(); reason = "µµ±¸ ¸¶¸ğ " + Mathf.RoundToInt(toolWear); }
 
-        Debug.Log("[ì£¼ë°©ì´ë²¤íŠ¸] ì„ íƒ ê·¼ê±°: " + reason);
+        Debug.Log("[ÁÖ¹æÀÌº¥Æ®] ¼±ÅÃ ±Ù°Å: " + reason);
         StartEvent(ev);
     }
 
-    /// <summary>ì§€ì •í•œ ì´ë²¤íŠ¸ ì‹œì‘</summary>
+    /// <summary>ÁöÁ¤ÇÑ ÀÌº¥Æ® ½ÃÀÛ</summary>
     public void StartEvent(IKitchenEvent ev)
     {
         if (ev == null || currentEvent != null) return;
 
-        // Phase 2-3 ì•„ì´í…œ 'êµ¬ë¦¬ ì†Œí™”ê¸°': í™”ì¬ëŠ” ì›¨ì´ë¸Œë‹¹ 1íšŒ ìë™ ì§„ì•• (ì´ë²¤íŠ¸ ìì²´ê°€ ì•ˆ ëœ¬ë‹¤)
+        // Phase 2-3 ¾ÆÀÌÅÛ '±¸¸® ¼ÒÈ­±â': È­Àç´Â ¿şÀÌºê´ç 1È¸ ÀÚµ¿ Áø¾Ğ (ÀÌº¥Æ® ÀÚÃ¼°¡ ¾È ¶á´Ù)
         if (ev is KitchenFireEvent && ItemManager.TryAutoExtinguish())
         {
-            UIManager.Instance?.ShowStatChange("[êµ¬ë¦¬ ì†Œí™”ê¸°] ë¶ˆê¸¸ì´ ë¶™ê¸°ë„ ì „ì— êº¼ì¡Œë‹¤!");
+            UIManager.Instance?.ShowStatChange("[±¸¸® ¼ÒÈ­±â] ºÒ±æÀÌ ºÙ±âµµ Àü¿¡ ²¨Á³´Ù!");
             SoundManager.Play("sfx_ui_click");
-            // ë‹¤ìŒ ì´ë²¤íŠ¸ ì‹œê°ì„ ì •ìƒ ì£¼ê¸°ë¡œ ì¬ì˜ˆì•½ (ì•ˆ í•˜ë©´ ê°™ì€ í”„ë ˆì„ì— ë‹¤ë¥¸ ì´ë²¤íŠ¸ê°€ ë˜ ëœ¬ë‹¤)
+            // ´ÙÀ½ ÀÌº¥Æ® ½Ã°¢À» Á¤»ó ÁÖ±â·Î Àç¿¹¾à (¾È ÇÏ¸é °°Àº ÇÁ·¹ÀÓ¿¡ ´Ù¸¥ ÀÌº¥Æ®°¡ ¶Ç ¶á´Ù)
             nextEventTime = Time.time + Random.Range(minInterval, maxInterval)
                 * AugmentManager.EventIntervalMul * ItemManager.EventIntervalMul;
-            Debug.Log("[ì£¼ë°©ì´ë²¤íŠ¸] í™”ì¬ ìë™ ì§„ì•• (êµ¬ë¦¬ ì†Œí™”ê¸°)");
+            Debug.Log("[ÁÖ¹æÀÌº¥Æ®] È­Àç ÀÚµ¿ Áø¾Ğ (±¸¸® ¼ÒÈ­±â)");
             return;
+        }
+
+        // v4.4: Ã¹ µîÀå Ä«µå (Á¾·ùº° 1È¸). °ß½À ¿îÇà Áß¿£ ÀÌº¥Æ® ÀÚÃ¼°¡ ¸·Çô ÀÖ´Ù
+        if (GameBalance.FirstEncounterBriefings)
+        {
+            string key = ev is MonsterIntrusionEvent ? "intrusion" : ev is EquipmentBreakEvent ? "break" : ev is KitchenFireEvent ? "fire" : "spill";
+            BriefingUI.ShowOnce("event_" + key, BriefingTexts.Event(key));
         }
 
         currentEvent = ev;
         firedCount++;
 
-        // â”€â”€ B-1/B-2: ìœ„ì¹˜ ì•µì»¤ ê²°ì • - ì¹¨ì…/í™”ì¬/ê³ ì¥ì€ ê¸°ì°¨ ì–´ëŠ ì¹¸ì—ì„œë“  í„°ì§„ë‹¤ â”€â”€
-        // (í˜ë¦¼ì€ ë§ˆìš°ìŠ¤ ì¤ê¸°ë¼ ìœ„ì¹˜ ë¬´ê´€.) ë’·ì¹¸ í™”ì¬ë¥¼ í–¥í•´ ë‹¬ë ¤ê°€ëŠ” ê²Œ ì´ ê²Œì„ì˜ ëª¸ì´ë‹¤.
+        // ¦¡¦¡ B-1/B-2: À§Ä¡ ¾ŞÄ¿ °áÁ¤ - Ä§ÀÔ/È­Àç/°íÀåÀº ±âÂ÷ ¾î´À Ä­¿¡¼­µç ÅÍÁø´Ù ¦¡¦¡
+        // (Èê¸²Àº ¸¶¿ì½º Áİ±â¶ó À§Ä¡ ¹«°ü.) µŞÄ­ È­Àç¸¦ ÇâÇØ ´Ş·Á°¡´Â °Ô ÀÌ °ÔÀÓÀÇ ¸öÀÌ´Ù.
         HasAnchor = GameBalance.ProximityInteract && !(ev is MaterialSpillEvent);
         if (HasAnchor)
         {
             AnchorX = Random.Range(GameBalance.EventAnchorMinX, GameBalance.EventAnchorMaxX);
-            Debug.Log("[ì£¼ë°©ì´ë²¤íŠ¸] ë°œìƒ ì¹¸: " + GameBalance.CarNames[GameBalance.CarIndexOf(AnchorX)]
+            Debug.Log("[ÁÖ¹æÀÌº¥Æ®] ¹ß»ı Ä­: " + GameBalance.CarNames[GameBalance.CarIndexOf(AnchorX)]
                 + " (x " + AnchorX.ToString("F1") + ")");
         }
         UpdateChefReach();
 
-        // ì´ë²¤íŠ¸ê°€ ëˆ„ì ë ìˆ˜ë¡ ì¡°ê¸ˆì”© ì–´ë ¤ì›Œì§„ë‹¤ (ìµœëŒ€ +100%)
+        // ÀÌº¥Æ®°¡ ´©ÀûµÉ¼ö·Ï Á¶±İ¾¿ ¾î·Á¿öÁø´Ù (ÃÖ´ë +100%)
         float difficulty = Mathf.Min(1f, firedCount * 0.08f);
 
         ClearCustomRoot();
         ev.OnStart(this, difficulty);
 
-        // ìœ„ì¹˜í˜• ì´ë²¤íŠ¸ëŠ” ë‹¬ë ¤ê°€ëŠ” ì‹œê°„ë§Œí¼ ì œí•œì‹œê°„ì— ì—¬ìœ ë¥¼ ì¤€ë‹¤
+        // À§Ä¡Çü ÀÌº¥Æ®´Â ´Ş·Á°¡´Â ½Ã°£¸¸Å­ Á¦ÇÑ½Ã°£¿¡ ¿©À¯¸¦ ÁØ´Ù
         eventTimeMax = ev.TimeLimit + (HasAnchor ? GameBalance.EventReachGrace : 0f);
         eventTimeLeft = eventTimeMax;
 
@@ -340,11 +347,11 @@ public class KitchenEventManager : MonoBehaviour
         guideText.text = ev.Guide;
         ShowPanel();
 
-        // v4: ì‚¬ì´ë Œ (í´ë¦½ ì—†ìœ¼ë©´ ì¡°ìš©íˆ ë¬´ì‹œ) - ì´ë²¤íŠ¸ê°€ SetAlarm ì„ ì•ˆ ë¶ˆë €ìœ¼ë©´ ê¸°ë³¸ ë¹¨ê°• ê²½ë³´
+        // v4: »çÀÌ·» (Å¬¸³ ¾øÀ¸¸é Á¶¿ëÈ÷ ¹«½Ã) - ÀÌº¥Æ®°¡ SetAlarm À» ¾È ºÒ·¶À¸¸é ±âº» »¡°­ °æº¸
         SoundManager.Play("sfx_alarm");
         if (alarmStrength <= 0f) SetAlarm(new Color(0.84f, 0.16f, 0.16f, 1f), 0.45f);
 
-        Debug.Log("[ì£¼ë°©ì´ë²¤íŠ¸] ë°œìƒ: " + ev.Title);
+        Debug.Log("[ÁÖ¹æÀÌº¥Æ®] ¹ß»ı: " + ev.Title);
     }
 
     private void RunCurrentEvent()
@@ -352,73 +359,73 @@ public class KitchenEventManager : MonoBehaviour
         float dt = Time.deltaTime;
         eventTimeLeft -= dt;
 
-        // B-1: ì…°í”„-ì•µì»¤ ê·¼ì ‘ ê°±ì‹  (ê° ì´ë²¤íŠ¸ê°€ ChefInReachë¡œ ì…ë ¥ì„ ê²Œì´íŠ¸)
+        // B-1: ¼ÎÇÁ-¾ŞÄ¿ ±ÙÁ¢ °»½Å (°¢ ÀÌº¥Æ®°¡ ChefInReach·Î ÀÔ·ÂÀ» °ÔÀÌÆ®)
         UpdateChefReach();
 
         bool success;
         bool finished = currentEvent.OnUpdate(dt, out success);
 
-        // ì‹œê°„ ì´ˆê³¼ = ì‹¤íŒ¨
+        // ½Ã°£ ÃÊ°ú = ½ÇÆĞ
         if (!finished && eventTimeLeft <= 0f)
         {
             finished = true;
             success = false;
         }
 
-        // ê²Œì´ì§€ ê°±ì‹ 
+        // °ÔÀÌÁö °»½Å
         SetFill(gaugeFill, Mathf.Clamp01(currentEvent.Progress));
         SetFill(timeFill, eventTimeMax > 0f ? Mathf.Clamp01(eventTimeLeft / eventTimeMax) : 0f);
 
-        // B-1: í˜„ì¥ ë°–ì´ë©´ ë°©í–¥ í™”ì‚´í‘œ + ë‹¬ë ¤ê°€ë¼ ì•ˆë‚´ê°€ ê°€ì´ë“œë¥¼ ëŒ€ì‹ í•œë‹¤
+        // B-1: ÇöÀå ¹ÛÀÌ¸é ¹æÇâ È­»ìÇ¥ + ´Ş·Á°¡¶ó ¾È³»°¡ °¡ÀÌµå¸¦ ´ë½ÅÇÑ´Ù
         if (HasAnchor && !ChefInReach && chefTransform != null)
         {
-            string arrow = AnchorX > chefTransform.position.x ? "â†’â†’" : "â†â†";
-            guideText.text = arrow + " í˜„ì¥ìœ¼ë¡œ ë‹¬ë ¤ê°€ë¼! " + arrow + "   (" + currentEvent.Guide + ")";
+            string arrow = AnchorX > chefTransform.position.x ? "¡æ¡æ" : "¡ç¡ç";
+            guideText.text = arrow + " ÇöÀåÀ¸·Î ´Ş·Á°¡¶ó! " + arrow + "   (" + currentEvent.Guide + ")";
         }
         else
             guideText.text = currentEvent.Guide;
 
-        // ê¸°ì°¨ HP ì‹¤ì‹œê°„ í‘œì‹œ
+        // ±âÂ÷ HP ½Ç½Ã°£ Ç¥½Ã
         if (cachedTrain == null) cachedTrain = Object.FindFirstObjectByType<TrainManager>();
         if (cachedTrain != null && eventHpText != null)
-            eventHpText.text = "ê¸°ì°¨ HP  " + Mathf.RoundToInt(cachedTrain.currentHP)
+            eventHpText.text = "±âÂ÷ HP  " + Mathf.RoundToInt(cachedTrain.currentHP)
                 + " / " + Mathf.RoundToInt(cachedTrain.currentMaxHP);
 
         if (finished)
             EndCurrentEvent(success);
     }
 
-    // v3.3: ë¶„ê¸° ì„ ë¡œ 'ì•ˆê°œ ì„ ë¡œ' ì˜ˆì•½ í”Œë˜ê·¸ (ë‹¤ìŒ ì „íˆ¬ ì‹œì‘ ì‹œ 1íšŒ ì ìš©)
+    // v3.3: ºĞ±â ¼±·Î '¾È°³ ¼±·Î' ¿¹¾à ÇÃ·¡±× (´ÙÀ½ ÀüÅõ ½ÃÀÛ ½Ã 1È¸ Àû¿ë)
     private bool earlyEventPending = false;
 
-    /// <summary>ë‹¤ìŒ ì „íˆ¬ê°€ ì‹œì‘ë˜ë©´ ì´ë²¤íŠ¸ë¥¼ ì´ë¥´ê²Œ ë°œìƒì‹œí‚¨ë‹¤ (ì•ˆê°œ ì„ ë¡œ).</summary>
+    /// <summary>´ÙÀ½ ÀüÅõ°¡ ½ÃÀÛµÇ¸é ÀÌº¥Æ®¸¦ ÀÌ¸£°Ô ¹ß»ı½ÃÅ²´Ù (¾È°³ ¼±·Î).</summary>
     public void ScheduleEarlyEvent()
     {
         earlyEventPending = true;
     }
 
     /// <summary>
-    /// v3.1: ì´ë²¤íŠ¸ë¥¼ ì„±ê³µ/ì‹¤íŒ¨ íŒì • ì—†ì´ ì¡°ìš©íˆ ì¤‘ë‹¨ (í˜ë„í‹° ì—†ìŒ).
-    /// ì „íˆ¬ê°€ ì•„ë‹Œ ìƒíƒœ(ê²Œì„ì˜¤ë²„ ë“±)ë¡œ ë„˜ì–´ê°ˆ ë•Œ ì‚¬ìš©.
+    /// v3.1: ÀÌº¥Æ®¸¦ ¼º°ø/½ÇÆĞ ÆÇÁ¤ ¾øÀÌ Á¶¿ëÈ÷ Áß´Ü (Æä³ÎÆ¼ ¾øÀ½).
+    /// ÀüÅõ°¡ ¾Æ´Ñ »óÅÂ(°ÔÀÓ¿À¹ö µî)·Î ³Ñ¾î°¥ ¶§ »ç¿ë.
     /// </summary>
     private void CancelCurrentEvent()
     {
         IKitchenEvent ev = currentEvent;
         currentEvent = null;
-        HasAnchor = false; ChefInReach = true;   // B-1: ì•µì»¤ ì •ë¦¬
+        HasAnchor = false; ChefInReach = true;   // B-1: ¾ŞÄ¿ Á¤¸®
 
         ClearCustomRoot();
         ClearOverlay();
         SetAlarm(alarmColor, 0f);
         HidePanel();
-        Debug.Log("[ì£¼ë°©ì´ë²¤íŠ¸] ì „íˆ¬ ì¢…ë£Œë¡œ ì·¨ì†Œ: " + ev.Title);
+        Debug.Log("[ÁÖ¹æÀÌº¥Æ®] ÀüÅõ Á¾·á·Î Ãë¼Ò: " + ev.Title);
     }
 
     private void EndCurrentEvent(bool success)
     {
         IKitchenEvent ev = currentEvent;
         currentEvent = null;
-        HasAnchor = false; ChefInReach = true;   // B-1: ì•µì»¤ ì •ë¦¬
+        HasAnchor = false; ChefInReach = true;   // B-1: ¾ŞÄ¿ Á¤¸®
 
         ev.OnEnd(success);
         ClearCustomRoot();
@@ -426,28 +433,28 @@ public class KitchenEventManager : MonoBehaviour
         SetAlarm(alarmColor, 0f);
         HidePanel();
 
-        // ë°œìƒ ê°„ê²© ë°°ìœ¨ (Phase 2-3: 'ë¶€ì±„ì§ˆ ì¥ì¸ì˜ ë¶€ì±„'ëŠ” ì•„ì´í…œìœ¼ë¡œ ì´ê´€ - ì¦ê°• ê°’ì€ í˜¸í™˜ìš©)
+        // ¹ß»ı °£°İ ¹èÀ² (Phase 2-3: 'ºÎÃ¤Áú ÀåÀÎÀÇ ºÎÃ¤'´Â ¾ÆÀÌÅÛÀ¸·Î ÀÌ°ü - Áõ°­ °ªÀº È£È¯¿ë)
         nextEventTime = Time.time + Random.Range(minInterval, maxInterval)
             * AugmentManager.EventIntervalMul * ItemManager.EventIntervalMul;
-        Debug.Log("[ì£¼ë°©ì´ë²¤íŠ¸] ì¢…ë£Œ: " + ev.Title + " / ê²°ê³¼ " + (success ? "ì„±ê³µ" : "ì‹¤íŒ¨"));
+        Debug.Log("[ÁÖ¹æÀÌº¥Æ®] Á¾·á: " + ev.Title + " / °á°ú " + (success ? "¼º°ø" : "½ÇÆĞ"));
     }
 
     // ==================================================================
-    //  ì™¸ë¶€ ì—°ë™ (í”„ë¡œì íŠ¸ APIê°€ ë‹¤ë¥´ë©´ ì´ êµ¬ì—­ë§Œ ê³ ì¹˜ë©´ ëœë‹¤)
+    //  ¿ÜºÎ ¿¬µ¿ (ÇÁ·ÎÁ§Æ® API°¡ ´Ù¸£¸é ÀÌ ±¸¿ª¸¸ °íÄ¡¸é µÈ´Ù)
     // ==================================================================
 
-    /// <summary>ì´ë²¤íŠ¸ ì‹¤íŒ¨ í˜ë„í‹° - ê¸°ì°¨ì— ë°ë¯¸ì§€ (ì•„ì´í…œ 'ë³´í—˜ ê³„ì•½ì„œ'ê°€ ë°°ìœ¨ì„ ì¤„ì¸ë‹¤)</summary>
+    /// <summary>ÀÌº¥Æ® ½ÇÆĞ Æä³ÎÆ¼ - ±âÂ÷¿¡ µ¥¹ÌÁö (¾ÆÀÌÅÛ 'º¸Çè °è¾à¼­'°¡ ¹èÀ²À» ÁÙÀÎ´Ù)</summary>
     public void DamageTrain(float amount)
     {
         amount *= AugmentManager.EventPenaltyMul * ItemManager.EventPenaltyMul;
         TrainManager tm = Object.FindFirstObjectByType<TrainManager>();
         if (tm == null) return;
         tm.TakeDamage(amount);
-        // ë§Œì•½ TakeDamageê°€ ê³µê²©ì ì¸ìë¥¼ í•„ìˆ˜ë¡œ ìš”êµ¬í•´ì„œ ì—ëŸ¬ê°€ ë‚˜ë©´ ìœ„ ì¤„ì„ ì•„ë˜ë¡œ êµì²´
+        // ¸¸¾à TakeDamage°¡ °ø°İÀÚ ÀÎÀÚ¸¦ ÇÊ¼ö·Î ¿ä±¸ÇØ¼­ ¿¡·¯°¡ ³ª¸é À§ ÁÙÀ» ¾Æ·¡·Î ±³Ã¼
         // tm.TakeDamage(amount, null);
     }
 
-    /// <summary>ì´ë²¤íŠ¸ ì„±ê³µ ë³´ìƒ - ê¸°ì°¨ íšŒë³µ (ì•„ì´í…œ 'ë¶€ì±„ì§ˆ ì¥ì¸ì˜ ë¶€ì±„'ê°€ ë°°ìœ¨ì„ ì˜¬ë¦°ë‹¤)</summary>
+    /// <summary>ÀÌº¥Æ® ¼º°ø º¸»ó - ±âÂ÷ È¸º¹ (¾ÆÀÌÅÛ 'ºÎÃ¤Áú ÀåÀÎÀÇ ºÎÃ¤'°¡ ¹èÀ²À» ¿Ã¸°´Ù)</summary>
     public void HealTrain(float amount)
     {
         amount *= AugmentManager.EventRewardMul * ItemManager.EventRewardMul;
@@ -456,12 +463,12 @@ public class KitchenEventManager : MonoBehaviour
     }
 
     // ==================================================================
-    //  UI ìƒì„± (ì½”ë“œ ìƒì„± uGUI)
+    //  UI »ı¼º (ÄÚµå »ı¼º uGUI)
     // ==================================================================
 
     private void BuildUI()
     {
-        // ì „ìš© ìº”ë²„ìŠ¤ (ë‹¤ë¥¸ UIë³´ë‹¤ ìœ„ì— ê·¸ë¦°ë‹¤)
+        // Àü¿ë Äµ¹ö½º (´Ù¸¥ UIº¸´Ù À§¿¡ ±×¸°´Ù)
         GameObject canvasGo = new GameObject("KitchenEventCanvas");
         canvasGo.transform.SetParent(transform, false);
         canvas = canvasGo.AddComponent<Canvas>();
@@ -473,7 +480,7 @@ public class KitchenEventManager : MonoBehaviour
         scaler.matchWidthOrHeight = 0.5f;
         canvasGo.AddComponent<GraphicRaycaster>();
 
-        // v4: ê²½ë³´ ê¸€ë¡œìš° (ë§¨ ì•„ë˜ ì¸µ, ì „ì²´ í™”ë©´. ìŠ¤í‚¨ ì—†ìœ¼ë©´ ë§Œë“¤ì§€ ì•ŠëŠ”ë‹¤)
+        // v4: °æº¸ ±Û·Î¿ì (¸Ç ¾Æ·¡ Ãş, ÀüÃ¼ È­¸é. ½ºÅ² ¾øÀ¸¸é ¸¸µéÁö ¾Ê´Â´Ù)
         if (SkinReady)
         {
             RectTransform vrt = MakeBox(canvasGo.transform, "AlarmVignette", new Color(1f, 1f, 1f, 0f));
@@ -486,13 +493,13 @@ public class KitchenEventManager : MonoBehaviour
             alarmVignette.enabled = false;
         }
 
-        // v4: í™”ë©´ ì „ì²´ ì—°ì¶œ ì˜ì—­ (ë°œí†± / ë¶ˆì˜ ë²½ / ë…¸ì´ì¦ˆ) - ì»¤ìŠ¤í…€ ì˜ì—­ ì•„ë˜
+        // v4: È­¸é ÀüÃ¼ ¿¬Ãâ ¿µ¿ª (¹ßÅé / ºÒÀÇ º® / ³ëÀÌÁî) - Ä¿½ºÅÒ ¿µ¿ª ¾Æ·¡
         overlayRoot = MakeBox(canvasGo.transform, "OverlayRoot", new Color(0f, 0f, 0f, 0f));
         overlayRoot.anchorMin = Vector2.zero; overlayRoot.anchorMax = Vector2.one;
         overlayRoot.offsetMin = Vector2.zero; overlayRoot.offsetMax = Vector2.zero;
         overlayRoot.GetComponent<Image>().raycastTarget = false;
 
-        // ì´ë²¤íŠ¸ë³„ ì»¤ìŠ¤í…€ ì˜¤ë¸Œì íŠ¸ ì˜ì—­ (ì „ì²´ í™”ë©´)
+        // ÀÌº¥Æ®º° Ä¿½ºÅÒ ¿ÀºêÁ§Æ® ¿µ¿ª (ÀüÃ¼ È­¸é)
         customRoot = MakeBox(canvasGo.transform, "CustomRoot", new Color(0f, 0f, 0f, 0f));
         customRoot.anchorMin = Vector2.zero;
         customRoot.anchorMax = Vector2.one;
@@ -501,26 +508,26 @@ public class KitchenEventManager : MonoBehaviour
         Image customImg = customRoot.GetComponent<Image>();
         customImg.raycastTarget = false;
 
-        // ì´ë²¤íŠ¸ ë°°ë„ˆ íŒ¨ë„
-        // [ìˆ˜ì •] ìƒë‹¨ ë°°ì¹˜ ì‹œ ê¸°ì°¨ ì²´ë ¥ë°”ë¥¼ ê°€ë¦¬ëŠ” ë¬¸ì œ -> í•˜ë‹¨ ì¤‘ì•™(HUD ìœ„)ìœ¼ë¡œ ì´ë™
+        // ÀÌº¥Æ® ¹è³Ê ÆĞ³Î
+        // [¼öÁ¤] »ó´Ü ¹èÄ¡ ½Ã ±âÂ÷ Ã¼·Â¹Ù¸¦ °¡¸®´Â ¹®Á¦ -> ÇÏ´Ü Áß¾Ó(HUD À§)À¸·Î ÀÌµ¿
         panelRoot = MakeBox(canvasGo.transform, "EventBanner", new Color(0.09f, 0.07f, 0.06f, 0.9f));
         panelRoot.anchorMin = new Vector2(0.5f, 0f);
         panelRoot.anchorMax = new Vector2(0.5f, 0f);
         panelRoot.pivot = new Vector2(0.5f, 0f);
-        panelRoot.anchoredPosition = new Vector2(0f, BANNER_Y);   // v4: í•˜ë‹¨ HUD(184px) + ë¶ˆì˜ ë²½(96px) ìœ„
+        panelRoot.anchoredPosition = new Vector2(0f, BANNER_Y);   // v4: ÇÏ´Ü HUD(184px) + ºÒÀÇ º®(96px) À§
         panelRoot.sizeDelta = new Vector2(760f, 144f);
         Image panelImg = panelRoot.GetComponent<Image>();
         panelImg.raycastTarget = false;
         if (SkinReady)
         {
-            // ìŠ¤í‚¨: ë¬´ì‡  í‰íŒ + ë¹¨ê°„ ë¦¬ë²³ í…Œ + ìœ„í—˜ ìŠ¤íŠ¸ë¼ì´í”„ ì–‘ë (ìŠ¤ìºë„ˆê°€ ê±´ë“œë¦¬ì§€ ì•Šê²Œ ì§ì ‘ ì§€ì •)
+            // ½ºÅ²: ¹«¼è ÆòÆÇ + »¡°£ ¸®ºª Å× + À§Çè ½ºÆ®¶óÀÌÇÁ ¾ç³¡ (½ºÄ³³Ê°¡ °Çµå¸®Áö ¾Ê°Ô Á÷Á¢ ÁöÁ¤)
             UISkin.Plate(panelImg, Color.white);
             bannerRing = UISkin.AddRing(panelRoot, UISkin.HP_RED);
             UISkin.AddOrnament(panelRoot, "hazard", new Vector2(0f, 1f), new Vector2(16f, -20f), new Vector2(56f, 16f));
             UISkin.AddOrnament(panelRoot, "hazard", new Vector2(1f, 1f), new Vector2(-72f, -20f), new Vector2(56f, 16f));
         }
 
-        // ì œëª©
+        // Á¦¸ñ
         titleText = MakeText(panelRoot, "Title", "", 30, new Color(1f, 0.78f, 0.32f));
         RectTransform tRt = titleText.rectTransform;
         tRt.anchorMin = new Vector2(0f, 1f);
@@ -530,7 +537,7 @@ public class KitchenEventManager : MonoBehaviour
         tRt.offsetMax = new Vector2(-14f, -8f);
         tRt.sizeDelta = new Vector2(tRt.sizeDelta.x, 38f);
 
-        // ì¡°ì‘ ì•ˆë‚´
+        // Á¶ÀÛ ¾È³»
         guideText = MakeText(panelRoot, "Guide", "", 21, new Color(0.92f, 0.92f, 0.88f));
         RectTransform gRt = guideText.rectTransform;
         gRt.anchorMin = new Vector2(0f, 1f);
@@ -541,12 +548,12 @@ public class KitchenEventManager : MonoBehaviour
         gRt.offsetMax = new Vector2(-14f, gRt.offsetMax.y);
         gRt.sizeDelta = new Vector2(gRt.sizeDelta.x, 30f);
 
-        // ì§„í–‰ë„ ê²Œì´ì§€ (ì´ˆë¡)
+        // ÁøÇàµµ °ÔÀÌÁö (ÃÊ·Ï)
         gaugeFill = MakeGauge(panelRoot, "Gauge", -84f, new Color(0.35f, 0.85f, 0.4f));
-        // ë‚¨ì€ ì‹œê°„ ê²Œì´ì§€ (ì£¼í™©)
+        // ³²Àº ½Ã°£ °ÔÀÌÁö (ÁÖÈ²)
         timeFill = MakeGauge(panelRoot, "TimeBar", -104f, new Color(0.95f, 0.55f, 0.2f));
 
-        // ê¸°ì°¨ HP ì‹¤ì‹œê°„ í‘œì‹œ (í™”ì¬ ë“±ì—ì„œ ë‹³ëŠ” ì†ë„ê°€ ë°”ë¡œ ë³´ì´ê²Œ)
+        // ±âÂ÷ HP ½Ç½Ã°£ Ç¥½Ã (È­Àç µî¿¡¼­ ´â´Â ¼Óµµ°¡ ¹Ù·Î º¸ÀÌ°Ô)
         eventHpText = MakeText(panelRoot, "TrainHP", "", 19, new Color(1f, 0.5f, 0.45f));
         RectTransform hpRt = eventHpText.rectTransform;
         hpRt.anchorMin = new Vector2(0f, 1f);
@@ -555,7 +562,7 @@ public class KitchenEventManager : MonoBehaviour
         hpRt.anchoredPosition = new Vector2(0f, -118f);
         hpRt.sizeDelta = new Vector2(0f, 24f);
 
-        // v4: êµ¬ë¦¬ ê²½ê´‘ë“± 2ê°œ (í™”ë©´ ìœ„, ì˜ˆê³  ì¹´ë“œ ì–‘ì˜†) - ì´ë²¤íŠ¸ ì¤‘ì—ë§Œ ì¼œì ¸ ë²ˆê°ˆì•„ ê¹œë¹¡
+        // v4: ±¸¸® °æ±¤µî 2°³ (È­¸é À§, ¿¹°í Ä«µå ¾ç¿·) - ÀÌº¥Æ® Áß¿¡¸¸ ÄÑÁ® ¹ø°¥¾Æ ±ôºı
         if (SkinReady)
         {
             for (int i = 0; i < 2; i++)
@@ -573,10 +580,10 @@ public class KitchenEventManager : MonoBehaviour
     }
 
     // ==================================================================
-    //  v4 ê²½ë³´ ë ˆì´ì–´
+    //  v4 °æº¸ ·¹ÀÌ¾î
     // ==================================================================
 
-    /// <summary>ê²½ë³´ ê¸€ë¡œìš° ìƒ‰ê³¼ ì„¸ê¸°(0~1). 0 ì´ë©´ ëˆë‹¤. ì´ë²¤íŠ¸ OnStart ì—ì„œ ë¶€ë¥¸ë‹¤ (ì•ˆ ë¶€ë¥´ë©´ ê¸°ë³¸ ë¹¨ê°• 0.45)</summary>
+    /// <summary>°æº¸ ±Û·Î¿ì »ö°ú ¼¼±â(0~1). 0 ÀÌ¸é ²ö´Ù. ÀÌº¥Æ® OnStart ¿¡¼­ ºÎ¸¥´Ù (¾È ºÎ¸£¸é ±âº» »¡°­ 0.45)</summary>
     public void SetAlarm(Color color, float strength)
     {
         alarmColor = color;
@@ -598,7 +605,7 @@ public class KitchenEventManager : MonoBehaviour
     {
         if (alarmStrength <= 0f || alarmVignette == null) return;
         alarmTime += Time.unscaledDeltaTime;
-        // ì‚ë½€ì‚ë½€: 0.6ì´ˆ ì£¼ê¸°ë¡œ ì§„í–ˆë‹¤ ì˜…ì—ˆë‹¤ (ìµœì†Œ 35%ëŠ” ìœ ì§€í•´ì„œ "ê²½ë³´ ì¤‘" ìƒíƒœê°€ í•­ìƒ ë³´ì¸ë‹¤)
+        // »ß»Ç»ß»Ç: 0.6ÃÊ ÁÖ±â·Î ÁøÇß´Ù ¿¶¾ú´Ù (ÃÖ¼Ò 35%´Â À¯ÁöÇØ¼­ "°æº¸ Áß" »óÅÂ°¡ Ç×»ó º¸ÀÎ´Ù)
         float pulse = 0.5f + 0.5f * Mathf.Sin(alarmTime * (2f * Mathf.PI / ALARM_PERIOD));
         float a = alarmStrength * (0.35f + 0.65f * pulse);
         alarmVignette.color = new Color(alarmColor.r, alarmColor.g, alarmColor.b, a);
@@ -619,7 +626,7 @@ public class KitchenEventManager : MonoBehaviour
             Destroy(overlayRoot.GetChild(i).gameObject);
     }
 
-    /// <summary>ë°°ê²½ + ì±„ì›Œì§€ëŠ” ë§‰ëŒ€ í•œ ìŒì„ ë§Œë“¤ê³  ì±„ì›€ìš© RectTransformì„ ë°˜í™˜</summary>
+    /// <summary>¹è°æ + Ã¤¿öÁö´Â ¸·´ë ÇÑ ½ÖÀ» ¸¸µé°í Ã¤¿ò¿ë RectTransformÀ» ¹İÈ¯</summary>
     private RectTransform MakeGauge(RectTransform parent, string name, float y, Color color)
     {
         RectTransform bg = MakeBox(parent, name + "BG", new Color(0f, 0f, 0f, 0.55f));
@@ -641,7 +648,7 @@ public class KitchenEventManager : MonoBehaviour
         fillImg.raycastTarget = false;
         if (SkinReady)
         {
-            // v4: ê²€ì • í™ˆ ì•ˆì— ìœ ë¦¬ ì±„ì›€ (ì¡°ë¦¬ ë¯¸ë‹ˆê²Œì„ ì••ë ¥ ê²Œì´ì§€ì™€ ê°™ì€ ì¡°ê°)
+            // v4: °ËÁ¤ È¨ ¾È¿¡ À¯¸® Ã¤¿ò (Á¶¸® ¹Ì´Ï°ÔÀÓ ¾Ğ·Â °ÔÀÌÁö¿Í °°Àº Á¶°¢)
             bg.GetComponent<Image>().color = new Color(0.055f, 0.047f, 0.07f, 1f);
             fillImg.sprite = SpriteBank.Get("ui_gauge_fill");
             fillImg.type = Image.Type.Sliced;
@@ -651,7 +658,7 @@ public class KitchenEventManager : MonoBehaviour
         return fill;
     }
 
-    /// <summary>ê²Œì´ì§€ ì±„ì›€ ë¹„ìœ¨ ì ìš© (0~1)</summary>
+    /// <summary>°ÔÀÌÁö Ã¤¿ò ºñÀ² Àû¿ë (0~1)</summary>
     private void SetFill(RectTransform fill, float ratio)
     {
         if (fill == null) return;
@@ -671,9 +678,9 @@ public class KitchenEventManager : MonoBehaviour
             Destroy(customRoot.GetChild(i).gameObject);
     }
 
-    // ---------- ì´ë²¤íŠ¸ í´ë˜ìŠ¤ë“¤ì´ ê°™ì´ ì“°ëŠ” UI í—¬í¼ ----------
+    // ---------- ÀÌº¥Æ® Å¬·¡½ºµéÀÌ °°ÀÌ ¾²´Â UI ÇïÆÛ ----------
 
-    /// <summary>ë‹¨ìƒ‰ ì‚¬ê°í˜• íŒ¨ë„ ìƒì„±</summary>
+    /// <summary>´Ü»ö »ç°¢Çü ÆĞ³Î »ı¼º</summary>
     public static RectTransform MakeBox(Transform parent, string name, Color color)
     {
         GameObject go = new GameObject(name);
@@ -684,7 +691,7 @@ public class KitchenEventManager : MonoBehaviour
         return rt;
     }
 
-    /// <summary>ê°€ìš´ë° ì •ë ¬ í…ìŠ¤íŠ¸ ìƒì„±</summary>
+    /// <summary>°¡¿îµ¥ Á¤·Ä ÅØ½ºÆ® »ı¼º</summary>
     public static Text MakeText(Transform parent, string name, string content, int size, Color color)
     {
         GameObject go = new GameObject(name);
@@ -703,7 +710,7 @@ public class KitchenEventManager : MonoBehaviour
         return txt;
     }
 
-    /// <summary>í´ë¦­ ê°€ëŠ¥í•œ ë²„íŠ¼ ìƒì„± (ì¬ë£Œ ì¤ê¸°ìš©)</summary>
+    /// <summary>Å¬¸¯ °¡´ÉÇÑ ¹öÆ° »ı¼º (Àç·á Áİ±â¿ë)</summary>
     public static Button MakeButton(Transform parent, string label, Color bgColor, Vector2 pos, Vector2 size)
     {
         RectTransform rt = MakeBox(parent, "Btn_" + label, bgColor);
@@ -725,9 +732,9 @@ public class KitchenEventManager : MonoBehaviour
         return btn;
     }
 
-    // ---------- v4: ìŠ¤í‚¨ ì´ë²¤íŠ¸ í´ë˜ìŠ¤ë“¤ì´ ê°™ì´ ì“°ëŠ” ê·¸ë¦¼ í—¬í¼ ----------
+    // ---------- v4: ½ºÅ² ÀÌº¥Æ® Å¬·¡½ºµéÀÌ °°ÀÌ ¾²´Â ±×¸² ÇïÆÛ ----------
 
-    /// <summary>ìŠ¤í”„ë¼ì´íŠ¸ ì´ë¯¸ì§€ í•˜ë‚˜ (ì•µì»¤/í”¼ë²— = í™”ë©´ ì¤‘ì•™ ê¸°ì¤€, í´ë¦­ í†µê³¼). sprite ê°€ null ì´ë©´ í° ì‚¬ê°í˜•ì´ ëœ¨ë¯€ë¡œ í˜¸ì¶œë¶€ê°€ í™•ì¸í•  ê²ƒ</summary>
+    /// <summary>½ºÇÁ¶óÀÌÆ® ÀÌ¹ÌÁö ÇÏ³ª (¾ŞÄ¿/ÇÇ¹ş = È­¸é Áß¾Ó ±âÁØ, Å¬¸¯ Åë°ú). sprite °¡ null ÀÌ¸é Èò »ç°¢ÇüÀÌ ¶ß¹Ç·Î È£ÃâºÎ°¡ È®ÀÎÇÒ °Í</summary>
     public static Image MakeSprite(Transform parent, string name, Sprite sprite, Vector2 pos, Vector2 size)
     {
         GameObject go = new GameObject(name);
@@ -744,7 +751,7 @@ public class KitchenEventManager : MonoBehaviour
         return img;
     }
 
-    /// <summary>ë¬´ì‡  í‰íŒ + ìƒ‰ í…Œ ì¹´ë“œ (í™”ë©´ ì¤‘ì•™ ê¸°ì¤€ pos). ë°˜í™˜ = ì¹´ë“œ RectTransform, ring ì— í…Œ ì´ë¯¸ì§€</summary>
+    /// <summary>¹«¼è ÆòÆÇ + »ö Å× Ä«µå (È­¸é Áß¾Ó ±âÁØ pos). ¹İÈ¯ = Ä«µå RectTransform, ring ¿¡ Å× ÀÌ¹ÌÁö</summary>
     public static RectTransform MakeCard(Transform parent, string name, Vector2 pos, Vector2 size, Color ringColor, out Image ring)
     {
         RectTransform rt = MakeBox(parent, name, Color.white);
@@ -759,7 +766,7 @@ public class KitchenEventManager : MonoBehaviour
         return rt;
     }
 
-    /// <summary>ì¡°ì‘ ì•ˆë‚´ ì¹© ("[E] ì—°íƒ€!" ë“±): ì‘ì€ ì¹´ë“œ + ê¸€ì. í­ì€ ê¸€ì ìˆ˜ë¡œ ì–´ë¦¼</summary>
+    /// <summary>Á¶ÀÛ ¾È³» Ä¨ ("[E] ¿¬Å¸!" µî): ÀÛÀº Ä«µå + ±ÛÀÚ. ÆøÀº ±ÛÀÚ ¼ö·Î ¾î¸²</summary>
     public static RectTransform MakeChip(Transform parent, string name, string label, Vector2 pos, Color ringColor)
     {
         float w = 0f;
@@ -774,20 +781,20 @@ public class KitchenEventManager : MonoBehaviour
     }
 
     /// <summary>
-    /// í•œê¸€ í‘œì‹œ ê°€ëŠ¥í•œ í°íŠ¸ í™•ë³´.
-    /// v3.5: ë²ˆë“¤ í°íŠ¸ 1ìˆœìœ„ - Assets/Resources/Fonts/GameFont.ttf ê°€ ìˆìœ¼ë©´ ê·¸ê±¸ ì“´ë‹¤
-    /// (OS í°íŠ¸ ì˜ì¡´ ì œê±°: í•œê¸€ ë¯¸íƒ‘ì¬ í™˜ê²½ì—ì„œ UIê°€ ê¹¨ì§€ëŠ” ë¬¸ì œì˜ ê·¼ë³¸ í•´ê²°)
-    /// ì—†ìœ¼ë©´ ê¸°ì¡´ì²˜ëŸ¼ OS í°íŠ¸(ë§‘ì€ ê³ ë”• ë“±) -> ë‚´ì¥ í°íŠ¸ ìˆœì„œë¡œ í´ë°±
+    /// ÇÑ±Û Ç¥½Ã °¡´ÉÇÑ ÆùÆ® È®º¸.
+    /// v3.5: ¹øµé ÆùÆ® 1¼øÀ§ - Assets/Resources/Fonts/GameFont.ttf °¡ ÀÖÀ¸¸é ±×°É ¾´´Ù
+    /// (OS ÆùÆ® ÀÇÁ¸ Á¦°Å: ÇÑ±Û ¹ÌÅ¾Àç È¯°æ¿¡¼­ UI°¡ ±úÁö´Â ¹®Á¦ÀÇ ±Ùº» ÇØ°á)
+    /// ¾øÀ¸¸é ±âÁ¸Ã³·³ OS ÆùÆ®(¸¼Àº °íµñ µî) -> ³»Àå ÆùÆ® ¼ø¼­·Î Æú¹é
     /// </summary>
     public static Font GetFont()
     {
         if (cachedFont != null) return cachedFont;
 
-        // 1ìˆœìœ„: í”„ë¡œì íŠ¸ì— ë²ˆë“¤ëœ í°íŠ¸ (ê¶Œì¥: ë‘¥ê·¼ëª¨ê¼´/Galmuri ë“± ë¬´ë£Œ í”½ì…€ í•œê¸€ í°íŠ¸)
+        // 1¼øÀ§: ÇÁ·ÎÁ§Æ®¿¡ ¹øµéµÈ ÆùÆ® (±ÇÀå: µÕ±Ù¸ğ²Ã/Galmuri µî ¹«·á ÇÈ¼¿ ÇÑ±Û ÆùÆ®)
         Font bundled = Resources.Load<Font>("Fonts/GameFont");
         if (bundled != null) { cachedFont = bundled; return cachedFont; }
 
-        string[] candidates = { "Malgun Gothic", "ë§‘ì€ ê³ ë”•", "NanumGothic", "Gulim", "Arial" };
+        string[] candidates = { "Malgun Gothic", "¸¼Àº °íµñ", "NanumGothic", "Gulim", "Arial" };
         for (int i = 0; i < candidates.Length; i++)
         {
             Font f = Font.CreateDynamicFontFromOSFont(candidates[i], 20);

@@ -3,20 +3,20 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 /// <summary>
-/// [SlotMarkerUI.cs] v5.1 (v9.9 2026-09-16: 4ëª¨ì„œë¦¬ ë°°ì¹˜ - ë‚¨ìª½ ìŠ¬ë¡¯ ë§ˆì»¤ëŠ” ë°œ ì•„ë˜, í­ 96->120(GameBalance.SlotMarkerWidth), ë¡œë¹„ì—ì„œ ìˆ¨ê¹€) / v5 (êµìˆ˜ í”¼ë“œë°± A5/A12 ë°˜ì˜ 2026-09-14) / v4 (B-1: ê·¼ì ‘ ìœ„ê¸° ëŒ€ì‘ - ë°©í–¥ê²°ì • 2026-08-31)
-/// ìŠ¬ë¡¯ 8ê°œ ìœ„ì¹˜ì— í™”ë©´ ë§ˆì»¤ í‘œì‹œ (ì›”ë“œ ë”°ë¼ë‹¤ë‹˜)
-/// - ì¢Œí´ë¦­(íˆ¬ì… ëª¨ë“œ): ìš”ë¦¬ íˆ¬ì…
-/// - ì¢Œí´ë¦­(í‰ì‹œ): í•©ì²´ ì„ íƒ -> ë‹¤ë¥¸ í¬íƒ‘ í´ë¦­ = í•©ì²´ (ê¸°íš B-3)
-///   ê°™ì€ ìš”ë¦¬ = ê°•í™”(ë ˆë²¨ í•©ì‚°) / ë‹¤ë¥¸ T1 = ì§„í™”(T2). ì¬í´ë¦­/ESC/ìš°í´ë¦­ = ì·¨ì†Œ
-/// - ìš°í´ë¦­: íˆ¬ì… ëª¨ë“œÂ·í•©ì²´ ì„ íƒ ì¤‘ì´ë©´ "ì·¨ì†Œ"ë§Œ í•œë‹¤ (v5: ì·¨ì†Œí•˜ë ¤ë‹¤ í¬íƒ‘ì´ ë‚ ì•„ê°€ë˜ ì¶©ëŒ ì œê±°)
-///   í‰ì‹œì—ëŠ” íê¸° ì˜ˆê³  -> GameBalance.ScrapArmSec ì•ˆì— ê°™ì€ ìŠ¬ë¡¯ì„ í•œ ë²ˆ ë” ìš°í´ë¦­í•˜ë©´ íê¸° (í™•ì¸ì°½ ì—†ìŒ)
-/// - í˜¸ë²„: ì„±ëŠ¥ íˆ´íŒ. v5: í•©ì²´ ì„ íƒ ì¤‘ ë‹¤ë¥¸ í¬íƒ‘ì— ì˜¬ë¦¬ë©´ ê²°ê³¼ ë¯¸ë¦¬ë³´ê¸°
-///   (ê°•í™”/ì§„í™” êµ¬ë¶„, ê²°ê³¼ ë ˆë²¨, ë¹„ëŠ” ìŠ¬ë¡¯, ê³µëª… ë³€í™”, ë¯¸ë°œê²¬ T2ëŠ” ì´ë¦„ ëŒ€ì‹  ì—­í• )
-/// - v4 ë³€ê²½ì  (B-1): ë¹™ê²°/ê°ì „ í•´ì œê°€ í´ë¦­ -> "ë‹¬ë ¤ê°€ì„œ [E]"ë¡œ ì „í™˜.
-///   ì…°í”„ê°€ ê·¸ í¬íƒ‘ ê³(GameBalance.SlotReach)ì— ìˆì–´ì•¼ í•´ì œëœë‹¤ - ëª¸ì´ ì›€ì§ì¼ ì´ìœ .
-///   GameBalance.ProximityInteract = false ë©´ ê¸°ì¡´ í´ë¦­ ë°©ì‹ìœ¼ë¡œ ë³µê·€.
-/// GameSystems ì˜¤ë¸Œì íŠ¸ì— ë¶€ì°©
-/// VS 2017 (C# 7.3) í˜¸í™˜
+/// [SlotMarkerUI.cs] v5.2 (v9.9.2 2026-09-16: ¸¶ºñ Ä¨ = "°¨Àü!/ºù°á!/°ú¿­!" + ÇÒ ÀÏ ÇÑ ÁÙ, »¡°£ Å×, Ä¨ À§ ¸ğ¼­¸® °æ±¤µî 0.3ÃÊ ±³´ë (GameBalance.StunChipBeacons) - ¸ñ¾÷ v3 (E), Á¤½Ä ·± °ø¿ë) / v5.1 (v9.9 2026-09-16: 4¸ğ¼­¸® ¹èÄ¡ - ³²ÂÊ ½½·Ô ¸¶Ä¿´Â ¹ß ¾Æ·¡, Æø 96->120(GameBalance.SlotMarkerWidth), ·Îºñ¿¡¼­ ¼û±è) / v5 (±³¼ö ÇÇµå¹é A5/A12 ¹İ¿µ 2026-09-14) / v4 (B-1: ±ÙÁ¢ À§±â ´ëÀÀ - ¹æÇâ°áÁ¤ 2026-08-31)
+/// ½½·Ô 8°³ À§Ä¡¿¡ È­¸é ¸¶Ä¿ Ç¥½Ã (¿ùµå µû¶ó´Ù´Ô)
+/// - ÁÂÅ¬¸¯(ÅõÀÔ ¸ğµå): ¿ä¸® ÅõÀÔ
+/// - ÁÂÅ¬¸¯(Æò½Ã): ÇÕÃ¼ ¼±ÅÃ -> ´Ù¸¥ Æ÷Å¾ Å¬¸¯ = ÇÕÃ¼ (±âÈ¹ B-3)
+///   °°Àº ¿ä¸® = °­È­(·¹º§ ÇÕ»ê) / ´Ù¸¥ T1 = ÁøÈ­(T2). ÀçÅ¬¸¯/ESC/¿ìÅ¬¸¯ = Ãë¼Ò
+/// - ¿ìÅ¬¸¯: ÅõÀÔ ¸ğµå¡¤ÇÕÃ¼ ¼±ÅÃ ÁßÀÌ¸é "Ãë¼Ò"¸¸ ÇÑ´Ù (v5: Ãë¼ÒÇÏ·Á´Ù Æ÷Å¾ÀÌ ³¯¾Æ°¡´ø Ãæµ¹ Á¦°Å)
+///   Æò½Ã¿¡´Â Æó±â ¿¹°í -> GameBalance.ScrapArmSec ¾È¿¡ °°Àº ½½·ÔÀ» ÇÑ ¹ø ´õ ¿ìÅ¬¸¯ÇÏ¸é Æó±â (È®ÀÎÃ¢ ¾øÀ½)
+/// - È£¹ö: ¼º´É ÅøÆÁ. v5: ÇÕÃ¼ ¼±ÅÃ Áß ´Ù¸¥ Æ÷Å¾¿¡ ¿Ã¸®¸é °á°ú ¹Ì¸®º¸±â
+///   (°­È­/ÁøÈ­ ±¸ºĞ, °á°ú ·¹º§, ºñ´Â ½½·Ô, °ø¸í º¯È­, ¹Ì¹ß°ß T2´Â ÀÌ¸§ ´ë½Å ¿ªÇÒ)
+/// - v4 º¯°æÁ¡ (B-1): ºù°á/°¨Àü ÇØÁ¦°¡ Å¬¸¯ -> "´Ş·Á°¡¼­ [E]"·Î ÀüÈ¯.
+///   ¼ÎÇÁ°¡ ±× Æ÷Å¾ °ç(GameBalance.SlotReach)¿¡ ÀÖ¾î¾ß ÇØÁ¦µÈ´Ù - ¸öÀÌ ¿òÁ÷ÀÏ ÀÌÀ¯.
+///   GameBalance.ProximityInteract = false ¸é ±âÁ¸ Å¬¸¯ ¹æ½ÄÀ¸·Î º¹±Í.
+/// GameSystems ¿ÀºêÁ§Æ®¿¡ ºÎÂø
+/// VS 2017 (C# 7.3) È£È¯
 /// </summary>
 public class SlotMarkerUI : MonoBehaviour
 {
@@ -25,32 +25,36 @@ public class SlotMarkerUI : MonoBehaviour
     private Image[] markerBorders = new Image[8];
     private Image[] markerBGs = new Image[8];
     private Text[] markerTexts = new Text[8];
+    private Image[] beaconL = new Image[8];        // v5.2: ¸¶ºñ Ä¨ °æ±¤µî (Ä¨ À­º¯ ¾ç ¸ğ¼­¸®)
+    private Image[] beaconR = new Image[8];
+    private Sprite beaconOff, beaconOn;
+    private static readonly Color BORDER_STUN = new Color(0.78f, 0.16f, 0.16f);   // v5.2: ¸¶ºñ = »¡°£ Å× (Á¾·ù »öÀº ±ÛÀÚ¡¤¼Ó¿¡)
     private RectTransform tooltip;
     private Text tooltipText;
     private int hoverIndex = -1;
 
-    // B-1: ê·¼ì ‘ í•´ì œ ëŒ€ìƒ (ì…°í”„ì™€ ê°€ì¥ ê°€ê¹Œìš´ ë§ˆë¹„ ìŠ¬ë¡¯, -1 = ì—†ìŒ)
+    // B-1: ±ÙÁ¢ ÇØÁ¦ ´ë»ó (¼ÎÇÁ¿Í °¡Àå °¡±î¿î ¸¶ºñ ½½·Ô, -1 = ¾øÀ½)
     private Transform chefTransform;
     private int reachStunIndex = -1;
 
-    // B-2: ê³¼ì—´ ëƒ‰ê° í™€ë“œ ìƒíƒœ ([E] ê¾¹ - ì†ì„ ë–¼ë©´ ì„œì„œíˆ ì‹íŒ ê²Œ ë‚ ì•„ê°„ë‹¤)
+    // B-2: °ú¿­ ³Ã°¢ È¦µå »óÅÂ ([E] ²Ú - ¼ÕÀ» ¶¼¸é ¼­¼­È÷ ½ÄÈù °Ô ³¯¾Æ°£´Ù)
     private float coolHold = 0f;
     private int coolIndex = -1;
 
-    // í”½ìŠ¤ 2ì°¨: ë¹™ê²° = [E] ì—°íƒ€ë¡œ ê¹¨ê¸° (ìƒí˜¸ì‘ìš© ë³€ì£¼)
+    // ÇÈ½º 2Â÷: ºù°á = [E] ¿¬Å¸·Î ±ú±â (»óÈ£ÀÛ¿ë º¯ÁÖ)
     private int iceTaps = 0;
     private int iceTapIndex = -1;
 
-    // v5 (A5): íê¸° ì˜ˆê³  ìƒíƒœ - ê°™ì€ ìŠ¬ë¡¯ì„ ScrapArmSec ì•ˆì— í•œ ë²ˆ ë” ìš°í´ë¦­í•´ì•¼ íê¸°
+    // v5 (A5): Æó±â ¿¹°í »óÅÂ - °°Àº ½½·ÔÀ» ScrapArmSec ¾È¿¡ ÇÑ ¹ø ´õ ¿ìÅ¬¸¯ÇØ¾ß Æó±â
     private int scrapArmIndex = -1;
     private float scrapArmUntil = 0f;
 
-    // í•©ì²´ ì„ íƒ ìƒíƒœ (-1 = ì„ íƒ ì—†ìŒ)
+    // ÇÕÃ¼ ¼±ÅÃ »óÅÂ (-1 = ¼±ÅÃ ¾øÀ½)
     private int mergeSelectIndex = -1;
     private RectTransform mergeBanner;
     private Text mergeBannerText;
 
-    /// <summary>í•©ì²´ ì„ íƒ ì¤‘ì¸ì§€ (PauseMenuê°€ ESC ìš©ë„ íŒë³„ì— ì‚¬ìš©)</summary>
+    /// <summary>ÇÕÃ¼ ¼±ÅÃ ÁßÀÎÁö (PauseMenu°¡ ESC ¿ëµµ ÆÇº°¿¡ »ç¿ë)</summary>
     public static bool MergeSelecting { get; private set; }
 
     private static readonly Color BG_NORMAL = new Color(0.12f, 0.075f, 0.05f, 0.9f);
@@ -59,12 +63,12 @@ public class SlotMarkerUI : MonoBehaviour
 
     void Start()
     {
-        canvas = UIFactory.CreateCanvas("SlotMarker_Canvas", 9); // HUDë³´ë‹¤ ì•„ë˜
+        canvas = UIFactory.CreateCanvas("SlotMarker_Canvas", 9); // HUDº¸´Ù ¾Æ·¡
 
         for (int i = 0; i < 8; i++)
             CreateMarker(i);
 
-        // íˆ´íŒ (ë§¨ ìœ„ í‘œì‹œ)
+        // ÅøÆÁ (¸Ç À§ Ç¥½Ã)
         RectTransform tipPanel = UIFactory.CreatePanel(canvas.transform, "Tooltip",
             new Vector2(0f, 0f), new Vector2(0f, 0f),
             Vector2.zero, new Vector2(340f, 150f),
@@ -75,7 +79,7 @@ public class SlotMarkerUI : MonoBehaviour
         tooltip = tipPanel;
         tooltip.gameObject.SetActive(false);
 
-        // í•©ì²´ ì•ˆë‚´ ë°°ë„ˆ (ìƒë‹¨ ì¤‘ì•™, íˆ¬ì… ë°°ë„ˆë³´ë‹¤ ì•„ë˜)
+        // ÇÕÃ¼ ¾È³» ¹è³Ê (»ó´Ü Áß¾Ó, ÅõÀÔ ¹è³Êº¸´Ù ¾Æ·¡)
         mergeBanner = UIFactory.CreatePanel(canvas.transform, "MergeBanner",
             new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
             new Vector2(-370f, -148f), new Vector2(370f, -104f),
@@ -86,22 +90,22 @@ public class SlotMarkerUI : MonoBehaviour
 
     void Update()
     {
-        // ESC = í•©ì²´ ì„ íƒ ì·¨ì†Œ
+        // ESC = ÇÕÃ¼ ¼±ÅÃ Ãë¼Ò
         if (mergeSelectIndex >= 0 && Input.GetKeyDown(KeyCode.Escape))
             SetMergeSelect(-1);
 
-        // íˆ¬ì… ëª¨ë“œê°€ ì¼œì§€ë©´ í•©ì²´ ì„ íƒ í•´ì œ (ì¡°ì‘ ì¶©ëŒ ë°©ì§€)
+        // ÅõÀÔ ¸ğµå°¡ ÄÑÁö¸é ÇÕÃ¼ ¼±ÅÃ ÇØÁ¦ (Á¶ÀÛ Ãæµ¹ ¹æÁö)
         if (mergeSelectIndex >= 0 && GameHUD.Instance != null &&
             !string.IsNullOrEmpty(GameHUD.Instance.placingRecipeId))
             SetMergeSelect(-1);
 
-        // â”€â”€ B-1: ê·¼ì ‘ [E] ë§ˆë¹„ í•´ì œ - "ë‹¬ë ¤ê°€ì„œ ëª¸ìœ¼ë¡œ ë˜ì‚´ë¦°ë‹¤" â”€â”€
+        // ¦¡¦¡ B-1: ±ÙÁ¢ [E] ¸¶ºñ ÇØÁ¦ - "´Ş·Á°¡¼­ ¸öÀ¸·Î µÇ»ì¸°´Ù" ¦¡¦¡
         UpdateProximityUnstun();
     }
 
     /// <summary>
-    /// B-1: ì…°í”„ê°€ ë§ˆë¹„ í¬íƒ‘ ê³ì— ìˆìœ¼ë©´ [E]ë¡œ ì¦‰ì‹œ í•´ì œ.
-    /// ì¡°ë¦¬ëŒ€(E)ì™€ ê²¹ì¹  ë•ŒëŠ” ìœ„ê¸° ëŒ€ì‘ì´ ìš°ì„  - InteractConsumedFrameìœ¼ë¡œ ì´ì¤‘ ì†Œë¹„ ë°©ì§€.
+    /// B-1: ¼ÎÇÁ°¡ ¸¶ºñ Æ÷Å¾ °ç¿¡ ÀÖÀ¸¸é [E]·Î Áï½Ã ÇØÁ¦.
+    /// Á¶¸®´ë(E)¿Í °ãÄ¥ ¶§´Â À§±â ´ëÀÀÀÌ ¿ì¼± - InteractConsumedFrameÀ¸·Î ÀÌÁß ¼Òºñ ¹æÁö.
     /// </summary>
     private void UpdateProximityUnstun()
     {
@@ -125,17 +129,17 @@ public class SlotMarkerUI : MonoBehaviour
         TurretSlot slot = TurretSlotManager.Instance.slots[reachStunIndex];
         if (slot == null || !slot.IsStunned) return;
 
-        // â”€â”€ B-2 ê³¼ì—´: [E] í™€ë“œ ëƒ‰ê° (ì¦‰ì‹œ í•´ì œê°€ ì•„ë‹ˆë¼ ì ê¹ 'ì‘ì—…'í•œë‹¤) â”€â”€
-        if (slot.StunKind == "ê³¼ì—´")
+        // ¦¡¦¡ B-2 °ú¿­: [E] È¦µå ³Ã°¢ (Áï½Ã ÇØÁ¦°¡ ¾Æ´Ï¶ó Àá±ñ 'ÀÛ¾÷'ÇÑ´Ù) ¦¡¦¡
+        if (slot.StunKind == "°ú¿­")
         {
             if (reachStunIndex != coolIndex) { coolIndex = reachStunIndex; coolHold = 0f; }
 
             if (Input.GetKey(KeyCode.E))
             {
-                ChefController.InteractConsumedFrame = Time.frameCount;   // ì¡°ë¦¬ëŒ€ ì—´ë¦¼ ë°©ì§€
+                ChefController.InteractConsumedFrame = Time.frameCount;   // Á¶¸®´ë ¿­¸² ¹æÁö
 
-                // í”½ìŠ¤ 2ì°¨ (ìƒí˜¸ì‘ìš© ë³€ì£¼): ë¶€ì±„ì§ˆ - [E] ê¾¹ + ë§ˆìš°ìŠ¤ë¥¼ íœ˜ì €ìœ¼ë©´ ëƒ‰ê° ê°€ì†
-                // (í”„ë ˆì„ë‹¹ ë§ˆìš°ìŠ¤ ì´ë™ëŸ‰ ê¸°ë°˜. ì•ˆ íœ˜ì €ì–´ë„ ê¸°ë³¸ ì†ë„ëŠ” ê·¸ëŒ€ë¡œ)
+                // ÇÈ½º 2Â÷ (»óÈ£ÀÛ¿ë º¯ÁÖ): ºÎÃ¤Áú - [E] ²Ú + ¸¶¿ì½º¸¦ ÈÖÀúÀ¸¸é ³Ã°¢ °¡¼Ó
+                // (ÇÁ·¹ÀÓ´ç ¸¶¿ì½º ÀÌµ¿·® ±â¹İ. ¾È ÈÖÀú¾îµµ ±âº» ¼Óµµ´Â ±×´ë·Î)
                 float mouseMove = new Vector2(
                     Input.GetAxisRaw("Mouse X"), Input.GetAxisRaw("Mouse Y")).magnitude;
                 float fanBonus = Mathf.Min(mouseMove * GameBalance.OverheatValveBonus,
@@ -146,44 +150,44 @@ public class SlotMarkerUI : MonoBehaviour
                     coolHold = 0f; coolIndex = -1;
                     slot.ClearStun();
                     SoundManager.Play("sfx_ui_click");
-                    GameFeel.DeathPop(slot.transform.position, new Color(0.9f, 0.9f, 0.95f), 0.55f); // ì¦ê¸° ë¹ ì§
-                    UIManager.Instance?.ShowStatChange("í¬íƒ‘ ëƒ‰ê° ì™„ë£Œ! ë‹¤ì‹œ ë¶ˆì„ ë¿œëŠ”ë‹¤");
+                    GameFeel.DeathPop(slot.transform.position, new Color(0.9f, 0.9f, 0.95f), 0.55f); // Áõ±â ºüÁü
+                    UIManager.Instance?.ShowStatChange("Æ÷Å¾ ³Ã°¢ ¿Ï·á! ´Ù½Ã ºÒÀ» »Õ´Â´Ù");
                 }
             }
             else
-                coolHold = Mathf.Max(0f, coolHold - Time.deltaTime * 2f);   // ì† ë–¼ë©´ ì‹íŒ ê²Œ ìƒŒë‹¤
+                coolHold = Mathf.Max(0f, coolHold - Time.deltaTime * 2f);   // ¼Õ ¶¼¸é ½ÄÈù °Ô »÷´Ù
             return;
         }
 
-        // â”€â”€ í”½ìŠ¤ 2ì°¨ (ìƒí˜¸ì‘ìš© ë³€ì£¼): ê°ì „ = [E] íƒ í„¸ê¸°(1íšŒ) / ë¹™ê²° = [E] ì—°íƒ€ë¡œ ê¹¨ê¸° â”€â”€
+        // ¦¡¦¡ ÇÈ½º 2Â÷ (»óÈ£ÀÛ¿ë º¯ÁÖ): °¨Àü = [E] Å¹ ÅĞ±â(1È¸) / ºù°á = [E] ¿¬Å¸·Î ±ú±â ¦¡¦¡
         coolHold = 0f; coolIndex = -1;
         if (Input.GetKeyDown(KeyCode.E))
         {
-            ChefController.InteractConsumedFrame = Time.frameCount;   // ì¡°ë¦¬ëŒ€ ì—´ë¦¼ ë°©ì§€
+            ChefController.InteractConsumedFrame = Time.frameCount;   // Á¶¸®´ë ¿­¸² ¹æÁö
             string kind = slot.StunKind;
 
-            if (kind == "ë¹™ê²°")
+            if (kind == "ºù°á")
             {
-                // ì–¼ìŒì€ í•œ ë°©ì— ì•ˆ ê¹¨ì§„ë‹¤ - ê¹¡, ê¹¡, ê¹¡!
+                // ¾óÀ½Àº ÇÑ ¹æ¿¡ ¾È ±úÁø´Ù - ±ø, ±ø, ±ø!
                 if (reachStunIndex != iceTapIndex) { iceTapIndex = reachStunIndex; iceTaps = 0; }
                 iceTaps++;
                 SoundManager.Play("sfx_ui_click");
-                GameFeel.DeathPop(slot.transform.position, new Color(0.6f, 0.9f, 1f), 0.3f); // ì–¼ìŒ ì¡°ê°
+                GameFeel.DeathPop(slot.transform.position, new Color(0.6f, 0.9f, 1f), 0.3f); // ¾óÀ½ Á¶°¢
                 if (iceTaps < GameBalance.UnfreezeTaps) return;
                 iceTaps = 0; iceTapIndex = -1;
             }
 
             slot.ClearStun();
             SoundManager.Play("sfx_ui_click");
-            GameFeel.DeathPop(slot.transform.position, kind == "ë¹™ê²°"
+            GameFeel.DeathPop(slot.transform.position, kind == "ºù°á"
                 ? new Color(0.6f, 0.9f, 1f) : new Color(1f, 0.9f, 0.3f), 0.5f);
-            UIManager.Instance?.ShowStatChange(kind == "ë¹™ê²°"
-                ? "í¬íƒ‘ í•´ë¹™! (ì–¼ìŒì„ ê¹¡ê¹¡ ê¹¨ëœ¨ë ¸ë‹¤)"
-                : "í¬íƒ‘ ì¬ê°€ë™! (ê°ì „ì„ í„¸ì–´ëƒˆë‹¤)");
+            UIManager.Instance?.ShowStatChange(kind == "ºù°á"
+                ? "Æ÷Å¾ ÇØºù! (¾óÀ½À» ±ø±ø ±ú¶ß·È´Ù)"
+                : "Æ÷Å¾ Àç°¡µ¿! (°¨ÀüÀ» ÅĞ¾î³Â´Ù)");
         }
     }
 
-    /// <summary>í•©ì²´ ì„ íƒ ìƒíƒœ ë³€ê²½ + ë°°ë„ˆ ê°±ì‹ </summary>
+    /// <summary>ÇÕÃ¼ ¼±ÅÃ »óÅÂ º¯°æ + ¹è³Ê °»½Å</summary>
     private void SetMergeSelect(int index)
     {
         mergeSelectIndex = index;
@@ -194,7 +198,7 @@ public class SlotMarkerUI : MonoBehaviour
         {
             TurretSlot s = TurretSlotManager.Instance.slots[index];
             string name = s != null && !s.IsEmpty ? s.Recipe.displayName : "?";
-            mergeBannerText.text = "[í•©ì²´] " + name + " ì„ íƒ - í•©ì¹  í¬íƒ‘ì— ë§ˆìš°ìŠ¤ë¥¼ ì˜¬ë¦¬ë©´ ê²°ê³¼ ë¯¸ë¦¬ë³´ê¸°, í´ë¦­ = í™•ì •\nê°™ì€ ìš”ë¦¬ = ê°•í™”(ë ˆë²¨ í•©ì‚°, ìŠ¬ë¡¯ 1ê°œ ë¹„ì›€) / ë‹¤ë¥¸ T1 = ì§„í™”(T2, ì¸í“¨ì§•)  (ì¬í´ë¦­/ESC/ìš°í´ë¦­ ì·¨ì†Œ)";
+            mergeBannerText.text = "[ÇÕÃ¼] " + name + " ¼±ÅÃ - ÇÕÄ¥ Æ÷Å¾¿¡ ¸¶¿ì½º¸¦ ¿Ã¸®¸é °á°ú ¹Ì¸®º¸±â, Å¬¸¯ = È®Á¤\n°°Àº ¿ä¸® = °­È­(·¹º§ ÇÕ»ê, ½½·Ô 1°³ ºñ¿ò) / ´Ù¸¥ T1 = ÁøÈ­(T2, ÀÎÇ»Â¡)  (ÀçÅ¬¸¯/ESC/¿ìÅ¬¸¯ Ãë¼Ò)";
         }
     }
 
@@ -203,7 +207,7 @@ public class SlotMarkerUI : MonoBehaviour
         GameObject go = new GameObject("SlotMarker_" + index);
         RectTransform rt = go.AddComponent<RectTransform>();
         rt.SetParent(canvas.transform, false);
-        rt.sizeDelta = new Vector2(GameBalance.SlotMarkerWidth, 52f);   // v5.1: í­ì€ GameBalance (ëª¨ì„œë¦¬ ë°°ì¹˜ 120)
+        rt.sizeDelta = new Vector2(GameBalance.SlotMarkerWidth, 52f);   // v5.1: ÆøÀº GameBalance (¸ğ¼­¸® ¹èÄ¡ 120)
         markers[index] = rt;
 
         Image border = go.AddComponent<Image>();
@@ -225,16 +229,50 @@ public class SlotMarkerUI : MonoBehaviour
         Text label = UIFactory.CreateText(bgRt, "Label", "+", 15, UIFactory.CREAM, TextAnchor.MiddleCenter);
         markerTexts[index] = label;
 
-        // í´ë¦­/í˜¸ë²„ í•¸ë“¤ëŸ¬
+        // v5.2: °æ±¤µî 2°³ - Ä¨ À­º¯ ¾ç ¸ğ¼­¸®¿¡ ¾ñÈù´Ù (32px, ¿· Ä¨°ú 27px ¹Û¿¡ ¾È ¶³¾îÁ® ¹Ù±ùÂÊ¿£ ¸ø µĞ´Ù). ¸¶ºñ Áß¿¡¸¸ ÄÑÁø´Ù
+        if (beaconOff == null) beaconOff = SpriteBank.Get("ui_ev_beacon_0");
+        if (beaconOn == null) beaconOn = SpriteBank.Get("ui_ev_beacon_1");
+        beaconL[index] = MakeBeacon(rt, "BeaconL", new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(-6f, 22f));
+        beaconR[index] = MakeBeacon(rt, "BeaconR", new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(6f, 22f));
+
+        // Å¬¸¯/È£¹ö ÇÚµé·¯
         SlotMarkerHandler handler = go.AddComponent<SlotMarkerHandler>();
         handler.Init(this, index);
+    }
+
+    private Image MakeBeacon(RectTransform parent, string name, Vector2 anchor, Vector2 pivot, Vector2 pos)
+    {
+        GameObject go = new GameObject(name);
+        RectTransform brt = go.AddComponent<RectTransform>();
+        brt.SetParent(parent, false);
+        brt.anchorMin = anchor; brt.anchorMax = anchor; brt.pivot = pivot;
+        brt.anchoredPosition = pos; brt.sizeDelta = new Vector2(32f, 32f);
+        Image img = go.AddComponent<Image>();
+        img.raycastTarget = false;
+        img.preserveAspect = true;
+        if (beaconOff != null) img.sprite = beaconOff;
+        go.SetActive(false);
+        return img;
+    }
+
+    /// <summary>v5.2: ¸¶ºñ Ä¨ °æ±¤µî ÄÑ±â/²ô±â + 0.3ÃÊ ±³´ë (unscaled - ½Ã°£ Á¤Áö Ä«µå À§¿¡¼­µµ ±ôºıÀÎ´Ù)</summary>
+    private void TickBeacons(int i, bool on)
+    {
+        if (beaconL[i] == null || beaconR[i] == null) return;
+        bool show = on && GameBalance.StunChipBeacons && beaconOff != null && beaconOn != null;
+        if (beaconL[i].gameObject.activeSelf != show) { beaconL[i].gameObject.SetActive(show); beaconR[i].gameObject.SetActive(show); }
+        if (!show) return;
+        float period = Mathf.Max(0.05f, GameBalance.StunChipBeaconSec);
+        bool phase = Mathf.Repeat(Time.unscaledTime, period * 2f) < period;
+        beaconL[i].sprite = phase ? beaconOn : beaconOff;
+        beaconR[i].sprite = phase ? beaconOff : beaconOn;
     }
 
     void LateUpdate()
     {
         if (TurretSlotManager.Instance == null || Camera.main == null) return;
 
-        // v5.1: ë¡œë¹„(ëŒ€ê¸° í™”ë©´)ì—ì„œëŠ” ë§ˆì»¤ë¥¼ ìˆ¨ê¸´ë‹¤ - ë¡œë¹„ UI ì™€ ê²¹ì³ ë³´ì´ë˜ ê²ƒ
+        // v5.1: ·Îºñ(´ë±â È­¸é)¿¡¼­´Â ¸¶Ä¿¸¦ ¼û±ä´Ù - ·Îºñ UI ¿Í °ãÃÄ º¸ÀÌ´ø °Í
         bool lobby = GameManager.Instance != null && GameManager.Instance.currentState == GameManager.GameState.Lobby;
         if (lobby)
         {
@@ -249,21 +287,24 @@ public class SlotMarkerUI : MonoBehaviour
             TurretSlot slot = TurretSlotManager.Instance.slots[i];
             if (slot == null) { markers[i].gameObject.SetActive(false); continue; }
 
-            // ì›”ë“œ -> ìŠ¤í¬ë¦° ì¢Œí‘œ (ë§ˆì»¤ê°€ ìŠ¬ë¡¯ì„ ë”°ë¼ë‹¤ë‹˜)
-            // B-2.2: ì´ì œ ìŠ¬ë¡¯ ìë¦¬ì— í¬íƒ‘ ì‹¤ë¬¼ì´ ì„œ ìˆìœ¼ë¯€ë¡œ ì¹©ì€ ë¨¸ë¦¬ ìœ„ë¡œ ë„ìš´ë‹¤
-            //        (ì¹©ì´ í¬íƒ‘/ì§€ë¶•ì„ ì„ ê°€ë¦¬ë˜ ê²ƒì´ "ë”°ë¡œ ë…¼ë‹¤"ì˜ ì£¼ë²”ì´ì—ˆìŒ)
-            // v5.1: ë‚¨ìª½(ì„€ì‹œ) ìŠ¬ë¡¯ì€ ë°œ ì•„ë˜ë¡œ - ìœ„ë¡œ ë„ìš°ë©´ ì¹¸ ë°”ë‹¥ì„ ê°€ë¦°ë‹¤
+            // ¿ùµå -> ½ºÅ©¸° ÁÂÇ¥ (¸¶Ä¿°¡ ½½·ÔÀ» µû¶ó´Ù´Ô)
+            // B-2.2: ÀÌÁ¦ ½½·Ô ÀÚ¸®¿¡ Æ÷Å¾ ½Ç¹°ÀÌ ¼­ ÀÖÀ¸¹Ç·Î Ä¨Àº ¸Ó¸® À§·Î ¶ç¿î´Ù
+            //        (Ä¨ÀÌ Æ÷Å¾/ÁöºØ¼±À» °¡¸®´ø °ÍÀÌ "µû·Î ³í´Ù"ÀÇ ÁÖ¹üÀÌ¾úÀ½)
+            // v5.1: ³²ÂÊ(¼¨½Ã) ½½·ÔÀº ¹ß ¾Æ·¡·Î - À§·Î ¶ç¿ì¸é Ä­ ¹Ù´ÚÀ» °¡¸°´Ù
             float markerDy = GameBalance.IsSouthSlot(i) ? -GameBalance.SlotMarkerYOffset : GameBalance.SlotMarkerYOffset;
             Vector3 screen = Camera.main.WorldToScreenPoint(
                 slot.transform.position + Vector3.up * markerDy);
             markers[i].gameObject.SetActive(screen.z > 0f);
             markers[i].position = screen;
 
-            // ìƒíƒœ í‘œì‹œ
+            // v5.2: °æ±¤µî (¸¶ºñ Áß¿¡¸¸)
+            TickBeacons(i, !slot.isLocked && !slot.IsEmpty && slot.IsStunned);
+
+            // »óÅÂ Ç¥½Ã
             if (slot.isLocked)
             {
-                // ì ê¸ˆ ìŠ¬ë¡¯: ì–´ë‘ìš´ ìƒ‰ + ìë¬¼ì‡  ë¬¸êµ¬
-                markerTexts[i].text = "ì ê¹€\n(ì¦ê°• í•´ê¸ˆ)";
+                // Àá±İ ½½·Ô: ¾îµÎ¿î »ö + ÀÚ¹°¼è ¹®±¸
+                markerTexts[i].text = "Àá±è\n(Áõ°­ ÇØ±İ)";
                 markerTexts[i].color = new Color(0.5f, 0.45f, 0.4f);
                 markerBorders[i].color = BORDER_LOCKED;
                 markerBGs[i].color = BG_LOCKED;
@@ -273,47 +314,43 @@ public class SlotMarkerUI : MonoBehaviour
                 markerTexts[i].text = "+";
                 markerTexts[i].color = UIFactory.CREAM;
                 markerBGs[i].color = BG_NORMAL;
-                // íˆ¬ì… ëª¨ë“œì¼ ë•Œ ê¸ˆìƒ‰ ê°•ì¡°
+                // ÅõÀÔ ¸ğµåÀÏ ¶§ ±İ»ö °­Á¶
                 markerBorders[i].color = string.IsNullOrEmpty(GameHUD.Instance != null ? GameHUD.Instance.placingRecipeId : "")
                     ? UIFactory.DIM : UIFactory.GOLD;
             }
             else if (slot.IsStunned)
             {
-                // v3: ë§ˆë¹„ëœ í¬íƒ‘ / B-1: ê·¼ì ‘ [E] í•´ì œ ì•ˆë‚´ (ìŠ¤ìœ„ì¹˜ êº¼ì ¸ ìˆìœ¼ë©´ í´ë¦­ ì•ˆë‚´)
-                // P1: ì¢…ë¥˜ë³„ í‘œê¸° (ê°ì „=ë…¸ë‘ / ë¹™ê²°=í•˜ëŠ˜ìƒ‰ / B-2: ê³¼ì—´=ì£¼í™©ë¹¨ê°•)
-                RecipeData rs = slot.Recipe;
-                bool frozen = slot.StunKind == "ë¹™ê²°";
-                bool overheated = slot.StunKind == "ê³¼ì—´";
+                // v3: ¸¶ºñµÈ Æ÷Å¾ / B-1: ±ÙÁ¢ [E] ÇØÁ¦ ¾È³» (½ºÀ§Ä¡ ²¨Á® ÀÖÀ¸¸é Å¬¸¯ ¾È³»)
+                // v5.2 (¸ñ¾÷ v3 (E)): 1ÁÙ = Á¾·ù "°¨Àü!" / 2ÁÙ = ÇÒ ÀÏ. ¿ä¸® ÀÌ¸§Àº »«´Ù - Ä¨ÀÌ °æº¸´Ù. Å×´Â »¡°­, ±ÛÀÚ¡¤¼ÓÀº Á¾·ù »ö
+                bool frozen = slot.StunKind == "ºù°á";
+                bool overheated = slot.StunKind == "°ú¿­";
                 string hint;
                 if (!GameBalance.ProximityInteract && !overheated)
-                    hint = "[" + slot.StunKind + "! í´ë¦­ ì¬ê°€ë™]";
+                    hint = "Å¬¸¯ Àç°¡µ¿";
                 else if (overheated && i == reachStunIndex)
-                    hint = "[E ê¾¹] + ë§ˆìš°ìŠ¤ íœ˜ì €ì–´ ë¶€ì±„ì§ˆ! " + Mathf.RoundToInt(
-                        Mathf.Clamp01(coolHold / GameBalance.OverheatCoolHold) * 100f) + "%";
-                else if (i == reachStunIndex)
-                    hint = frozen
-                        ? "[E] ì—°íƒ€ë¡œ ê¹¨ë¼! (" + iceTaps + "/" + GameBalance.UnfreezeTaps + ")"
-                        : "[E] í„¸ì–´ë‚´ê¸°!";
+                    hint = "[E] ²Ú+¸¶¿ì½º " + Mathf.RoundToInt(Mathf.Clamp01(coolHold / GameBalance.OverheatCoolHold) * 100f) + "%";
+                else if (overheated)
+                    hint = "[E] ²Ú+¸¶¿ì½º";
+                else if (frozen)
+                    hint = i == reachStunIndex ? "[E] ¿¬Å¸ (" + iceTaps + "/" + GameBalance.UnfreezeTaps + ")" : "[E] ¿¬Å¸ " + GameBalance.UnfreezeTaps + "¹ø";
                 else
-                    hint = "[" + slot.StunKind + "! ë‹¬ë ¤ê°€ì„œ E]";
-                markerTexts[i].text = rs.displayName + "\n" + hint;
+                    hint = i == reachStunIndex ? "[E] ÅĞ¾î¶ó!" : "[E] ÇÑ ¹ø";
+                markerTexts[i].text = slot.StunKind + "!\n" + hint;
+                markerBorders[i].color = BORDER_STUN;
                 if (overheated)
                 {
                     markerTexts[i].color = new Color(1f, 0.62f, 0.35f);
-                    markerBGs[i].color = new Color(0.26f, 0.09f, 0.03f, 0.85f);
-                    markerBorders[i].color = new Color(1f, 0.45f, 0.15f);
+                    markerBGs[i].color = new Color(0.26f, 0.09f, 0.03f, 0.9f);
                 }
                 else if (frozen)
                 {
                     markerTexts[i].color = new Color(0.65f, 0.9f, 1f);
-                    markerBGs[i].color = new Color(0.06f, 0.16f, 0.24f, 0.85f);
-                    markerBorders[i].color = new Color(0.5f, 0.85f, 1f);
+                    markerBGs[i].color = new Color(0.06f, 0.16f, 0.24f, 0.9f);
                 }
                 else
                 {
                     markerTexts[i].color = new Color(1f, 0.9f, 0.3f);
-                    markerBGs[i].color = new Color(0.25f, 0.22f, 0.05f, 0.85f);
-                    markerBorders[i].color = new Color(1f, 0.85f, 0.2f);
+                    markerBGs[i].color = new Color(0.17f, 0.04f, 0.04f, 0.9f);
                 }
             }
             else
@@ -323,69 +360,69 @@ public class SlotMarkerUI : MonoBehaviour
                 markerTexts[i].color = UIFactory.CREAM;
                 markerBGs[i].color = BG_NORMAL;
 
-                // í•©ì²´ ì„ íƒëœ ìŠ¬ë¡¯ì€ ê¸ˆìƒ‰ ê°•ì¡°
+                // ÇÕÃ¼ ¼±ÅÃµÈ ½½·ÔÀº ±İ»ö °­Á¶
                 if (i == mergeSelectIndex)
                     markerBorders[i].color = UIFactory.GOLD;
                 else
                     markerBorders[i].color = r.tier == 2 ? UIFactory.T2PINK : UIFactory.GradeColor(slot.GradeName);
 
-                // v5 (A5): íê¸° ì˜ˆê³  ì¤‘ì¸ ìŠ¬ë¡¯ì€ ë¶‰ê²Œ + ì•ˆë‚´
+                // v5 (A5): Æó±â ¿¹°í ÁßÀÎ ½½·ÔÀº ºÓ°Ô + ¾È³»
                 if (i == scrapArmIndex && Time.time < scrapArmUntil)
                 {
-                    markerTexts[i].text = r.displayName + "\n[ìš°í´ë¦­ 1íšŒ ë” = íê¸°]";
+                    markerTexts[i].text = r.displayName + "\n[¿ìÅ¬¸¯ 1È¸ ´õ = Æó±â]";
                     markerTexts[i].color = new Color(1f, 0.6f, 0.5f);
                     markerBorders[i].color = new Color(0.95f, 0.25f, 0.2f);
                 }
             }
         }
 
-        // v5 (A5): íê¸° ì˜ˆê³  ë§Œë£Œ
+        // v5 (A5): Æó±â ¿¹°í ¸¸·á
         if (scrapArmIndex >= 0 && Time.time >= scrapArmUntil) scrapArmIndex = -1;
 
-        // íˆ´íŒ ìœ„ì¹˜ (ë§ˆìš°ìŠ¤ ë”°ë¼ê°)
+        // ÅøÆÁ À§Ä¡ (¸¶¿ì½º µû¶ó°¨)
         if (tooltip.gameObject.activeSelf)
         {
             Vector2 pos = (Vector2)Input.mousePosition + new Vector2(20f, -20f);
-            // í™”ë©´ ë°– ë°©ì§€
+            // È­¸é ¹Û ¹æÁö
             if (pos.x + 340f > Screen.width) pos.x = Screen.width - 350f;
             if (pos.y - 150f < 0f) pos.y = 160f;
             tooltip.position = pos;
         }
     }
 
-    // â”€â”€ SlotMarkerHandlerì—ì„œ í˜¸ì¶œ â”€â”€
+    // ¦¡¦¡ SlotMarkerHandler¿¡¼­ È£Ãâ ¦¡¦¡
     public void OnMarkerClick(int index, PointerEventData.InputButton button)
     {
         TurretSlot slot = TurretSlotManager.Instance != null ? TurretSlotManager.Instance.slots[index] : null;
         if (slot == null) return;
 
-        // ì ê¸ˆ ìŠ¬ë¡¯ì€ ì•ˆë‚´ë§Œ
+        // Àá±İ ½½·ÔÀº ¾È³»¸¸
         if (slot.isLocked)
         {
-            UIManager.Instance?.ShowStatChange("ì ê¸´ ìŠ¬ë¡¯! ì¦ê°• [ì¦ì¶•ëœ ì£¼ë°© ì¹¸]ìœ¼ë¡œ í•´ê¸ˆ");
+            UIManager.Instance?.ShowStatChange("Àá±ä ½½·Ô! Áõ°­ [ÁõÃàµÈ ÁÖ¹æ Ä­]À¸·Î ÇØ±İ");
             return;
         }
 
-        // v3: ë§ˆë¹„ í•´ì œê°€ ëª¨ë“  í´ë¦­ë³´ë‹¤ ìš°ì„ 
-        // B-1: ê·¼ì ‘ ëª¨ë“œì—ì„œëŠ” í´ë¦­ìœ¼ë¡œ í•´ì œ ë¶ˆê°€ - ë‹¬ë ¤ê°€ì•¼ í•œë‹¤ (ì•ˆë‚´ë§Œ)
+        // v3: ¸¶ºñ ÇØÁ¦°¡ ¸ğµç Å¬¸¯º¸´Ù ¿ì¼±
+        // B-1: ±ÙÁ¢ ¸ğµå¿¡¼­´Â Å¬¸¯À¸·Î ÇØÁ¦ ºÒ°¡ - ´Ş·Á°¡¾ß ÇÑ´Ù (¾È³»¸¸)
         if (slot.IsStunned)
         {
             if (GameBalance.ProximityInteract)
             {
-                UIManager.Instance?.ShowDanger("í¬íƒ‘ ê³ìœ¼ë¡œ ë‹¬ë ¤ê°€ [E]ë¡œ ë˜ì‚´ë ¤ë¼!");
+                UIManager.Instance?.ShowDanger("Æ÷Å¾ °çÀ¸·Î ´Ş·Á°¡ [E]·Î µÇ»ì·Á¶ó!");
                 return;
             }
             string kind = slot.StunKind;
             slot.ClearStun();
-            UIManager.Instance?.ShowStatChange(kind == "ë¹™ê²°"
-                ? "í¬íƒ‘ í•´ë¹™! (ì–¼ìŒì„ ê¹¨ëœ¨ë ¸ë‹¤)"
-                : "í¬íƒ‘ ì¬ê°€ë™! (ê°ì „ í•´ì œ)");
+            UIManager.Instance?.ShowStatChange(kind == "ºù°á"
+                ? "Æ÷Å¾ ÇØºù! (¾óÀ½À» ±ú¶ß·È´Ù)"
+                : "Æ÷Å¾ Àç°¡µ¿! (°¨Àü ÇØÁ¦)");
             return;
         }
 
         if (button == PointerEventData.InputButton.Left)
         {
-            // íˆ¬ì… ëª¨ë“œë©´ ê¸°ì¡´ëŒ€ë¡œ ìš”ë¦¬ íˆ¬ì…
+            // ÅõÀÔ ¸ğµå¸é ±âÁ¸´ë·Î ¿ä¸® ÅõÀÔ
             bool placing = GameHUD.Instance != null && !string.IsNullOrEmpty(GameHUD.Instance.placingRecipeId);
             if (placing)
             {
@@ -393,32 +430,32 @@ public class SlotMarkerUI : MonoBehaviour
                 return;
             }
 
-            // í‰ì‹œ ì¢Œí´ë¦­ = í•©ì²´ ì¡°ì‘ (ê¸°íš B-3)
+            // Æò½Ã ÁÂÅ¬¸¯ = ÇÕÃ¼ Á¶ÀÛ (±âÈ¹ B-3)
             if (slot.IsEmpty) { SetMergeSelect(-1); return; }
 
             if (mergeSelectIndex < 0)
             {
-                SetMergeSelect(index);            // ì²« ë²ˆì§¸ í¬íƒ‘ ì„ íƒ
+                SetMergeSelect(index);            // Ã¹ ¹øÂ° Æ÷Å¾ ¼±ÅÃ
             }
             else if (mergeSelectIndex == index)
             {
-                SetMergeSelect(-1);               // ì¬í´ë¦­ = ì·¨ì†Œ
+                SetMergeSelect(-1);               // ÀçÅ¬¸¯ = Ãë¼Ò
             }
             else
             {
-                // ë‘ ë²ˆì§¸ í¬íƒ‘ í´ë¦­ = í•©ì²´ ì‹œë„
+                // µÎ ¹øÂ° Æ÷Å¾ Å¬¸¯ = ÇÕÃ¼ ½Ãµµ
                 string msg;
                 bool ok = TurretSlotManager.Instance.TryMergeSlots(mergeSelectIndex, index, out msg);
-                UIManager.Instance?.ShowStatChange(ok ? msg : "í•©ì²´ ì‹¤íŒ¨: " + msg);
+                UIManager.Instance?.ShowStatChange(ok ? msg : "ÇÕÃ¼ ½ÇÆĞ: " + msg);
                 SetMergeSelect(-1);
                 HideTooltip();
             }
         }
         else if (button == PointerEventData.InputButton.Right)
         {
-            // v5 (êµìˆ˜ í”¼ë“œë°± A5): ìš°í´ë¦­ì€ ë¨¼ì € "ì·¨ì†Œ"ë‹¤. íˆ¬ì… ëª¨ë“œë‚˜ í•©ì²´ ì„ íƒ ì¤‘ì— ì»¤ì„œ ë°‘ í¬íƒ‘ì´
-            // íê¸°ë˜ë˜ ì¶©ëŒì„ ì—†ì•¤ë‹¤. GameHUD.UpdateëŠ” ë²„íŠ¼ì„ ëˆ„ë¥´ëŠ” ìˆœê°„ ì·¨ì†Œí•˜ê³  ì´ í´ë¦­ ì´ë²¤íŠ¸ëŠ” ë—„ ë•Œ ì˜¤ë¯€ë¡œ,
-            // ë°©ê¸ˆ(0.5ì´ˆ ì•ˆ) ì·¨ì†Œëœ ì§í›„ì˜ ìš°í´ë¦­ë„ ê°™ì€ "ì·¨ì†Œ í´ë¦­"ìœ¼ë¡œ ë³¸ë‹¤
+            // v5 (±³¼ö ÇÇµå¹é A5): ¿ìÅ¬¸¯Àº ¸ÕÀú "Ãë¼Ò"´Ù. ÅõÀÔ ¸ğµå³ª ÇÕÃ¼ ¼±ÅÃ Áß¿¡ Ä¿¼­ ¹Ø Æ÷Å¾ÀÌ
+            // Æó±âµÇ´ø Ãæµ¹À» ¾ø¾Ø´Ù. GameHUD.Update´Â ¹öÆ°À» ´©¸£´Â ¼ø°£ Ãë¼ÒÇÏ°í ÀÌ Å¬¸¯ ÀÌº¥Æ®´Â ¶¿ ¶§ ¿À¹Ç·Î,
+            // ¹æ±İ(0.5ÃÊ ¾È) Ãë¼ÒµÈ Á÷ÈÄÀÇ ¿ìÅ¬¸¯µµ °°Àº "Ãë¼Ò Å¬¸¯"À¸·Î º»´Ù
             bool placingNow = GameHUD.Instance != null && !string.IsNullOrEmpty(GameHUD.Instance.placingRecipeId);
             bool justCancelled = Time.unscaledTime - GameHUD.LastPlacingCancelTime < 0.5f;
             if (placingNow || justCancelled)
@@ -430,23 +467,23 @@ public class SlotMarkerUI : MonoBehaviour
             {
                 SetMergeSelect(-1);
                 HideTooltip();
-                UIManager.Instance?.ShowStatChange("í•©ì²´ ì„ íƒ ì·¨ì†Œ");
+                UIManager.Instance?.ShowStatChange("ÇÕÃ¼ ¼±ÅÃ Ãë¼Ò");
                 return;
             }
 
             if (slot.IsEmpty) return;
 
-            // íê¸° = ê°™ì€ ìŠ¬ë¡¯ ìš°í´ë¦­ 2íšŒ (ì²« ë²ˆì§¸ëŠ” ì˜ˆê³ : í™˜ê¸‰ëŸ‰Â·ì†ì‹¤ì„ ë³´ì—¬ì¤€ë‹¤, í™•ì¸ì°½ ì—†ìŒ)
+            // Æó±â = °°Àº ½½·Ô ¿ìÅ¬¸¯ 2È¸ (Ã¹ ¹øÂ°´Â ¿¹°í: È¯±Ş·®¡¤¼Õ½ÇÀ» º¸¿©ÁØ´Ù, È®ÀÎÃ¢ ¾øÀ½)
             if (scrapArmIndex == index && Time.time < scrapArmUntil)
             {
                 scrapArmIndex = -1;
-                string scrappedName = slot.Recipe != null ? slot.Recipe.displayName : "í¬íƒ‘";
+                string scrappedName = slot.Recipe != null ? slot.Recipe.displayName : "Æ÷Å¾";
                 int scrappedLevel = slot.level;
                 int refund = slot.Scrap();
                 for (int k = 0; k < refund; k++)
                     MaterialInventory.Instance.Add((MaterialType)Random.Range(0, 6), 1);
-                UIManager.Instance?.ShowStatChange("[íê¸°] " + scrappedName + " Lv" + scrappedLevel
-                    + " - ëœë¤ ì¬ë£Œ " + refund + "ê°œ í™˜ê¸‰");
+                UIManager.Instance?.ShowStatChange("[Æó±â] " + scrappedName + " Lv" + scrappedLevel
+                    + " - ·£´ı Àç·á " + refund + "°³ È¯±Ş");
                 HideTooltip();
             }
             else
@@ -454,9 +491,9 @@ public class SlotMarkerUI : MonoBehaviour
                 scrapArmIndex = index;
                 scrapArmUntil = Time.time + GameBalance.ScrapArmSec;
                 int refund = Mathf.Max(1, slot.level);
-                UIManager.Instance?.ShowStatChange("[íê¸° ì˜ˆê³ ] " + slot.Recipe.displayName + " Lv" + slot.level
-                    + " - " + GameBalance.ScrapArmSec.ToString("F0") + "ì´ˆ ì•ˆì— í•œ ë²ˆ ë” ìš°í´ë¦­í•˜ë©´ íê¸° (ëœë¤ ì¬ë£Œ "
-                    + refund + "ê°œ í™˜ê¸‰, ë ˆë²¨ì€ ì‚¬ë¼ì§)");
+                UIManager.Instance?.ShowStatChange("[Æó±â ¿¹°í] " + slot.Recipe.displayName + " Lv" + slot.level
+                    + " - " + GameBalance.ScrapArmSec.ToString("F0") + "ÃÊ ¾È¿¡ ÇÑ ¹ø ´õ ¿ìÅ¬¸¯ÇÏ¸é Æó±â (·£´ı Àç·á "
+                    + refund + "°³ È¯±Ş, ·¹º§Àº »ç¶óÁü)");
             }
         }
     }
@@ -467,7 +504,7 @@ public class SlotMarkerUI : MonoBehaviour
         TurretSlot slot = TurretSlotManager.Instance != null ? TurretSlotManager.Instance.slots[index] : null;
         if (slot == null || slot.IsEmpty || slot.isLocked) { HideTooltip(); return; }
 
-        // v5 (êµìˆ˜ í”¼ë“œë°± A12): í•©ì²´ ì„ íƒ ì¤‘ ë‹¤ë¥¸ í¬íƒ‘ ìœ„ = ê²°ê³¼ ë¯¸ë¦¬ë³´ê¸°
+        // v5 (±³¼ö ÇÇµå¹é A12): ÇÕÃ¼ ¼±ÅÃ Áß ´Ù¸¥ Æ÷Å¾ À§ = °á°ú ¹Ì¸®º¸±â
         if (mergeSelectIndex >= 0 && mergeSelectIndex != index)
         {
             tooltipText.text = BuildMergePreview(mergeSelectIndex, index);
@@ -478,37 +515,37 @@ public class SlotMarkerUI : MonoBehaviour
         RecipeData r = slot.Recipe;
         string roleStr = RoleName(r.role);
         string shapeStr = ShapeName(r.shape);
-        string dtypeStr = r.damageType == DamageType.Magic ? "ë§ˆë²•" : "ë¬¼ë¦¬";
+        string dtypeStr = r.damageType == DamageType.Magic ? "¸¶¹ı" : "¹°¸®";
 
-        string info = r.displayName + (r.tier == 2 ? "  [T2 ì „ì„¤]" : "") + "\n";
-        info += slot.GradeName + "ë“±ê¸‰ Lv" + slot.level + "  x" + slot.LevelMult.ToString("F1") + "ë°°\n";
+        string info = r.displayName + (r.tier == 2 ? "  [T2 Àü¼³]" : "") + "\n";
+        info += slot.GradeName + "µî±Ş Lv" + slot.level + "  x" + slot.LevelMult.ToString("F1") + "¹è\n";
         info += roleStr + " / " + shapeStr;
         if (r.damage > 0f)
         {
             info += " / " + dtypeStr + "\n";
             float dmg = r.damage * slot.LevelMult;
-            info += "ê³µê²© " + dmg.ToString("F0") + "  ì¿¨ " + r.cooldown.ToString("F2") + "s";
+            info += "°ø°İ " + dmg.ToString("F0") + "  Äğ " + r.cooldown.ToString("F2") + "s";
             info += "  DPS " + (dmg / r.cooldown).ToString("F1") + "\n";
         }
         else info += "\n";
         info += r.description + "\n";
 
-        // P1+: ìš”ë¦¬ ìˆ™ë ¨ í‘œì‹œ (í‰ìƒ ì¡°ë¦¬ íšŸìˆ˜ + ì¹­í˜¸)
+        // P1+: ¿ä¸® ¼÷·Ã Ç¥½Ã (Æò»ı Á¶¸® È½¼ö + ÄªÈ£)
         int cookCount = MetaProgress.GetCookCount(r.recipeId);
         if (cookCount > 0)
         {
             int mTier = GameBalance.MasteryTier(cookCount);
-            info += "ìˆ™ë ¨ " + cookCount + "íšŒ"
+            info += "¼÷·Ã " + cookCount + "È¸"
                 + (mTier >= 0 ? "  [" + GameBalance.MasteryTitles[mTier] + "]" : "") + "\n";
         }
 
-        info += "(ìš°í´ë¦­ 2íšŒ: íê¸°, ëœë¤ ì¬ë£Œ " + Mathf.Max(1, slot.level) + "ê°œ í™˜ê¸‰)";
+        info += "(¿ìÅ¬¸¯ 2È¸: Æó±â, ·£´ı Àç·á " + Mathf.Max(1, slot.level) + "°³ È¯±Ş)";
 
         tooltipText.text = info;
         tooltip.gameObject.SetActive(true);
     }
 
-    /// <summary>ë“±ê¸‰ëª… (ë ˆë²¨ì—ì„œ íŒŒìƒ, TurretSlot.GradeNameê³¼ ê°™ì€ ê·œì¹™)</summary>
+    /// <summary>µî±Ş¸í (·¹º§¿¡¼­ ÆÄ»ı, TurretSlot.GradeName°ú °°Àº ±ÔÄ¢)</summary>
     private static string GradeOf(int level)
     {
         if (level >= 5) return "S";
@@ -518,68 +555,68 @@ public class SlotMarkerUI : MonoBehaviour
     }
 
     /// <summary>
-    /// v5 (A12): í•©ì²´ ê²°ê³¼ ë¯¸ë¦¬ë³´ê¸° í…ìŠ¤íŠ¸.
-    /// ê°•í™”(ê°™ì€ ìš”ë¦¬)ì™€ ì§„í™”(ë‹¤ë¥¸ T1)ë¥¼ êµ¬ë¶„í•˜ê³ , ê²°ê³¼ ë ˆë²¨Â·ë¹„ëŠ” ìŠ¬ë¡¯Â·ê³µëª… ë³€í™”Â·ì—­í•  ë³€í™”ë¥¼ í™•ì • ì „ì— ë³´ì—¬ì¤€ë‹¤.
-    /// ë¯¸ë°œê²¬ T2ëŠ” ì´ë¦„ ëŒ€ì‹  ì—­í• /ê³µê²© í˜•íƒœë§Œ. ì‹¤ì „ DPS ê°™ì€ ë¶ˆí™•ì‹¤í•œ ìˆ«ìëŠ” ì ì§€ ì•ŠëŠ”ë‹¤.
+    /// v5 (A12): ÇÕÃ¼ °á°ú ¹Ì¸®º¸±â ÅØ½ºÆ®.
+    /// °­È­(°°Àº ¿ä¸®)¿Í ÁøÈ­(´Ù¸¥ T1)¸¦ ±¸ºĞÇÏ°í, °á°ú ·¹º§¡¤ºñ´Â ½½·Ô¡¤°ø¸í º¯È­¡¤¿ªÇÒ º¯È­¸¦ È®Á¤ Àü¿¡ º¸¿©ÁØ´Ù.
+    /// ¹Ì¹ß°ß T2´Â ÀÌ¸§ ´ë½Å ¿ªÇÒ/°ø°İ ÇüÅÂ¸¸. ½ÇÀü DPS °°Àº ºÒÈ®½ÇÇÑ ¼ıÀÚ´Â ÀûÁö ¾Ê´Â´Ù.
     /// </summary>
     private string BuildMergePreview(int idxA, int idxB)
     {
         TurretSlotManager mgr = TurretSlotManager.Instance;
         TurretSlot a = mgr.slots[idxA];
         TurretSlot b = mgr.slots[idxB];
-        if (a == null || b == null || a.IsEmpty || b.IsEmpty) return "ë¯¸ë¦¬ë³´ê¸° ë¶ˆê°€";
+        if (a == null || b == null || a.IsEmpty || b.IsEmpty) return "¹Ì¸®º¸±â ºÒ°¡";
         RecipeData ra = a.Recipe, rb = b.Recipe;
 
-        // 1) ê°•í™”: ê°™ì€ ìš”ë¦¬
+        // 1) °­È­: °°Àº ¿ä¸®
         if (a.recipeId == b.recipeId)
         {
             int merged = a.level + b.level;
             int cnt = mgr.GetTagCount(ra.tag);
-            string s = "[ê°•í™”] " + ra.displayName + "\n";
-            s += "Lv" + a.level + " + Lv" + b.level + " -> Lv" + merged + " (" + GradeOf(merged) + "ë“±ê¸‰, x"
-                + (1f + 0.6f * (merged - 1)).ToString("F1") + "ë°°)\n";
-            s += "ìŠ¬ë¡¯ 1ê°œ ë¹„ì›€ / ê³µê²©ì› 2 -> 1\n";
-            s += "ê³µëª… " + mgr.TagName(ra.tag) + " " + cnt + " -> " + (cnt - 1)
-                + (cnt >= GameBalance.ResonanceCount && cnt - 1 < GameBalance.ResonanceCount ? "  (ê³µëª… í•´ì œ!)" : "") + "\n";
-            s += "(í´ë¦­ = í™•ì •)";
+            string s = "[°­È­] " + ra.displayName + "\n";
+            s += "Lv" + a.level + " + Lv" + b.level + " -> Lv" + merged + " (" + GradeOf(merged) + "µî±Ş, x"
+                + (1f + 0.6f * (merged - 1)).ToString("F1") + "¹è)\n";
+            s += "½½·Ô 1°³ ºñ¿ò / °ø°İ¿ø 2 -> 1\n";
+            s += "°ø¸í " + mgr.TagName(ra.tag) + " " + cnt + " -> " + (cnt - 1)
+                + (cnt >= GameBalance.ResonanceCount && cnt - 1 < GameBalance.ResonanceCount ? "  (°ø¸í ÇØÁ¦!)" : "") + "\n";
+            s += "(Å¬¸¯ = È®Á¤)";
             return s;
         }
 
-        // 2) ì§„í™”: ë‹¤ë¥¸ T1 ë‘ ê°œ
+        // 2) ÁøÈ­: ´Ù¸¥ T1 µÎ °³
         if (ra.tier == 1 && rb.tier == 1)
         {
-            if (AugmentManager.BasicsDoctrine) return "[ì§„í™” ë¶ˆê°€] ì„ ëŒ€ì˜ ê¸°ë³¸ê¸° - T2 ì§„í™” ë´‰ì¸";
+            if (AugmentManager.BasicsDoctrine) return "[ÁøÈ­ ºÒ°¡] ¼±´ëÀÇ ±âº»±â - T2 ÁøÈ­ ºÀÀÎ";
             RecipeData fusion = RecipeDatabase.GetFusion(ra.tag, rb.tag);
-            if (fusion == null) return "[ì§„í™” ë¶ˆê°€] ì´ ì¡°í•©ì˜ ì§„í™” ë ˆì‹œí”¼ ì—†ìŒ";
+            if (fusion == null) return "[ÁøÈ­ ºÒ°¡] ÀÌ Á¶ÇÕÀÇ ÁøÈ­ ·¹½ÃÇÇ ¾øÀ½";
 
             int baseLevel = Mathf.Max(1, (a.level + b.level) / 2);
             bool masteryUp = MetaProgress.GetMasteryTier(fusion.recipeId) >= GameBalance.MasteryStartLevelTier;
             bool known = FoodStock.Instance != null && FoodStock.Instance.IsDiscovered(fusion.recipeId);
 
-            string s = "[ì§„í™”] " + ra.displayName + " + " + rb.displayName + "\n";
-            s += "-> " + (known ? fusion.displayName + " [T2]" : "ë¯¸ë°œê²¬ ì „ì„¤ ìš”ë¦¬ [T2]") + "\n";
-            s += "ì—­í• : " + RoleName(fusion.role) + " / " + ShapeName(fusion.shape) + "\n";
-            s += "ë ˆë²¨: Lv" + (baseLevel + (masteryUp ? 1 : 0)) + " (+ì¸í“¨ì§• íŒì • ë³´ë„ˆìŠ¤ ìµœëŒ€ +1)\n";
-            s += "ìŠ¬ë¡¯ 1ê°œ ë¹„ì›€ / ì¸í“¨ì§• ë¯¸ë‹ˆê²Œì„ ì§„í–‰\n";
+            string s = "[ÁøÈ­] " + ra.displayName + " + " + rb.displayName + "\n";
+            s += "-> " + (known ? fusion.displayName + " [T2]" : "¹Ì¹ß°ß Àü¼³ ¿ä¸® [T2]") + "\n";
+            s += "¿ªÇÒ: " + RoleName(fusion.role) + " / " + ShapeName(fusion.shape) + "\n";
+            s += "·¹º§: Lv" + (baseLevel + (masteryUp ? 1 : 0)) + " (+ÀÎÇ»Â¡ ÆÇÁ¤ º¸³Ê½º ÃÖ´ë +1)\n";
+            s += "½½·Ô 1°³ ºñ¿ò / ÀÎÇ»Â¡ ¹Ì´Ï°ÔÀÓ ÁøÇà\n";
 
-            // ê³µëª… ë³€í™”: ë‘ T1 íƒœê·¸ -1ì”©, T2 íƒœê·¸ +1
+            // °ø¸í º¯È­: µÎ T1 ÅÂ±× -1¾¿, T2 ÅÂ±× +1
             int ca = mgr.GetTagCount(ra.tag), cb = mgr.GetTagCount(rb.tag);
             int na = ca - 1, nb = (ra.tag == rb.tag) ? na - 1 : cb - 1;
             if (fusion.tag == ra.tag) na += 1; else if (fusion.tag == rb.tag) nb += 1;
-            string res = "ê³µëª… " + mgr.TagName(ra.tag) + " " + ca + " -> " + na;
-            if (ca >= GameBalance.ResonanceCount && na < GameBalance.ResonanceCount) res += " (í•´ì œ!)";
+            string res = "°ø¸í " + mgr.TagName(ra.tag) + " " + ca + " -> " + na;
+            if (ca >= GameBalance.ResonanceCount && na < GameBalance.ResonanceCount) res += " (ÇØÁ¦!)";
             if (rb.tag != ra.tag)
             {
                 res += " / " + mgr.TagName(rb.tag) + " " + cb + " -> " + nb;
-                if (cb >= GameBalance.ResonanceCount && nb < GameBalance.ResonanceCount) res += " (í•´ì œ!)";
+                if (cb >= GameBalance.ResonanceCount && nb < GameBalance.ResonanceCount) res += " (ÇØÁ¦!)";
             }
             if (fusion.tag != ra.tag && fusion.tag != rb.tag)
                 res += " / " + mgr.TagName(fusion.tag) + " +1";
-            s += res + "\n(í´ë¦­ = í™•ì •)";
+            s += res + "\n(Å¬¸¯ = È®Á¤)";
             return s;
         }
 
-        return "[í•©ì²´ ë¶ˆê°€] T2 í¬íƒ‘ì€ ê°™ì€ ìš”ë¦¬ë¼ë¦¬ë§Œ ê°•í™” ê°€ëŠ¥";
+        return "[ÇÕÃ¼ ºÒ°¡] T2 Æ÷Å¾Àº °°Àº ¿ä¸®³¢¸®¸¸ °­È­ °¡´É";
     }
 
     public void OnMarkerExit(int index)
@@ -597,12 +634,12 @@ public class SlotMarkerUI : MonoBehaviour
     {
         switch (role)
         {
-            case TurretRole.PhysDealer: return "ë¬¼ë¦¬ ë”œëŸ¬";
-            case TurretRole.MagicDealer: return "ë§ˆë²• ë”œëŸ¬";
-            case TurretRole.Debuffer: return "ë””ë²„í¼";
-            case TurretRole.Buffer: return "ë²„í¼";
+            case TurretRole.PhysDealer: return "¹°¸® µô·¯";
+            case TurretRole.MagicDealer: return "¸¶¹ı µô·¯";
+            case TurretRole.Debuffer: return "µğ¹öÆÛ";
+            case TurretRole.Buffer: return "¹öÆÛ";
             case TurretRole.CC: return "CC";
-            default: return "ì„œí¬íŠ¸";
+            default: return "¼­Æ÷Æ®";
         }
     }
 
@@ -610,19 +647,19 @@ public class SlotMarkerUI : MonoBehaviour
     {
         switch (shape)
         {
-            case AttackShape.Projectile: return "ë‹¨ì¼ íˆ¬ì‚¬ì²´";
-            case AttackShape.Pierce: return "ê´€í†µ ë ˆì¼";
-            case AttackShape.Cone: return "ë¶€ì±„ê¼´ ë°©ì‚¬";
-            case AttackShape.Explode: return "ì°©íƒ„ í­ë°œ";
-            case AttackShape.Chain: return "ì²´ì¸";
-            case AttackShape.Field: return "ì¥íŒ";
-            case AttackShape.Aura: return "ì˜¤ë¼";
-            default: return "ìƒì‹œ";
+            case AttackShape.Projectile: return "´ÜÀÏ Åõ»çÃ¼";
+            case AttackShape.Pierce: return "°üÅë ·¹ÀÏ";
+            case AttackShape.Cone: return "ºÎÃ¤²Ã ¹æ»ç";
+            case AttackShape.Explode: return "ÂøÅº Æø¹ß";
+            case AttackShape.Chain: return "Ã¼ÀÎ";
+            case AttackShape.Field: return "ÀåÆÇ";
+            case AttackShape.Aura: return "¿À¶ó";
+            default: return "»ó½Ã";
         }
     }
 }
 
-/// <summary>ë§ˆì»¤ 1ê°œì˜ í´ë¦­/í˜¸ë²„ ì´ë²¤íŠ¸ ìˆ˜ì‹ ê¸°</summary>
+/// <summary>¸¶Ä¿ 1°³ÀÇ Å¬¸¯/È£¹ö ÀÌº¥Æ® ¼ö½Å±â</summary>
 public class SlotMarkerHandler : MonoBehaviour,
     IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
 {
