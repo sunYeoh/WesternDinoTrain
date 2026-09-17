@@ -3,7 +3,10 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 /// <summary>
-/// [SlotMarkerUI.cs] v5.2 (v9.9.2 2026-09-16: 마비 칩 = "감전!/빙결!/과열!" + 할 일 한 줄, 빨간 테, 칩 위 모서리 경광등 0.3초 교대 (GameBalance.StunChipBeacons) - 목업 v3 (E), 정식 런 공용) / v5.1 (v9.9 2026-09-16: 4모서리 배치 - 남쪽 슬롯 마커는 발 아래, 폭 96->120(GameBalance.SlotMarkerWidth), 로비에서 숨김) / v5 (교수 피드백 A5/A12 반영 2026-09-14) / v4 (B-1: 근접 위기 대응 - 방향결정 2026-08-31)
+/// [SlotMarkerUI.cs] v5.3 (v9.10 2026-09-17 테스터 피드백: 포탑 정보창이 마우스를 따라다니며 커서 밑에 겹쳐 깜빡이고 클릭을 가로채던 것 ->
+///   화면 한 자리(왼쪽 아래, 하단 바 위) 고정 + 클릭 통과(raycastTarget off) + 합체 선택 중엔 고정 유지 / 포탑 실물 클릭·호버도 이름표와 같이 /
+///   설명은 RecipeText 일상어 ("무엇을 하나 / 어떤 손님에 / 언제")) /
+/// v5.2 (v9.9.2 2026-09-16: 마비 칩 = "감전!/빙결!/과열!" + 할 일 한 줄, 빨간 테, 칩 위 모서리 경광등 0.3초 교대 (GameBalance.StunChipBeacons) - 목업 v3 (E), 정식 런 공용) / v5.1 (v9.9 2026-09-16: 4모서리 배치 - 남쪽 슬롯 마커는 발 아래, 폭 96->120(GameBalance.SlotMarkerWidth), 로비에서 숨김) / v5 (교수 피드백 A5/A12 반영 2026-09-14) / v4 (B-1: 근접 위기 대응 - 방향결정 2026-08-31)
 /// 슬롯 8개 위치에 화면 마커 표시 (월드 따라다님)
 /// - 좌클릭(투입 모드): 요리 투입
 /// - 좌클릭(평시): 합체 선택 -> 다른 포탑 클릭 = 합체 (기획 B-3)
@@ -57,6 +60,9 @@ public class SlotMarkerUI : MonoBehaviour
     /// <summary>합체 선택 중인지 (PauseMenu가 ESC 용도 판별에 사용)</summary>
     public static bool MergeSelecting { get; private set; }
 
+    private const float TIP_W = 400f, TIP_H = 200f;   // v5.3 고정 정보창 크기
+    private int worldHoverIndex = -1;                  // v5.3: 포탑 실물 위 호버 (UI 이름표가 아닌 월드)
+
     private static readonly Color BG_NORMAL = new Color(0.12f, 0.075f, 0.05f, 0.9f);
     private static readonly Color BG_LOCKED = new Color(0.05f, 0.04f, 0.03f, 0.85f);
     private static readonly Color BORDER_LOCKED = new Color(0.3f, 0.26f, 0.22f);
@@ -68,14 +74,18 @@ public class SlotMarkerUI : MonoBehaviour
         for (int i = 0; i < 8; i++)
             CreateMarker(i);
 
-        // 툴팁 (맨 위 표시)
+        // 툴팁 (맨 위 표시). v5.3: 왼쪽 아래 고정(하단 바 184 위 12px) 400x200, 마우스를 안 따라간다, 클릭을 안 막는다
         RectTransform tipPanel = UIFactory.CreatePanel(canvas.transform, "Tooltip",
             new Vector2(0f, 0f), new Vector2(0f, 0f),
-            Vector2.zero, new Vector2(340f, 150f),
+            new Vector2(12f, 196f), new Vector2(12f + TIP_W, 196f + TIP_H),
             new Color(0.09f, 0.05f, 0.03f, 0.96f), UIFactory.GOLD, 2f);
-        tooltipText = UIFactory.CreateText(tipPanel, "Text", "", 16, UIFactory.CREAM, TextAnchor.UpperLeft);
-        tooltipText.rectTransform.offsetMin = new Vector2(10f, 8f);
-        tooltipText.rectTransform.offsetMax = new Vector2(-10f, -8f);
+        tooltipText = UIFactory.CreateText(tipPanel, "Text", "", 15, UIFactory.CREAM, TextAnchor.UpperLeft);
+        tooltipText.rectTransform.offsetMin = new Vector2(12f, 8f);
+        tooltipText.rectTransform.offsetMax = new Vector2(-12f, -8f);
+        tooltipText.lineSpacing = 1.1f;
+        tooltipText.raycastTarget = false;
+        Image[] tipImgs = tipPanel.GetComponentsInChildren<Image>(true);
+        for (int i = 0; i < tipImgs.Length; i++) tipImgs[i].raycastTarget = false;
         tooltip = tipPanel;
         tooltip.gameObject.SetActive(false);
 
@@ -194,11 +204,17 @@ public class SlotMarkerUI : MonoBehaviour
         bool on = index >= 0;
         MergeSelecting = on;
         mergeBanner.gameObject.SetActive(on);
+        if (GameBalance.SlotInfoFixed)
+        {
+            if (on) ShowSlotInfo(index);                       // v5.3: 선택 = 정보창 고정
+            else if (hoverIndex < 0) tooltip.gameObject.SetActive(false);
+        }
         if (on)
         {
             TurretSlot s = TurretSlotManager.Instance.slots[index];
             string name = s != null && !s.IsEmpty ? s.Recipe.displayName : "?";
-            mergeBannerText.text = "[합체] " + name + " 선택 - 합칠 포탑에 마우스를 올리면 결과 미리보기, 클릭 = 확정\n같은 요리 = 강화(레벨 합산, 슬롯 1개 비움) / 다른 T1 = 진화(T2, 인퓨징)  (재클릭/ESC/우클릭 취소)";
+            // v5.3: 일상어 - 선택 = 설명 고정 + 합체 준비
+            mergeBannerText.text = "[선택] " + name + " - 설명은 왼쪽 아래 창. 다른 포탑을 클릭하면 둘을 합친다\n같은 요리끼리 = 레벨을 합쳐 더 세게 / 다른 기본 요리끼리 = 전설 요리로 진화  (다시 클릭 · ESC · 우클릭 = 선택 해제)";
         }
     }
 
@@ -379,14 +395,51 @@ public class SlotMarkerUI : MonoBehaviour
         // v5 (A5): 폐기 예고 만료
         if (scrapArmIndex >= 0 && Time.time >= scrapArmUntil) scrapArmIndex = -1;
 
-        // 툴팁 위치 (마우스 따라감)
-        if (tooltip.gameObject.activeSelf)
+        // 툴팁 위치: v5.3 기본 = 고정 (SlotInfoFixed). 구 동작(마우스 따라감)은 스위치 false 일 때만
+        if (!GameBalance.SlotInfoFixed && tooltip.gameObject.activeSelf)
         {
             Vector2 pos = (Vector2)Input.mousePosition + new Vector2(20f, -20f);
-            // 화면 밖 방지
-            if (pos.x + 340f > Screen.width) pos.x = Screen.width - 350f;
-            if (pos.y - 150f < 0f) pos.y = 160f;
+            if (pos.x + TIP_W > Screen.width) pos.x = Screen.width - TIP_W - 10f;
+            if (pos.y - TIP_H < 0f) pos.y = TIP_H + 10f;
             tooltip.position = pos;
+        }
+
+        TickWorldPointer();
+    }
+
+    /// <summary>
+    /// v5.3: 포탑 실물(월드 스프라이트) 위에서도 이름표처럼 - 테스터는 이름표가 아니라 포탑을 눌렀다.
+    /// UI(이름표·버튼) 위가 아니고, 마우스 월드 좌표가 어느 슬롯 자리에서 SlotWorldClickRadius 안이면 호버/클릭을 그 슬롯으로 보낸다.
+    /// </summary>
+    private void TickWorldPointer()
+    {
+        if (TurretSlotManager.Instance == null || Camera.main == null) return;
+        if (GameManager.Instance != null && GameManager.Instance.currentState == GameManager.GameState.Lobby) return;
+        bool overUi = EventSystem.current != null && EventSystem.current.IsPointerOverGameObject();
+        int near = -1;
+        if (!overUi && !PauseMenu.IsOpen && !CookingMinigame.IsActive && !AugmentPickUI.IsOpen && !WorkshopUI.IsOpen && !AugmentListUI.ReadingOpen && !KitchenPanel.IsOpenStatic
+            && !BriefingUI.IsOpen && !MerchantUI.IsOpen && !SpinoBetUI.IsOpen && !BranchRouteUI.IsOpen)
+        {
+            Vector3 wp = Camera.main.ScreenToWorldPoint(Input.mousePosition); wp.z = 0f;
+            float best = GameBalance.SlotWorldClickRadius;
+            for (int i = 0; i < TurretSlotManager.Instance.slots.Length; i++)
+            {
+                TurretSlot s = TurretSlotManager.Instance.slots[i];
+                if (s == null) continue;
+                float d = Vector2.Distance(wp, s.transform.position);
+                if (d < best) { best = d; near = i; }
+            }
+        }
+        if (near != worldHoverIndex)
+        {
+            if (worldHoverIndex >= 0 && hoverIndex == worldHoverIndex) OnMarkerExit(worldHoverIndex);
+            worldHoverIndex = near;
+            if (near >= 0 && hoverIndex < 0) OnMarkerEnter(near);
+        }
+        if (near >= 0)
+        {
+            if (Input.GetMouseButtonDown(0)) OnMarkerClick(near, PointerEventData.InputButton.Left);
+            else if (Input.GetMouseButtonDown(1)) OnMarkerClick(near, PointerEventData.InputButton.Right);
         }
     }
 
@@ -512,34 +565,29 @@ public class SlotMarkerUI : MonoBehaviour
             return;
         }
 
+        ShowSlotInfo(index);
+    }
+
+    /// <summary>v5.3: 슬롯 하나의 설명을 고정 정보창에 (호버·선택 공용)</summary>
+    private void ShowSlotInfo(int index)
+    {
+        TurretSlot slot = TurretSlotManager.Instance != null ? TurretSlotManager.Instance.slots[index] : null;
+        if (slot == null || slot.IsEmpty || slot.isLocked) { tooltip.gameObject.SetActive(false); return; }
         RecipeData r = slot.Recipe;
-        string roleStr = RoleName(r.role);
-        string shapeStr = ShapeName(r.shape);
-        string dtypeStr = r.damageType == DamageType.Magic ? "마법" : "물리";
 
-        string info = r.displayName + (r.tier == 2 ? "  [T2 전설]" : "") + "\n";
-        info += slot.GradeName + "등급 Lv" + slot.level + "  x" + slot.LevelMult.ToString("F1") + "배\n";
-        info += roleStr + " / " + shapeStr;
-        if (r.damage > 0f)
-        {
-            info += " / " + dtypeStr + "\n";
-            float dmg = r.damage * slot.LevelMult;
-            info += "공격 " + dmg.ToString("F0") + "  쿨 " + r.cooldown.ToString("F2") + "s";
-            info += "  DPS " + (dmg / r.cooldown).ToString("F1") + "\n";
-        }
-        else info += "\n";
-        info += r.description + "\n";
+        // v5.3: 일상어 설명 (RecipeText) - 역할 낱말 / 무엇을 하나 / 어떤 손님에 / 언제 / 숫자
+        string info = r.displayName + (r.tier == 2 ? "  [전설]" : "") + "   " + RecipeText.RoleWord(r) + "  Lv" + slot.level + " (x" + slot.LevelMult.ToString("F1") + ")\n";
+        info += RecipeText.Full(r, slot.LevelMult) + "\n";
 
-        // P1+: 요리 숙련 표시 (평생 조리 횟수 + 칭호)
+        // P1+: 요리 숙련 표시 (평생 조리 횟수 + 칭호) - 일상어
         int cookCount = MetaProgress.GetCookCount(r.recipeId);
         if (cookCount > 0)
         {
             int mTier = GameBalance.MasteryTier(cookCount);
-            info += "숙련 " + cookCount + "회"
-                + (mTier >= 0 ? "  [" + GameBalance.MasteryTitles[mTier] + "]" : "") + "\n";
+            info += "이 요리를 " + cookCount + "번 만들었다" + (mTier >= 0 ? " - 손에 익어 더 세다 (" + GameBalance.MasteryTitles[mTier] + ")" : "") + "\n";
         }
 
-        info += "(우클릭 2회: 폐기, 랜덤 재료 " + Mathf.Max(1, slot.level) + "개 환급)";
+        info += "같은 요리를 또 넣으면 레벨업 / 좌클릭 = 합체 선택 / 우클릭 2번 = 폐기(재료 " + Mathf.Max(1, slot.level) + "개 환급)";
 
         tooltipText.text = info;
         tooltip.gameObject.SetActive(true);
@@ -627,6 +675,8 @@ public class SlotMarkerUI : MonoBehaviour
     private void HideTooltip()
     {
         hoverIndex = -1;
+        // v5.3: 포탑을 선택(합체 선택)해 뒀으면 정보창은 그 포탑 것으로 남는다 - "클릭한 포탑의 설명이 남아 있어야 한다"
+        if (mergeSelectIndex >= 0 && GameBalance.SlotInfoFixed) { ShowSlotInfo(mergeSelectIndex); return; }
         tooltip.gameObject.SetActive(false);
     }
 

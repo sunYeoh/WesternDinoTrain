@@ -2,44 +2,44 @@ using UnityEngine;
 using System.Collections.Generic;
 
 /// <summary>
-/// [AugmentSystem.cs] v4.1 (2026-09-14: ì¤‘ì²© ë°°ìˆ˜ ìƒí•œ AugmentStackMulCap) / v4
-/// ë¡œê·¸ë¼ì´í¬ ì¦ê°• ì‹œìŠ¤í…œ (ê¸°íš C) - ì°½ì˜ì  ì¦ê°• ì¬ì„¤ê³„íŒ
+/// [AugmentSystem.cs] v4.2 (v9.10 2026-09-17 Å×½ºÅÍ ÇÇµå¹é "Áõ°­¿¡ ¸ğ¸£°Ú´Â ¸»": Ã¹ Áö¿ªÀº ¹Ù·Î ÀÌÇØµÇ´Â Áõ°­¸¸ ÈÄº¸(EARLY_SIMPLE, GameBalance.AugmentSimpleEarly) / ¼³¸í ³¹¸» ÀÏ»ó¾î - µµÆ®¡¤½ºÅÃ¡¤ÀÎÁ¢ ¹öÇÁ¡¤°ø¸í¡¤DEF¡¤°¨¼â) / v4.1 (2026-09-14: ÁßÃ¸ ¹è¼ö »óÇÑ AugmentStackMulCap) / v4
+/// ·Î±×¶óÀÌÅ© Áõ°­ ½Ã½ºÅÛ (±âÈ¹ C) - Ã¢ÀÇÀû Áõ°­ Àç¼³°èÆÇ
 ///
-/// ì„¤ê³„ ì² í•™
-///  - ì‹¤ë²„  : ë¬´ë‚œí•œ ìˆ˜ì¹˜ ê°•í™” (ì•ˆì „í•œ ì„ íƒì§€)
-///  - ê³¨ë“œ  : ì¡°ê±´ë¶€ ì‹œë„ˆì§€ - "ì´ê±¸ ë¨¹ì—ˆìœ¼ë‹ˆ ì´ë ‡ê²Œ ìš´ì˜í•˜ì"ê°€ ìƒê¸°ëŠ” íš¨ê³¼
-///  - í”„ë¦¬ì¦˜ : ê³µê²© ë°©ì‹ ìì²´ë¥¼ ë¹„íŠ¸ëŠ” íš¨ê³¼ - ë¹Œë“œì˜ ì¶•ì´ ë˜ëŠ” ìœ ë¬¼ê¸‰
-///  - v3 ì¶”ê°€: í•˜ì´ë¦¬ìŠ¤í¬/í•˜ì´ë¦¬í„´ ì¦ê°• + [ë„ë°•] íŒ¨ë°€ë¦¬ ì‹œë„ˆì§€
-///    ([ë„ë°•] íƒœê·¸ ì¦ê°•ì„ ëª¨ì„ìˆ˜ë¡ ë„ë°• ê³„ì—´ íš¨ê³¼ê°€ ê°•í•´ì§„ë‹¤)
-///  - v4 (Phase 2-3, ì‚¬ìš©ì ê²°ì • - ì¦ê°•/ì•„ì´í…œ ì´ì›í™”):
-///    ì£¼ë°© ê´€ì—¬ ì¦ê°• 5ì¢…(ì‹ì¹¼/í™©ê¸ˆ ì¡°ë¦¬ ê¸°êµ¬/ë³´í—˜/ë¶€ì±„ì§ˆ/ë¯¸ë„ëŸ¼ ë§¤íŠ¸)ì„
-///    ì•„ì´í…œ(ItemSystem.cs)ìœ¼ë¡œ ì´ê´€í•˜ê³ , íŒë„ë¥¼ ë°”ê¾¸ëŠ” ì‹ ê·œ ì¦ê°• 10ì¢…ì„ ì¶”ê°€.
-///    ì¦ê°• = í¬íƒ‘ ê°•í™” + ê¸°ì°¨ ìœ í‹¸ë§Œ ë‚¨ê¸´ë‹¤.
+/// ¼³°è Ã¶ÇĞ
+///  - ½Ç¹ö  : ¹«³­ÇÑ ¼öÄ¡ °­È­ (¾ÈÀüÇÑ ¼±ÅÃÁö)
+///  - °ñµå  : Á¶°ÇºÎ ½Ã³ÊÁö - "ÀÌ°É ¸Ô¾úÀ¸´Ï ÀÌ·¸°Ô ¿î¿µÇÏÀÚ"°¡ »ı±â´Â È¿°ú
+///  - ÇÁ¸®Áò : °ø°İ ¹æ½Ä ÀÚÃ¼¸¦ ºñÆ®´Â È¿°ú - ºôµåÀÇ ÃàÀÌ µÇ´Â À¯¹°±Ş
+///  - v3 Ãß°¡: ÇÏÀÌ¸®½ºÅ©/ÇÏÀÌ¸®ÅÏ Áõ°­ + [µµ¹Ú] ÆĞ¹Ğ¸® ½Ã³ÊÁö
+///    ([µµ¹Ú] ÅÂ±× Áõ°­À» ¸ğÀ»¼ö·Ï µµ¹Ú °è¿­ È¿°ú°¡ °­ÇØÁø´Ù)
+///  - v4 (Phase 2-3, »ç¿ëÀÚ °áÁ¤ - Áõ°­/¾ÆÀÌÅÛ ÀÌ¿øÈ­):
+///    ÁÖ¹æ °ü¿© Áõ°­ 5Á¾(½ÄÄ®/È²±İ Á¶¸® ±â±¸/º¸Çè/ºÎÃ¤Áú/¹Ì²ô·³ ¸ÅÆ®)À»
+///    ¾ÆÀÌÅÛ(ItemSystem.cs)À¸·Î ÀÌ°üÇÏ°í, ÆÇµµ¸¦ ¹Ù²Ù´Â ½Å±Ô Áõ°­ 10Á¾À» Ãß°¡.
+///    Áõ°­ = Æ÷Å¾ °­È­ + ±âÂ÷ À¯Æ¿¸¸ ³²±ä´Ù.
 ///
-/// ë‹¤ë¥¸ ì‹œìŠ¤í…œì€ AugmentManagerì˜ static ê°’ / í”Œë˜ê·¸ë§Œ ì½ìœ¼ë©´ ëœë‹¤.
-/// ì‹¤ì œ ì „íˆ¬ ë°˜ì˜ì€ TurretAttackExecutor v4ê°€ ë‹´ë‹¹.
+/// ´Ù¸¥ ½Ã½ºÅÛÀº AugmentManagerÀÇ static °ª / ÇÃ·¡±×¸¸ ÀĞÀ¸¸é µÈ´Ù.
+/// ½ÇÁ¦ ÀüÅõ ¹İ¿µÀº TurretAttackExecutor v4°¡ ´ã´ç.
 ///
-/// VS 2017 (C# 7.3) í˜¸í™˜
+/// VS 2017 (C# 7.3) È£È¯
 /// </summary>
 
 public enum AugmentGrade
 {
-    Silver,     // ì‹¤ë²„ - ìˆ˜ì¹˜ ê°•í™”
-    Gold,       // ê³¨ë“œ - ì¡°ê±´ë¶€ ì‹œë„ˆì§€
-    Prismatic   // í”„ë¦¬ì¦˜ - í”Œë ˆì´ ë°©ì‹ ë³€í˜•
+    Silver,     // ½Ç¹ö - ¼öÄ¡ °­È­
+    Gold,       // °ñµå - Á¶°ÇºÎ ½Ã³ÊÁö
+    Prismatic   // ÇÁ¸®Áò - ÇÃ·¹ÀÌ ¹æ½Ä º¯Çü
 }
 
-/// <summary>ì¦ê°• 1ì¢…ì˜ ì •ì˜</summary>
+/// <summary>Áõ°­ 1Á¾ÀÇ Á¤ÀÇ</summary>
 public class AugmentData
 {
-    public string id;                  // ë‚´ë¶€ ì‹ë³„ì (ì¤‘ë³µ ë°©ì§€)
-    public string name;                // í‘œì‹œ ì´ë¦„
-    public string desc;                // í‘œì‹œ ì„¤ëª…
-    public AugmentGrade grade;         // ë“±ê¸‰
-    public bool stackable;             // ì¤‘ë³µ íšë“ í—ˆìš© ì—¬ë¶€
-    public string conflictId;          // ê°™ì´ ê°€ì§ˆ ìˆ˜ ì—†ëŠ” ì¦ê°• id (ì—†ìœ¼ë©´ null)
-    public string family;              // íŒ¨ë°€ë¦¬ íƒœê·¸ (ì˜ˆ: "ë„ë°•") - ì‹œë„ˆì§€ ì¹´ìš´íŠ¸ìš©
-    public System.Action apply;        // íšë“ ì‹œ ì‹¤í–‰ë˜ëŠ” íš¨ê³¼
+    public string id;                  // ³»ºÎ ½Äº°ÀÚ (Áßº¹ ¹æÁö)
+    public string name;                // Ç¥½Ã ÀÌ¸§
+    public string desc;                // Ç¥½Ã ¼³¸í
+    public AugmentGrade grade;         // µî±Ş
+    public bool stackable;             // Áßº¹ È¹µæ Çã¿ë ¿©ºÎ
+    public string conflictId;          // °°ÀÌ °¡Áú ¼ö ¾ø´Â Áõ°­ id (¾øÀ¸¸é null)
+    public string family;              // ÆĞ¹Ğ¸® ÅÂ±× (¿¹: "µµ¹Ú") - ½Ã³ÊÁö Ä«¿îÆ®¿ë
+    public System.Action apply;        // È¹µæ ½Ã ½ÇÇàµÇ´Â È¿°ú
 
     public AugmentData(string id, string name, string desc, AugmentGrade grade,
         bool stackable, System.Action apply, string conflictId = null, string family = null)
@@ -54,7 +54,7 @@ public class AugmentData
         this.family = family;
     }
 
-    /// <summary>ë“±ê¸‰ë³„ ì¹´ë“œ ìƒ‰ìƒ</summary>
+    /// <summary>µî±Şº° Ä«µå »ö»ó</summary>
     public Color GradeColor()
     {
         switch (grade)
@@ -65,144 +65,144 @@ public class AugmentData
         }
     }
 
-    /// <summary>ë“±ê¸‰ í‘œì‹œ ë¬¸ìì—´</summary>
+    /// <summary>µî±Ş Ç¥½Ã ¹®ÀÚ¿­</summary>
     public string GradeName()
     {
         switch (grade)
         {
-            case AugmentGrade.Silver: return "ì‹¤ë²„";
-            case AugmentGrade.Gold: return "ê³¨ë“œ";
-            default: return "í”„ë¦¬ì¦˜";
+            case AugmentGrade.Silver: return "½Ç¹ö";
+            case AugmentGrade.Gold: return "°ñµå";
+            default: return "ÇÁ¸®Áò";
         }
     }
 }
 
 
 /// <summary>
-/// íšë“í•œ ì¦ê°•ì˜ ê²°ê³¼(ë°°ìœ¨/í”Œë˜ê·¸)ë¥¼ ì „ì—­ìœ¼ë¡œ ì œê³µí•œë‹¤.
+/// È¹µæÇÑ Áõ°­ÀÇ °á°ú(¹èÀ²/ÇÃ·¡±×)¸¦ Àü¿ªÀ¸·Î Á¦°øÇÑ´Ù.
 /// </summary>
 public static class AugmentManager
 {
-    // ---------- ìˆ˜ì¹˜ ë°°ìœ¨ (ì‹¤ë²„/ê³¨ë“œ) ----------
-    public static float AtkMul = 1f;             // í¬íƒ‘ ë°ë¯¸ì§€ ë°°ìœ¨
-    public static float CritChanceAdd = 0f;      // ì¹˜ëª…íƒ€ í™•ë¥  (0.08 = 8%)
-    public static float CritDamageAdd = 0f;      // ì¹˜ëª…íƒ€ ì¶”ê°€ ë°°ìœ¨ (ê¸°ë³¸ 1.5ë°°ì— ê°€ì‚°)
-    public static float ExplodeRadiusMul = 1f;   // í­ë°œ ë°˜ê²½ ë°°ìœ¨
-    public static int ChainCountAdd = 0;         // ì—°ì‡„ ì „ì´ íšŸìˆ˜ ê°€ì‚°
-    public static float DotMul = 1f;             // í™”ìƒ/ì¤‘ë… ë„íŠ¸ ë°°ìœ¨
-    public static int ShredAdd = 0;              // ë°©ê¹/ë§ˆê¹ ìˆ˜ì¹˜ ê°€ì‚°
-    public static float LifestealPerHit = 0f;    // íƒ€ê²©ë‹¹ ê¸°ì°¨ íšŒë³µëŸ‰
-    public static float HealPerWave = 0f;        // ì›¨ì´ë¸Œ í´ë¦¬ì–´ ì‹œ íšŒë³µëŸ‰
+    // ---------- ¼öÄ¡ ¹èÀ² (½Ç¹ö/°ñµå) ----------
+    public static float AtkMul = 1f;             // Æ÷Å¾ µ¥¹ÌÁö ¹èÀ²
+    public static float CritChanceAdd = 0f;      // Ä¡¸íÅ¸ È®·ü (0.08 = 8%)
+    public static float CritDamageAdd = 0f;      // Ä¡¸íÅ¸ Ãß°¡ ¹èÀ² (±âº» 1.5¹è¿¡ °¡»ê)
+    public static float ExplodeRadiusMul = 1f;   // Æø¹ß ¹İ°æ ¹èÀ²
+    public static int ChainCountAdd = 0;         // ¿¬¼â ÀüÀÌ È½¼ö °¡»ê
+    public static float DotMul = 1f;             // È­»ó/Áßµ¶ µµÆ® ¹èÀ²
+    public static int ShredAdd = 0;              // ¹æ±ğ/¸¶±ğ ¼öÄ¡ °¡»ê
+    public static float LifestealPerHit = 0f;    // Å¸°İ´ç ±âÂ÷ È¸º¹·®
+    public static float HealPerWave = 0f;        // ¿şÀÌºê Å¬¸®¾î ½Ã È¸º¹·®
 
-    // ---------- ì¡°ê±´ë¶€ ì‹œë„ˆì§€ (ê³¨ë“œ) ----------
-    public static float DotTargetBonus = 0f;     // ë„íŠ¸ ê±¸ë¦° ì ì—ê²Œ ì¶”ê°€ ë°ë¯¸ì§€ (0.25 = +25%)
-    public static float ControlTargetBonus = 0f; // ìŠ¬ë¡œìš°/ìŠ¤í„´ ì ì—ê²Œ ì¶”ê°€ ë°ë¯¸ì§€
-    public static int StaticNth = 0;             // Në²ˆì§¸ íƒ€ê²©ë§ˆë‹¤ ê°ì „ (0 = ë¹„í™œì„±)
+    // ---------- Á¶°ÇºÎ ½Ã³ÊÁö (°ñµå) ----------
+    public static float DotTargetBonus = 0f;     // µµÆ® °É¸° Àû¿¡°Ô Ãß°¡ µ¥¹ÌÁö (0.25 = +25%)
+    public static float ControlTargetBonus = 0f; // ½½·Î¿ì/½ºÅÏ Àû¿¡°Ô Ãß°¡ µ¥¹ÌÁö
+    public static int StaticNth = 0;             // N¹øÂ° Å¸°İ¸¶´Ù °¨Àü (0 = ºñÈ°¼º)
 
-    // ---------- ì£¼ë°© ì´ë²¤íŠ¸ ê´€ë ¨ ----------
-    // Phase 2-3: ë‹´ë‹¹ì´ ì•„ì´í…œ(ItemManager)ìœ¼ë¡œ ì´ê´€ë¨. ì–´ë–¤ ì¦ê°•ë„ ë” ì´ìƒ ì´ ê°’ì„
-    // ë°”ê¾¸ì§€ ì•Šì§€ë§Œ, í›…(KitchenEventManager) í˜¸í™˜ì„ ìœ„í•´ í•„ë“œëŠ” ìœ ì§€í•œë‹¤ (í•­ìƒ 1)
-    public static float EventPenaltyMul = 1f;    // ì´ë²¤íŠ¸ ì‹¤íŒ¨ í˜ë„í‹° ë°°ìœ¨
-    public static float EventRewardMul = 1f;     // ì´ë²¤íŠ¸ ì„±ê³µ ë³´ìƒ ë°°ìœ¨
-    public static float EventIntervalMul = 1f;   // ì´ë²¤íŠ¸ ë°œìƒ ê°„ê²© ë°°ìœ¨ (0.5 = 2ë°° ìì£¼)
+    // ---------- ÁÖ¹æ ÀÌº¥Æ® °ü·Ã ----------
+    // Phase 2-3: ´ã´çÀÌ ¾ÆÀÌÅÛ(ItemManager)À¸·Î ÀÌ°üµÊ. ¾î¶² Áõ°­µµ ´õ ÀÌ»ó ÀÌ °ªÀ»
+    // ¹Ù²ÙÁö ¾ÊÁö¸¸, ÈÅ(KitchenEventManager) È£È¯À» À§ÇØ ÇÊµå´Â À¯ÁöÇÑ´Ù (Ç×»ó 1)
+    public static float EventPenaltyMul = 1f;    // ÀÌº¥Æ® ½ÇÆĞ Æä³ÎÆ¼ ¹èÀ²
+    public static float EventRewardMul = 1f;     // ÀÌº¥Æ® ¼º°ø º¸»ó ¹èÀ²
+    public static float EventIntervalMul = 1f;   // ÀÌº¥Æ® ¹ß»ı °£°İ ¹èÀ² (0.5 = 2¹è ÀÚÁÖ)
 
-    // ---------- í”Œë ˆì´ ë³€í˜• í”Œë˜ê·¸ (í”„ë¦¬ì¦˜) ----------
-    public static bool GamblerBullet = false;    // ëª¨ë“  ë°ë¯¸ì§€ 50% í™•ë¥  2ë°°/ì ˆë°˜
-    public static bool PierceConversion = false; // íˆ¬ì‚¬ì²´ -> ê´€í†µ ë ˆì¼ ë³€í™˜
-    public static bool ConeConversion = false;   // íˆ¬ì‚¬ì²´ -> ë¶€ì±„ê¼´ ì‚°íƒ„ ë³€í™˜
-    public static bool RedKitchen = false;       // ëª¨ë“  íƒ€ê²©ì— í™”ìƒ 1ìŠ¤íƒ
-    public static bool IceHeart = false;         // ëª¨ë“  ìŠ¬ë¡œìš° -> 0.8ì´ˆ ë¹™ê²°(ìŠ¤í„´)
-    public static bool DoubleExplosion = false;  // í­ë°œì´ í•œ ë²ˆ ë” í„°ì§
-    public static bool ChainAmplify = false;     // ì—°ì‡„ê°€ íŠ•ê¸¸ìˆ˜ë¡ ê°•í•´ì§
-    public static float ChainProcChance = 0f;    // ëª¨ë“  íƒ€ê²© í™•ë¥ ë¡œ ì†Œí˜• ì—°ì‡„ ë²ˆê°œ
-    public static bool RampAttack = false;       // ê³¼ì—´ ê¸°ê´€: ì—°ì† ì‚¬ê²© ì‹œ ë°ë¯¸ì§€ ìƒìŠ¹
-    public static bool FrostShatter = false;     // ë™ìƒ íŒŒí¸: CC ê±¸ë¦° ì  íƒ€ê²© ì‹œ ì„œë¦¬ í­ë°œ
-    public static bool OpeningBarrage = false;   // ê°œì „ í¬ê²©: ì›¨ì´ë¸Œ ì‹œì‘ 8ì´ˆê°„ ë°ë¯¸ì§€ 2ë°°
-    public static float WaveStartTime = -999f;   // ì›¨ì´ë¸Œ ì‹œì‘ ì‹œê° (WaveManagerê°€ ê¸°ë¡)
+    // ---------- ÇÃ·¹ÀÌ º¯Çü ÇÃ·¡±× (ÇÁ¸®Áò) ----------
+    public static bool GamblerBullet = false;    // ¸ğµç µ¥¹ÌÁö 50% È®·ü 2¹è/Àı¹İ
+    public static bool PierceConversion = false; // Åõ»çÃ¼ -> °üÅë ·¹ÀÏ º¯È¯
+    public static bool ConeConversion = false;   // Åõ»çÃ¼ -> ºÎÃ¤²Ã »êÅº º¯È¯
+    public static bool RedKitchen = false;       // ¸ğµç Å¸°İ¿¡ È­»ó 1½ºÅÃ
+    public static bool IceHeart = false;         // ¸ğµç ½½·Î¿ì -> 0.8ÃÊ ºù°á(½ºÅÏ)
+    public static bool DoubleExplosion = false;  // Æø¹ßÀÌ ÇÑ ¹ø ´õ ÅÍÁü
+    public static bool ChainAmplify = false;     // ¿¬¼â°¡ Æ¨±æ¼ö·Ï °­ÇØÁü
+    public static float ChainProcChance = 0f;    // ¸ğµç Å¸°İ È®·ü·Î ¼ÒÇü ¿¬¼â ¹ø°³
+    public static bool RampAttack = false;       // °ú¿­ ±â°ü: ¿¬¼Ó »ç°İ ½Ã µ¥¹ÌÁö »ó½Â
+    public static bool FrostShatter = false;     // µ¿»ó ÆÄÆí: CC °É¸° Àû Å¸°İ ½Ã ¼­¸® Æø¹ß
+    public static bool OpeningBarrage = false;   // °³Àü Æ÷°İ: ¿şÀÌºê ½ÃÀÛ 8ÃÊ°£ µ¥¹ÌÁö 2¹è
+    public static float WaveStartTime = -999f;   // ¿şÀÌºê ½ÃÀÛ ½Ã°¢ (WaveManager°¡ ±â·Ï)
 
-    // ---------- ì¶”ê°€ ê³¨ë“œ íš¨ê³¼ ----------
-    public static bool FullSplash = false;       // í­ë°œ ì „ë¬¸ê°€: ìŠ¤í”Œë˜ì‹œ ê°ì‡„ ì œê±°
-    public static float DoubleTapChance = 0f;    // 2ì—°ì¥ ê°œì¡°: í™•ë¥ ë¡œ í•œ ë°œ ë” (50% ë°ë¯¸ì§€)
-    public static float MaxHPPerWave = 0f;       // ì•¼ì „ ì •ë¹„ë°˜: ì›¨ì´ë¸Œë‹¹ ìµœëŒ€ HP ì˜êµ¬ ì¦ê°€
-    public static int ExtraCards = 0;            // í–‰ìš´ì˜ ë¶€ì : ì¦ê°• ì„ íƒì§€ ì¶”ê°€ (ìµœëŒ€ +2)
+    // ---------- Ãß°¡ °ñµå È¿°ú ----------
+    public static bool FullSplash = false;       // Æø¹ß Àü¹®°¡: ½ºÇÃ·¡½Ã °¨¼â Á¦°Å
+    public static float DoubleTapChance = 0f;    // 2¿¬Àå °³Á¶: È®·ü·Î ÇÑ ¹ß ´õ (50% µ¥¹ÌÁö)
+    public static float MaxHPPerWave = 0f;       // ¾ßÀü Á¤ºñ¹İ: ¿şÀÌºê´ç ÃÖ´ë HP ¿µ±¸ Áõ°¡
+    public static int ExtraCards = 0;            // Çà¿îÀÇ ºÎÀû: Áõ°­ ¼±ÅÃÁö Ãß°¡ (ÃÖ´ë +2)
 
-    // ---------- í•˜ì´ë¦¬ìŠ¤í¬ / ë„ë°• íŒ¨ë°€ë¦¬ (v3) ----------
-    public static bool PrimalPower = false;      // ì›ì‹œ í™”ë ¥: ìƒíƒœì´ìƒ ì „ë¶€ í¬ê¸°, ìˆœìˆ˜ ë°ë¯¸ì§€ +80%
-    public static int ReviveCharges = 0;         // ì•„í™‰ ê°œì˜ ëª©ìˆ¨: ê¸°ì°¨ ì™„íŒŒ ì‹œ ë¶€í™œ íšŸìˆ˜
-    public static bool BloodBet = false;         // ì¶œí˜ˆ ë°°íŒ…: ì›¨ì´ë¸Œ ì‹œì‘ë§ˆë‹¤ ê¸°ì°¨ HP -80
-    public static float GoldRewardMul = 1f;      // ì›¨ì´ë¸Œ ê³¨ë“œ ë³´ìƒ ë°°ìœ¨ (ê³ ë¦¬ëŒ€ê¸ˆì—…ìê°€ ë‚®ì¶¤)
-    public static bool HasChalice = false;       // ë„ë°•ì‚¬ì˜ ì„±ë°°: ë„ë°• ì¦ê°• 1ê°œë‹¹ ë°ë¯¸ì§€ +10%
-    public static int GamblerFamilyCount = 0;    // ë³´ìœ í•œ [ë„ë°•] íŒ¨ë°€ë¦¬ ì¦ê°• ìˆ˜
+    // ---------- ÇÏÀÌ¸®½ºÅ© / µµ¹Ú ÆĞ¹Ğ¸® (v3) ----------
+    public static bool PrimalPower = false;      // ¿ø½Ã È­·Â: »óÅÂÀÌ»ó ÀüºÎ Æ÷±â, ¼ø¼ö µ¥¹ÌÁö +80%
+    public static int ReviveCharges = 0;         // ¾ÆÈ© °³ÀÇ ¸ñ¼û: ±âÂ÷ ¿ÏÆÄ ½Ã ºÎÈ° È½¼ö
+    public static bool BloodBet = false;         // ÃâÇ÷ ¹èÆÃ: ¿şÀÌºê ½ÃÀÛ¸¶´Ù ±âÂ÷ HP -80
+    public static float GoldRewardMul = 1f;      // ¿şÀÌºê °ñµå º¸»ó ¹èÀ² (°í¸®´ë±İ¾÷ÀÚ°¡ ³·Ãã)
+    public static bool HasChalice = false;       // µµ¹Ú»çÀÇ ¼º¹è: µµ¹Ú Áõ°­ 1°³´ç µ¥¹ÌÁö +10%
+    public static int GamblerFamilyCount = 0;    // º¸À¯ÇÑ [µµ¹Ú] ÆĞ¹Ğ¸® Áõ°­ ¼ö
 
-    /// <summary>ë„ë°•ì‚¬ì˜ íƒ„í™˜ 2ë°° í™•ë¥ : ê¸°ë³¸ 50% + ë„ë°• ì¦ê°• 1ê°œë‹¹ +4%p (ìµœëŒ€ 70%)</summary>
+    /// <summary>µµ¹Ú»çÀÇ ÅºÈ¯ 2¹è È®·ü: ±âº» 50% + µµ¹Ú Áõ°­ 1°³´ç +4%p (ÃÖ´ë 70%)</summary>
     public static float GamblerWinChance
     {
         get { return Mathf.Min(0.7f, 0.5f + 0.04f * GamblerFamilyCount); }
     }
 
-    /// <summary>ë„ë°•ì‚¬ì˜ ì„±ë°° ë°°ìœ¨ (ë™ì  ê³„ì‚° - ì´í›„ì— ë„ë°• ì¦ê°•ì„ ë¨¹ì–´ë„ ë°˜ì˜)</summary>
+    /// <summary>µµ¹Ú»çÀÇ ¼º¹è ¹èÀ² (µ¿Àû °è»ê - ÀÌÈÄ¿¡ µµ¹Ú Áõ°­À» ¸Ô¾îµµ ¹İ¿µ)</summary>
     public static float ChaliceMul
     {
         get { return HasChalice ? 1f + 0.10f * GamblerFamilyCount : 1f; }
     }
 
-    // ---------- ë°©ì–´ (TrainManager v3ì—ì„œ ì—°ë™ë¨) ----------
-    public static float DamageReductionAdd = 0f; // ë°›ëŠ” í”¼í•´ ê°ì†Œ (0.15 = 15% ê°ì†Œ, ìŒìˆ˜ = ë” ë°›ìŒ)
+    // ---------- ¹æ¾î (TrainManager v3¿¡¼­ ¿¬µ¿µÊ) ----------
+    public static float DamageReductionAdd = 0f; // ¹Ş´Â ÇÇÇØ °¨¼Ò (0.15 = 15% °¨¼Ò, À½¼ö = ´õ ¹ŞÀ½)
 
-    // ---------- í¬íƒ‘ ì„±ëŠ¥ (TurretSlot v2ì—ì„œ ì—°ë™ë¨) ----------
-    public static float AspdMul = 1f;            // ê³µê²©ì†ë„ ë°°ìœ¨
-    public static float RangeMul = 1f;           // ì‚¬ê±°ë¦¬ ë°°ìœ¨
+    // ---------- Æ÷Å¾ ¼º´É (TurretSlot v2¿¡¼­ ¿¬µ¿µÊ) ----------
+    public static float AspdMul = 1f;            // °ø°İ¼Óµµ ¹èÀ²
+    public static float RangeMul = 1f;           // »ç°Å¸® ¹èÀ²
 
-    // ---------- ì¡°ë¦¬ (CookingMinigame v2ì—ì„œ ì—°ë™ë¨) ----------
-    // Phase 2-3: ë‹´ë‹¹ì´ ì•„ì´í…œ(ItemManager)ìœ¼ë¡œ ì´ê´€ë¨ - í•„ë“œëŠ” í›… í˜¸í™˜ìš© ìœ ì§€ (í•­ìƒ 1)
-    public static float CookSpeedMul = 1f;       // ì œí•œ ì‹œê°„ ë°°ìœ¨ (í´ìˆ˜ë¡ ì—¬ìœ , êµ½ê¸° ì»¤ì„œ ê°ì†)
-    public static float CookJudgeMul = 1f;       // íŒì • ì¡´ ë°°ìœ¨ (í´ìˆ˜ë¡ ê´€ëŒ€)
+    // ---------- Á¶¸® (CookingMinigame v2¿¡¼­ ¿¬µ¿µÊ) ----------
+    // Phase 2-3: ´ã´çÀÌ ¾ÆÀÌÅÛ(ItemManager)À¸·Î ÀÌ°üµÊ - ÇÊµå´Â ÈÅ È£È¯¿ë À¯Áö (Ç×»ó 1)
+    public static float CookSpeedMul = 1f;       // Á¦ÇÑ ½Ã°£ ¹èÀ² (Å¬¼ö·Ï ¿©À¯, ±Á±â Ä¿¼­ °¨¼Ó)
+    public static float CookJudgeMul = 1f;       // ÆÇÁ¤ Á¸ ¹èÀ² (Å¬¼ö·Ï °ü´ë)
 
-    // ---------- íŒŒë° (Enemy v3ì—ì„œ ì—°ë™ë¨) ----------
-    public static float MaterialDropMul = 1f;    // ì²˜ì¹˜ ì‹œ ì¬ë£Œ ë“œëëŸ‰ ë°°ìœ¨
+    // ---------- ÆÄ¹Ö (Enemy v3¿¡¼­ ¿¬µ¿µÊ) ----------
+    public static float MaterialDropMul = 1f;    // Ã³Ä¡ ½Ã Àç·á µå¶ø·® ¹èÀ²
 
-    // ---------- ìŠ¬ë¡¯ (TurretSlotManager v2ì—ì„œ ì—°ë™ë¨) ----------
-    public static int ExtraSlotUnlock = 0;       // ì¶”ê°€ í•´ê¸ˆ ìŠ¬ë¡¯ ìˆ˜ (ê¸°ë³¸ 6 + ì´ ê°’, ìµœëŒ€ 8)
+    // ---------- ½½·Ô (TurretSlotManager v2¿¡¼­ ¿¬µ¿µÊ) ----------
+    public static int ExtraSlotUnlock = 0;       // Ãß°¡ ÇØ±İ ½½·Ô ¼ö (±âº» 6 + ÀÌ °ª, ÃÖ´ë 8)
 
-    // ---------- ì¸ì ‘ ë²„í”„ (TurretSlotManager v2ì—ì„œ ì—°ë™ë¨) ----------
-    public static float AdjacentBuffMul = 1f;    // ì¸ì ‘ ìŠ¬ë¡¯ ë²„í”„ ë°°ìœ¨
+    // ---------- ÀÎÁ¢ ¹öÇÁ (TurretSlotManager v2¿¡¼­ ¿¬µ¿µÊ) ----------
+    public static float AdjacentBuffMul = 1f;    // ÀÎÁ¢ ½½·Ô ¹öÇÁ ¹èÀ²
 
-    // ---------- ì†ì„± ê³µëª… (TurretSlotManager v3ì—ì„œ ì—°ë™ë¨) ----------
-    public static float ResonanceBonusAdd = 0f;  // ê³µëª… ë³´ë„ˆìŠ¤ ê°€ì‚° (0.15 = +15%p)
+    // ---------- ¼Ó¼º °ø¸í (TurretSlotManager v3¿¡¼­ ¿¬µ¿µÊ) ----------
+    public static float ResonanceBonusAdd = 0f;  // °ø¸í º¸³Ê½º °¡»ê (0.15 = +15%p)
 
-    // ---------- Phase 2-2 ì‹ ê·œ ì¦ê°• ì—°ë™ ----------
-    public static int RerollsUsed = 0;           // ì¦ê°• ë¦¬ë¡¤ ì‚¬ìš© íšŸìˆ˜ (ë¹„ìš© ì ì¦ìš©)
-    public static float MasteryAmp = 1f;         // ë‹¨ê³¨ ì¥ë¶€: ìš”ë¦¬ ìˆ™ë ¨ ê³µê²©ë ¥ ë³´ë„ˆìŠ¤ ë°°ìœ¨
-    public static float SlotStunDurMul = 1f;     // ë¶€ë™ì•¡ ë°°ê´€: ìŠ¬ë¡¯ ê°ì „/ë¹™ê²° ì§€ì† ë°°ìœ¨
-    public static int ClearMatBonus = 0;         // ë¹„ìƒ ì‹ëŸ‰ ì°½ê³ : ì›¨ì´ë¸Œ í´ë¦¬ì–´ ëœë¤ ì¬ë£Œ
-    public static float BetStakesMul = 1f;       // íŒëˆ ë‘ ë°°: ìŠ¤í”¼ë…¸ ë² íŒ… íŒëˆ/ë³´ìƒ/ëŒ€ê°€ ë°°ìœ¨
-    public static int ResonanceNeedOverride = 0; // ê³µëª… í­ì£¼: ê³µëª… í•„ìš” ê°œìˆ˜ ë®ì–´ì“°ê¸° (0=ê¸°ë³¸)
-    public static bool LastSupperRush = false;   // ìµœí›„ì˜ ë§Œì°¬: ì €ì²´ë ¥ ì‹œ í¬íƒ‘ ê³µì† ìƒìŠ¹
+    // ---------- Phase 2-2 ½Å±Ô Áõ°­ ¿¬µ¿ ----------
+    public static int RerollsUsed = 0;           // Áõ°­ ¸®·Ñ »ç¿ë È½¼ö (ºñ¿ë Á¡Áõ¿ë)
+    public static float MasteryAmp = 1f;         // ´Ü°ñ ÀåºÎ: ¿ä¸® ¼÷·Ã °ø°İ·Â º¸³Ê½º ¹èÀ²
+    public static float SlotStunDurMul = 1f;     // ºÎµ¿¾× ¹è°ü: ½½·Ô °¨Àü/ºù°á Áö¼Ó ¹èÀ²
+    public static int ClearMatBonus = 0;         // ºñ»ó ½Ä·® Ã¢°í: ¿şÀÌºê Å¬¸®¾î ·£´ı Àç·á
+    public static float BetStakesMul = 1f;       // ÆÇµ· µÎ ¹è: ½ºÇÇ³ë º£ÆÃ ÆÇµ·/º¸»ó/´ë°¡ ¹èÀ²
+    public static int ResonanceNeedOverride = 0; // °ø¸í ÆøÁÖ: °ø¸í ÇÊ¿ä °³¼ö µ¤¾î¾²±â (0=±âº»)
+    public static bool LastSupperRush = false;   // ÃÖÈÄÀÇ ¸¸Âù: ÀúÃ¼·Â ½Ã Æ÷Å¾ °ø¼Ó »ó½Â
 
-    // ---------- Phase 2-3 ì‹ ê·œ ì¦ê°• ì—°ë™ ----------
-    public static int ApprenticeCooks = 0;       // ê²¬ìŠµ ì…°í”„ ê³ ìš©: ì›¨ì´ë¸Œ ì‹œì‘ ì‹œ ìë™ ì¡°ë¦¬ ìˆ˜
-    public static bool CorpseService = false;    // ë§ˆì§€ë§‰ ì„œë¹„ìŠ¤: ì²˜ì¹˜í•œ ì ì´ í„°ì§„ë‹¤
-    public static bool OverkillCarry = false;    // ì˜† í…Œì´ë¸” ê³„ì‚°ì„œ: ì´ˆê³¼ ë°ë¯¸ì§€ ì´ì›”
-    public static int ThornsStacks = 0;          // ê°€ì‹œì² ì¡°ë§ ë„ê¸ˆ: ë°˜ê²© ìŠ¤íƒ (0 = ì—†ìŒ)
-    public static float TrainDefAdd = 0f;        // ê°€ì‹œì² ì¡°ë§ ë„ê¸ˆ: ê¸°ì°¨ DEF ê°€ì‚°
-    public static bool HasCollector = false;     // ê³¨ë™í’ˆ ê°ì •ê°€: ì•„ì´í…œ 1ê°œë‹¹ ë°ë¯¸ì§€ ì¦ê°€
-    public static bool SteelHeart = false;       // ê°•ì² ì˜ ì‹¬ì¥: ìµœëŒ€ HP ë¹„ë¡€ ë°ë¯¸ì§€
-    public static bool BasicsDoctrine = false;   // ì„ ëŒ€ì˜ ê¸°ë³¸ê¸°: T2 ë´‰ì¸ + T1 ê°•í™”
-    public static bool OneChef = false;          // ì£¼ë°©ì¥ì€ í•˜ë‚˜ë‹¤: ìµœê³  ë ˆë²¨ í¬íƒ‘ ëª°ì•„ì£¼ê¸°
-    public static int OneChefKillStacks = 0;     // ì£¼ë°©ì¥ ì²˜ì¹˜ ëˆ„ì  ìŠ¤íƒ (ëŸ° í•œì •)
-    public static bool OverflowShield = false;   // ë„˜ì¹˜ëŠ” ì†¥: ì´ˆê³¼ íšŒë³µ -> ì¦ê¸° ë³´í˜¸ë§‰
-    public static bool CurationBoost = false;    // ì—„ì„ ëœ ë©”ë‰´íŒ: ì¹´ë“œ -1ì¥, ìƒìœ„ ë“±ê¸‰ í™•ë¥  ìƒìŠ¹
+    // ---------- Phase 2-3 ½Å±Ô Áõ°­ ¿¬µ¿ ----------
+    public static int ApprenticeCooks = 0;       // °ß½À ¼ÎÇÁ °í¿ë: ¿şÀÌºê ½ÃÀÛ ½Ã ÀÚµ¿ Á¶¸® ¼ö
+    public static bool CorpseService = false;    // ¸¶Áö¸· ¼­ºñ½º: Ã³Ä¡ÇÑ ÀûÀÌ ÅÍÁø´Ù
+    public static bool OverkillCarry = false;    // ¿· Å×ÀÌºí °è»ê¼­: ÃÊ°ú µ¥¹ÌÁö ÀÌ¿ù
+    public static int ThornsStacks = 0;          // °¡½ÃÃ¶Á¶¸Á µµ±İ: ¹İ°İ ½ºÅÃ (0 = ¾øÀ½)
+    public static float TrainDefAdd = 0f;        // °¡½ÃÃ¶Á¶¸Á µµ±İ: ±âÂ÷ DEF °¡»ê
+    public static bool HasCollector = false;     // °ñµ¿Ç° °¨Á¤°¡: ¾ÆÀÌÅÛ 1°³´ç µ¥¹ÌÁö Áõ°¡
+    public static bool SteelHeart = false;       // °­Ã¶ÀÇ ½ÉÀå: ÃÖ´ë HP ºñ·Ê µ¥¹ÌÁö
+    public static bool BasicsDoctrine = false;   // ¼±´ëÀÇ ±âº»±â: T2 ºÀÀÎ + T1 °­È­
+    public static bool OneChef = false;          // ÁÖ¹æÀåÀº ÇÏ³ª´Ù: ÃÖ°í ·¹º§ Æ÷Å¾ ¸ô¾ÆÁÖ±â
+    public static int OneChefKillStacks = 0;     // ÁÖ¹æÀå Ã³Ä¡ ´©Àû ½ºÅÃ (·± ÇÑÁ¤)
+    public static bool OverflowShield = false;   // ³ÑÄ¡´Â ¼Ü: ÃÊ°ú È¸º¹ -> Áõ±â º¸È£¸·
+    public static bool CurationBoost = false;    // ¾ö¼±µÈ ¸Ş´ºÆÇ: Ä«µå -1Àå, »óÀ§ µî±Ş È®·ü »ó½Â
 
-    /// <summary>ê³¨ë™í’ˆ ê°ì •ê°€ ë°°ìœ¨ (ë™ì  ê³„ì‚° - ì´í›„ì— ì•„ì´í…œì„ ì–»ì–´ë„ ë°˜ì˜)</summary>
+    /// <summary>°ñµ¿Ç° °¨Á¤°¡ ¹èÀ² (µ¿Àû °è»ê - ÀÌÈÄ¿¡ ¾ÆÀÌÅÛÀ» ¾ò¾îµµ ¹İ¿µ)</summary>
     public static float CollectorMul
     {
         get { return HasCollector ? 1f + GameBalance.CollectorPerItem * ItemManager.OwnedCount : 1f; }
     }
 
-    /// <summary>ì§€ê¸ˆê¹Œì§€ íšë“í•œ ì¦ê°• ëª©ë¡ (UI í‘œì‹œìš©)</summary>
+    /// <summary>Áö±İ±îÁö È¹µæÇÑ Áõ°­ ¸ñ·Ï (UI Ç¥½Ã¿ë)</summary>
     public static List<AugmentData> Owned = new List<AugmentData>();
 
-    /// <summary>ëŸ° ì‹œì‘ ì‹œ ì´ˆê¸°í™” (staticì€ ì”¬ ì¬ì‹œì‘ì—ë„ ë‚¨ìœ¼ë¯€ë¡œ ë°˜ë“œì‹œ í˜¸ì¶œ)</summary>
+    /// <summary>·± ½ÃÀÛ ½Ã ÃÊ±âÈ­ (staticÀº ¾À Àç½ÃÀÛ¿¡µµ ³²À¸¹Ç·Î ¹İµå½Ã È£Ãâ)</summary>
     public static void ResetRun()
     {
         AtkMul = 1f; CritChanceAdd = 0f; CritDamageAdd = 0f;
@@ -227,11 +227,11 @@ public static class AugmentManager
         MaterialDropMul = 1f; DamageReductionAdd = 0f; ExtraSlotUnlock = 0;
         AdjacentBuffMul = 1f; ResonanceBonusAdd = 0f;
 
-        // Phase 2-2 ì‹ ê·œ
+        // Phase 2-2 ½Å±Ô
         RerollsUsed = 0; MasteryAmp = 1f; SlotStunDurMul = 1f;
         ClearMatBonus = 0; BetStakesMul = 1f; ResonanceNeedOverride = 0; LastSupperRush = false;
 
-        // Phase 2-3 ì‹ ê·œ
+        // Phase 2-3 ½Å±Ô
         ApprenticeCooks = 0; CorpseService = false; OverkillCarry = false;
         ThornsStacks = 0; TrainDefAdd = 0f; HasCollector = false;
         SteelHeart = false; BasicsDoctrine = false;
@@ -240,43 +240,43 @@ public static class AugmentManager
 
         Owned.Clear();
         AugmentHooks.Clear();
-        Debug.Log("[ì¦ê°•] ëŸ° ì´ˆê¸°í™” ì™„ë£Œ");
+        Debug.Log("[Áõ°­] ·± ÃÊ±âÈ­ ¿Ï·á");
     }
 
     /// <summary>
-    /// ì¦ê°• íšë“.
-    /// Phase 2-2 (ì‚¬ìš©ì ê²°ì • - ì¤‘ì²© ì ì¦): ê°™ì€ ì¦ê°•ì„ në²ˆì§¸ë¡œ ì§‘ìœ¼ë©´ ì´ë²ˆ íšë“ íš¨ê³¼ê°€
-    /// ê¸°ë³¸ì˜ në°° (íš¨ê³¼ í•¨ìˆ˜ë¥¼ níšŒ ì‹¤í–‰). ìŠ¤íƒ ê°€ëŠ¥(stackable) ì¦ê°•ë§Œ ì¤‘ë³µ ë“±ì¥í•˜ë¯€ë¡œ
-    /// ì¼íšŒì„± ì¦ê°•(ê³¨ë“œ ì§€ê¸‰/ë¶€í™œ ë“±)ì€ ì˜í–¥ ì—†ìŒ. 2026-09-14: ë°°ìˆ˜ ìƒí•œ AugmentStackMulCap ì¶”ê°€.
+    /// Áõ°­ È¹µæ.
+    /// Phase 2-2 (»ç¿ëÀÚ °áÁ¤ - ÁßÃ¸ Á¡Áõ): °°Àº Áõ°­À» n¹øÂ°·Î ÁıÀ¸¸é ÀÌ¹ø È¹µæ È¿°ú°¡
+    /// ±âº»ÀÇ n¹è (È¿°ú ÇÔ¼ö¸¦ nÈ¸ ½ÇÇà). ½ºÅÃ °¡´É(stackable) Áõ°­¸¸ Áßº¹ µîÀåÇÏ¹Ç·Î
+    /// ÀÏÈ¸¼º Áõ°­(°ñµå Áö±Ş/ºÎÈ° µî)Àº ¿µÇâ ¾øÀ½. 2026-09-14: ¹è¼ö »óÇÑ AugmentStackMulCap Ãß°¡.
     /// </summary>
     public static void Acquire(AugmentData aug)
     {
         if (aug == null) return;
 
-        int stackNumber = CountAugment(aug.id) + 1;   // ì´ë²ˆì´ ëª‡ ë²ˆì§¸ ìŠ¤íƒì¸ê°€
+        int stackNumber = CountAugment(aug.id) + 1;   // ÀÌ¹øÀÌ ¸î ¹øÂ° ½ºÅÃÀÎ°¡
 
         Owned.Add(aug);
 
-        // [ë„ë°•] íŒ¨ë°€ë¦¬ ì¹´ìš´íŠ¸ (ì‹œë„ˆì§€ìš©) - applyë³´ë‹¤ ë¨¼ì € ì˜¬ë ¤ì„œ íš¨ê³¼ê°€ ìê¸° ìì‹ ì„ í¬í•¨
-        if (aug.family == "ë„ë°•") GamblerFamilyCount++;
+        // [µµ¹Ú] ÆĞ¹Ğ¸® Ä«¿îÆ® (½Ã³ÊÁö¿ë) - applyº¸´Ù ¸ÕÀú ¿Ã·Á¼­ È¿°ú°¡ ÀÚ±â ÀÚ½ÅÀ» Æ÷ÇÔ
+        if (aug.family == "µµ¹Ú") GamblerFamilyCount++;
 
-        // 2026-09-14 (êµìˆ˜ í”¼ë“œë°± C2, ì‚¬ìš©ì ê²°ì •): ì ì¦ì€ ìœ ì§€í•˜ë˜ ë°°ìˆ˜ ìƒí•œ GameBalance.AugmentStackMulCap(ê¸°ë³¸ 3)
-        // - 3ìŠ¤íƒ = 1+2+3 = 6íšŒ ë³µë¦¬ëŠ” ê³¼í–ˆê³ , ìƒí•œ 3ì´ë©´ 4ìŠ¤íƒì§¸ë¶€í„°ëŠ” 3ë°°ë¡œ ê³ ì • (í„°ì§€ëŠ” ë”œì˜ ë„íŒŒë¯¼ì€ ë‚¨ê¸´ë‹¤)
+        // 2026-09-14 (±³¼ö ÇÇµå¹é C2, »ç¿ëÀÚ °áÁ¤): Á¡ÁõÀº À¯ÁöÇÏµÇ ¹è¼ö »óÇÑ GameBalance.AugmentStackMulCap(±âº» 3)
+        // - 3½ºÅÃ = 1+2+3 = 6È¸ º¹¸®´Â °úÇß°í, »óÇÑ 3ÀÌ¸é 4½ºÅÃÂ°ºÎÅÍ´Â 3¹è·Î °íÁ¤ (ÅÍÁö´Â µôÀÇ µµÆÄ¹ÎÀº ³²±ä´Ù)
         int times = Mathf.Min(stackNumber, Mathf.Max(1, GameBalance.AugmentStackMulCap));
         if (aug.apply != null)
             for (int k = 0; k < times; k++) aug.apply();
 
         if (stackNumber > 1)
         {
-            UIManager.Instance?.ShowStatChange("[ì¤‘ì²© " + stackNumber + "] " + aug.name
-                + " - ì´ë²ˆ íš¨ê³¼ " + times + "ë°°!" + (times < stackNumber ? " (ìµœëŒ€ " + times + "ë°°)" : ""));
+            UIManager.Instance?.ShowStatChange("[ÁßÃ¸ " + stackNumber + "] " + aug.name
+                + " - ÀÌ¹ø È¿°ú " + times + "¹è!" + (times < stackNumber ? " (ÃÖ´ë " + times + "¹è)" : ""));
         }
 
-        Debug.Log("[ì¦ê°•] íšë“: " + aug.name + " (" + aug.GradeName() + ") x" + stackNumber
+        Debug.Log("[Áõ°­] È¹µæ: " + aug.name + " (" + aug.GradeName() + ") x" + stackNumber
             + (aug.family != null ? " [" + aug.family + "]" : ""));
     }
 
-    /// <summary>í•´ë‹¹ ì¦ê°•ì„ ì´ë¯¸ ê°–ê³  ìˆëŠ”ì§€</summary>
+    /// <summary>ÇØ´ç Áõ°­À» ÀÌ¹Ì °®°í ÀÖ´ÂÁö</summary>
     public static bool HasAugment(string id)
     {
         for (int i = 0; i < Owned.Count; i++)
@@ -284,7 +284,7 @@ public static class AugmentManager
         return false;
     }
 
-    /// <summary>í•´ë‹¹ ì¦ê°•ì˜ ë³´ìœ  ê°œìˆ˜ (ì¤‘ì²© ì ì¦/ì¹´ë“œ í‘œê¸°ìš©)</summary>
+    /// <summary>ÇØ´ç Áõ°­ÀÇ º¸À¯ °³¼ö (ÁßÃ¸ Á¡Áõ/Ä«µå Ç¥±â¿ë)</summary>
     public static int CountAugment(string id)
     {
         int c = 0;
@@ -293,23 +293,23 @@ public static class AugmentManager
         return c;
     }
 
-    // ---------- ì™¸ë¶€ ì—°ë™ í—¬í¼ ----------
+    // ---------- ¿ÜºÎ ¿¬µ¿ ÇïÆÛ ----------
 
-    /// <summary>ê¸°ì°¨ ìµœëŒ€ HPë¥¼ ì˜êµ¬ ì¦ê°€</summary>
+    /// <summary>±âÂ÷ ÃÖ´ë HP¸¦ ¿µ±¸ Áõ°¡</summary>
     public static void AddTrainMaxHP(float amount)
     {
         TrainManager tm = Object.FindFirstObjectByType<TrainManager>();
         if (tm != null) tm.AddMaxHP(amount);
     }
 
-    /// <summary>ê¸°ì°¨ ì¦‰ì‹œ íšŒë³µ</summary>
+    /// <summary>±âÂ÷ Áï½Ã È¸º¹</summary>
     public static void HealTrain(float amount)
     {
         TrainManager tm = Object.FindFirstObjectByType<TrainManager>();
         if (tm != null) tm.Heal(amount);
     }
 
-    /// <summary>ê¸°ì°¨ ìŠ¤íƒ¯ ì¬ê³„ì‚° ìš”ì²­ (ê°€ì‹œì² ì¡°ë§ DEF ê°€ì‚° ë“±ì„ ì¦‰ì‹œ ë°˜ì˜)</summary>
+    /// <summary>±âÂ÷ ½ºÅÈ Àç°è»ê ¿äÃ» (°¡½ÃÃ¶Á¶¸Á DEF °¡»ê µîÀ» Áï½Ã ¹İ¿µ)</summary>
     public static void RecalcTrain()
     {
         TrainManager tm = Object.FindFirstObjectByType<TrainManager>();
@@ -319,12 +319,12 @@ public static class AugmentManager
 
 
 /// <summary>
-/// ì¦ê°• íš¨ê³¼ë¥¼ ìœ„í•´ ì  ìƒíƒœ(ìŠ¬ë¡œìš°/ìŠ¤í„´/ë„íŠ¸)ë¥¼ ì¶”ì í•˜ëŠ” ë³´ì¡° ì¥ë¶€.
-/// Enemy ìŠ¤í¬ë¦½íŠ¸ë¥¼ ìˆ˜ì •í•˜ì§€ ì•Šê³ , ìš°ë¦¬ê°€ ìƒíƒœë¥¼ ê±¸ ë•Œ ì§ì ‘ ê¸°ë¡í•œë‹¤.
+/// Áõ°­ È¿°ú¸¦ À§ÇØ Àû »óÅÂ(½½·Î¿ì/½ºÅÏ/µµÆ®)¸¦ ÃßÀûÇÏ´Â º¸Á¶ ÀåºÎ.
+/// Enemy ½ºÅ©¸³Æ®¸¦ ¼öÁ¤ÇÏÁö ¾Ê°í, ¿ì¸®°¡ »óÅÂ¸¦ °É ¶§ Á÷Á¢ ±â·ÏÇÑ´Ù.
 /// </summary>
 public static class AugmentHooks
 {
-    // ì ë³„ "ì–¸ì œê¹Œì§€ ì´ ìƒíƒœì¸ì§€" ê¸°ë¡ (Time.time ê¸°ì¤€)
+    // Àûº° "¾ğÁ¦±îÁö ÀÌ »óÅÂÀÎÁö" ±â·Ï (Time.time ±âÁØ)
     private static Dictionary<Enemy, float> controlUntil = new Dictionary<Enemy, float>();
     private static Dictionary<Enemy, float> dotUntil = new Dictionary<Enemy, float>();
 
@@ -334,7 +334,7 @@ public static class AugmentHooks
         dotUntil.Clear();
     }
 
-    /// <summary>ìŠ¬ë¡œìš°/ìŠ¤í„´ì„ ê±¸ì—ˆì„ ë•Œ í˜¸ì¶œ</summary>
+    /// <summary>½½·Î¿ì/½ºÅÏÀ» °É¾úÀ» ¶§ È£Ãâ</summary>
     public static void RegisterControl(Enemy en, float duration)
     {
         if (en == null) return;
@@ -345,7 +345,7 @@ public static class AugmentHooks
         CleanupIfBig(controlUntil);
     }
 
-    /// <summary>í™”ìƒ/ì¤‘ë…ì„ ê±¸ì—ˆì„ ë•Œ í˜¸ì¶œ</summary>
+    /// <summary>È­»ó/Áßµ¶À» °É¾úÀ» ¶§ È£Ãâ</summary>
     public static void RegisterDot(Enemy en, float duration)
     {
         if (en == null) return;
@@ -356,7 +356,7 @@ public static class AugmentHooks
         CleanupIfBig(dotUntil);
     }
 
-    /// <summary>ì§€ê¸ˆ ìŠ¬ë¡œìš°/ìŠ¤í„´ ìƒíƒœì¸ê°€</summary>
+    /// <summary>Áö±İ ½½·Î¿ì/½ºÅÏ »óÅÂÀÎ°¡</summary>
     public static bool IsControlled(Enemy en)
     {
         if (en == null) return false;
@@ -364,7 +364,7 @@ public static class AugmentHooks
         return controlUntil.TryGetValue(en, out until) && until > Time.time;
     }
 
-    /// <summary>ì§€ê¸ˆ ë„íŠ¸(í™”ìƒ/ì¤‘ë…)ê°€ ë¶™ì–´ ìˆëŠ”ê°€</summary>
+    /// <summary>Áö±İ µµÆ®(È­»ó/Áßµ¶)°¡ ºÙ¾î ÀÖ´Â°¡</summary>
     public static bool HasDotTracked(Enemy en)
     {
         if (en == null) return false;
@@ -372,7 +372,7 @@ public static class AugmentHooks
         return dotUntil.TryGetValue(en, out until) && until > Time.time;
     }
 
-    /// <summary>ì¥ë¶€ê°€ ì»¤ì§€ë©´ ë§Œë£Œëœ í•­ëª© ì •ë¦¬</summary>
+    /// <summary>ÀåºÎ°¡ Ä¿Áö¸é ¸¸·áµÈ Ç×¸ñ Á¤¸®</summary>
     private static void CleanupIfBig(Dictionary<Enemy, float> dict)
     {
         if (dict.Count < 64) return;
@@ -386,7 +386,7 @@ public static class AugmentHooks
 
 
 /// <summary>
-/// ì „ì²´ ì¦ê°• ëª©ë¡. ì›¨ì´ë¸Œ í´ë¦¬ì–´ ì‹œ ì—¬ê¸°ì„œ 3ê°œë¥¼ ë½‘ì•„ ì œì‹œí•œë‹¤.
+/// ÀüÃ¼ Áõ°­ ¸ñ·Ï. ¿şÀÌºê Å¬¸®¾î ½Ã ¿©±â¼­ 3°³¸¦ »Ì¾Æ Á¦½ÃÇÑ´Ù.
 /// </summary>
 public static class AugmentDatabase
 {
@@ -406,236 +406,236 @@ public static class AugmentDatabase
         all = new List<AugmentData>();
 
         // ==========================================================
-        //  ì‹¤ë²„ - ë¬´ë‚œí•œ ìˆ˜ì¹˜ ê°•í™” (ì•ˆì „í”½)
+        //  ½Ç¹ö - ¹«³­ÇÑ ¼öÄ¡ °­È­ (¾ÈÀüÇÈ)
         // ==========================================================
-        all.Add(new AugmentData("silver_atk", "ê¸°ë¦„ì¹ í•œ í¬ì‹ ",
-            "ëª¨ë“  í¬íƒ‘ ë°ë¯¸ì§€ +12%", AugmentGrade.Silver, true,
+        all.Add(new AugmentData("silver_atk", "±â¸§Ä¥ÇÑ Æ÷½Å",
+            "¸ğµç Æ÷Å¾ µ¥¹ÌÁö +12%", AugmentGrade.Silver, true,
             delegate { AugmentManager.AtkMul *= 1.12f; }));
 
-        all.Add(new AugmentData("silver_hp", "ê°•ì²  ë¦¬ë²³ ë³´ê°•",
-            "ê¸°ì°¨ ìµœëŒ€ HP +250 (ì¦‰ì‹œ íšŒë³µ)", AugmentGrade.Silver, true,
+        all.Add(new AugmentData("silver_hp", "°­Ã¶ ¸®ºª º¸°­",
+            "±âÂ÷ ÃÖ´ë HP +250 (Áï½Ã È¸º¹)", AugmentGrade.Silver, true,
             delegate { AugmentManager.AddTrainMaxHP(250f); AugmentManager.HealTrain(250f); }));
 
-        all.Add(new AugmentData("silver_crit", "ì •ë°€ ë Œì¦ˆ",
-            "ì¹˜ëª…íƒ€ í™•ë¥  +8%", AugmentGrade.Silver, true,
+        all.Add(new AugmentData("silver_crit", "Á¤¹Ğ ·»Áî",
+            "Ä¡¸íÅ¸ È®·ü +8%", AugmentGrade.Silver, true,
             delegate { AugmentManager.CritChanceAdd += 0.08f; }));
 
-        all.Add(new AugmentData("silver_dot", "ë§¤ìš´ ì–‘ë… í•œ ìŠ¤í‘¼",
-            "í™”ìƒ / ì¤‘ë… ë„íŠ¸ ë°ë¯¸ì§€ +25%", AugmentGrade.Silver, true,
+        all.Add(new AugmentData("silver_dot", "¸Å¿î ¾ç³ä ÇÑ ½ºÇ¬",
+            "È­»ó¡¤µ¶À¸·Î °è¼Ó µé¾î°¡´Â ÇÇÇØ +25%", AugmentGrade.Silver, true,
             delegate { AugmentManager.DotMul *= 1.25f; }));
 
-        all.Add(new AugmentData("silver_explode", "í™”ì•½ ì¶”ê°€ ë°°í•©",
-            "í­ë°œ ë°˜ê²½ +15%", AugmentGrade.Silver, true,
+        all.Add(new AugmentData("silver_explode", "È­¾à Ãß°¡ ¹èÇÕ",
+            "Æø¹ß ¹İ°æ +15%", AugmentGrade.Silver, true,
             delegate { AugmentManager.ExplodeRadiusMul *= 1.15f; }));
 
-        all.Add(new AugmentData("silver_shred", "êµ¬ë¦¬ ë„ê¸ˆ íƒ„í™˜",
-            "ë°©ì–´ë ¥ / ë§ˆë²•ì €í•­ ê¹ê¸° ìˆ˜ì¹˜ +5", AugmentGrade.Silver, true,
+        all.Add(new AugmentData("silver_shred", "±¸¸® µµ±İ ÅºÈ¯",
+            "¼Õ´ÔÀÇ ¹æ¾î¡¤ÀúÇ×À» ±ğ´Â ¿ä¸®°¡ +5 ¸¸Å­ ´õ ±ğ´Â´Ù", AugmentGrade.Silver, true,
             delegate { AugmentManager.ShredAdd += 5; }));
 
-        all.Add(new AugmentData("silver_lifesteal", "ìœ¡ìˆ˜ í•œ êµ­ì",
-            "í¬íƒ‘ì´ ì ì„ ë•Œë¦´ ë•Œë§ˆë‹¤ ê¸°ì°¨ HP 0.5 íšŒë³µ", AugmentGrade.Silver, true,
+        all.Add(new AugmentData("silver_lifesteal", "À°¼ö ÇÑ ±¹ÀÚ",
+            "Æ÷Å¾ÀÌ ÀûÀ» ¶§¸± ¶§¸¶´Ù ±âÂ÷ HP 0.5 È¸º¹", AugmentGrade.Silver, true,
             delegate { AugmentManager.LifestealPerHit += 0.5f; }));
 
-        all.Add(new AugmentData("silver_wavehal", "ì‘ê¸‰ ì •ë¹„",
-            "ì›¨ì´ë¸Œ í´ë¦¬ì–´ë§ˆë‹¤ ê¸°ì°¨ HP 60 íšŒë³µ", AugmentGrade.Silver, true,
+        all.Add(new AugmentData("silver_wavehal", "ÀÀ±Ş Á¤ºñ",
+            "¿şÀÌºê Å¬¸®¾î¸¶´Ù ±âÂ÷ HP 60 È¸º¹", AugmentGrade.Silver, true,
             delegate { AugmentManager.HealPerWave += 60f; }));
 
-        all.Add(new AugmentData("silver_aspd", "ê³ ì† íšŒì „ ëª¨í„°",
-            "ëª¨ë“  í¬íƒ‘ ê³µê²©ì†ë„ +12%", AugmentGrade.Silver, true,
+        all.Add(new AugmentData("silver_aspd", "°í¼Ó È¸Àü ¸ğÅÍ",
+            "¸ğµç Æ÷Å¾ °ø°İ¼Óµµ +12%", AugmentGrade.Silver, true,
             delegate { AugmentManager.AspdMul *= 1.12f; }));
 
-        all.Add(new AugmentData("silver_range", "ë§ì› ì¡°ì¤€ê²½",
-            "ëª¨ë“  í¬íƒ‘ ì‚¬ê±°ë¦¬ +15%", AugmentGrade.Silver, true,
+        all.Add(new AugmentData("silver_range", "¸Á¿ø Á¶ÁØ°æ",
+            "¸ğµç Æ÷Å¾ »ç°Å¸® +15%", AugmentGrade.Silver, true,
             delegate { AugmentManager.RangeMul *= 1.15f; }));
 
-        // (Phase 2-3: 'ì˜ ë“œëŠ” ì‹ì¹¼'ì€ ì•„ì´í…œìœ¼ë¡œ ì´ê´€ - ItemSystem.cs ì°¸ê³ )
+        // (Phase 2-3: 'Àß µå´Â ½ÄÄ®'Àº ¾ÆÀÌÅÛÀ¸·Î ÀÌ°ü - ItemSystem.cs Âü°í)
 
-        all.Add(new AugmentData("silver_magnet", "ìì„ í¡ì…ê¸° ê°œì¡°",
-            "ì  ì²˜ì¹˜ ì‹œ ì¬ë£Œ ë“œëëŸ‰ +25%", AugmentGrade.Silver, true,
+        all.Add(new AugmentData("silver_magnet", "ÀÚ¼® ÈíÀÔ±â °³Á¶",
+            "Àû Ã³Ä¡ ½Ã Àç·á µå¶ø·® +25%", AugmentGrade.Silver, true,
             delegate { AugmentManager.MaterialDropMul *= 1.25f; }));
 
         // ==========================================================
-        //  ê³¨ë“œ - ì¡°ê±´ë¶€ ì‹œë„ˆì§€ ("ì´ê±¸ ë¨¹ì—ˆìœ¼ë‹ˆ ì´ë ‡ê²Œ ìš´ì˜í•˜ì")
+        //  °ñµå - Á¶°ÇºÎ ½Ã³ÊÁö ("ÀÌ°É ¸Ô¾úÀ¸´Ï ÀÌ·¸°Ô ¿î¿µÇÏÀÚ")
         // ==========================================================
-        all.Add(new AugmentData("gold_atk", "ë³¼ì¼€ì´ë…¸ ì••ì¶•ê¸°",
-            "ëª¨ë“  í¬íƒ‘ ë°ë¯¸ì§€ +30%", AugmentGrade.Gold, true,
+        all.Add(new AugmentData("gold_atk", "º¼ÄÉÀÌ³ë ¾ĞÃà±â",
+            "¸ğµç Æ÷Å¾ µ¥¹ÌÁö +30%", AugmentGrade.Gold, true,
             delegate { AugmentManager.AtkMul *= 1.30f; }));
 
-        all.Add(new AugmentData("gold_dot", "ë§¤ìš´ë§› ì¤‘ë…",
-            "í™”ìƒ / ì¤‘ë… ë„íŠ¸ ë°ë¯¸ì§€ +60%", AugmentGrade.Gold, true,
+        all.Add(new AugmentData("gold_dot", "¸Å¿î¸À Áßµ¶",
+            "È­»ó¡¤µ¶À¸·Î °è¼Ó µé¾î°¡´Â ÇÇÇØ +60%", AugmentGrade.Gold, true,
             delegate { AugmentManager.DotMul *= 1.60f; }));
 
-        all.Add(new AugmentData("gold_chain", "ì „ê²©ì˜ í˜‘ê³¡",
-            "ì—°ì‡„ ë²ˆê°œ ì „ì´ íšŸìˆ˜ +2", AugmentGrade.Gold, true,
+        all.Add(new AugmentData("gold_chain", "Àü°İÀÇ Çù°î",
+            "¹ø°³°¡ Æ¢´Â ¼Õ´Ô ¼ö +2", AugmentGrade.Gold, true,
             delegate { AugmentManager.ChainCountAdd += 2; }));
 
-        all.Add(new AugmentData("gold_explode", "í™”ì—¼ì˜ í¬íš¨",
-            "í­ë°œ ë°˜ê²½ +35%", AugmentGrade.Gold, true,
+        all.Add(new AugmentData("gold_explode", "È­¿°ÀÇ Æ÷È¿",
+            "Æø¹ß ¹İ°æ +35%", AugmentGrade.Gold, true,
             delegate { AugmentManager.ExplodeRadiusMul *= 1.35f; }));
 
-        all.Add(new AugmentData("gold_shred", "ë¶€ì‹ì„± ìœ„ì‚°",
-            "ë°©ì–´ë ¥ / ë§ˆë²•ì €í•­ ê¹ê¸° ìˆ˜ì¹˜ +12", AugmentGrade.Gold, true,
+        all.Add(new AugmentData("gold_shred", "ºÎ½Ä¼º À§»ê",
+            "¼Õ´ÔÀÇ ¹æ¾î¡¤ÀúÇ×À» ±ğ´Â ¿ä¸®°¡ +12 ¸¸Å­ ´õ ±ğ´Â´Ù", AugmentGrade.Gold, true,
             delegate { AugmentManager.ShredAdd += 12; }));
 
-        all.Add(new AugmentData("gold_crit", "í—¤ë“œìƒ· í”„ë¡œí† ì½œ",
-            "ì¹˜ëª…íƒ€ í™•ë¥  +15%, ì¹˜ëª…íƒ€ ë°ë¯¸ì§€ +50%", AugmentGrade.Gold, true,
+        all.Add(new AugmentData("gold_crit", "Çìµå¼¦ ÇÁ·ÎÅäÄİ",
+            "Ä¡¸íÅ¸ È®·ü +15%, Ä¡¸íÅ¸ µ¥¹ÌÁö +50%", AugmentGrade.Gold, true,
             delegate { AugmentManager.CritChanceAdd += 0.15f; AugmentManager.CritDamageAdd += 0.50f; }));
 
-        all.Add(new AugmentData("gold_lifesteal", "íšŒë³µì˜ ë§Œì°¬",
-            "í¬íƒ‘ì´ ì ì„ ë•Œë¦´ ë•Œë§ˆë‹¤ ê¸°ì°¨ HP 2 íšŒë³µ", AugmentGrade.Gold, true,
+        all.Add(new AugmentData("gold_lifesteal", "È¸º¹ÀÇ ¸¸Âù",
+            "Æ÷Å¾ÀÌ ÀûÀ» ¶§¸± ¶§¸¶´Ù ±âÂ÷ HP 2 È¸º¹", AugmentGrade.Gold, true,
             delegate { AugmentManager.LifestealPerHit += 2f; }));
 
-        all.Add(new AugmentData("gold_fortress", "ê°•ì² ì˜ ìš”ìƒˆ",
-            "ê¸°ì°¨ ìµœëŒ€ HP +1000 (ì¦‰ì‹œ íšŒë³µ)", AugmentGrade.Gold, false,
+        all.Add(new AugmentData("gold_fortress", "°­Ã¶ÀÇ ¿ä»õ",
+            "±âÂ÷ ÃÖ´ë HP +1000 (Áï½Ã È¸º¹)", AugmentGrade.Gold, false,
             delegate { AugmentManager.AddTrainMaxHP(1000f); AugmentManager.HealTrain(1000f); }));
 
-        all.Add(new AugmentData("gold_nanoarmor", "ë‚˜ë…¸ ìˆ˜ë³µ ì¥ê°‘",
-            "ê¸°ì°¨ê°€ ë°›ëŠ” í”¼í•´ 15% ê°ì†Œ", AugmentGrade.Gold, true,
+        all.Add(new AugmentData("gold_nanoarmor", "³ª³ë ¼öº¹ Àå°©",
+            "±âÂ÷°¡ ¹Ş´Â ÇÇÇØ 15% °¨¼Ò", AugmentGrade.Gold, true,
             delegate { AugmentManager.DamageReductionAdd += 0.15f; }));
 
-        // (Phase 2-3: 'í™©ê¸ˆ ì¡°ë¦¬ ê¸°êµ¬'ëŠ” ì•„ì´í…œìœ¼ë¡œ ì´ê´€ - ItemSystem.cs ì°¸ê³ )
+        // (Phase 2-3: 'È²±İ Á¶¸® ±â±¸'´Â ¾ÆÀÌÅÛÀ¸·Î ÀÌ°ü - ItemSystem.cs Âü°í)
 
-        // --- ì—¬ê¸°ë¶€í„° ì‹œë„ˆì§€í˜• ê³¨ë“œ ---
-        all.Add(new AugmentData("gold_static", "ì •ì „ê¸° ì¶•ì ",
-            "ëª¨ë“  í¬íƒ‘ì˜ 4ë²ˆì§¸ íƒ€ê²©ì´ ì ì„ 0.4ì´ˆ ê°ì „ì‹œí‚¨ë‹¤", AugmentGrade.Gold, false,
+        // --- ¿©±âºÎÅÍ ½Ã³ÊÁöÇü °ñµå ---
+        all.Add(new AugmentData("gold_static", "Á¤Àü±â ÃàÀû",
+            "¸ğµç Æ÷Å¾ÀÇ 4¹øÂ° Å¸°İÀÌ ¼Õ´ÔÀ» 0.4ÃÊ ¸ØÃá´Ù", AugmentGrade.Gold, false,
             delegate { AugmentManager.StaticNth = 4; }));
 
-        all.Add(new AugmentData("gold_weakpoint", "ì•½ì  íŒŒê³ ë“¤ê¸°",
-            "í™”ìƒ / ì¤‘ë…ì´ ê±¸ë¦° ì ì—ê²Œ ë°ë¯¸ì§€ +25%", AugmentGrade.Gold, true,
+        all.Add(new AugmentData("gold_weakpoint", "¾àÁ¡ ÆÄ°íµé±â",
+            "ºÒºÙ¾ú°Å³ª µ¶¿¡ °É¸° ¼Õ´Ô¿¡°Ô ÇÇÇØ +25%", AugmentGrade.Gold, true,
             delegate { AugmentManager.DotTargetBonus += 0.25f; }));
 
-        all.Add(new AugmentData("gold_hunter", "ì‚¬ëƒ¥ê¾¼ì˜ ë³¸ëŠ¥",
-            "ìŠ¬ë¡œìš° / ìŠ¤í„´ ìƒíƒœì˜ ì ì—ê²Œ ë°ë¯¸ì§€ +30%", AugmentGrade.Gold, true,
+        all.Add(new AugmentData("gold_hunter", "»ç³É²ÛÀÇ º»´É",
+            "´À·ÁÁ³°Å³ª ¸ØÃá ¼Õ´Ô¿¡°Ô ÇÇÇØ +30%", AugmentGrade.Gold, true,
             delegate { AugmentManager.ControlTargetBonus += 0.30f; }));
 
-        // (Phase 2-3: 'ë³´í—˜ ê³„ì•½'/'ë¶€ì±„ì§ˆ ì¥ì¸'ì€ ì•„ì´í…œìœ¼ë¡œ ì´ê´€ - ItemSystem.cs ì°¸ê³ )
+        // (Phase 2-3: 'º¸Çè °è¾à'/'ºÎÃ¤Áú ÀåÀÎ'Àº ¾ÆÀÌÅÛÀ¸·Î ÀÌ°ü - ItemSystem.cs Âü°í)
 
-        all.Add(new AugmentData("gold_fullsplash", "í­ë°œ ì „ë¬¸ê°€",
-            "í­ë°œ ìŠ¤í”Œë˜ì‹œ ë°ë¯¸ì§€ ê°ì‡„ê°€ ì‚¬ë¼ì§„ë‹¤ (80% -> 100%)", AugmentGrade.Gold, false,
+        all.Add(new AugmentData("gold_fullsplash", "Æø¹ß Àü¹®°¡",
+            "Æø¹ß¿¡ ÈÖ¸»¸° ÁÖº¯ ¼Õ´Ôµµ 100% ÇÇÇØ (¿ø·¡ 80%)", AugmentGrade.Gold, false,
             delegate { AugmentManager.FullSplash = true; }));
 
-        all.Add(new AugmentData("gold_doubletap", "2ì—°ì¥ ê°œì¡°",
-            "ëª¨ë“  ë‹¨ì¼ íƒ€ê²©ì´ 25% í™•ë¥ ë¡œ ì¦‰ì‹œ í•œ ë°œ ë” ë‚˜ê°„ë‹¤ (50% ë°ë¯¸ì§€)", AugmentGrade.Gold, false,
+        all.Add(new AugmentData("gold_doubletap", "2¿¬Àå °³Á¶",
+            "¸ğµç ´ÜÀÏ Å¸°İÀÌ 25% È®·ü·Î Áï½Ã ÇÑ ¹ß ´õ ³ª°£´Ù (50% µ¥¹ÌÁö)", AugmentGrade.Gold, false,
             delegate { AugmentManager.DoubleTapChance = 0.25f; }));
 
-        all.Add(new AugmentData("gold_fieldrepair", "ì•¼ì „ ì •ë¹„ë°˜",
-            "ì›¨ì´ë¸Œ í´ë¦¬ì–´ë§ˆë‹¤ ê¸°ì°¨ ìµœëŒ€ HP +50 (ì˜êµ¬, ì¤‘ë³µ ê°€ëŠ¥)", AugmentGrade.Gold, true,
+        all.Add(new AugmentData("gold_fieldrepair", "¾ßÀü Á¤ºñ¹İ",
+            "¿şÀÌºê Å¬¸®¾î¸¶´Ù ±âÂ÷ ÃÖ´ë HP +50 (¿µ±¸, Áßº¹ °¡´É)", AugmentGrade.Gold, true,
             delegate { AugmentManager.MaxHPPerWave += 50f; }));
 
-        all.Add(new AugmentData("gold_luckycharm", "í–‰ìš´ì˜ ë¶€ì ",
-            "ì•ìœ¼ë¡œ ì¦ê°• ì„ íƒì§€ê°€ 1ì¥ ë” ë‚˜ì˜¨ë‹¤ (ìµœëŒ€ +2)", AugmentGrade.Gold, true,
+        all.Add(new AugmentData("gold_luckycharm", "Çà¿îÀÇ ºÎÀû",
+            "¾ÕÀ¸·Î Áõ°­ ¼±ÅÃÁö°¡ 1Àå ´õ ³ª¿Â´Ù (ÃÖ´ë +2)", AugmentGrade.Gold, true,
             delegate { AugmentManager.ExtraCards = Mathf.Min(2, AugmentManager.ExtraCards + 1); },
-            "prism_curation", "ë„ë°•"));
+            "prism_curation", "µµ¹Ú"));
 
-        // --- í•˜ì´ë¦¬ìŠ¤í¬ / ë„ë°• íŒ¨ë°€ë¦¬ ê³¨ë“œ ---
-        all.Add(new AugmentData("gold_usurer", "ê³ ë¦¬ëŒ€ê¸ˆì—…ì",
-            "ì¦‰ì‹œ ê³¨ë“œ +800. ëŒ€ì‹  ì•ìœ¼ë¡œ ì›¨ì´ë¸Œ ê³¨ë“œ ë³´ìƒ -50%", AugmentGrade.Gold, false,
+        // --- ÇÏÀÌ¸®½ºÅ© / µµ¹Ú ÆĞ¹Ğ¸® °ñµå ---
+        all.Add(new AugmentData("gold_usurer", "°í¸®´ë±İ¾÷ÀÚ",
+            "Áï½Ã °ñµå +800. ´ë½Å ¾ÕÀ¸·Î ¿şÀÌºê °ñµå º¸»ó -50%", AugmentGrade.Gold, false,
             delegate
             {
                 if (GameManager.Instance != null) GameManager.Instance.AddGold(800);
                 AugmentManager.GoldRewardMul *= 0.5f;
             },
-            null, "ë„ë°•"));
+            null, "µµ¹Ú"));
 
-        all.Add(new AugmentData("gold_bloodbet", "ì¶œí˜ˆ ë² íŒ…",
-            "ì›¨ì´ë¸Œê°€ ì‹œì‘ë  ë•Œë§ˆë‹¤ ê¸°ì°¨ HP -80. ëŒ€ì‹  ëª¨ë“  í¬íƒ‘ ë°ë¯¸ì§€ +35%", AugmentGrade.Gold, false,
+        all.Add(new AugmentData("gold_bloodbet", "ÃâÇ÷ º£ÆÃ",
+            "¿şÀÌºê°¡ ½ÃÀÛµÉ ¶§¸¶´Ù ±âÂ÷ HP -80. ´ë½Å ¸ğµç Æ÷Å¾ µ¥¹ÌÁö +35%", AugmentGrade.Gold, false,
             delegate { AugmentManager.BloodBet = true; AugmentManager.AtkMul *= 1.35f; },
-            null, "ë„ë°•"));
+            null, "µµ¹Ú"));
 
-        all.Add(new AugmentData("gold_chalice", "ë„ë°•ì‚¬ì˜ ì„±ë°°",
-            "ë³´ìœ í•œ [ë„ë°•] ì¦ê°• 1ê°œë‹¹ ëª¨ë“  í¬íƒ‘ ë°ë¯¸ì§€ +10% (ì´ ì¦ê°• í¬í•¨, ì´í›„ íšë“ë¶„ë„ ë°˜ì˜)",
+        all.Add(new AugmentData("gold_chalice", "µµ¹Ú»çÀÇ ¼º¹è",
+            "º¸À¯ÇÑ [µµ¹Ú] Áõ°­ 1°³´ç ¸ğµç Æ÷Å¾ µ¥¹ÌÁö +10% (ÀÌ Áõ°­ Æ÷ÇÔ, ÀÌÈÄ È¹µæºĞµµ ¹İ¿µ)",
             AugmentGrade.Gold, false,
             delegate { AugmentManager.HasChalice = true; },
-            null, "ë„ë°•"));
+            null, "µµ¹Ú"));
 
         // ==========================================================
-        //  í”„ë¦¬ì¦˜ - ê³µê²© ë°©ì‹ ìì²´ë¥¼ ë¹„íŠ¼ë‹¤ (ë¹Œë“œì˜ ì¶•)
+        //  ÇÁ¸®Áò - °ø°İ ¹æ½Ä ÀÚÃ¼¸¦ ºñÆ°´Ù (ºôµåÀÇ Ãà)
         // ==========================================================
-        all.Add(new AugmentData("prism_rail", "ì—´ì°¨í¬ ê°œì¡°",
-            "ëª¨ë“  íˆ¬ì‚¬ì²´ ê³µê²©ì´ ì§ì„  ê´€í†µ ë ˆì¼ê±´ìœ¼ë¡œ ë³€í•œë‹¤", AugmentGrade.Prismatic, false,
+        all.Add(new AugmentData("prism_rail", "¿­Â÷Æ÷ °³Á¶",
+            "¸ğµç Åõ»çÃ¼ °ø°İÀÌ Á÷¼± °üÅë ·¹ÀÏ°ÇÀ¸·Î º¯ÇÑ´Ù", AugmentGrade.Prismatic, false,
             delegate { AugmentManager.PierceConversion = true; },
             "prism_shotgun"));
 
-        all.Add(new AugmentData("prism_shotgun", "ì‚°íƒ„ ì…°í”„",
-            "ëª¨ë“  íˆ¬ì‚¬ì²´ ê³µê²©ì´ ë¶€ì±„ê¼´ ì‚°íƒ„ìœ¼ë¡œ ë³€í•œë‹¤ (ë°ë¯¸ì§€ -25%)", AugmentGrade.Prismatic, false,
+        all.Add(new AugmentData("prism_shotgun", "»êÅº ¼ÎÇÁ",
+            "¸ğµç Åõ»çÃ¼ °ø°İÀÌ ºÎÃ¤²Ã »êÅºÀ¸·Î º¯ÇÑ´Ù (µ¥¹ÌÁö -25%)", AugmentGrade.Prismatic, false,
             delegate { AugmentManager.ConeConversion = true; },
             "prism_rail"));
 
-        all.Add(new AugmentData("prism_redkitchen", "ë¶‰ì€ ì£¼ë°©",
-            "ëª¨ë“  íƒ€ê²©ì´ í™”ìƒ 1ìŠ¤íƒì„ ë‚¨ê¸´ë‹¤. ë„íŠ¸ ë°ë¯¸ì§€ +50%", AugmentGrade.Prismatic, false,
+        all.Add(new AugmentData("prism_redkitchen", "ºÓÀº ÁÖ¹æ",
+            "¸ğµç Å¸°İÀÌ ¼Õ´Ô¿¡°Ô ºÒÀ» ºÙÀÎ´Ù. °è¼Ó µé¾î°¡´Â ÇÇÇØ +50%", AugmentGrade.Prismatic, false,
             delegate { AugmentManager.RedKitchen = true; AugmentManager.DotMul *= 1.50f; },
             "prism_primal"));
 
-        all.Add(new AugmentData("prism_iceheart", "ì–¼ìŒ ì‹¬ì¥",
-            "ëª¨ë“  ìŠ¬ë¡œìš° íš¨ê³¼ê°€ 0.8ì´ˆ ë¹™ê²°(ìŠ¤í„´)ë¡œ ë³€í•œë‹¤", AugmentGrade.Prismatic, false,
+        all.Add(new AugmentData("prism_iceheart", "¾óÀ½ ½ÉÀå",
+            "´À¸®°Ô ¸¸µå´Â È¿°ú°¡ ÀüºÎ 0.8ÃÊ ¾ó·Á ¸ØÃß±â·Î ¹Ù²ï´Ù", AugmentGrade.Prismatic, false,
             delegate { AugmentManager.IceHeart = true; }));
 
-        all.Add(new AugmentData("prism_gambler", "ë„ë°•ì‚¬ ìŠ¤í”¼ë…¸ì˜ íƒ„í™˜",
-            "ëª¨ë“  ë°ë¯¸ì§€ê°€ 50% í™•ë¥ ë¡œ 2ë°°, ì•„ë‹ˆë©´ ì ˆë°˜ì´ ëœë‹¤. [ë„ë°•] ì¦ê°• 1ê°œë‹¹ 2ë°° í™•ë¥  +4%p (ìµœëŒ€ 70%)",
+        all.Add(new AugmentData("prism_gambler", "µµ¹Ú»ç ½ºÇÇ³ëÀÇ ÅºÈ¯",
+            "¸ğµç µ¥¹ÌÁö°¡ 50% È®·ü·Î 2¹è, ¾Æ´Ï¸é Àı¹İÀÌ µÈ´Ù. [µµ¹Ú] Áõ°­ 1°³´ç 2¹è È®·ü +4%p (ÃÖ´ë 70%)",
             AugmentGrade.Prismatic, false,
             delegate { AugmentManager.GamblerBullet = true; },
-            null, "ë„ë°•"));
+            null, "µµ¹Ú"));
 
-        all.Add(new AugmentData("prism_chainproc", "ë²ˆê°œ ê³„ìŠ¹",
-            "ëª¨ë“  íƒ€ê²©ì´ 20% í™•ë¥ ë¡œ ì†Œí˜• ì—°ì‡„ ë²ˆê°œë¥¼ ì¼ìœ¼í‚¨ë‹¤", AugmentGrade.Prismatic, false,
+        all.Add(new AugmentData("prism_chainproc", "¹ø°³ °è½Â",
+            "¸ğµç Å¸°İÀÌ 20% È®·ü·Î ÀÛÀº ¹ø°³¸¦ ¿· ¼Õ´Ô¿¡°Ô Æ¢±ä´Ù", AugmentGrade.Prismatic, false,
             delegate { AugmentManager.ChainProcChance = 0.20f; }));
 
-        all.Add(new AugmentData("prism_echo", "ë©”ì•„ë¦¬ì¹˜ëŠ” í­ë°œ",
-            "í­ë°œì´ í•œ ë²ˆ ë” í„°ì§„ë‹¤ (60% ë°ë¯¸ì§€, 1.2ë°° ë°˜ê²½)", AugmentGrade.Prismatic, false,
+        all.Add(new AugmentData("prism_echo", "¸Ş¾Æ¸®Ä¡´Â Æø¹ß",
+            "Æø¹ßÀÌ ÇÑ ¹ø ´õ ÅÍÁø´Ù (60% µ¥¹ÌÁö, 1.2¹è ¹İ°æ)", AugmentGrade.Prismatic, false,
             delegate { AugmentManager.DoubleExplosion = true; }));
 
-        all.Add(new AugmentData("prism_chainamp", "ì¦í­ ì „ì´",
-            "ì—°ì‡„ ë²ˆê°œê°€ íŠ•ê¸¸ìˆ˜ë¡ ê°•í•´ì§„ë‹¤ (íŠ•ê¸¸ ë•Œë§ˆë‹¤ +20%)", AugmentGrade.Prismatic, false,
+        all.Add(new AugmentData("prism_chainamp", "ÁõÆø ÀüÀÌ",
+            "¹ø°³°¡ ´ÙÀ½ ¼Õ´ÔÀ¸·Î Æ¥ ¶§¸¶´Ù +20% ¼¼Áø´Ù", AugmentGrade.Prismatic, false,
             delegate { AugmentManager.ChainAmplify = true; }));
 
-        all.Add(new AugmentData("prism_ramp", "ê³¼ì—´ ê¸°ê´€",
-            "í¬íƒ‘ì´ ì‚¬ê²©ì„ ì´ì–´ê°ˆìˆ˜ë¡ ë°ë¯¸ì§€ê°€ ì˜¤ë¥¸ë‹¤ (íƒ€ê²©ë‹¹ +5%, ìµœëŒ€ +75%, 2.5ì´ˆ ì‰¬ë©´ ì´ˆê¸°í™”)",
+        all.Add(new AugmentData("prism_ramp", "°ú¿­ ±â°ü",
+            "Æ÷Å¾ÀÌ »ç°İÀ» ÀÌ¾î°¥¼ö·Ï µ¥¹ÌÁö°¡ ¿À¸¥´Ù (Å¸°İ´ç +5%, ÃÖ´ë +75%, 2.5ÃÊ ½¬¸é ÃÊ±âÈ­)",
             AugmentGrade.Prismatic, false,
             delegate { AugmentManager.RampAttack = true; }));
 
-        all.Add(new AugmentData("prism_shatter", "ë™ìƒ íŒŒí¸",
-            "ìŠ¬ë¡œìš° / ìŠ¤í„´ ìƒíƒœì˜ ì ì„ ë•Œë¦¬ë©´ 30% í™•ë¥ ë¡œ ì„œë¦¬ í­ë°œì´ ì¼ì–´ë‚œë‹¤ (50% ë°ë¯¸ì§€)",
+        all.Add(new AugmentData("prism_shatter", "µ¿»ó ÆÄÆí",
+            "´À·ÁÁ³°Å³ª ¸ØÃá ¼Õ´ÔÀ» ¶§¸®¸é 30% È®·ü·Î ¼­¸®°¡ ÅÍÁø´Ù (ÇÇÇØ 50%)",
             AugmentGrade.Prismatic, false,
             delegate { AugmentManager.FrostShatter = true; }));
 
-        all.Add(new AugmentData("prism_opening", "ê°œì „ í¬ê²©",
-            "ì›¨ì´ë¸Œ ì‹œì‘ í›„ 8ì´ˆ ë™ì•ˆ ëª¨ë“  í¬íƒ‘ ë°ë¯¸ì§€ 2ë°°",
+        all.Add(new AugmentData("prism_opening", "°³Àü Æ÷°İ",
+            "¿şÀÌºê ½ÃÀÛ ÈÄ 8ÃÊ µ¿¾È ¸ğµç Æ÷Å¾ µ¥¹ÌÁö 2¹è",
             AugmentGrade.Prismatic, false,
             delegate { AugmentManager.OpeningBarrage = true; }));
 
-        // --- í•˜ì´ë¦¬ìŠ¤í¬ í”„ë¦¬ì¦˜ ---
-        all.Add(new AugmentData("prism_primal", "ì›ì‹œ í™”ë ¥",
-            "í¬íƒ‘ì˜ ëª¨ë“  ìƒíƒœì´ìƒ(ë„íŠ¸/ìŠ¬ë¡œìš°/ìŠ¤í„´/ë°©ê¹)ì´ ì‚¬ë¼ì§„ë‹¤. ëŒ€ì‹  ìˆœìˆ˜ ë°ë¯¸ì§€ +80%",
+        // --- ÇÏÀÌ¸®½ºÅ© ÇÁ¸®Áò ---
+        all.Add(new AugmentData("prism_primal", "¿ø½Ã È­·Â",
+            "Æ÷Å¾ÀÇ ´ı È¿°ú(ºÒ¡¤µ¶¡¤°¨¼Ó¡¤¸ØÃã¡¤¹æ¾î ±ğ±â)°¡ ÀüºÎ »ç¶óÁø´Ù. ´ë½Å ¸Ç ÇÇÇØ +80%",
             AugmentGrade.Prismatic, false,
             delegate { AugmentManager.PrimalPower = true; },
             "prism_redkitchen"));
 
-        all.Add(new AugmentData("prism_ninelives", "ì•„í™‰ ê°œì˜ ëª©ìˆ¨",
-            "ê¸°ì°¨ê°€ ì™„íŒŒë  ë•Œ 1íšŒ ë¶€í™œí•œë‹¤ (HP 800 íšŒë³µ)", AugmentGrade.Prismatic, true,
+        all.Add(new AugmentData("prism_ninelives", "¾ÆÈ© °³ÀÇ ¸ñ¼û",
+            "±âÂ÷°¡ ¿ÏÆÄµÉ ¶§ 1È¸ ºÎÈ°ÇÑ´Ù (HP 800 È¸º¹)", AugmentGrade.Prismatic, true,
             delegate { AugmentManager.ReviveCharges += 1; }));
 
-        all.Add(new AugmentData("prism_glasscannon", "ìœ ë¦¬ ëŒ€í¬",
-            "ëª¨ë“  í¬íƒ‘ ë°ë¯¸ì§€ +70%. ëŒ€ì‹  ê¸°ì°¨ê°€ ë°›ëŠ” í”¼í•´ +25%", AugmentGrade.Prismatic, false,
+        all.Add(new AugmentData("prism_glasscannon", "À¯¸® ´ëÆ÷",
+            "¸ğµç Æ÷Å¾ µ¥¹ÌÁö +70%. ´ë½Å ±âÂ÷°¡ ¹Ş´Â ÇÇÇØ +25%", AugmentGrade.Prismatic, false,
             delegate { AugmentManager.AtkMul *= 1.70f; AugmentManager.DamageReductionAdd -= 0.25f; }));
 
-        all.Add(new AugmentData("prism_overdrive", "ì˜¤ë²„ì°¨ì§€ ì—”ì§„",
-            "ëª¨ë“  í¬íƒ‘ ê³µê²©ì†ë„ +45%. ëŒ€ì‹  ì‚¬ê±°ë¦¬ -15%", AugmentGrade.Prismatic, false,
+        all.Add(new AugmentData("prism_overdrive", "¿À¹öÂ÷Áö ¿£Áø",
+            "¸ğµç Æ÷Å¾ °ø°İ¼Óµµ +45%. ´ë½Å »ç°Å¸® -15%", AugmentGrade.Prismatic, false,
             delegate { AugmentManager.AspdMul *= 1.45f; AugmentManager.RangeMul *= 0.85f; }));
 
-        all.Add(new AugmentData("prism_extraslot", "ì¦ì¶•ëœ ì£¼ë°© ì¹¸",
-            "í¬íƒ‘ ìŠ¬ë¡¯ 1ì¹¸ ì¶”ê°€ í•´ê¸ˆ (ìµœëŒ€ 8ì¹¸)", AugmentGrade.Prismatic, true,
+        all.Add(new AugmentData("prism_extraslot", "ÁõÃàµÈ ÁÖ¹æ Ä­",
+            "Æ÷Å¾ ½½·Ô 1Ä­ Ãß°¡ ÇØ±İ (ÃÖ´ë 8Ä­)", AugmentGrade.Prismatic, true,
             delegate { AugmentManager.ExtraSlotUnlock = Mathf.Min(2, AugmentManager.ExtraSlotUnlock + 1); }));
 
-        all.Add(new AugmentData("gold_adjacent", "ì£¼ë°© ë™ì„  ìµœì í™”",
-            "ì¸ì ‘ ìŠ¬ë¡¯ ë²„í”„ íš¨ê³¼ +50%", AugmentGrade.Gold, false,
+        all.Add(new AugmentData("gold_adjacent", "ÁÖ¹æ µ¿¼± ÃÖÀûÈ­",
+            "ÀÌ¿ô Æ÷Å¾À» °­È­ÇÏ´Â ¿ä¸®ÀÇ È¿°ú +50%", AugmentGrade.Gold, false,
             delegate { AugmentManager.AdjacentBuffMul *= 1.5f; }));
 
-        all.Add(new AugmentData("gold_resonance", "ì†ì„± ê³µëª… ì¦í­ê¸°",
-            "ì†ì„± ê³µëª… ë³´ë„ˆìŠ¤ +15%p (ê°™ì€ ì†ì„± 3ê°œ ì´ìƒ ë°°ì¹˜ ì‹œ)", AugmentGrade.Gold, true,
+        all.Add(new AugmentData("gold_resonance", "¼Ó¼º °ø¸í ÁõÆø±â",
+            "°°Àº ¼Ó¼º Æ÷Å¾ 3¹® º¸³Ê½º(°ø¸í)°¡ 20% ¿¡¼­ 35% ·Î", AugmentGrade.Gold, true,
             delegate { AugmentManager.ResonanceBonusAdd += 0.15f; }));
 
-        all.Add(new AugmentData("prism_allin", "ì˜¬ì¸",
-            "ì§€ê¸ˆ ê°€ì§„ ê³¨ë“œë¥¼ ì „ë¶€ ìƒëŠ”ë‹¤. ìƒì€ ê³¨ë“œ 100ë‹¹ ëª¨ë“  í¬íƒ‘ ë°ë¯¸ì§€ +4% (ìµœëŒ€ +100%)",
+        all.Add(new AugmentData("prism_allin", "¿ÃÀÎ",
+            "Áö±İ °¡Áø °ñµå¸¦ ÀüºÎ ÀÒ´Â´Ù. ÀÒÀº °ñµå 100´ç ¸ğµç Æ÷Å¾ µ¥¹ÌÁö +4% (ÃÖ´ë +100%)",
             AugmentGrade.Prismatic, false,
             delegate
             {
@@ -647,66 +647,66 @@ public static class AugmentDatabase
                 }
                 float bonus = Mathf.Min(1.0f, (lostGold / 100) * 0.04f);
                 AugmentManager.AtkMul *= 1f + bonus;
-                Debug.Log("[ì¦ê°•] ì˜¬ì¸: ê³¨ë“œ " + lostGold + " ì†Œëª¨, ë°ë¯¸ì§€ +" + Mathf.RoundToInt(bonus * 100f) + "%");
+                Debug.Log("[Áõ°­] ¿ÃÀÎ: °ñµå " + lostGold + " ¼Ò¸ğ, µ¥¹ÌÁö +" + Mathf.RoundToInt(bonus * 100f) + "%");
             },
-            null, "ë„ë°•"));
+            null, "µµ¹Ú"));
 
         // ==========================================================
-        //  Phase 2-2 ì‹ ê·œ 8ì¢… - ìµœê·¼ ì‹œìŠ¤í…œ(ìˆ™ë ¨/ê¸°ë¦„/ë¹™ê²°/ë² íŒ…/ê³µëª…)ê³¼ ì‹œë„ˆì§€
+        //  Phase 2-2 ½Å±Ô 8Á¾ - ÃÖ±Ù ½Ã½ºÅÛ(¼÷·Ã/±â¸§/ºù°á/º£ÆÃ/°ø¸í)°ú ½Ã³ÊÁö
         // ==========================================================
 
-        // (Phase 2-3: 'ë¯¸ë„ëŸ¼ ë°©ì§€ ë§¤íŠ¸'ëŠ” ì•„ì´í…œìœ¼ë¡œ ì´ê´€ - ItemSystem.cs ì°¸ê³ )
+        // (Phase 2-3: '¹Ì²ô·³ ¹æÁö ¸ÅÆ®'´Â ¾ÆÀÌÅÛÀ¸·Î ÀÌ°ü - ItemSystem.cs Âü°í)
 
-        all.Add(new AugmentData("silver_regular", "ë‹¨ê³¨ ì¥ë¶€",
-            "ìš”ë¦¬ ìˆ™ë ¨ì˜ ê³µê²©ë ¥ ë³´ë„ˆìŠ¤ê°€ 50% ì¦í­ëœë‹¤", AugmentGrade.Silver, true,
+        all.Add(new AugmentData("silver_regular", "´Ü°ñ ÀåºÎ",
+            "¸¹ÀÌ ¸¸µç ¿ä¸®(´Ü°ñ ¿ä¸®)ÀÇ °ø°İ·Â º¸³Ê½º°¡ 1.5¹è", AugmentGrade.Silver, true,
             delegate { AugmentManager.MasteryAmp += 0.5f; }));
 
-        all.Add(new AugmentData("silver_armorpad", "ì§ˆê¸´ ì¥ê°‘",
-            "ê¸°ì°¨ê°€ ë°›ëŠ” í”¼í•´ 5% ê°ì†Œ", AugmentGrade.Silver, true,
+        all.Add(new AugmentData("silver_armorpad", "Áú±ä Àå°©",
+            "±âÂ÷°¡ ¹Ş´Â ÇÇÇØ 5% °¨¼Ò", AugmentGrade.Silver, true,
             delegate { AugmentManager.DamageReductionAdd += 0.05f; }));
 
-        all.Add(new AugmentData("gold_antifreeze", "ë¶€ë™ì•¡ ë°°ê´€",
-            "í¬íƒ‘ì˜ ê°ì „/ë¹™ê²° ì§€ì†ì‹œê°„ -60%", AugmentGrade.Gold, false,
+        all.Add(new AugmentData("gold_antifreeze", "ºÎµ¿¾× ¹è°ü",
+            "³«·Ú¡¤ºù°á·Î Æ÷Å¾ÀÌ ¸ØÃç ÀÖ´Â ½Ã°£ -60%", AugmentGrade.Gold, false,
             delegate { AugmentManager.SlotStunDurMul *= 0.4f; }));
 
-        all.Add(new AugmentData("gold_pantry", "ë¹„ìƒ ì‹ëŸ‰ ì°½ê³ ",
-            "ì›¨ì´ë¸Œ í´ë¦¬ì–´ë§ˆë‹¤ ëœë¤ ì¬ë£Œ +2", AugmentGrade.Gold, true,
+        all.Add(new AugmentData("gold_pantry", "ºñ»ó ½Ä·® Ã¢°í",
+            "¿şÀÌºê Å¬¸®¾î¸¶´Ù ·£´ı Àç·á +2", AugmentGrade.Gold, true,
             delegate { AugmentManager.ClearMatBonus += 2; }));
 
-        all.Add(new AugmentData("gold_stakes", "íŒëˆ ë‘ ë°°",
-            "ìŠ¤í”¼ë…¸ ë² íŒ…ì˜ íŒëˆ / ì„±ê³µ ë³´ìƒ / ì‹¤íŒ¨ ëŒ€ê°€ê°€ ì „ë¶€ 2ë°°ê°€ ëœë‹¤", AugmentGrade.Gold, false,
+        all.Add(new AugmentData("gold_stakes", "ÆÇµ· µÎ ¹è",
+            "½ºÇÇ³ë º£ÆÃÀÇ ÆÇµ· / ¼º°ø º¸»ó / ½ÇÆĞ ´ë°¡°¡ ÀüºÎ 2¹è°¡ µÈ´Ù", AugmentGrade.Gold, false,
             delegate { AugmentManager.BetStakesMul *= 2f; },
-            null, "ë„ë°•"));
+            null, "µµ¹Ú"));
 
-        all.Add(new AugmentData("prism_resonance", "ê³µëª… í­ì£¼",
-            "ì†ì„± ê³µëª… ë°œë™ ì¡°ê±´ì´ 3ê°œì—ì„œ 2ê°œë¡œ ì¤„ì–´ë“ ë‹¤", AugmentGrade.Prismatic, false,
+        all.Add(new AugmentData("prism_resonance", "°ø¸í ÆøÁÖ",
+            "°°Àº ¼Ó¼º Æ÷Å¾ 3¹® º¸³Ê½º(°ø¸í)°¡ 2¹®ºÎÅÍ ºÙ´Â´Ù", AugmentGrade.Prismatic, false,
             delegate { AugmentManager.ResonanceNeedOverride = 2; }));
 
-        all.Add(new AugmentData("prism_lastsupper", "ìµœí›„ì˜ ë§Œì°¬",
-            "ê¸°ì°¨ HP 40% ì´í•˜ì¼ ë•Œ ëª¨ë“  í¬íƒ‘ ê³µê²©ì†ë„ +50%", AugmentGrade.Prismatic, false,
+        all.Add(new AugmentData("prism_lastsupper", "ÃÖÈÄÀÇ ¸¸Âù",
+            "±âÂ÷ HP 40% ÀÌÇÏÀÏ ¶§ ¸ğµç Æ÷Å¾ °ø°İ¼Óµµ +50%", AugmentGrade.Prismatic, false,
             delegate { AugmentManager.LastSupperRush = true; }));
 
         // ==========================================================
-        //  Phase 2-3 ì‹ ê·œ 10ì¢… - "íŒë„ë¥¼ ë°”ê¾¸ëŠ”" ì¦ê°• ëŒ€ê±° ì¶”ê°€
-        //  (ì•„ë ˆë‚˜/ë¡¤í† ì²´ìŠ¤/StS ìœ ë¬¼ ë ˆí¼ëŸ°ìŠ¤ë¥¼ ìš°ë¦¬ ì„¸ê³„ê´€ìœ¼ë¡œ ë²ˆì•ˆ)
+        //  Phase 2-3 ½Å±Ô 10Á¾ - "ÆÇµµ¸¦ ¹Ù²Ù´Â" Áõ°­ ´ë°Å Ãß°¡
+        //  (¾Æ·¹³ª/·ÑÅäÃ¼½º/StS À¯¹° ·¹ÆÛ·±½º¸¦ ¿ì¸® ¼¼°è°üÀ¸·Î ¹ø¾È)
         // ==========================================================
 
-        // --- ê³¨ë“œ 5ì¢… ---
-        all.Add(new AugmentData("gold_apprentice", "ê²¬ìŠµ ì…°í”„ ê³ ìš©",
-            "ì›¨ì´ë¸Œê°€ ì‹œì‘ë  ë•Œ ê²¬ìŠµ ì…°í”„ê°€ ë°œê²¬í•œ ìš”ë¦¬ 1ê°œë¥¼ ë§Œë“¤ì–´ ë‘”ë‹¤", AugmentGrade.Gold, true,
+        // --- °ñµå 5Á¾ ---
+        all.Add(new AugmentData("gold_apprentice", "°ß½À ¼ÎÇÁ °í¿ë",
+            "¿şÀÌºê°¡ ½ÃÀÛµÉ ¶§ °ß½À ¼ÎÇÁ°¡ ¹ß°ßÇÑ ¿ä¸® 1°³¸¦ ¸¸µé¾î µĞ´Ù", AugmentGrade.Gold, true,
             delegate { AugmentManager.ApprenticeCooks += 1; }));
 
-        all.Add(new AugmentData("gold_lastservice", "ë§ˆì§€ë§‰ ì„œë¹„ìŠ¤",
-            "ì“°ëŸ¬ì§„ ì†ë‹˜ì´ í„°ì§€ë©° ì£¼ë³€ ì†ë‹˜ì—ê²Œ ì²˜ì¹˜ ë°ë¯¸ì§€ì˜ 25%ë¥¼ ë‚˜ëˆ  ì¤€ë‹¤",
+        all.Add(new AugmentData("gold_lastservice", "¸¶Áö¸· ¼­ºñ½º",
+            "¾²·¯Áø ¼Õ´ÔÀÌ ÅÍÁö¸ç ÁÖº¯ ¼Õ´Ô¿¡°Ô Ã³Ä¡ µ¥¹ÌÁöÀÇ 25%¸¦ ³ª´² ÁØ´Ù",
             AugmentGrade.Gold, false,
             delegate { AugmentManager.CorpseService = true; }));
 
-        all.Add(new AugmentData("gold_overkill", "ì˜† í…Œì´ë¸” ê³„ì‚°ì„œ",
-            "ì²˜ì¹˜í•˜ê³  ë‚¨ì€ ì´ˆê³¼ ë°ë¯¸ì§€ê°€ ê°€ì¥ ê°€ê¹Œìš´ ì ì—ê²Œ ì²­êµ¬ëœë‹¤", AugmentGrade.Gold, false,
+        all.Add(new AugmentData("gold_overkill", "¿· Å×ÀÌºí °è»ê¼­",
+            "Ã³Ä¡ÇÏ°í ³²Àº ÃÊ°ú µ¥¹ÌÁö°¡ °¡Àå °¡±î¿î Àû¿¡°Ô Ã»±¸µÈ´Ù", AugmentGrade.Gold, false,
             delegate { AugmentManager.OverkillCarry = true; }));
 
-        all.Add(new AugmentData("gold_barbedwire", "ê°€ì‹œì² ì¡°ë§ ë„ê¸ˆ",
-            "ê¸°ì°¨ DEF +8. ê¸°ì°¨ê°€ í”¼ê²©ë˜ë©´ ê·¼ì²˜ì˜ ì ì—ê²Œ DEFì— ë¹„ë¡€í•œ ë°˜ê²© í”¼í•´",
+        all.Add(new AugmentData("gold_barbedwire", "°¡½ÃÃ¶Á¶¸Á µµ±İ",
+            "±âÂ÷ ¹æ¾î +8. ±âÂ÷¸¦ ¹® ¼Õ´ÔÀÌ ¹æ¾î¸¸Å­ µÇ¹Ş´Â´Ù",
             AugmentGrade.Gold, true,
             delegate
             {
@@ -715,58 +715,63 @@ public static class AugmentDatabase
                 AugmentManager.RecalcTrain();
             }));
 
-        all.Add(new AugmentData("gold_collector", "ê³¨ë™í’ˆ ê°ì •ê°€",
-            "ë³´ìœ í•œ ì•„ì´í…œ 1ê°œë‹¹ ëª¨ë“  í¬íƒ‘ ë°ë¯¸ì§€ +6% (ì´í›„ íšë“ë¶„ë„ ë°˜ì˜)",
+        all.Add(new AugmentData("gold_collector", "°ñµ¿Ç° °¨Á¤°¡",
+            "º¸À¯ÇÑ ¾ÆÀÌÅÛ 1°³´ç ¸ğµç Æ÷Å¾ µ¥¹ÌÁö +6% (ÀÌÈÄ È¹µæºĞµµ ¹İ¿µ)",
             AugmentGrade.Gold, false,
             delegate { AugmentManager.HasCollector = true; }));
 
-        // --- í”„ë¦¬ì¦˜ 5ì¢… ---
-        all.Add(new AugmentData("prism_steelheart", "ê°•ì² ì˜ ì‹¬ì¥",
-            "ê¸°ì°¨ ìµœëŒ€ HP 100ë‹¹ ëª¨ë“  í¬íƒ‘ ë°ë¯¸ì§€ +2% (HPë¥¼ ìŒ“ì„ìˆ˜ë¡ ê°•í•´ì§„ë‹¤)",
+        // --- ÇÁ¸®Áò 5Á¾ ---
+        all.Add(new AugmentData("prism_steelheart", "°­Ã¶ÀÇ ½ÉÀå",
+            "±âÂ÷ ÃÖ´ë HP 100´ç ¸ğµç Æ÷Å¾ µ¥¹ÌÁö +2% (HP¸¦ ½×À»¼ö·Ï °­ÇØÁø´Ù)",
             AugmentGrade.Prismatic, false,
             delegate { AugmentManager.SteelHeart = true; }));
 
-        all.Add(new AugmentData("prism_basics", "ì„ ëŒ€ì˜ ê¸°ë³¸ê¸°",
-            "T2 ì§„í™”ê°€ ë´‰ì¸ëœë‹¤ (ì´ë¯¸ ìˆëŠ” T2ëŠ” ìœ ì§€). ëŒ€ì‹  T1 í¬íƒ‘ ë°ë¯¸ì§€ +65%, T1 ìƒˆ ë°°ì¹˜ ì‹œì‘ ë ˆë²¨ +1",
+        all.Add(new AugmentData("prism_basics", "¼±´ëÀÇ ±âº»±â",
+            "Àü¼³ ¿ä¸® ÇÕ¼ºÀÌ ¸·Èù´Ù (ÀÌ¹Ì ÀÖ´Â °Ç À¯Áö). ´ë½Å ±âº» ¿ä¸® Æ÷Å¾ ÇÇÇØ +65%, »õ·Î ³õÀ¸¸é ·¹º§ 2 ºÎÅÍ",
             AugmentGrade.Prismatic, false,
             delegate { AugmentManager.BasicsDoctrine = true; }));
 
-        all.Add(new AugmentData("prism_onechef", "ì£¼ë°©ì¥ì€ í•˜ë‚˜ë‹¤",
-            "ê°€ì¥ ë ˆë²¨ ë†’ì€ í¬íƒ‘ì´ ì£¼ë°©ì¥ì´ ëœë‹¤: ë°ë¯¸ì§€ +50%, ì²˜ì¹˜ë§ˆë‹¤ +2% ëˆ„ì . ë‹¤ë¥¸ í¬íƒ‘ì€ ë°ë¯¸ì§€ -20%",
+        all.Add(new AugmentData("prism_onechef", "ÁÖ¹æÀåÀº ÇÏ³ª´Ù",
+            "°¡Àå ·¹º§ ³ôÀº Æ÷Å¾ÀÌ ÁÖ¹æÀåÀÌ µÈ´Ù: µ¥¹ÌÁö +50%, Ã³Ä¡¸¶´Ù +2% ´©Àû. ´Ù¸¥ Æ÷Å¾Àº µ¥¹ÌÁö -20%",
             AugmentGrade.Prismatic, false,
             delegate { AugmentManager.OneChef = true; }));
 
-        all.Add(new AugmentData("prism_overflow", "ë„˜ì¹˜ëŠ” ì†¥",
-            "íšŒë³µì´ ìµœëŒ€ HPë¥¼ ë„˜ìœ¼ë©´ ì´ˆê³¼ë¶„ì´ ì¦ê¸° ë³´í˜¸ë§‰ìœ¼ë¡œ ìŒ“ì¸ë‹¤ (ìµœëŒ€ HPì˜ 25%ê¹Œì§€, í”¼í•´ë¥¼ ë¨¼ì € ë§‰ëŠ”ë‹¤)",
+        all.Add(new AugmentData("prism_overflow", "³ÑÄ¡´Â ¼Ü",
+            "È¸º¹ÀÌ ÃÖ´ë HP¸¦ ³ÑÀ¸¸é ÃÊ°úºĞÀÌ Áõ±â º¸È£¸·À¸·Î ½×ÀÎ´Ù (ÃÖ´ë HPÀÇ 25%±îÁö, ÇÇÇØ¸¦ ¸ÕÀú ¸·´Â´Ù)",
             AugmentGrade.Prismatic, false,
             delegate { AugmentManager.OverflowShield = true; }));
 
-        all.Add(new AugmentData("prism_curation", "ì—„ì„ ëœ ë©”ë‰´íŒ",
-            "ì¦ê°• ì„ íƒì§€ê°€ 2ì¥ìœ¼ë¡œ ì¤„ì–´ë“ ë‹¤. ëŒ€ì‹  ê³¨ë“œ/í”„ë¦¬ì¦˜ ë“±ê¸‰ì´ í›¨ì”¬ ì˜ ë‚˜ì˜¨ë‹¤",
+        all.Add(new AugmentData("prism_curation", "¾ö¼±µÈ ¸Ş´ºÆÇ",
+            "Áõ°­ ÈÄº¸°¡ 2ÀåÀ¸·Î ÁØ´Ù. ´ë½Å ³ôÀº µî±ŞÀÌ ÈÎ¾À Àß ³ª¿Â´Ù",
             AugmentGrade.Prismatic, false,
             delegate { AugmentManager.CurationBoost = true; },
             "gold_luckycharm"));
 
-        Debug.Log("[ì¦ê°•] ë°ì´í„°ë² ì´ìŠ¤ ë¡œë“œ ì™„ë£Œ - ì´ " + all.Count + "ì¢…");
+        Debug.Log("[Áõ°­] µ¥ÀÌÅÍº£ÀÌ½º ·Îµå ¿Ï·á - ÃÑ " + all.Count + "Á¾");
     }
 
     /// <summary>
-    /// ì›¨ì´ë¸Œ ìˆ˜ì— ë§ì¶° ë“±ê¸‰ í™•ë¥ ì„ ì •í•˜ê³ , ì¤‘ë³µ/ì¶©ëŒì„ í”¼í•´ countê°œë¥¼ ë½‘ëŠ”ë‹¤.
+    /// ¿şÀÌºê ¼ö¿¡ ¸ÂÃç µî±Ş È®·üÀ» Á¤ÇÏ°í, Áßº¹/Ãæµ¹À» ÇÇÇØ count°³¸¦ »Ì´Â´Ù.
     /// </summary>
     public static List<AugmentData> Roll(int waveNumber, int count)
     {
         List<AugmentData> result = new List<AugmentData>();
         List<AugmentData> pool = new List<AugmentData>();
 
+        // v9.10: Ã¹ Áö¿ªÀº ¹Ù·Î ÀÌÇØµÇ´Â È¿°ú¸¸ (°³Á¤¾È ¡×7 "ÃÊ¹İ ÈÄº¸´Â ÀÌ¹Ì ¾²´Â ¿ä¸®³ª Áï½Ã ÀÌÇØµÇ´Â È¿°ú·Î Á¦ÇÑ")
+        bool simpleOnly = GameBalance.AugmentSimpleEarly && waveNumber <= GameBalance.RegionLength;
+
         for (int i = 0; i < All.Count; i++)
         {
             AugmentData a = All[i];
-            // ë…¼ìŠ¤íƒ ì¦ê°•ì€ ì´ë¯¸ ê°€ì¡Œìœ¼ë©´ ì œì™¸
+            // ³í½ºÅÃ Áõ°­Àº ÀÌ¹Ì °¡Á³À¸¸é Á¦¿Ü
             if (!a.stackable && AugmentManager.HasAugment(a.id)) continue;
-            // ì¶©ëŒ ì¦ê°•(ì˜ˆ: ë ˆì¼ê±´ ê°œì¡° vs ì‚°íƒ„ ì…°í”„)ì€ ìƒëŒ€ë¥¼ ê°€ì¡Œìœ¼ë©´ ì œì™¸
+            // Ãæµ¹ Áõ°­(¿¹: ·¹ÀÏ°Ç °³Á¶ vs »êÅº ¼ÎÇÁ)Àº »ó´ë¸¦ °¡Á³À¸¸é Á¦¿Ü
             if (a.conflictId != null && AugmentManager.HasAugment(a.conflictId)) continue;
+            if (simpleOnly && System.Array.IndexOf(EARLY_SIMPLE, a.id) < 0) continue;
             pool.Add(a);
         }
+        if (pool.Count < count) { pool.Clear(); for (int i = 0; i < All.Count; i++) if ((All[i].stackable || !AugmentManager.HasAugment(All[i].id))) pool.Add(All[i]); }
 
         for (int n = 0; n < count && pool.Count > 0; n++)
         {
@@ -781,7 +786,7 @@ public static class AugmentDatabase
             result.Add(picked);
             pool.Remove(picked);
 
-            // ê°™ì€ íŒì— ì¶©ëŒìŒì´ ë™ì‹œì— ë‚˜ì˜¤ëŠ” ê²ƒë„ ë§‰ëŠ”ë‹¤
+            // °°Àº ÆÇ¿¡ Ãæµ¹½ÖÀÌ µ¿½Ã¿¡ ³ª¿À´Â °Íµµ ¸·´Â´Ù
             if (picked.conflictId != null)
             {
                 for (int i = pool.Count - 1; i >= 0; i--)
@@ -792,14 +797,19 @@ public static class AugmentDatabase
         return result;
     }
 
-    /// <summary>ì›¨ì´ë¸Œê°€ ì˜¬ë¼ê°ˆìˆ˜ë¡ ìƒìœ„ ë“±ê¸‰ì´ ì˜ ë‚˜ì˜¨ë‹¤</summary>
+    /// <summary>v9.10: Ã¹ Áö¿ª ÈÄº¸ - ¼ıÀÚ ÇÏ³ª·Î ÀÌÇØµÇ´Â °Íµé (º£ÆÃ¡¤¼÷·Ã¡¤°ø¸í¡¤T2¡¤µµ¹Ú ÆĞ¹Ğ¸®¡¤Á¶°ÇºÎ °è»êÀº Áö¿ª 2 ºÎÅÍ)</summary>
+    private static readonly string[] EARLY_SIMPLE = {
+        "silver_atk", "silver_hp", "silver_crit", "silver_explode", "silver_lifesteal", "silver_wavehal", "silver_aspd", "silver_range", "silver_magnet", "silver_armorpad",
+        "gold_atk", "gold_explode", "gold_lifesteal", "gold_fortress", "gold_nanoarmor", "gold_fieldrepair", "gold_pantry", "gold_doubletap" };
+
+    /// <summary>¿şÀÌºê°¡ ¿Ã¶ó°¥¼ö·Ï »óÀ§ µî±ŞÀÌ Àß ³ª¿Â´Ù</summary>
     private static AugmentGrade RollGrade(int waveNumber)
     {
         float roll = Random.value;
         float prismChance = Mathf.Clamp(0.05f + waveNumber * 0.015f, 0.05f, 0.30f);
         float goldChance = Mathf.Clamp(0.25f + waveNumber * 0.020f, 0.25f, 0.50f);
 
-        // Phase 2-3 'ì—„ì„ ëœ ë©”ë‰´íŒ': ì„ íƒì§€ê°€ ì¤„ì–´ë“œëŠ” ëŒ€ì‹  ìƒìœ„ ë“±ê¸‰ í™•ë¥  ê¸‰ìƒìŠ¹
+        // Phase 2-3 '¾ö¼±µÈ ¸Ş´ºÆÇ': ¼±ÅÃÁö°¡ ÁÙ¾îµå´Â ´ë½Å »óÀ§ µî±Ş È®·ü ±Ş»ó½Â
         if (AugmentManager.CurationBoost)
         {
             prismChance = Mathf.Min(0.50f, prismChance * 2f);

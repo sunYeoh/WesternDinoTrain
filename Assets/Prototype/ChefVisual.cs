@@ -3,59 +3,62 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// [ChefVisual.cs] v2.2 - ì…°í”„ ìŠ¤í”„ë¼ì´íŠ¸ ì• ë‹ˆë©”ì´ì…˜ (2026-09-07, ìœ ì € ì œì‘ ë„íŠ¸ 8ì¥ ëŒ€ì‘)
+/// [ChefVisual.cs] v2.3 (v9.10 2026-09-17 Å×½ºÅÍ ÇÇµå¹é: "°¡´Ù°¡ µÚµµ´Â ¹ö±×" - ¹Ù¶óº¸´Â ¹æÇâÀ» ½ÇÁ¦ À§Ä¡ º¯È­°¡ ¾Æ´Ï¶ó ChefController.CurrentVel(°¡·Á´Â ¼Óµµ)·Î Á¤ÇÑ´Ù.
+///   Åë·Î¡¤º®¿¡¼­ ResolveWalk °¡ ÇÑ ÇÁ·¹ÀÓ µÇ¹Ğ ¶§ À§Ä¡ º¯È­ ºÎÈ£°¡ µÚÁıÇô µÚµ¹´ø °Í. °È´ÂÁö/´ë½ÃÀÎÁö´Â Á¾Àü´ë·Î À§Ä¡ º¯È­·Î / GameBalance.ChefVisualScale ·Î ±×¸² ¹èÀ² - "¼ÎÇÁ°¡ ³Ê¹« ÀÛ´Ù")
+/// v2.2 - ¼ÎÇÁ ½ºÇÁ¶óÀÌÆ® ¾Ö´Ï¸ŞÀÌ¼Ç (2026-09-07, À¯Àú Á¦ÀÛ µµÆ® 8Àå ´ëÀÀ)
 ///
-/// - v2.2 (2026-09-08) ì˜†ê±¸ìŒ ìˆ˜ì •: "ì˜†ìœ¼ë¡œ ì´ë™í•  ë•Œ ì™€ë¦¬ê°€ë¦¬" ì˜ ì§„ì§œ ì›ì¸ì€ ë™í–¥ í”„ë ˆì„ì´ 1ì¥(run0)ë¿ì´ë¼
-///     run0 <-> idle ì„ êµëŒ€ì‹œí‚¨ ê²ƒ - ë‘ ê·¸ë¦¼ì´ ëª¨ì ë°©í–¥(ì•/ë’¤)Â·ëª¸ ìœ„ì¹˜(1px)Â·ì† ë„êµ¬ê°€ ì „ë¶€ ë‹¬ë¼ì„œ ì´ˆë‹¹ 9ë²ˆ ë’¤ì§‘í˜€ ë³´ì˜€ë‹¤.
-///     -> ê±·ê¸° í”„ë ˆì„ì´ 1ì¥ì¸ ë°©í–¥ì€ êµëŒ€ ì—†ì´ run0 ì„ ê³ ì •í•˜ê³ , ìœ„ì•„ë˜ 1px ë°”ìš´ìŠ¤(ê±¸ìŒ ë°•ì)ë¡œë§Œ ì›€ì§ì„ì„ í‘œí˜„í•œë‹¤.
-///        (hero_e_run1.png ì„ ê·¸ë ¤ ë„£ìœ¼ë©´ ìë™ìœ¼ë¡œ 2ì¥ 4ë°•ì ê±¸ìŒìœ¼ë¡œ ë°”ë€ë‹¤ - ì½”ë“œ ë¬´ìˆ˜ì •)
-/// - v2.1 (2026-09-08) ì´ë™ ëª¨ì…˜ ìˆ˜ì •: "í•œìª½ìœ¼ë¡œ ê°€ëŠ”ë° ìŠ¤í”„ë¼ì´íŠ¸ê°€ ì™€ë¦¬ê°€ë¦¬ ì¹œë‹¤"
-///     ì›ì¸ 1) run0(ëª¸ ì™¼ìª½ìœ¼ë¡œ ê¸°ìš¸ì„) <-> run1(ì˜¤ë¥¸ìª½) ë‘ ê·¹ë‹¨ í¬ì¦ˆë§Œ 7fps ë¡œ ë²ˆê°ˆì•„ ë³´ì—¬ì„œ ì¢Œìš°ë¡œ í”ë“¤ë¦¬ëŠ” ê±¸ìŒì´ ëë‹¤
-///            -> RPG ì‹ 4ë°•ì ê±¸ìŒìœ¼ë¡œ: run0 -> idle -> run1 -> idle (ì¤‘ë¦½ ìì„¸ë¥¼ ì‚¬ì´ì— ë¼ìš´ë‹¤). í”„ë ˆì„ ì†ë„ 7 -> 9
-///     ì›ì¸ 2) ëŒ€ê°ì„ /ë²½ ë°€ê¸° ë•Œ ê°€ë¡œÂ·ì„¸ë¡œ í¬ê¸°ê°€ ì—‡ë¹„ìŠ·í•˜ë©´ ë§¤ í”„ë ˆì„ ë‚¨í–¥<->ë™í–¥ì´ ë’¤ì§‘í˜
-///            -> ë°©í–¥ íˆìŠ¤í…Œë¦¬ì‹œìŠ¤: ì§€ê¸ˆ ì¶•ë³´ë‹¤ ë‹¤ë¥¸ ì¶•ì´ 1.25ë°° ì´ìƒ ì»¤ì•¼ ë°©í–¥ì„ ë°”ê¾¼ë‹¤
+/// - v2.2 (2026-09-08) ¿·°ÉÀ½ ¼öÁ¤: "¿·À¸·Î ÀÌµ¿ÇÒ ¶§ ¿Í¸®°¡¸®" ÀÇ ÁøÂ¥ ¿øÀÎÀº µ¿Çâ ÇÁ·¹ÀÓÀÌ 1Àå(run0)»ÓÀÌ¶ó
+///     run0 <-> idle À» ±³´ë½ÃÅ² °Í - µÎ ±×¸²ÀÌ ¸ğÀÚ ¹æÇâ(¾Õ/µÚ)¡¤¸ö À§Ä¡(1px)¡¤¼Õ µµ±¸°¡ ÀüºÎ ´Ş¶ó¼­ ÃÊ´ç 9¹ø µÚÁıÇô º¸¿´´Ù.
+///     -> °È±â ÇÁ·¹ÀÓÀÌ 1ÀåÀÎ ¹æÇâÀº ±³´ë ¾øÀÌ run0 À» °íÁ¤ÇÏ°í, À§¾Æ·¡ 1px ¹Ù¿î½º(°ÉÀ½ ¹ÚÀÚ)·Î¸¸ ¿òÁ÷ÀÓÀ» Ç¥ÇöÇÑ´Ù.
+///        (hero_e_run1.png À» ±×·Á ³ÖÀ¸¸é ÀÚµ¿À¸·Î 2Àå 4¹ÚÀÚ °ÉÀ½À¸·Î ¹Ù²ï´Ù - ÄÚµå ¹«¼öÁ¤)
+/// - v2.1 (2026-09-08) ÀÌµ¿ ¸ğ¼Ç ¼öÁ¤: "ÇÑÂÊÀ¸·Î °¡´Âµ¥ ½ºÇÁ¶óÀÌÆ®°¡ ¿Í¸®°¡¸® Ä£´Ù"
+///     ¿øÀÎ 1) run0(¸ö ¿ŞÂÊÀ¸·Î ±â¿ïÀÓ) <-> run1(¿À¸¥ÂÊ) µÎ ±Ø´Ü Æ÷Áî¸¸ 7fps ·Î ¹ø°¥¾Æ º¸¿©¼­ ÁÂ¿ì·Î Èçµé¸®´Â °ÉÀ½ÀÌ µÆ´Ù
+///            -> RPG ½Ä 4¹ÚÀÚ °ÉÀ½À¸·Î: run0 -> idle -> run1 -> idle (Áß¸³ ÀÚ¼¼¸¦ »çÀÌ¿¡ ³¢¿î´Ù). ÇÁ·¹ÀÓ ¼Óµµ 7 -> 9
+///     ¿øÀÎ 2) ´ë°¢¼±/º® ¹Ğ±â ¶§ °¡·Î¡¤¼¼·Î Å©±â°¡ ¾ùºñ½ÁÇÏ¸é ¸Å ÇÁ·¹ÀÓ ³²Çâ<->µ¿ÇâÀÌ µÚÁıÈû
+///            -> ¹æÇâ È÷½ºÅ×¸®½Ã½º: Áö±İ Ãàº¸´Ù ´Ù¸¥ ÃàÀÌ 1.25¹è ÀÌ»ó Ä¿¾ß ¹æÇâÀ» ¹Ù²Û´Ù
 ///
-/// ì”¬ì˜ "Chef" ì˜¤ë¸Œì íŠ¸ì— ìë™ìœ¼ë¡œ ë¶™ì–´ì„œ Resources/Sprites/WDT/ ì˜ ì…°í”„ PNGë¡œ ê±·ê¸°/ëŒ€ì‹œë¥¼ ê·¸ë¦°ë‹¤.
-///   íŒŒì¼ ê·œì•½: hero_{s|n|e}_{idle|run0|run1|...}.png  (ì„œí–¥ì€ ë™í–¥ì„ ì¢Œìš° ë°˜ì „)
-///   - ë°©í–¥ë³„ ë‹¬ë¦¬ê¸° í”„ë ˆì„ ìˆ˜ë¥¼ ìë™ ê°ì§€í•œë‹¤ (run0ë¶€í„° ë²ˆí˜¸ê°€ ì´ì–´ì§€ëŠ” ë§Œí¼). ì˜ˆ: s/n = run0~run1, e = run0
-///     Â· 2ì¥:      run0 -> idle -> run1 -> idle (4ë°•ì ê±¸ìŒ, ì¤‘ë¦½ ì‚¬ì´ ë¼ì›€)
-///     Â· 3ì¥ ì´ìƒ: run0 -> run1 -> run2 ... ìˆœí™˜ (ì œëŒ€ë¡œ ê·¸ë¦° ê±·ê¸° ì‹œíŠ¸)
-///     Â· 1ì¥ë¿:    run0 ê³ ì • + ìœ„ì•„ë˜ 1px ë°”ìš´ìŠ¤ (ë™í–¥ì²˜ëŸ¼ ê±·ê¸° í”„ë ˆì„ì´ í•œ ì¥ì¸ ê²½ìš° - idle ê³¼ êµëŒ€ì‹œí‚¤ë©´ ë’¤ì§‘í˜€ ë³´ì¸ë‹¤)
-///     Â· 0ì¥:      idle ê³ ì •
-///   - ëŒ€ì‹œ: ì „ìš© í”„ë ˆì„ ì—†ì´ ë‹¬ë¦¬ê¸° ìˆœí™˜ì„ 1.8ë°° ì†ë„ë¡œ + ì”ìƒ(ê³ ìŠ¤íŠ¸) ìŠ¤í”„ë¼ì´íŠ¸ë¥¼ í˜ë¦°ë‹¤
-///   - ë°œë°‘ ê·¸ë¦¼ì íƒ€ì›(ì½”ë“œ ìƒì„±)ìœ¼ë¡œ ê°‘íŒ ìœ„ì— ì„œ ìˆëŠ” ëŠë‚Œì„ ì¤€ë‹¤
-///   - ChefControllerëŠ” ê±´ë“œë¦¬ì§€ ì•ŠëŠ”ë‹¤: ë§¤ í”„ë ˆì„ ìœ„ì¹˜ ë³€í™”ëŸ‰ìœ¼ë¡œ ë°©í–¥Â·ë‹¬ë¦¬ê¸°Â·ëŒ€ì‹œë¥¼ ìŠ¤ìŠ¤ë¡œ íŒë‹¨
-///   - hero_ ì„¸íŠ¸ê°€ ì—†ìœ¼ë©´ êµ¬ chef_ ì„¸íŠ¸(v7e)ë¡œ í´ë°±, ê·¸ê²ƒë„ ì—†ìœ¼ë©´ ì•„ë¬´ê²ƒë„ í•˜ì§€ ì•ŠëŠ”ë‹¤ (ì”¬ placeholder ìœ ì§€)
+/// ¾ÀÀÇ "Chef" ¿ÀºêÁ§Æ®¿¡ ÀÚµ¿À¸·Î ºÙ¾î¼­ Resources/Sprites/WDT/ ÀÇ ¼ÎÇÁ PNG·Î °È±â/´ë½Ã¸¦ ±×¸°´Ù.
+///   ÆÄÀÏ ±Ô¾à: hero_{s|n|e}_{idle|run0|run1|...}.png  (¼­ÇâÀº µ¿ÇâÀ» ÁÂ¿ì ¹İÀü)
+///   - ¹æÇâº° ´Ş¸®±â ÇÁ·¹ÀÓ ¼ö¸¦ ÀÚµ¿ °¨ÁöÇÑ´Ù (run0ºÎÅÍ ¹øÈ£°¡ ÀÌ¾îÁö´Â ¸¸Å­). ¿¹: s/n = run0~run1, e = run0
+///     ¡¤ 2Àå:      run0 -> idle -> run1 -> idle (4¹ÚÀÚ °ÉÀ½, Áß¸³ »çÀÌ ³¢¿ò)
+///     ¡¤ 3Àå ÀÌ»ó: run0 -> run1 -> run2 ... ¼øÈ¯ (Á¦´ë·Î ±×¸° °È±â ½ÃÆ®)
+///     ¡¤ 1Àå»Ó:    run0 °íÁ¤ + À§¾Æ·¡ 1px ¹Ù¿î½º (µ¿ÇâÃ³·³ °È±â ÇÁ·¹ÀÓÀÌ ÇÑ ÀåÀÎ °æ¿ì - idle °ú ±³´ë½ÃÅ°¸é µÚÁıÇô º¸ÀÎ´Ù)
+///     ¡¤ 0Àå:      idle °íÁ¤
+///   - ´ë½Ã: Àü¿ë ÇÁ·¹ÀÓ ¾øÀÌ ´Ş¸®±â ¼øÈ¯À» 1.8¹è ¼Óµµ·Î + ÀÜ»ó(°í½ºÆ®) ½ºÇÁ¶óÀÌÆ®¸¦ Èê¸°´Ù
+///   - ¹ß¹Ø ±×¸²ÀÚ Å¸¿ø(ÄÚµå »ı¼º)À¸·Î °©ÆÇ À§¿¡ ¼­ ÀÖ´Â ´À³¦À» ÁØ´Ù
+///   - ChefController´Â °Çµå¸®Áö ¾Ê´Â´Ù: ¸Å ÇÁ·¹ÀÓ À§Ä¡ º¯È­·®À¸·Î ¹æÇâ¡¤´Ş¸®±â¡¤´ë½Ã¸¦ ½º½º·Î ÆÇ´Ü
+///   - hero_ ¼¼Æ®°¡ ¾øÀ¸¸é ±¸ chef_ ¼¼Æ®(v7e)·Î Æú¹é, ±×°Íµµ ¾øÀ¸¸é ¾Æ¹«°Íµµ ÇÏÁö ¾Ê´Â´Ù (¾À placeholder À¯Áö)
 ///
-/// ì¡°ì ˆê°’: SPRITE_Y_OFFSET(ë°œ ìœ„ì¹˜) / RUN_FPS / DASH_FPS_MUL / SHOW_SHADOW / SORT_ORDER
-/// ì‚¬ìš©ë²•: ì—†ìŒ. PNG 8ì¥ + ì´ íŒŒì¼ + SpriteBank.cs + Editor/WDTSpriteImporter.cs ë§Œ ìˆìœ¼ë©´ ëœë‹¤.
-/// VS 2017 (C# 7.3) í˜¸í™˜
+/// Á¶Àı°ª: SPRITE_Y_OFFSET(¹ß À§Ä¡) / RUN_FPS / DASH_FPS_MUL / SHOW_SHADOW / SORT_ORDER
+/// »ç¿ë¹ı: ¾øÀ½. PNG 8Àå + ÀÌ ÆÄÀÏ + SpriteBank.cs + Editor/WDTSpriteImporter.cs ¸¸ ÀÖÀ¸¸é µÈ´Ù.
+/// VS 2017 (C# 7.3) È£È¯
 /// </summary>
 public class ChefVisual : MonoBehaviour
 {
-    private const float SPRITE_Y_OFFSET = -0.35f;  // í”¼ë²—ì´ ë°œë°‘ì´ë¼ ì˜¤ë¸Œì íŠ¸ ì¤‘ì‹¬ë³´ë‹¤ ì‚´ì§ ì•„ë˜ì— ë°œì„ ë‘”ë‹¤ (ê±·ê¸° ë²”ìœ„ y -1.5~1.5 -> ë°œ -1.85~1.15)
-    private const float RUN_FPS = 9f;               // ë‹¬ë¦¬ê¸° í”„ë ˆì„ ì†ë„ (4ë°•ì ê±¸ìŒ ê¸°ì¤€: 9fps = í•œ ê±¸ìŒ 0.22ì´ˆ, 4.2ìœ ë‹›/ì´ˆë©´ ê±¸ìŒë‹¹ 0.93ìœ ë‹›)
-    private const float DIR_HYSTERESIS = 1.25f;     // ë°©í–¥ ì¶• ì „í™˜ ë¬¸í„± (ë‹¤ë¥¸ ì¶•ì´ ì´ ë°°ìˆ˜ ì´ìƒ ì»¤ì•¼ ë‚¨/ë¶ <-> ë™/ì„œ ì „í™˜)
-    private const float BOB_PX = 1f;                // ê±·ê¸° í”„ë ˆì„ì´ 1ì¥ì¸ ë°©í–¥ì˜ ìœ„ì•„ë˜ ë°”ìš´ìŠ¤ (í”½ì…€, 32px/ìœ ë‹› ê¸°ì¤€)
-    private const float DASH_FPS_MUL = 1.8f;        // ëŒ€ì‹œ ì¤‘ í”„ë ˆì„ ì†ë„ ë°°ìœ¨
-    private const float MOVE_EPS = 0.6f;            // ì´ ì†ë„(ìœ ë‹›/ì´ˆ) ì´ìƒì´ë©´ "ì´ë™ ì¤‘"
-    private const int SORT_ORDER = 6;               // í¬íƒ‘ ë”(-1)/ì (5) ìœ„, ì „ë¦¬í’ˆ(58)/íŒì—…(60) ì•„ë˜
-    private const bool SHOW_SHADOW = true;          // ë°œë°‘ ê·¸ë¦¼ì íƒ€ì›
-    private const float GHOST_INTERVAL = 0.06f;     // ëŒ€ì‹œ ì”ìƒ ìƒì„± ê°„ê²©(ì´ˆ)
-    private const float GHOST_LIFE = 0.22f;         // ì”ìƒì´ ì‚¬ë¼ì§€ê¸°ê¹Œì§€(ì´ˆ)
-    private const float GHOST_ALPHA = 0.45f;        // ì”ìƒ ì‹œì‘ íˆ¬ëª…ë„
-    private const int MAX_RUN_FRAMES = 8;           // run0~run7 ê¹Œì§€ íƒìƒ‰
+    private const float SPRITE_Y_OFFSET = -0.35f;  // ÇÇ¹şÀÌ ¹ß¹ØÀÌ¶ó ¿ÀºêÁ§Æ® Áß½Éº¸´Ù »ìÂ¦ ¾Æ·¡¿¡ ¹ßÀ» µĞ´Ù (°È±â ¹üÀ§ y -1.5~1.5 -> ¹ß -1.85~1.15)
+    private const float RUN_FPS = 9f;               // ´Ş¸®±â ÇÁ·¹ÀÓ ¼Óµµ (4¹ÚÀÚ °ÉÀ½ ±âÁØ: 9fps = ÇÑ °ÉÀ½ 0.22ÃÊ, 4.2À¯´Ö/ÃÊ¸é °ÉÀ½´ç 0.93À¯´Ö)
+    private const float DIR_HYSTERESIS = 1.25f;     // ¹æÇâ Ãà ÀüÈ¯ ¹®ÅÎ (´Ù¸¥ ÃàÀÌ ÀÌ ¹è¼ö ÀÌ»ó Ä¿¾ß ³²/ºÏ <-> µ¿/¼­ ÀüÈ¯)
+    private const float BOB_PX = 1f;                // °È±â ÇÁ·¹ÀÓÀÌ 1ÀåÀÎ ¹æÇâÀÇ À§¾Æ·¡ ¹Ù¿î½º (ÇÈ¼¿, 32px/À¯´Ö ±âÁØ)
+    private const float DASH_FPS_MUL = 1.8f;        // ´ë½Ã Áß ÇÁ·¹ÀÓ ¼Óµµ ¹èÀ²
+    private const float MOVE_EPS = 0.6f;            // ÀÌ ¼Óµµ(À¯´Ö/ÃÊ) ÀÌ»óÀÌ¸é "ÀÌµ¿ Áß"
+    private const int SORT_ORDER = 6;               // Æ÷Å¾ µ¼(-1)/Àû(5) À§, Àü¸®Ç°(58)/ÆË¾÷(60) ¾Æ·¡
+    private const bool SHOW_SHADOW = true;          // ¹ß¹Ø ±×¸²ÀÚ Å¸¿ø
+    private const float GHOST_INTERVAL = 0.06f;     // ´ë½Ã ÀÜ»ó »ı¼º °£°İ(ÃÊ)
+    private const float GHOST_LIFE = 0.22f;         // ÀÜ»óÀÌ »ç¶óÁö±â±îÁö(ÃÊ)
+    private const float GHOST_ALPHA = 0.45f;        // ÀÜ»ó ½ÃÀÛ Åõ¸íµµ
+    private const int MAX_RUN_FRAMES = 8;           // run0~run7 ±îÁö Å½»ö
 
-    private static string prefix = "hero_";         // "hero_"(ìœ ì € ë„íŠ¸) ë˜ëŠ” "chef_"(êµ¬ v7e ì„¸íŠ¸)
+    private static string prefix = "hero_";         // "hero_"(À¯Àú µµÆ®) ¶Ç´Â "chef_"(±¸ v7e ¼¼Æ®)
 
     private SpriteRenderer sr;
     private Transform spriteTf;
+    private ChefController controller;               // v2.3: ¹æÇâ = °¡·Á´Â ¼Óµµ
     private Vector3 lastPos;
     private string dir = "s";                       // s / n / e / w
     private float animTime = 0f;
     private bool wasMoving = false;
     private float ghostTimer = 0f;
-    private readonly Dictionary<string, string[]> cycles = new Dictionary<string, string[]>();   // ë°©í–¥ -> ë‹¬ë¦¬ê¸° í”„ë ˆì„ ì´ë¦„ ìˆœí™˜
+    private readonly Dictionary<string, string[]> cycles = new Dictionary<string, string[]>();   // ¹æÇâ -> ´Ş¸®±â ÇÁ·¹ÀÓ ÀÌ¸§ ¼øÈ¯
     private readonly List<Ghost> ghosts = new List<Ghost>();
     private static Sprite shadowSprite;
 
@@ -65,9 +68,9 @@ public class ChefVisual : MonoBehaviour
         public float life;
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ë¶€íŠ¸ìŠ¤íŠ¸ë©: ì”¬ ë¡œë“œë§ˆë‹¤ "Chef"ë¥¼ ì°¾ì•„ ë¶™ì¸ë‹¤
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ºÎÆ®½ºÆ®·¦: ¾À ·Îµå¸¶´Ù "Chef"¸¦ Ã£¾Æ ºÙÀÎ´Ù
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void Bootstrap()
     {
@@ -88,7 +91,7 @@ public class ChefVisual : MonoBehaviour
         else if (SpriteBank.Has("chef_s_idle")) prefix = "chef_";
         else
         {
-            Debug.Log("[ChefVisual] ì…°í”„ PNG ì—†ìŒ (hero_s_idle / chef_s_idle) - ì”¬ placeholder ìŠ¤í”„ë¼ì´íŠ¸ ìœ ì§€");
+            Debug.Log("[ChefVisual] ¼ÎÇÁ PNG ¾øÀ½ (hero_s_idle / chef_s_idle) - ¾À placeholder ½ºÇÁ¶óÀÌÆ® À¯Áö");
             return;
         }
         chef.AddComponent<ChefVisual>();
@@ -96,20 +99,21 @@ public class ChefVisual : MonoBehaviour
 
     private void Awake()
     {
-        // ê¸°ì¡´ ë Œë”ëŸ¬ ë„ê¸° (ë³¸ì²´ + ìì‹). ë¡œì§/ì¶©ëŒì€ ê·¸ëŒ€ë¡œ
+        // ±âÁ¸ ·»´õ·¯ ²ô±â (º»Ã¼ + ÀÚ½Ä). ·ÎÁ÷/Ãæµ¹Àº ±×´ë·Î
         SpriteRenderer[] old = GetComponentsInChildren<SpriteRenderer>(true);
         for (int i = 0; i < old.Length; i++) old[i].enabled = false;
 
-        // ë°©í–¥ë³„ ë‹¬ë¦¬ê¸° ìˆœí™˜ êµ¬ì„±
+        // ¹æÇâº° ´Ş¸®±â ¼øÈ¯ ±¸¼º
         string[] dirs = { "s", "n", "e" };
         for (int d = 0; d < dirs.Length; d++) cycles[dirs[d]] = BuildCycle(dirs[d]);
 
-        // ê·¸ë¦¼ì (ìŠ¤í”„ë¼ì´íŠ¸ë³´ë‹¤ ë¨¼ì € ë§Œë“¤ì–´ ì•„ë˜ ì •ë ¬)
+        // ±×¸²ÀÚ (½ºÇÁ¶óÀÌÆ®º¸´Ù ¸ÕÀú ¸¸µé¾î ¾Æ·¡ Á¤·Ä)
         if (SHOW_SHADOW)
         {
             GameObject sh = new GameObject("ChefShadow");
             sh.transform.SetParent(transform, false);
             sh.transform.localPosition = new Vector3(0f, SPRITE_Y_OFFSET + 0.02f, 0f);
+            sh.transform.localScale = new Vector3(GameBalance.ChefVisualScale, GameBalance.ChefVisualScale, 1f);   // v2.3
             SpriteRenderer ssr = sh.AddComponent<SpriteRenderer>();
             ssr.sprite = GetShadowSprite();
             ssr.color = new Color(0f, 0f, 0f, 0.35f);
@@ -119,16 +123,18 @@ public class ChefVisual : MonoBehaviour
         GameObject go = new GameObject("ChefSprite");
         go.transform.SetParent(transform, false);
         go.transform.localPosition = new Vector3(0f, SPRITE_Y_OFFSET, 0f);
+        go.transform.localScale = new Vector3(GameBalance.ChefVisualScale, GameBalance.ChefVisualScale, 1f);   // v2.3
         spriteTf = go.transform;
+        controller = GetComponent<ChefController>();
         sr = go.AddComponent<SpriteRenderer>();
         sr.sortingOrder = SORT_ORDER;
         sr.sprite = SpriteBank.Get(prefix + "s_idle");
         lastPos = transform.position;
-        Debug.Log("[ChefVisual] ì…°í”„ ìŠ¤í”„ë¼ì´íŠ¸ ì ìš© (" + prefix + "*, ë‹¬ë¦¬ê¸° í”„ë ˆì„ s/n/e = "
-            + cycles["s"].Length + "/" + cycles["n"].Length + "/" + cycles["e"].Length + ", ê¸°ì¡´ ë Œë”ëŸ¬ " + old.Length + "ê°œ ìˆ¨ê¹€)");
+        Debug.Log("[ChefVisual] ¼ÎÇÁ ½ºÇÁ¶óÀÌÆ® Àû¿ë (" + prefix + "*, ´Ş¸®±â ÇÁ·¹ÀÓ s/n/e = "
+            + cycles["s"].Length + "/" + cycles["n"].Length + "/" + cycles["e"].Length + ", ±âÁ¸ ·»´õ·¯ " + old.Length + "°³ ¼û±è)");
     }
 
-    /// <summary>ë°©í–¥ë³„ ë‹¬ë¦¬ê¸° í”„ë ˆì„ ì´ë¦„ ìˆœí™˜ì„ ë§Œë“ ë‹¤ (íŒŒì¼ì´ ìˆëŠ” ë§Œí¼)</summary>
+    /// <summary>¹æÇâº° ´Ş¸®±â ÇÁ·¹ÀÓ ÀÌ¸§ ¼øÈ¯À» ¸¸µç´Ù (ÆÄÀÏÀÌ ÀÖ´Â ¸¸Å­)</summary>
     private static string[] BuildCycle(string d)
     {
         List<string> frames = new List<string>();
@@ -140,14 +146,14 @@ public class ChefVisual : MonoBehaviour
         }
         string idle = prefix + d + "_idle";
         if (frames.Count == 0) return new string[] { idle };
-        if (frames.Count == 1) return new string[] { frames[0] };                            // v2.2: 1ì¥ì€ ê³ ì • + ë°”ìš´ìŠ¤ (idle êµëŒ€ ê¸ˆì§€)
-        if (frames.Count == 2) return new string[] { frames[0], idle, frames[1], idle };   // v2.1: 4ë°•ì ê±¸ìŒ (ì™¼ë°œ-ì¤‘ë¦½-ì˜¤ë¥¸ë°œ-ì¤‘ë¦½)
+        if (frames.Count == 1) return new string[] { frames[0] };                            // v2.2: 1ÀåÀº °íÁ¤ + ¹Ù¿î½º (idle ±³´ë ±İÁö)
+        if (frames.Count == 2) return new string[] { frames[0], idle, frames[1], idle };   // v2.1: 4¹ÚÀÚ °ÉÀ½ (¿Ş¹ß-Áß¸³-¿À¸¥¹ß-Áß¸³)
         return frames.ToArray();
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ë§¤ í”„ë ˆì„: ì´ë™ëŸ‰ -> ë°©í–¥/ìƒíƒœ -> í”„ë ˆì„ ì„ íƒ -> ëŒ€ì‹œ ì”ìƒ
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ¸Å ÇÁ·¹ÀÓ: ÀÌµ¿·® -> ¹æÇâ/»óÅÂ -> ÇÁ·¹ÀÓ ¼±ÅÃ -> ´ë½Ã ÀÜ»ó
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     private void LateUpdate()
     {
         if (sr == null) return;
@@ -159,21 +165,24 @@ public class ChefVisual : MonoBehaviour
 
         float speed = delta.magnitude / dt;
         bool moving = speed > MOVE_EPS;
-        bool dashing = speed > GameBalance.ChefMoveSpeed * 1.6f;   // ëŒ€ì‹œ(12) vs ë‹¬ë¦¬ê¸°(4.2) ì‚¬ì´
+        bool dashing = speed > GameBalance.ChefMoveSpeed * 1.6f;   // ´ë½Ã(12) vs ´Ş¸®±â(4.2) »çÀÌ
 
-        // ë°©í–¥: ê°€ë¡œê°€ ë” í¬ë©´ ë™/ì„œ, ì•„ë‹ˆë©´ ë‚¨/ë¶ (ë©ˆì¶”ë©´ ë§ˆì§€ë§‰ ë°©í–¥ ìœ ì§€)
-        // v2.1: ì¶• ì „í™˜ì— ë¬¸í„±ì„ ë‘”ë‹¤ - ëŒ€ê°ì„ /ë²½ ë°€ê¸°ì—ì„œ ë§¤ í”„ë ˆì„ ë’¤ì§‘íˆì§€ ì•Šê²Œ. ê°™ì€ ì¶• ì•ˆì˜ ë¶€í˜¸(ë™<->ì„œ, ë‚¨<->ë¶)ëŠ” ì¦‰ì‹œ ë°˜ì˜
-        if (moving)
+        // ¹æÇâ: °¡·Î°¡ ´õ Å©¸é µ¿/¼­, ¾Æ´Ï¸é ³²/ºÏ (¸ØÃß¸é ¸¶Áö¸· ¹æÇâ À¯Áö)
+        // v2.1: Ãà ÀüÈ¯¿¡ ¹®ÅÎÀ» µĞ´Ù - ´ë°¢¼±/º® ¹Ğ±â¿¡¼­ ¸Å ÇÁ·¹ÀÓ µÚÁıÈ÷Áö ¾Ê°Ô. °°Àº Ãà ¾ÈÀÇ ºÎÈ£(µ¿<->¼­, ³²<->ºÏ)´Â Áï½Ã ¹İ¿µ
+        // v2.3: ¹æÇâÀÇ ±Ù°Å´Â '°¡·Á´Â ¼Óµµ'(º®¿¡ ¸·Èù ÃàÀº 0). À§Ä¡ º¯È­´Â µÇ¹Ğ¸²¿¡ ºÎÈ£°¡ µÚÁıÇô "µÚµµ´Â" ¿øÀÎÀÌ¾ú´Ù
+        Vector2 facingSrc = controller != null ? controller.CurrentVel : (Vector2)delta;
+        if (controller != null && facingSrc.sqrMagnitude < 0.0004f) facingSrc = Vector2.zero;
+        if (moving && facingSrc.sqrMagnitude > 0f)
         {
-            float ax = Mathf.Abs(delta.x), ay = Mathf.Abs(delta.y);
+            float ax = Mathf.Abs(facingSrc.x), ay = Mathf.Abs(facingSrc.y);
             bool horizontal = dir == "e" || dir == "w";
             if (horizontal && ay > ax * DIR_HYSTERESIS) horizontal = false;
             else if (!horizontal && ax > ay * DIR_HYSTERESIS) horizontal = true;
-            if (horizontal && ax > 0.0001f) dir = delta.x >= 0f ? "e" : "w";
-            else if (!horizontal && ay > 0.0001f) dir = delta.y >= 0f ? "n" : "s";
+            if (horizontal && ax > 0.0001f) dir = facingSrc.x >= 0f ? "e" : "w";
+            else if (!horizontal && ay > 0.0001f) dir = facingSrc.y >= 0f ? "n" : "s";
         }
 
-        // ì¡°ë¦¬ ì¤‘ì—” ì¡°ë¦¬ëŒ€(ë‚¨ìª½ = í™”ë©´ ì•„ë˜)ë¥¼ ë³´ê³  ì„ ë‹¤
+        // Á¶¸® Áß¿£ Á¶¸®´ë(³²ÂÊ = È­¸é ¾Æ·¡)¸¦ º¸°í ¼±´Ù
         if (CookingMinigame.IsActive) { moving = false; dashing = false; dir = "s"; }
 
         string spriteDir = dir == "w" ? "e" : dir;
@@ -186,7 +195,7 @@ public class ChefVisual : MonoBehaviour
             string[] cyc = cycles[spriteDir];
             int beat = Mathf.FloorToInt(animTime * RUN_FPS);
             name = cyc[beat % cyc.Length];
-            // v2.2: ê±·ê¸° í”„ë ˆì„ì´ 1ì¥ì¸ ë°©í–¥ì€ ê·¸ë¦¼ì„ ë°”ê¾¸ì§€ ì•Šê³  ê±¸ìŒ ë°•ìë§ˆë‹¤ 1px ë“¤ì©ì¸ë‹¤
+            // v2.2: °È±â ÇÁ·¹ÀÓÀÌ 1ÀåÀÎ ¹æÇâÀº ±×¸²À» ¹Ù²ÙÁö ¾Ê°í °ÉÀ½ ¹ÚÀÚ¸¶´Ù 1px µé½âÀÎ´Ù
             if (cyc.Length == 1 && (beat % 2) == 1) bob = BOB_PX / 32f;
         }
         else name = prefix + spriteDir + "_idle";
@@ -197,20 +206,21 @@ public class ChefVisual : MonoBehaviour
         if (s != null) sr.sprite = s;
         sr.flipX = dir == "w";
 
-        // ëŒ€ì‹œ ì”ìƒ
+        // ´ë½Ã ÀÜ»ó
         if (dashing)
         {
             ghostTimer += dt;
             if (ghostTimer >= GHOST_INTERVAL) { ghostTimer = 0f; SpawnGhost(); }
         }
-        else ghostTimer = GHOST_INTERVAL;   // ëŒ€ì‹œ ì‹œì‘ ì¦‰ì‹œ ì²« ì”ìƒ
+        else ghostTimer = GHOST_INTERVAL;   // ´ë½Ã ½ÃÀÛ Áï½Ã Ã¹ ÀÜ»ó
     }
 
-    /// <summary>í˜„ì¬ ìŠ¤í”„ë¼ì´íŠ¸ë¥¼ ì œìë¦¬ì— ë³µì‚¬í•´ ë‘ê³  ì„œì„œíˆ ì§€ìš´ë‹¤</summary>
+    /// <summary>ÇöÀç ½ºÇÁ¶óÀÌÆ®¸¦ Á¦ÀÚ¸®¿¡ º¹»çÇØ µÎ°í ¼­¼­È÷ Áö¿î´Ù</summary>
     private void SpawnGhost()
     {
         GameObject go = new GameObject("ChefGhost");
         go.transform.position = spriteTf.position;
+        go.transform.localScale = spriteTf.lossyScale;   // v2.3: ±×¸² ¹èÀ² µû¶ó
         SpriteRenderer g = go.AddComponent<SpriteRenderer>();
         g.sprite = sr.sprite;
         g.flipX = sr.flipX;
@@ -246,7 +256,7 @@ public class ChefVisual : MonoBehaviour
         ghosts.Clear();
     }
 
-    /// <summary>ë°œë°‘ ê·¸ë¦¼ì: 24x8 íƒ€ì› í…ìŠ¤ì²˜ë¥¼ ì½”ë“œë¡œ ë§Œë“ ë‹¤ (32px/ìœ ë‹› = 0.75 x 0.25 ìœ ë‹›)</summary>
+    /// <summary>¹ß¹Ø ±×¸²ÀÚ: 24x8 Å¸¿ø ÅØ½ºÃ³¸¦ ÄÚµå·Î ¸¸µç´Ù (32px/À¯´Ö = 0.75 x 0.25 À¯´Ö)</summary>
     private static Sprite GetShadowSprite()
     {
         if (shadowSprite != null) return shadowSprite;

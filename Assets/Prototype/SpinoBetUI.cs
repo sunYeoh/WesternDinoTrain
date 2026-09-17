@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [SpinoBetUI.cs] v1.1 (v9.9.2 2026-09-16: 첫 등장 카드 "베팅" 을 창이 뜨기 직전 1회 + 카드가 떠 있는 동안 숫자키 무시 + 창 머리에 스피노 실루엣) / v1 (신규 파일) - Phase 2-1: 도박사 스피노 등장/베팅 UI
+/// [SpinoBetUI.cs] v1.2 (v9.10 2026-09-17: 거절 안내 [ESC] + 카드 뜻 한 줄) / v1.1 (v9.9.2 2026-09-16: 첫 등장 카드 "베팅" 을 창이 뜨기 직전 1회 + 카드가 떠 있는 동안 숫자키 무시 + 창 머리에 스피노 실루엣) / v1 (신규 파일) - Phase 2-1: 도박사 스피노 등장/베팅 UI
 ///
 /// 세계관: 스피노는 디 오리지널의 마지막 기관사. 우리에게 베팅을 거는 진짜 이유는
 /// "이번 요리사는 끝까지 가는지 판돈을 걸어보는 것" (스토리바이블 3절).
@@ -211,7 +211,7 @@ public class SpinoBetUI : MonoBehaviour
 
         // 거절 안내
         Text pass = KitchenEventManager.MakeText(panel, "Pass",
-            "[0] / [ESC]  베팅 안 한다", 16, new Color(0.6f, 0.58f, 0.55f));
+            "[ESC]  베팅 안 한다  (져도 잃는 게 없는 카드는 [1], 판돈을 거는 카드는 [2])", 16, new Color(0.6f, 0.58f, 0.55f));
         RectTransform pRt = pass.rectTransform;
         pRt.anchorMin = new Vector2(0f, 0f); pRt.anchorMax = new Vector2(1f, 0f);
         pRt.pivot = new Vector2(0.5f, 0f);

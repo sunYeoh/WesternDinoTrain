@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// [BriefingTexts.cs] v2 (v9.9.2 2026-09-16: 정식 런 첫 등장 카드 34장 - 지역 4 / 새 손님 16 / 주방 사고 4 / 베팅 1 / 보스 4 / 승격 5.
+/// [BriefingTexts.cs] v2.1 (v9.10 2026-09-17: RecipeIntro(레시피) 소개 카드 - 웨이브 3 용암 폭탄밥 / 숙련·베팅 문구 일상어) / v2 (v9.9.2 2026-09-16: 정식 런 첫 등장 카드 34장 - 지역 4 / 새 손님 16 / 주방 사고 4 / 베팅 1 / 보스 4 / 승격 5.
 ///   스피노 카드는 전부 실루엣 초상(ui_npc_spino) + 키, 정비소는 안킬로(ui_npc_ankylo). 12번 카드는 실제 베팅 창(카드 2장, [1] 일반 / [2] 도박 / [0] 거절)에 맞춤)
 ///   / v1 (신규, v9.9 2026-09-16) - 브리핑 카드 문구 표
 ///
@@ -52,7 +52,8 @@ public static class BriefingTexts
             "event_intrusion", "event_break", "event_fire", "event_spill",
             "bet_first",
             "boss_1", "boss_2", "boss_3", "boss_4",
-            "promo_first_town", "promo_first_augment", "promo_first_route", "promo_first_item", "promo_first_overheat" };
+            "promo_first_town", "promo_first_augment", "promo_first_route", "promo_first_item", "promo_first_overheat",
+            "recipe_fire_fire" };
     }
 
     // ─────────────────────────────────────────────
@@ -338,6 +339,37 @@ public static class BriefingTexts
             case MaterialType.Ice: return ICE;
             case MaterialType.Poison: return POISON;
             default: return MEAT;
+        }
+    }
+
+    // ─────────────────────────────────────────────
+    // v9.10: 레시피 소개 카드 (개정안 §5 W3 - "용암 폭탄밥"처럼 학습 구간에 소개할 요리. 문구는 RecipeText 가 RecipeData 에서 만든다)
+    // ─────────────────────────────────────────────
+    public static BriefingUI.BriefDef RecipeIntro(string recipeId)
+    {
+        RecipeData r = RecipeDatabase.Get(recipeId);
+        if (r == null) return null;
+        string[] parts = recipeId.Replace("T2:", "").Split('+');
+        string src = parts.Length >= 2 ? MatNameKey(parts[0]) + " + " + MatNameKey(parts[1]) : recipeId;
+        BriefingUI.BriefDef d = Make("스피노", "새 접시 - " + r.displayName + " (" + RecipeText.RoleWord(r) + ")", new string[] {
+            "재료 " + src + " → " + RecipeText.MethodWord(r) + ". 재료는 넣어 뒀다.",
+            RecipeText.What(r),
+            "쓰는 때: " + RecipeText.When(r),
+            "무리가 온다. 만들어서 빈 칸에 넣고, 육포와 뭐가 다른지 봐라." }, "[E]", RecipeText.MethodWord(r));
+        return d;
+    }
+
+    private static string MatNameKey(string key)
+    {
+        switch (key)
+        {
+            case "meat": return "고기";
+            case "armor": return "등심";
+            case "elec": return "전기";
+            case "fire": return "화염";
+            case "ice": return "얼음";
+            case "poison": return "독";
+            default: return key;
         }
     }
 

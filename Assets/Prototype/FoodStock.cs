@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// [FoodStock.cs] v2
+/// [FoodStock.cs] v2.1 (v9.10 2026-09-17: 숙련 알림을 일상어로 - "이 요리를 N번 만들었다 - 손에 익어 ..." 테스터 "숙련도 어쩌구 설명 필요") / v2
 /// 완성된 요리 보관소 + 도감(발견) 관리 (싱글톤)
 /// - 조리 성공 -> Add / 슬롯 투입, T2 합성 -> TryConsume
 /// - v2 변경점 (도감 영구화):
@@ -47,14 +47,16 @@ public class FoodStock : MonoBehaviour
         string shownName = r != null ? r.displayName : recipeId;
         string title = GameBalance.MasteryTitles[tier];
 
-        string msg = "[숙련] " + shownName + " - \"" + title + "\" (누적 " + c + "회) 공격력 +"
+        // v1.3: 일상어 - 무슨 일이 왜 생겼는지 한 문장 (칭호는 괄호)
+        string msg = "[단골 요리] " + shownName + " 을(를) " + c + "번 만들었다 - 손에 익어 이 요리 포탑 공격력 +"
             + Mathf.RoundToInt(GameBalance.MasteryAtkBonus[tier] * 100f) + "%";
         if (GameBalance.MasteryJudgeBonus[tier] > 0f)
-            msg += " / 판정 +" + Mathf.RoundToInt(GameBalance.MasteryJudgeBonus[tier] * 100f) + "%";
+            msg += ", 조리 판정 칸 +" + Mathf.RoundToInt(GameBalance.MasteryJudgeBonus[tier] * 100f) + "%";
         if (tier == GameBalance.MasteryStartLevelTier)
-            msg += " / 배치 시 Lv+1";
+            msg += ", 새로 놓을 때 레벨 2 부터";
         if (tier >= GameBalance.MasteryPerfectTier)
-            msg += " / PERFECT 수량 +1";
+            msg += ", PERFECT 면 한 접시 더";
+        msg += " (" + title + ")";
 
         UIManager.Instance?.ShowStatChange(msg);
         SoundManager.Play("sfx_judge_perfect");

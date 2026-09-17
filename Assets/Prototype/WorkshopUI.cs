@@ -3,7 +3,8 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 
 /// <summary>
-/// [WorkshopUI.cs] v2.3 (v9.9.2 2026-09-16: 제목 "안킬로의 정비소" + 본체 왼쪽에 안킬로 실루엣 - 정비소 주인 = 등짐장수 안킬로로 통일) / v2.2 (v9.8: 재료 시장 행에 재료 아이콘) / v2.1 (2026-09-14: 전투 중 수리 기록) / v2
+/// [WorkshopUI.cs] v2.4 (v9.10 2026-09-17 테스터 피드백·개정안 §3: 기차 수리·장갑 보강은 정차(Town)에서만(ShopRepairInBattle), 수리 정차당 1회(ShopRepairPerStop), 장갑 지역당 1회·최종전 앞 없음(ShopArmorPerRegion),
+///   장갑은 현재 HP 를 안 채운다(ShopArmorHealsCurrent) / [ESC] 로도 닫기 / 상태 줄에 "정차 후 이용"·"이번 정차 구매 끝"·"이 지역 구매 끝") / v2.3 (v9.9.2 2026-09-16: 제목 "안킬로의 정비소" + 본체 왼쪽에 안킬로 실루엣 - 정비소 주인 = 등짐장수 안킬로로 통일) / v2.2 (v9.8: 재료 시장 행에 재료 아이콘) / v2.1 (2026-09-14: 전투 중 수리 기록) / v2
 /// 정비소 - 골드를 소모해 도구/기차를 정비하고 재료를 구매하는 상점
 ///
 /// 조작
@@ -80,11 +81,31 @@ public class WorkshopUI : MonoBehaviour
         panelRoot.gameObject.SetActive(false);
     }
 
+    // v2.4: 구매 제한 상태 (씬 오브젝트라 런마다 초기화)
+    private int repairsThisStop = 0;
+    private int lastStopWave = -1;               // 정차 구분: Town 에 들어온 웨이브 번호
+    private readonly bool[] armorBoughtRegion = new bool[5];
+
     void Update()
     {
         // G키 토글
         if (Input.GetKeyDown(KeyCode.G))
             Toggle();
+
+        // v2.4: 열려 있으면 [ESC] 도 닫기 (일시정지 메뉴와 같은 프레임 충돌은 공용 스탬프로)
+        if (isOpen && Input.GetKeyDown(KeyCode.Escape))
+        {
+            CookingMinigame.EscConsumedFrame = Time.frameCount;
+            Close();
+        }
+
+        // v2.4: 정차(Town)에 새로 들어오면 이번 정차 수리 횟수 리셋
+        if (GameManager.Instance != null && GameManager.Instance.currentState == GameManager.GameState.Town
+            && GameManager.Instance.currentWave != lastStopWave)
+        {
+            lastStopWave = GameManager.Instance.currentWave;
+            repairsThisStop = 0;
+        }
 
         // 열려 있는 동안 실시간 갱신
         if (isOpen)
@@ -164,11 +185,49 @@ public class WorkshopUI : MonoBehaviour
         UIManager.Instance?.ShowStatChange("팬 정비 완료!");
     }
 
+    /// <summary>v2.4: 지금 전투 중인가 (정차·로비가 아님)</summary>
+    private static bool InBattleNow()
+    {
+        return GameManager.Instance != null && GameManager.Instance.currentState == GameManager.GameState.Battle;
+    }
+
+    private int CurrentRegion()
+    {
+        int wave = GameManager.Instance != null ? GameManager.Instance.currentWave : 1;
+        return Mathf.Clamp(GameBalance.RegionOf(wave), 1, 4);
+    }
+
+    /// <summary>v2.4: 수리 구매 가능 여부 + 안 되는 이유 (상태 줄용)</summary>
+    private bool CanBuyRepair(out string why)
+    {
+        why = "";
+        if (!GameBalance.ShopRepairInBattle && InBattleNow()) { why = "정차 후 이용"; return false; }
+        if (GameBalance.ShopRepairPerStop > 0 && repairsThisStop >= GameBalance.ShopRepairPerStop) { why = "이번 정차 구매 끝"; return false; }
+        return true;
+    }
+
+    /// <summary>v2.4: 장갑 구매 가능 여부 + 이유. 지역 4(최종전 앞)는 안 판다</summary>
+    private bool CanBuyArmor(out string why)
+    {
+        why = "";
+        if (!GameBalance.ShopRepairInBattle && InBattleNow()) { why = "정차 후 이용"; return false; }
+        if (GameBalance.ShopArmorPerRegion > 0)
+        {
+            int region = CurrentRegion();
+            if (region >= 4) { why = "최종전 앞에선 안 판다"; return false; }
+            if (armorBoughtRegion[region]) { why = "이 지역 구매 끝 (다음 지역에서)"; return false; }
+        }
+        return true;
+    }
+
     private void BuyRepair()
     {
         FindRefs();
         if (train == null || train.currentHP >= train.currentMaxHP) return;
+        string why;
+        if (!CanBuyRepair(out why)) { UIManager.Instance?.ShowStatChange("[정비소] 기차 수리 - " + why); return; }
         if (!TrySpend(repairCost)) return;
+        repairsThisStop++;
         train.Heal(repairAmount);
         UIManager.Instance?.ShowStatChange("기차 수리 +" + Mathf.RoundToInt(repairAmount) + " HP!");
 
@@ -184,9 +243,13 @@ public class WorkshopUI : MonoBehaviour
     {
         FindRefs();
         if (train == null) return;
+        string why;
+        if (!CanBuyArmor(out why)) { UIManager.Instance?.ShowStatChange("[정비소] 장갑 보강 - " + why); return; }
         if (!TrySpend(armorCost)) return;
-        train.AddMaxHP(armorAmount);
-        UIManager.Instance?.ShowStatChange("장갑 보강! 최대 HP +" + Mathf.RoundToInt(armorAmount));
+        if (GameBalance.ShopArmorPerRegion > 0) armorBoughtRegion[CurrentRegion()] = true;
+        train.AddMaxHP(armorAmount, GameBalance.ShopArmorHealsCurrent);   // v2.4: 기본 = 최대 HP 만 (현재 HP 회복 없음)
+        UIManager.Instance?.ShowStatChange("장갑 보강! 최대 HP +" + Mathf.RoundToInt(armorAmount)
+            + (GameBalance.ShopArmorHealsCurrent ? "" : " (수리는 따로)"));
     }
 
     /// <summary>
@@ -245,13 +308,17 @@ public class WorkshopUI : MonoBehaviour
         // 기차 수리
         float hp = train != null ? train.currentHP : 0f;
         float maxHp = train != null ? train.currentMaxHP : 0f;
+        string whyRepair;
+        bool repairOk = CanBuyRepair(out whyRepair);
         repairStatus.text = "기차 수리 (+" + Mathf.RoundToInt(repairAmount) + " HP)  -  현재 "
-            + Mathf.RoundToInt(hp) + "/" + Mathf.RoundToInt(maxHp);
-        SetButtonState(repairBtn, gold >= repairCost && hp < maxHp);
+            + Mathf.RoundToInt(hp) + "/" + Mathf.RoundToInt(maxHp) + (repairOk ? "" : "   [" + whyRepair + "]");
+        SetButtonState(repairBtn, repairOk && gold >= repairCost && hp < maxHp);
 
-        // 장갑 보강
-        armorStatus.text = "장갑 보강  -  최대 HP +" + Mathf.RoundToInt(armorAmount) + " (영구)";
-        SetButtonState(armorBtn, gold >= armorCost);
+        // 장갑 보강 (v2.4: 정차에서만, 지역당 1회, 현재 HP 회복 없음)
+        string whyArmor;
+        bool armorOk = CanBuyArmor(out whyArmor);
+        armorStatus.text = "장갑 보강  -  최대 HP +" + Mathf.RoundToInt(armorAmount) + " (영구, 지역당 1회)" + (armorOk ? "" : "   [" + whyArmor + "]");
+        SetButtonState(armorBtn, armorOk && gold >= armorCost);
 
         // 재료 시장
         for (int i = 0; i < matRows.Count; i++)

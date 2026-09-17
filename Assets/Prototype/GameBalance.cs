@@ -805,4 +805,61 @@ public static class GameBalance
 
     /// <summary>마비 포탑 위 스파크(감전·빙결)/연기(과열) 표시 (TurretSlot). false 면 틴트만</summary>
     public static bool TurretStunFx = true;
+
+    // ──────────────────────────────────────────────────────────────
+    // v9.10 (2026-09-17): 테스터 피드백 1차 - 안정화 · 경제 · 정비 흐름 · 가독성 (개정기획안 §2~§4·§6)
+    //   기본값 = 개정안의 시험안. 되돌리기 = 스위치만 (구 동작은 주석에)
+    // ──────────────────────────────────────────────────────────────
+
+    // ── 정비소 경제 (§3): 골드가 전투 대응을 대신하지 못하게 ──
+    /// <summary>전투 중 기차 수리·장갑 보강 구매 허용 (구 동작 true). false 면 정차(Town)에서만 - 칼·팬 연마와 재료 시장은 그대로</summary>
+    public static bool ShopRepairInBattle = false;
+    /// <summary>정차 1회당 기차 수리 구매 횟수 (0 = 무제한, 구 동작)</summary>
+    public static int ShopRepairPerStop = 1;
+    /// <summary>지역당 장갑 보강 구매 횟수 (0 = 무제한, 구 동작). 지역 1~3 만 - 최종전 앞(지역 4)에선 안 판다</summary>
+    public static int ShopArmorPerRegion = 1;
+    /// <summary>장갑 보강이 현재 HP 도 같이 채우는가 (구 동작 true). false = 최대 HP 만 오른다</summary>
+    public static bool ShopArmorHealsCurrent = false;
+
+    // ── 웨이브 길이와 정비 (§4) ──
+    /// <summary>스폰 간격 배율 (1 = 구 동작). 적 수·HP 는 그대로, 시간만 늘린다</summary>
+    public static float WaveLengthMul = 1.5f;
+    /// <summary>이 수만큼 스폰할 때마다 무리 사이에 쉼 (0 = 없음) - "위협 확인 → 조리 여유 → 만든 요리의 활약"</summary>
+    public static int WaveGroupSize = 4;
+    public static float WaveGroupGapSec = 5f;
+    /// <summary>정차 뒤 자동 출발 대신 [Enter]/출발 버튼 확인 (구 동작 false = 4초 자동)</summary>
+    public static bool DepartConfirm = true;
+    /// <summary>증강 선택을 매 웨이브가 아니라 AugmentPickAt(wave) 규칙으로 (구 동작 false = 매 웨이브)</summary>
+    public static bool AugmentSparse = true;
+    /// <summary>분기 선로 선택이 시작되는 웨이브 (첫 지역은 곧은 선로 고정). 구 동작 = 2</summary>
+    public static int RouteChoiceMinWave = 9;
+    /// <summary>도박꾼 스피노 베팅이 시작되는 보스 웨이브 (첫 보스는 베팅 없음). 구 동작 = 첫 보스(8)</summary>
+    public static int BetMinWave = 16;
+    /// <summary>등짐장수 안킬로가 처음 올 수 있는 웨이브 (첫 정차들은 상점 없이). 구 동작 = 제한 없음</summary>
+    public static int MerchantMinWave = 6;
+    /// <summary>첫 지역(웨이브 <= RegionLength)의 증강 후보를 바로 이해되는 것(숫자 하나짜리)으로 제한 - Augmentsystem.EARLY_SIMPLE</summary>
+    public static bool AugmentSimpleEarly = true;
+    /// <summary>웨이브 3 시작 때 화염 재료를 이만큼 보장 (범위 요리 "용암 폭탄밥" 학습용, §5 W3). 0 = 없음</summary>
+    public static int FireGuaranteeAtWave3 = 2;
+
+    /// <summary>증강 선택 여부: 지역 1 = 웨이브 2·4·8, 그 뒤 = 짝수 웨이브 + 보스 웨이브. (AugmentSparse 가 false 면 항상 true)</summary>
+    public static bool AugmentPickAt(int wave)
+    {
+        if (!AugmentSparse) return true;
+        if (wave <= RegionLength) return wave == 2 || wave == 4 || IsBossWave(wave);
+        return wave % 2 == 0 || IsBossWave(wave);
+    }
+
+    // ── 가독성 (§6) ──
+    /// <summary>셰프 그림 배율 (1 = 구 동작). 테스터 "셰프가 너무 작다"</summary>
+    public static float ChefVisualScale = 1.25f;
+    /// <summary>카메라 최대 줌아웃 (orthographicSize, 구 동작 20). 줄일수록 셰프가 점이 되지 않는다</summary>
+    public static float CamMaxZoom = 14f;
+    /// <summary>손님 머리 위 얇은 HP 바 (맞은 손님만, 잠시). false = 없음</summary>
+    public static bool EnemyHpBars = true;
+    public static float EnemyHpBarHideSec = 3f;
+    /// <summary>포탑 정보창을 화면 한 자리(왼쪽 아래, 하단 바 위)에 고정 (구 동작 false = 마우스 따라감 - 깜빡임·클릭 가림의 원인)</summary>
+    public static bool SlotInfoFixed = true;
+    /// <summary>포탑 실물(월드)을 클릭·호버해도 이름표와 같이 동작 (반경, 유닛)</summary>
+    public static float SlotWorldClickRadius = 0.9f;
 }

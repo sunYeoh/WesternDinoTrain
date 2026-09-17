@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 
 /// <summary>
-/// [KitchenEventManager.cs] v4.4 (v9.9.2 2026-09-16: 사고 종류별 첫 등장 카드 - StartEvent 에서 BriefingUI.ShowOnce("event_<종류>"), 카드가 뜨면 시간이 멈춰 제한 시간은 그 뒤 흐른다) / v4.3 (v9.9 2026-09-16: 견습 운행 중 F11 무시 - 이벤트 자체는 WaveManager.TutorialGateActive 로 쉰다) / v4.2 (v9.8.1: F11 강제 발생은 GameBalance.CheatsAllowed 일 때만) / v4.1 (2026-09-14: 마모 off 가중치 / 프롤로그 게이트 차단) / v4
+/// [KitchenEventManager.cs] v4.5 (v9.10 2026-09-17 테스터 피드백 "사고 중에 증강 선택이 뜨면 사고가 끝난다": 웨이브가 끝나 정차로 넘어가며 사고가 취소될 때 "정차 정비로 사고가 정리됐다 (벌점 없음)" 알림 - 조용히 사라지던 것) / v4.4 (v9.9.2 2026-09-16: 사고 종류별 첫 등장 카드 - StartEvent 에서 BriefingUI.ShowOnce("event_<종류>"), 카드가 뜨면 시간이 멈춰 제한 시간은 그 뒤 흐른다) / v4.3 (v9.9 2026-09-16: 견습 운행 중 F11 무시 - 이벤트 자체는 WaveManager.TutorialGateActive 로 쉰다) / v4.2 (v9.8.1: F11 강제 발생은 GameBalance.CheatsAllowed 일 때만) / v4.1 (2026-09-14: 마모 off 가중치 / 프롤로그 게이트 차단) / v4
 /// 주방 돌발 이벤트 총괄 매니저 (기획 B-4)
 /// - v4 (v9.6, 2026-09-09): "화면 전체 경보" - 기차 안 작은 아이콘은 조리하다 놓친다는 피드백
 ///   * 경보 글로우: 화면 가장자리 붉은(이벤트별 색) 비네트가 0.6초 주기로 맥동 (삐뽀삐뽀). SetAlarm(color, strength)
@@ -186,7 +186,14 @@ public class KitchenEventManager : MonoBehaviour
             && !WaveManager.TutorialGateActive;   // v4.1: 프롤로그 조리 게이트 중에는 이벤트 없음
         if (!inBattle)
         {
-            if (currentEvent != null) CancelCurrentEvent();
+            if (currentEvent != null)
+            {
+                // v4.5: 정차(웨이브 종료)로 사고가 정리되는 것은 버그가 아니라 규칙 - 말로 알린다. 일시정지 메뉴는 상태를 바꾸지 않으므로 여기 안 온다
+                bool town = GameManager.Instance != null && GameManager.Instance.currentState == GameManager.GameState.Town;
+                string title = currentEvent.Title;
+                CancelCurrentEvent();
+                if (town) UIManager.Instance?.ShowStatChange("[정차] 정비로 사고가 정리됐다 - 벌점 없음 (" + title + ")");
+            }
             nextEventTime = Time.time + firstDelay;
             return;
         }

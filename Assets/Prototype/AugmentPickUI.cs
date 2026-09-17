@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 
 /// <summary>
-/// [AugmentPickUI.cs] v1.1
+/// [AugmentPickUI.cs] v1.2 (v9.10 2026-09-17: 증강 선택이 매 웨이브가 아니게 되면서(GameBalance.AugmentPickAt) 선택창을 안 여는 웨이브에도 웨이브 회복·최대 HP 효과는 적용 - ApplyPerWaveEffects) / v1.1
 /// 웨이브 클리어 시 뜨는 증강 3택1 화면 (기획 C)
 /// - v1.1: '행운의 부적'(선택지 +1) / '야전 정비반'(웨이브당 최대 HP 성장) 반영
 ///
@@ -152,6 +152,13 @@ public class AugmentPickUI : MonoBehaviour
     /// <summary>웨이브 클리어 처리 (선택 완료 후 실행할 동작을 함께 지정)</summary>
     public void OnWaveCleared(int waveNumber, System.Action afterPick)
     {
+        ApplyPerWaveEffects();
+        Open(waveNumber, afterPick);
+    }
+
+    /// <summary>v1.2: 웨이브 클리어마다 적용되는 증강 효과 (선택창 여부와 무관 - WaveManager 가 선택창을 건너뛰는 웨이브에도 부른다)</summary>
+    public void ApplyPerWaveEffects()
+    {
         // '응급 정비' 계열 증강 효과: 웨이브마다 자동 회복
         if (AugmentManager.HealPerWave > 0f)
             AugmentManager.HealTrain(AugmentManager.HealPerWave);
@@ -162,8 +169,6 @@ public class AugmentPickUI : MonoBehaviour
             AugmentManager.AddTrainMaxHP(AugmentManager.MaxHPPerWave);
             AugmentManager.HealTrain(AugmentManager.MaxHPPerWave);
         }
-
-        Open(waveNumber, afterPick);
     }
 
     /// <summary>증강 선택창 열기</summary>

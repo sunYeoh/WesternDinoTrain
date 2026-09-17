@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// [WaveManager.cs] v6.9 (v9.9.2 2026-09-16: 정식 런 첫 등장 카드 훅 - 지역(지역 첫 웨이브)·새 손님(카운트 > 0 인 종류 처음)은 StartWave 예고 때, 보스는 SpawnBoss 때. BriefingUI.ShowOnce 1회) / v6.8 (v9.9 2026-09-16: 견습 운행 - TutorialDirector 가 진행 중이면 StartWave/B 점프 거부, TutorialGateActive 에 디렉터의 BlockAmbient 포함, SpawnForTutorial) / v6.7 (v9.8.1: B 점프는 GameBalance.CheatsAllowed 일 때만) / v6.6 (v9.8: 위험 적 전용 PNG) / v6.5 (교수 피드백 반영 2026-09-14) / v6.4 (고퀄 PNG 적용 2026-09-03) / v6.3 탑뷰 재스킨
+/// [WaveManager.cs] v6.10 (v9.10 2026-09-17 테스터 피드백·개정안 §4·§5·§7: 스폰 간격 배율 + 무리 사이 쉼(WaveLengthMul/WaveGroupSize/GapSec) /
+///   정차 뒤 자동 출발 대신 [Enter]·출발 버튼 확인(DepartConfirm, WaitingDepart 정적) / 증강 선택은 GameBalance.AugmentPickAt 웨이브만(안 여는 웨이브도 웨이브 효과는 적용) /
+///   분기 선로 RouteChoiceMinWave·베팅 BetMinWave·행상인 MerchantMinWave 부터 / 웨이브 3 시작에 화염 재료 보장 + 범위 요리 소개 카드) / v6.9 (v9.9.2 2026-09-16: 정식 런 첫 등장 카드 훅 - 지역(지역 첫 웨이브)·새 손님(카운트 > 0 인 종류 처음)은 StartWave 예고 때, 보스는 SpawnBoss 때. BriefingUI.ShowOnce 1회) / v6.8 (v9.9 2026-09-16: 견습 운행 - TutorialDirector 가 진행 중이면 StartWave/B 점프 거부, TutorialGateActive 에 디렉터의 BlockAmbient 포함, SpawnForTutorial) / v6.7 (v9.8.1: B 점프는 GameBalance.CheatsAllowed 일 때만) / v6.6 (v9.8: 위험 적 전용 PNG) / v6.5 (교수 피드백 반영 2026-09-14) / v6.4 (고퀄 PNG 적용 2026-09-03) / v6.3 탑뷰 재스킨
 /// 웨이브 단위로 적 유닛을 스폰하고, 모든 적 처치 시 웨이브 완료를 알립니다.
 /// - v6.8 변경점 (견습 운행): 튜토리얼 런은 웨이브 없이 디렉터가 손님을 직접 부른다(SpawnForTutorial - 각도 스폰, 프리팹 없으면 코드 폴백).
 ///   TutorialGateActive 는 조리 게이트 또는 (TutorialDirector.Active && BlockAmbient) - 이벤트·바위·작살·난입이 같은 플래그로 쉰다.
@@ -172,6 +174,7 @@ public class WaveManager : MonoBehaviour
     {
         Instance = this;
         cookGateStatic = false;       // v6.5: 게이트 도중 런 포기(씬 리로드) 시 정적 플래그가 남지 않게
+        WaitingDepart = false; departRequested = false;   // v6.10: 정차 대기 중 런 포기 시 잔존 방지
     }
 
     private void Start()
@@ -308,6 +311,20 @@ public class WaveManager : MonoBehaviour
 
         // v6.9: 첫 등장 카드 (지역 → 새 손님 순, 큐로 한 장씩. 시간이 멈추므로 스폰은 카드를 다 읽은 뒤 흐른다)
         QueueFirstEncounterCards(waveNumber, config);
+
+        // v6.10: 무리 쉼 카운터 + 웨이브 3 = 범위 요리 학습 구간 (개정안 §5 W3): 화염 재료 보장 + 소개 카드 1회
+        spawnGapCounter = 0;
+        if (waveNumber == 3 && GameBalance.FireGuaranteeAtWave3 > 0 && MaterialInventory.Instance != null && !TutorialDirector.Active)
+        {
+            int have = MaterialInventory.Instance.Get(MaterialType.Fire);
+            if (have < GameBalance.FireGuaranteeAtWave3)
+            {
+                MaterialInventory.Instance.Add(MaterialType.Fire, GameBalance.FireGuaranteeAtWave3 - have);
+                UIManager.Instance?.ShowStatChange("[보급] 화염 재료 " + (GameBalance.FireGuaranteeAtWave3 - have) + "개 - 무리에는 범위 요리를 써 봐라");
+            }
+            if (GameBalance.FirstEncounterBriefings)
+                BriefingUI.ShowOnce("recipe_fire_fire", BriefingTexts.RecipeIntro("fire+fire"));
+        }
 
         // 웨이브 속성 예고
         if (!regionChanged)
@@ -742,9 +759,16 @@ public class WaveManager : MonoBehaviour
     /// B-3 기관차 레버: 전속 주행이면 스폰 간격이 줄어든다 (웨이브를 당겨오는 레버).
     /// SpawnWaveCoroutine의 모든 대기가 이 값을 쓴다 - 레버를 중간에 당겨도 즉시 반영.
     /// </summary>
+    private int spawnGapCounter = 0;   // v6.10: 무리 쉼 계산용 (웨이브마다 0)
+
+    /// <summary>v6.10: 스폰 간격 = 구성값 x 전속 배율 x WaveLengthMul, 그리고 WaveGroupSize 마리마다 WaveGroupGapSec 쉼 ("위협 확인 → 조리 여유 → 활약")</summary>
     private float SpawnGap(WaveConfig config)
     {
-        return config.spawnInterval * EngineCab.SpawnIntervalMul;
+        float gap = config.spawnInterval * EngineCab.SpawnIntervalMul * Mathf.Max(0.1f, GameBalance.WaveLengthMul);
+        spawnGapCounter++;
+        if (GameBalance.WaveGroupSize > 0 && spawnGapCounter % GameBalance.WaveGroupSize == 0)
+            gap += GameBalance.WaveGroupGapSec;
+        return gap;
     }
 
     /// <summary>
@@ -1087,6 +1111,13 @@ public class WaveManager : MonoBehaviour
             return;
         }
 
+        // v6.10: 정차 출발 확인 - [Enter] (다른 창이 열려 있으면 그 창 몫)
+        if (WaitingDepart && (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
+            && !BriefingUI.IsOpen && BriefingUI.KeyConsumedFrame != Time.frameCount
+            && !PauseMenu.IsOpen && !AugmentPickUI.IsOpen && !WorkshopUI.IsOpen && !AugmentListUI.ReadingOpen
+            && !CookingMinigame.IsActive && !KitchenPanel.IsOpenStatic && !SpinoBetUI.IsOpen && !MerchantUI.IsOpen && !BranchRouteUI.IsOpen)
+            RequestDepart();
+
         if (!isWaveActive) return;
 
         // v6.5: 프롤로그 조리 게이트 진행 중이면 그것만 본다
@@ -1325,12 +1356,18 @@ public class WaveManager : MonoBehaviour
         OpenAugmentPick();
     }
 
-    /// <summary>증강 3택1을 띄우고, 선택이 끝나면 기존 흐름을 이어간다</summary>
+    /// <summary>증강 3택1을 띄우고, 선택이 끝나면 기존 흐름을 이어간다. v6.10: AugmentPickAt(wave) 가 아닌 웨이브는 선택창 없이 웨이브 효과만</summary>
     private void OpenAugmentPick()
     {
         if (AugmentPickUI.Instance != null)
         {
-            AugmentPickUI.Instance.OnWaveCleared(currentWaveNumber, delegate { AfterAugmentPick(); });
+            if (GameBalance.AugmentPickAt(currentWaveNumber))
+                AugmentPickUI.Instance.OnWaveCleared(currentWaveNumber, delegate { AfterAugmentPick(); });
+            else
+            {
+                AugmentPickUI.Instance.ApplyPerWaveEffects();
+                AfterAugmentPick();
+            }
         }
         else
         {
@@ -1351,9 +1388,10 @@ public class WaveManager : MonoBehaviour
             // Phase 2-1: 보스 직전 정차에는 도박사 스피노가 먼저 다가온다 (베팅 후 선로 선택)
             // Phase 2-3: 그 외 정차에는 등짐장수 안킬로가 확률 등장 (아이템 행상인)
             //  - 스피노와 안킬로는 같은 역에 절대 같이 서지 않는다 ("그 도마뱀 옆엔 안 앉수다")
-            if (GameBalance.IsBossWave(nextWave))
+            // v6.10: 첫 보스는 베팅 없이 (BetMinWave), 첫 정차들은 상점 없이 (MerchantMinWave) - "초반부터 우겨 넣지 말고 하나씩"
+            if (GameBalance.IsBossWave(nextWave) && nextWave >= GameBalance.BetMinWave)
                 SpinoBetUI.Show(nextWave, delegate { ProceedRouteChoice(nextWave); });
-            else if (MerchantUI.ShouldAppear(nextWave))
+            else if (nextWave >= GameBalance.MerchantMinWave && MerchantUI.ShouldAppear(nextWave))
                 MerchantUI.Show(nextWave, delegate { ProceedRouteChoice(nextWave); });
             else
                 ProceedRouteChoice(nextWave);
@@ -1366,6 +1404,7 @@ public class WaveManager : MonoBehaviour
         // v6.5 (감사 2-A): 선로 선택 빈도 1/2 - 메뉴 피로 완화
         // 짝수 웨이브 앞 + 보스 직전에만 선택, 나머지는 자동 '곧은 선로'
         bool routeChoice = BranchRouteUI.Instance != null
+            && nextWave >= GameBalance.RouteChoiceMinWave   // v6.10: 첫 지역은 곧은 선로 고정 (개정안 §7)
             && (nextWave % 2 == 0 || GameBalance.IsBossWave(nextWave));
 
         if (routeChoice)
@@ -1383,13 +1422,34 @@ public class WaveManager : MonoBehaviour
         }
     }
 
-    /// <summary>정비 시간 후 다음 웨이브 자동 시작</summary>
+    /// <summary>v6.10: 정차에서 출발 확인을 기다리는 중인가 (DepartUI 버튼·[Enter] 가 RequestDepart 를 부른다)</summary>
+    public static bool WaitingDepart { get; private set; }
+    private static bool departRequested = false;
+
+    /// <summary>v6.10: 출발 요청 (버튼/[Enter]). 기다리는 중이 아니면 무시</summary>
+    public static void RequestDepart()
+    {
+        if (!WaitingDepart) return;
+        departRequested = true;
+    }
+
+    /// <summary>정비 시간 후 다음 웨이브 시작. v6.10: DepartConfirm 이면 시간제한 없이 [Enter]/출발 버튼을 기다린다 (구 동작 = autoProgressDelay 초 뒤 자동)</summary>
     private IEnumerator AutoNextWaveCoroutine(int nextWave)
     {
-        Debug.Log("[WaveManager] " + autoProgressDelay + "초 후 웨이브 " + nextWave + " 자동 시작");
-        UIManager.Instance?.ShowWaveNotice("정비 시간", autoProgressDelay + "초 후 웨이브 " + nextWave + " 시작!");
-
-        yield return new WaitForSeconds(autoProgressDelay);
+        if (GameBalance.DepartConfirm)
+        {
+            Debug.Log("[WaveManager] 정차 - 출발 확인 대기 (웨이브 " + nextWave + ")");
+            UIManager.Instance?.ShowWaveNotice("정차 - 준비되면 출발", "요리·투입·[G] 정비소를 마치고  [Enter] 또는 화면 아래 [출발] 버튼");
+            WaitingDepart = true; departRequested = false;
+            while (!departRequested && !isWaveActive) yield return null;
+            WaitingDepart = false; departRequested = false;
+        }
+        else
+        {
+            Debug.Log("[WaveManager] " + autoProgressDelay + "초 후 웨이브 " + nextWave + " 자동 시작");
+            UIManager.Instance?.ShowWaveNotice("정비 시간", autoProgressDelay + "초 후 웨이브 " + nextWave + " 시작!");
+            yield return new WaitForSeconds(autoProgressDelay);
+        }
 
         // 그 사이 다른 경로로 이미 웨이브가 시작됐다면 중복 시작하지 않는다
         if (isWaveActive)

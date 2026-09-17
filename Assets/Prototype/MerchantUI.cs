@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [MerchantUI.cs] v1.1 (v9.9.2 2026-09-16: 창 머리에 안킬로 실루엣 ui_npc_ankylo - "이름만 있으면 불편" 유저 09-16) / v1 (신규 파일) - Phase 2-3: 등짐장수 안킬로 (아이템 행상인)
+/// [MerchantUI.cs] v1.2 (v9.10 2026-09-17: 떠나기 안내를 [ESC] 로 - "0 키가 멀고 뜬금없다", 0 도 여전히 된다) / v1.1 (v9.9.2 2026-09-16: 창 머리에 안킬로 실루엣 ui_npc_ankylo - "이름만 있으면 불편" 유저 09-16) / v1 (신규 파일) - Phase 2-3: 등짐장수 안킬로 (아이템 행상인)
 ///
 /// 세계관: 등껍질에 냄비며 부지깽이를 주렁주렁 매단 안킬로사우르스 행상인.
 /// 도박꾼 스피노와 대비되는 캐릭터 - 느긋하고, 값은 정직하다.
@@ -248,7 +248,7 @@ public class MerchantUI : MonoBehaviour
     private void RefreshGoldText()
     {
         if (goldText == null) return;
-        goldText.text = "[0] / [ESC]  안 산다   (보유 골드 "
+        goldText.text = "[ESC]  안 산다   (보유 골드 "
             + (GameManager.Instance != null ? GameManager.Instance.playerGold : 0) + "G)";
     }
 

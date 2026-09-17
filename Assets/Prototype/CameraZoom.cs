@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 
 /// <summary>
-/// [CameraZoom.cs] v4 (B-2: 셰프 소프트 팔로우 - 방향결정 2026-08-31)
+/// [CameraZoom.cs] v4.1 (v9.10 2026-09-17: 최대 줌아웃을 GameBalance.CamMaxZoom(14)으로 - "화면 축소하면 셰프가 점") / v4 (B-2: 셰프 소프트 팔로우 - 방향결정 2026-08-31)
 /// 마우스 휠로 카메라 줌인/줌아웃합니다.
 /// Main Camera 오브젝트에 붙이세요.
 /// 줌아웃: 전장 전체 파악 / 줌인: 주방 정밀 조작
@@ -54,7 +54,7 @@ public class CameraZoom : MonoBehaviour
         // 줌 범위 강제 적용 (Inspector에 저장된 구값 무시 - 조절은 여기 숫자로)
         zoomSpeed = 3f;
         minZoom = 2f;      // 주방 정밀 조작용 근접
-        maxZoom = 20f;     // 전장 전체 + 스폰 지점까지 조망
+        maxZoom = GameBalance.CamMaxZoom;     // v4.1: 14 (구 20) - 더 빼면 셰프가 점이 된다
         defaultZoom = GameBalance.CamDefaultZoom;   // B-2: 긴 기차 프레이밍 (8.5)
 
         cam = GetComponent<Camera>();

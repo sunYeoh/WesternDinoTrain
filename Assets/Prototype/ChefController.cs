@@ -4,41 +4,43 @@ using UnityEngine;
 using UnityEngine.Events;
 
 /// <summary>
-/// [ChefController.cs] v5.1 (êµìˆ˜ í”¼ë“œë°± 2026-09-14: ë„êµ¬ ê²½ê³  í™”ë©´ í‘œì‹œ / ë§ˆëª¨ ìŠ¤ìœ„ì¹˜ / ì „ê°ˆ ëŒ€ì²´ íš¨ê³¼) / v5 (í†µë¡œ ë³´í–‰ 2026-09-08) / v4 (B-1: ì…°í”„ì˜ ëª¸ - ë°©í–¥ê²°ì • 2026-08-31)
-/// ì…°í”„ ì´ë™ + ë„êµ¬ ë‚´êµ¬ë„ + ì „íˆ¬ ì—°ë™(í”¼ê²© ì—°ì¶œ/ì¡°ë¦¬ ë””ë²„í”„)ì„ ë‹´ë‹¹í•©ë‹ˆë‹¤.
+/// [ChefController.cs] v5.2 (v9.10 2026-09-17 Å×½ºÅÍ ÇÇµå¹é: º®¿¡ ¸·Èù ´ë½Ã´Â ¼Ò¸®¡¤¸ÕÁö ¾øÀÌ ¹Ù·Î Ãë¼Ò(ÄğÅ¸ÀÓ È¯±Ş) - ´ë½Ã ¿¬ÃâÀº ½ÇÁ¦·Î ¿òÁ÷ÀÎ Ã¹ ÇÁ·¹ÀÓ¿¡ /
+///   ChefVisual ÀÌ ¹Ù¶óº¸´Â ¹æÇâÀ» ½ÇÁ¦ À§Ä¡ º¯È­°¡ ¾Æ´Ï¶ó '°¡·Á´Â ¼Óµµ'(CurrentVel)·Î Á¤ÇÏ°Ô °ø°³ - º®¡¤Åë·Î¿¡¼­ ¹Ğ·Á³¯ ¶§ µÚµµ´Â °Í Á¦°Å) /
+/// v5.1 (±³¼ö ÇÇµå¹é 2026-09-14: µµ±¸ °æ°í È­¸é Ç¥½Ã / ¸¶¸ğ ½ºÀ§Ä¡ / Àü°¥ ´ëÃ¼ È¿°ú) / v5 (Åë·Î º¸Çà 2026-09-08) / v4 (B-1: ¼ÎÇÁÀÇ ¸ö - ¹æÇâ°áÁ¤ 2026-08-31)
+/// ¼ÎÇÁ ÀÌµ¿ + µµ±¸ ³»±¸µµ + ÀüÅõ ¿¬µ¿(ÇÇ°İ ¿¬Ãâ/Á¶¸® µğ¹öÇÁ)À» ´ã´çÇÕ´Ï´Ù.
 ///
-/// - v5 ë³€ê²½ì  (í†µë¡œë¡œ ì¹¸ ê±´ë„ˆê¸°):
-///   í™œë™ ë²”ìœ„ê°€ "ê¸°ì°¨ ì „ì²´ ì‚¬ê°í˜•"ì—ì„œ "ì¹¸ ë°”ë‹¥ + ì¹¸ ì‚¬ì´ í†µë¡œ ë°œíŒ"ìœ¼ë¡œ ë°”ë€ë‹¤.
-///   ì¹¸ ì•ˆì—ì„œëŠ” ì˜ˆì „ì²˜ëŸ¼ ììœ ë¡­ê²Œ ê±·ê³ , ì˜† ì¹¸ìœ¼ë¡œ ê°ˆ ë•ŒëŠ” í†µë¡œ ë†’ì´(y -0.5~0.5)ë¡œ ë‚´ë ¤ì™€ ë°œíŒì„ ê±´ë„ˆì•¼ í•œë‹¤.
-///   ë²½ì— ë¶€ë”ªíˆë©´ ë²½ì„ ë”°ë¼ ë¯¸ë„ëŸ¬ì§„ë‹¤ (ê°€ë¡œ/ì„¸ë¡œ ë¶„ë¦¬ íŒì •). íŒì •ì€ TrainDeck.ResolveWalk (ë°í¬ ì§€ì˜¤ë©”íŠ¸ë¦¬ ë‹¨ì¼ ì†ŒìŠ¤).
-///   TrainDeck.cs v5.1 ì´ìƒ í•„ìš”. ì´ë™ ì†ë„/ëŒ€ì‹œ/ì„¸ë¡œ ë²”ìœ„ ìˆ˜ì¹˜ëŠ” GameBalance ê·¸ëŒ€ë¡œ
-/// - v4 ë³€ê²½ì  (B-1 ì´ë™ê°):
-///   1) ì´ë™ ì†ë„/í™œë™ ë²”ìœ„ë¥¼ GameBalanceë¡œ ì´ê´€ (Inspector ê°’ì€ Startì—ì„œ ë®ì–´ì”€)
-///   2) ê°€ê°ì† ê³¡ì„  - ì¦‰ë°œ ì†ë„ ëŒ€ì‹  ì§§ì€ ê°€ì†/ê°ì† (ë‹¬ë¦¬ëŠ” ëª¸ì˜ ë¬´ê²Œê°)
-///   3) [Shift] ëŒ€ì‹œ - ìˆœê°„ ê°€ì† + í™ë¨¼ì§€ íŒ + ì¿¨íƒ€ì„ (ìœ„ê¸° ëŒ€ì‘ ë‹¬ë¦¬ê¸°ìš©)
-///   4) ë°œì†Œë¦¬ í›… (sfx_step - í´ë¦½ ì—†ìœ¼ë©´ ë¬´ì‹œ)
-///   5) InteractConsumedFrame - ê·¼ì ‘ [E]ì˜ ì´ì¤‘ ì†Œë¹„ ë°©ì§€ (í•´ë¹™ vs ì¡°ë¦¬ëŒ€)
+/// - v5 º¯°æÁ¡ (Åë·Î·Î Ä­ °Ç³Ê±â):
+///   È°µ¿ ¹üÀ§°¡ "±âÂ÷ ÀüÃ¼ »ç°¢Çü"¿¡¼­ "Ä­ ¹Ù´Ú + Ä­ »çÀÌ Åë·Î ¹ßÆÇ"À¸·Î ¹Ù²ï´Ù.
+///   Ä­ ¾È¿¡¼­´Â ¿¹ÀüÃ³·³ ÀÚÀ¯·Ó°Ô °È°í, ¿· Ä­À¸·Î °¥ ¶§´Â Åë·Î ³ôÀÌ(y -0.5~0.5)·Î ³»·Á¿Í ¹ßÆÇÀ» °Ç³Ê¾ß ÇÑ´Ù.
+///   º®¿¡ ºÎµúÈ÷¸é º®À» µû¶ó ¹Ì²ô·¯Áø´Ù (°¡·Î/¼¼·Î ºĞ¸® ÆÇÁ¤). ÆÇÁ¤Àº TrainDeck.ResolveWalk (µ¥Å© Áö¿À¸ŞÆ®¸® ´ÜÀÏ ¼Ò½º).
+///   TrainDeck.cs v5.1 ÀÌ»ó ÇÊ¿ä. ÀÌµ¿ ¼Óµµ/´ë½Ã/¼¼·Î ¹üÀ§ ¼öÄ¡´Â GameBalance ±×´ë·Î
+/// - v4 º¯°æÁ¡ (B-1 ÀÌµ¿°¨):
+///   1) ÀÌµ¿ ¼Óµµ/È°µ¿ ¹üÀ§¸¦ GameBalance·Î ÀÌ°ü (Inspector °ªÀº Start¿¡¼­ µ¤¾î¾¸)
+///   2) °¡°¨¼Ó °î¼± - Áï¹ß ¼Óµµ ´ë½Å ÂªÀº °¡¼Ó/°¨¼Ó (´Ş¸®´Â ¸öÀÇ ¹«°Ô°¨)
+///   3) [Shift] ´ë½Ã - ¼ø°£ °¡¼Ó + Èë¸ÕÁö ÆË + ÄğÅ¸ÀÓ (À§±â ´ëÀÀ ´Ş¸®±â¿ë)
+///   4) ¹ß¼Ò¸® ÈÅ (sfx_step - Å¬¸³ ¾øÀ¸¸é ¹«½Ã)
+///   5) InteractConsumedFrame - ±ÙÁ¢ [E]ÀÇ ÀÌÁß ¼Òºñ ¹æÁö (ÇØºù vs Á¶¸®´ë)
 ///
-/// ë‚¨ì€ ì—­í• :
-///   1) ì…°í”„ WASD ì´ë™ (í™œë™ ë²”ìœ„ = ì¹¸ ë°”ë‹¥ + í†µë¡œ, TrainDeck ì´ íŒì •)
-///   2) ë„êµ¬ ë‚´êµ¬ë„ (ì¹¼/íŒ¬) - ì¡°ë¦¬í•  ë•Œë§ˆë‹¤ ë§ˆëª¨, ì •ë¹„ì†Œì—ì„œ ìˆ˜ë¦¬
-///   3) í”¼ê²© ì—°ì¶œ(OnTrainHit) / ë…ì¹¨ í”„í…Œë¼ ì¡°ë¦¬ ë””ë²„í”„
+/// ³²Àº ¿ªÇÒ:
+///   1) ¼ÎÇÁ WASD ÀÌµ¿ (È°µ¿ ¹üÀ§ = Ä­ ¹Ù´Ú + Åë·Î, TrainDeck ÀÌ ÆÇÁ¤)
+///   2) µµ±¸ ³»±¸µµ (Ä®/ÆÒ) - Á¶¸®ÇÒ ¶§¸¶´Ù ¸¶¸ğ, Á¤ºñ¼Ò¿¡¼­ ¼ö¸®
+///   3) ÇÇ°İ ¿¬Ãâ(OnTrainHit) / µ¶Ä§ ÇÁÅ×¶ó Á¶¸® µğ¹öÇÁ
 ///
-/// VS 2017 (C# 7.3) í˜¸í™˜ ë²„ì „ì…ë‹ˆë‹¤.
+/// VS 2017 (C# 7.3) È£È¯ ¹öÀüÀÔ´Ï´Ù.
 /// </summary>
 public class ChefController : MonoBehaviour
 {
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ì—´ê±°í˜• / êµ¬ì¡°ì²´ (ë‹¤ë¥¸ ìŠ¤í¬ë¦½íŠ¸ í˜¸í™˜ìš© ìœ ì§€)
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ¿­°ÅÇü / ±¸Á¶Ã¼ (´Ù¸¥ ½ºÅ©¸³Æ® È£È¯¿ë À¯Áö)
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     public enum CookingMethod
     {
         None,
-        Grilling,    // êµ½ê¸°
-        Saute,       // ë³¶ê¸°
-        Boiling,     // ë“ì´ê¸°
-        Frying,      // íŠ€ê¸°ê¸° (êµ¬ ì‹œìŠ¤í…œ - ë¯¸ì‚¬ìš©)
-        Fermenting   // ì ˆì„ (êµ¬ ì‹œìŠ¤í…œ - ë¯¸ì‚¬ìš©)
+        Grilling,    // ±Á±â
+        Saute,       // ºº±â
+        Boiling,     // ²úÀÌ±â
+        Frying,      // Æ¢±â±â (±¸ ½Ã½ºÅÛ - ¹Ì»ç¿ë)
+        Fermenting   // ÀıÀÓ (±¸ ½Ã½ºÅÛ - ¹Ì»ç¿ë)
     }
 
     public enum CookingQuality
@@ -60,87 +62,91 @@ public class ChefController : MonoBehaviour
         public bool canBeUsedAsWeapon;
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // Inspector ì„¤ì •
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    [Header("â”€ ì…°í”„ ì´ë™ (Startì—ì„œ GameBalance ê°’ìœ¼ë¡œ ë®ì–´ì”€) â”€")]
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // Inspector ¼³Á¤
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    [Header("¦¡ ¼ÎÇÁ ÀÌµ¿ (Start¿¡¼­ GameBalance °ªÀ¸·Î µ¤¾î¾¸) ¦¡")]
     public float moveSpeed = 3f;
     public float kitchenMinX = -2f;
     public float kitchenMaxX = 2f;
     public float kitchenMinY = -1.5f;
     public float kitchenMaxY = 1.5f;
 
-    // â”€â”€ B-1: ì´ë™ê° ìƒíƒœ â”€â”€
-    private Vector2 currentVel = Vector2.zero;   // ê°€ê°ì†ìš© í˜„ì¬ ì†ë„
-    private float dashTimer = 0f;                // ëŒ€ì‹œ ì§€ì† ì”ì—¬
-    private float dashReadyTime = 0f;            // ë‹¤ìŒ ëŒ€ì‹œ ê°€ëŠ¥ ì‹œê°
+    // ¦¡¦¡ B-1: ÀÌµ¿°¨ »óÅÂ ¦¡¦¡
+    private Vector2 currentVel = Vector2.zero;   // °¡°¨¼Ó¿ë ÇöÀç ¼Óµµ
+    private float dashTimer = 0f;                // ´ë½Ã Áö¼Ó ÀÜ¿©
+    private bool dashFxPending = false;          // v5.2: ´ë½Ã ¿¬Ãâ(¼Ò¸®¡¤¸ÕÁö)Àº ½ÇÁ¦·Î ¿òÁ÷ÀÎ Ã¹ ÇÁ·¹ÀÓ¿¡
+
+    /// <summary>v5.2: Áö±İ °¡·Á´Â ¼Óµµ (º®¿¡ ¸·Èù ÃàÀº 0). ChefVisual ÀÌ ¹Ù¶óº¸´Â ¹æÇâ ÆÇÁ¤¿¡ ¾´´Ù</summary>
+    public Vector2 CurrentVel { get { return currentVel; } }
+    private float dashReadyTime = 0f;            // ´ÙÀ½ ´ë½Ã °¡´É ½Ã°¢
     private Vector2 dashDir = Vector2.right;
     private float nextStepSoundTime = 0f;
 
     /// <summary>
-    /// B-1: ê·¼ì ‘ [E]ê°€ ì´ë²ˆ í”„ë ˆì„ì— ì´ë¯¸ ì†Œë¹„ëëŠ”ê°€ (í•´ë¹™ì´ ì¡°ë¦¬ëŒ€ ì—´ë¦¼ë³´ë‹¤ ìš°ì„ ).
-    /// ì†Œë¹„í•œ ìª½ì´ Time.frameCountë¥¼ ê¸°ë¡í•˜ê³ , ë‹¤ë¥¸ ìª½ì€ ê°™ì€ í”„ë ˆì„ì´ë©´ ë¬´ì‹œí•œë‹¤.
+    /// B-1: ±ÙÁ¢ [E]°¡ ÀÌ¹ø ÇÁ·¹ÀÓ¿¡ ÀÌ¹Ì ¼ÒºñµÆ´Â°¡ (ÇØºùÀÌ Á¶¸®´ë ¿­¸²º¸´Ù ¿ì¼±).
+    /// ¼ÒºñÇÑ ÂÊÀÌ Time.frameCount¸¦ ±â·ÏÇÏ°í, ´Ù¸¥ ÂÊÀº °°Àº ÇÁ·¹ÀÓÀÌ¸é ¹«½ÃÇÑ´Ù.
     /// </summary>
     public static int InteractConsumedFrame = -1;
 
-    [Header("â”€ ì¡°ë¦¬ í•´ê¸ˆ í˜„í™© (êµ¬ ì‹œìŠ¤í…œ í˜¸í™˜) â”€")]
+    [Header("¦¡ Á¶¸® ÇØ±İ ÇöÈ² (±¸ ½Ã½ºÅÛ È£È¯) ¦¡")]
     public bool isGrillingUnlocked = true;
     public bool isSauteUnlocked = true;
     public bool isBoilingUnlocked = true;
     public bool isFryingUnlocked = true;
     public bool isFermentingUnlocked = true;
 
-    [Header("â”€ ë„êµ¬ ë‚´êµ¬ë„ â”€")]
-    [Range(0f, 100f)] public float knifeSharpness = 100f;   // ë‚®ìœ¼ë©´ ë¯¸ë‹ˆê²Œì„ íŒì • ì¡´ ì¶•ì†Œ
-    [Range(0f, 100f)] public float panCondition = 100f;     // ë‚®ìœ¼ë©´ ë¯¸ë‹ˆê²Œì„ ì œí•œ ì‹œê°„ ê°ì†Œ
+    [Header("¦¡ µµ±¸ ³»±¸µµ ¦¡")]
+    [Range(0f, 100f)] public float knifeSharpness = 100f;   // ³·À¸¸é ¹Ì´Ï°ÔÀÓ ÆÇÁ¤ Á¸ Ãà¼Ò
+    [Range(0f, 100f)] public float panCondition = 100f;     // ³·À¸¸é ¹Ì´Ï°ÔÀÓ Á¦ÇÑ ½Ã°£ °¨¼Ò
 
-    [Header("â”€ í˜„ì¬ ìƒíƒœ (êµ¬ ì‹œìŠ¤í…œ í˜¸í™˜ - í•­ìƒ None) â”€")]
+    [Header("¦¡ ÇöÀç »óÅÂ (±¸ ½Ã½ºÅÛ È£È¯ - Ç×»ó None) ¦¡")]
     public CookingMethod activeCookingMethod = CookingMethod.None;
     public bool isCookingEnabled = false;
 
-    [Header("â”€ ì „íˆ¬ ì—°ë™ â”€")]
+    [Header("¦¡ ÀüÅõ ¿¬µ¿ ¦¡")]
     [Range(0.1f, 1f)]
-    public float cookingSpeedMultiplier = 1.0f; // ì¡°ë¦¬ ì†ë„ ë°°ìœ¨ (ë…ì¹¨ ë””ë²„í”„ ì‹œ 0.5)
+    public float cookingSpeedMultiplier = 1.0f; // Á¶¸® ¼Óµµ ¹èÀ² (µ¶Ä§ µğ¹öÇÁ ½Ã 0.5)
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ì´ë²¤íŠ¸ (ë‹¤ë¥¸ ìŠ¤í¬ë¦½íŠ¸ í˜¸í™˜ìš© ìœ ì§€ - v3ì—ì„œëŠ” ë°œí–‰ ì•ˆ í•¨)
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ÀÌº¥Æ® (´Ù¸¥ ½ºÅ©¸³Æ® È£È¯¿ë À¯Áö - v3¿¡¼­´Â ¹ßÇà ¾È ÇÔ)
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     public UnityEvent<CookingResult> OnCookingCompleted = new UnityEvent<CookingResult>();
     public UnityEvent<int> OnSauteCommandProgress = new UnityEvent<int>();
     public UnityEvent<CookingMethod> OnCookingMethodUnlocked = new UnityEvent<CookingMethod>();
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ì´ˆê¸°í™”
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ÃÊ±âÈ­
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     private void Start()
     {
-        // B-1: ì´ë™ ìˆ˜ì¹˜/í™œë™ ë²”ìœ„ëŠ” GameBalanceê°€ ë‹¨ì¼ ì†ŒìŠ¤ (ì¡°ì •ì€ GameBalance.csì—ì„œ)
+        // B-1: ÀÌµ¿ ¼öÄ¡/È°µ¿ ¹üÀ§´Â GameBalance°¡ ´ÜÀÏ ¼Ò½º (Á¶Á¤Àº GameBalance.cs¿¡¼­)
         moveSpeed = GameBalance.ChefMoveSpeed;
         kitchenMinX = GameBalance.TrainWalkMinX;
         kitchenMaxX = GameBalance.TrainWalkMaxX;
         kitchenMinY = GameBalance.TrainWalkMinY;
         kitchenMaxY = GameBalance.TrainWalkMaxY;
 
-        Debug.Log("[ChefController] ì´ˆê¸°í™” ì™„ë£Œ (v5 - ì†ë„ " + moveSpeed
-            + ", ë²”ìœ„ X " + kitchenMinX + "~" + kitchenMaxX + ", ì¹¸ ì‚¬ì´ëŠ” í†µë¡œ(|y| <= " + TrainDeck.GANGWAY_HALF_Y + ")ë¡œë§Œ)");
+        Debug.Log("[ChefController] ÃÊ±âÈ­ ¿Ï·á (v5 - ¼Óµµ " + moveSpeed
+            + ", ¹üÀ§ X " + kitchenMinX + "~" + kitchenMaxX + ", Ä­ »çÀÌ´Â Åë·Î(|y| <= " + TrainDeck.GANGWAY_HALF_Y + ")·Î¸¸)");
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ë§¤ í”„ë ˆì„: ì´ë™ë§Œ
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ¸Å ÇÁ·¹ÀÓ: ÀÌµ¿¸¸
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     private void Update()
     {
         HandleMovement();
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ì…°í”„ ì´ë™ (WASD + Shift ëŒ€ì‹œ, ë¯¸ë‹ˆê²Œì„/ì£¼ë°©ì°½ ì¤‘ì—ëŠ” ì •ì§€)
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ¼ÎÇÁ ÀÌµ¿ (WASD + Shift ´ë½Ã, ¹Ì´Ï°ÔÀÓ/ÁÖ¹æÃ¢ Áß¿¡´Â Á¤Áö)
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     private void HandleMovement()
     {
         if (CookingMinigame.IsActive || KitchenPanel.IsOpenStatic)
         {
-            currentVel = Vector2.zero;   // ì¡°ë¦¬ì— ë“¤ì–´ê°€ë©´ ê´€ì„±ë„ ë©ˆì¶˜ë‹¤
+            currentVel = Vector2.zero;   // Á¶¸®¿¡ µé¾î°¡¸é °ü¼ºµµ ¸ØÃá´Ù
             return;
         }
 
@@ -155,20 +161,17 @@ public class ChefController : MonoBehaviour
         bool hasInput = inputDir.sqrMagnitude > 0.01f;
         float dt = Time.deltaTime;
 
-        // â”€â”€ B-1 ëŒ€ì‹œ: [Shift] - ìœ„ê¸° í˜„ì¥ìœ¼ë¡œ ë‹¬ë ¤ê°€ëŠ” ìˆœê°„ ê°€ì† â”€â”€
+        // ¦¡¦¡ B-1 ´ë½Ã: [Shift] - À§±â ÇöÀåÀ¸·Î ´Ş·Á°¡´Â ¼ø°£ °¡¼Ó ¦¡¦¡
         if (hasInput && Time.time >= dashReadyTime
             && (Input.GetKeyDown(KeyCode.LeftShift) || Input.GetKeyDown(KeyCode.RightShift)))
         {
             dashTimer = GameBalance.ChefDashTime;
             dashReadyTime = Time.time + GameBalance.ChefDashCooldown;
             dashDir = inputDir.normalized;
-            SoundManager.Play("sfx_dash");   // í´ë¦½ ì—†ìœ¼ë©´ ë¬´ì‹œ
-            // ë°œë°‘ í™ë¨¼ì§€ (ì²˜ì¹˜ íŒ ì¬ì‚¬ìš© - ì‘ê²Œ, í™ìƒ‰)
-            GameFeel.DeathPop(transform.position + Vector3.down * 0.3f,
-                new Color(0.72f, 0.63f, 0.48f), 0.45f);
+            dashFxPending = true;            // v5.2: ¿¬ÃâÀº ½ÇÁ¦·Î ¿òÁ÷¿´À» ¶§ (º®¿¡ ¸·È÷¸é ¾Æ¹«°Íµµ ¾È ³ª¿Â´Ù)
         }
 
-        // â”€â”€ ì†ë„ ê³„ì‚°: ëŒ€ì‹œ ì¤‘ = ê³ ì • ê³ ì† / í‰ì‹œ = ê°€ê°ì† ê³¡ì„  â”€â”€
+        // ¦¡¦¡ ¼Óµµ °è»ê: ´ë½Ã Áß = °íÁ¤ °í¼Ó / Æò½Ã = °¡°¨¼Ó °î¼± ¦¡¦¡
         if (dashTimer > 0f)
         {
             dashTimer -= dt;
@@ -181,17 +184,37 @@ public class ChefController : MonoBehaviour
             currentVel = Vector2.MoveTowards(currentVel, targetVel, rate * dt);
         }
 
-        // v5: ì¹¸ ë°”ë‹¥ + í†µë¡œ ë°œíŒ ì•ˆìœ¼ë¡œ ì˜ë¼ë‚¸ë‹¤ (ë²½ì— ë‹¿ìœ¼ë©´ ë¯¸ë„ëŸ¬ì§). ì„¸ë¡œ í•œê³„ëŠ” ì˜ˆì „ ê°’ ê·¸ëŒ€ë¡œ
+        // v5: Ä­ ¹Ù´Ú + Åë·Î ¹ßÆÇ ¾ÈÀ¸·Î Àß¶ó³½´Ù (º®¿¡ ´êÀ¸¸é ¹Ì²ô·¯Áü). ¼¼·Î ÇÑ°è´Â ¿¹Àü °ª ±×´ë·Î
+        Vector2 before = transform.position;
         Vector2 wanted = (Vector2)transform.position + currentVel * dt;
         wanted.y = Mathf.Clamp(wanted.y, kitchenMinY, kitchenMaxY);
         Vector2 resolved = TrainDeck.ResolveWalk(transform.position, wanted);
         transform.position = new Vector3(resolved.x, resolved.y, transform.position.z);
 
-        // ë²½ì— ë§‰íŒ ì¶•ì€ ê´€ì„±ë„ ëŠëŠ”ë‹¤ (ë²½ì— ë¶™ì–´ ë¯¸ëŠ” ë™ì•ˆ ì†ë„ê°€ ìŒ“ì—¬ ìˆë‹¤ê°€ íŠ€ì–´ë‚˜ê°€ëŠ” ê²ƒ ë°©ì§€)
+        // º®¿¡ ¸·Èù ÃàÀº °ü¼ºµµ ²÷´Â´Ù (º®¿¡ ºÙ¾î ¹Ì´Â µ¿¾È ¼Óµµ°¡ ½×¿© ÀÖ´Ù°¡ Æ¢¾î³ª°¡´Â °Í ¹æÁö)
         if (Mathf.Abs(resolved.x - wanted.x) > 0.0001f) currentVel.x = 0f;
         if (Mathf.Abs(resolved.y - wanted.y) > 0.0001f) currentVel.y = 0f;
 
-        // â”€â”€ ë°œì†Œë¦¬ (ì´ë™ ì¤‘ 0.28ì´ˆ ê°„ê²©, í´ë¦½ ì—†ìœ¼ë©´ ë¬´ì‹œ) â”€â”€
+        // v5.2: ´ë½Ã ¿¬ÃâÀº ½ÇÁ¦·Î ¿òÁ÷ÀÎ Ã¹ ÇÁ·¹ÀÓ¿¡. Ã¹ ÇÁ·¹ÀÓºÎÅÍ º®¿¡ ¸·ÇûÀ¸¸é(Á¦ÀÚ¸®) ´ë½Ã Ãë¼Ò + ÄğÅ¸ÀÓ È¯±Ş - "º®¿¡ ºÎµúÈú ¶§ ´ë½Ã ÀÌÆåÆ®" Á¦°Å
+        if (dashFxPending)
+        {
+            dashFxPending = false;
+            float moved = Vector2.Distance(resolved, before);
+            if (moved > 0.01f)
+            {
+                SoundManager.Play("sfx_dash");   // Å¬¸³ ¾øÀ¸¸é ¹«½Ã
+                // ¹ß¹Ø Èë¸ÕÁö (Ã³Ä¡ ÆË Àç»ç¿ë - ÀÛ°Ô, Èë»ö)
+                GameFeel.DeathPop(transform.position + Vector3.down * 0.3f, new Color(0.72f, 0.63f, 0.48f), 0.45f);
+            }
+            else
+            {
+                dashTimer = 0f;
+                dashReadyTime = Time.time;       // Çê´ë½Ã - ÄğÅ¸ÀÓ ¾È ¸Ô´Â´Ù
+                currentVel = Vector2.zero;
+            }
+        }
+
+        // ¦¡¦¡ ¹ß¼Ò¸® (ÀÌµ¿ Áß 0.28ÃÊ °£°İ, Å¬¸³ ¾øÀ¸¸é ¹«½Ã) ¦¡¦¡
         if (currentVel.sqrMagnitude > 0.25f && Time.time >= nextStepSoundTime)
         {
             nextStepSoundTime = Time.time + 0.28f;
@@ -199,29 +222,29 @@ public class ChefController : MonoBehaviour
         }
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ë„êµ¬ ë‚´êµ¬ë„
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // µµ±¸ ³»±¸µµ
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
 
-    /// <summary>ì¡°ë¦¬ ì™„ë£Œ ì‹œ ë„êµ¬ ë§ˆëª¨ (CookingMinigameì´ í˜¸ì¶œ). method: 0=êµ½ê¸° 1=ë³¶ê¸° 2=ë“ì´ê¸°</summary>
+    /// <summary>Á¶¸® ¿Ï·á ½Ã µµ±¸ ¸¶¸ğ (CookingMinigameÀÌ È£Ãâ). method: 0=±Á±â 1=ºº±â 2=²úÀÌ±â</summary>
     public void WearToolsByMethod(int method)
     {
-        // v5.1 (êµìˆ˜ í”¼ë“œë°± B3 ì‹¤í—˜ ìŠ¤ìœ„ì¹˜): ë§ˆëª¨ offë©´ ì•„ë¬´ê²ƒë„ ë‹³ì§€ ì•ŠëŠ”ë‹¤
+        // v5.1 (±³¼ö ÇÇµå¹é B3 ½ÇÇè ½ºÀ§Ä¡): ¸¶¸ğ off¸é ¾Æ¹«°Íµµ ´âÁö ¾Ê´Â´Ù
         if (!GameBalance.ToolWearEnabled) return;
 
-        // Phase 2-3 ì•„ì´í…œ 'íœ´ëŒ€ìš© ìˆ«ëŒ': ë„êµ¬ ë§ˆëª¨ ê°ì†Œ (ê¸°ë³¸ 1 = ê·¸ëŒ€ë¡œ)
+        // Phase 2-3 ¾ÆÀÌÅÛ 'ÈŞ´ë¿ë ¼ıµ¹': µµ±¸ ¸¶¸ğ °¨¼Ò (±âº» 1 = ±×´ë·Î)
         float wearMul = ItemManager.ToolWearMul;
 
         if (method == 0)
-            knifeSharpness = Mathf.Max(0f, knifeSharpness - 5f * wearMul);   // êµ½ê¸° = ì¹¼ ë§ˆëª¨
+            knifeSharpness = Mathf.Max(0f, knifeSharpness - 5f * wearMul);   // ±Á±â = Ä® ¸¶¸ğ
         else
-            panCondition = Mathf.Max(0f, panCondition - 8f * wearMul);       // ë³¶ê¸°/ë“ì´ê¸° = íŒ¬ ë§ˆëª¨
+            panCondition = Mathf.Max(0f, panCondition - 8f * wearMul);       // ºº±â/²úÀÌ±â = ÆÒ ¸¶¸ğ
 
         CheckToolWarnings();
     }
 
-    // v5.1 (êµìˆ˜ í”¼ë“œë°± A9): ë§ˆëª¨ ê²½ê³ ê°€ ì½˜ì†”ì—ë§Œ ì°íˆë˜ ê²ƒì„ í™”ë©´ ê²½ê³ ë¡œ. 30% ì•„ë˜ë¡œ ë‚´ë ¤ê°€ëŠ” ìˆœê°„ 1íšŒ,
-    // ì •ë¹„ì†Œì—ì„œ ìˆ˜ë¦¬í•˜ë©´ ë‹¤ì‹œ ë¬´ì¥. (ë„êµ¬ ìƒíƒœ ìì²´ëŠ” GameHUD í•˜ë‹¨ ë°”ì˜ ì¹¼/íŒ¬ ì¹©ì´ ìƒì‹œ í‘œì‹œ)
+    // v5.1 (±³¼ö ÇÇµå¹é A9): ¸¶¸ğ °æ°í°¡ ÄÜ¼Ö¿¡¸¸ ÂïÈ÷´ø °ÍÀ» È­¸é °æ°í·Î. 30% ¾Æ·¡·Î ³»·Á°¡´Â ¼ø°£ 1È¸,
+    // Á¤ºñ¼Ò¿¡¼­ ¼ö¸®ÇÏ¸é ´Ù½Ã ¹«Àå. (µµ±¸ »óÅÂ ÀÚÃ¼´Â GameHUD ÇÏ´Ü ¹ÙÀÇ Ä®/ÆÒ Ä¨ÀÌ »ó½Ã Ç¥½Ã)
     private bool knifeWarned = false;
     private bool panWarned = false;
 
@@ -230,19 +253,19 @@ public class ChefController : MonoBehaviour
         if (knifeSharpness <= 30f && !knifeWarned)
         {
             knifeWarned = true;
-            UIManager.Instance?.ShowDanger("ì¹¼ì´ ë¬´ëŒì¡Œë‹¤ (" + Mathf.RoundToInt(knifeSharpness) + "%) - êµ½ê¸° íŒì •ì´ ì¢ì•„ì§„ë‹¤. ì •ë¹„ì†Œ [G]ì—ì„œ ì—°ë§ˆ");
+            UIManager.Instance?.ShowDanger("Ä®ÀÌ ¹«µ®Á³´Ù (" + Mathf.RoundToInt(knifeSharpness) + "%) - ±Á±â ÆÇÁ¤ÀÌ Á¼¾ÆÁø´Ù. Á¤ºñ¼Ò [G]¿¡¼­ ¿¬¸¶");
         }
         else if (knifeSharpness > 30f) knifeWarned = false;
 
         if (panCondition <= 30f && !panWarned)
         {
             panWarned = true;
-            UIManager.Instance?.ShowDanger("íŒ¬ì´ ëˆŒì–´ë¶™ì—ˆë‹¤ (" + Mathf.RoundToInt(panCondition) + "%) - ë³¶ê¸°Â·ë“ì´ê¸° ì‹œê°„ì´ ì¤„ì–´ë“ ë‹¤. ì •ë¹„ì†Œ [G]ì—ì„œ ì •ë¹„");
+            UIManager.Instance?.ShowDanger("ÆÒÀÌ ´­¾îºÙ¾ú´Ù (" + Mathf.RoundToInt(panCondition) + "%) - ºº±â¡¤²úÀÌ±â ½Ã°£ÀÌ ÁÙ¾îµç´Ù. Á¤ºñ¼Ò [G]¿¡¼­ Á¤ºñ");
         }
         else if (panCondition > 30f) panWarned = false;
     }
 
-    /// <summary>v5.1 (B3): ë§ˆëª¨ offì¼ ë•Œ ì „ê°ˆ ëª…ì¤‘ì˜ ëŒ€ì²´ íš¨ê³¼ - ì¡°ë¦¬ ì†ë„ ë””ë²„í”„ (Enemyê°€ í˜¸ì¶œ)</summary>
+    /// <summary>v5.1 (B3): ¸¶¸ğ offÀÏ ¶§ Àü°¥ ¸íÁßÀÇ ´ëÃ¼ È¿°ú - Á¶¸® ¼Óµµ µğ¹öÇÁ (Enemy°¡ È£Ãâ)</summary>
     public void ApplyScorpionAlt()
     {
         StartCoroutine(ScorpionAltCoroutine());
@@ -250,10 +273,10 @@ public class ChefController : MonoBehaviour
 
     private IEnumerator ScorpionAltCoroutine()
     {
-        // í”„í…Œë¼ ë””ë²„í”„(0.5)ë³´ë‹¤ ì•½í•˜ê²Œ, ì´ë¯¸ ë” ì„¼ ë””ë²„í”„ê°€ ê±¸ë ¤ ìˆìœ¼ë©´ ë®ì–´ì“°ì§€ ì•ŠëŠ”ë‹¤
+        // ÇÁÅ×¶ó µğ¹öÇÁ(0.5)º¸´Ù ¾àÇÏ°Ô, ÀÌ¹Ì ´õ ¼¾ µğ¹öÇÁ°¡ °É·Á ÀÖÀ¸¸é µ¤¾î¾²Áö ¾Ê´Â´Ù
         if (cookingSpeedMultiplier > GameBalance.ScorpionAltCookSlow)
             cookingSpeedMultiplier = GameBalance.ScorpionAltCookSlow;
-        UIManager.Instance?.ShowStatChange("[ì‚¬ë§‰ ì „ê°ˆ] ë…ì´ ì†ì— ë¬»ì—ˆë‹¤ - ì¡°ë¦¬ ì†ë„ -" + Mathf.RoundToInt((1f - GameBalance.ScorpionAltCookSlow) * 100f) + "% (" + Mathf.RoundToInt(GameBalance.ScorpionAltCookSlowSec) + "ì´ˆ)");
+        UIManager.Instance?.ShowStatChange("[»ç¸· Àü°¥] µ¶ÀÌ ¼Õ¿¡ ¹¯¾ú´Ù - Á¶¸® ¼Óµµ -" + Mathf.RoundToInt((1f - GameBalance.ScorpionAltCookSlow) * 100f) + "% (" + Mathf.RoundToInt(GameBalance.ScorpionAltCookSlowSec) + "ÃÊ)");
         yield return new WaitForSeconds(GameBalance.ScorpionAltCookSlowSec);
         if (cookingSpeedMultiplier <= GameBalance.ScorpionAltCookSlow + 0.001f && cookingSpeedMultiplier > 0.5f)
             cookingSpeedMultiplier = 1.0f;
@@ -262,31 +285,31 @@ public class ChefController : MonoBehaviour
     public void RepairKnife(float amount) { knifeSharpness = Mathf.Min(100f, knifeSharpness + amount); }
     public void RepairPan(float amount) { panCondition = Mathf.Min(100f, panCondition + amount); }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ì „íˆ¬ ì—°ë™
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ÀüÅõ ¿¬µ¿
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
 
-    /// <summary>ê¸°ì°¨ í”¼ê²© ì‹œ TrainManagerì—ì„œ í˜¸ì¶œ. intensity: 0~1</summary>
+    /// <summary>±âÂ÷ ÇÇ°İ ½Ã TrainManager¿¡¼­ È£Ãâ. intensity: 0~1</summary>
     public void OnTrainHit(float intensity)
     {
-        // v3.1: ê¸°íš ë³µì› - ê¸°ì°¨ê°€ í”ë“¤ë¦¬ë©´ ì¡°ë¦¬ ë¯¸ë‹ˆê²Œì„ ê²Œì´ì§€ë„ í”ë“¤ë¦°ë‹¤
+        // v3.1: ±âÈ¹ º¹¿ø - ±âÂ÷°¡ Èçµé¸®¸é Á¶¸® ¹Ì´Ï°ÔÀÓ °ÔÀÌÁöµµ Èçµé¸°´Ù
         if (CookingMinigame.Instance != null)
             CookingMinigame.Instance.OnTrainHit(intensity);
     }
 
-    // Phase 2-3 ì•„ì´í…œ 'ê¹€ì„œë¦¼ ë°©ì§€ ê³ ê¸€': ì €ê²© ë¬´íš¨ ì•Œë¦¼ ìŠ¤íŒ¸ ë°©ì§€ìš© ìŠ¤ë¡œí‹€
+    // Phase 2-3 ¾ÆÀÌÅÛ '±è¼­¸² ¹æÁö °í±Û': Àú°İ ¹«È¿ ¾Ë¸² ½ºÆÔ ¹æÁö¿ë ½º·ÎÆ²
     private float nextGoggleNoticeTime = 0f;
 
-    /// <summary>ë…ì¹¨ í”„í…Œë¼ í”¼ê²© ì‹œ - ì¡°ë¦¬ ì†ë„ 50% ê°ì†Œ (CookingMinigame ì œí•œì‹œê°„ì— ë°˜ì˜)</summary>
+    /// <summary>µ¶Ä§ ÇÁÅ×¶ó ÇÇ°İ ½Ã - Á¶¸® ¼Óµµ 50% °¨¼Ò (CookingMinigame Á¦ÇÑ½Ã°£¿¡ ¹İ¿µ)</summary>
     public void ApplyCookingSpeedDebuff(float duration = 10f)
     {
-        // Phase 2-3 ì•„ì´í…œ 'ê¹€ì„œë¦¼ ë°©ì§€ ê³ ê¸€': í”„í…Œë¼ ì €ê²© ë¬´íš¨
+        // Phase 2-3 ¾ÆÀÌÅÛ '±è¼­¸² ¹æÁö °í±Û': ÇÁÅ×¶ó Àú°İ ¹«È¿
         if (ItemManager.SnipeImmune)
         {
             if (Time.time >= nextGoggleNoticeTime)
             {
                 nextGoggleNoticeTime = Time.time + 4f;
-                UIManager.Instance?.ShowStatChange("[ê³ ê¸€] í”„í…Œë¼ì˜ ì €ê²©ì„ ë¬´ì‹œí–ˆë‹¤");
+                UIManager.Instance?.ShowStatChange("[°í±Û] ÇÁÅ×¶óÀÇ Àú°İÀ» ¹«½ÃÇß´Ù");
             }
             return;
         }
@@ -296,48 +319,48 @@ public class ChefController : MonoBehaviour
     private IEnumerator CookingSpeedDebuffCoroutine(float duration)
     {
         cookingSpeedMultiplier = 0.5f;
-        Debug.Log("[ë…ì¹¨ í”„í…Œë¼] ì¡°ë¦¬ ì†ë„ -50%! " + duration + "ì´ˆê°„");
-        // v5.1: êµ¬ CookingUIManagerëŠ” ì”¬ì— ì—†ì–´ ì•Œë¦¼ì´ ëœ¨ì§€ ì•Šì•˜ë‹¤ -> HUD ê²½ê³ ë¡œ (êµìˆ˜ í”¼ë“œë°± 15.5 í•­ëª©)
-        UIManager.Instance?.ShowDanger("[ë…ì¹¨ í”„í…Œë¼] ë…ì¹¨ì— ë§ì•˜ë‹¤ - ì¡°ë¦¬ ì†ë„ -50% (" + Mathf.RoundToInt(duration) + "ì´ˆ)");
+        Debug.Log("[µ¶Ä§ ÇÁÅ×¶ó] Á¶¸® ¼Óµµ -50%! " + duration + "ÃÊ°£");
+        // v5.1: ±¸ CookingUIManager´Â ¾À¿¡ ¾ø¾î ¾Ë¸²ÀÌ ¶ßÁö ¾Ê¾Ò´Ù -> HUD °æ°í·Î (±³¼ö ÇÇµå¹é 15.5 Ç×¸ñ)
+        UIManager.Instance?.ShowDanger("[µ¶Ä§ ÇÁÅ×¶ó] µ¶Ä§¿¡ ¸Â¾Ò´Ù - Á¶¸® ¼Óµµ -50% (" + Mathf.RoundToInt(duration) + "ÃÊ)");
         yield return new WaitForSeconds(duration);
         cookingSpeedMultiplier = 1.0f;
-        Debug.Log("[ë…ì¹¨ í”„í…Œë¼] ì¡°ë¦¬ ì†ë„ ì •ìƒí™”");
+        Debug.Log("[µ¶Ä§ ÇÁÅ×¶ó] Á¶¸® ¼Óµµ Á¤»óÈ­");
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ì¡°ë¦¬ í•´ê¸ˆ (GameManagerê°€ í˜¸ì¶œ - ìœ ì§€)
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // Á¶¸® ÇØ±İ (GameManager°¡ È£Ãâ - À¯Áö)
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     public void CheckUnlocks(int clearedWave)
     {
-        // v3: ì¡°ë¦¬ë²•ì€ ë ˆì‹œí”¼ì— ê·€ì†ë˜ë¯€ë¡œ í•´ê¸ˆ ê°œë…ì€ í˜„ì¬ ë¯¸ì‚¬ìš©
-        // (ì¶”í›„ "ì¡°ë¦¬ëŒ€ í•´ê¸ˆ"ìœ¼ë¡œ ì¬í™œìš© ê°€ëŠ¥)
+        // v3: Á¶¸®¹ıÀº ·¹½ÃÇÇ¿¡ ±Í¼ÓµÇ¹Ç·Î ÇØ±İ °³³äÀº ÇöÀç ¹Ì»ç¿ë
+        // (ÃßÈÄ "Á¶¸®´ë ÇØ±İ"À¸·Î ÀçÈ°¿ë °¡´É)
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // êµ¬ì‹œìŠ¤í…œ í˜¸í™˜ ìŠ¤í…
-    // êµ¬ UI(CookingUIManager ë²„íŠ¼ ë“±)ê°€ ë¶€ë¥´ë˜ í•¨ìˆ˜ë“¤ - ìƒˆ ì¡°ë¦¬ì°½ìœ¼ë¡œ ë¦¬ë‹¤ì´ë ‰íŠ¸
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ±¸½Ã½ºÅÛ È£È¯ ½ºÅÓ
+    // ±¸ UI(CookingUIManager ¹öÆ° µî)°¡ ºÎ¸£´ø ÇÔ¼öµé - »õ Á¶¸®Ã¢À¸·Î ¸®´ÙÀÌ·ºÆ®
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
 
     public void EnableCooking(bool enable)
     {
         isCookingEnabled = enable;
     }
 
-    /// <summary>[êµ¬ì‹œìŠ¤í…œ í˜¸í™˜] MaterialSelectUIê°€ í˜¸ì¶œí•  ìˆ˜ ìˆìŒ - ì´ì œ í•  ì¼ ì—†ìŒ</summary>
+    /// <summary>[±¸½Ã½ºÅÛ È£È¯] MaterialSelectUI°¡ È£ÃâÇÒ ¼ö ÀÖÀ½ - ÀÌÁ¦ ÇÒ ÀÏ ¾øÀ½</summary>
     public void SetPendingMaterials(List<string> materials) { }
 
-    // êµ¬ UI/ìŠ¤í¬ë¦½íŠ¸ê°€ ì–´ë””ì„œ í˜¸ì¶œí•´ë„ ì•„ë¬´ ì¼ë„ ì¼ì–´ë‚˜ì§€ ì•ŠëŠ”ë‹¤ (í‚¤ ê¼¬ì„ ë°©ì§€)
-    // ì¡°ë¦¬ëŠ” ì˜¤ì§ CookingStation(E) / Tab -> KitchenPanel ê²½ë¡œë¡œë§Œ ì‹œì‘ëœë‹¤
+    // ±¸ UI/½ºÅ©¸³Æ®°¡ ¾îµğ¼­ È£ÃâÇØµµ ¾Æ¹« ÀÏµµ ÀÏ¾î³ªÁö ¾Ê´Â´Ù (Å° ²¿ÀÓ ¹æÁö)
+    // Á¶¸®´Â ¿ÀÁ÷ CookingStation(E) / Tab -> KitchenPanel °æ·Î·Î¸¸ ½ÃÀÛµÈ´Ù
     public void StartGrilling() { }
     public void StartSaute() { }
     public void StartBoiling() { }
     public void StartFrying() { }
     public void StartFermenting() { }
 
-    /// <summary>[êµ¬ì‹œìŠ¤í…œ í˜¸í™˜] êµ½ê¸° ë¶ˆ ì„¸ê¸° - ì´ì œ í•  ì¼ ì—†ìŒ</summary>
+    /// <summary>[±¸½Ã½ºÅÛ È£È¯] ±Á±â ºÒ ¼¼±â - ÀÌÁ¦ ÇÒ ÀÏ ¾øÀ½</summary>
     public void SetGrillHeat(int level) { }
 
-    // êµ¬ UIê°€ ì½ë˜ ìƒíƒœ í”„ë¡œí¼í‹° - í•­ìƒ ê¸°ë³¸ê°’
+    // ±¸ UI°¡ ÀĞ´ø »óÅÂ ÇÁ·ÎÆÛÆ¼ - Ç×»ó ±âº»°ª
     public float GrillProgress => 0f;
     public bool IsGrillSmoking => false;
     public int GrillHeatLevel => 2;
@@ -351,16 +374,16 @@ public class ChefController : MonoBehaviour
     {
         switch (method)
         {
-            case CookingMethod.Grilling: return "êµ½ê¸°";
-            case CookingMethod.Saute: return "ë³¶ê¸°";
-            case CookingMethod.Boiling: return "ë“ì´ê¸°";
-            case CookingMethod.Frying: return "íŠ€ê¸°ê¸°";
-            case CookingMethod.Fermenting: return "ì ˆì„/ìˆ™ì„±";
-            default: return "ì—†ìŒ";
+            case CookingMethod.Grilling: return "±Á±â";
+            case CookingMethod.Saute: return "ºº±â";
+            case CookingMethod.Boiling: return "²úÀÌ±â";
+            case CookingMethod.Frying: return "Æ¢±â±â";
+            case CookingMethod.Fermenting: return "ÀıÀÓ/¼÷¼º";
+            default: return "¾øÀ½";
         }
     }
 
-    /// <summary>ì—ë””í„° ê¸°ì¦ˆëª¨: ì¹¸ ë°”ë‹¥(ë…¸ë‘) + ì¹¸ ì‚¬ì´ í†µë¡œ ë°œíŒ(ì´ˆë¡)</summary>
+    /// <summary>¿¡µğÅÍ ±âÁî¸ğ: Ä­ ¹Ù´Ú(³ë¶û) + Ä­ »çÀÌ Åë·Î ¹ßÆÇ(ÃÊ·Ï)</summary>
     private void OnDrawGizmosSelected()
     {
         float[] e = GameBalance.CarEdgesX;

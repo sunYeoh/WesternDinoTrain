@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 /// <summary>
-/// [KitchenPanel.cs] v2.2 (v9.8 재료 아이콘) / v2.1
+/// [KitchenPanel.cs] v2.3 (v9.10 2026-09-17 테스터 피드백: [ESC] 로도 닫힘(단축키로 열고 ESC 로 닫기) / 행상인·베팅·선로 창 중 Tab 금지 / 도감 카드 클릭 = 오른쪽 상세(무엇을 하나·어떤 손님에·언제, RecipeText)) / v2.2 (v9.8 재료 아이콘) / v2.1
 /// Tab키 주방 패널 (uGUI 코드 생성) - 조리 / 합성 / 도감 3탭
 /// GameSystems 오브젝트에 부착
 ///
@@ -48,6 +49,7 @@ public class KitchenPanel : MonoBehaviour
     private string fuseB = "";
 
     private readonly List<GameObject> spawned = new List<GameObject>();
+    private Text detailText;             // v2.3: 요리 설명 상자 (조리·도감 탭 아래) - 카드에 마우스를 올리거나 클릭하면 채워진다
     private Button[] tabButtons = new Button[3];
 
     private static readonly string[] MAT_KOR = { "고기", "등심", "전기", "화염", "얼음", "독" };
@@ -72,9 +74,17 @@ public class KitchenPanel : MonoBehaviour
             if (CookingMinigame.IsActive) return;   // 미니게임 중엔 토글 금지
             if (PauseMenu.IsOpen) return;           // 일시정지 중엔 토글 금지
             if (AugmentListUI.ReadingOpen) return;  // A10: 증강 목록[V]/일지[J] 열람 중엔 토글 금지
+            if (MerchantUI.IsOpen || SpinoBetUI.IsOpen || BranchRouteUI.IsOpen) return;   // v2.3: 정차역 창이 입력을 독점
 
             if (isOpen) Close();
             else Open(-1);   // Tab은 항상 전체 보기
+        }
+
+        // v2.3: 열려 있으면 [ESC] 도 닫기 (같은 프레임에 일시정지 메뉴가 열리지 않게 공용 스탬프)
+        if (isOpen && Input.GetKeyDown(KeyCode.Escape))
+        {
+            CookingMinigame.EscConsumedFrame = Time.frameCount;
+            Close();
         }
     }
 
@@ -171,7 +181,7 @@ public class KitchenPanel : MonoBehaviour
         // 중앙 패널
         RectTransform panel = UIFactory.CreatePanel(root, "Panel",
             new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
-            new Vector2(-620f, -380f), new Vector2(620f, 380f),
+            new Vector2(-620f, -450f), new Vector2(620f, 450f),   // v2.3: 760 -> 900 (아래 설명 상자 자리)
             UIFactory.PANEL, UIFactory.COPPER, 4f);
 
         bool skin = UISkin.Available;   // v2.1: 파이프 프레임(테 28px)일 때만 배치를 조금 옮긴다
@@ -243,7 +253,64 @@ public class KitchenPanel : MonoBehaviour
         if (tabIndex == 0) BuildCookTab();
         else if (tabIndex == 1) BuildFuseTab();
         else BuildDexTab();
+
+        // v2.3: 조리·도감 탭엔 아래쪽에 설명 상자 (선택한 요리가 있으면 그것부터)
+        if (tabIndex != 1)
+        {
+            MakeDetailBox();
+            RecipeData sel = string.IsNullOrEmpty(selectedRecipe) ? null : RecipeDatabase.Get(selectedRecipe);
+            if (sel != null) ShowRecipeDetail(sel);
+        }
     }
+
+    // ═════════════════ v2.3: 요리 설명 상자 ═════════════════
+    private void MakeDetailBox()
+    {
+        RectTransform box = UIFactory.CreatePanel(contentArea, "DetailBox",
+            new Vector2(0f, 0f), new Vector2(1f, 0f),
+            new Vector2(0f, 0f), new Vector2(0f, 130f),
+            new Color(0.10f, 0.065f, 0.045f, 0.96f), UIFactory.GOLD, 2f);
+        spawned.Add(box.gameObject);
+        detailText = UIFactory.CreateText(box, "Text",
+            "요리 카드에 마우스를 올리거나 클릭하면 여기에 설명이 뜬다 - 무엇을 하나 / 어떤 손님에 잘 박히나 / 언제 쓰나", 16,
+            UIFactory.DIM, TextAnchor.UpperLeft);
+        detailText.rectTransform.offsetMin = new Vector2(16f, 10f);
+        detailText.rectTransform.offsetMax = new Vector2(-16f, -10f);
+        detailText.lineSpacing = 1.15f;
+        detailText.horizontalOverflow = HorizontalWrapMode.Wrap;
+        detailText.raycastTarget = false;
+    }
+
+    /// <summary>카드 위에 마우스 / 클릭 - 설명 상자 채우기 (미발견은 재료·조리법만)</summary>
+    private void ShowRecipeDetail(RecipeData r)
+    {
+        if (detailText == null || r == null) return;
+        bool disc = FoodStock.Instance != null && FoodStock.Instance.IsDiscovered(r.recipeId);
+        string[] parts = r.recipeId.Replace("T2:", "").Split('+');
+        string src = r.tier == 1 && parts.Length >= 2 ? MatKor(parts[0]) + " + " + MatKor(parts[1])
+                   : (parts.Length >= 2 ? "합성: " + parts[0] + " + " + parts[1] : r.recipeId);
+        if (!disc)
+        {
+            detailText.text = "???   " + src + " 을(를) " + MethodName(MethodOf(r)) + " 하면 처음 알게 된다";
+            detailText.color = UIFactory.DIM;
+            return;
+        }
+        string t = r.displayName + (r.tier == 2 ? "  [전설]" : "") + "   " + RecipeText.RoleWord(r) + "   |   " + src + "   [" + MethodName(MethodOf(r)) + "]\n";
+        t += RecipeText.Full(r, 1f);
+        if (!string.IsNullOrEmpty(r.flavor)) t += "\n" + r.flavor;
+        detailText.text = t;
+        detailText.color = UIFactory.CREAM;
+    }
+
+    /// <summary>카드에 호버 수신기 부착</summary>
+    private void AttachDetailHover(RectTransform card, RecipeData r)
+    {
+        KitchenPanelCardHover h = card.gameObject.AddComponent<KitchenPanelCardHover>();
+        h.owner = this; h.recipe = r;
+    }
+
+    /// <summary>KitchenPanelCardHover 가 부른다</summary>
+    public void OnCardHover(RecipeData r) { ShowRecipeDetail(r); }
 
     // ═════════════════ 조리 탭 ═════════════════
     private void BuildCookTab()
@@ -384,6 +451,7 @@ public class KitchenPanel : MonoBehaviour
                 btn.interactable = canAfford;
                 btn.onClick.AddListener(delegate { selectedRecipe = id; Refresh(); });
             }
+            AttachDetailHover(card, r);   // v2.3
 
             col++;
             if (col >= columns) { col = 0; row++; }
@@ -532,7 +600,7 @@ public class KitchenPanel : MonoBehaviour
         // T1 그리드 (위) + T2 그리드 (아래)
         int col = 0, row = 0;
         int columns = 7;
-        float cardW = 158f, cardH = 96f, gap = 8f;
+        float cardW = 158f, cardH = 92f, gap = 8f;   // v2.3: 96 -> 92 (설명 상자 자리)
         float startY = -36f;
 
         // 전체 42종 순회 (T1 먼저, T2 나중)
@@ -560,9 +628,9 @@ public class KitchenPanel : MonoBehaviour
                     string src = r.tier == 1
                         ? MatKor(parts[0]) + "+" + MatKor(parts[1])
                         : "합성: " + parts[0] + "+" + parts[1];
-                    txt = r.displayName + (r.tier == 2 ? " [T2]" : "") +
+                    txt = r.displayName + (r.tier == 2 ? " [전설]" : "") +
                           " [" + MethodName(MethodOf(r)) + "]\n" +
-                          src + "\n" + r.description;
+                          src + "\n" + RecipeText.RoleWord(r) + " - 클릭하면 설명";
                 }
                 else
                 {
@@ -574,6 +642,7 @@ public class KitchenPanel : MonoBehaviour
                 t.rectTransform.offsetMin = new Vector2(8f, 4f);
                 t.rectTransform.offsetMax = new Vector2(-6f, -6f);
                 t.horizontalOverflow = HorizontalWrapMode.Wrap;
+                AttachDetailHover(card, r);   // v2.3: 올리거나 클릭 = 아래 설명 상자
 
                 col++;
                 if (col >= columns) { col = 0; row++; }
@@ -608,4 +677,13 @@ public class KitchenPanel : MonoBehaviour
             default: return s;
         }
     }
+}
+
+/// <summary>v2.3: 요리 카드 호버/클릭 수신기 - KitchenPanel.OnCardHover 로 설명 상자를 채운다</summary>
+public class KitchenPanelCardHover : MonoBehaviour, IPointerEnterHandler, IPointerClickHandler
+{
+    public KitchenPanel owner;
+    public RecipeData recipe;
+    public void OnPointerEnter(PointerEventData e) { if (owner != null) owner.OnCardHover(recipe); }
+    public void OnPointerClick(PointerEventData e) { if (owner != null) owner.OnCardHover(recipe); }
 }
