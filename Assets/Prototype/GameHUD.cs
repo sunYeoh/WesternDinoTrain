@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [GameHUD.cs] v3.4 (v9.10.1 2026-09-21: 재료 이름 MaterialNames 한 곳(전기알·화염꽃·얼음꽃·독샘) - 칸 폭 102 에 세 글자 이름이 안 들어가 이름(11px, 위)·개수(20px, 아래) 두 줄) / v3.3 (v9.9 2026-09-16: 로비에서는 하단 바 숨김 - 로비 버튼이 바 위에 겹쳐 있던 것) / v3.2 (v9.8 재료 아이콘) / v3.1 (교수 피드백 A9 반영 2026-09-14) / v3 - 전투 중 핵심 HUD (전부 코드 생성 - Canvas 세팅 불필요)
+/// [GameHUD.cs] v3.5 (v9.11 2026-09-22 타격감: 조리 완료 접시 날아가기 + 카드 튀기 / 요리 카드 ButtonFeel) / v3.4 (v9.10.1 2026-09-21: 재료 이름 MaterialNames 한 곳(전기알·화염꽃·얼음꽃·독샘) - 칸 폭 102 에 세 글자 이름이 안 들어가 이름(11px, 위)·개수(20px, 아래) 두 줄) / v3.3 (v9.9 2026-09-16: 로비에서는 하단 바 숨김 - 로비 버튼이 바 위에 겹쳐 있던 것) / v3.2 (v9.8 재료 아이콘) / v3.1 (교수 피드백 A9 반영 2026-09-14) / v3 - 전투 중 핵심 HUD (전부 코드 생성 - Canvas 세팅 불필요)
 /// - v3.2: 재료 칸의 16px 계열색 판을 ui_mat_*.png 아이콘(32px)으로. 칸 폭 96 -> 102, 간격 100 -> 106 (3열 318 <= 재료 구역 326).
 ///   PNG 가 없으면 v3.1 그대로(계열색 판 + 글자). 이벤트 "재료 흘림" 칩과 같은 그림이라 재료 = 한 그림으로 통일
 /// - 하단 바: 재료 6종 카운트 + 보유 요리 카드 목록 (2줄 그리드, 휠 가로 스크롤)
@@ -417,6 +417,36 @@ public class GameHUD : MonoBehaviour
         // 스크롤 내용물 폭 갱신 (세로는 BuildUI 에서 정한 위아래 여백 유지)
         int cols = (owned.Count + 1) / 2;
         foodListRoot.sizeDelta = new Vector2(cols * (CARD_W + CARD_GAP) + 4f, foodListRoot.sizeDelta.y);
+
+        // v3.5: 방금 조리가 끝난 요리면 접시가 셰프에서 카드로 날아가 카드가 튄다 (스펙 표 B4)
+        if (GameBalance.CookFeelOn && FoodStock.LastAddedFrame == Time.frameCount && !string.IsNullOrEmpty(FoodStock.LastAddedId))
+            PlayCookArrive(FoodStock.LastAddedId);
+    }
+
+    /// <summary>v3.5: 조리 완료 연출 - 셰프 자리(화면)에서 카드로 접시(속성색 원)가 0.35초 날아가고, 도착하면 카드 1.25배 -> 1</summary>
+    private void PlayCookArrive(string recipeId)
+    {
+        RecipeData r = RecipeDatabase.Get(recipeId);
+        if (r == null || canvas == null) return;
+        Vector2 from = new Vector2(Screen.width * 0.5f, Screen.height * 0.5f);
+        ChefController chef = FindFirstObjectByType<ChefController>();
+        if (chef != null && Camera.main != null) from = Camera.main.WorldToScreenPoint(chef.transform.position);
+        RectTransform card = FindFoodCard(recipeId);
+        if (card == null) return;
+        string id = recipeId;
+        UIFeel.FlyTo(canvas, from, card, TrainDeck.GetCircleSprite(), UIFactory.TagColor(r.tag), 34f, 0.35f, delegate
+        {
+            RectTransform c = FindFoodCard(id);   // 그 사이 목록이 다시 만들어졌을 수 있다
+            if (c != null) UIFeel.Bounce(c, 0.25f, 0.25f);
+            SoundManager.Play("sfx_pickup");
+        });
+    }
+
+    private RectTransform FindFoodCard(string recipeId)
+    {
+        for (int i = 0; i < foodCards.Count; i++)
+            if (foodCards[i] != null && foodCards[i].name == "Food_" + recipeId) return foodCards[i].GetComponent<RectTransform>();
+        return null;
     }
 
     private GameObject CreateFoodCard(RecipeData r, int count, int col, int row)
@@ -445,6 +475,7 @@ public class GameHUD : MonoBehaviour
 
         Button btn = cardGo.AddComponent<Button>();
         btn.onClick.AddListener(delegate { OnFoodCardClicked(id); });
+        ButtonFeel.Attach(btn);   // v3.5: 호버·프레스 반응
 
         // 내부 배경 (스킨: 무쇠 평판 / 단색: 계열색 어둡게)
         GameObject bg = new GameObject("BG");

@@ -2,26 +2,26 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [UIFactory.cs] v4 - uGUI ìš”ì†Œë¥¼ ì½”ë“œë¡œ ìƒì„±í•˜ëŠ” í—¬í¼ (ì—ë””í„° Canvas ì„¸íŒ… ë¶ˆí•„ìš”)
+/// [UIFactory.cs] v4.1 (v9.11 2026-09-22: CreateButton ¿¡ ButtonFeel - È£¹ö¡¤ÇÁ·¹½º ¹İÀÀ) / v4 - uGUI ¿ä¼Ò¸¦ ÄÚµå·Î »ı¼ºÇÏ´Â ÇïÆÛ (¿¡µğÅÍ Canvas ¼¼ÆÃ ºÒÇÊ¿ä)
 ///
-/// v4 (2026-09-07, "ì‡³ëƒ„ìƒˆ" í”½ì…€ ìŠ¤í‚¨): UISkin(ui_*.png)ì´ ìˆìœ¼ë©´
-///   - CreatePanel: borderWidth 3 ì´ìƒ + í° ì°½(600x150 ì´ìƒ) = êµ¬ë¦¬ íŒŒì´í”„ í”„ë ˆì„(ë¬´ì‡  í‰íŒ ë‚´ì¥, ìƒ‰ ì¸ì ë¬´ì‹œ)
-///                  ê·¸ ì™¸ 1~ = ì¹´ë“œ(ë¬´ì‡  í‰íŒ + í…Œë‘ë¦¬ìƒ‰ í…Œ) / 0 = ì˜ˆì „ ë‹¨ìƒ‰ ë°•ìŠ¤(ì•”ì „ìš©)
-///   - CreateButton: ë¬´ì‡  ë²„íŠ¼ íŒ (bg ìƒ‰ìœ¼ë¡œ í‹´íŠ¸, ë„ˆë¬´ ì–´ë‘ìš°ë©´ ë°ì€ ë¬´ì‡ )
-///   - CreateCard : ì‹ ê·œ - í‰íŒ + ìƒ‰ í…Œ ì¹´ë“œ (GameHUD ìš”ë¦¬ ì¹´ë“œ)
-///   ui_*.png ê°€ ì—†ê±°ë‚˜ UISkin.ENABLED=false ë©´ v3 ë‹¨ìƒ‰ ë°•ìŠ¤ ê·¸ëŒ€ë¡œ (í˜¸ì¶œë¶€ ë¬´ìˆ˜ì •)
-/// íŒ”ë ˆíŠ¸ëŠ” v3 ì´ë¦„ ìœ ì§€ (PANEL/COPPER/GOLD/CREAM/DIM/T2PINK) - ê°’ë§Œ ê¸°ì°¨ íŒ”ë ˆíŠ¸(ë¬´ì‡ /í™©ë™)ë¡œ
-/// VS 2017 (C# 7.3) í˜¸í™˜
+/// v4 (2026-09-07, "¼í³¿»õ" ÇÈ¼¿ ½ºÅ²): UISkin(ui_*.png)ÀÌ ÀÖÀ¸¸é
+///   - CreatePanel: borderWidth 3 ÀÌ»ó + Å« Ã¢(600x150 ÀÌ»ó) = ±¸¸® ÆÄÀÌÇÁ ÇÁ·¹ÀÓ(¹«¼è ÆòÆÇ ³»Àå, »ö ÀÎÀÚ ¹«½Ã)
+///                  ±× ¿Ü 1~ = Ä«µå(¹«¼è ÆòÆÇ + Å×µÎ¸®»ö Å×) / 0 = ¿¹Àü ´Ü»ö ¹Ú½º(¾ÏÀü¿ë)
+///   - CreateButton: ¹«¼è ¹öÆ° ÆÇ (bg »öÀ¸·Î Æ¾Æ®, ³Ê¹« ¾îµÎ¿ì¸é ¹àÀº ¹«¼è)
+///   - CreateCard : ½Å±Ô - ÆòÆÇ + »ö Å× Ä«µå (GameHUD ¿ä¸® Ä«µå)
+///   ui_*.png °¡ ¾ø°Å³ª UISkin.ENABLED=false ¸é v3 ´Ü»ö ¹Ú½º ±×´ë·Î (È£ÃâºÎ ¹«¼öÁ¤)
+/// ÆÈ·¹Æ®´Â v3 ÀÌ¸§ À¯Áö (PANEL/COPPER/GOLD/CREAM/DIM/T2PINK) - °ª¸¸ ±âÂ÷ ÆÈ·¹Æ®(¹«¼è/È²µ¿)·Î
+/// VS 2017 (C# 7.3) È£È¯
 /// </summary>
 public static class UIFactory
 {
-    // â”€â”€ ìƒ‰ìƒ íŒ”ë ˆíŠ¸ (v4: ë¬´ì‡  + í™©ë™) â”€â”€
-    public static readonly Color PANEL = new Color(0.204f, 0.196f, 0.243f, 0.96f);   // ë¬´ì‡  í‰íŒ (ìŠ¤í‚¨ ì—†ì„ ë•Œ ë‹¨ìƒ‰)
-    public static readonly Color COPPER = new Color(0.722f, 0.439f, 0.204f, 1f);     // êµ¬ë¦¬ í…Œë‘ë¦¬
-    public static readonly Color GOLD = new Color(0.886f, 0.698f, 0.227f, 1f);       // í™©ë™ ê°•ì¡°
-    public static readonly Color CREAM = new Color(0.969f, 0.910f, 0.776f, 1f);      // í¬ë¦¼ í…ìŠ¤íŠ¸
-    public static readonly Color DIM = new Color(0.627f, 0.549f, 0.431f, 1f);        // íë¦° í…ìŠ¤íŠ¸
-    public static readonly Color T2PINK = new Color(1f, 0.42f, 0.85f, 1f);           // T2 í…Œë‘ë¦¬
+    // ¦¡¦¡ »ö»ó ÆÈ·¹Æ® (v4: ¹«¼è + È²µ¿) ¦¡¦¡
+    public static readonly Color PANEL = new Color(0.204f, 0.196f, 0.243f, 0.96f);   // ¹«¼è ÆòÆÇ (½ºÅ² ¾øÀ» ¶§ ´Ü»ö)
+    public static readonly Color COPPER = new Color(0.722f, 0.439f, 0.204f, 1f);     // ±¸¸® Å×µÎ¸®
+    public static readonly Color GOLD = new Color(0.886f, 0.698f, 0.227f, 1f);       // È²µ¿ °­Á¶
+    public static readonly Color CREAM = new Color(0.969f, 0.910f, 0.776f, 1f);      // Å©¸² ÅØ½ºÆ®
+    public static readonly Color DIM = new Color(0.627f, 0.549f, 0.431f, 1f);        // Èå¸° ÅØ½ºÆ®
+    public static readonly Color T2PINK = new Color(1f, 0.42f, 0.85f, 1f);           // T2 Å×µÎ¸®
 
     public static Color GradeColor(string grade)
     {
@@ -31,7 +31,7 @@ public static class UIFactory
         return new Color(0.604f, 0.549f, 0.478f); // C
     }
 
-    // ìš”ë¦¬ ê³„ì—´ íƒœê·¸ë³„ ìƒ‰
+    // ¿ä¸® °è¿­ ÅÂ±×º° »ö
     public static Color TagColor(FoodTag tag)
     {
         switch (tag)
@@ -48,34 +48,34 @@ public static class UIFactory
     private static Font cachedFont;
 
     /// <summary>
-    /// í•œê¸€ ì§€ì› í°íŠ¸.
-    /// 1ìˆœìœ„: ë²ˆë“¤ í°íŠ¸ Resources/Fonts/GameFont (Neoë‘¥ê·¼ëª¨ - ë¹Œë“œì— í¬í•¨, ì–´ë–¤ PCì—ì„œë„ ë™ì¼)
-    /// 2ìˆœìœ„: ë§‘ì€ ê³ ë”• (OS í°íŠ¸ - ì—ë””í„°/ìœˆë„ìš° í´ë°±)
-    /// 3ìˆœìœ„: ìœ ë‹ˆí‹° ë‚´ì¥ í°íŠ¸
-    /// KitchenEventManager.GetFontì™€ ê°™ì€ ìš°ì„ ìˆœìœ„ - ì „ UI í°íŠ¸ í†µì¼
+    /// ÇÑ±Û Áö¿ø ÆùÆ®.
+    /// 1¼øÀ§: ¹øµé ÆùÆ® Resources/Fonts/GameFont (NeoµÕ±Ù¸ğ - ºôµå¿¡ Æ÷ÇÔ, ¾î¶² PC¿¡¼­µµ µ¿ÀÏ)
+    /// 2¼øÀ§: ¸¼Àº °íµñ (OS ÆùÆ® - ¿¡µğÅÍ/À©µµ¿ì Æú¹é)
+    /// 3¼øÀ§: À¯´ÏÆ¼ ³»Àå ÆùÆ®
+    /// KitchenEventManager.GetFont¿Í °°Àº ¿ì¼±¼øÀ§ - Àü UI ÆùÆ® ÅëÀÏ
     /// </summary>
     public static Font GetFont()
     {
         if (cachedFont != null) return cachedFont;
 
-        // 1ìˆœìœ„: ë²ˆë“¤ í°íŠ¸ (Assets/Resources/Fonts/GameFont.ttf)
+        // 1¼øÀ§: ¹øµé ÆùÆ® (Assets/Resources/Fonts/GameFont.ttf)
         cachedFont = Resources.Load<Font>("Fonts/GameFont");
         if (cachedFont != null) return cachedFont;
 
-        // 2ìˆœìœ„: OS í°íŠ¸
+        // 2¼øÀ§: OS ÆùÆ®
         try
         {
             cachedFont = Font.CreateDynamicFontFromOSFont("Malgun Gothic", 20);
         }
         catch (System.Exception) { }
 
-        // 3ìˆœìœ„: ë‚´ì¥ í°íŠ¸
+        // 3¼øÀ§: ³»Àå ÆùÆ®
         if (cachedFont == null)
             cachedFont = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
         return cachedFont;
     }
 
-    /// <summary>ë£¨íŠ¸ ìº”ë²„ìŠ¤ ìƒì„± (ìŠ¤í¬ë¦° ì˜¤ë²„ë ˆì´, 1920x1080 ê¸°ì¤€ ìŠ¤ì¼€ì¼)</summary>
+    /// <summary>·çÆ® Äµ¹ö½º »ı¼º (½ºÅ©¸° ¿À¹ö·¹ÀÌ, 1920x1080 ±âÁØ ½ºÄÉÀÏ)</summary>
     public static Canvas CreateCanvas(string name, int sortOrder)
     {
         GameObject go = new GameObject(name);
@@ -90,7 +90,7 @@ public static class UIFactory
 
         go.AddComponent<GraphicRaycaster>();
 
-        // EventSystem ì—†ìœ¼ë©´ ìƒì„±
+        // EventSystem ¾øÀ¸¸é »ı¼º
         if (Object.FindFirstObjectByType<UnityEngine.EventSystems.EventSystem>() == null)
         {
             GameObject es = new GameObject("EventSystem");
@@ -101,14 +101,14 @@ public static class UIFactory
     }
 
     /// <summary>
-    /// íŒ¨ë„ (í…Œë‘ë¦¬ í¬í•¨). v4: ìŠ¤í‚¨ì´ ìˆìœ¼ë©´ borderWidth 3 ì´ìƒ(+í° ì°½) = íŒŒì´í”„ í”„ë ˆì„, ê·¸ ì™¸ = ì¹´ë“œ(í‰íŒ+ìƒ‰ í…Œ), 0 = ë‹¨ìƒ‰ ë°•ìŠ¤
-    /// ë°˜í™˜ê°’ì€ ë°”ê¹¥(í…Œë‘ë¦¬) RectTransform - ìì‹ "BG"ê°€ ì•ˆìª½ ë°°ê²½ (í˜¸ì¶œë¶€ëŠ” ë°”ê¹¥ì— ìì‹ì„ ë¶™ì¸ë‹¤)
+    /// ÆĞ³Î (Å×µÎ¸® Æ÷ÇÔ). v4: ½ºÅ²ÀÌ ÀÖÀ¸¸é borderWidth 3 ÀÌ»ó(+Å« Ã¢) = ÆÄÀÌÇÁ ÇÁ·¹ÀÓ, ±× ¿Ü = Ä«µå(ÆòÆÇ+»ö Å×), 0 = ´Ü»ö ¹Ú½º
+    /// ¹İÈ¯°ªÀº ¹Ù±ù(Å×µÎ¸®) RectTransform - ÀÚ½Ä "BG"°¡ ¾ÈÂÊ ¹è°æ (È£ÃâºÎ´Â ¹Ù±ù¿¡ ÀÚ½ÄÀ» ºÙÀÎ´Ù)
     /// </summary>
     public static RectTransform CreatePanel(Transform parent, string name,
         Vector2 anchorMin, Vector2 anchorMax, Vector2 offsetMin, Vector2 offsetMax,
         Color bg, Color border, float borderWidth)
     {
-        // í…Œë‘ë¦¬ (ë°”ê¹¥ ì´ë¯¸ì§€)
+        // Å×µÎ¸® (¹Ù±ù ÀÌ¹ÌÁö)
         GameObject borderGo = new GameObject(name);
         borderGo.transform.SetParent(parent, false);
         RectTransform borderRt = borderGo.AddComponent<RectTransform>();
@@ -119,7 +119,7 @@ public static class UIFactory
         Image borderImg = borderGo.AddComponent<Image>();
         borderImg.color = border;
 
-        // ë‚´ë¶€ ë°°ê²½
+        // ³»ºÎ ¹è°æ
         GameObject bgGo = new GameObject("BG");
         bgGo.transform.SetParent(borderGo.transform, false);
         RectTransform bgRt = bgGo.AddComponent<RectTransform>();
@@ -130,7 +130,7 @@ public static class UIFactory
         Image bgImg = bgGo.AddComponent<Image>();
         bgImg.color = bg;
 
-        // íŒŒì´í”„ í”„ë ˆì„ì€ í…Œê°€ 28px ë¼ ì‘ì€ ì°½(ì˜ˆ: ì¡°ë¦¬ ë¯¸ë‹ˆê²Œì„ 440x278)ì—ëŠ” ê¸€ìê°€ íŒŒì´í”„ì— ë¶™ëŠ”ë‹¤ - í° ì°½(600x150 ì´ìƒ, ëŠ˜ì–´ë‚˜ëŠ” ì¶•ì€ í†µê³¼)ë§Œ
+        // ÆÄÀÌÇÁ ÇÁ·¹ÀÓÀº Å×°¡ 28px ¶ó ÀÛÀº Ã¢(¿¹: Á¶¸® ¹Ì´Ï°ÔÀÓ 440x278)¿¡´Â ±ÛÀÚ°¡ ÆÄÀÌÇÁ¿¡ ºÙ´Â´Ù - Å« Ã¢(600x150 ÀÌ»ó, ´Ã¾î³ª´Â ÃàÀº Åë°ú)¸¸
         float knownW = Mathf.Approximately(anchorMin.x, anchorMax.x) ? offsetMax.x - offsetMin.x : 9999f;
         float knownH = Mathf.Approximately(anchorMin.y, anchorMax.y) ? offsetMax.y - offsetMin.y : 9999f;
         bool bigEnough = knownW >= 600f && knownH >= 150f;
@@ -139,7 +139,7 @@ public static class UIFactory
         {
             if (borderWidth >= 3f && bigEnough)
             {
-                // íŒŒì´í”„ í”„ë ˆì„: ë°”ê¹¥ ì´ë¯¸ì§€ í•˜ë‚˜ê°€ í…Œë‘ë¦¬+í‰íŒì„ ë‹¤ ê·¸ë¦°ë‹¤. ì•ˆìª½ BGëŠ” í‰íŒ (íŒŒì´í”„ ì•ˆìª½ ì—¬ë°±ë§Œí¼ ë“¤ì—¬ì“°ê¸°)
+                // ÆÄÀÌÇÁ ÇÁ·¹ÀÓ: ¹Ù±ù ÀÌ¹ÌÁö ÇÏ³ª°¡ Å×µÎ¸®+ÆòÆÇÀ» ´Ù ±×¸°´Ù. ¾ÈÂÊ BG´Â ÆòÆÇ (ÆÄÀÌÇÁ ¾ÈÂÊ ¿©¹é¸¸Å­ µé¿©¾²±â)
                 UISkin.Pipe(borderImg);
                 bgRt.offsetMin = new Vector2(28f, 28f);
                 bgRt.offsetMax = new Vector2(-28f, -28f);
@@ -148,11 +148,11 @@ public static class UIFactory
             }
             else
             {
-                // ì¹´ë“œ: ë°”ê¹¥ = ìƒ‰ í…Œ, ì•ˆìª½ = ë¬´ì‡  í‰íŒ (í…Œ ë‘ê»˜ë§Œí¼ ë“¤ì—¬ì“°ê¸°)
+                // Ä«µå: ¹Ù±ù = »ö Å×, ¾ÈÂÊ = ¹«¼è ÆòÆÇ (Å× µÎ²²¸¸Å­ µé¿©¾²±â)
                 Color ringColor = border; ringColor.a = 1f;
                 if (border.a < 0.05f) ringColor = UISkin.BRASS_DIM;
                 UISkin.Ring(borderImg, ringColor);
-                bgRt.offsetMin = new Vector2(10f, 10f);      // í…Œ(ë¦¬ë²³ í¬í•¨ 10px) ì•ˆìª½ë§Œ í‰íŒ
+                bgRt.offsetMin = new Vector2(10f, 10f);      // Å×(¸®ºª Æ÷ÇÔ 10px) ¾ÈÂÊ¸¸ ÆòÆÇ
                 bgRt.offsetMax = new Vector2(-10f, -10f);
                 UISkin.Plate(bgImg, Color.white);
                 bgImg.raycastTarget = false;
@@ -161,7 +161,7 @@ public static class UIFactory
         else if (UISkin.Available && borderWidth <= 0.5f && bg.a >= 0.9f
                  && !(anchorMin == Vector2.zero && anchorMax == Vector2.one))
         {
-            // í…Œë‘ë¦¬ ì—†ëŠ” ë¶ˆíˆ¬ëª… ë°•ìŠ¤ (ì˜ˆ: ì¹´ë“œ ì•ˆìª½ íŒ, ì „ì²´ í™”ë©´ ìŠ¤íŠ¸ë ˆì¹˜ëŠ” ì œì™¸) - í‰íŒìœ¼ë¡œë§Œ
+            // Å×µÎ¸® ¾ø´Â ºÒÅõ¸í ¹Ú½º (¿¹: Ä«µå ¾ÈÂÊ ÆÇ, ÀüÃ¼ È­¸é ½ºÆ®·¹Ä¡´Â Á¦¿Ü) - ÆòÆÇÀ¸·Î¸¸
             UISkin.Plate(bgImg, Color.white);
             UISkin.Plate(borderImg, Color.white);
         }
@@ -169,14 +169,14 @@ public static class UIFactory
         return borderRt;
     }
 
-    /// <summary>v4 ì‹ ê·œ: ì¹´ë“œ (ë¬´ì‡  í‰íŒ + ìƒ‰ í…Œ). ìŠ¤í‚¨ ì—†ìœ¼ë©´ CreatePanel(í…Œ 2px)ê³¼ ê°™ë‹¤</summary>
+    /// <summary>v4 ½Å±Ô: Ä«µå (¹«¼è ÆòÆÇ + »ö Å×). ½ºÅ² ¾øÀ¸¸é CreatePanel(Å× 2px)°ú °°´Ù</summary>
     public static RectTransform CreateCard(Transform parent, string name,
         Vector2 anchorMin, Vector2 anchorMax, Vector2 offsetMin, Vector2 offsetMax, Color ringColor)
     {
         return CreatePanel(parent, name, anchorMin, anchorMax, offsetMin, offsetMax, PANEL, ringColor, 2f);
     }
 
-    /// <summary>í…ìŠ¤íŠ¸ ìƒì„±</summary>
+    /// <summary>ÅØ½ºÆ® »ı¼º</summary>
     public static Text CreateText(Transform parent, string name, string content,
         int size, Color color, TextAnchor align)
     {
@@ -200,7 +200,7 @@ public static class UIFactory
         return t;
     }
 
-    /// <summary>ë²„íŠ¼ ìƒì„± (ë°°ê²½ìƒ‰ + í…ìŠ¤íŠ¸). v4: ìŠ¤í‚¨ì´ ìˆìœ¼ë©´ ë¬´ì‡  ë²„íŠ¼ íŒ(bg ìƒ‰ í‹´íŠ¸)</summary>
+    /// <summary>¹öÆ° »ı¼º (¹è°æ»ö + ÅØ½ºÆ®). v4: ½ºÅ²ÀÌ ÀÖÀ¸¸é ¹«¼è ¹öÆ° ÆÇ(bg »ö Æ¾Æ®)</summary>
     public static Button CreateButton(Transform parent, string name, string label,
         Vector2 size, Color bg, Color textColor, int fontSize)
     {
@@ -214,7 +214,7 @@ public static class UIFactory
         if (UISkin.Available)
         {
             Color tint = bg; tint.a = 1f;
-            if (tint.r + tint.g + tint.b < 0.45f) tint = UISkin.IRON_LIGHT;   // ë„ˆë¬´ ì–´ë‘ìš´ ë²„íŠ¼ì€ ë°ì€ ë¬´ì‡ ë¡œ (íŒ ì§ˆê°ì´ ë³´ì´ê²Œ)
+            if (tint.r + tint.g + tint.b < 0.45f) tint = UISkin.IRON_LIGHT;   // ³Ê¹« ¾îµÎ¿î ¹öÆ°Àº ¹àÀº ¹«¼è·Î (ÆÇ Áú°¨ÀÌ º¸ÀÌ°Ô)
             UISkin.ButtonSkin(img, tint);
         }
 
@@ -225,6 +225,7 @@ public static class UIFactory
         btn.colors = cb;
 
         Text t = CreateText(go.transform, "Label", label, fontSize, textColor, TextAnchor.MiddleCenter);
+        ButtonFeel.Attach(btn);   // v9.11: È£¹ö 1.03 / ÇÁ·¹½º 0.96 / ºñÈ°¼º È¸»ö
         return btn;
     }
 }

@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [MerchantUI.cs] v1.3 (v9.10.1 2026-09-21: 선택이 없으면 GameBalance.MerchantAutoLeaveSec(10초) 뒤 스스로 떠난다 - 판 위 구리 막대가 줄어들고 안내줄에 남은 초. 사면 다시 센다) / [MerchantUI.cs] v1.2 (v9.10 2026-09-17: 떠나기 안내를 [ESC] 로 - "0 키가 멀고 뜬금없다", 0 도 여전히 된다) / v1.1 (v9.9.2 2026-09-16: 창 머리에 안킬로 실루엣 ui_npc_ankylo - "이름만 있으면 불편" 유저 09-16) / v1 (신규 파일) - Phase 2-3: 등짐장수 안킬로 (아이템 행상인)
+/// [MerchantUI.cs] v1.4 (v9.11 2026-09-22: 등장 연출 ModalFeel) / v1.3 (v9.10.1 2026-09-21: 선택이 없으면 GameBalance.MerchantAutoLeaveSec(10초) 뒤 스스로 떠난다 - 판 위 구리 막대가 줄어들고 안내줄에 남은 초. 사면 다시 센다) / [MerchantUI.cs] v1.2 (v9.10 2026-09-17: 떠나기 안내를 [ESC] 로 - "0 키가 멀고 뜬금없다", 0 도 여전히 된다) / v1.1 (v9.9.2 2026-09-16: 창 머리에 안킬로 실루엣 ui_npc_ankylo - "이름만 있으면 불편" 유저 09-16) / v1 (신규 파일) - Phase 2-3: 등짐장수 안킬로 (아이템 행상인)
 ///
 /// 세계관: 등껍질에 냄비며 부지깽이를 주렁주렁 매단 안킬로사우르스 행상인.
 /// 도박꾼 스피노와 대비되는 캐릭터 - 느긋하고, 값은 정직하다.
@@ -277,6 +277,7 @@ public class MerchantUI : MonoBehaviour
         // 매대 2칸
         titleA = BuildCard(panel, 0, cardA);
         titleB = BuildCard(panel, 1, cardB);
+        ModalFeel.Play(panel);   // v1.4: 판 등장 팝
 
         // 떠나기 안내 + 보유 골드 (구매할 때마다 갱신)
         goldText = KitchenEventManager.MakeText(panel, "Pass", "", 16, new Color(0.6f, 0.58f, 0.55f));

@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// [TurretSlot.cs] v6.4 (v9.9.2 2026-09-16: 마비 FX - 감전·빙결 = 스파크 3점(ui_ev_spark_0/1 교대, 빙결은 얼음색), 과열 = 연기(ui_ev_smoke_0/1). GameBalance.TurretStunFx) / v6.3 (v9.9 2026-09-16: 남쪽 슬롯 포신 기본 방향 -90 = 남쪽 - 4모서리 배치) / v6.2 (런 통계: 과열 횟수·정지 시간 2026-09-14) / v6.1 (교수 피드백 반영 2026-09-14) / v6 (고퀄 PNG 적용 2026-09-03)
+/// [TurretSlot.cs] v6.5 (v9.11 2026-09-22 타격감: 투입·레벨업 때 접시 낙하 + 링 + "배치!/Lv N" 팝 + 포탑 1.25배 튀기 - GameBalance.CookFeelOn) / v6.4 (v9.9.2 2026-09-16: 마비 FX - 감전·빙결 = 스파크 3점(ui_ev_spark_0/1 교대, 빙결은 얼음색), 과열 = 연기(ui_ev_smoke_0/1). GameBalance.TurretStunFx) / v6.3 (v9.9 2026-09-16: 남쪽 슬롯 포신 기본 방향 -90 = 남쪽 - 4모서리 배치) / v6.2 (런 통계: 과열 횟수·정지 시간 2026-09-14) / v6.1 (교수 피드백 반영 2026-09-14) / v6 (고퀄 PNG 적용 2026-09-03)
 /// 포탑 슬롯 1개. 요리를 투입하면 포탑으로 가동한다.
 /// - v6.2 변경점 (스위치 실험 지표 - 반영계획 §5 관찰 시트):
 ///   OverheatsThisRun / OverheatStunSecThisRun: 이번 런에 과열이 몇 번 났고, 과열로 포탑이 전투 중 몇 초 멈춰 있었는지.
@@ -196,7 +196,24 @@ public class TurretSlot : MonoBehaviour
 
         LastInsertTime = Time.time;
         Debug.Log("[TurretSlot] " + r.displayName + " 투입! " + GradeName + "등급 Lv" + level);
+        PlayInsertFeel(r, wasEmpty);   // v6.5
         return true;
+    }
+
+    // ── v6.5: 투입 연출 ──
+    private float popT = -1f;   // 포탑 그림 튀기 (RebuildVisual 뒤 0.2초)
+
+    /// <summary>투입·레벨업 연출: 접시 낙하 -> 링 -> "배치!" 또는 "Lv N" 팝 -> 포탑 1.25배에서 제자리</summary>
+    private void PlayInsertFeel(RecipeData r, bool wasEmpty)
+    {
+        if (!GameBalance.CookFeelOn || GameBalance.GameFeelMaster <= 0f) return;
+        Color c = UIFactory.TagColor(r.tag);
+        Vector3 pos = transform.position;
+        WorldFeel.PlateDrop(pos, c);
+        WorldFeel.Ring(pos, c, 0.75f, 0.28f);
+        WorldFeel.TextPop(pos + Vector3.up * 0.45f, wasEmpty ? "배치!" : "Lv" + level, new Color(1f, 0.88f, 0.45f), 3.2f);
+        SoundManager.Play("sfx_pickup");
+        popT = 0f;
     }
 
     /// <summary>슬롯 비우기 (합체 재료로 소모 - 환급 없음). v6.1: 패시브 회수 + 마비 상태 초기화</summary>
@@ -419,6 +436,16 @@ public class TurretSlot : MonoBehaviour
         // 상태(요리/레벨/잠금)가 바뀐 프레임에만 다시 그린다
         if (recipeId != vRecipeId || level != vLevel || isLocked != vLocked)
             RebuildVisual();
+
+        // v6.5: 투입 직후 포탑 그림이 1.25배에서 0.2초에 제자리로 (되튀김)
+        if (popT >= 0f && visualRoot != null)
+        {
+            popT += Time.deltaTime;
+            float k = Mathf.Clamp01(popT / 0.2f);
+            float e = 1f - (1f - k) * (1f - k);
+            visualRoot.localScale = Vector3.one * (1f + 0.25f * (1f - e));
+            if (k >= 1f) { popT = -1f; visualRoot.localScale = Vector3.one; }
+        }
 
         // 마비 틴트: 과열=달아오름 / 빙결=서리 / 마비=스파크색 (해제되면 구리로 복귀)
         if (bodySr != null)

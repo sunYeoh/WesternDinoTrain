@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// [FoodStock.cs] v2.1 (v9.10 2026-09-17: 숙련 알림을 일상어로 - "이 요리를 N번 만들었다 - 손에 익어 ..." 테스터 "숙련도 어쩌구 설명 필요") / v2
+/// [FoodStock.cs] v2.2 (v9.11 2026-09-22: 방금 늘어난 요리 LastAddedId/Frame - HUD 카드 날아가기·튀기 연출용) / v2.1 (v9.10 2026-09-17: 숙련 알림을 일상어로 - "이 요리를 N번 만들었다 - 손에 익어 ..." 테스터 "숙련도 어쩌구 설명 필요") / v2
 /// 완성된 요리 보관소 + 도감(발견) 관리 (싱글톤)
 /// - 조리 성공 -> Add / 슬롯 투입, T2 합성 -> TryConsume
 /// - v2 변경점 (도감 영구화):
@@ -82,9 +82,14 @@ public class FoodStock : MonoBehaviour
         return stock.TryGetValue(recipeId, out n) ? n : 0;
     }
 
+    // v2.2: 방금 늘어난 요리 (GameHUD 가 같은 프레임에 카드 연출을 건다)
+    public static string LastAddedId = "";
+    public static int LastAddedFrame = -1;
+
     public void Add(string recipeId, int n)
     {
         stock[recipeId] = Get(recipeId) + n;
+        if (n > 0) { LastAddedId = recipeId; LastAddedFrame = Time.frameCount; }
 
         // 이번 런 첫 획득이면 발견 처리 (개수 0이어도 발견됨 - 치트용)
         if (!discovered.Contains(recipeId))

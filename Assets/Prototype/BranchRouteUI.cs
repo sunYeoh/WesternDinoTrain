@@ -267,6 +267,7 @@ public class BranchRouteUI : MonoBehaviour
                 new Color(0.5f, 0.32f, 0.12f), new Vector2(0f, -130f), new Vector2(220f, 52f));
             btn.onClick.AddListener(delegate { Choose(route); });
         }
+        ModalFeel.Play(canvasGo.transform);   // v9.11: 橫菸 む檜萄 + 蘋萄 で
     }
 
     // 式式式式式式式式式式式式式式式式式式式式式式式式式式式式式式式式式式式式式式式式式式式式式

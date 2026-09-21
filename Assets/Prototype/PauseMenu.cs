@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// [PauseMenu.cs] v1.3 (v9.10 2026-09-17: 주방 패널(Tab)·정비소(G)가 열려 있으면 ESC 는 그 창을 닫는 용도 - 일시정지 안 열림) / v1.2 (v9.9 2026-09-16: 견습 운행 중엔 "런 포기" 대신 "견습 운행 그만두기", 브리핑 카드 위에선 안 열림) / v1.1 (교수 피드백 A10 반영 2026-09-14) / v1
+/// [PauseMenu.cs] v1.4 (v9.11 2026-09-22: 등장 연출 ModalFeel) / v1.3 (v9.10 2026-09-17: 주방 패널(Tab)·정비소(G)가 열려 있으면 ESC 는 그 창을 닫는 용도 - 일시정지 안 열림) / v1.2 (v9.9 2026-09-16: 견습 운행 중엔 "런 포기" 대신 "견습 운행 그만두기", 브리핑 카드 위에선 안 열림) / v1.1 (교수 피드백 A10 반영 2026-09-14) / v1
 /// ESC 일시정지 메뉴: 계속하기 / 런 포기(재시작) / 게임 종료
 /// - v1.2: TutorialDirector.Active 면 가운데 버튼이 "견습 운행 그만두기" -> TutorialDirector.Quit() (완료 기록 없이 로비)
 /// - v1.1: 열람 패널(증강 목록 [V] / 일지 [J])이 열려 있으면 ESC는 그쪽 닫기에 양보
@@ -68,6 +68,7 @@ public class PauseMenu : MonoBehaviour
     {
         isOpen = true;
         root.gameObject.SetActive(true);
+        ModalFeel.Play(root);   // v1.4: 등장 연출
         Time.timeScale = 0f;
         // v1.2: 견습 운행 중이면 가운데 버튼 글자를 바꾼다
         if (giveUpLabel != null)

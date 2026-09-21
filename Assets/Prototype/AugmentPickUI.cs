@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 
 /// <summary>
-/// [AugmentPickUI.cs] v1.2 (v9.10 2026-09-17: 증강 선택이 매 웨이브가 아니게 되면서(GameBalance.AugmentPickAt) 선택창을 안 여는 웨이브에도 웨이브 회복·최대 HP 효과는 적용 - ApplyPerWaveEffects) / v1.1
+/// [AugmentPickUI.cs] v1.3 (v9.11 2026-09-22: 등장 연출 ModalFeel) / v1.2 (v9.10 2026-09-17: 증강 선택이 매 웨이브가 아니게 되면서(GameBalance.AugmentPickAt) 선택창을 안 여는 웨이브에도 웨이브 회복·최대 HP 효과는 적용 - ApplyPerWaveEffects) / v1.1
 /// 웨이브 클리어 시 뜨는 증강 3택1 화면 (기획 C)
 /// - v1.1: '행운의 부적'(선택지 +1) / '야전 정비반'(웨이브당 최대 HP 성장) 반영
 ///
@@ -190,6 +190,7 @@ public class AugmentPickUI : MonoBehaviour
         ownedText.text = BuildOwnedSummary();
 
         dimRoot.gameObject.SetActive(true);
+        ModalFeel.Play(dimRoot);   // v1.3: 어둠 페이드 + 카드 판 팝
         if (pauseWhilePicking) Time.timeScale = 0f;
 
         Debug.Log("[증강] 선택창 오픈 - 웨이브 " + waveNumber + " / 후보 " + rolled.Count + "개");

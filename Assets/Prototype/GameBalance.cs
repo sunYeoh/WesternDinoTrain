@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// [GameBalance.cs] v1 (v9.10.1 2026-09-21: 유저 플레이 소감 섹션 - 웨이브 물량·길이, 정차 조리 제한, 행상인 자동 퇴장, 처치 보상 배율 / v9.9 2026-09-16: 포탑 4모서리 배치 SlotPosition + 견습 운행/브리핑 스위치 섹션)
+/// [GameBalance.cs] v1 (v9.11 2026-09-22: 타격감 섹션 - 피격 플래시·찌그러짐·스파크·킬 버스트·기차 피격·버튼·모달·웨이브 띠 스위치 / v9.10.1 2026-09-21: 유저 플레이 소감 섹션 - 웨이브 물량·길이, 정차 조리 제한, 행상인 자동 퇴장, 처치 보상 배율 / v9.9 2026-09-16: 포탑 4모서리 배치 SlotPosition + 견습 운행/브리핑 스위치 섹션)
 /// 게임 전체 밸런스 수치를 한 곳에 모은 설정 파일.
 ///
 /// 여기 값을 바꾸면 Inspector 값과 상관없이 게임에 적용된다
@@ -881,4 +881,34 @@ public static class GameBalance
     // ── 글자 ──
     /// <summary>UI 글자가 칸 밖으로 튀어나오면 자동으로 줄이거나 줄바꿈 (TextFitGuard). false = 끔</summary>
     public static bool TextFitGuardOn = true;
+
+    // ── (v9.11 2026-09-22) 타격감 - 타격감_스펙표 순서 1. 전부 GameFeelMaster(위 게임필 섹션)에 곱해진다. 개별로 끄려면 각 스위치 ──
+    /// <summary>손님 피격 연출(플래시·찌그러짐) 전체</summary>
+    public static bool HitFeelOn = true;
+    /// <summary>피격 흰 플래시 길이 (초)</summary>
+    public static float HitFlashSec = 0.06f;
+    /// <summary>피격 찌그러짐 양 (0.15 = 가로 +15% 세로 -15%) / 큰 딜(최대 HP 10% 이상)·크리</summary>
+    public static float HitSquash = 0.15f;
+    public static float HitSquashBig = 0.25f;
+    /// <summary>피격 스파크 조각 (딜 비례 3/6/10개)</summary>
+    public static bool HitSparksOn = true;
+    /// <summary>처치 과정 (플래시 -> 납작 -> 링·조각 -> 페이드)</summary>
+    public static bool KillBurstOn = true;
+    /// <summary>이 최대 HP 이상인 손님 처치는 큰 버스트 + 흔들림 (채널 kill, 0.3초에 1번)</summary>
+    public static float KillBurstBigHP = 400f;
+    public static float ShakeBigKill = 0.15f;
+    /// <summary>기차 피격: 맞은 칸 흰 플래시 (0.08초)</summary>
+    public static bool TrainHitFlashOn = true;
+    /// <summary>기차 HP 바 지연 잔량 (빨간 띠가 0.5초 뒤 따라 내려온다)</summary>
+    public static bool TrailingHpBarOn = true;
+    public static float TrailingHpDelay = 0.5f;
+    public static float TrailingHpSpeed = 0.8f;    // 초당 비율
+    /// <summary>버튼 호버 1.03 / 프레스 0.96 / 비활성 회색</summary>
+    public static bool ButtonFeelOn = true;
+    /// <summary>모달 등장: 어둠 페이드 + 판 0.92 -> 1.02 -> 1.0</summary>
+    public static bool ModalFeelOn = true;
+    /// <summary>웨이브 예고·클리어 문구가 위에서 내려오며 커졌다 작아진다</summary>
+    public static bool WaveBannerOn = true;
+    /// <summary>조리 완료 접시가 하단 바 카드로 날아가 카드가 튀고, 투입 때 접시 낙하 + 링 + 포탑 튀기</summary>
+    public static bool CookFeelOn = true;
 }

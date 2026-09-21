@@ -1,75 +1,82 @@
-ï»¿using System.Collections;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
 /// <summary>
-/// [UIManager.cs] v3
-/// ê²Œì„ HUD ì „ì²´ë¥¼ ë‹´ë‹¹í•˜ëŠ” UI ê´€ë¦¬ ìŠ¤í¬ë¦½íŠ¸ì…ë‹ˆë‹¤.
-/// - v3 ë³€ê²½ì  (P1: ì•Œë¦¼ ì±„ë„ 2ë¶„ë¦¬ - ê¸°ìˆ ê°ì‚¬ ì²˜ë°©):
-///   1) ShowStatChangeê°€ "ìš°ì¸¡ ë¡œê·¸ ìŠ¤íƒ"ìœ¼ë¡œ ê°œì¡° - ì—¬ëŸ¬ ì•Œë¦¼ì´ ê²¹ì³ë„ ì”¹íˆì§€ ì•Šê³ 
-///      ìµœê·¼ 5ì¤„ì´ ìŒ“ì˜€ë‹¤ê°€ ì°¨ë¡€ë¡œ ì‚¬ë¼ì§„ë‹¤ (í˜¸ì¶œë¶€ 30ì—¬ ê³³ì€ ìˆ˜ì • ë¶ˆí•„ìš”)
-///   2) ShowDanger ì‹ ì„¤ - ìœ„í—˜ ì•Œë¦¼(ë¹™ê²°/ê¸°ë¦„/ë…ì¹¨ ë“±)ì€ ì£¼í™© êµµì€ ì¤„ë¡œ êµ¬ë¶„
-///   3) ëŒ€í˜• ê²½ê³ (ë³´ìŠ¤ ì˜ˆê³  ë“±)ëŠ” ê¸°ì¡´ WarningFX(ì¤‘ì•™+ê°€ì¥ìë¦¬ ë§¥ë™)ê°€ ë‹´ë‹¹ - ì±„ë„ 2ê°œ ì²´ì œ
-///   4) ì”¬ì˜ StatChangeText ì˜¤ë¸Œì íŠ¸ëŠ” ë” ì´ìƒ ì‚¬ìš©í•˜ì§€ ì•ŠìŒ (ìë™ ë¹„í™œì„±, ì‚­ì œí•´ë„ ë¬´ë°©)
-/// - v2 ë³€ê²½ì  (êµ¬ì‹œìŠ¤í…œ ì •ë¦¬):
-///   1) í¬ë§Œê° ê²Œì´ì§€ / í—ˆê¸° ê²½ê³  ì—°ì¶œ ì „ë¶€ ì œê±° (í—ˆê¸° ì‹œìŠ¤í…œ ì‚­ì œ)
-///   2) 'ë‹¤ìŒ ì›¨ì´ë¸Œ' ë²„íŠ¼ UI ì œê±° (ì›¨ì´ë¸ŒëŠ” ì¦ê°• ì„ íƒ í›„ ìë™ ì§„í–‰)
-///   3) HP ë°” / ê³¨ë“œÂ·ì›¨ì´ë¸Œ í…ìŠ¤íŠ¸ / ìƒíƒœ íŒ¨ë„ / ì›¨ì´ë¸Œ ì˜ˆê³  í‘œì‹œëŠ” ìœ ì§€
-/// VS 2017 (C# 7.3) í˜¸í™˜ ë²„ì „ì…ë‹ˆë‹¤.
+/// [UIManager.cs] v3.1 (v9.11 2026-09-22 Å¸°İ°¨: ±âÂ÷ HP ¹Ù Áö¿¬ ÀÜ·®(»¡°£ ¶ì°¡ 0.5ÃÊ µÚ µû¶ó ³»·Á¿Â´Ù, È¸º¹Àº Áï½Ã) / ¿şÀÌºê ¿¹°í¡¤Å¬¸®¾î ¹®±¸ À§¿¡¼­ ³»·Á¿À¸ç ÆË, »õ ¹®±¸°¡ ¿À¸é ÀÌÀü ¹®±¸ Áï½Ã ±³Ã¼) / v3
+/// °ÔÀÓ HUD ÀüÃ¼¸¦ ´ã´çÇÏ´Â UI °ü¸® ½ºÅ©¸³Æ®ÀÔ´Ï´Ù.
+/// - v3 º¯°æÁ¡ (P1: ¾Ë¸² Ã¤³Î 2ºĞ¸® - ±â¼ú°¨»ç Ã³¹æ):
+///   1) ShowStatChange°¡ "¿ìÃø ·Î±× ½ºÅÃ"À¸·Î °³Á¶ - ¿©·¯ ¾Ë¸²ÀÌ °ãÃÄµµ ¾ÃÈ÷Áö ¾Ê°í
+///      ÃÖ±Ù 5ÁÙÀÌ ½×¿´´Ù°¡ Â÷·Ê·Î »ç¶óÁø´Ù (È£ÃâºÎ 30¿© °÷Àº ¼öÁ¤ ºÒÇÊ¿ä)
+///   2) ShowDanger ½Å¼³ - À§Çè ¾Ë¸²(ºù°á/±â¸§/µ¶Ä§ µî)Àº ÁÖÈ² ±½Àº ÁÙ·Î ±¸ºĞ
+///   3) ´ëÇü °æ°í(º¸½º ¿¹°í µî)´Â ±âÁ¸ WarningFX(Áß¾Ó+°¡ÀåÀÚ¸® ¸Æµ¿)°¡ ´ã´ç - Ã¤³Î 2°³ Ã¼Á¦
+///   4) ¾ÀÀÇ StatChangeText ¿ÀºêÁ§Æ®´Â ´õ ÀÌ»ó »ç¿ëÇÏÁö ¾ÊÀ½ (ÀÚµ¿ ºñÈ°¼º, »èÁ¦ÇØµµ ¹«¹æ)
+/// - v2 º¯°æÁ¡ (±¸½Ã½ºÅÛ Á¤¸®):
+///   1) Æ÷¸¸°¨ °ÔÀÌÁö / Çã±â °æ°í ¿¬Ãâ ÀüºÎ Á¦°Å (Çã±â ½Ã½ºÅÛ »èÁ¦)
+///   2) '´ÙÀ½ ¿şÀÌºê' ¹öÆ° UI Á¦°Å (¿şÀÌºê´Â Áõ°­ ¼±ÅÃ ÈÄ ÀÚµ¿ ÁøÇà)
+///   3) HP ¹Ù / °ñµå¡¤¿şÀÌºê ÅØ½ºÆ® / »óÅÂ ÆĞ³Î / ¿şÀÌºê ¿¹°í Ç¥½Ã´Â À¯Áö
+/// VS 2017 (C# 7.3) È£È¯ ¹öÀüÀÔ´Ï´Ù.
 /// </summary>
 public class UIManager : MonoBehaviour
 {
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ì‹±ê¸€í†¤
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ½Ì±ÛÅæ
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     public static UIManager Instance { get; private set; }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // HP ë°”
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    [Header("â”€ HP ë°” â”€")]
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // HP ¹Ù
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    [Header("¦¡ HP ¹Ù ¦¡")]
     public Slider hpSlider;
+    private Image hpTrailImage;            // v3.1: Áö¿¬ ÀÜ·® (ÄÚµå »ı¼º, Ã¤¿ò µÚ)
+    private float hpTrailRatio = 1f;       // v3.1: Áö¿¬ ÀÜ·® ºñÀ²
+    private float hpTrailHoldUntil = 0f;   // v3.1: ÀÌ ½Ã°¢±îÁö ¸ØÃè´Ù°¡ ³»·Á¿Â´Ù
+    private float hpLastRatio = 1f;
+    private Coroutine waveNoticeRoutine;   // v3.1: ÁøÇà ÁßÀÎ ¿¹°í (»õ ¹®±¸°¡ ¿À¸é ²÷´Â´Ù)
+    private Vector2 waveNoticeBasePos, waveWarningBasePos;
+    private bool waveNoticeBaseSaved = false;
     public Image hpFillImage;
     public TextMeshProUGUI hpText;
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ìƒë‹¨ ì •ë³´
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    [Header("â”€ ìƒë‹¨ ì •ë³´ í…ìŠ¤íŠ¸ â”€")]
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // »ó´Ü Á¤º¸
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    [Header("¦¡ »ó´Ü Á¤º¸ ÅØ½ºÆ® ¦¡")]
     public TextMeshProUGUI goldText;
     public TextMeshProUGUI waveText;
     public TextMeshProUGUI stateText;
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ê²Œì„ ìƒíƒœë³„ íŒ¨ë„
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    [Header("â”€ ê²Œì„ ìƒíƒœë³„ íŒ¨ë„ â”€")]
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // °ÔÀÓ »óÅÂº° ÆĞ³Î
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    [Header("¦¡ °ÔÀÓ »óÅÂº° ÆĞ³Î ¦¡")]
     public GameObject lobbyPanel;
     public GameObject battlePanel;
     public GameObject townPanel;
     public GameObject gameOverPanel;
     public GameObject victoryPanel;
 
-    [Header("â”€ HP ìƒ‰ìƒ â”€")]
+    [Header("¦¡ HP »ö»ó ¦¡")]
     public Color colorHPHigh = new Color(0.2f, 0.8f, 0.2f);
     public Color colorHPMid = new Color(1.0f, 0.8f, 0.0f);
     public Color colorHPLow = new Color(1.0f, 0.2f, 0.2f);
 
-    [Header("â”€ ì•Œë¦¼ í…ìŠ¤íŠ¸ â”€")]
-    public TextMeshProUGUI statChangeText;    // ìŠ¤íƒ¯ ë³€í™” / ì¬ë£Œ íšë“ ì•Œë¦¼
-    public TextMeshProUGUI waveNoticeText;    // ì›¨ì´ë¸Œ ì†ì„± ì˜ˆê³  í…ìŠ¤íŠ¸
-    public TextMeshProUGUI waveWarningText;   // ë“œë¡­/ëŒ€ì‘ ì•ˆë‚´ í…ìŠ¤íŠ¸
+    [Header("¦¡ ¾Ë¸² ÅØ½ºÆ® ¦¡")]
+    public TextMeshProUGUI statChangeText;    // ½ºÅÈ º¯È­ / Àç·á È¹µæ ¾Ë¸²
+    public TextMeshProUGUI waveNoticeText;    // ¿şÀÌºê ¼Ó¼º ¿¹°í ÅØ½ºÆ®
+    public TextMeshProUGUI waveWarningText;   // µå·Ó/´ëÀÀ ¾È³» ÅØ½ºÆ®
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ë‚´ë¶€ ì°¸ì¡°
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ³»ºÎ ÂüÁ¶
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     private TrainManager trainManager;
     private GameManager gameManager;
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ì´ˆê¸°í™”
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ÃÊ±âÈ­
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     private void Awake()
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
@@ -89,12 +96,12 @@ public class UIManager : MonoBehaviour
 
         if (statChangeText != null) statChangeText.gameObject.SetActive(false);
 
-        Debug.Log("[UIManager] HUD ì´ˆê¸°í™” ì™„ë£Œ (v2 - í¬ë§Œê°/ë‹¤ìŒì›¨ì´ë¸Œ ë²„íŠ¼ ì œê±°)");
+        Debug.Log("[UIManager] HUD ÃÊ±âÈ­ ¿Ï·á (v2 - Æ÷¸¸°¨/´ÙÀ½¿şÀÌºê ¹öÆ° Á¦°Å)");
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ìŠ¬ë¼ì´ë” ì´ˆê¸° ì„¤ì •
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ½½¶óÀÌ´õ ÃÊ±â ¼³Á¤
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     private void SetupSliders()
     {
         if (hpSlider != null && trainManager != null)
@@ -105,19 +112,19 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ë§¤ í”„ë ˆì„ ê°±ì‹ 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ¸Å ÇÁ·¹ÀÓ °»½Å
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     private void Update()
     {
         RefreshHPBar();
         RefreshInfoTexts();
-        UpdateLogStack();   // P1: ìš°ì¸¡ ì•Œë¦¼ ë¡œê·¸ ìˆ˜ëª… ê´€ë¦¬
+        UpdateLogStack();   // P1: ¿ìÃø ¾Ë¸² ·Î±× ¼ö¸í °ü¸®
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // HP ë°” ê°±ì‹ 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // HP ¹Ù °»½Å
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     private void RefreshHPBar()
     {
         if (trainManager == null || hpSlider == null) return;
@@ -135,11 +142,67 @@ public class UIManager : MonoBehaviour
 
         if (hpText != null)
             hpText.text = (int)trainManager.currentHP + " / " + (int)trainManager.currentMaxHP;
+
+        RefreshHPTrail();
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ê³¨ë“œ Â· ì›¨ì´ë¸Œ í…ìŠ¤íŠ¸ ê°±ì‹ 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    /// <summary>
+    /// v3.1: Áö¿¬ ÀÜ·® - ¸ÂÀ¸¸é »¡°£ ¶ì°¡ Àá±ñ(TrailingHpDelay) ³²¾Æ ÀÖ´Ù°¡ TrailingHpSpeed(ÃÊ´ç ºñÀ²)·Î µû¶ó ³»·Á¿Â´Ù.
+    /// È¸º¹Àº Áï½Ã µû¶ó°£´Ù. Ã¤¿ò(hpFillImage)ÀÌ Filled Å¸ÀÔÀÌ¸é fillAmount, ¾Æ´Ï¸é ¾ŞÄ¿·Î °°Àº ¹æ½ÄÀ¸·Î ±×¸°´Ù.
+    /// </summary>
+    private void RefreshHPTrail()
+    {
+        if (!GameBalance.TrailingHpBarOn || hpFillImage == null) { if (hpTrailImage != null) hpTrailImage.enabled = false; return; }
+        float ratio = Mathf.Clamp01(trainManager.currentHP / Mathf.Max(1f, trainManager.currentMaxHP));
+
+        if (hpTrailImage == null)
+        {
+            GameObject go = new GameObject("HpTrail");
+            RectTransform rt = go.AddComponent<RectTransform>();
+            rt.SetParent(hpFillImage.transform.parent, false);
+            rt.SetSiblingIndex(hpFillImage.transform.GetSiblingIndex());   // Ã¤¿ò µÚ¿¡ ±×·ÁÁø´Ù
+            RectTransform fillRt = hpFillImage.rectTransform;
+            rt.anchorMin = fillRt.anchorMin; rt.anchorMax = fillRt.anchorMax;
+            rt.offsetMin = fillRt.offsetMin; rt.offsetMax = fillRt.offsetMax;
+            rt.pivot = fillRt.pivot;
+            hpTrailImage = go.AddComponent<Image>();
+            hpTrailImage.sprite = hpFillImage.sprite;
+            hpTrailImage.type = hpFillImage.type;
+            hpTrailImage.fillMethod = hpFillImage.fillMethod;
+            hpTrailImage.fillOrigin = hpFillImage.fillOrigin;
+            hpTrailImage.color = new Color(0.85f, 0.18f, 0.12f, 0.95f);
+            hpTrailImage.raycastTarget = false;
+            hpTrailRatio = ratio; hpLastRatio = ratio;
+        }
+        hpTrailImage.enabled = true;
+
+        if (ratio < hpLastRatio - 0.0005f) hpTrailHoldUntil = Time.unscaledTime + GameBalance.TrailingHpDelay;   // ¸Â¾Ò´Ù - Àá±ñ ¸ØÃã
+        hpLastRatio = ratio;
+
+        if (ratio >= hpTrailRatio) hpTrailRatio = ratio;   // È¸º¹¡¤ÃÊ±âÈ­´Â Áï½Ã
+        else if (Time.unscaledTime >= hpTrailHoldUntil)
+            hpTrailRatio = Mathf.MoveTowards(hpTrailRatio, ratio, GameBalance.TrailingHpSpeed * Time.unscaledDeltaTime);
+
+        RectTransform trt = hpTrailImage.rectTransform;
+        if (hpFillImage.type == Image.Type.Filled)
+        {
+            hpTrailImage.fillAmount = hpTrailRatio;
+        }
+        else
+        {
+            // Slider °¡ Ã¤¿ò ¾ŞÄ¿¸¦ 0..value ·Î ³õ´Â °Í°ú °°Àº ¹æ½Ä
+            RectTransform fillRt = hpFillImage.rectTransform;
+            Vector2 aMin = fillRt.anchorMin, aMax = fillRt.anchorMax;
+            if (hpSlider != null && hpSlider.direction == Slider.Direction.LeftToRight) { aMin.x = 0f; aMax.x = hpTrailRatio; }
+            else if (hpSlider != null && hpSlider.direction == Slider.Direction.RightToLeft) { aMin.x = 1f - hpTrailRatio; aMax.x = 1f; }
+            trt.anchorMin = aMin; trt.anchorMax = aMax;
+            trt.offsetMin = fillRt.offsetMin; trt.offsetMax = fillRt.offsetMax;
+        }
+    }
+
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // °ñµå ¡¤ ¿şÀÌºê ÅØ½ºÆ® °»½Å
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     private void RefreshInfoTexts()
     {
         if (gameManager == null) return;
@@ -151,27 +214,27 @@ public class UIManager : MonoBehaviour
             waveText.text = "Wave  " + gameManager.currentWave;
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // P1: ì•Œë¦¼ ë¡œê·¸ ìŠ¤íƒ (ìš°ì¸¡) - ì±„ë„ 1 (ì¼ë°˜/ìœ„í—˜ ë¼ì¸)
-    // ì±„ë„ 2(ëŒ€í˜• ê²½ê³ )ëŠ” WarningFX.Flashê°€ ë‹´ë‹¹.
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // P1: ¾Ë¸² ·Î±× ½ºÅÃ (¿ìÃø) - Ã¤³Î 1 (ÀÏ¹İ/À§Çè ¶óÀÎ)
+    // Ã¤³Î 2(´ëÇü °æ°í)´Â WarningFX.Flash°¡ ´ã´ç.
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
 
-    private const int LOG_LINES = 5;       // ë™ì‹œ í‘œì‹œ ì¤„ ìˆ˜
-    private const float LOG_LIFE = 3.5f;   // ì¤„ ìˆ˜ëª…(ì´ˆ)
-    private const float LOG_FADE = 0.6f;   // ìˆ˜ëª… ë í˜ì´ë“œ êµ¬ê°„
+    private const int LOG_LINES = 5;       // µ¿½Ã Ç¥½Ã ÁÙ ¼ö
+    private const float LOG_LIFE = 3.5f;   // ÁÙ ¼ö¸í(ÃÊ)
+    private const float LOG_FADE = 0.6f;   // ¼ö¸í ³¡ ÆäÀÌµå ±¸°£
 
-    private Text[] logTexts;               // ì½”ë“œ ìƒì„± ë¡œê·¸ ì¤„ (0 = ìµœì‹ , ë§¨ ìœ„)
+    private Text[] logTexts;               // ÄÚµå »ı¼º ·Î±× ÁÙ (0 = ÃÖ½Å, ¸Ç À§)
     private string[] logMsgs = new string[LOG_LINES];
     private Color[] logColors = new Color[LOG_LINES];
-    private float[] logAges = new float[LOG_LINES];   // ê²½ê³¼ ì‹œê°„ (ìˆ˜ëª… ì§€ë‚˜ë©´ ìˆ¨ê¹€)
+    private float[] logAges = new float[LOG_LINES];   // °æ°ú ½Ã°£ (¼ö¸í Áö³ª¸é ¼û±è)
     private bool[] logUsed = new bool[LOG_LINES];
 
-    private static readonly Color LOG_NORMAL = new Color(1f, 0.92f, 0.55f);   // ì¼ë°˜: í¬ë¦¼ ë…¸ë‘
-    private static readonly Color LOG_DANGER = new Color(1f, 0.5f, 0.25f);    // ìœ„í—˜: ì£¼í™©
+    private static readonly Color LOG_NORMAL = new Color(1f, 0.92f, 0.55f);   // ÀÏ¹İ: Å©¸² ³ë¶û
+    private static readonly Color LOG_DANGER = new Color(1f, 0.5f, 0.25f);    // À§Çè: ÁÖÈ²
 
     /// <summary>
-    /// ì¼ë°˜ ì•Œë¦¼ (ë³´ìƒ/íšë“/ì§„í–‰ ë“±). ì—¬ëŸ¬ ê°œê°€ ì—°ë‹¬ì•„ ì™€ë„ ìŠ¤íƒì— ìŒ“ì—¬ ì”¹íˆì§€ ì•ŠëŠ”ë‹¤.
-    /// ì‚¬ìš©ë²•: UIManager.Instance?.ShowStatChange("ì¬ë£Œ +1");
+    /// ÀÏ¹İ ¾Ë¸² (º¸»ó/È¹µæ/ÁøÇà µî). ¿©·¯ °³°¡ ¿¬´Ş¾Æ ¿Íµµ ½ºÅÃ¿¡ ½×¿© ¾ÃÈ÷Áö ¾Ê´Â´Ù.
+    /// »ç¿ë¹ı: UIManager.Instance?.ShowStatChange("Àç·á +1");
     /// </summary>
     public void ShowStatChange(string message)
     {
@@ -179,8 +242,8 @@ public class UIManager : MonoBehaviour
     }
 
     /// <summary>
-    /// ìœ„í—˜ ì•Œë¦¼ (ë¹™ê²°/ê¸°ë¦„/ë…ì¹¨ ë“± ì§€ê¸ˆ í”Œë ˆì´ì— ì˜í–¥ ì£¼ëŠ” ê²ƒ) - ì£¼í™© êµµì€ ì¤„.
-    /// ë³´ìŠ¤ê¸‰ ëŒ€í˜• ê²½ê³ ëŠ” ì´ê±¸ ì“°ì§€ ë§ê³  WarningFX.Flashë¥¼ ì“¸ ê²ƒ.
+    /// À§Çè ¾Ë¸² (ºù°á/±â¸§/µ¶Ä§ µî Áö±İ ÇÃ·¹ÀÌ¿¡ ¿µÇâ ÁÖ´Â °Í) - ÁÖÈ² ±½Àº ÁÙ.
+    /// º¸½º±Ş ´ëÇü °æ°í´Â ÀÌ°É ¾²Áö ¸»°í WarningFX.Flash¸¦ ¾µ °Í.
     /// </summary>
     public void ShowDanger(string message)
     {
@@ -191,7 +254,7 @@ public class UIManager : MonoBehaviour
     {
         if (logTexts == null) BuildLogStack();
 
-        // í•œ ì¹¸ì”© ì•„ë˜ë¡œ ë°€ê¸° (ë§¨ ì•„ë˜ëŠ” ë²„ë¦¼)
+        // ÇÑ Ä­¾¿ ¾Æ·¡·Î ¹Ğ±â (¸Ç ¾Æ·¡´Â ¹ö¸²)
         for (int i = LOG_LINES - 1; i >= 1; i--)
         {
             logMsgs[i] = logMsgs[i - 1];
@@ -210,7 +273,7 @@ public class UIManager : MonoBehaviour
         RenderLog();
     }
 
-    /// <summary>ë§¤ í”„ë ˆì„: ë¡œê·¸ ìˆ˜ëª…/í˜ì´ë“œ ê°±ì‹  (ì¼ì‹œì •ì§€ ì¤‘ì—ë„ íë¥´ê²Œ unscaled)</summary>
+    /// <summary>¸Å ÇÁ·¹ÀÓ: ·Î±× ¼ö¸í/ÆäÀÌµå °»½Å (ÀÏ½ÃÁ¤Áö Áß¿¡µµ Èå¸£°Ô unscaled)</summary>
     private void UpdateLogStack()
     {
         if (logTexts == null) return;
@@ -239,7 +302,7 @@ public class UIManager : MonoBehaviour
             float alpha = 1f;
             float remain = LOG_LIFE - logAges[i];
             if (remain < LOG_FADE) alpha = Mathf.Clamp01(remain / LOG_FADE);
-            // ì•„ë˜ ì¤„(ì˜¤ë˜ëœ ê²ƒ)ì¼ìˆ˜ë¡ ì‚´ì§ íë¦¬ê²Œ - ì‹œì„ ì€ ìµœì‹  ì¤„ë¡œ
+            // ¾Æ·¡ ÁÙ(¿À·¡µÈ °Í)ÀÏ¼ö·Ï »ìÂ¦ Èå¸®°Ô - ½Ã¼±Àº ÃÖ½Å ÁÙ·Î
             alpha *= Mathf.Lerp(1f, 0.55f, i / (float)(LOG_LINES - 1));
 
             logTexts[i].text = logMsgs[i];
@@ -250,14 +313,14 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    /// <summary>ë¡œê·¸ ìŠ¤íƒ UI ìƒì„± (ìµœì´ˆ 1íšŒ, ì½”ë“œ ìƒì„± - ì”¬ ì‘ì—… ë¶ˆí•„ìš”)</summary>
+    /// <summary>·Î±× ½ºÅÃ UI »ı¼º (ÃÖÃÊ 1È¸, ÄÚµå »ı¼º - ¾À ÀÛ¾÷ ºÒÇÊ¿ä)</summary>
     private void BuildLogStack()
     {
         GameObject canvasGo = new GameObject("LogStackCanvas");
         canvasGo.transform.SetParent(transform, false);
         Canvas canvas = canvasGo.AddComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-        canvas.sortingOrder = 455;   // ê³µëª… HUD(470) ë°”ë¡œ ì•„ë˜
+        canvas.sortingOrder = 455;   // °ø¸í HUD(470) ¹Ù·Î ¾Æ·¡
         CanvasScaler scaler = canvasGo.AddComponent<CanvasScaler>();
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
         scaler.referenceResolution = new Vector2(1920f, 1080f);
@@ -270,12 +333,12 @@ public class UIManager : MonoBehaviour
             rt.anchorMin = new Vector2(1f, 0.5f);
             rt.anchorMax = new Vector2(1f, 0.5f);
             rt.pivot = new Vector2(1f, 1f);
-            rt.anchoredPosition = new Vector2(-14f, 200f - i * 28f);   // ìš°ì¸¡, ìœ„ì—ì„œ ì•„ë˜ë¡œ
+            rt.anchoredPosition = new Vector2(-14f, 200f - i * 28f);   // ¿ìÃø, À§¿¡¼­ ¾Æ·¡·Î
             rt.sizeDelta = new Vector2(560f, 26f);
             t.alignment = TextAnchor.MiddleRight;
             t.horizontalOverflow = HorizontalWrapMode.Overflow;
 
-            // ê°€ë…ì„±ìš© ì–‡ì€ ê·¸ë¦¼ì
+            // °¡µ¶¼º¿ë ¾ãÀº ±×¸²ÀÚ
             UnityEngine.UI.Shadow sh = t.gameObject.AddComponent<UnityEngine.UI.Shadow>();
             sh.effectDistance = new Vector2(1f, -1f);
             sh.effectColor = new Color(0f, 0f, 0f, 0.8f);
@@ -285,28 +348,28 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ê²Œì„ ìƒíƒœ ë³€ê²½ ì½œë°±
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // °ÔÀÓ »óÅÂ º¯°æ Äİ¹é
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     private void OnGameStateChanged(GameManager.GameState newState)
     {
         if (stateText != null)
         {
             if (newState == GameManager.GameState.Lobby)
-                stateText.text = "ëŒ€ê¸° ì¤‘";
+                stateText.text = "´ë±â Áß";
             else if (newState == GameManager.GameState.Battle)
-                stateText.text = "ì „íˆ¬ ì¤‘";
+                stateText.text = "ÀüÅõ Áß";
             else if (newState == GameManager.GameState.Town)
-                stateText.text = "ë§ˆì„ ì •ë¹„";
+                stateText.text = "¸¶À» Á¤ºñ";
             else if (newState == GameManager.GameState.GameOver)
-                stateText.text = "ê²Œì„ ì˜¤ë²„";
+                stateText.text = "°ÔÀÓ ¿À¹ö";
             else if (newState == GameManager.GameState.Victory)
-                stateText.text = "ìŠ¹ë¦¬!";
+                stateText.text = "½Â¸®!";
             else
                 stateText.text = "";
         }
 
-        // íŒ¨ë„ ì „í™˜
+        // ÆĞ³Î ÀüÈ¯
         if (newState == GameManager.GameState.Lobby)
             ShowOnlyPanel(lobbyPanel);
         else if (newState == GameManager.GameState.Battle)
@@ -319,9 +382,9 @@ public class UIManager : MonoBehaviour
             ShowOnlyPanel(victoryPanel);
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // íŒ¨ë„ ì „í™˜
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ÆĞ³Î ÀüÈ¯
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     private void ShowOnlyPanel(GameObject targetPanel)
     {
         if (lobbyPanel != null) lobbyPanel.SetActive(false);
@@ -333,9 +396,9 @@ public class UIManager : MonoBehaviour
         if (targetPanel != null) targetPanel.SetActive(true);
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ë²„íŠ¼ OnClick ì—°ê²°ìš©
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ¹öÆ° OnClick ¿¬°á¿ë
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     public void OnClickStartGame()
     {
         GameManager.Instance?.ChangeState(GameManager.GameState.Battle);
@@ -363,43 +426,83 @@ public class UIManager : MonoBehaviour
         GameManager.Instance?.OnClickNextWave();
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // êµ¬ì‹œìŠ¤í…œ í˜¸í™˜ ìŠ¤í… (ë‹¤ìŒ ì›¨ì´ë¸Œ ë²„íŠ¼ ì œê±°ë¨)
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ±¸½Ã½ºÅÛ È£È¯ ½ºÅÓ (´ÙÀ½ ¿şÀÌºê ¹öÆ° Á¦°ÅµÊ)
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
 
-    /// <summary>[êµ¬ì‹œìŠ¤í…œ í˜¸í™˜] ë²„íŠ¼ UI ì œê±°ë¨ - ì•„ë¬´ ê²ƒë„ í•˜ì§€ ì•ŠëŠ”ë‹¤</summary>
+    /// <summary>[±¸½Ã½ºÅÛ È£È¯] ¹öÆ° UI Á¦°ÅµÊ - ¾Æ¹« °Íµµ ÇÏÁö ¾Ê´Â´Ù</summary>
     public void ShowNextWaveButton(int nextWave) { }
 
-    /// <summary>[êµ¬ì‹œìŠ¤í…œ í˜¸í™˜] ë²„íŠ¼ UI ì œê±°ë¨ - ì•„ë¬´ ê²ƒë„ í•˜ì§€ ì•ŠëŠ”ë‹¤</summary>
+    /// <summary>[±¸½Ã½ºÅÛ È£È¯] ¹öÆ° UI Á¦°ÅµÊ - ¾Æ¹« °Íµµ ÇÏÁö ¾Ê´Â´Ù</summary>
     public void HideNextWaveButton() { }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ì›¨ì´ë¸Œ ì˜ˆê³ 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ¿şÀÌºê ¿¹°í
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
 
-    /// <summary>ì›¨ì´ë¸Œ ì‹œì‘ ì‹œ ì†ì„± ì˜ˆê³  í‘œì‹œ (3ì´ˆ í›„ ì‚¬ë¼ì§)</summary>
+    /// <summary>¿şÀÌºê ½ÃÀÛ ½Ã ¼Ó¼º ¿¹°í Ç¥½Ã (3ÃÊ ÈÄ »ç¶óÁü)</summary>
     public void ShowWaveNotice(string notice, string warning)
     {
-        StartCoroutine(WaveNoticeCoroutine(notice, warning));
+        // v3.1: ÀÌÀü ¹®±¸°¡ ¾ÆÁ÷ ¶° ÀÖÀ¸¸é ²÷°í »õ ¹®±¸·Î (µÎ ÄÚ·çÆ¾ÀÌ ¼­·Î ¾ËÆÄ¸¦ µ¤¾î¾²´ø °Í)
+        if (waveNoticeRoutine != null) StopCoroutine(waveNoticeRoutine);
+        waveNoticeRoutine = StartCoroutine(WaveNoticeCoroutine(notice, warning));
     }
 
     private IEnumerator WaveNoticeCoroutine(string notice, string warning)
     {
+        if (!waveNoticeBaseSaved)
+        {
+            if (waveNoticeText != null) waveNoticeBasePos = waveNoticeText.rectTransform.anchoredPosition;
+            if (waveWarningText != null) waveWarningBasePos = waveWarningText.rectTransform.anchoredPosition;
+            waveNoticeBaseSaved = true;
+        }
+
         if (waveNoticeText != null)
         {
             waveNoticeText.gameObject.SetActive(true);
             waveNoticeText.text = notice;
-            waveNoticeText.color = new Color(1f, 0.9f, 0.2f, 1f); // ë…¸ë€ìƒ‰
+            waveNoticeText.color = new Color(1f, 0.9f, 0.2f, 1f); // ³ë¶õ»ö
+            waveNoticeText.rectTransform.anchoredPosition = waveNoticeBasePos;
+            waveNoticeText.rectTransform.localScale = Vector3.one;
         }
 
-        if (waveWarningText != null && !string.IsNullOrEmpty(warning))
+        bool hasWarning = waveWarningText != null && !string.IsNullOrEmpty(warning);
+        if (hasWarning)
         {
             waveWarningText.gameObject.SetActive(true);
             waveWarningText.text = warning;
-            waveWarningText.color = new Color(0.4f, 1f, 0.4f, 1f); // ì´ˆë¡ìƒ‰
+            waveWarningText.color = new Color(0.4f, 1f, 0.4f, 1f); // ÃÊ·Ï»ö
+            waveWarningText.rectTransform.anchoredPosition = waveWarningBasePos;
+        }
+        else if (waveWarningText != null) waveWarningText.gameObject.SetActive(false);
+
+        // v3.1: À§¿¡¼­ ³»·Á¿À¸ç 1.15 -> 1.0 (0.2ÃÊ, ½Ç½Ã°£ - Ä«µå·Î ½Ã°£ÀÌ ¸ØÃçµµ ¿òÁ÷ÀÎ´Ù)
+        if (GameBalance.WaveBannerOn && GameBalance.GameFeelMaster > 0f)
+        {
+            float t = 0f;
+            while (t < 0.2f)
+            {
+                t += Time.unscaledDeltaTime;
+                float k = Mathf.Clamp01(t / 0.2f);
+                float e = 1f - (1f - k) * (1f - k);
+                if (waveNoticeText != null)
+                {
+                    waveNoticeText.rectTransform.anchoredPosition = waveNoticeBasePos + Vector2.up * 40f * (1f - e);
+                    waveNoticeText.rectTransform.localScale = Vector3.one * (1.15f - 0.15f * e);
+                    Color c = waveNoticeText.color; c.a = e; waveNoticeText.color = c;
+                }
+                if (hasWarning)
+                {
+                    waveWarningText.rectTransform.anchoredPosition = waveWarningBasePos + Vector2.up * 24f * (1f - e);
+                    Color c = waveWarningText.color; c.a = e; waveWarningText.color = c;
+                }
+                yield return null;
+            }
+            if (waveNoticeText != null) { waveNoticeText.rectTransform.anchoredPosition = waveNoticeBasePos; waveNoticeText.rectTransform.localScale = Vector3.one; }
+            if (hasWarning) waveWarningText.rectTransform.anchoredPosition = waveWarningBasePos;
         }
 
-        // 2ì´ˆ í‘œì‹œ í›„ 1ì´ˆ í˜ì´ë“œ ì•„ì›ƒ
+        // 2ÃÊ Ç¥½Ã ÈÄ 1ÃÊ ÆäÀÌµå ¾Æ¿ô
         yield return new WaitForSeconds(2f);
 
         float elapsed = 0f;
@@ -423,5 +526,6 @@ public class UIManager : MonoBehaviour
 
         if (waveNoticeText != null) waveNoticeText.gameObject.SetActive(false);
         if (waveWarningText != null) waveWarningText.gameObject.SetActive(false);
+        waveNoticeRoutine = null;
     }
 }

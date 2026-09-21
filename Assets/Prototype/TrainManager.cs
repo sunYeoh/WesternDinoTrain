@@ -2,26 +2,26 @@ using UnityEngine;
 using UnityEngine.Events;
 
 /// <summary>
-/// [TrainManager.cs] v3.1 (êµìˆ˜ í”¼ë“œë°± A4: AddMaxHP íšŒë³µ ë¶„ë¦¬)
-/// ë©”ì¹´ í‹°ë ‰ìŠ¤ ì—´ì°¨ì˜ í•µì‹¬ ìŠ¤íƒ¯ì„ ê´€ë¦¬í•©ë‹ˆë‹¤.
-/// - v3 ë³€ê²½ì  (êµ¬ì‹œìŠ¤í…œ ì •ë¦¬):
-///   1) í—ˆê¸°/í¬ë§Œê° ì‹œìŠ¤í…œ ì™„ì „ ì œê±° (ê°ì†Œ/ë“±ê¸‰/ì ˆì „ëª¨ë“œ/ìŠ¤íƒ¯ í˜ë„í‹° ì „ë¶€ ì‚­ì œ)
-///      - ë‹¤ë¥¸ ìŠ¤í¬ë¦½íŠ¸ê°€ ì•„ì§ ë¶€ë¥¼ ìˆ˜ ìˆëŠ” FeedTrain/ConsumeSatietyëŠ”
-///        ì»´íŒŒì¼ í˜¸í™˜ìš© ë¹ˆ ê»ë°ê¸°ë¡œë§Œ ë‚¨ê¹€ (FeedTrainì€ íšŒë³µìœ¼ë¡œ ì „í™˜)
-///   2) êµ¬ ìë™ê³µê²©(AutoAttack) ì œê±° - ê³µê²©ì€ TurretSlotManagerê°€ ì „ë‹´
-///   3) WagonSlotUI ì°¸ì¡° ì œê±° (êµ¬ ìŠ¬ë¡¯ UI ì‚­ì œ ëŒ€ë¹„)
-///   4) ì¦ê°• ì—°ë™: ë°›ëŠ” í”¼í•´ ê°ì†Œ (AugmentManager.DamageReductionAdd)
-/// - Phase 2-3 ì¶”ê°€: ê°€ì‹œì² ì¡°ë§ ë„ê¸ˆ(DEF ê°€ì‚° + í”¼ê²© ë°˜ê²©) / ë„˜ì¹˜ëŠ” ì†¥(ì¦ê¸° ë³´í˜¸ë§‰)
-/// ì›¨ê±´ ìŠ¬ë¡¯ API(InstallWagon ë“±)ëŠ” êµ¬ ìŠ¤í¬ë¦½íŠ¸(CraftingUI ë“±)ê°€ ì‚­ì œë˜ê¸° ì „ê¹Œì§€
-/// ì»´íŒŒì¼ í˜¸í™˜ì„ ìœ„í•´ ë‚¨ê²¨ë‘  - ì‹¤ì œ ìŠ¤íƒ¯ì—ëŠ” ë°˜ì˜ë˜ì§€ë§Œ ìƒˆ ì‹œìŠ¤í…œì—ì„œëŠ” ì•ˆ ì“´ë‹¤.
-/// VS 2017 (C# 7.3) í˜¸í™˜ ë²„ì „ì…ë‹ˆë‹¤.
+/// [TrainManager.cs] v3.2 (v9.11 2026-09-22: ÇÇ°İ ¶§ TrainFeel.Hit() - ¸ÂÀº Ä­ ÇÃ·¡½Ã) / v3.1 (±³¼ö ÇÇµå¹é A4: AddMaxHP È¸º¹ ºĞ¸®)
+/// ¸ŞÄ« Æ¼·º½º ¿­Â÷ÀÇ ÇÙ½É ½ºÅÈÀ» °ü¸®ÇÕ´Ï´Ù.
+/// - v3 º¯°æÁ¡ (±¸½Ã½ºÅÛ Á¤¸®):
+///   1) Çã±â/Æ÷¸¸°¨ ½Ã½ºÅÛ ¿ÏÀü Á¦°Å (°¨¼Ò/µî±Ş/ÀıÀü¸ğµå/½ºÅÈ Æä³ÎÆ¼ ÀüºÎ »èÁ¦)
+///      - ´Ù¸¥ ½ºÅ©¸³Æ®°¡ ¾ÆÁ÷ ºÎ¸¦ ¼ö ÀÖ´Â FeedTrain/ConsumeSatiety´Â
+///        ÄÄÆÄÀÏ È£È¯¿ë ºó ²®µ¥±â·Î¸¸ ³²±è (FeedTrainÀº È¸º¹À¸·Î ÀüÈ¯)
+///   2) ±¸ ÀÚµ¿°ø°İ(AutoAttack) Á¦°Å - °ø°İÀº TurretSlotManager°¡ Àü´ã
+///   3) WagonSlotUI ÂüÁ¶ Á¦°Å (±¸ ½½·Ô UI »èÁ¦ ´ëºñ)
+///   4) Áõ°­ ¿¬µ¿: ¹Ş´Â ÇÇÇØ °¨¼Ò (AugmentManager.DamageReductionAdd)
+/// - Phase 2-3 Ãß°¡: °¡½ÃÃ¶Á¶¸Á µµ±İ(DEF °¡»ê + ÇÇ°İ ¹İ°İ) / ³ÑÄ¡´Â ¼Ü(Áõ±â º¸È£¸·)
+/// ¿ş°Ç ½½·Ô API(InstallWagon µî)´Â ±¸ ½ºÅ©¸³Æ®(CraftingUI µî)°¡ »èÁ¦µÇ±â Àü±îÁö
+/// ÄÄÆÄÀÏ È£È¯À» À§ÇØ ³²°ÜµÒ - ½ÇÁ¦ ½ºÅÈ¿¡´Â ¹İ¿µµÇÁö¸¸ »õ ½Ã½ºÅÛ¿¡¼­´Â ¾È ¾´´Ù.
+/// VS 2017 (C# 7.3) È£È¯ ¹öÀüÀÔ´Ï´Ù.
 /// </summary>
 public class TrainManager : MonoBehaviour
 {
-    /// <summary>ì‹±ê¸€í†¤ ì°¸ì¡° (Phase 2-2: ì¦ê°• 'ìµœí›„ì˜ ë§Œì°¬' ë“± ì™¸ë¶€ì—ì„œ HP ë¹„ìœ¨ ì¡°íšŒìš©)</summary>
+    /// <summary>½Ì±ÛÅæ ÂüÁ¶ (Phase 2-2: Áõ°­ 'ÃÖÈÄÀÇ ¸¸Âù' µî ¿ÜºÎ¿¡¼­ HP ºñÀ² Á¶È¸¿ë)</summary>
     public static TrainManager Instance { get; private set; }
 
-    /// <summary>í˜„ì¬ HP ë¹„ìœ¨ (0~1)</summary>
+    /// <summary>ÇöÀç HP ºñÀ² (0~1)</summary>
     public float HPRatio
     {
         get { return currentMaxHP > 0f ? Mathf.Clamp01(currentHP / currentMaxHP) : 1f; }
@@ -33,7 +33,7 @@ public class TrainManager : MonoBehaviour
         Instance = this;
     }
 
-    // â”€â”€ êµ¬ì‹œìŠ¤í…œ í˜¸í™˜ìš© ì—´ê±°í˜• (í—ˆê¸° ì‹œìŠ¤í…œ ì œê±°ë¨ - ì‚­ì œ ì˜ˆì •) â”€â”€
+    // ¦¡¦¡ ±¸½Ã½ºÅÛ È£È¯¿ë ¿­°ÅÇü (Çã±â ½Ã½ºÅÛ Á¦°ÅµÊ - »èÁ¦ ¿¹Á¤) ¦¡¦¡
     public enum SatietyGrade
     {
         Overcharge,
@@ -50,13 +50,13 @@ public class TrainManager : MonoBehaviour
         Support
     }
 
-    [Header("â”€ ê¸°ì°¨ ê¸°ë³¸ ìŠ¤íƒ¯ â”€")]
+    [Header("¦¡ ±âÂ÷ ±âº» ½ºÅÈ ¦¡")]
     public float baseHP = 1000f;
     public float baseATK = 20f;
     public float baseDEF = 5f;
     public float baseAttackSpeed = 1.2f;
 
-    [Header("â”€ í˜„ì¬ ìŠ¤íƒ¯ (ëŸ°íƒ€ì„) â”€")]
+    [Header("¦¡ ÇöÀç ½ºÅÈ (·±Å¸ÀÓ) ¦¡")]
     public float currentHP;
     public float currentMaxHP;
     public float currentATK;
@@ -64,23 +64,23 @@ public class TrainManager : MonoBehaviour
     public float currentAttackSpeed;
     public float supportHealPerSec = 0f;
 
-    // íŒ¨ì‹œë¸Œ ìš”ë¦¬(ì² íŒ ì •ì‹/ì˜¤ë©”ê°€ ë¦¬í˜ì–´)ì™€ ì¦ê°•ìœ¼ë¡œ ëŠ˜ì–´ë‚œ ìµœëŒ€HP ëˆ„ì ë¶„
-    // RecalculateStatsê°€ ìµœëŒ€HPë¥¼ ì¬ê³„ì‚°í•´ë„ ì‚¬ë¼ì§€ì§€ ì•Šë„ë¡ ë³„ë„ ë³´ê´€
+    // ÆĞ½Ãºê ¿ä¸®(Ã¶ÆÇ Á¤½Ä/¿À¸Ş°¡ ¸®Æä¾î)¿Í Áõ°­À¸·Î ´Ã¾î³­ ÃÖ´ëHP ´©ÀûºĞ
+    // RecalculateStats°¡ ÃÖ´ëHP¸¦ Àç°è»êÇØµµ »ç¶óÁöÁö ¾Êµµ·Ï º°µµ º¸°ü
     private float passiveBonusMaxHP = 0f;
 
-    // â”€â”€ Phase 2-3 ì¦ê°• ìƒíƒœ â”€â”€
-    private float steamShield = 0f;      // ë„˜ì¹˜ëŠ” ì†¥: ì´ˆê³¼ íšŒë³µìœ¼ë¡œ ìŒ“ì¸ ì¦ê¸° ë³´í˜¸ë§‰
-    private float nextThornsTime = 0f;   // ê°€ì‹œì² ì¡°ë§ ë„ê¸ˆ: ë°˜ê²© ì¿¨íƒ€ì„
+    // ¦¡¦¡ Phase 2-3 Áõ°­ »óÅÂ ¦¡¦¡
+    private float steamShield = 0f;      // ³ÑÄ¡´Â ¼Ü: ÃÊ°ú È¸º¹À¸·Î ½×ÀÎ Áõ±â º¸È£¸·
+    private float nextThornsTime = 0f;   // °¡½ÃÃ¶Á¶¸Á µµ±İ: ¹İ°İ ÄğÅ¸ÀÓ
 
-    /// <summary>í˜„ì¬ ì¦ê¸° ë³´í˜¸ë§‰ ìˆ˜ì¹˜ (HUD í‘œì‹œìš©)</summary>
+    /// <summary>ÇöÀç Áõ±â º¸È£¸· ¼öÄ¡ (HUD Ç¥½Ã¿ë)</summary>
     public float SteamShield { get { return steamShield; } }
 
-    // â”€â”€ êµ¬ì‹œìŠ¤í…œ í˜¸í™˜ìš© (í—ˆê¸° ì œê±°ë¨ - ê°’ì€ í•­ìƒ ê³ ì •) â”€â”€
-    [HideInInspector] public float satiety = 100f;                       // í•­ìƒ 100 ê³ ì •
+    // ¦¡¦¡ ±¸½Ã½ºÅÛ È£È¯¿ë (Çã±â Á¦°ÅµÊ - °ªÀº Ç×»ó °íÁ¤) ¦¡¦¡
+    [HideInInspector] public float satiety = 100f;                       // Ç×»ó 100 °íÁ¤
     [HideInInspector] public SatietyGrade currentSatietyGrade = SatietyGrade.Normal;
     public UnityEvent<float, SatietyGrade> OnSatietyChanged = new UnityEvent<float, SatietyGrade>();
 
-    [Header("â”€ ì›¨ê±´ ìŠ¬ë¡¯ (êµ¬ì‹œìŠ¤í…œ - ì‚­ì œ ì˜ˆì •) â”€")]
+    [Header("¦¡ ¿ş°Ç ½½·Ô (±¸½Ã½ºÅÛ - »èÁ¦ ¿¹Á¤) ¦¡")]
     public WagonType[] wagonSlots = new WagonType[8];
 
     private const float ARMOR_BONUS_HP = 500f;
@@ -89,58 +89,58 @@ public class TrainManager : MonoBehaviour
 
     private bool isAlive = true;
 
-    // ì—°ì† í”¼ê²© ì™„ì¶© (ë¬´ë¦¬ ëŸ¬ì‹œ ì¦‰ì‚¬ ë°©ì§€)
+    // ¿¬¼Ó ÇÇ°İ ¿ÏÃæ (¹«¸® ·¯½Ã Áï»ç ¹æÁö)
     private float burstWindowEnd = 0f;
     private int burstHitCount = 0;
 
     private void Start()
     {
-        // ë°¸ëŸ°ìŠ¤ ì„¤ì •ì´ Inspector ê°’ì„ ë®ì–´ì“´ë‹¤ (ì¡°ì •ì€ GameBalance.csì—ì„œ)
-        // ëª…ì„± ìƒì  'ê°•í™” ë³´ì¼ëŸ¬' ë³´ë„ˆìŠ¤ ê°€ì‚° (ì˜êµ¬ ì—…ê·¸ë ˆì´ë“œ)
+        // ¹ë·±½º ¼³Á¤ÀÌ Inspector °ªÀ» µ¤¾î¾´´Ù (Á¶Á¤Àº GameBalance.cs¿¡¼­)
+        // ¸í¼º »óÁ¡ '°­È­ º¸ÀÏ·¯' º¸³Ê½º °¡»ê (¿µ±¸ ¾÷±×·¹ÀÌµå)
         baseHP = GameBalance.TrainStartHP + MetaProgress.TrainHPBonus;
 
         currentMaxHP = baseHP;
         currentHP = currentMaxHP;
         RecalculateStats();
-        Debug.Log("[TrainManager] ì‹œì‘ HP " + baseHP + " (GameBalance ì ìš©)");
+        Debug.Log("[TrainManager] ½ÃÀÛ HP " + baseHP + " (GameBalance Àû¿ë)");
     }
 
     private void Update()
     {
         if (!isAlive) return;
 
-        // ì„œí¬íŠ¸ ì´ˆë‹¹ íšŒë³µë§Œ ìœ ì§€ (í—ˆê¸° ê°ì†Œ/ì ˆì „ëª¨ë“œ ë¡œì§ ì œê±°ë¨)
+        // ¼­Æ÷Æ® ÃÊ´ç È¸º¹¸¸ À¯Áö (Çã±â °¨¼Ò/ÀıÀü¸ğµå ·ÎÁ÷ Á¦°ÅµÊ)
         if (supportHealPerSec > 0f)
             Heal(supportHealPerSec * Time.deltaTime);
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // êµ¬ì‹œìŠ¤í…œ í˜¸í™˜ ìŠ¤í… (í—ˆê¸° ì œê±°)
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ±¸½Ã½ºÅÛ È£È¯ ½ºÅÓ (Çã±â Á¦°Å)
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
 
-    /// <summary>[êµ¬ì‹œìŠ¤í…œ í˜¸í™˜] í—ˆê¸° ì œê±°ë¨ - ì•„ë¬´ ê²ƒë„ í•˜ì§€ ì•ŠëŠ”ë‹¤</summary>
+    /// <summary>[±¸½Ã½ºÅÛ È£È¯] Çã±â Á¦°ÅµÊ - ¾Æ¹« °Íµµ ÇÏÁö ¾Ê´Â´Ù</summary>
     public void ConsumeSatiety(float amount)
     {
-        // í—ˆê¸° ì‹œìŠ¤í…œ ì œê±° - ì˜ë„ì ìœ¼ë¡œ ë¹„ì›Œë‘ 
+        // Çã±â ½Ã½ºÅÛ Á¦°Å - ÀÇµµÀûÀ¸·Î ºñ¿öµÒ
     }
 
-    /// <summary>[êµ¬ì‹œìŠ¤í…œ í˜¸í™˜] í—ˆê¸° ì œê±°ë¨ - ê¸‰ì–‘ì€ ê¸°ì°¨ íšŒë³µìœ¼ë¡œ ì „í™˜</summary>
+    /// <summary>[±¸½Ã½ºÅÛ È£È¯] Çã±â Á¦°ÅµÊ - ±Ş¾çÀº ±âÂ÷ È¸º¹À¸·Î ÀüÈ¯</summary>
     public void FeedTrain(float amount)
     {
         Heal(amount);
-        Debug.Log("[TrainManager] (êµ¬)ê¸‰ì–‘ í˜¸ì¶œ - í—ˆê¸° ì‹œìŠ¤í…œ ì œê±°ë¡œ HP " + amount + " íšŒë³µ ì²˜ë¦¬");
+        Debug.Log("[TrainManager] (±¸)±Ş¾ç È£Ãâ - Çã±â ½Ã½ºÅÛ Á¦°Å·Î HP " + amount + " È¸º¹ Ã³¸®");
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ìŠ¤íƒ¯ ì¬ê³„ì‚° (í—ˆê¸° ë°°ìœ¨ ì œê±° - í•­ìƒ ê¸°ë³¸ê°’ ê¸°ì¤€)
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ½ºÅÈ Àç°è»ê (Çã±â ¹èÀ² Á¦°Å - Ç×»ó ±âº»°ª ±âÁØ)
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     public void RecalculateStats()
     {
         float bonusHP = 0f;
         float bonusDEF = 0f;
         supportHealPerSec = 0f;
 
-        // êµ¬ ì›¨ê±´ ë³´ë„ˆìŠ¤ (ìƒˆ ì‹œìŠ¤í…œì—ì„œëŠ” ìŠ¬ë¡¯ì´ ì „ë¶€ Emptyë¼ ì˜í–¥ ì—†ìŒ)
+        // ±¸ ¿ş°Ç º¸³Ê½º (»õ ½Ã½ºÅÛ¿¡¼­´Â ½½·ÔÀÌ ÀüºÎ Empty¶ó ¿µÇâ ¾øÀ½)
         foreach (WagonType wagon in wagonSlots)
         {
             if (wagon == WagonType.Armor)
@@ -155,60 +155,61 @@ public class TrainManager : MonoBehaviour
         }
 
         currentMaxHP = baseHP + bonusHP + passiveBonusMaxHP;
-        // Phase 2-3 ì¦ê°• 'ê°€ì‹œì² ì¡°ë§ ë„ê¸ˆ': DEF ê°€ì‚°
+        // Phase 2-3 Áõ°­ '°¡½ÃÃ¶Á¶¸Á µµ±İ': DEF °¡»ê
         currentDEF = baseDEF + bonusDEF + AugmentManager.TrainDefAdd;
         currentHP = Mathf.Min(currentHP, currentMaxHP);
 
-        // í—ˆê¸° ë°°ìœ¨ ì œê±°: í•­ìƒ ê¸°ë³¸ ê³µê²©ë ¥/ê³µì†
+        // Çã±â ¹èÀ² Á¦°Å: Ç×»ó ±âº» °ø°İ·Â/°ø¼Ó
         currentATK = baseATK;
         currentAttackSpeed = baseAttackSpeed;
     }
 
-    /// <summary>ìµœëŒ€ HP ì¦ê° (íŒ¨ì‹œë¸Œ ìš”ë¦¬ / ì¦ê°• / ìŠ¤í”¼ë…¸ ë²Œê¸ˆ). ìŒìˆ˜ì—¬ë„ ì£½ì§€ëŠ” ì•ŠëŠ”ë‹¤</summary>
+    /// <summary>ÃÖ´ë HP Áõ°¨ (ÆĞ½Ãºê ¿ä¸® / Áõ°­ / ½ºÇÇ³ë ¹ú±İ). À½¼ö¿©µµ Á×Áö´Â ¾Ê´Â´Ù</summary>
     public void AddMaxHP(float amount) { AddMaxHP(amount, true); }
 
     /// <summary>
-    /// ìµœëŒ€ HP ì¦ê°. healSameAmount = trueë©´ ëŠ˜ì–´ë‚œ ë§Œí¼ í˜„ì¬ HPë„ ê°™ì´ ì˜¤ë¥¸ë‹¤(ì¦ê°• íšë“ ë“± 1íšŒì„±).
-    /// v3.1 (êµìˆ˜ í”¼ë“œë°± A4): í¬íƒ‘ íŒ¨ì‹œë¸Œ(ì² íŒ ì •ì‹/ì˜¤ë©”ê°€)ëŠ” falseë¡œ í˜¸ì¶œí•œë‹¤ - íˆ¬ì…í•  ë•Œë§ˆë‹¤ í˜„ì¬ HPê°€
-    /// ì°¨ë˜ ê²ƒì´ "ë„£ê³  ë¹¼ê³  ë°˜ë³µ = ë¬´ë£Œ íšŒë³µ" ë£¨í”„ì˜€ë‹¤. íŒ¨ì‹œë¸ŒëŠ” ìµœëŒ€ì¹˜ë§Œ ë„“íˆê³ , íšŒë³µì€ í•˜í‹°/ì •ë¹„ì†Œê°€ í•œë‹¤.
+    /// ÃÖ´ë HP Áõ°¨. healSameAmount = true¸é ´Ã¾î³­ ¸¸Å­ ÇöÀç HPµµ °°ÀÌ ¿À¸¥´Ù(Áõ°­ È¹µæ µî 1È¸¼º).
+    /// v3.1 (±³¼ö ÇÇµå¹é A4): Æ÷Å¾ ÆĞ½Ãºê(Ã¶ÆÇ Á¤½Ä/¿À¸Ş°¡)´Â false·Î È£ÃâÇÑ´Ù - ÅõÀÔÇÒ ¶§¸¶´Ù ÇöÀç HP°¡
+    /// Â÷´ø °ÍÀÌ "³Ö°í »©°í ¹İº¹ = ¹«·á È¸º¹" ·çÇÁ¿´´Ù. ÆĞ½Ãºê´Â ÃÖ´ëÄ¡¸¸ ³ĞÈ÷°í, È¸º¹Àº ÇÏÆ¼/Á¤ºñ¼Ò°¡ ÇÑ´Ù.
     /// </summary>
     public void AddMaxHP(float amount, bool healSameAmount)
     {
         passiveBonusMaxHP += amount;
         currentMaxHP += amount;
         if (healSameAmount)
-            currentHP += amount; // ëŠ˜ì–´ë‚œ(ì¤„ì–´ë“ ) ë§Œí¼ í˜„ì¬ HPë„ ì¡°ì •
-        // falseë©´ í˜„ì¬ HPëŠ” ê·¸ëŒ€ë¡œ ë‘ê³  ì•„ë˜ ìƒí•œ í´ë¨í”„ë§Œ ë°›ëŠ”ë‹¤ (íŒ¨ì‹œë¸Œ íšŒìˆ˜ ì‹œ í˜„ì¬ HPë¥¼ ê¹ì§€ ì•ŠìŒ)
+            currentHP += amount; // ´Ã¾î³­(ÁÙ¾îµç) ¸¸Å­ ÇöÀç HPµµ Á¶Á¤
+        // false¸é ÇöÀç HP´Â ±×´ë·Î µÎ°í ¾Æ·¡ »óÇÑ Å¬·¥ÇÁ¸¸ ¹Ş´Â´Ù (ÆĞ½Ãºê È¸¼ö ½Ã ÇöÀç HP¸¦ ±ğÁö ¾ÊÀ½)
 
-        // Phase 2-1: ìŒìˆ˜ ì ìš© ì•ˆì „ì¥ì¹˜ - ë²Œê¸ˆìœ¼ë¡œ ì¦‰ì‚¬í•˜ëŠ” ì¼ì€ ì—†ê²Œ
+        // Phase 2-1: À½¼ö Àû¿ë ¾ÈÀüÀåÄ¡ - ¹ú±İÀ¸·Î Áï»çÇÏ´Â ÀÏÀº ¾ø°Ô
         if (currentMaxHP < 100f) currentMaxHP = 100f;
         if (currentHP < 1f) currentHP = 1f;
         if (currentHP > currentMaxHP) currentHP = currentMaxHP;
 
-        Debug.Log("[TrainManager] ìµœëŒ€ HP " + (amount >= 0 ? "+" : "") + amount +
-                  " (í˜„ì¬ " + currentHP.ToString("F0") + "/" + currentMaxHP.ToString("F0") + ")");
+        Debug.Log("[TrainManager] ÃÖ´ë HP " + (amount >= 0 ? "+" : "") + amount +
+                  " (ÇöÀç " + currentHP.ToString("F0") + "/" + currentMaxHP.ToString("F0") + ")");
     }
 
     public void TakeDamage(float rawDamage)
     {
         if (!isAlive) return;
 
-        // í”Œë ˆì´í…ŒìŠ¤íŠ¸ í”½ìŠ¤ (ì •ì°¨ ì„±ì—­): ì •ë¹„ í„´/ë¡œë¹„ì—ì„œëŠ” ê¸°ì°¨ê°€ í”¼í•´ë¥¼ ë°›ì§€ ì•ŠëŠ”ë‹¤
-        // (ì„ ë¡œÂ·ë² íŒ… ê³ ë¥´ëŠ” ì‚¬ì´ ëŠ¦ê²Œ ì˜¨ ì /ì”ì—¬ ë„íŠ¸ì—ê²Œ ë¬¼ë ¤ ì£½ë˜ ì‚¬ê³  ë°©ì§€)
+        // ÇÃ·¹ÀÌÅ×½ºÆ® ÇÈ½º (Á¤Â÷ ¼º¿ª): Á¤ºñ ÅÏ/·Îºñ¿¡¼­´Â ±âÂ÷°¡ ÇÇÇØ¸¦ ¹ŞÁö ¾Ê´Â´Ù
+        // (¼±·Î¡¤º£ÆÃ °í¸£´Â »çÀÌ ´Ê°Ô ¿Â Àû/ÀÜ¿© µµÆ®¿¡°Ô ¹°·Á Á×´ø »ç°í ¹æÁö)
         if (GameBalance.TownSanctuary && GameManager.Instance != null
             && GameManager.Instance.currentState != GameManager.GameState.Battle)
             return;
 
-        // í”¼ê²©ìŒ (0.06ì´ˆ ìŠ¤ë¡œí‹€ì€ SoundManagerê°€ ì²˜ë¦¬)
+        // ÇÇ°İÀ½ (0.06ÃÊ ½º·ÎÆ²Àº SoundManager°¡ Ã³¸®)
         SoundManager.Play("sfx_train_hit");
+        TrainFeel.Hit();   // v9.11: ¸ÂÀº Ä­ Èò ÇÃ·¡½Ã (Enemy °¡ NextHitX ¸¦ °É¾î µÎ¸é ±× Ä­¸¸)
 
-        // P1 ê²Œì„í•„: í”¼ê²© ì…°ì´í¬ - ì¿¨íƒ€ì„ ì±„ë„ ë°©ì‹ (ë§¤ í”¼ê²©ë§ˆë‹¤ í”ë“¤ë¦¬ë©´ í”¼ë¡œ - 1.5ì´ˆì— 1ë²ˆë§Œ)
+        // P1 °ÔÀÓÇÊ: ÇÇ°İ ¼ÎÀÌÅ© - ÄğÅ¸ÀÓ Ã¤³Î ¹æ½Ä (¸Å ÇÇ°İ¸¶´Ù Èçµé¸®¸é ÇÇ·Î - 1.5ÃÊ¿¡ 1¹ø¸¸)
         GameFeel.Shake(GameBalance.ShakeTrainHit, "train_hit", GameBalance.ShakeTrainHitCooldown);
 
-        // Phase 2-1: ìŠ¤í”¼ë…¸ ë² íŒ… [ì² ë²½ ì£¼ë°©] í”¼ê²© ì¹´ìš´íŠ¸
+        // Phase 2-1: ½ºÇÇ³ë º£ÆÃ [Ã¶º® ÁÖ¹æ] ÇÇ°İ Ä«¿îÆ®
         SpinoBet.CountTrainHit();
 
-        // Phase 2-3 ì¦ê°• 'ê°€ì‹œì² ì¡°ë§ ë„ê¸ˆ': í”¼ê²© ì‹œ ê·¼ì²˜ ì  ë°˜ê²© (ìŠ¤íŒ¸ ë°©ì§€ ì¿¨íƒ€ì„)
+        // Phase 2-3 Áõ°­ '°¡½ÃÃ¶Á¶¸Á µµ±İ': ÇÇ°İ ½Ã ±ÙÃ³ Àû ¹İ°İ (½ºÆÔ ¹æÁö ÄğÅ¸ÀÓ)
         if (AugmentManager.ThornsStacks > 0 && Time.time >= nextThornsTime)
         {
             nextThornsTime = Time.time + GameBalance.ThornsCooldown;
@@ -224,19 +225,19 @@ public class TrainManager : MonoBehaviour
 
         float finalDamage = Mathf.Max(1f, rawDamage - currentDEF);
 
-        // í”¼í•´ ê°ì†Œ í•©ì‚°: ìŠ¬ë¡¯ íŒ¨ì‹œë¸Œ(ìˆ˜ì • ë°©íŒ¨ ì—°íšŒ) + ì¦ê°•(ë‚˜ë…¸ ìˆ˜ë³µ ì¥ê°‘ ë“±)
+        // ÇÇÇØ °¨¼Ò ÇÕ»ê: ½½·Ô ÆĞ½Ãºê(¼öÁ¤ ¹æÆĞ ¿¬È¸) + Áõ°­(³ª³ë ¼öº¹ Àå°© µî)
         float totalReduction = AugmentManager.DamageReductionAdd;
         if (TurretSlotManager.Instance != null)
         {
             totalReduction += TurretSlotManager.Instance.GetDamageReduction();
             TurretSlotManager.Instance.TriggerThorns(transform.position);
         }
-        // -0.85(ìœ ë¦¬ ëŒ€í¬ ë“±ìœ¼ë¡œ ë°›ëŠ” í”¼í•´ ì¦ê°€) ~ 0.85(ìµœëŒ€ 85% ê°ì†Œ) ë²”ìœ„ë¡œ ì œí•œ
+        // -0.85(À¯¸® ´ëÆ÷ µîÀ¸·Î ¹Ş´Â ÇÇÇØ Áõ°¡) ~ 0.85(ÃÖ´ë 85% °¨¼Ò) ¹üÀ§·Î Á¦ÇÑ
         totalReduction = Mathf.Clamp(totalReduction, -0.85f, 0.85f);
         finalDamage *= (1f - totalReduction);
 
-        // ì—°ì† í”¼ê²© ì™„ì¶©: ê°™ì€ ì‹œê°„ ì°½ ì•ˆì—ì„œ Në²ˆì§¸ ì´í›„ íƒ€ê²©ì€ ë°ë¯¸ì§€ ê°ì†Œ
-        // (ë¬´ë¦¬ ëŸ¬ì‹œê°€ ë™ì‹œì— ë•Œë ¤ë„ ìˆœê°„ ì¦‰ì‚¬í•˜ì§€ ì•Šê²Œ)
+        // ¿¬¼Ó ÇÇ°İ ¿ÏÃæ: °°Àº ½Ã°£ Ã¢ ¾È¿¡¼­ N¹øÂ° ÀÌÈÄ Å¸°İÀº µ¥¹ÌÁö °¨¼Ò
+        // (¹«¸® ·¯½Ã°¡ µ¿½Ã¿¡ ¶§·Áµµ ¼ø°£ Áï»çÇÏÁö ¾Ê°Ô)
         if (Time.time > burstWindowEnd)
         {
             burstWindowEnd = Time.time + GameBalance.BurstHitWindow;
@@ -246,13 +247,13 @@ public class TrainManager : MonoBehaviour
         if (burstHitCount > GameBalance.BurstFreeHits)
             finalDamage *= GameBalance.BurstExtraHitMul;
 
-        // Phase 2-3 ì¦ê°• 'ë„˜ì¹˜ëŠ” ì†¥': ì¦ê¸° ë³´í˜¸ë§‰ì´ í”¼í•´ë¥¼ ë¨¼ì € ë°›ëŠ”ë‹¤
+        // Phase 2-3 Áõ°­ '³ÑÄ¡´Â ¼Ü': Áõ±â º¸È£¸·ÀÌ ÇÇÇØ¸¦ ¸ÕÀú ¹Ş´Â´Ù
         if (steamShield > 0f)
         {
             float absorbed = Mathf.Min(steamShield, finalDamage);
             steamShield -= absorbed;
             finalDamage -= absorbed;
-            if (finalDamage <= 0f) return;   // ì „ë¶€ ë§‰ì•˜ë‹¤ - HP ë¬´ì†ì‹¤
+            if (finalDamage <= 0f) return;   // ÀüºÎ ¸·¾Ò´Ù - HP ¹«¼Õ½Ç
         }
 
         currentHP -= finalDamage;
@@ -270,7 +271,7 @@ public class TrainManager : MonoBehaviour
         float before = currentHP;
         currentHP = Mathf.Min(currentHP + amount, currentMaxHP);
 
-        // Phase 2-3 ì¦ê°• 'ë„˜ì¹˜ëŠ” ì†¥': ìµœëŒ€ HPë¥¼ ë„˜ëŠ” íšŒë³µë¶„ì€ ì¦ê¸° ë³´í˜¸ë§‰ìœ¼ë¡œ
+        // Phase 2-3 Áõ°­ '³ÑÄ¡´Â ¼Ü': ÃÖ´ë HP¸¦ ³Ñ´Â È¸º¹ºĞÀº Áõ±â º¸È£¸·À¸·Î
         if (AugmentManager.OverflowShield && amount > 0f)
         {
             float overflow = amount - (currentHP - before);
@@ -280,14 +281,14 @@ public class TrainManager : MonoBehaviour
         }
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // êµ¬ ì›¨ê±´ API (CraftingUI ë“± êµ¬ ìŠ¤í¬ë¦½íŠ¸ ì‚­ì œ ì „ê¹Œì§€ í˜¸í™˜ ìœ ì§€)
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ±¸ ¿ş°Ç API (CraftingUI µî ±¸ ½ºÅ©¸³Æ® »èÁ¦ Àü±îÁö È£È¯ À¯Áö)
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     public bool InstallWagon(int slotIndex, WagonType type)
     {
         if (slotIndex < 0 || slotIndex >= wagonSlots.Length)
         {
-            Debug.LogWarning("[TrainManager] ìœ íš¨í•˜ì§€ ì•Šì€ ìŠ¬ë¡¯ ì¸ë±ìŠ¤: " + slotIndex);
+            Debug.LogWarning("[TrainManager] À¯È¿ÇÏÁö ¾ÊÀº ½½·Ô ÀÎµ¦½º: " + slotIndex);
             return false;
         }
 
@@ -313,19 +314,19 @@ public class TrainManager : MonoBehaviour
     private void OnTrainDestroyed()
     {
         isAlive = false;
-        Debug.Log("[TrainManager] ê¸°ì°¨ê°€ ê²©íŒŒë˜ì—ˆìŠµë‹ˆë‹¤!");
+        Debug.Log("[TrainManager] ±âÂ÷°¡ °İÆÄµÇ¾ú½À´Ï´Ù!");
         GameManager.Instance?.OnTrainDestroyed();
 
-        // 'ì•„í™‰ ê°œì˜ ëª©ìˆ¨' ì¦ê°•ìœ¼ë¡œ ë¶€í™œí–ˆë‹¤ë©´ GameManagerê°€ Healì„ í˜¸ì¶œí•´ HPê°€ ì°¨ ìˆë‹¤
+        // '¾ÆÈ© °³ÀÇ ¸ñ¼û' Áõ°­À¸·Î ºÎÈ°Çß´Ù¸é GameManager°¡ HealÀ» È£ÃâÇØ HP°¡ Â÷ ÀÖ´Ù
         if (currentHP > 0f)
         {
             isAlive = true;
-            Debug.Log("[TrainManager] ë¶€í™œ - ê¸°ì°¨ ì¬ê°€ë™!");
+            Debug.Log("[TrainManager] ºÎÈ° - ±âÂ÷ Àç°¡µ¿!");
         }
     }
 
-    // â”€â”€ êµ¬ì‹œìŠ¤í…œ í˜¸í™˜ í”„ë¡œí¼í‹° (í—ˆê¸° ì œê±° - í•­ìƒ ê³ ì •ê°’) â”€â”€
-    public bool IsPowerSaveMode => false;   // ì ˆì „ëª¨ë“œ ì œê±° - í¬íƒ‘ì€ í•­ìƒ ê°€ë™
-    public bool IsBerserkMode => false;     // í­ì£¼ëª¨ë“œ(í¬ë§Œê° ê¸°ë°˜) ì œê±°
+    // ¦¡¦¡ ±¸½Ã½ºÅÛ È£È¯ ÇÁ·ÎÆÛÆ¼ (Çã±â Á¦°Å - Ç×»ó °íÁ¤°ª) ¦¡¦¡
+    public bool IsPowerSaveMode => false;   // ÀıÀü¸ğµå Á¦°Å - Æ÷Å¾Àº Ç×»ó °¡µ¿
+    public bool IsBerserkMode => false;     // ÆøÁÖ¸ğµå(Æ÷¸¸°¨ ±â¹İ) Á¦°Å
     public bool IsAlive => isAlive;
 }

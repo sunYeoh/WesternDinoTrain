@@ -4,7 +4,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 /// <summary>
-/// [BriefingUI.cs] v1.1 (v9.9.2 2026-09-16: 초상 + 키 동시 배치(실루엣 1배 위 + 키 아래) / 초상 틴트(EnemySkin 규칙) / 증강 선택창 위에도 열린다 - 승격 카드 "증강 선택"용)
+/// [BriefingUI.cs] v1.2 (v9.11 2026-09-22: 등장 연출 ModalFeel) / v1.1 (v9.9.2 2026-09-16: 초상 + 키 동시 배치(실루엣 1배 위 + 키 아래) / 초상 틴트(EnemySkin 규칙) / 증강 선택창 위에도 열린다 - 승격 카드 "증강 선택"용)
 ///   / v1 (신규, v9.9 2026-09-16) - 브리핑 카드: "읽는 동안 세계가 멈추는" 설명 창
 ///
 /// 튜토리얼 계획 v2 §5. 견습 운행(TutorialDirector)의 단계 시작마다, 그리고 정식 런에서 처음 만나는 것
@@ -223,6 +223,7 @@ public class BriefingUI : MonoBehaviour
         Fill(current);
 
         root.SetActive(true);
+        ModalFeel.Play(root.transform);   // v1.2: 카드 등장 연출 (어둠 페이드 + 판 팝)
         IsOpen = true;
         openedAt = Time.unscaledTime;
 

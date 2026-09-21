@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 
 /// <summary>
-/// [TurretAttackExecutor.cs] v5
+/// [TurretAttackExecutor.cs] v5.1 (v9.11 2026-09-22 타격감: DealDamage 가 HitFeel.NextHit(속성색·크리) 를 걸고 때린다) / v5
 /// 포탑 공격 형태(8종)별 판정 및 이펙트 실행기
 /// - v3: 모든 TakeDamage에 r.damageType 적용 (DEF/RES 계산)
 /// - v4: 증강 시스템(AugmentManager) 연동
@@ -208,8 +208,12 @@ public static class TurretAttackExecutor
             finalDamage *= (Random.value < AugmentManager.GamblerWinChance) ? 2f : 0.5f;
 
         // 치명타: 기본 1.5배 + 치피 가산
+        bool critHit = false;   // v5.1: 타격감(흰 조각·큰 찌그러짐)용
         if (AugmentManager.CritChanceAdd > 0f && Random.value < AugmentManager.CritChanceAdd)
+        {
             finalDamage *= 1.5f + AugmentManager.CritDamageAdd;
+            critHit = true;
+        }
 
         // 약점 파고들기: 도트 걸린 적에게 추가 데미지
         if (AugmentManager.DotTargetBonus > 0f && AugmentHooks.HasDotTracked(en))
@@ -221,6 +225,7 @@ public static class TurretAttackExecutor
 
         float hpBefore = en.currentHP;   // Phase 2-3: 초과 데미지(옆 테이블 계산서) 판정용
 
+        HitFeel.NextHit(TagColor(r.tag), critHit);   // v5.1: 이번 명중의 스파크 색 = 요리 속성색
         en.TakeDamage(finalDamage, r.damageType);
 
         // ── Phase 2-3: 처치 시 효과 (주방장 누적 / 마지막 서비스 / 옆 테이블 계산서) ──

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// [Enemy.cs] v3.2 (v9.10.1 2026-09-21: 물량 1.6배에 맞춘 처치 보상 배율 - 일반 손님 골드 GameBalance.KillGoldMul, 재료 드랍 확률 KillMaterialChance(보스는 항상). 드랍 이름을 재료 이름표(전기알·화염꽃·독샘)에 맞춤) / v3.1 (2026-09-14: 해빙 문구 / 전갈 마모 대체 스위치) / v3
+/// [Enemy.cs] v3.3 (v9.11 2026-09-22 타격감: 직접 명중 때 HitFeel.OnHit(플래시·찌그러짐·딜 비례 스파크), 죽을 때 HitFeel.OnKill(킬 버스트) - 도트 틱은 제외) / v3.2 (v9.10.1 2026-09-21: 물량 1.6배에 맞춘 처치 보상 배율 - 일반 손님 골드 GameBalance.KillGoldMul, 재료 드랍 확률 KillMaterialChance(보스는 항상). 드랍 이름을 재료 이름표(전기알·화염꽃·독샘)에 맞춤) / v3.1 (2026-09-14: 해빙 문구 / 전갈 마모 대체 스위치) / v3
 /// 모든 적 유닛의 기본 동작 + 전투 스탯(DEF/RES) + 상태이상(도트/방깎/마깎)
 /// - v3 변경점: 행동 패턴 시스템 (이름 기반 자동 배정 - 프리팹 설정 불필요)
 ///   1) 무리 사냥꾼(랩터): 주변 랩터가 많을수록 이동 속도 증가
@@ -702,6 +702,7 @@ public class Enemy : MonoBehaviour
     protected virtual void AttackTrain()
     {
         float damage = scaledATK * (IsBuffed ? 1.25f : 1f);
+        TrainFeel.NextHitX = transform.position.x;   // v3.3: 물린 칸만 번쩍이게
         trainManager?.TakeDamage(damage);
 
         if (data.enemyName == "독침 프테라")
@@ -766,6 +767,7 @@ public class Enemy : MonoBehaviour
     /// <summary>기존 호환용 - 타입 없는 데미지 (방어 무시 순수 데미지)</summary>
     public void TakeDamage(float damage)
     {
+        if (isAlive) HitFeel.OnHit(this, damage, false);   // v3.3: 타격감 (도트가 아닌 직접 명중)
         ApplyRawDamage(damage, false);
     }
 
@@ -786,6 +788,7 @@ public class Enemy : MonoBehaviour
         // v3.4: 파생 클래스 데미지 훅 (보스 '빙하 갑주' 등 - 도트는 이 훅을 안 거친다)
         finalDamage = ModifyIncomingDamage(finalDamage, dtype);
 
+        if (isAlive) HitFeel.OnHit(this, finalDamage, dtype == DamageType.Magic);   // v3.3: 타격감
         ApplyRawDamage(finalDamage, dtype == DamageType.Magic);
     }
 
@@ -879,6 +882,8 @@ public class Enemy : MonoBehaviour
 
         // P1 게임필: 처치 팝 (드랍 재료 색과 통일 - 조각 흡수 연출과 이어져 보이게)
         GameFeel.DeathPop(transform.position, PickupFX.ColorOf(GetDropMaterialType()));
+        // v3.3: 죽는 과정 (플래시 -> 납작 -> 링·조각 -> 페이드). 보스는 크게
+        HitFeel.OnKill(this, PickupFX.ColorOf(GetDropMaterialType()), this is BossEnemy);
 
         // 밸런스 1차 (B-3 레버 리턴): 전속 주행 중 처치 골드 +25%
         // - 스폰 압박/판정 페널티를 감수한 값. 회전율이 곧 매출이다
