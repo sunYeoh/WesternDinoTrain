@@ -3,60 +3,60 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 
 /// <summary>
-/// [KitchenEvents.cs] v2
-/// ì£¼ë°© ëŒë°œ ì´ë²¤íŠ¸ ì¸í„°í˜ì´ìŠ¤ + 4ì¢… êµ¬í˜„ì²´ (ê¸°íš B-4)
+/// [KitchenEvents.cs] v2 / v9.10.1 2026-09-21: Àç·á ÀÌ¸§ MaterialNames
+/// ÁÖ¹æ µ¹¹ß ÀÌº¥Æ® ÀÎÅÍÆäÀÌ½º + 4Á¾ ±¸ÇöÃ¼ (±âÈ¹ B-4)
 ///
-/// ìƒˆ ì¡°ì‘í‚¤ë¥¼ ë§Œë“¤ì§€ ì•Šê³  ê¸°ì¡´ ì¡°ì‘ë§Œ ì¬í™œìš©í•œë‹¤
-///  - ëª¬ìŠ¤í„° ì¹¨ì… : E ì—°íƒ€      (ì¡°ë¦¬ ìƒí˜¸ì‘ìš© í‚¤)
-///  - ê¸°êµ¬ ê³ ì¥   : ë°©í–¥í‚¤ ì»¤ë§¨ë“œ (ë³¶ê¸° ë¯¸ë‹ˆê²Œì„ ì¡°ì‘)
-///  - ì£¼ë°© í™”ì¬   : E í™€ë“œ       (ì¡°ë¦¬ ìƒí˜¸ì‘ìš© í‚¤)
-///  - ì¬ë£Œ í˜ë¦¼   : ë§ˆìš°ìŠ¤ ì¢Œí´ë¦­ (ìŠ¬ë¡¯ ë§ˆì»¤ ì¡°ì‘)
+/// »õ Á¶ÀÛÅ°¸¦ ¸¸µéÁö ¾Ê°í ±âÁ¸ Á¶ÀÛ¸¸ ÀçÈ°¿ëÇÑ´Ù
+///  - ¸ó½ºÅÍ Ä§ÀÔ : E ¿¬Å¸      (Á¶¸® »óÈ£ÀÛ¿ë Å°)
+///  - ±â±¸ °íÀå   : ¹æÇâÅ° Ä¿¸Çµå (ºº±â ¹Ì´Ï°ÔÀÓ Á¶ÀÛ)
+///  - ÁÖ¹æ È­Àç   : E È¦µå       (Á¶¸® »óÈ£ÀÛ¿ë Å°)
+///  - Àç·á Èê¸²   : ¸¶¿ì½º ÁÂÅ¬¸¯ (½½·Ô ¸¶Ä¿ Á¶ÀÛ)
 ///
-/// - v2 (v9.6, 2026-09-09): "í™”ë©´ ì „ì²´ ê²½ë³´" ë¹„ì£¼ì–¼ (ì´ë²¤íŠ¸ ëª©ì—… v2 ì»¨íŒ)
-///   íŒì • / ê²Œì´ì§€ / ì œí•œì‹œê°„ / ë³´ìƒ / í˜ë„í‹° / ì•µì»¤ ê·¼ì ‘ ê²Œì´íŠ¸ëŠ” v1 ê·¸ëŒ€ë¡œ. KitchenEventManager.SkinReady ê°€ true ì¼ ë•Œë§Œ ê·¸ë¦¼ì„ ë°”ê¾¼ë‹¤
-///   * ì¹¨ì…ì: í™”ë©´ ì˜¤ë¥¸ìª½ ìœ„ í° ë°œí†± ìêµ­ + í™”ë©´ ê¸ˆ, ì™¼ìª½ ì•„ë˜ ì‘ì€ ë°œí†± (OverlayRoot). E ì—°íƒ€ë§ˆë‹¤ í™”ë©´ í”ë“¤ë¦¼ + ë°œí†±ì´ ë²ˆì©,
-///             ëª°ì•„ë‚¼ìˆ˜ë¡ ì˜…ì–´ì§„ë‹¤. í˜„ì¥ì—ëŠ” 150 ì¹´ë“œ(ë¹¨ê°„ í…Œ) ì•ˆì— e_raptor ì•ìª½ ì ˆë°˜ì´ ë“¤ì´ë‹¥ì³ ìˆê³  ì—°íƒ€í• ìˆ˜ë¡ ë°–ìœ¼ë¡œ ë°€ë ¤ë‚œë‹¤ (ë§ˆìŠ¤í¬)
-///   * ê³ ì¥  : í™”ë©´ ë…¸ì´ì¦ˆ ì¤„ ê¹œë¹¡ + ë…¸ë€ ê²½ë³´. í˜„ì¥ ì¹´ë“œì— í™”ì‚´í‘œ ì¹© nê°œ (ì™„ë£Œ íë¦¼ / í˜„ì¬ í™©ê¸ˆ / ëŒ€ê¸° í¬ë¦¼) + ëª¨ì„œë¦¬ ìŠ¤íŒŒí¬. ì˜¤ì…ë ¥ = í…Œ ë¹¨ê°•
-///   * í™”ì¬  : HUD ë°”ë¡œ ìœ„ì—ì„œ í™”ë©´ í­ ì „ì²´ë¡œ íƒ€ëŠ” ë¶ˆì˜ ë²½ (3í”„ë ˆì„ íƒ€ì¼, ëŒìˆ˜ë¡ ë‚®ì•„ì§) + ë– ì˜¤ë¥´ëŠ” ì—°ê¸° + ì§„í•œ ë¶‰ì€ ê²½ë³´.
-///             í˜„ì¥ì—ëŠ” ê·¸ì„ìŒ + ë¶ˆê¸¸ 3 (ì§„í™” 1/3 ë§ˆë‹¤ í•˜ë‚˜ì”© êº¼ì§) + ì—°ê¸°
-///   * í˜ë¦¼  : ì‹œì‘ ì‹œ í™”ë©´ í”ë“¤ë¦¼ + ì¬ë£Œ ì¹© (í‰íŒ + ê³„ì—´ìƒ‰ í…Œ + ì¬ë£Œ ì•„ì´ì½˜ ui_mat_* + ì´ë¦„, ì‚´ì§ ê¸°ìš¸ì–´ì§)
-///   ê·¸ë¦¼ì´ ì—†ìœ¼ë©´ v1 ë‹¨ìƒ‰ ë°•ìŠ¤/ê¸€ì ê·¸ëŒ€ë¡œ
+/// - v2 (v9.6, 2026-09-09): "È­¸é ÀüÃ¼ °æº¸" ºñÁÖ¾ó (ÀÌº¥Æ® ¸ñ¾÷ v2 ÄÁÆß)
+///   ÆÇÁ¤ / °ÔÀÌÁö / Á¦ÇÑ½Ã°£ / º¸»ó / Æä³ÎÆ¼ / ¾ŞÄ¿ ±ÙÁ¢ °ÔÀÌÆ®´Â v1 ±×´ë·Î. KitchenEventManager.SkinReady °¡ true ÀÏ ¶§¸¸ ±×¸²À» ¹Ù²Û´Ù
+///   * Ä§ÀÔÀÚ: È­¸é ¿À¸¥ÂÊ À§ Å« ¹ßÅé ÀÚ±¹ + È­¸é ±İ, ¿ŞÂÊ ¾Æ·¡ ÀÛÀº ¹ßÅé (OverlayRoot). E ¿¬Å¸¸¶´Ù È­¸é Èçµé¸² + ¹ßÅéÀÌ ¹øÂ½,
+///             ¸ô¾Æ³¾¼ö·Ï ¿¶¾îÁø´Ù. ÇöÀå¿¡´Â 150 Ä«µå(»¡°£ Å×) ¾È¿¡ e_raptor ¾ÕÂÊ Àı¹İÀÌ µéÀÌ´ÚÃÄ ÀÖ°í ¿¬Å¸ÇÒ¼ö·Ï ¹ÛÀ¸·Î ¹Ğ·Á³­´Ù (¸¶½ºÅ©)
+///   * °íÀå  : È­¸é ³ëÀÌÁî ÁÙ ±ôºı + ³ë¶õ °æº¸. ÇöÀå Ä«µå¿¡ È­»ìÇ¥ Ä¨ n°³ (¿Ï·á Èå¸² / ÇöÀç È²±İ / ´ë±â Å©¸²) + ¸ğ¼­¸® ½ºÆÄÅ©. ¿ÀÀÔ·Â = Å× »¡°­
+///   * È­Àç  : HUD ¹Ù·Î À§¿¡¼­ È­¸é Æø ÀüÃ¼·Î Å¸´Â ºÒÀÇ º® (3ÇÁ·¹ÀÓ Å¸ÀÏ, ²ø¼ö·Ï ³·¾ÆÁü) + ¶°¿À¸£´Â ¿¬±â + ÁøÇÑ ºÓÀº °æº¸.
+///             ÇöÀå¿¡´Â ±×À»À½ + ºÒ±æ 3 (ÁøÈ­ 1/3 ¸¶´Ù ÇÏ³ª¾¿ ²¨Áü) + ¿¬±â
+///   * Èê¸²  : ½ÃÀÛ ½Ã È­¸é Èçµé¸² + Àç·á Ä¨ (ÆòÆÇ + °è¿­»ö Å× + Àç·á ¾ÆÀÌÄÜ ui_mat_* + ÀÌ¸§, »ìÂ¦ ±â¿ï¾îÁü)
+///   ±×¸²ÀÌ ¾øÀ¸¸é v1 ´Ü»ö ¹Ú½º/±ÛÀÚ ±×´ë·Î
 ///
-/// VS 2017 (C# 7.3) í˜¸í™˜
+/// VS 2017 (C# 7.3) È£È¯
 /// </summary>
 public interface IKitchenEvent
 {
-    /// <summary>ë°°ë„ˆ ì œëª©</summary>
+    /// <summary>¹è³Ê Á¦¸ñ</summary>
     string Title { get; }
-    /// <summary>ë°°ë„ˆ ì¡°ì‘ ì•ˆë‚´ (ë§¤ í”„ë ˆì„ ê°±ì‹ ë˜ë¯€ë¡œ ì‹¤ì‹œê°„ ìƒíƒœ í‘œì‹œì— ì¨ë„ ëœë‹¤)</summary>
+    /// <summary>¹è³Ê Á¶ÀÛ ¾È³» (¸Å ÇÁ·¹ÀÓ °»½ÅµÇ¹Ç·Î ½Ç½Ã°£ »óÅÂ Ç¥½Ã¿¡ ½áµµ µÈ´Ù)</summary>
     string Guide { get; }
-    /// <summary>ì œí•œ ì‹œê°„(ì´ˆ)</summary>
+    /// <summary>Á¦ÇÑ ½Ã°£(ÃÊ)</summary>
     float TimeLimit { get; }
-    /// <summary>ì§„í–‰ë„ 0~1 (ê²Œì´ì§€ í‘œì‹œìš©)</summary>
+    /// <summary>ÁøÇàµµ 0~1 (°ÔÀÌÁö Ç¥½Ã¿ë)</summary>
     float Progress { get; }
 
-    /// <summary>ì´ë²¤íŠ¸ ì‹œì‘. difficultyëŠ” 0~1 (ëˆ„ì ë ìˆ˜ë¡ ì¦ê°€)</summary>
+    /// <summary>ÀÌº¥Æ® ½ÃÀÛ. difficulty´Â 0~1 (´©ÀûµÉ¼ö·Ï Áõ°¡)</summary>
     void OnStart(KitchenEventManager mgr, float difficulty);
 
-    /// <summary>ë§¤ í”„ë ˆì„ í˜¸ì¶œ. ë°˜í™˜ê°’ trueë©´ ì¢…ë£Œ, successì— ì„±ê³µ ì—¬ë¶€ë¥¼ ë‹´ëŠ”ë‹¤</summary>
+    /// <summary>¸Å ÇÁ·¹ÀÓ È£Ãâ. ¹İÈ¯°ª true¸é Á¾·á, success¿¡ ¼º°ø ¿©ºÎ¸¦ ´ã´Â´Ù</summary>
     bool OnUpdate(float dt, out bool success);
 
-    /// <summary>ì¢…ë£Œ ì²˜ë¦¬ (ë³´ìƒ / í˜ë„í‹°)</summary>
+    /// <summary>Á¾·á Ã³¸® (º¸»ó / Æä³ÎÆ¼)</summary>
     void OnEnd(bool success);
 }
 
 
-/// <summary>v2: ì´ë²¤íŠ¸ 4ì¢…ì´ ê°™ì´ ì“°ëŠ” ìƒ‰/í—¬í¼</summary>
+/// <summary>v2: ÀÌº¥Æ® 4Á¾ÀÌ °°ÀÌ ¾²´Â »ö/ÇïÆÛ</summary>
 public static class KitchenEventSkin
 {
-    public static readonly Color RED = new Color(0.84f, 0.16f, 0.16f, 1f);        // ê²½ë³´ / ìœ„í—˜ í…Œ
-    public static readonly Color YELLOW = new Color(0.9f, 0.67f, 0.16f, 1f);      // ì „ê¸° ê²½ë³´
-    public static readonly Color COPPER = new Color(0.722f, 0.439f, 0.204f, 1f);  // ì¹´ë“œ ê¸°ë³¸ í…Œ
+    public static readonly Color RED = new Color(0.84f, 0.16f, 0.16f, 1f);        // °æº¸ / À§Çè Å×
+    public static readonly Color YELLOW = new Color(0.9f, 0.67f, 0.16f, 1f);      // Àü±â °æº¸
+    public static readonly Color COPPER = new Color(0.722f, 0.439f, 0.204f, 1f);  // Ä«µå ±âº» Å×
     public static readonly Color GOLD = new Color(0.886f, 0.698f, 0.227f, 1f);
     public static readonly Color CREAM = new Color(0.969f, 0.910f, 0.776f, 1f);
-    public static readonly Color DIMR = new Color(0.55f, 0.47f, 0.35f, 1f);       // ì™„ë£Œ/ëŒ€ê¸° íë¦¼
+    public static readonly Color DIMR = new Color(0.55f, 0.47f, 0.35f, 1f);       // ¿Ï·á/´ë±â Èå¸²
 
-    /// <summary>ë¶ˆê¸¸/ìŠ¤íŒŒí¬ ê°™ì€ n í”„ë ˆì„ ìˆœí™˜ ì¸ë±ìŠ¤</summary>
+    /// <summary>ºÒ±æ/½ºÆÄÅ© °°Àº n ÇÁ·¹ÀÓ ¼øÈ¯ ÀÎµ¦½º</summary>
     public static int Frame(float time, float fps, int count, int offset)
     {
         return (Mathf.FloorToInt(time * fps) + offset) % count;
@@ -65,28 +65,28 @@ public static class KitchenEventSkin
 
 
 // ======================================================================
-//  1. ëª¬ìŠ¤í„° ì¹¨ì… - E ì—°íƒ€ë¡œ ê²©í‡´
+//  1. ¸ó½ºÅÍ Ä§ÀÔ - E ¿¬Å¸·Î °İÅğ
 // ======================================================================
 public class MonsterIntrusionEvent : IKitchenEvent
 {
     private KitchenEventManager manager;
-    private float gauge;              // í˜„ì¬ ê²©í‡´ ê²Œì´ì§€
-    private float needGauge;          // ëª©í‘œì¹˜
-    private float decayPerSec = 14f;  // ê°€ë§Œíˆ ìˆìœ¼ë©´ ê²Œì´ì§€ê°€ ì¤„ì–´ë“ ë‹¤
-    private float gainPerPress = 9f;  // E í•œ ë²ˆë‹¹ ìƒìŠ¹ëŸ‰
+    private float gauge;              // ÇöÀç °İÅğ °ÔÀÌÁö
+    private float needGauge;          // ¸ñÇ¥Ä¡
+    private float decayPerSec = 14f;  // °¡¸¸È÷ ÀÖÀ¸¸é °ÔÀÌÁö°¡ ÁÙ¾îµç´Ù
+    private float gainPerPress = 9f;  // E ÇÑ ¹ø´ç »ó½Â·®
     private RectTransform intruderIcon;
     private float shakeTimer;
-    private float baseX;   // B-1: ìœ„ì¹˜ ì•µì»¤ì˜ ìº”ë²„ìŠ¤ X (ì•„ì´ì½˜ì´ í˜„ì¥ì— ëœ¬ë‹¤)
+    private float baseX;   // B-1: À§Ä¡ ¾ŞÄ¿ÀÇ Äµ¹ö½º X (¾ÆÀÌÄÜÀÌ ÇöÀå¿¡ ¶á´Ù)
 
-    // v2 ìŠ¤í‚¨
+    // v2 ½ºÅ²
     private bool skin;
-    private RectTransform raptor;     // ì¹´ë“œ ì•ˆ ë©í„° (ë§ˆìŠ¤í¬ ì•ˆì—ì„œ ì˜¤ë¥¸ìª½ìœ¼ë¡œ ë°€ë ¤ë‚œë‹¤)
+    private RectTransform raptor;     // Ä«µå ¾È ·¦ÅÍ (¸¶½ºÅ© ¾È¿¡¼­ ¿À¸¥ÂÊÀ¸·Î ¹Ğ·Á³­´Ù)
     private Image clawBig, clawSmall, crack;
-    private float clawFlash;          // E ë¥¼ ì¹œ ì§í›„ ë°œí†±ì´ ë²ˆì© (ì´ˆ)
-    private const float RAPTOR_PUSH = 170f;   // ê²Œì´ì§€ 100% ì¼ ë•Œ ë©í„°ê°€ ë°€ë ¤ë‚˜ëŠ” ê±°ë¦¬ (px)
+    private float clawFlash;          // E ¸¦ Ä£ Á÷ÈÄ ¹ßÅéÀÌ ¹øÂ½ (ÃÊ)
+    private const float RAPTOR_PUSH = 170f;   // °ÔÀÌÁö 100% ÀÏ ¶§ ·¦ÅÍ°¡ ¹Ğ·Á³ª´Â °Å¸® (px)
 
-    public string Title { get { return "ì¹¨ì…ì! ì£¼ë°©ì— ë©í„°ê°€ ë“¤ì–´ì™”ë‹¤"; } }
-    public string Guide { get { return "[E] ì—°íƒ€í•´ì„œ ëª°ì•„ë‚´ë¼!   " + Mathf.RoundToInt(gauge) + " / " + Mathf.RoundToInt(needGauge); } }
+    public string Title { get { return "Ä§ÀÔÀÚ! ÁÖ¹æ¿¡ ·¦ÅÍ°¡ µé¾î¿Ô´Ù"; } }
+    public string Guide { get { return "[E] ¿¬Å¸ÇØ¼­ ¸ô¾Æ³»¶ó!   " + Mathf.RoundToInt(gauge) + " / " + Mathf.RoundToInt(needGauge); } }
     public float TimeLimit { get { return 6.5f; } }
     public float Progress { get { return needGauge > 0f ? gauge / needGauge : 0f; } }
 
@@ -94,12 +94,12 @@ public class MonsterIntrusionEvent : IKitchenEvent
     {
         manager = mgr;
         gauge = 0f;
-        needGauge = 90f * (1f + difficulty);   // ë‚œì´ë„ì— ë”°ë¼ ìµœëŒ€ 180
+        needGauge = 90f * (1f + difficulty);   // ³­ÀÌµµ¿¡ µû¶ó ÃÖ´ë 180
 
-        // Phase 2-3 ì•„ì´í…œ 'ë©í„° ë«': ì¹¨ì…ìê°€ ë«ì„ ë°Ÿê³  ì‹œì‘ - ê²©í‡´ ê²Œì´ì§€ ê°ì†Œ
+        // Phase 2-3 ¾ÆÀÌÅÛ '·¦ÅÍ µ£': Ä§ÀÔÀÚ°¡ µ£À» ¹â°í ½ÃÀÛ - °İÅğ °ÔÀÌÁö °¨¼Ò
         needGauge *= ItemManager.IntruderGaugeMul;
 
-        // ì¹¨ì…ì í‘œì‹œìš© ì•„ì´ì½˜ - B-1: ìœ„ì¹˜ ì•µì»¤ ì§€ì ì— ëœ¬ë‹¤ (ë‹¬ë ¤ê°ˆ ê³³ì´ ë³´ì´ê²Œ)
+        // Ä§ÀÔÀÚ Ç¥½Ã¿ë ¾ÆÀÌÄÜ - B-1: À§Ä¡ ¾ŞÄ¿ ÁöÁ¡¿¡ ¶á´Ù (´Ş·Á°¥ °÷ÀÌ º¸ÀÌ°Ô)
         baseX = mgr.AnchorCanvasX();
         skin = KitchenEventManager.SkinReady && SpriteBank.Has("e_raptor");
         if (skin)
@@ -115,7 +115,7 @@ public class MonsterIntrusionEvent : IKitchenEvent
         intruderIcon.sizeDelta = new Vector2(150f, 150f);
         intruderIcon.GetComponent<Image>().raycastTarget = false;
 
-        Text label = KitchenEventManager.MakeText(intruderIcon, "Label", "ì¹¨ì…ì", 24, Color.white);
+        Text label = KitchenEventManager.MakeText(intruderIcon, "Label", "Ä§ÀÔÀÚ", 24, Color.white);
         RectTransform lrt = label.rectTransform;
         lrt.anchorMin = Vector2.zero;
         lrt.anchorMax = Vector2.one;
@@ -123,18 +123,18 @@ public class MonsterIntrusionEvent : IKitchenEvent
         lrt.offsetMax = Vector2.zero;
     }
 
-    /// <summary>v2: í™”ë©´ ë°œí†± + ê¸ˆ (ì˜¤ë²„ë ˆì´) / í˜„ì¥ ë©í„° ì¹´ë“œ (ì»¤ìŠ¤í…€)</summary>
+    /// <summary>v2: È­¸é ¹ßÅé + ±İ (¿À¹ö·¹ÀÌ) / ÇöÀå ·¦ÅÍ Ä«µå (Ä¿½ºÅÒ)</summary>
     private void BuildSkin(KitchenEventManager mgr)
     {
         mgr.SetAlarm(KitchenEventSkin.RED, 0.55f);
 
-        // í™”ë©´ ê¸ˆ -> í° ë°œí†± (ì˜¤ë¥¸ìª½ ìœ„) -> ì‘ì€ ë°œí†± (ì™¼ìª½ ì•„ë˜, ë’¤ì§‘ìŒ). ëª©ì—… v2 ì¢Œí‘œ (1920 ê¸°ì¤€, í™”ë©´ ì¤‘ì•™ ì›ì )
+        // È­¸é ±İ -> Å« ¹ßÅé (¿À¸¥ÂÊ À§) -> ÀÛÀº ¹ßÅé (¿ŞÂÊ ¾Æ·¡, µÚÁıÀ½). ¸ñ¾÷ v2 ÁÂÇ¥ (1920 ±âÁØ, È­¸é Áß¾Ó ¿øÁ¡)
         crack = KitchenEventManager.MakeSprite(mgr.OverlayRoot, "Crack", SpriteBank.Get("ui_ev_crack"), new Vector2(440f, 290f), new Vector2(320f, 320f));
         clawBig = KitchenEventManager.MakeSprite(mgr.OverlayRoot, "ClawBig", SpriteBank.Get("ui_ev_claw"), new Vector2(420f, 280f), new Vector2(400f, 440f));
         clawSmall = KitchenEventManager.MakeSprite(mgr.OverlayRoot, "ClawSmall", SpriteBank.Get("ui_ev_claw"), new Vector2(-700f, -10f), new Vector2(400f, 440f));
         clawSmall.rectTransform.localScale = new Vector3(-1f, 1f, 1f);
 
-        // í˜„ì¥ ì¹´ë“œ: í‰íŒ + ë¹¨ê°„ í…Œ + ë§ˆìŠ¤í¬ ì•ˆ ë©í„° + ëª…íŒ + [E] ì¹©
+        // ÇöÀå Ä«µå: ÆòÆÇ + »¡°£ Å× + ¸¶½ºÅ© ¾È ·¦ÅÍ + ¸íÆÇ + [E] Ä¨
         Image ring;
         intruderIcon = KitchenEventManager.MakeCard(mgr.CustomRoot, "Intruder", new Vector2(baseX, -40f), new Vector2(150f, 150f), KitchenEventSkin.RED, out ring);
 
@@ -145,7 +145,7 @@ public class MonsterIntrusionEvent : IKitchenEvent
         mrt.offsetMin = new Vector2(8f, 8f); mrt.offsetMax = new Vector2(-8f, -8f);
         maskGo.AddComponent<RectMask2D>();
 
-        // e_raptor ì•ìª½ ì ˆë°˜ (x 40~112) ì„ ì˜ë¼ 2ë°°ë¡œ. ë¨¸ë¦¬ê°€ ì¹´ë“œ ì•ˆìª½(ì™¼ìª½)ì„ ë³´ë„ë¡ ë’¤ì§‘ëŠ”ë‹¤
+        // e_raptor ¾ÕÂÊ Àı¹İ (x 40~112) À» Àß¶ó 2¹è·Î. ¸Ó¸®°¡ Ä«µå ¾ÈÂÊ(¿ŞÂÊ)À» º¸µµ·Ï µÚÁı´Â´Ù
         Sprite full = SpriteBank.Get("e_raptor");
         Rect r = full.rect;
         Sprite front = Sprite.Create(full.texture, new Rect(r.x + 40f, r.y, 72f, r.height), new Vector2(0.5f, 0.5f), full.pixelsPerUnit, 0, SpriteMeshType.FullRect);
@@ -155,11 +155,11 @@ public class MonsterIntrusionEvent : IKitchenEvent
         raptor = rimg.rectTransform;
         PlaceRaptor(0f);
 
-        UISkin.Nameplate(intruderIcon, "Intruder", "ì¹¨ì…ì", 14, new Vector2(0f, 1f), new Vector2(8f, 4f), 74f);
-        KitchenEventManager.MakeChip(intruderIcon, "Hint", "[E] ì—°íƒ€!", new Vector2(0f, -95f), KitchenEventSkin.RED);
+        UISkin.Nameplate(intruderIcon, "Intruder", "Ä§ÀÔÀÚ", 14, new Vector2(0f, 1f), new Vector2(8f, 4f), 74f);
+        KitchenEventManager.MakeChip(intruderIcon, "Hint", "[E] ¿¬Å¸!", new Vector2(0f, -95f), KitchenEventSkin.RED);
     }
 
-    /// <summary>ë©í„° ìœ„ì¹˜: ì¹´ë“œ ì™¼ìª½ì— ë¨¸ë¦¬, ê²Œì´ì§€ë§Œí¼ ì˜¤ë¥¸ìª½ìœ¼ë¡œ ë°€ë ¤ë‚œë‹¤</summary>
+    /// <summary>·¦ÅÍ À§Ä¡: Ä«µå ¿ŞÂÊ¿¡ ¸Ó¸®, °ÔÀÌÁö¸¸Å­ ¿À¸¥ÂÊÀ¸·Î ¹Ğ·Á³­´Ù</summary>
     private void PlaceRaptor(float t)
     {
         if (raptor == null) return;
@@ -172,11 +172,11 @@ public class MonsterIntrusionEvent : IKitchenEvent
         gauge -= decayPerSec * dt;
         if (gauge < 0f) gauge = 0f;
 
-        // B-1: í˜„ì¥(ì•µì»¤) ê·¼ì²˜ì—ì„œë§Œ ê²©í‡´ ê°€ëŠ¥ - ë©€ë¦¬ì„œ ëˆ„ë¥´ë©´ í—›ì†ì§ˆ
+        // B-1: ÇöÀå(¾ŞÄ¿) ±ÙÃ³¿¡¼­¸¸ °İÅğ °¡´É - ¸Ö¸®¼­ ´©¸£¸é Çê¼ÕÁú
         if (Input.GetKeyDown(KeyCode.E) && KitchenEventManager.ChefInReach)
         {
             gauge += gainPerPress;
-            shakeTimer = 0.12f;   // ë•Œë¦° ëŠë‚Œìœ¼ë¡œ ì•„ì´ì½˜ì„ í”ë“ ë‹¤
+            shakeTimer = 0.12f;   // ¶§¸° ´À³¦À¸·Î ¾ÆÀÌÄÜÀ» Èçµç´Ù
             if (skin)
             {
                 clawFlash = 0.14f;
@@ -184,11 +184,11 @@ public class MonsterIntrusionEvent : IKitchenEvent
             }
         }
 
-        // ì•„ì´ì½˜ í”ë“¤ê¸° + ê²Œì´ì§€ì— ë”°ë¼ ì‘ì•„ì§€ëŠ” ì—°ì¶œ (v2 ìŠ¤í‚¨: í¬ê¸° ëŒ€ì‹  ë©í„°ê°€ ë°€ë ¤ë‚œë‹¤)
+        // ¾ÆÀÌÄÜ Èçµé±â + °ÔÀÌÁö¿¡ µû¶ó ÀÛ¾ÆÁö´Â ¿¬Ãâ (v2 ½ºÅ²: Å©±â ´ë½Å ·¦ÅÍ°¡ ¹Ğ·Á³­´Ù)
         if (intruderIcon != null)
         {
-            // í”Œë ˆì´í…ŒìŠ¤íŠ¸ í”½ìŠ¤: ì¹´ë©”ë¼ê°€ ì…°í”„ë¥¼ ë”°ë¼ê°€ë¯€ë¡œ í™”ë©´ ì¢Œí‘œë¥¼ ë§¤ í”„ë ˆì„ ì¬ê³„ì‚°
-            // (í•œ ë²ˆë§Œ ê³„ì‚°í•˜ë©´ ì•„ì´ì½˜ì´ í™”ë©´ì— ëˆŒì–´ë¶™ì–´ í˜„ì¥ì´ ì–´ë”˜ì§€ ì•Œ ìˆ˜ ì—†ì—ˆë‹¤)
+            // ÇÃ·¹ÀÌÅ×½ºÆ® ÇÈ½º: Ä«¸Ş¶ó°¡ ¼ÎÇÁ¸¦ µû¶ó°¡¹Ç·Î È­¸é ÁÂÇ¥¸¦ ¸Å ÇÁ·¹ÀÓ Àç°è»ê
+            // (ÇÑ ¹ø¸¸ °è»êÇÏ¸é ¾ÆÀÌÄÜÀÌ È­¸é¿¡ ´­¾îºÙ¾î ÇöÀåÀÌ ¾îµòÁö ¾Ë ¼ö ¾ø¾ú´Ù)
             baseX = manager.AnchorCanvasX();
 
             float t = Mathf.Clamp01(Progress);
@@ -196,7 +196,7 @@ public class MonsterIntrusionEvent : IKitchenEvent
             {
                 PlaceRaptor(t);
                 if (clawFlash > 0f) clawFlash -= dt;
-                // ëª°ì•„ë‚¼ìˆ˜ë¡ ë°œí†± ìêµ­ì´ ì˜…ì–´ì§„ë‹¤. ì—°íƒ€ ì§í›„ì—” ë²ˆì©
+                // ¸ô¾Æ³¾¼ö·Ï ¹ßÅé ÀÚ±¹ÀÌ ¿¶¾îÁø´Ù. ¿¬Å¸ Á÷ÈÄ¿£ ¹øÂ½
                 float a = clawFlash > 0f ? 1f : Mathf.Lerp(1f, 0.25f, t);
                 if (clawBig != null) clawBig.color = new Color(1f, 1f, 1f, a);
                 if (crack != null) crack.color = new Color(1f, 1f, 1f, a);
@@ -232,34 +232,34 @@ public class MonsterIntrusionEvent : IKitchenEvent
         if (success)
         {
             manager.HealTrain(25f);
-            // ë³´ìƒ ë‹¤ì–‘í™” (v3): ê²©í‡´í•œ ì¹¨ì…ìê°€ ì¬ë£Œë¥¼ ë–¨êµ°ë‹¤
+            // º¸»ó ´Ù¾çÈ­ (v3): °İÅğÇÑ Ä§ÀÔÀÚ°¡ Àç·á¸¦ ¶³±º´Ù
             if (MaterialInventory.Instance != null)
                 MaterialInventory.Instance.Add(MaterialType.Meat, 1);
 
-            // Phase 2-3 ì•„ì´í…œ 'ì¥ë¬¼ ì£¼ë¨¸ë‹ˆ': ì¹¨ì…ì ê²©í‡´ë§ˆë‹¤ ì¶”ê°€ ê³¨ë“œ
+            // Phase 2-3 ¾ÆÀÌÅÛ 'Àå¹° ÁÖ¸Ó´Ï': Ä§ÀÔÀÚ °İÅğ¸¶´Ù Ãß°¡ °ñµå
             if (ItemManager.SwagGoldPerIntruder > 0)
             {
                 GameManager.Instance?.AddGold(ItemManager.SwagGoldPerIntruder);
-                UIManager.Instance?.ShowStatChange("[ì¥ë¬¼ ì£¼ë¨¸ë‹ˆ] ì¹¨ì…ìì˜ ì£¼ë¨¸ë‹ˆë¥¼ í„¸ì—ˆë‹¤ +"
+                UIManager.Instance?.ShowStatChange("[Àå¹° ÁÖ¸Ó´Ï] Ä§ÀÔÀÚÀÇ ÁÖ¸Ó´Ï¸¦ ÅĞ¾ú´Ù +"
                     + ItemManager.SwagGoldPerIntruder + "G");
             }
 
-            // Phase 2-3: ì¹¨ì…ìê°€ ë‚®ì€ í™•ë¥ ë¡œ ì•„ì´í…œì„ ë–¨êµ°ë‹¤ (ì¥ë¬¼ ì£¼ë¨¸ë‹ˆ ìš°ì„ )
+            // Phase 2-3: Ä§ÀÔÀÚ°¡ ³·Àº È®·ü·Î ¾ÆÀÌÅÛÀ» ¶³±º´Ù (Àå¹° ÁÖ¸Ó´Ï ¿ì¼±)
             ItemManager.TryIntruderDrop();
 
-            Debug.Log("[ì£¼ë°©ì´ë²¤íŠ¸] ì¹¨ì…ì ê²©í‡´ ì„±ê³µ - ê¸°ì°¨ 25 íšŒë³µ + ê³ ê¸° 1");
+            Debug.Log("[ÁÖ¹æÀÌº¥Æ®] Ä§ÀÔÀÚ °İÅğ ¼º°ø - ±âÂ÷ 25 È¸º¹ + °í±â 1");
         }
         else
         {
-            manager.DamageTrain(60f);   // HP 500 ê¸°ì¤€ ì¡°ì • (ê¸°ì¡´ 90)
-            Debug.Log("[ì£¼ë°©ì´ë²¤íŠ¸] ì¹¨ì…ì ê²©í‡´ ì‹¤íŒ¨ - ê¸°ì°¨ 60 í”¼í•´");
+            manager.DamageTrain(60f);   // HP 500 ±âÁØ Á¶Á¤ (±âÁ¸ 90)
+            Debug.Log("[ÁÖ¹æÀÌº¥Æ®] Ä§ÀÔÀÚ °İÅğ ½ÇÆĞ - ±âÂ÷ 60 ÇÇÇØ");
         }
     }
 }
 
 
 // ======================================================================
-//  2. ê¸°êµ¬ ê³ ì¥ - ë°©í–¥í‚¤ ì»¤ë§¨ë“œ ì…ë ¥ìœ¼ë¡œ ìˆ˜ë¦¬
+//  2. ±â±¸ °íÀå - ¹æÇâÅ° Ä¿¸Çµå ÀÔ·ÂÀ¸·Î ¼ö¸®
 // ======================================================================
 public class EquipmentBreakEvent : IKitchenEvent
 {
@@ -267,22 +267,22 @@ public class EquipmentBreakEvent : IKitchenEvent
     private List<KeyCode> command = new List<KeyCode>();
     private int inputIndex;
     private Text commandText;
-    private float wrongFlash;         // ì˜¤ì…ë ¥ ì‹œ ë¹¨ê°›ê²Œ ê¹œë¹¡ì´ëŠ” ì‹œê°„
+    private float wrongFlash;         // ¿ÀÀÔ·Â ½Ã »¡°²°Ô ±ôºıÀÌ´Â ½Ã°£
 
-    // v2 ìŠ¤í‚¨
+    // v2 ½ºÅ²
     private bool skin;
-    private RectTransform card;                       // í™”ì‚´í‘œ ì¹© ì¹´ë“œ (í˜„ì¥)
+    private RectTransform card;                       // È­»ìÇ¥ Ä¨ Ä«µå (ÇöÀå)
     private Image cardRing;
-    private Image[] chipRings, chipGlyphs;            // ì¹© í…Œ / í™”ì‚´í‘œ ê¸€ë¦¬í”„
+    private Image[] chipRings, chipGlyphs;            // Ä¨ Å× / È­»ìÇ¥ ±Û¸®ÇÁ
     private Image[] sparks = new Image[2];
-    private Image[] glitchLines = new Image[5];       // í™”ë©´ ë…¸ì´ì¦ˆ ì¤„
+    private Image[] glitchLines = new Image[5];       // È­¸é ³ëÀÌÁî ÁÙ
     private float glitchTimer;
     private float elapsed;
-    private static readonly string[] ARROW_PNG = { "u", "d", "l", "r" };   // KeyCode ìˆœì„œ: Up Down Left Right
+    private static readonly string[] ARROW_PNG = { "u", "d", "l", "r" };   // KeyCode ¼ø¼­: Up Down Left Right
     private const float CHIP_STEP = 61f;
 
-    public string Title { get { return "ì¡°ë¦¬ ê¸°êµ¬ ê³ ì¥! ë°°ì„ ì—ì„œ ë¶ˆê½ƒì´ íŠ„ë‹¤"; } }
-    public string Guide { get { return "ë°©í–¥í‚¤ë¥¼ ìˆœì„œëŒ€ë¡œ ì…ë ¥í•´ ìˆ˜ë¦¬í•˜ë¼   " + inputIndex + " / " + command.Count; } }
+    public string Title { get { return "Á¶¸® ±â±¸ °íÀå! ¹è¼±¿¡¼­ ºÒ²ÉÀÌ Æ¤´Ù"; } }
+    public string Guide { get { return "¹æÇâÅ°¸¦ ¼ø¼­´ë·Î ÀÔ·ÂÇØ ¼ö¸®ÇÏ¶ó   " + inputIndex + " / " + command.Count; } }
     public float TimeLimit { get { return 7f; } }
     public float Progress { get { return command.Count > 0 ? (float)inputIndex / command.Count : 0f; } }
 
@@ -292,7 +292,7 @@ public class EquipmentBreakEvent : IKitchenEvent
         inputIndex = 0;
         command.Clear();
 
-        // ì»¤ë§¨ë“œ ê¸¸ì´ 4 ~ 8ê°œ (ë‚œì´ë„ì— ë¹„ë¡€)
+        // Ä¿¸Çµå ±æÀÌ 4 ~ 8°³ (³­ÀÌµµ¿¡ ºñ·Ê)
         int length = 4 + Mathf.RoundToInt(difficulty * 4f);
         KeyCode[] pool = { KeyCode.UpArrow, KeyCode.DownArrow, KeyCode.LeftArrow, KeyCode.RightArrow };
         for (int i = 0; i < length; i++)
@@ -306,7 +306,7 @@ public class EquipmentBreakEvent : IKitchenEvent
             return;
         }
 
-        // B-1: ê³ ì¥ë‚œ ê¸°êµ¬ê°€ ìˆëŠ” ì•µì»¤ ì§€ì ì— ì»¤ë§¨ë“œê°€ ëœ¬ë‹¤ (í…ìŠ¤íŠ¸ í­ ê³ ë ¤í•´ ì¢ê²Œ í´ë¨í”„)
+        // B-1: °íÀå³­ ±â±¸°¡ ÀÖ´Â ¾ŞÄ¿ ÁöÁ¡¿¡ Ä¿¸Çµå°¡ ¶á´Ù (ÅØ½ºÆ® Æø °í·ÁÇØ Á¼°Ô Å¬·¥ÇÁ)
         commandText = KitchenEventManager.MakeText(mgr.CustomRoot, "Command", "", 52, Color.white);
         RectTransform rt = commandText.rectTransform;
         rt.anchorMin = new Vector2(0.5f, 0.5f);
@@ -317,7 +317,7 @@ public class EquipmentBreakEvent : IKitchenEvent
         RefreshCommandText();
     }
 
-    /// <summary>v2: ë…¸ì´ì¦ˆ ì¤„ (ì˜¤ë²„ë ˆì´) + í™”ì‚´í‘œ ì¹© ì¹´ë“œ + ìŠ¤íŒŒí¬ (í˜„ì¥)</summary>
+    /// <summary>v2: ³ëÀÌÁî ÁÙ (¿À¹ö·¹ÀÌ) + È­»ìÇ¥ Ä¨ Ä«µå + ½ºÆÄÅ© (ÇöÀå)</summary>
     private void BuildSkin(KitchenEventManager mgr)
     {
         mgr.SetAlarm(KitchenEventSkin.YELLOW, 0.35f);
@@ -353,8 +353,8 @@ public class EquipmentBreakEvent : IKitchenEvent
         sparks[0] = KitchenEventManager.MakeSprite(card, "Spark0", SpriteBank.Get("ui_ev_spark_0"), new Vector2(-w / 2f + 6f, 46f), new Vector2(32f, 32f));
         sparks[1] = KitchenEventManager.MakeSprite(card, "Spark1", SpriteBank.Get("ui_ev_spark_2"), new Vector2(w / 2f - 8f, -44f), new Vector2(32f, 32f));
 
-        UISkin.Nameplate(card, "Break", "ê³ ì¥ - ìˆ˜ë¦¬", 14, new Vector2(0f, 1f), new Vector2(8f, 4f), 104f);
-        KitchenEventManager.MakeChip(card, "Hint", "ë°©í–¥í‚¤ ìˆœì„œëŒ€ë¡œ", new Vector2(0f, -60f), KitchenEventSkin.COPPER);
+        UISkin.Nameplate(card, "Break", "°íÀå - ¼ö¸®", 14, new Vector2(0f, 1f), new Vector2(8f, 4f), 104f);
+        KitchenEventManager.MakeChip(card, "Hint", "¹æÇâÅ° ¼ø¼­´ë·Î", new Vector2(0f, -60f), KitchenEventSkin.COPPER);
     }
 
     private static int ArrowIndex(KeyCode key)
@@ -371,7 +371,7 @@ public class EquipmentBreakEvent : IKitchenEvent
         if (wrongFlash > 0f) wrongFlash -= dt;
         elapsed += dt;
 
-        // í”Œë ˆì´í…ŒìŠ¤íŠ¸ í”½ìŠ¤: ì»¤ë§¨ë“œ í‘œì‹œë¥¼ í˜„ì¥ ì›”ë“œ ì¢Œí‘œì— ë§¤ í”„ë ˆì„ ì¬ê³ ì •
+        // ÇÃ·¹ÀÌÅ×½ºÆ® ÇÈ½º: Ä¿¸Çµå Ç¥½Ã¸¦ ÇöÀå ¿ùµå ÁÂÇ¥¿¡ ¸Å ÇÁ·¹ÀÓ Àç°íÁ¤
         float cx = Mathf.Clamp(manager.AnchorCanvasX(), -420f, 420f);
         if (commandText != null)
             commandText.rectTransform.anchoredPosition = new Vector2(cx, -30f);
@@ -379,7 +379,7 @@ public class EquipmentBreakEvent : IKitchenEvent
             card.anchoredPosition = new Vector2(cx, -30f);
 
         KeyCode pressed = ReadArrowKey();
-        // B-1: ê³ ì¥ë‚œ ê¸°êµ¬ ê³ì—ì„œë§Œ ìˆ˜ë¦¬ ì…ë ¥ì´ ë¨¹íŒë‹¤ (ë–¨ì–´ì ¸ì„œ ëˆ„ë¥´ë©´ ë¬´íš¨ - ë¦¬ì…‹ë„ ì—†ìŒ)
+        // B-1: °íÀå³­ ±â±¸ °ç¿¡¼­¸¸ ¼ö¸® ÀÔ·ÂÀÌ ¸ÔÈù´Ù (¶³¾îÁ®¼­ ´©¸£¸é ¹«È¿ - ¸®¼Âµµ ¾øÀ½)
         if (pressed != KeyCode.None && KitchenEventManager.ChefInReach)
         {
             if (pressed == command[inputIndex])
@@ -393,7 +393,7 @@ public class EquipmentBreakEvent : IKitchenEvent
             }
             else
             {
-                // í‹€ë¦¬ë©´ ì²˜ìŒë¶€í„° ë‹¤ì‹œ
+                // Æ²¸®¸é Ã³À½ºÎÅÍ ´Ù½Ã
                 inputIndex = 0;
                 wrongFlash = 0.25f;
             }
@@ -406,7 +406,7 @@ public class EquipmentBreakEvent : IKitchenEvent
 
         if (skin)
         {
-            // ì˜¤ì…ë ¥ = ì¹´ë“œ í…Œê°€ ë¹¨ê°›ê²Œ / ìŠ¤íŒŒí¬ í”„ë ˆì„ ìˆœí™˜ / ë…¸ì´ì¦ˆ ì¤„ì€ 0.12ì´ˆë§ˆë‹¤ ìë¦¬ë¥¼ ë°”ê¾¸ë©° ê¹œë¹¡
+            // ¿ÀÀÔ·Â = Ä«µå Å×°¡ »¡°²°Ô / ½ºÆÄÅ© ÇÁ·¹ÀÓ ¼øÈ¯ / ³ëÀÌÁî ÁÙÀº 0.12ÃÊ¸¶´Ù ÀÚ¸®¸¦ ¹Ù²Ù¸ç ±ôºı
             if (cardRing != null) cardRing.color = wrongFlash > 0f ? KitchenEventSkin.RED : KitchenEventSkin.COPPER;
             for (int i = 0; i < sparks.Length; i++)
                 if (sparks[i] != null) sparks[i].sprite = SpriteBank.Get("ui_ev_spark_" + KitchenEventSkin.Frame(elapsed, 12f, 3, i));
@@ -432,16 +432,16 @@ public class EquipmentBreakEvent : IKitchenEvent
         if (success)
         {
             manager.HealTrain(15f);
-            Debug.Log("[ì£¼ë°©ì´ë²¤íŠ¸] ê¸°êµ¬ ìˆ˜ë¦¬ ì„±ê³µ");
+            Debug.Log("[ÁÖ¹æÀÌº¥Æ®] ±â±¸ ¼ö¸® ¼º°ø");
         }
         else
         {
-            manager.DamageTrain(40f);   // HP 500 ê¸°ì¤€ ì¡°ì • (ê¸°ì¡´ 60)
-            Debug.Log("[ì£¼ë°©ì´ë²¤íŠ¸] ê¸°êµ¬ ìˆ˜ë¦¬ ì‹¤íŒ¨ - ê¸°ì°¨ 40 í”¼í•´");
+            manager.DamageTrain(40f);   // HP 500 ±âÁØ Á¶Á¤ (±âÁ¸ 60)
+            Debug.Log("[ÁÖ¹æÀÌº¥Æ®] ±â±¸ ¼ö¸® ½ÇÆĞ - ±âÂ÷ 40 ÇÇÇØ");
         }
     }
 
-    /// <summary>ì´ë²ˆ í”„ë ˆì„ì— ëˆŒë¦° ë°©í–¥í‚¤ í•˜ë‚˜ë¥¼ ë°˜í™˜ (ì—†ìœ¼ë©´ None)</summary>
+    /// <summary>ÀÌ¹ø ÇÁ·¹ÀÓ¿¡ ´­¸° ¹æÇâÅ° ÇÏ³ª¸¦ ¹İÈ¯ (¾øÀ¸¸é None)</summary>
     private KeyCode ReadArrowKey()
     {
         if (Input.GetKeyDown(KeyCode.UpArrow)) return KeyCode.UpArrow;
@@ -451,7 +451,7 @@ public class EquipmentBreakEvent : IKitchenEvent
         return KeyCode.None;
     }
 
-    /// <summary>ë‚¨ì€ ì»¤ë§¨ë“œëŠ” í°ìƒ‰, ì…ë ¥ ì™„ë£Œë¶„ì€ íšŒìƒ‰ìœ¼ë¡œ í‘œì‹œ (ë‹¨ìƒ‰ UI)</summary>
+    /// <summary>³²Àº Ä¿¸Çµå´Â Èò»ö, ÀÔ·Â ¿Ï·áºĞÀº È¸»öÀ¸·Î Ç¥½Ã (´Ü»ö UI)</summary>
     private void RefreshCommandText()
     {
         if (commandText == null) return;
@@ -467,7 +467,7 @@ public class EquipmentBreakEvent : IKitchenEvent
         commandText.text = s;
     }
 
-    /// <summary>v2: ì¹© ìƒ‰ - ì™„ë£Œ íë¦¼ / í˜„ì¬ í™©ê¸ˆ(í…Œë„) / ëŒ€ê¸° í¬ë¦¼</summary>
+    /// <summary>v2: Ä¨ »ö - ¿Ï·á Èå¸² / ÇöÀç È²±İ(Å×µµ) / ´ë±â Å©¸²</summary>
     private void RefreshChips()
     {
         if (chipGlyphs == null) return;
@@ -481,43 +481,43 @@ public class EquipmentBreakEvent : IKitchenEvent
 
     private string ArrowChar(KeyCode key)
     {
-        if (key == KeyCode.UpArrow) return "â†‘";
-        if (key == KeyCode.DownArrow) return "â†“";
-        if (key == KeyCode.LeftArrow) return "â†";
-        return "â†’";
+        if (key == KeyCode.UpArrow) return "¡è";
+        if (key == KeyCode.DownArrow) return "¡é";
+        if (key == KeyCode.LeftArrow) return "¡ç";
+        return "¡æ";
     }
 }
 
 
 // ======================================================================
-//  3. ì£¼ë°© í™”ì¬ - E í™€ë“œë¡œ ì§„í™”
+//  3. ÁÖ¹æ È­Àç - E È¦µå·Î ÁøÈ­
 // ======================================================================
 public class KitchenFireEvent : IKitchenEvent
 {
     private KitchenEventManager manager;
     private float gauge;
     private float needGauge = 100f;
-    private float holdGain = 42f;     // E ëˆ„ë¥´ê³  ìˆì„ ë•Œ ì´ˆë‹¹ ìƒìŠ¹
-    private float releaseLoss = 22f;  // ë–¼ë©´ ì´ˆë‹¹ ê°ì†Œ
-    private float burnDamagePerSec;   // ì§„í™” ì „ê¹Œì§€ ê¸°ì°¨ê°€ ê³„ì† ì…ëŠ” í”¼í•´
-    private float burnTickTimer;      // ë„íŠ¸ ì ìš© ì£¼ê¸° ëˆ„ì ê¸° (0.5ì´ˆ ë¬¶ìŒ)
+    private float holdGain = 42f;     // E ´©¸£°í ÀÖÀ» ¶§ ÃÊ´ç »ó½Â
+    private float releaseLoss = 22f;  // ¶¼¸é ÃÊ´ç °¨¼Ò
+    private float burnDamagePerSec;   // ÁøÈ­ Àü±îÁö ±âÂ÷°¡ °è¼Ó ÀÔ´Â ÇÇÇØ
+    private float burnTickTimer;      // µµÆ® Àû¿ë ÁÖ±â ´©Àû±â (0.5ÃÊ ¹­À½)
     private RectTransform fireBox;
     private Text fireLabel;
 
-    // v2 ìŠ¤í‚¨
+    // v2 ½ºÅ²
     private bool skin;
-    private RectTransform wall;                 // ë¶ˆì˜ ë²½ (ë§ˆìŠ¤í¬ ì•ˆì—ì„œ ì•„ë˜ë¡œ ë‚´ë ¤ê°€ë©° ë‚®ì•„ì§„ë‹¤)
+    private RectTransform wall;                 // ºÒÀÇ º® (¸¶½ºÅ© ¾È¿¡¼­ ¾Æ·¡·Î ³»·Á°¡¸ç ³·¾ÆÁø´Ù)
     private Image wallImg;
-    private Image[] wallSmoke = new Image[3];   // ë²½ ìœ„ë¡œ ë– ì˜¤ë¥´ëŠ” ì—°ê¸°
+    private Image[] wallSmoke = new Image[3];   // º® À§·Î ¶°¿À¸£´Â ¿¬±â
     private float[] smokeT = new float[3];
-    private Image[] flames = new Image[3];      // í˜„ì¥ ë¶ˆê¸¸ (ìˆœì„œëŒ€ë¡œ êº¼ì§„ë‹¤: ì™¼ìª½ -> ì˜¤ë¥¸ìª½ -> ê°€ìš´ë°)
+    private Image[] flames = new Image[3];      // ÇöÀå ºÒ±æ (¼ø¼­´ë·Î ²¨Áø´Ù: ¿ŞÂÊ -> ¿À¸¥ÂÊ -> °¡¿îµ¥)
     private Image[] markerSmoke = new Image[2];
     private float elapsed;
-    private const float WALL_H = 96f;           // ë¶ˆì˜ ë²½ ë†’ì´ (HUD 184 ë°”ë¡œ ìœ„)
-    private const float WALL_DROP = 80f;        // ì§„í™” 100% ë•Œ ë²½ì´ ë‚´ë ¤ê°€ëŠ” ì–‘
+    private const float WALL_H = 96f;           // ºÒÀÇ º® ³ôÀÌ (HUD 184 ¹Ù·Î À§)
+    private const float WALL_DROP = 80f;        // ÁøÈ­ 100% ¶§ º®ÀÌ ³»·Á°¡´Â ¾ç
 
-    public string Title { get { return "ì£¼ë°© í™”ì¬ ë°œìƒ! ê¸°ì°¨ê°€ ê³„ì† íƒ€ë“¤ì–´ê°„ë‹¤"; } }
-    public string Guide { get { return "[E] ê¾¹ ëˆŒëŸ¬ ë¶ˆê¸¸ì„ ì¡ì•„ë¼   " + Mathf.RoundToInt(gauge) + "%"; } }
+    public string Title { get { return "ÁÖ¹æ È­Àç ¹ß»ı! ±âÂ÷°¡ °è¼Ó Å¸µé¾î°£´Ù"; } }
+    public string Guide { get { return "[E] ²Ú ´­·¯ ºÒ±æÀ» Àâ¾Æ¶ó   " + Mathf.RoundToInt(gauge) + "%"; } }
     public float TimeLimit { get { return 8f; } }
     public float Progress { get { return gauge / needGauge; } }
 
@@ -526,7 +526,7 @@ public class KitchenFireEvent : IKitchenEvent
         manager = mgr;
         gauge = 0f;
         burnTickTimer = 0f;
-        burnDamagePerSec = 5f + difficulty * 5f;   // ë‚œì´ë„ì— ë”°ë¼ 5 ~ 10 (ê¸°ì°¨ HP 500 ê¸°ì¤€ ì¡°ì •)
+        burnDamagePerSec = 5f + difficulty * 5f;   // ³­ÀÌµµ¿¡ µû¶ó 5 ~ 10 (±âÂ÷ HP 500 ±âÁØ Á¶Á¤)
 
         skin = KitchenEventManager.SkinReady && SpriteBank.Has("ui_ev_scorch") && SpriteBank.Has("ui_ev_smoke_0");
         if (skin)
@@ -535,7 +535,7 @@ public class KitchenFireEvent : IKitchenEvent
             return;
         }
 
-        // B-1: ë¶ˆê¸¸ì´ ì•µì»¤ ì§€ì ì—ì„œ íƒ€ì˜¤ë¥¸ë‹¤ (ë‹¬ë ¤ê°ˆ ê³³ì´ ë³´ì´ê²Œ)
+        // B-1: ºÒ±æÀÌ ¾ŞÄ¿ ÁöÁ¡¿¡¼­ Å¸¿À¸¥´Ù (´Ş·Á°¥ °÷ÀÌ º¸ÀÌ°Ô)
         fireBox = KitchenEventManager.MakeBox(mgr.CustomRoot, "Fire", new Color(1f, 0.35f, 0.1f, 0.35f));
         fireBox.anchorMin = new Vector2(0.5f, 0.5f);
         fireBox.anchorMax = new Vector2(0.5f, 0.5f);
@@ -543,7 +543,7 @@ public class KitchenFireEvent : IKitchenEvent
         fireBox.sizeDelta = new Vector2(300f, 190f);
         fireBox.GetComponent<Image>().raycastTarget = false;
 
-        fireLabel = KitchenEventManager.MakeText(fireBox, "Label", "í™”ì¬", 34, new Color(1f, 0.9f, 0.6f));
+        fireLabel = KitchenEventManager.MakeText(fireBox, "Label", "È­Àç", 34, new Color(1f, 0.9f, 0.6f));
         RectTransform lrt = fireLabel.rectTransform;
         lrt.anchorMin = Vector2.zero;
         lrt.anchorMax = Vector2.one;
@@ -551,12 +551,12 @@ public class KitchenFireEvent : IKitchenEvent
         lrt.offsetMax = Vector2.zero;
     }
 
-    /// <summary>v2: ë¶ˆì˜ ë²½ + ì—°ê¸° (ì˜¤ë²„ë ˆì´) / í˜„ì¥ ê·¸ì„ìŒ + ë¶ˆê¸¸ 3 + ì—°ê¸° 2 + ëª…íŒ + ì¹© (ì»¤ìŠ¤í…€, fireBox ê°€ ë¬¶ìŒ)</summary>
+    /// <summary>v2: ºÒÀÇ º® + ¿¬±â (¿À¹ö·¹ÀÌ) / ÇöÀå ±×À»À½ + ºÒ±æ 3 + ¿¬±â 2 + ¸íÆÇ + Ä¨ (Ä¿½ºÅÒ, fireBox °¡ ¹­À½)</summary>
     private void BuildSkin(KitchenEventManager mgr)
     {
         mgr.SetAlarm(KitchenEventSkin.RED, 0.7f);
 
-        // ë¶ˆì˜ ë²½: HUD ìœ„ 96px ë ë¥¼ ë§ˆìŠ¤í¬ë¡œ ì˜ë¼, ì•ˆì˜ íƒ€ì¼ ì´ë¯¸ì§€ë¥¼ ì•„ë˜ë¡œ ë‚´ë¦¬ë©´ ë²½ì´ ë‚®ì•„ì§„ë‹¤
+        // ºÒÀÇ º®: HUD À§ 96px ¶ì¸¦ ¸¶½ºÅ©·Î Àß¶ó, ¾ÈÀÇ Å¸ÀÏ ÀÌ¹ÌÁö¸¦ ¾Æ·¡·Î ³»¸®¸é º®ÀÌ ³·¾ÆÁø´Ù
         RectTransform maskRt = KitchenEventManager.MakeBox(mgr.OverlayRoot, "FireWallMask", new Color(0f, 0f, 0f, 0f));
         maskRt.anchorMin = new Vector2(0f, 0f); maskRt.anchorMax = new Vector2(1f, 0f);
         maskRt.pivot = new Vector2(0.5f, 0f);
@@ -580,7 +580,7 @@ public class KitchenFireEvent : IKitchenEvent
             smokeT[i] = i * 0.33f;
         }
 
-        // í˜„ì¥ ë¬¶ìŒ (300x190, ì•µì»¤ X ë¥¼ ë§¤ í”„ë ˆì„ ë”°ë¼ê°„ë‹¤). ìì‹ ì¢Œí‘œ = ëª©ì—… v2 ì˜ ìƒì ê¸°ì¤€ ì¢Œí‘œë¥¼ ì¤‘ì•™ ì›ì ìœ¼ë¡œ ì˜®ê¸´ ê°’
+        // ÇöÀå ¹­À½ (300x190, ¾ŞÄ¿ X ¸¦ ¸Å ÇÁ·¹ÀÓ µû¶ó°£´Ù). ÀÚ½Ä ÁÂÇ¥ = ¸ñ¾÷ v2 ÀÇ »óÀÚ ±âÁØ ÁÂÇ¥¸¦ Áß¾Ó ¿øÁ¡À¸·Î ¿Å±ä °ª
         fireBox = KitchenEventManager.MakeBox(mgr.CustomRoot, "Fire", new Color(0f, 0f, 0f, 0f));
         fireBox.anchorMin = new Vector2(0.5f, 0.5f);
         fireBox.anchorMax = new Vector2(0.5f, 0.5f);
@@ -595,8 +595,8 @@ public class KitchenFireEvent : IKitchenEvent
         markerSmoke[0] = KitchenEventManager.MakeSprite(fireBox, "Smoke0", SpriteBank.Get("ui_ev_smoke_0"), new Vector2(-90f, 65f), new Vector2(48f, 48f));
         markerSmoke[1] = KitchenEventManager.MakeSprite(fireBox, "Smoke1", SpriteBank.Get("ui_ev_smoke_1"), new Vector2(40f, 75f), new Vector2(48f, 48f));
 
-        UISkin.Nameplate(fireBox, "Fire", "í™”ì¬", 14, new Vector2(0.5f, 0.5f), new Vector2(-26f, 89f), 52f);
-        KitchenEventManager.MakeChip(fireBox, "Hint", "[E] ê¾¹ ëˆ„ë¥´ê¸°", new Vector2(0f, -117f), KitchenEventSkin.RED);
+        UISkin.Nameplate(fireBox, "Fire", "È­Àç", 14, new Vector2(0.5f, 0.5f), new Vector2(-26f, 89f), 52f);
+        KitchenEventManager.MakeChip(fireBox, "Hint", "[E] ²Ú ´©¸£±â", new Vector2(0f, -117f), KitchenEventSkin.RED);
     }
 
     public bool OnUpdate(float dt, out bool success)
@@ -604,13 +604,13 @@ public class KitchenFireEvent : IKitchenEvent
         success = false;
         elapsed += dt;
 
-        // í”Œë ˆì´í…ŒìŠ¤íŠ¸ í”½ìŠ¤: í™”ì¬ ë°•ìŠ¤ë¥¼ í˜„ì¥ ì›”ë“œ ì¢Œí‘œì— ë§¤ í”„ë ˆì„ ì¬ê³ ì •
+        // ÇÃ·¹ÀÌÅ×½ºÆ® ÇÈ½º: È­Àç ¹Ú½º¸¦ ÇöÀå ¿ùµå ÁÂÇ¥¿¡ ¸Å ÇÁ·¹ÀÓ Àç°íÁ¤
         if (fireBox != null)
             fireBox.anchoredPosition = new Vector2(manager.AnchorCanvasX(), -40f);
 
-        // ë¶ˆì´ êº¼ì§ˆ ë•Œê¹Œì§€ ê¸°ì°¨ê°€ í”¼í•´ë¥¼ ì…ëŠ”ë‹¤
-        // [ìˆ˜ì •] ë§¤ í”„ë ˆì„ ì˜ê²Œ ë„£ìœ¼ë©´ TrainManager ìµœì†Œë°ë¯¸ì§€(1) ë³´ì • ë•Œë¬¸ì—
-        // ì‹¤ì œ í”¼í•´ê°€ ìˆ˜ ë°°ë¡œ ë»¥íŠ€ê¸°ë¨ -> 0.5ì´ˆ ë‹¨ìœ„ ë¬¶ìŒìœ¼ë¡œ ì ìš©
+        // ºÒÀÌ ²¨Áú ¶§±îÁö ±âÂ÷°¡ ÇÇÇØ¸¦ ÀÔ´Â´Ù
+        // [¼öÁ¤] ¸Å ÇÁ·¹ÀÓ Àß°Ô ³ÖÀ¸¸é TrainManager ÃÖ¼Òµ¥¹ÌÁö(1) º¸Á¤ ¶§¹®¿¡
+        // ½ÇÁ¦ ÇÇÇØ°¡ ¼ö ¹è·Î »½Æ¢±âµÊ -> 0.5ÃÊ ´ÜÀ§ ¹­À½À¸·Î Àû¿ë
         burnTickTimer += dt;
         if (burnTickTimer >= 0.5f)
         {
@@ -618,7 +618,7 @@ public class KitchenFireEvent : IKitchenEvent
             manager.DamageTrain(burnDamagePerSec * 0.5f);
         }
 
-        // B-1: ë¶ˆê¸¸ ê³ì—ì„œë§Œ ì§„ì•• ê°€ëŠ¥ - ë–¨ì–´ì ¸ ìˆìœ¼ë©´ ë¶ˆì€ ê³„ì† ë²ˆì§„ë‹¤
+        // B-1: ºÒ±æ °ç¿¡¼­¸¸ Áø¾Ğ °¡´É - ¶³¾îÁ® ÀÖÀ¸¸é ºÒÀº °è¼Ó ¹øÁø´Ù
         if (Input.GetKey(KeyCode.E) && KitchenEventManager.ChefInReach) gauge += holdGain * dt;
         else gauge -= releaseLoss * dt;
         gauge = Mathf.Clamp(gauge, 0f, needGauge);
@@ -630,7 +630,7 @@ public class KitchenFireEvent : IKitchenEvent
         }
         else if (fireBox != null)
         {
-            // ì§„í™”ë ìˆ˜ë¡ ë¶ˆê¸¸ì´ ì‘ì•„ì§€ê³  ì˜…ì–´ì§„ë‹¤ (ë‹¨ìƒ‰ UI)
+            // ÁøÈ­µÉ¼ö·Ï ºÒ±æÀÌ ÀÛ¾ÆÁö°í ¿¶¾îÁø´Ù (´Ü»ö UI)
             fireBox.sizeDelta = new Vector2(Mathf.Lerp(300f, 110f, t), Mathf.Lerp(190f, 70f, t));
             Image img = fireBox.GetComponent<Image>();
             float flicker = 0.28f + Mathf.PingPong(Time.time * 2.4f, 0.14f);
@@ -645,7 +645,7 @@ public class KitchenFireEvent : IKitchenEvent
         return false;
     }
 
-    /// <summary>v2: ë¶ˆì˜ ë²½ í”„ë ˆì„/ë†’ì´, ì—°ê¸° ìƒìŠ¹, í˜„ì¥ ë¶ˆê¸¸ 3 -> 2 -> 1</summary>
+    /// <summary>v2: ºÒÀÇ º® ÇÁ·¹ÀÓ/³ôÀÌ, ¿¬±â »ó½Â, ÇöÀå ºÒ±æ 3 -> 2 -> 1</summary>
     private void UpdateSkin(float dt, float t)
     {
         if (wallImg != null)
@@ -667,7 +667,7 @@ public class KitchenFireEvent : IKitchenEvent
             wallSmoke[i].rectTransform.anchoredPosition = new Vector2(p.x, -260f + smokeT[i] * 110f - t * WALL_DROP);
             wallSmoke[i].color = new Color(1f, 1f, 1f, 1f - smokeT[i] * 0.85f);
         }
-        // í˜„ì¥ ë¶ˆê¸¸: ì™¼ìª½ -> ì˜¤ë¥¸ìª½ -> ê°€ìš´ë° ìˆœì„œë¡œ êº¼ì§„ë‹¤ (ë§ˆì§€ë§‰ê¹Œì§€ ë‚¨ëŠ” ê±´ ê°€ìš´ë°)
+        // ÇöÀå ºÒ±æ: ¿ŞÂÊ -> ¿À¸¥ÂÊ -> °¡¿îµ¥ ¼ø¼­·Î ²¨Áø´Ù (¸¶Áö¸·±îÁö ³²´Â °Ç °¡¿îµ¥)
         if (flames[0] != null) flames[0].enabled = alive >= 3;
         if (flames[2] != null) flames[2].enabled = alive >= 2;
         for (int i = 0; i < 3; i++)
@@ -680,19 +680,19 @@ public class KitchenFireEvent : IKitchenEvent
     {
         if (success)
         {
-            Debug.Log("[ì£¼ë°©ì´ë²¤íŠ¸] í™”ì¬ ì§„í™” ì„±ê³µ");
+            Debug.Log("[ÁÖ¹æÀÌº¥Æ®] È­Àç ÁøÈ­ ¼º°ø");
         }
         else
         {
-            manager.DamageTrain(50f);   // ì‹œê°„ ì´ˆê³¼ ì‹œ í­ë°œ í”¼í•´ (HP 500 ê¸°ì¤€ ì¡°ì •)
-            Debug.Log("[ì£¼ë°©ì´ë²¤íŠ¸] í™”ì¬ ì§„í™” ì‹¤íŒ¨ - ê¸°ì°¨ 50 ì¶”ê°€ í”¼í•´");
+            manager.DamageTrain(50f);   // ½Ã°£ ÃÊ°ú ½Ã Æø¹ß ÇÇÇØ (HP 500 ±âÁØ Á¶Á¤)
+            Debug.Log("[ÁÖ¹æÀÌº¥Æ®] È­Àç ÁøÈ­ ½ÇÆĞ - ±âÂ÷ 50 Ãß°¡ ÇÇÇØ");
         }
     }
 }
 
 
 // ======================================================================
-//  4. ì¬ë£Œ í˜ë¦¼ - í©ì–´ì§„ ì¬ë£Œë¥¼ ë§ˆìš°ìŠ¤ ì¢Œí´ë¦­ìœ¼ë¡œ ì¤ê¸°
+//  4. Àç·á Èê¸² - Èğ¾îÁø Àç·á¸¦ ¸¶¿ì½º ÁÂÅ¬¸¯À¸·Î Áİ±â
 // ======================================================================
 public class MaterialSpillEvent : IKitchenEvent
 {
@@ -701,13 +701,13 @@ public class MaterialSpillEvent : IKitchenEvent
     private int pickedCount;
     private List<Button> items = new List<Button>();
 
-    // v2 ìŠ¤í‚¨: ì´ë¦„ -> ì¬ë£Œ ì•„ì´ì½˜ / ê³„ì—´ìƒ‰
-    private static readonly string[] NAMES = { "ê³ ê¸°", "ë“±ì‹¬", "ì „ê¸° ê¼¬ë¦¬", "í™”ì—¼ ê½ƒ", "ì–¼ìŒê½ƒ", "ë…ì¹¨" };
+    // v2 ½ºÅ²: ÀÌ¸§ -> Àç·á ¾ÆÀÌÄÜ / °è¿­»ö
+    private static readonly string[] NAMES = MaterialNames.KOR;   // v9.10.1: Àç·á ÀÌ¸§ ÇÑ °÷ (°í±â¡¤µî½É¡¤Àü±â¾Ë¡¤È­¿°²É¡¤¾óÀ½²É¡¤µ¶»ù)
     private static readonly string[] ICONS = { "meat", "armor", "elec", "fire", "ice", "poison" };
     private static readonly FoodTag[] TAGS = { FoodTag.Phys, FoodTag.Def, FoodTag.Elec, FoodTag.Fire, FoodTag.Ice, FoodTag.Poison };
 
-    public string Title { get { return "ê¸°ì°¨ í”ë“¤ë¦¼! ì¬ë£Œê°€ ë°”ë‹¥ì— ìŸì•„ì¡Œë‹¤"; } }
-    public string Guide { get { return "ë–¨ì–´ì§„ ì¬ë£Œë¥¼ [ë§ˆìš°ìŠ¤ ì¢Œí´ë¦­]ìœ¼ë¡œ ì „ë¶€ ì£¼ì›Œë¼   " + pickedCount + " / " + totalCount; } }
+    public string Title { get { return "±âÂ÷ Èçµé¸²! Àç·á°¡ ¹Ù´Ú¿¡ ½ñ¾ÆÁ³´Ù"; } }
+    public string Guide { get { return "¶³¾îÁø Àç·á¸¦ [¸¶¿ì½º ÁÂÅ¬¸¯]À¸·Î ÀüºÎ ÁÖ¿ö¶ó   " + pickedCount + " / " + totalCount; } }
     public float TimeLimit { get { return 7.5f; } }
     public float Progress { get { return totalCount > 0 ? (float)pickedCount / totalCount : 0f; } }
 
@@ -717,12 +717,12 @@ public class MaterialSpillEvent : IKitchenEvent
         pickedCount = 0;
         items.Clear();
 
-        totalCount = 4 + Mathf.RoundToInt(difficulty * 3f);   // 4 ~ 7ê°œ
+        totalCount = 4 + Mathf.RoundToInt(difficulty * 3f);   // 4 ~ 7°³
 
         bool skin = KitchenEventManager.SkinReady && SpriteBank.Has("ui_mat_meat");
         if (skin)
         {
-            // v2: ê¸°ì°¨ê°€ í”ë“¤ë¦° ëŠë‚Œ - í™”ë©´ ì…°ì´í¬ + ì•½í•œ ê²½ë³´
+            // v2: ±âÂ÷°¡ Èçµé¸° ´À³¦ - È­¸é ¼ÎÀÌÅ© + ¾àÇÑ °æº¸
             GameFeel.Shake(0.4f);
             mgr.SetAlarm(KitchenEventSkin.RED, 0.3f);
         }
@@ -736,13 +736,13 @@ public class MaterialSpillEvent : IKitchenEvent
                 ? MakeChipButton(mgr, kind, pos)
                 : KitchenEventManager.MakeButton(mgr.CustomRoot, label, new Color(0.55f, 0.42f, 0.24f, 0.95f), pos, new Vector2(110f, 72f));
 
-            Button captured = btn;   // í´ë¡œì € ìº¡ì²˜ìš© ì§€ì—­ ë³€ìˆ˜ (C# 7.3 í•„ìˆ˜)
+            Button captured = btn;   // Å¬·ÎÀú Ä¸Ã³¿ë Áö¿ª º¯¼ö (C# 7.3 ÇÊ¼ö)
             btn.onClick.AddListener(delegate { OnPick(captured); });
             items.Add(btn);
         }
     }
 
-    /// <summary>v2: ì¬ë£Œ ì¹© = í‰íŒ + ê³„ì—´ìƒ‰ í…Œ + ì¬ë£Œ ì•„ì´ì½˜ + ì´ë¦„, ì‚´ì§ ê¸°ìš¸ì–´ì§„ ì±„ ë°”ë‹¥ì— í©ì–´ì§. ì¹´ë“œ ì „ì²´ê°€ ë²„íŠ¼</summary>
+    /// <summary>v2: Àç·á Ä¨ = ÆòÆÇ + °è¿­»ö Å× + Àç·á ¾ÆÀÌÄÜ + ÀÌ¸§, »ìÂ¦ ±â¿ï¾îÁø Ã¤ ¹Ù´Ú¿¡ Èğ¾îÁü. Ä«µå ÀüÃ¼°¡ ¹öÆ°</summary>
     private static Button MakeChipButton(KitchenEventManager mgr, int kind, Vector2 pos)
     {
         Image ring;
@@ -779,20 +779,20 @@ public class MaterialSpillEvent : IKitchenEvent
         if (success)
         {
             manager.HealTrain(20f);
-            // ë³´ìƒ ë‹¤ì–‘í™” (v3): ë°”ë‹¥ì„ ì¹˜ìš°ë‹¤ ì—¬ë¶„ ì¬ë£Œë¥¼ ë°œê²¬
+            // º¸»ó ´Ù¾çÈ­ (v3): ¹Ù´ÚÀ» Ä¡¿ì´Ù ¿©ºĞ Àç·á¸¦ ¹ß°ß
             if (MaterialInventory.Instance != null)
                 MaterialInventory.Instance.Add((MaterialType)Random.Range(0, 6), 1);
-            Debug.Log("[ì£¼ë°©ì´ë²¤íŠ¸] ì¬ë£Œ ì „ë¶€ íšŒìˆ˜ ì„±ê³µ + ì—¬ë¶„ ì¬ë£Œ 1");
+            Debug.Log("[ÁÖ¹æÀÌº¥Æ®] Àç·á ÀüºÎ È¸¼ö ¼º°ø + ¿©ºĞ Àç·á 1");
         }
         else
         {
             int lost = totalCount - pickedCount;
-            manager.DamageTrain(10f * lost);   // ëª» ì£¼ìš´ ì¬ë£Œê°€ ê¸°ê³„ì— ë¼ì–´ í”¼í•´ (HP 500 ê¸°ì¤€ ì¡°ì •)
-            Debug.Log("[ì£¼ë°©ì´ë²¤íŠ¸] ì¬ë£Œ íšŒìˆ˜ ì‹¤íŒ¨ - ë¯¸íšŒìˆ˜ " + lost + "ê°œ / ê¸°ì°¨ " + (10 * lost) + " í”¼í•´");
+            manager.DamageTrain(10f * lost);   // ¸ø ÁÖ¿î Àç·á°¡ ±â°è¿¡ ³¢¾î ÇÇÇØ (HP 500 ±âÁØ Á¶Á¤)
+            Debug.Log("[ÁÖ¹æÀÌº¥Æ®] Àç·á È¸¼ö ½ÇÆĞ - ¹ÌÈ¸¼ö " + lost + "°³ / ±âÂ÷ " + (10 * lost) + " ÇÇÇØ");
         }
     }
 
-    /// <summary>ì¬ë£Œ í•˜ë‚˜ë¥¼ ì£¼ì› ì„ ë•Œ</summary>
+    /// <summary>Àç·á ÇÏ³ª¸¦ ÁÖ¿üÀ» ¶§</summary>
     private void OnPick(Button btn)
     {
         if (btn == null || !btn.gameObject.activeSelf) return;

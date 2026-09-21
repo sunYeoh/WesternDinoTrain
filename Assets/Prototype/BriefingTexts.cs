@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// [BriefingTexts.cs] v2.1 (v9.10 2026-09-17: RecipeIntro(레시피) 소개 카드 - 웨이브 3 용암 폭탄밥 / 숙련·베팅 문구 일상어) / v2 (v9.9.2 2026-09-16: 정식 런 첫 등장 카드 34장 - 지역 4 / 새 손님 16 / 주방 사고 4 / 베팅 1 / 보스 4 / 승격 5.
+/// [BriefingTexts.cs] v2.2 (v9.10.1 2026-09-21: 재료 이름 MaterialNames - 전기알·화염꽃·얼음꽃·독샘) / [BriefingTexts.cs] v2.1 (v9.10 2026-09-17: RecipeIntro(레시피) 소개 카드 - 웨이브 3 용암 폭탄밥 / 숙련·베팅 문구 일상어) / v2 (v9.9.2 2026-09-16: 정식 런 첫 등장 카드 34장 - 지역 4 / 새 손님 16 / 주방 사고 4 / 베팅 1 / 보스 4 / 승격 5.
 ///   스피노 카드는 전부 실루엣 초상(ui_npc_spino) + 키, 정비소는 안킬로(ui_npc_ankylo). 12번 카드는 실제 베팅 창(카드 2장, [1] 일반 / [2] 도박 / [0] 거절)에 맞춤)
 ///   / v1 (신규, v9.9 2026-09-16) - 브리핑 카드 문구 표
 ///
@@ -87,7 +87,7 @@ public static class BriefingTexts
                     "자동", "포탑이 알아서 쏜다");
             case 4:
                 return Make("스피노", "재료가 왔다 - 하단 바를 봐라", new string[] {
-                    "왼쪽 재료 칸: 고기·등심·전기·화염·얼음·독 여섯 가지.",
+                    "왼쪽 재료 칸: 고기·등심·전기알·화염꽃·얼음꽃·독샘 여섯 가지.",
                     "재료 두 개 = 요리 한 접시. 고기 둘이면 더블 육포다.",
                     "재료는 알아서 빨려 온다. 갑판에 떨어진 상자(유물)만 밟아서 줍는다.",
                     "고기 2개가 찼다. 이제 굽는다." },
@@ -223,7 +223,7 @@ public static class BriefingTexts
                     "대붕괴가 가장 깊이 남은 곳. 여기부터는 손님도 정예다 - 두껍고 느리다.",
                     "방어·저항이 다 높은 놈들 - 공명(같은 속성 " + GameBalance.ResonanceCount + "문)과 레벨로 밀어라.",
                     "결빙·정지 - 기차 바퀴를 멈추는 손님이 있다. 먼저 잡아라.",
-                    "보스 '동면자' - 빙하 갑주는 화염으로만 녹는다. 광산의 해동포에 화염을." }, "", "");
+                    "보스 '동면자' - 빙하 갑주는 화염으로만 녹는다. 광산의 해동포에 화염꽃 요리를." }, "", "");
                 d.portrait = EnemySkin.PortraitFor(global::Enemy.IceMosa.enemyName, out tint); d.portraitTint = tint; d.ring = ICE;
                 return d;
             default:
@@ -247,7 +247,7 @@ public static class BriefingTexts
         float def, res; DefRes(name, out def, out res);
         MaterialType mat = DropTypeOf(data.dropMaterialName);
         string advice;
-        if (def >= res + 10f) advice = "속성 요리(전기·화염·얼음·독)가 잘 박힌다";
+        if (def >= res + 10f) advice = "속성 요리(전기알·화염꽃·얼음꽃·독샘 요리)가 잘 박힌다";
         else if (res >= def + 10f) advice = "물리 요리(육포·스테이크·등심)가 잘 박힌다";
         else if (def >= 30f) advice = "둘 다 두껍다 - 레벨·공명으로 밀어라";
         else advice = "아무 요리나 박힌다 - 화력 싸움";
@@ -316,18 +316,7 @@ public static class BriefingTexts
         return MaterialType.Meat;
     }
 
-    private static string MatName(MaterialType m)
-    {
-        switch (m)
-        {
-            case MaterialType.Armor: return "등심";
-            case MaterialType.Elec: return "전기";
-            case MaterialType.Fire: return "화염";
-            case MaterialType.Ice: return "얼음";
-            case MaterialType.Poison: return "독";
-            default: return "고기";
-        }
-    }
+    private static string MatName(MaterialType m) { return MaterialNames.Kor(m); }   // v2.2: 재료 이름 한 곳
 
     private static Color MatColor(MaterialType m)
     {
@@ -359,19 +348,7 @@ public static class BriefingTexts
         return d;
     }
 
-    private static string MatNameKey(string key)
-    {
-        switch (key)
-        {
-            case "meat": return "고기";
-            case "armor": return "등심";
-            case "elec": return "전기";
-            case "fire": return "화염";
-            case "ice": return "얼음";
-            case "poison": return "독";
-            default: return key;
-        }
-    }
+    private static string MatNameKey(string key) { return MaterialNames.Kor(key); }   // v2.2: 재료 이름 한 곳
 
     // ─────────────────────────────────────────────
     // 정식 런 첫 등장 - 주방 사고 4 (첫 발생 순간, KitchenEvents 의 제목·조작·제한 시간·실패 피해)
@@ -441,14 +418,14 @@ public static class BriefingTexts
                     "알파 랩터. 빠르고 가볍다. 패턴 '사냥 호령' = 랩터 소환.",
                     "예고(텔레그래프) 중에 보스를 마비시키면 소환이 절반으로 준다.",
                     "HP 75 / 50 / 25% 에서 가슴 해치가 열린다(그로기) - [F] 디버프 요리 투척.",
-                    "디버프 요리 = 독 재료 요리(독침 육포·마비독 꼬치). 긴급 보급으로 독 1개가 왔다." }, "[F]", "그로기 때 투척");
+                    "디버프 요리 = 독샘 요리(독침 육포·마비독 꼬치). 긴급 보급으로 독샘 1개가 왔다." }, "[F]", "그로기 때 투척");
                 d.portrait = "e_raptor"; d.portraitTint = new Color(0.9f, 0.55f, 0.38f); d.ring = RED;
                 return d;
             case 2:
                 d = Make("보스", "천둥 둥지 - 프테라 여왕", new string[] {
                     "멀리서 때린다. 패턴 '낙뢰 폭격' = 포탑 " + GameBalance.LightningSlotCount + "기 감전 - 달려가 [E] 한 번.",
                     "낙뢰 예고 게이지 끝자락에 [Space] = 번개 병 패링 (낙뢰 무효 + 병 1).",
-                    "병 셋이면 되쏘기 - 강제 그로기. 남은 병은 처치 후 전기 재료로.",
+                    "병 셋이면 되쏘기 - 강제 그로기. 남은 병은 처치 후 전기알로.",
                     "그로기(75 / 50 / 25%) 때 [F] 디버프 요리. HP 50% 아래면 패턴이 빨라진다." }, "[Space]", "낙뢰 끝자락 패링");
                 d.portrait = "e_ptera"; d.portraitTint = new Color(0.72f, 0.72f, 1f); d.ring = ELEC;
                 return d;
@@ -456,8 +433,8 @@ public static class BriefingTexts
                 d = Make("보스", "동면자 - 고대 모사", new string[] {
                     "느리고 단단하다. 개전과 동시에 '빙하 갑주' - 받는 피해 90% 감소.",
                     "갑주는 화염으로만 녹는다. 화상 스택이 쌓이면 깨지고 보너스 그로기.",
-                    "광산의 해동포에 화염 요리를 장전해 쏘면 갑주가 부서진다. 50% 아래서 한 번 다시 두른다.",
-                    "그로기(75 / 50 / 25%) 때 [F] 디버프 요리." }, "화염", "갑주를 녹여라");
+                    "광산의 해동포에 화염꽃 요리를 장전해 쏘면 갑주가 부서진다. 50% 아래서 한 번 다시 두른다.",
+                    "그로기(75 / 50 / 25%) 때 [F] 디버프 요리." }, "화염꽃", "갑주를 녹여라");
                 d.portrait = "e_mosa"; d.ring = ICE;
                 return d;
             default:

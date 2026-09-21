@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// [GameBalance.cs] v1 (v9.9 2026-09-16: 포탑 4모서리 배치 SlotPosition + 견습 운행/브리핑 스위치 섹션)
+/// [GameBalance.cs] v1 (v9.10.1 2026-09-21: 유저 플레이 소감 섹션 - 웨이브 물량·길이, 정차 조리 제한, 행상인 자동 퇴장, 처치 보상 배율 / v9.9 2026-09-16: 포탑 4모서리 배치 SlotPosition + 견습 운행/브리핑 스위치 섹션)
 /// 게임 전체 밸런스 수치를 한 곳에 모은 설정 파일.
 ///
 /// 여기 값을 바꾸면 Inspector 값과 상관없이 게임에 적용된다
@@ -823,7 +823,7 @@ public static class GameBalance
 
     // ── 웨이브 길이와 정비 (§4) ──
     /// <summary>스폰 간격 배율 (1 = 구 동작). 적 수·HP 는 그대로, 시간만 늘린다</summary>
-    public static float WaveLengthMul = 1.5f;
+    public static float WaveLengthMul = 2.0f;   // v9.10.1: 1.5 -> 2.0 (유저: 아직 너무 짧다)
     /// <summary>이 수만큼 스폰할 때마다 무리 사이에 쉼 (0 = 없음) - "위협 확인 → 조리 여유 → 만든 요리의 활약"</summary>
     public static int WaveGroupSize = 4;
     public static float WaveGroupGapSec = 5f;
@@ -862,4 +862,23 @@ public static class GameBalance
     public static bool SlotInfoFixed = true;
     /// <summary>포탑 실물(월드)을 클릭·호버해도 이름표와 같이 동작 (반경, 유닛)</summary>
     public static float SlotWorldClickRadius = 0.9f;
+
+    // ── (v9.10.1 2026-09-21) 유저 플레이 소감: "웨이브가 진짜로 너무 짧다 / 정차 중 요리 무한 / 안킬로 상점 자동 진행" ──
+    // ── 웨이브 물량·길이 ──
+    /// <summary>웨이브 손님 수 배율 (모든 종류, 0마리는 0 유지·1마리 이상은 최소 1). 프롤로그 웨이브 1(첫 판)과 견습 운행은 제외. 구 동작 1</summary>
+    public static float WaveCountMul = 1.6f;
+    // WaveLengthMul 은 v9.10 섹션의 값을 2.0 으로 올렸다 (1.5 -> 2.0). 늘어지면 1.6, 너무 짧으면 2.4
+    // ── 처치 보상 (물량이 1.6배면 골드·재료도 1.6배가 되므로 상쇄 - 웨이브당 총량은 v9.10 과 비슷하게) ──
+    /// <summary>일반 손님 처치 골드 배율 (보스 제외). 1 = 구 동작</summary>
+    public static float KillGoldMul = 0.6f;
+    /// <summary>일반 손님 처치 시 재료가 떨어질 확률 (보스는 항상). 1 = 구 동작(항상)</summary>
+    public static float KillMaterialChance = 0.6f;
+    // ── 정차 ──
+    /// <summary>정차 한 번에 시작할 수 있는 조리 횟수. -1 = 제한 없음(구 동작), 0 = 개정안 §4 "정비 중 신규 조리 금지". 견습 운행·프롤로그 조리 게이트는 제한 없음</summary>
+    public static int StopCookLimit = 2;
+    /// <summary>등짐장수 안킬로 상점이 이 시간 안에 선택이 없으면 스스로 떠난다 (초). 물건을 사면 다시 센다. 0 = 안 떠남(구 동작)</summary>
+    public static float MerchantAutoLeaveSec = 10f;
+    // ── 글자 ──
+    /// <summary>UI 글자가 칸 밖으로 튀어나오면 자동으로 줄이거나 줄바꿈 (TextFitGuard). false = 끔</summary>
+    public static bool TextFitGuardOn = true;
 }

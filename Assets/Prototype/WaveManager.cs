@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// [WaveManager.cs] v6.10 (v9.10 2026-09-17 테스터 피드백·개정안 §4·§5·§7: 스폰 간격 배율 + 무리 사이 쉼(WaveLengthMul/WaveGroupSize/GapSec) /
+/// [WaveManager.cs] v6.11 (v9.10.1 2026-09-21: 웨이브 손님 수 배율 GameBalance.WaveCountMul(프롤로그·견습 제외, ApplyRouteCounts 재사용) / 웨이브 시작에 정차 조리 카운터(CookingBridge.StopCooksUsed) 초기화) / v6.10 (v9.10 2026-09-17 테스터 피드백·개정안 §4·§5·§7: 스폰 간격 배율 + 무리 사이 쉼(WaveLengthMul/WaveGroupSize/GapSec) /
 ///   정차 뒤 자동 출발 대신 [Enter]·출발 버튼 확인(DepartConfirm, WaitingDepart 정적) / 증강 선택은 GameBalance.AugmentPickAt 웨이브만(안 여는 웨이브도 웨이브 효과는 적용) /
 ///   분기 선로 RouteChoiceMinWave·베팅 BetMinWave·행상인 MerchantMinWave 부터 / 웨이브 3 시작에 화염 재료 보장 + 범위 요리 소개 카드) / v6.9 (v9.9.2 2026-09-16: 정식 런 첫 등장 카드 훅 - 지역(지역 첫 웨이브)·새 손님(카운트 > 0 인 종류 처음)은 StartWave 예고 때, 보스는 SpawnBoss 때. BriefingUI.ShowOnce 1회) / v6.8 (v9.9 2026-09-16: 견습 운행 - TutorialDirector 가 진행 중이면 StartWave/B 점프 거부, TutorialGateActive 에 디렉터의 BlockAmbient 포함, SpawnForTutorial) / v6.7 (v9.8.1: B 점프는 GameBalance.CheatsAllowed 일 때만) / v6.6 (v9.8: 위험 적 전용 PNG) / v6.5 (교수 피드백 반영 2026-09-14) / v6.4 (고퀄 PNG 적용 2026-09-03) / v6.3 탑뷰 재스킨
 /// 웨이브 단위로 적 유닛을 스폰하고, 모든 적 처치 시 웨이브 완료를 알립니다.
@@ -261,7 +261,7 @@ public class WaveManager : MonoBehaviour
             MaterialInventory.Instance.Add(MaterialType.Meat, 1);
             Debug.Log("[WaveManager] 보스 감지 - 긴급 보급: 독 재료 + 고기 지급");
             UIManager.Instance?.ShowWaveNotice("보스 접근 중! 긴급 보급 도착!",
-                "독 재료 + 고기 지급 - 독침 육포를 조리해 그로기 때 던져라! (그릴에서 굽기)");
+                "독샘 + 고기 지급 - 독침 육포를 조리해 그로기 때 던져라! (그릴에서 굽기)");
         }
 
         WaveConfig config = GetWaveConfig(waveNumber);
@@ -287,6 +287,13 @@ public class WaveManager : MonoBehaviour
             StartCoroutine(PrologueDialogue());
             Debug.Log("[WaveManager] 프롤로그 무대 - 웨이브 1을 안내 구성으로 교체");
         }
+
+        // v6.11: 전역 물량 배율 (유저: "웨이브가 진짜로 너무 짧다 - 물량 추가"). 프롤로그 안내 웨이브는 그대로
+        if (!prologueRun || waveNumber != 1)
+            ApplyRouteCounts(ref config, GameBalance.WaveCountMul);
+
+        // v6.11: 정차 조리 제한 카운터 초기화 - 달리기 시작하면 제한 없음
+        CookingBridge.StopCooksUsed = 0;
 
         // v6.2: 분기 선로 규칙 적용 (물량 배율 / 이른 이벤트)
         activeRoute = pendingRoute;
@@ -320,7 +327,7 @@ public class WaveManager : MonoBehaviour
             if (have < GameBalance.FireGuaranteeAtWave3)
             {
                 MaterialInventory.Instance.Add(MaterialType.Fire, GameBalance.FireGuaranteeAtWave3 - have);
-                UIManager.Instance?.ShowStatChange("[보급] 화염 재료 " + (GameBalance.FireGuaranteeAtWave3 - have) + "개 - 무리에는 범위 요리를 써 봐라");
+                UIManager.Instance?.ShowStatChange("[보급] 화염꽃 " + (GameBalance.FireGuaranteeAtWave3 - have) + "개 - 무리에는 범위 요리를 써 봐라");
             }
             if (GameBalance.FirstEncounterBriefings)
                 BriefingUI.ShowOnce("recipe_fire_fire", BriefingTexts.RecipeIntro("fire+fire"));
@@ -464,7 +471,7 @@ public class WaveManager : MonoBehaviour
             if (config.boltTeranodonCount > 0 || config.overloadFlyCount > 0)
             {
                 notice += " - 전기 속성!";
-                warning += "전기 재료 드롭 - 전격 요리 준비!";
+                warning += "전기알 드롭 - 전격 요리 준비!";
             }
             if (config.poisonPteraCount > 0)
                 notice += "  독침 프테라 주의!";
@@ -476,12 +483,12 @@ public class WaveManager : MonoBehaviour
             if (config.iceMosaCount > 0)
             {
                 notice += " - 냉기 속성!";
-                warning += "얼음꽃 드롭 - 화염 요리로 대응!";
+                warning += "얼음꽃 드롭 - 화염꽃 요리로 대응!";
             }
             if (config.magmaCarnoCount > 0)
             {
                 notice += "  화염 속성!";
-                warning += " 화염 꽃 드롭 - 냉기 요리로 대응!";
+                warning += " 화염꽃 드롭 - 얼음꽃 요리로 대응!";
             }
             if (config.crystalPachyCount > 0)
                 notice += "  반사 장갑 주의!";

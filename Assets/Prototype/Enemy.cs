@@ -1,9 +1,9 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// [Enemy.cs] v3.1 (2026-09-14: 해빙 문구 / 전갈 마모 대체 스위치) / v3
+/// [Enemy.cs] v3.2 (v9.10.1 2026-09-21: 물량 1.6배에 맞춘 처치 보상 배율 - 일반 손님 골드 GameBalance.KillGoldMul, 재료 드랍 확률 KillMaterialChance(보스는 항상). 드랍 이름을 재료 이름표(전기알·화염꽃·독샘)에 맞춤) / v3.1 (2026-09-14: 해빙 문구 / 전갈 마모 대체 스위치) / v3
 /// 모든 적 유닛의 기본 동작 + 전투 스탯(DEF/RES) + 상태이상(도트/방깎/마깎)
 /// - v3 변경점: 행동 패턴 시스템 (이름 기반 자동 배정 - 프리팹 설정 불필요)
 ///   1) 무리 사냥꾼(랩터): 주변 랩터가 많을수록 이동 속도 증가
@@ -57,7 +57,7 @@ public class Enemy : MonoBehaviour
         baseHP = 120f,
         baseATK = 25f,
         baseSPD = 1.5f,
-        dropMaterialName = "단단한 안킬로 등심",
+        dropMaterialName = "단단한 아르마딜로 등심",
         goldReward = 30,
         xpReward = 15,
         targetPriority = "엔진(헤드)",
@@ -70,7 +70,7 @@ public class Enemy : MonoBehaviour
         baseHP = 50f,
         baseATK = 15f,
         baseSPD = 2.5f,
-        dropMaterialName = "식물성 오일",
+        dropMaterialName = "캑터스 화염꽃",
         goldReward = 20,
         xpReward = 10,
         targetPriority = "랜덤 슬롯",
@@ -83,7 +83,7 @@ public class Enemy : MonoBehaviour
         baseHP = 45f,
         baseATK = 18f,
         baseSPD = 3.0f,
-        dropMaterialName = "전갈 독침",
+        dropMaterialName = "전갈 독샘",
         goldReward = 25,
         xpReward = 12,
         targetPriority = "주방 칸",
@@ -113,7 +113,7 @@ public class Enemy : MonoBehaviour
         baseHP = 45f,
         baseATK = 20f,
         baseSPD = 4.0f,
-        dropMaterialName = "전기 뱀장어 꼬리",
+        dropMaterialName = "볼트 전기알",
         goldReward = 25,
         xpReward = 12,
         targetPriority = "포탑 슬롯",
@@ -139,7 +139,7 @@ public class Enemy : MonoBehaviour
         baseHP = 250f,
         baseATK = 40f,
         baseSPD = 1.0f,
-        dropMaterialName = "고농축 자기장 젤리",
+        dropMaterialName = "자석 전기알",
         goldReward = 50,
         xpReward = 25,
         targetPriority = "기차 전체",
@@ -152,7 +152,7 @@ public class Enemy : MonoBehaviour
         baseHP = 10f,
         baseATK = 80f,
         baseSPD = 6.0f,
-        dropMaterialName = "전기 자극 가루",
+        dropMaterialName = "과부하 전기알",
         goldReward = 15,
         xpReward = 8,
         targetPriority = "랜덤 슬롯",
@@ -165,7 +165,7 @@ public class Enemy : MonoBehaviour
         baseHP = 80f,
         baseATK = 35f,
         baseSPD = 3.0f,
-        dropMaterialName = "화염 깃털",
+        dropMaterialName = "익룡 화염꽃",
         goldReward = 35,
         xpReward = 18,
         targetPriority = "주방 칸",
@@ -221,7 +221,7 @@ public class Enemy : MonoBehaviour
         baseHP = 800f,
         baseATK = 120f,
         baseSPD = 2.5f,
-        dropMaterialName = "화염 꽃",
+        dropMaterialName = "카르노 화염꽃",
         goldReward = 120,
         xpReward = 60,
         targetPriority = "기차 전체",
@@ -885,6 +885,9 @@ public class Enemy : MonoBehaviour
         int gold = data.goldReward;
         if (EngineCab.FullSteam)
             gold = Mathf.RoundToInt(gold * GameBalance.LeverGoldMul);
+        // v3.2: 웨이브 물량이 늘어난 만큼 일반 손님 골드는 줄인다 (웨이브당 총량 유지). 보스는 그대로
+        bool isBoss = this is BossEnemy;
+        if (!isBoss) gold = Mathf.Max(1, Mathf.RoundToInt(gold * GameBalance.KillGoldMul));
         GameManager.Instance?.AddGold(gold);
 
         // Phase 2-3: 아주 낮은 확률로 아이템(유물) 드랍 - 보스는 확률 대폭 상향
@@ -896,7 +899,8 @@ public class Enemy : MonoBehaviour
         // (감사 3-B: XP 시스템 절단 - AddXP 호출 제거)
         // v3 재료 시스템 드롭 (증강 '자석 흡입기 개조' 반영)
         // v3.1: 즉시 지급 대신 흡수 연출 - 조각이 기차에 도착하면 지급 (PickupFX)
-        if (MaterialInventory.Instance != null)
+        // v3.2: 일반 손님은 KillMaterialChance 확률로만 재료를 떨어뜨린다 (물량 1.6배 상쇄). 보스는 항상
+        if (MaterialInventory.Instance != null && (isBoss || Random.value < GameBalance.KillMaterialChance))
         {
             MaterialType matType = GetDropMaterialType();
             int amount = 1;

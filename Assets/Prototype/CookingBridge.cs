@@ -1,48 +1,92 @@
 using UnityEngine;
 
 /// <summary>
-/// [CookingBridge.cs] v1.1
-/// ì¬ë£Œ -> ì¡°ë¦¬ -> ìš”ë¦¬ íšë“ íë¦„ì˜ ì—°ê²°ë¶€ (ì •ì  í´ë˜ìŠ¤)
-/// v1.1 (êµìˆ˜ í”¼ë“œë°± 09-14): ëŸ° í†µê³„(ì¡°ë¦¬/ì‹¤íŒ¨ íšŸìˆ˜, ë§ˆì§€ë§‰ ì„±ê³µ ì‹œê°) + Bad íŒì • ë¶€ë¶„ í™˜ê¸‰ ìŠ¤ìœ„ì¹˜
-/// ì§€ê¸ˆì€ "ì¦‰ì‹œ ì™„ì„±" ëª¨ë“œ. ë‚˜ì¤‘ì— ê¸°ì¡´ ë¯¸ë‹ˆê²Œì„(CookingSystem)ê³¼ ì—°ê²°í•˜ë©´
-/// StartCook í›„ ë¯¸ë‹ˆê²Œì„ ê²°ê³¼ì—ì„œ FinishCook(í’ˆì§ˆ)ì„ í˜¸ì¶œí•˜ëŠ” êµ¬ì¡°ê°€ ëœë‹¤.
-/// VS 2017 (C# 7.3) í˜¸í™˜
+/// [CookingBridge.cs] v1.2 (v9.10.1 2026-09-21: Á¤Â÷ Á¶¸® È½¼ö Á¦ÇÑ - GameBalance.StopCookLimit, ¿şÀÌºê ½ÃÀÛ¿¡ WaveManager °¡ StopCooksUsed ¸¦ 0 À¸·Î)
+/// Àç·á -> Á¶¸® -> ¿ä¸® È¹µæ Èå¸§ÀÇ ¿¬°áºÎ (Á¤Àû Å¬·¡½º)
+/// v1.1 (±³¼ö ÇÇµå¹é 09-14): ·± Åë°è(Á¶¸®/½ÇÆĞ È½¼ö, ¸¶Áö¸· ¼º°ø ½Ã°¢) + Bad ÆÇÁ¤ ºÎºĞ È¯±Ş ½ºÀ§Ä¡
+/// Áö±İÀº "Áï½Ã ¿Ï¼º" ¸ğµå. ³ªÁß¿¡ ±âÁ¸ ¹Ì´Ï°ÔÀÓ(CookingSystem)°ú ¿¬°áÇÏ¸é
+/// StartCook ÈÄ ¹Ì´Ï°ÔÀÓ °á°ú¿¡¼­ FinishCook(Ç°Áú)À» È£ÃâÇÏ´Â ±¸Á¶°¡ µÈ´Ù.
+/// VS 2017 (C# 7.3) È£È¯
 /// </summary>
 public static class CookingBridge
 {
-    // ì¡°ë¦¬ ì¤‘ì¸ ë ˆì‹œí”¼ (StartCookì—ì„œ ì„¤ì •)
+    // Á¶¸® ÁßÀÎ ·¹½ÃÇÇ (StartCook¿¡¼­ ¼³Á¤)
     public static string pendingRecipeId = "";
 
-    // v1.1 (êµìˆ˜ í”¼ë“œë°± 09-14): ëŸ° í†µê³„ - í”„ë¡¤ë¡œê·¸ ì¡°ë¦¬ ê²Œì´íŠ¸(WaveManager)ì™€ ê´€ì°° ì‹œíŠ¸ìš©
-    /// <summary>ì´ë²ˆ ëŸ°ì—ì„œ Good ì´ìƒìœ¼ë¡œ ëë‚œ ì¡°ë¦¬ íšŸìˆ˜ / Bad íšŸìˆ˜</summary>
+    // v1.1 (±³¼ö ÇÇµå¹é 09-14): ·± Åë°è - ÇÁ·Ñ·Î±× Á¶¸® °ÔÀÌÆ®(WaveManager)¿Í °üÂû ½ÃÆ®¿ë
+    /// <summary>ÀÌ¹ø ·±¿¡¼­ Good ÀÌ»óÀ¸·Î ³¡³­ Á¶¸® È½¼ö / Bad È½¼ö</summary>
     public static int CooksThisRun = 0;
     public static int BadsThisRun = 0;
-    /// <summary>ë§ˆì§€ë§‰ìœ¼ë¡œ Good ì´ìƒ ì¡°ë¦¬ê°€ ëë‚œ ì‹œê° (Time.time, 0 = ì—†ìŒ)</summary>
+    /// <summary>¸¶Áö¸·À¸·Î Good ÀÌ»ó Á¶¸®°¡ ³¡³­ ½Ã°¢ (Time.time, 0 = ¾øÀ½)</summary>
     public static float LastGoodCookTime = 0f;
 
-    /// <summary>ëŸ° ì‹œì‘ ì‹œ í†µê³„ ì´ˆê¸°í™” (GameManagerê°€ í˜¸ì¶œ)</summary>
+    /// <summary>·± ½ÃÀÛ ½Ã Åë°è ÃÊ±âÈ­ (GameManager°¡ È£Ãâ)</summary>
     public static void ResetRunStats()
     {
-        CooksThisRun = 0; BadsThisRun = 0; LastGoodCookTime = 0f;
+        CooksThisRun = 0; BadsThisRun = 0; LastGoodCookTime = 0f; StopCooksUsed = 0;
     }
 
-    /// <summary>ì¬ë£Œ 2ê°œë¡œ ì¡°ë¦¬ ì‹œì‘. ì¬ë£Œ ì°¨ê° + ë ˆì‹œí”¼ ê²°ì •. ì„±ê³µí•˜ë©´ true</summary>
+    // ¦¡¦¡ v1.2: Á¤Â÷ Á¶¸® Á¦ÇÑ ¦¡¦¡
+    // À¯Àú ¼Ò°¨: "Á¤Â÷(Çà»óÀÎ Ã¢) µ¿¾È ¿ä¸®¸¦ ¹«ÇÑÀ¸·Î »Ì¾Æ Á¤ºñ¸¦ ´Ù ÇÏ°í ³Ñ¾î°¡´Ï ½¬¿öÁø´Ù" + °³Á¤¾È ¡×4.
+    // Á¤Â÷(Town) »óÅÂ¿¡¼­ ½ÃÀÛÇÑ Á¶¸® È½¼ö¸¦ ¼¼°í, GameBalance.StopCookLimit ¿¡ ´êÀ¸¸é Ãâ¹ßÇÒ ¶§±îÁö Á¶¸® ½ÃÀÛÀ» ¸·´Â´Ù.
+    // °ß½À ¿îÇà¡¤ÇÁ·Ñ·Î±× Á¶¸® °ÔÀÌÆ®(µÑ ´Ù WaveManager.TutorialGateActive)´Â Á¦ÇÑÇÏÁö ¾Ê´Â´Ù. ¿şÀÌºê°¡ ½ÃÀÛµÇ¸é(StartWave) 0 À¸·Î.
+    /// <summary>ÀÌ¹ø Á¤Â÷¿¡¼­ ½ÃÀÛÇÑ Á¶¸® È½¼ö</summary>
+    public static int StopCooksUsed = 0;
+
+    /// <summary>Áö±İ Á¤Â÷ ÁßÀÌ°í Á¦ÇÑÀÌ °É¸° »óÅÂÀÎ°¡ (Á¤Â÷ ¾Æ´Ô / °ß½À / Á¦ÇÑ -1 ÀÌ¸é false)</summary>
+    public static bool StopCookLimited
+    {
+        get
+        {
+            if (GameBalance.StopCookLimit < 0) return false;
+            if (GameManager.Instance == null || GameManager.Instance.currentState != GameManager.GameState.Town) return false;
+            if (WaveManager.TutorialGateActive || TutorialDirector.Active) return false;
+            return true;
+        }
+    }
+
+    /// <summary>ÀÌ¹ø Á¤Â÷¿¡ ³²Àº Á¶¸® È½¼ö (Á¦ÇÑ ¾øÀ¸¸é -1)</summary>
+    public static int StopCooksLeft
+    {
+        get { return StopCookLimited ? Mathf.Max(0, GameBalance.StopCookLimit - StopCooksUsed) : -1; }
+    }
+
+    /// <summary>ÁÖ¹æ ÆĞ³Î ¾È³»ÁÙ¿ë: "Á¤Â÷ Á¶¸® 1/2 ³²À½   " ¶Ç´Â "" </summary>
+    public static string StopCookHint()
+    {
+        if (!StopCookLimited) return "";
+        if (GameBalance.StopCookLimit == 0) return "[Á¤Â÷] Á¶¸®´Â ´Ş¸®¸é¼­ - Ãâ¹ßÇÏ¸é È­´öÀÌ ÄÑÁø´Ù   ";
+        return "[Á¤Â÷] Á¶¸® " + StopCooksLeft + "/" + GameBalance.StopCookLimit + " ³²À½ - Ãâ¹ßÇÏ¸é Á¦ÇÑ ¾øÀ½   ";
+    }
+
+    /// <summary>Àç·á 2°³·Î Á¶¸® ½ÃÀÛ. Àç·á Â÷°¨ + ·¹½ÃÇÇ °áÁ¤. ¼º°øÇÏ¸é true</summary>
     public static bool StartCook(MaterialType a, MaterialType b)
     {
         if (MaterialInventory.Instance == null) return false;
+
+        // v1.2: Á¤Â÷ Á¶¸® Á¦ÇÑ
+        if (StopCookLimited && StopCooksUsed >= GameBalance.StopCookLimit)
+        {
+            UIManager.Instance?.ShowDanger(GameBalance.StopCookLimit == 0
+                ? "[Á¤Â÷] Á¶¸®´Â ´Ş¸®¸é¼­ ÇÑ´Ù - Ãâ¹ß([Enter]) µÚ È­´öÀÌ ÄÑÁø´Ù"
+                : "[Á¤Â÷] ÀÌ¹ø Á¤Â÷ Á¶¸® ³¡ (" + GameBalance.StopCookLimit + "/" + GameBalance.StopCookLimit + ") - Ãâ¹ß([Enter]) µÚ Á¦ÇÑ ¾øÀ½");
+            SoundManager.Play("sfx_ui_click");
+            return false;
+        }
         if (!MaterialInventory.Instance.TryConsume(a, b))
         {
-            Debug.Log("[CookingBridge] ì¬ë£Œ ë¶€ì¡±: " + a + " + " + b);
+            Debug.Log("[CookingBridge] Àç·á ºÎÁ·: " + a + " + " + b);
             return false;
         }
         pendingRecipeId = RecipeDatabase.MakeKey(a, b);
-        Debug.Log("[CookingBridge] ì¡°ë¦¬ ì‹œì‘: " + RecipeDatabase.Get(pendingRecipeId).displayName);
+        if (StopCookLimited) StopCooksUsed++;   // v1.2: Á¤Â÷ Áß ½ÃÀÛÇÑ Á¶¸®¸¸ ¼¾´Ù
+        Debug.Log("[CookingBridge] Á¶¸® ½ÃÀÛ: " + RecipeDatabase.Get(pendingRecipeId).displayName);
         return true;
     }
 
     /// <summary>
-    /// ì¡°ë¦¬ ì™„ë£Œ. quality: "perfect" / "good" / "bad"
-    /// perfect = ìš”ë¦¬ 2ê°œ, good = 1ê°œ, bad = íšë“ ì—†ìŒ (ì¶”í›„ í­íƒ„ ì§€ê¸‰ ì˜ˆì •)
+    /// Á¶¸® ¿Ï·á. quality: "perfect" / "good" / "bad"
+    /// perfect = ¿ä¸® 2°³, good = 1°³, bad = È¹µæ ¾øÀ½ (ÃßÈÄ ÆøÅº Áö±Ş ¿¹Á¤)
     /// </summary>
     public static void FinishCook(string quality)
     {
@@ -52,10 +96,10 @@ public static class CookingBridge
         {
             BadsThisRun++;
 
-            // Phase 2-3 ì•„ì´í…œ 'ì„ ëŒ€ì˜ ì•ì¹˜ë§ˆ': ì‹¤íŒ¨í•´ë„ ì¬ë£Œë¥¼ ì „ë¶€ ëŒë ¤ë°›ëŠ”ë‹¤
-            // v1.1 (êµìˆ˜ í”¼ë“œë°± B4): ì•ì¹˜ë§ˆê°€ ì—†ì–´ë„ GameBalance.BadRefundCount(ê¸°ë³¸ 0, ì‹¤í—˜ì•ˆ 1)ê°œëŠ”
-            // ëŒë ¤ì¤€ë‹¤ - ì´ˆë³´ì˜ ì¬ì‹œë„ ë³´ì¥. ìš”ë¦¬ëŠ” ê³„ì† 0ê°œ.
-            // (pendingRecipeIdëŠ” T1 ì¡°ë¦¬ í‚¤ "ì¬ë£Œ+ì¬ë£Œ" í˜•ì‹ - ì—¬ê¸°ì„œ ì¬ë£Œ 2ê°œë¥¼ ë³µì›)
+            // Phase 2-3 ¾ÆÀÌÅÛ '¼±´ëÀÇ ¾ÕÄ¡¸¶': ½ÇÆĞÇØµµ Àç·á¸¦ ÀüºÎ µ¹·Á¹Ş´Â´Ù
+            // v1.1 (±³¼ö ÇÇµå¹é B4): ¾ÕÄ¡¸¶°¡ ¾ø¾îµµ GameBalance.BadRefundCount(±âº» 0, ½ÇÇè¾È 1)°³´Â
+            // µ¹·ÁÁØ´Ù - ÃÊº¸ÀÇ Àç½Ãµµ º¸Àå. ¿ä¸®´Â °è¼Ó 0°³.
+            // (pendingRecipeId´Â T1 Á¶¸® Å° "Àç·á+Àç·á" Çü½Ä - ¿©±â¼­ Àç·á 2°³¸¦ º¹¿ø)
             int refund = ItemManager.FailRefund ? 2 : Mathf.Clamp(GameBalance.BadRefundCount, 0, 2);
             if (refund > 0 && MaterialInventory.Instance != null)
             {
@@ -67,52 +111,52 @@ public static class CookingBridge
                     MaterialInventory.Instance.Add(ra, 1);
                     if (refund >= 2) MaterialInventory.Instance.Add(rb, 1);
                     UIManager.Instance?.ShowStatChange(ItemManager.FailRefund
-                        ? "[ì„ ëŒ€ì˜ ì•ì¹˜ë§ˆ] ì‹¤íŒ¨í•œ ì¬ë£Œë¥¼ ë˜ì‚´ë ¸ë‹¤"
-                        : "[ì‹¤íŒ¨] íƒ€ë‹¤ ë§Œ ì¬ë£Œ 1ê°œëŠ” ê±´ì¡Œë‹¤");
+                        ? "[¼±´ëÀÇ ¾ÕÄ¡¸¶] ½ÇÆĞÇÑ Àç·á¸¦ µÇ»ì·È´Ù"
+                        : "[½ÇÆĞ] Å¸´Ù ¸¸ Àç·á 1°³´Â °ÇÁ³´Ù");
                 }
             }
-            Debug.Log("[CookingBridge] ì¡°ë¦¬ ì‹¤íŒ¨! í™˜ê¸‰ " + refund + "ê°œ");
+            Debug.Log("[CookingBridge] Á¶¸® ½ÇÆĞ! È¯±Ş " + refund + "°³");
         }
         else
         {
             int n = (quality == "perfect") ? 2 : 1;
 
-            // P1+: ë§ˆìŠ¤í„° ìš”ë¦¬(ìˆ™ë ¨ 100íšŒ) - PERFECT ì¡°ë¦¬ ìˆ˜ëŸ‰ +1 (2 -> 3)
+            // P1+: ¸¶½ºÅÍ ¿ä¸®(¼÷·Ã 100È¸) - PERFECT Á¶¸® ¼ö·® +1 (2 -> 3)
             if (quality == "perfect"
                 && MetaProgress.GetMasteryTier(pendingRecipeId) >= GameBalance.MasteryPerfectTier)
                 n += 1;
 
-            // Phase 2-3 ì•„ì´í…œ 'ë¹„ë°€ í–¥ì‹ ë£Œ ì£¼ë¨¸ë‹ˆ': PERFECT ì‹œ í™•ë¥ ë¡œ ìš”ë¦¬ +1
+            // Phase 2-3 ¾ÆÀÌÅÛ 'ºñ¹Ğ Çâ½Å·á ÁÖ¸Ó´Ï': PERFECT ½Ã È®·ü·Î ¿ä¸® +1
             if (quality == "perfect" && ItemManager.PerfectExtraChance > 0f
                 && Random.value < ItemManager.PerfectExtraChance)
             {
                 n += 1;
-                UIManager.Instance?.ShowStatChange("[í–¥ì‹ ë£Œ ì£¼ë¨¸ë‹ˆ] í’ë¯¸ í­ë°œ! ìš”ë¦¬ +1");
+                UIManager.Instance?.ShowStatChange("[Çâ½Å·á ÁÖ¸Ó´Ï] Ç³¹Ì Æø¹ß! ¿ä¸® +1");
             }
 
-            // Phase 2-1: ìŠ¤í”¼ë…¸ ë² íŒ… [ì™„ë²½í•œ ì ‘ì‹œ] PERFECT ì¹´ìš´íŠ¸
+            // Phase 2-1: ½ºÇÇ³ë º£ÆÃ [¿Ïº®ÇÑ Á¢½Ã] PERFECT Ä«¿îÆ®
             if (quality == "perfect")
                 SpinoBet.CountPerfect();
 
             FoodStock.Instance.Add(pendingRecipeId, n);
 
-            // P1+: ìš”ë¦¬ ìˆ™ë ¨ ì¹´ìš´íŠ¸ (í‰ìƒ ëˆ„ì  - ë§ˆì¼ìŠ¤í†¤ ì•Œë¦¼ì€ FoodStockì´ ì²˜ë¦¬)
+            // P1+: ¿ä¸® ¼÷·Ã Ä«¿îÆ® (Æò»ı ´©Àû - ¸¶ÀÏ½ºÅæ ¾Ë¸²Àº FoodStockÀÌ Ã³¸®)
             FoodStock.Instance.CountCook(pendingRecipeId);
 
-            // v1.1: ëŸ° í†µê³„
+            // v1.1: ·± Åë°è
             CooksThisRun++;
             LastGoodCookTime = Time.time;
 
             RecipeData r = RecipeDatabase.Get(pendingRecipeId);
-            Debug.Log("[CookingBridge] " + r.displayName + " x" + n + " íšë“! (" + quality + ")");
+            Debug.Log("[CookingBridge] " + r.displayName + " x" + n + " È¹µæ! (" + quality + ")");
         }
         pendingRecipeId = "";
     }
 
     /// <summary>
-    /// B-1: ì¡°ë¦¬ ìë°œ ì¤‘ë‹¨ (CookingMinigame [ESC]).
-    /// ì‹œì‘í•  ë•Œ ì°¨ê°í•œ ì¬ë£Œ 2ê°œë¥¼ ê·¸ëŒ€ë¡œ ëŒë ¤ì¤€ë‹¤ - ìœ„ê¸° ëŒ€ì‘ì„ ìœ„í•œ ì¤‘ë‹¨ì´
-    /// ì†í•´ê°€ ë˜ì§€ ì•Šê²Œ. (pendingRecipeIdëŠ” T1 ì¡°ë¦¬ í‚¤ "ì¬ë£Œ+ì¬ë£Œ" í˜•ì‹)
+    /// B-1: Á¶¸® ÀÚ¹ß Áß´Ü (CookingMinigame [ESC]).
+    /// ½ÃÀÛÇÒ ¶§ Â÷°¨ÇÑ Àç·á 2°³¸¦ ±×´ë·Î µ¹·ÁÁØ´Ù - À§±â ´ëÀÀÀ» À§ÇÑ Áß´ÜÀÌ
+    /// ¼ÕÇØ°¡ µÇÁö ¾Ê°Ô. (pendingRecipeId´Â T1 Á¶¸® Å° "Àç·á+Àç·á" Çü½Ä)
     /// </summary>
     public static void AbortCook()
     {
@@ -130,18 +174,18 @@ public static class CookingBridge
             }
         }
 
-        UIManager.Instance?.ShowStatChange("[ì¡°ë¦¬ ì¤‘ë‹¨] ì¬ë£Œë¥¼ ë˜ì°¾ì•˜ë‹¤ - í˜„ì¥ìœ¼ë¡œ!");
-        Debug.Log("[CookingBridge] ì¡°ë¦¬ ìë°œ ì¤‘ë‹¨ - ì¬ë£Œ í™˜ê¸‰: " + pendingRecipeId);
+        UIManager.Instance?.ShowStatChange("[Á¶¸® Áß´Ü] Àç·á¸¦ µÇÃ£¾Ò´Ù - ÇöÀåÀ¸·Î!");
+        Debug.Log("[CookingBridge] Á¶¸® ÀÚ¹ß Áß´Ü - Àç·á È¯±Ş: " + pendingRecipeId);
         pendingRecipeId = "";
     }
 
-    /// <summary>ê°„í¸ ì¡°ë¦¬: ë°œê²¬í•œ ë ˆì‹œí”¼ë¥¼ ë°”ë¡œ ì¡°ë¦¬ (ì¬ë£Œ ìë™ ì°¨ê°)</summary>
+    /// <summary>°£Æí Á¶¸®: ¹ß°ßÇÑ ·¹½ÃÇÇ¸¦ ¹Ù·Î Á¶¸® (Àç·á ÀÚµ¿ Â÷°¨)</summary>
     public static bool QuickCook(string recipeId)
     {
         RecipeData r = RecipeDatabase.Get(recipeId);
         if (r == null || r.tier != 1) return false;
 
-        // recipeId í˜•ì‹: "fire+meat" -> ì¬ë£Œ 2ê°œ ë³µì›
+        // recipeId Çü½Ä: "fire+meat" -> Àç·á 2°³ º¹¿ø
         string[] parts = recipeId.Split('+');
         MaterialType a, b;
         if (!TryParseMaterial(parts[0], out a)) return false;
@@ -149,33 +193,33 @@ public static class CookingBridge
 
         if (!StartCook(a, b)) return false;
 
-        // ì¦‰ì‹œ ì™„ì„± ëª¨ë“œ (ë¯¸ë‹ˆê²Œì„ ì—°ê²° ì „ ì„ì‹œ)
+        // Áï½Ã ¿Ï¼º ¸ğµå (¹Ì´Ï°ÔÀÓ ¿¬°á Àü ÀÓ½Ã)
         FinishCook("good");
         return true;
     }
 
     /// <summary>
-    /// T2 í•©ì„±: T1 ìš”ë¦¬ 2ê°œ -> íƒœê·¸ ì¡°í•©ìœ¼ë¡œ ì „ì„¤ ìš”ë¦¬ 1ê°œ
-    /// ì„±ê³µí•˜ë©´ ê²°ê³¼ recipeId ë°˜í™˜, ì‹¤íŒ¨í•˜ë©´ null
+    /// T2 ÇÕ¼º: T1 ¿ä¸® 2°³ -> ÅÂ±× Á¶ÇÕÀ¸·Î Àü¼³ ¿ä¸® 1°³
+    /// ¼º°øÇÏ¸é °á°ú recipeId ¹İÈ¯, ½ÇÆĞÇÏ¸é null
     /// </summary>
     public static string FuseFoods(string recipeIdA, string recipeIdB)
     {
         RecipeData a = RecipeDatabase.Get(recipeIdA);
         RecipeData b = RecipeDatabase.Get(recipeIdB);
 
-        // T1 ìš”ë¦¬ë§Œ í•©ì„± ê°€ëŠ¥
+        // T1 ¿ä¸®¸¸ ÇÕ¼º °¡´É
         if (a == null || b == null || a.tier != 1 || b.tier != 1)
         {
-            Debug.Log("[CookingBridge] í•©ì„± ë¶ˆê°€: T1 ìš”ë¦¬ë§Œ ê°€ëŠ¥");
+            Debug.Log("[CookingBridge] ÇÕ¼º ºÒ°¡: T1 ¿ä¸®¸¸ °¡´É");
             return null;
         }
 
-        // ê°™ì€ ìš”ë¦¬ 2ê°œ í•©ì„±ì´ë©´ ë³´ìœ ëŸ‰ 2ê°œ í•„ìš”
+        // °°Àº ¿ä¸® 2°³ ÇÕ¼ºÀÌ¸é º¸À¯·® 2°³ ÇÊ¿ä
         if (recipeIdA == recipeIdB)
         {
             if (FoodStock.Instance.Get(recipeIdA) < 2)
             {
-                Debug.Log("[CookingBridge] í•©ì„± ì‹¤íŒ¨: " + a.displayName + " 2ê°œ í•„ìš”");
+                Debug.Log("[CookingBridge] ÇÕ¼º ½ÇÆĞ: " + a.displayName + " 2°³ ÇÊ¿ä");
                 return null;
             }
         }
@@ -183,32 +227,32 @@ public static class CookingBridge
         {
             if (FoodStock.Instance.Get(recipeIdA) < 1 || FoodStock.Instance.Get(recipeIdB) < 1)
             {
-                Debug.Log("[CookingBridge] í•©ì„± ì‹¤íŒ¨: ì¬ë£Œ ìš”ë¦¬ ë¶€ì¡±");
+                Debug.Log("[CookingBridge] ÇÕ¼º ½ÇÆĞ: Àç·á ¿ä¸® ºÎÁ·");
                 return null;
             }
         }
 
-        // íƒœê·¸ ì¡°í•©ìœ¼ë¡œ T2 ê²°ê³¼ ì¡°íšŒ
+        // ÅÂ±× Á¶ÇÕÀ¸·Î T2 °á°ú Á¶È¸
         RecipeData result = RecipeDatabase.GetFusion(a.tag, b.tag);
         if (result == null)
         {
-            Debug.Log("[CookingBridge] í•´ë‹¹ íƒœê·¸ ì¡°í•©ì˜ T2 ì—†ìŒ: " + a.tag + " + " + b.tag);
+            Debug.Log("[CookingBridge] ÇØ´ç ÅÂ±× Á¶ÇÕÀÇ T2 ¾øÀ½: " + a.tag + " + " + b.tag);
             return null;
         }
 
-        // ì†Œëª¨ + ì§€ê¸‰
+        // ¼Ò¸ğ + Áö±Ş
         FoodStock.Instance.TryConsume(recipeIdA, 1);
         FoodStock.Instance.TryConsume(recipeIdB, 1);
         FoodStock.Instance.Add(result.recipeId, 1);
 
-        Debug.Log("[CookingBridge] í•©ì„± ì„±ê³µ! " + a.displayName + " + " + b.displayName +
+        Debug.Log("[CookingBridge] ÇÕ¼º ¼º°ø! " + a.displayName + " + " + b.displayName +
                   " = " + result.displayName);
         return result.recipeId;
     }
 
     private static bool TryParseMaterial(string s, out MaterialType result)
     {
-        // ì†Œë¬¸ì ë¬¸ìì—´ -> enum ("meat" -> MaterialType.Meat)
+        // ¼Ò¹®ÀÚ ¹®ÀÚ¿­ -> enum ("meat" -> MaterialType.Meat)
         switch (s)
         {
             case "meat": result = MaterialType.Meat; return true;

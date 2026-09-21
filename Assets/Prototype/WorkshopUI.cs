@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 
 /// <summary>
-/// [WorkshopUI.cs] v2.4 (v9.10 2026-09-17 테스터 피드백·개정안 §3: 기차 수리·장갑 보강은 정차(Town)에서만(ShopRepairInBattle), 수리 정차당 1회(ShopRepairPerStop), 장갑 지역당 1회·최종전 앞 없음(ShopArmorPerRegion),
+/// [WorkshopUI.cs] v2.5 (v9.10.1 2026-09-21: 재료 이름 MaterialNames) / [WorkshopUI.cs] v2.4 (v9.10 2026-09-17 테스터 피드백·개정안 §3: 기차 수리·장갑 보강은 정차(Town)에서만(ShopRepairInBattle), 수리 정차당 1회(ShopRepairPerStop), 장갑 지역당 1회·최종전 앞 없음(ShopArmorPerRegion),
 ///   장갑은 현재 HP 를 안 채운다(ShopArmorHealsCurrent) / [ESC] 로도 닫기 / 상태 줄에 "정차 후 이용"·"이번 정차 구매 끝"·"이 지역 구매 끝") / v2.3 (v9.9.2 2026-09-16: 제목 "안킬로의 정비소" + 본체 왼쪽에 안킬로 실루엣 - 정비소 주인 = 등짐장수 안킬로로 통일) / v2.2 (v9.8: 재료 시장 행에 재료 아이콘) / v2.1 (2026-09-14: 전투 중 수리 기록) / v2
 /// 정비소 - 골드를 소모해 도구/기차를 정비하고 재료를 구매하는 상점
 ///
@@ -272,17 +272,7 @@ public class WorkshopUI : MonoBehaviour
     }
 
     /// <summary>재료 enum -> 한글 표시 이름</summary>
-    private string MaterialKoreanName(MaterialType t)
-    {
-        string key = t.ToString().ToLower();
-        if (key == "meat") return "고기";
-        if (key == "armor") return "등심(장갑)";
-        if (key == "fire") return "화염 재료";
-        if (key == "ice") return "냉기 재료";
-        if (key == "elec") return "전기 재료";
-        if (key == "poison") return "독 재료";
-        return t.ToString();
-    }
+    private string MaterialKoreanName(MaterialType t) { return MaterialNames.Kor(t); }   // v9.10.1: 재료 이름 한 곳
 
     // ==================================================================
     //  상태 갱신

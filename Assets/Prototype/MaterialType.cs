@@ -1,53 +1,95 @@
-ï»¿// ì¬ë£Œ 6ì¢… ì •ì˜
-// ì  6ì¢…ì´ ê°ì ë‹¤ë¥¸ ì¬ë£Œë¥¼ ë“œë¡­í•œë‹¤ (ë©í„°â†’ê³ ê¸°, ì•ˆí‚¬ë¡œâ†’ë“±ì‹¬, í”„í…Œë¼â†’ì „ê¸°, ì¹´ë¥´ë…¸â†’í™”ì—¼, ëª¨ì‚¬â†’ì–¼ìŒ, ë…ì¹¨ì „ê°ˆâ†’ë…)
+// [MaterialType.cs] v1.1 (v9.10.1 2026-09-21: Àç·á ÀÌ¸§À» ÇÑ °÷(MaterialNames)À¸·Î - "°í±â µî½É ¿·¿¡ µ¶ Àü±â È­¿°" ±«¸® Á¤¸®)
+// Àç·á 6Á¾ Á¤ÀÇ
+// Àû 6Á¾ÀÌ °¢ÀÚ ´Ù¸¥ Àç·á¸¦ µå·ÓÇÑ´Ù (·¦ÅÍ->°í±â, ¾Æ¸£¸¶µô·Î->µî½É, Å×¶ó³ëµ·->Àü±â¾Ë, Ä«¸£³ë/Ä´ÅÍ½º->È­¿°²É, ¸ğ»ç->¾óÀ½²É, Àü°¥/ÇÁÅ×¶ó->µ¶»ù)
 public enum MaterialType
 {
-    Meat,    // ë©í„° ê³ ê¸° ğŸ¥©
-    Armor,   // ë‹¨ë‹¨í•œ ë“±ì‹¬ ğŸ¦´
-    Elec,    // ì „ê¸° ê¼¬ë¦¬ âš¡
-    Fire,    // í™”ì—¼ê½ƒ ğŸŒ¶
-    Ice,     // ì–¼ìŒê½ƒ â„
-    Poison   // ë…ì¹¨ ğŸŸ£
+    Meat,    // °í±â (·¦ÅÍ)
+    Armor,   // µî½É (Àå°© ¼Õ´Ô)
+    Elec,    // Àü±â¾Ë
+    Fire,    // È­¿°²É
+    Ice,     // ¾óÀ½²É
+    Poison   // µ¶»ù
 }
 
-// ìš”ë¦¬ ê³„ì—´ íƒœê·¸ (T2 í•©ì„±ì— ì‚¬ìš©)
+/// <summary>
+/// Àç·á ÀÌ¸§Ç¥ - HUD¡¤ÁÖ¹æ¡¤Á¤ºñ¼Ò¡¤Ä«µå¡¤»ç°í ÀÌº¥Æ®°¡ ÀüºÎ ¿©±â¼­ ÀĞ´Â´Ù. ÀÌ¸§À» ¹Ù²Ù·Á¸é ÀÌ Ç¥ ÇÑ °÷¸¸.
+/// ¼ø¼­ = MaterialType ¼ø¼­ (Meat, Armor, Elec, Fire, Ice, Poison).
+///   MaterialNames.Kor(MaterialType.Fire) -> "È­¿°²É"
+///   MaterialNames.Kor("fire")            -> "È­¿°²É"   (·¹½ÃÇÇ Å° "meat"/"armor"/"elec"/"fire"/"ice"/"poison")
+///   MaterialNames.KOR[i]                  -> ¹è¿­·Î (HUD Ä­ ¼øÈ¸¿ë)
+/// </summary>
+public static class MaterialNames
+{
+    /// <summary>Àç·á 6Á¾ ÇÑ±Û ÀÌ¸§ (MaterialType ¼ø¼­)</summary>
+    public static readonly string[] KOR = { "°í±â", "µî½É", "Àü±â¾Ë", "È­¿°²É", "¾óÀ½²É", "µ¶»ù" };
+
+    /// <summary>·¹½ÃÇÇ Å° ¼ø¼­ (RecipeDatabase ÀÇ "meat+fire" ½Ä Å°¿Í °°Àº ³¹¸»)</summary>
+    private static readonly string[] KEYS = { "meat", "armor", "elec", "fire", "ice", "poison" };
+
+    public static string Kor(MaterialType t)
+    {
+        int i = (int)t;
+        return i >= 0 && i < KOR.Length ? KOR[i] : t.ToString();
+    }
+
+    /// <summary>·¹½ÃÇÇ Å° ³¹¸» -> ÇÑ±Û ÀÌ¸§. ¸ğ¸£´Â Å°´Â ±×´ë·Î µ¹·ÁÁØ´Ù</summary>
+    public static string Kor(string key)
+    {
+        if (string.IsNullOrEmpty(key)) return "";
+        string k = key.Trim().ToLowerInvariant();
+        for (int i = 0; i < KEYS.Length; i++)
+            if (KEYS[i] == k) return KOR[i];
+        return key;
+    }
+
+    /// <summary>"°í±â + È­¿°²É" ½ÄÀ¸·Î - ·¹½ÃÇÇ Å° "meat+fire" ¸¦ »ç¶÷ ¸»·Î</summary>
+    public static string PairKor(string recipeKey)
+    {
+        if (string.IsNullOrEmpty(recipeKey)) return "";
+        string[] parts = recipeKey.Split('+');
+        if (parts.Length < 2) return Kor(recipeKey);
+        return Kor(parts[0]) + " + " + Kor(parts[1]);
+    }
+}
+
+// ¿ä¸® °è¿­ ÅÂ±× (T2 ÇÕ¼º¿¡ »ç¿ë)
 public enum FoodTag
 {
-    Phys,   // ë¬¼ë¦¬ ê³„ì—´
-    Elec,   // ì „ê¸° ê³„ì—´
-    Fire,   // í™”ì—¼ ê³„ì—´
-    Ice,    // ëƒ‰ê¸° ê³„ì—´
-    Poison, // ë… ê³„ì—´
-    Def     // ë°©ì–´ ê³„ì—´
+    Phys,   // ¹°¸® °è¿­
+    Elec,   // Àü±â °è¿­
+    Fire,   // È­¿° °è¿­
+    Ice,    // ³Ã±â °è¿­
+    Poison, // µ¶ °è¿­
+    Def     // ¹æ¾î °è¿­
 }
 
-// ì—­í•  6ì¢…
+// ¿ªÇÒ 6Á¾
 public enum TurretRole
 {
-    PhysDealer,  // âš” ë¬¼ë¦¬ ë”œëŸ¬
-    MagicDealer, // âœ¨ ë§ˆë²• ë”œëŸ¬
-    Debuffer,    // â¬‡ ë°©ê¹/ë§ˆê¹
-    Buffer,      // â¬† ì¸ì ‘ ë²„í”„
-    CC,          // ğŸŒ€ ìŠ¬ë¡œìš°/ìŠ¤í„´
-    Support      // ğŸ›¡ íšŒë³µ/ì¥ê°‘/ë°˜ê²©
+    PhysDealer,  // ¹°¸® µô·¯
+    MagicDealer, // ¸¶¹ı µô·¯
+    Debuffer,    // ¹æ±ğ/¸¶±ğ
+    Buffer,      // ÀÎÁ¢ ¹öÇÁ
+    CC,          // ½½·Î¿ì/½ºÅÏ
+    Support      // È¸º¹/Àå°©/¹İ°İ
 }
 
-// ê³µê²© í˜•íƒœ 8ì¢…
+// °ø°İ ÇüÅÂ 8Á¾
 public enum AttackShape
 {
-    Projectile, // ë‹¨ì¼ íˆ¬ì‚¬ì²´
-    Pierce,     // ê´€í†µ ë ˆì¼ (ì¼ì§ì„  ì „ë¶€)
-    Cone,       // ë¶€ì±„ê¼´ ë°©ì‚¬ (í™”ì—¼ë°©ì‚¬)
-    Explode,    // ì°©íƒ„ í­ë°œ (ì§ìŠ¤ì‹)
-    Chain,      // ì²´ì¸ (ìŠ¤íƒœí‹±ì‹)
-    Field,      // ì¥íŒ (ë°”ë‹¥ì— ë‚¨ìŒ)
-    Aura,       // ì˜¤ë¼ (ê¸°ì°¨ ì£¼ë³€ ìƒì‹œ)
-    Passive     // ìƒì‹œ íŒ¨ì‹œë¸Œ
+    Projectile, // ´ÜÀÏ Åõ»çÃ¼
+    Pierce,     // °üÅë ·¹ÀÏ (ÀÏÁ÷¼± ÀüºÎ)
+    Cone,       // ºÎÃ¤²Ã ¹æ»ç (È­¿°¹æ»ç)
+    Explode,    // ÂøÅº Æø¹ß
+    Chain,      // Ã¼ÀÎ (¹ø°³ Æ¢±è)
+    Field,      // ÀåÆÇ (¹Ù´Ú¿¡ ³²À½)
+    Aura,       // ¿À¶ó (±âÂ÷ ÁÖº¯ »ó½Ã)
+    Passive     // »ó½Ã ÆĞ½Ãºê
 }
 
-// ë°ë¯¸ì§€ íƒ€ì… (ì  DEF/RESì™€ ëŒ€ì‘)
+// µ¥¹ÌÁö Å¸ÀÔ (Àû DEF/RES¿Í ´ëÀÀ)
 public enum DamageType
 {
-    Phys, // ë¬¼ë¦¬ â€” ì  DEFì— ê°ì†Œ
-    Magic // ë§ˆë²• â€” ì  RESì— ê°ì†Œ
+    Phys, // ¹°¸® - Àû DEF¿¡ °¨¼Ò
+    Magic // ¸¶¹ı - Àû RES¿¡ °¨¼Ò
 }

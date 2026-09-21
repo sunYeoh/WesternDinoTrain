@@ -2,149 +2,149 @@ using System.Collections;
 using UnityEngine;
 
 /// <summary>
-/// [BossEnemy.cs] v7.1 (êµìˆ˜ í”¼ë“œë°± C3: ë”” ì˜¤ë¦¬ì§€ë„ ì¶”ê°€ ê·¸ë¡œê¸° / A8: ì¬ê°€ë™ ë¬¸êµ¬) / v6 - ë³´ìŠ¤ íŒ¨í„´ Cë‹¨ê³„ 1ì°¨ (ë³´ìŠ¤íŒ¨í„´ì„¤ê³„ ë¬¸ì„œ)
-/// - v6 ë³€ê²½ì :
-///   1) ë¯¸ë¼ ë„ë°œ ëŒ€ì‘: ë„ë°œ ì¤‘ì—” ë¯¸ë¼ë¥¼ ì«“ì•„ê°€ê³  ë¬¼ì–´ëœ¯ëŠ”ë‹¤ (ê¸°ì°¨ ë¬´í”¼í•´)
-///   2) ë”” ì˜¤ë¦¬ì§€ë„ 3í˜ì´ì¦ˆ:
-///      P1 ì‚¬ëƒ¥(100~70%): í¬íš¨ ì†Œí™˜ (ê¸°ì¡´)
-///      P2 í­ì‹(70~35%): ì¬ë£Œ ì¡°ê° ìŸíƒˆì „ - ë³´ìŠ¤ê°€ ì¡°ê°ì„ ë¨¹ìœ¼ë©´ íšŒë³µ+ê³µê²©ë ¥ ìŠ¤íƒ
-///         (íšŒë³µ ìƒí•œ = ìµœëŒ€ HP 15%, ê³µê²©ë ¥ ìƒí•œ +50%)
-///      P3 í•´ì¹˜ ê°œë°©(35%~): ë°›ëŠ” í”¼í•´ +30%, í­ì‹ ì¢…ë£Œ (ë§ˆì§€ë§‰ ì£¼ë¬¸/ì—”ë”© ë¶„ê¸°ëŠ” C-2ì—ì„œ)
+/// [BossEnemy.cs] v7.2 (v9.10.1 2026-09-21: Àç·á ÀÌ¸§ Àü±â¾Ë) / v7.1 (±³¼ö ÇÇµå¹é C3: µğ ¿À¸®Áö³Î Ãß°¡ ±×·Î±â / A8: Àç°¡µ¿ ¹®±¸) / v6 - º¸½º ÆĞÅÏ C´Ü°è 1Â÷ (º¸½ºÆĞÅÏ¼³°è ¹®¼­)
+/// - v6 º¯°æÁ¡:
+///   1) ¹Ì³¢ µµ¹ß ´ëÀÀ: µµ¹ß Áß¿£ ¹Ì³¢¸¦ ÂÑ¾Æ°¡°í ¹°¾î¶â´Â´Ù (±âÂ÷ ¹«ÇÇÇØ)
+///   2) µğ ¿À¸®Áö³Î 3ÆäÀÌÁî:
+///      P1 »ç³É(100~70%): Æ÷È¿ ¼ÒÈ¯ (±âÁ¸)
+///      P2 Æø½Ä(70~35%): Àç·á Á¶°¢ ÀïÅ»Àü - º¸½º°¡ Á¶°¢À» ¸ÔÀ¸¸é È¸º¹+°ø°İ·Â ½ºÅÃ
+///         (È¸º¹ »óÇÑ = ÃÖ´ë HP 15%, °ø°İ·Â »óÇÑ +50%)
+///      P3 ÇØÄ¡ °³¹æ(35%~): ¹Ş´Â ÇÇÇØ +30%, Æø½Ä Á¾·á (¸¶Áö¸· ÁÖ¹®/¿£µù ºĞ±â´Â C-2¿¡¼­)
 /// ---------------------------------------------------------------
-/// (v5) ë³´ìŠ¤ íŒ¨í„´ Bë‹¨ê³„
-/// - v5 ë³€ê²½ì :
-///   1) ë²ˆê°œ ë³‘ íŒ¨ë§ (ì²œë‘¥ ë‘¥ì§€): ë‚™ë¢° ì˜ˆê³  ë§ˆì§€ë§‰ 0.6ì´ˆì— Space -> ë‚™ë¢° ë¬´íš¨ + ë³‘ 1ì¶©ì „
-///      3ë³‘ ëª¨ìœ¼ë©´ ì—¬ì™•ì—ê²Œ ë˜ì˜ì•„ ê°•ì œ ê·¸ë¡œê¸°. ë¯¸ì‚¬ìš© ë³‘ì€ ì²˜ì¹˜ ì‹œ ì „ê¸° ì¬ë£Œë¡œ í™˜ê¸‰
-///      ì¡°ë¦¬ ë¯¸ë‹ˆê²Œì„ ì¤‘ì´ë©´ ë¯¸ë‹ˆê²Œì„ì´ ì ì‹œ ëŒ€ê¸°í•˜ê³  Spaceê°€ íŒ¨ë§ìœ¼ë¡œ ì“°ì¸ë‹¤
-///   2) í•´ë™í¬ ì—°ë™ (ë™ë©´ì): ThawCannonUIê°€ í˜¸ì¶œí•˜ëŠ” HitByThawCannon (ê°‘ì£¼ íŒŒê´´/ì•½í™”)
-///   3) ë°œì•… í˜ì´ì¦ˆ: HP 50% ì´í•˜ -> íŒ¨í„´ ê°€ì† + ì†Œí™˜/ë‚™ë¢° ê·œëª¨ ì¦ê°€
+/// (v5) º¸½º ÆĞÅÏ B´Ü°è
+/// - v5 º¯°æÁ¡:
+///   1) ¹ø°³ º´ ÆĞ¸µ (ÃµµÕ µÕÁö): ³«·Ú ¿¹°í ¸¶Áö¸· 0.6ÃÊ¿¡ Space -> ³«·Ú ¹«È¿ + º´ 1ÃæÀü
+///      3º´ ¸ğÀ¸¸é ¿©¿Õ¿¡°Ô µÇ½î¾Æ °­Á¦ ±×·Î±â. ¹Ì»ç¿ë º´Àº Ã³Ä¡ ½Ã Àü±â Àç·á·Î È¯±Ş
+///      Á¶¸® ¹Ì´Ï°ÔÀÓ ÁßÀÌ¸é ¹Ì´Ï°ÔÀÓÀÌ Àá½Ã ´ë±âÇÏ°í Space°¡ ÆĞ¸µÀ¸·Î ¾²ÀÎ´Ù
+///   2) ÇØµ¿Æ÷ ¿¬µ¿ (µ¿¸éÀÚ): ThawCannonUI°¡ È£ÃâÇÏ´Â HitByThawCannon (°©ÁÖ ÆÄ±«/¾àÈ­)
+///   3) ¹ß¾Ç ÆäÀÌÁî: HP 50% ÀÌÇÏ -> ÆĞÅÏ °¡¼Ó + ¼ÒÈ¯/³«·Ú ±Ô¸ğ Áõ°¡
 /// ---------------------------------------------------------------
-/// (v4) ë³´ìŠ¤ íŒ¨í„´ Aë‹¨ê³„
-/// í”„ë¦¬íŒ¹ 1ê°œë¥¼ ê·¸ëŒ€ë¡œ ì“°ë©´ì„œ, ë“±ì¥ ì§€ì—­ì— ë”°ë¼ ë‹¤ë¥¸ ë³´ìŠ¤ê°€ ëœë‹¤.
+/// (v4) º¸½º ÆĞÅÏ A´Ü°è
+/// ÇÁ¸®ÆÕ 1°³¸¦ ±×´ë·Î ¾²¸é¼­, µîÀå Áö¿ª¿¡ µû¶ó ´Ù¸¥ º¸½º°¡ µÈ´Ù.
 ///
-/// - v4 ë³€ê²½ì :
-///   1) ë³´ìŠ¤ 4ì¢… ê°œì„±í™” (ì§€ì—­ ë²ˆí˜¸ë¡œ ìë™ ê²°ì • - ì”¬/í”„ë¦¬íŒ¹ ì‘ì—… 0):
-///      ì§€ì—­ 1 "ë…¹ìŠ¨ ë°œí†±"   (ì•ŒíŒŒ ë©í„°, ë…¹ìŠ¨ ì ê°ˆìƒ‰, ë¹ ë¦„)
-///      ì§€ì—­ 2 "ì²œë‘¥ ë‘¥ì§€"   (í”„í…Œë¼ ì—¬ì™•, ë‡Œìš´ ë³´ë¼, ì›ê±°ë¦¬)
-///      ì§€ì—­ 3 "ë™ë©´ì"      (ê³ ëŒ€ ëª¨ì‚¬, í•œë­ ì²­ë¡, ë‹¨ë‹¨í•¨)
-///      ìµœì¢…   "ë”” ì˜¤ë¦¬ì§€ë„" (ë©”ì¹´ í‹°ë ‰ìŠ¤, í•ë¹›)
-///   2) íŒ¨í„´ ì‹œìŠ¤í…œ: ì˜ˆê³ (í…”ë ˆê·¸ë˜í”„) -> ì‹¤í–‰ -> íŒŒí›¼ íŒì •
-///      - ì‚¬ëƒ¥ í˜¸ë ¹(ì§€ì—­1): ë©í„° ì†Œí™˜. ì˜ˆê³  ì¤‘ ë³´ìŠ¤ì—ê²Œ ìŠ¤í„´ ëª…ì¤‘ ì‹œ ì†Œí™˜ ì ˆë°˜
-///      - ë‚™ë¢° í­ê²©(ì§€ì—­2): í¬íƒ‘ ìŠ¬ë¡¯ ê°ì „ ë§ˆë¹„. ìŠ¬ë¡¯ ê³ì—ì„œ [E]ë¡œ ì¬ê°€ë™ (ProximityInteract)
-///      - ë¹™í•˜ ê°‘ì£¼(ì§€ì—­3): ë°›ëŠ” í”¼í•´ 90% ê°ì†Œ. í™”ìƒ ìŠ¤íƒ ëˆ„ì ìœ¼ë¡œ íŒŒê´´(+ë³´ë„ˆìŠ¤ ê·¸ë¡œê¸°)
-///        (í™”ì—¼ ë„íŠ¸ëŠ” ê°‘ì£¼ë¥¼ ë¬´ì‹œí•˜ê³  íƒœìš´ë‹¤ - Enemy.ModifyIncomingDamage ì£¼ì„ ì°¸ì¡°)
-///      - í¬íš¨(ìµœì¢…): ì •ì˜ˆ ì¦ì› ì†Œí™˜
-///   3) ìˆ˜ì¹˜ëŠ” ì „ë¶€ GameBalanceì˜ 'ë³´ìŠ¤ íŒ¨í„´' ì„¹ì…˜ì—ì„œ ì¡°ì •
-/// VS 2017 (C# 7.3) í˜¸í™˜
+/// - v4 º¯°æÁ¡:
+///   1) º¸½º 4Á¾ °³¼ºÈ­ (Áö¿ª ¹øÈ£·Î ÀÚµ¿ °áÁ¤ - ¾À/ÇÁ¸®ÆÕ ÀÛ¾÷ 0):
+///      Áö¿ª 1 "³ì½¼ ¹ßÅé"   (¾ËÆÄ ·¦ÅÍ, ³ì½¼ Àû°¥»ö, ºü¸§)
+///      Áö¿ª 2 "ÃµµÕ µÕÁö"   (ÇÁÅ×¶ó ¿©¿Õ, ³ú¿î º¸¶ó, ¿ø°Å¸®)
+///      Áö¿ª 3 "µ¿¸éÀÚ"      (°í´ë ¸ğ»ç, ÇÑ·© Ã»·Ï, ´Ü´ÜÇÔ)
+///      ÃÖÁ¾   "µğ ¿À¸®Áö³Î" (¸ŞÄ« Æ¼·º½º, ÇÍºû)
+///   2) ÆĞÅÏ ½Ã½ºÅÛ: ¿¹°í(ÅÚ·¹±×·¡ÇÁ) -> ½ÇÇà -> ÆÄÈÑ ÆÇÁ¤
+///      - »ç³É È£·É(Áö¿ª1): ·¦ÅÍ ¼ÒÈ¯. ¿¹°í Áß º¸½º¿¡°Ô ½ºÅÏ ¸íÁß ½Ã ¼ÒÈ¯ Àı¹İ
+///      - ³«·Ú Æø°İ(Áö¿ª2): Æ÷Å¾ ½½·Ô °¨Àü ¸¶ºñ. ½½·Ô °ç¿¡¼­ [E]·Î Àç°¡µ¿ (ProximityInteract)
+///      - ºùÇÏ °©ÁÖ(Áö¿ª3): ¹Ş´Â ÇÇÇØ 90% °¨¼Ò. È­»ó ½ºÅÃ ´©ÀûÀ¸·Î ÆÄ±«(+º¸³Ê½º ±×·Î±â)
+///        (È­¿° µµÆ®´Â °©ÁÖ¸¦ ¹«½ÃÇÏ°í ÅÂ¿î´Ù - Enemy.ModifyIncomingDamage ÁÖ¼® ÂüÁ¶)
+///      - Æ÷È¿(ÃÖÁ¾): Á¤¿¹ Áõ¿ø ¼ÒÈ¯
+///   3) ¼öÄ¡´Â ÀüºÎ GameBalanceÀÇ 'º¸½º ÆĞÅÏ' ¼½¼Ç¿¡¼­ Á¶Á¤
+/// VS 2017 (C# 7.3) È£È¯
 /// </summary>
 public class BossEnemy : Enemy
 {
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ë³´ìŠ¤ ì¢…ë¥˜ (ì§€ì—­ ê¸°ë°˜ ìë™ ê²°ì •)
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // º¸½º Á¾·ù (Áö¿ª ±â¹İ ÀÚµ¿ °áÁ¤)
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     public enum BossKind
     {
-        RustClaw,     // ì§€ì—­ 1: ë…¹ìŠ¨ ë°œí†± (ì•ŒíŒŒ ë©í„°)
-        ThunderNest,  // ì§€ì—­ 2: ì²œë‘¥ ë‘¥ì§€ (í”„í…Œë¼ ì—¬ì™•)
-        Hibernator,   // ì§€ì—­ 3: ë™ë©´ì (ê³ ëŒ€ ëª¨ì‚¬)
-        Original      // ìµœì¢…: ë”” ì˜¤ë¦¬ì§€ë„
+        RustClaw,     // Áö¿ª 1: ³ì½¼ ¹ßÅé (¾ËÆÄ ·¦ÅÍ)
+        ThunderNest,  // Áö¿ª 2: ÃµµÕ µÕÁö (ÇÁÅ×¶ó ¿©¿Õ)
+        Hibernator,   // Áö¿ª 3: µ¿¸éÀÚ (°í´ë ¸ğ»ç)
+        Original      // ÃÖÁ¾: µğ ¿À¸®Áö³Î
     }
 
-    [Header("â”€ ë³´ìŠ¤ ì „ìš© (ëŸ°íƒ€ì„ ê³„ì‚° - GameBalanceì—ì„œ ì¡°ì •) â”€")]
+    [Header("¦¡ º¸½º Àü¿ë (·±Å¸ÀÓ °è»ê - GameBalance¿¡¼­ Á¶Á¤) ¦¡")]
     public float bossMaxHP = 1000f;
-    public BossKind kind = BossKind.RustClaw;   // Startì—ì„œ ì§€ì—­ ê¸°ë°˜ìœ¼ë¡œ ë®ì–´ì”€
+    public BossKind kind = BossKind.RustClaw;   // Start¿¡¼­ Áö¿ª ±â¹İÀ¸·Î µ¤¾î¾¸
 
-    [Header("â”€ ë³´ìŠ¤ ì´ë™/ê³µê²© â”€")]
+    [Header("¦¡ º¸½º ÀÌµ¿/°ø°İ ¦¡")]
     public float bossAttackRange = 5f;
     public float bossAttackCooldown = 2.5f;
     public float bossMoveSpeed = 1.6f;
 
-    [Header("â”€ ë³´ìŠ¤ ë°©ì–´ ìŠ¤íƒ¯ â”€")]
+    [Header("¦¡ º¸½º ¹æ¾î ½ºÅÈ ¦¡")]
     public float bossDefense = 25f;
     public float bossResistance = 25f;
 
-    [Header("â”€ ê·¸ë¡œê¸° ì„¤ì • â”€")]
+    [Header("¦¡ ±×·Î±â ¼³Á¤ ¦¡")]
     public float groggyDuration = 7f;
     public float groggyCooldownGap = 6f;
 
-    // â”€â”€ ê·¸ë¡œê¸° ìƒíƒœ â”€â”€
+    // ¦¡¦¡ ±×·Î±â »óÅÂ ¦¡¦¡
     private bool isGroggy = false;
     private float groggyLockUntil = 0f;
     private float[] groggyThresholds = { 0.75f, 0.50f, 0.25f };
     private bool[] groggyTriggered = { false, false, false };
-    // v7.1 (êµìˆ˜ í”¼ë“œë°± C3): ë”” ì˜¤ë¦¬ì§€ë„ ì „ìš© ì¶”ê°€ ê·¸ë¡œê¸° (GameBalance.OriginalExtraGroggyRatio, ê¸°ë³¸ 12%)
-    // - ë§ˆì§€ë§‰ ì£¼ë¬¸ì„ ì‹¤íŒ¨í•œ ìš”ë¦¬ì‚¬ì—ê²Œ í•œ ë²ˆ ë” ê¸°íšŒ. ë‹¤ë¥¸ ë³´ìŠ¤ì—ëŠ” ì—†ìŒ
+    // v7.1 (±³¼ö ÇÇµå¹é C3): µğ ¿À¸®Áö³Î Àü¿ë Ãß°¡ ±×·Î±â (GameBalance.OriginalExtraGroggyRatio, ±âº» 12%)
+    // - ¸¶Áö¸· ÁÖ¹®À» ½ÇÆĞÇÑ ¿ä¸®»ç¿¡°Ô ÇÑ ¹ø ´õ ±âÈ¸. ´Ù¸¥ º¸½º¿¡´Â ¾øÀ½
     private bool extraGroggyTriggered = false;
 
-    /// <summary>v7.1: ë”” ì˜¤ë¦¬ì§€ë„ì˜ ì¶”ê°€ ê·¸ë¡œê¸°ê°€ ì•„ì§ ë‚¨ì•„ ìˆëŠ”ê°€ (ë§ˆì§€ë§‰ ì£¼ë¬¸ ì‹¤íŒ¨ ë¬¸êµ¬ìš©)</summary>
+    /// <summary>v7.1: µğ ¿À¸®Áö³ÎÀÇ Ãß°¡ ±×·Î±â°¡ ¾ÆÁ÷ ³²¾Æ ÀÖ´Â°¡ (¸¶Áö¸· ÁÖ¹® ½ÇÆĞ ¹®±¸¿ë)</summary>
     public bool HasExtraGroggyPending
     {
         get
         {
-            // HPê°€ ì´ë¯¸ ê¸°ì¤€ ì•„ë˜ì—¬ë„ ì•„ì§ ì•ˆ í„°ì¡Œìœ¼ë©´ ë‹¤ìŒ í”¼ê²©ì— ë°œë™í•˜ë¯€ë¡œ "ë‚¨ì•„ ìˆìŒ"ìœ¼ë¡œ ë³¸ë‹¤
+            // HP°¡ ÀÌ¹Ì ±âÁØ ¾Æ·¡¿©µµ ¾ÆÁ÷ ¾È ÅÍÁ³À¸¸é ´ÙÀ½ ÇÇ°İ¿¡ ¹ßµ¿ÇÏ¹Ç·Î "³²¾Æ ÀÖÀ½"À¸·Î º»´Ù
             return kind == BossKind.Original && GameBalance.OriginalExtraGroggyRatio > 0f
                 && !extraGroggyTriggered && IsAlive;
         }
     }
 
-    /// <summary>ì´ë²ˆ ê·¸ë¡œê¸°ì˜ ì‹¤ì œ ì§€ì† ì‹œê°„ (BossGimmickSystemì´ ê²Œì´ì§€ì— ì‚¬ìš©)</summary>
+    /// <summary>ÀÌ¹ø ±×·Î±âÀÇ ½ÇÁ¦ Áö¼Ó ½Ã°£ (BossGimmickSystemÀÌ °ÔÀÌÁö¿¡ »ç¿ë)</summary>
     public float CurrentGroggyDuration { get; private set; }
 
-    // â”€â”€ ëŸ°ì§€/íŒ¨í„´ ìƒíƒœ â”€â”€
+    // ¦¡¦¡ ·±Áö/ÆĞÅÏ »óÅÂ ¦¡¦¡
     private bool isLunging = false;
-    private bool isCasting = false;        // íŒ¨í„´ ì‹œì „ ì¤‘ (ì´ë™/ê³µê²© ì •ì§€)
-    private float patternTimer = 0f;       // ë‹¤ìŒ íŒ¨í„´ê¹Œì§€ ë‚¨ì€ ì‹œê°„
+    private bool isCasting = false;        // ÆĞÅÏ ½ÃÀü Áß (ÀÌµ¿/°ø°İ Á¤Áö)
+    private float patternTimer = 0f;       // ´ÙÀ½ ÆĞÅÏ±îÁö ³²Àº ½Ã°£
 
-    // â”€â”€ ë¹™í•˜ ê°‘ì£¼ (ë™ë©´ì) â”€â”€
+    // ¦¡¦¡ ºùÇÏ °©ÁÖ (µ¿¸éÀÚ) ¦¡¦¡
     private bool armorActive = false;
-    private bool secondArmorUsed = false;  // 50% ì¬ì „ê°œëŠ” 1íšŒë§Œ
-    private int burnBaseline = 0;          // ê°‘ì£¼ ì „ê°œ ì‹œì ì˜ í™”ìƒ ëˆ„ì ì¹˜
-    private float armorDR = 0f;            // v5: í˜„ì¬ ê°‘ì£¼ ê°ì‡„ìœ¨ (í•´ë™í¬ GOODìœ¼ë¡œ ì ˆë°˜ ê°€ëŠ¥)
+    private bool secondArmorUsed = false;  // 50% ÀçÀü°³´Â 1È¸¸¸
+    private int burnBaseline = 0;          // °©ÁÖ Àü°³ ½ÃÁ¡ÀÇ È­»ó ´©ÀûÄ¡
+    private float armorDR = 0f;            // v5: ÇöÀç °©ÁÖ °¨¼âÀ² (ÇØµ¿Æ÷ GOODÀ¸·Î Àı¹İ °¡´É)
 
-    // â”€â”€ v5: ë²ˆê°œ ë³‘ íŒ¨ë§ (ì²œë‘¥ ë‘¥ì§€) â”€â”€
+    // ¦¡¦¡ v5: ¹ø°³ º´ ÆĞ¸µ (ÃµµÕ µÕÁö) ¦¡¦¡
     public int ParryCharges { get; private set; }
 
-    // â”€â”€ v5: ë°œì•… í˜ì´ì¦ˆ â”€â”€
+    // ¦¡¦¡ v5: ¹ß¾Ç ÆäÀÌÁî ¦¡¦¡
     private bool enraged = false;
 
-    // â”€â”€ v6: ë”” ì˜¤ë¦¬ì§€ë„ 3í˜ì´ì¦ˆ â”€â”€
+    // ¦¡¦¡ v6: µğ ¿À¸®Áö³Î 3ÆäÀÌÁî ¦¡¦¡
     private int originalPhase = 1;
-    private float feedHealAccum = 0f;   // í­ì‹ìœ¼ë¡œ íšŒë³µí•œ ì´ëŸ‰ (ìƒí•œ ê´€ë¦¬)
-    private float feedAtkBonus = 0f;    // í­ì‹ ê³µê²©ë ¥ ë³´ë„ˆìŠ¤ ëˆ„ì 
-    private bool hatchOpen = false;     // P3: ê°€ìŠ´ í•´ì¹˜ ê°œë°© (ë°›ëŠ” í”¼í•´ ì¦ê°€)
+    private float feedHealAccum = 0f;   // Æø½ÄÀ¸·Î È¸º¹ÇÑ ÃÑ·® (»óÇÑ °ü¸®)
+    private float feedAtkBonus = 0f;    // Æø½Ä °ø°İ·Â º¸³Ê½º ´©Àû
+    private bool hatchOpen = false;     // P3: °¡½¿ ÇØÄ¡ °³¹æ (¹Ş´Â ÇÇÇØ Áõ°¡)
 
-    // â”€â”€ v7 (C-2): ë§ˆì§€ë§‰ ì‹ì‚¬ (ì—”ë”© B) â”€â”€
-    private bool isServing = false;     // ì •ì°¬ ëŒ€ì ‘ ì—°ì¶œ ì¤‘ (ëª¨ë“  í–‰ë™ ì •ì§€)
+    // ¦¡¦¡ v7 (C-2): ¸¶Áö¸· ½Ä»ç (¿£µù B) ¦¡¦¡
+    private bool isServing = false;     // Á¤Âù ´ëÁ¢ ¿¬Ãâ Áß (¸ğµç Çàµ¿ Á¤Áö)
 
-    /// <summary>ë”” ì˜¤ë¦¬ì§€ë„ í˜„ì¬ í˜ì´ì¦ˆ (FinalOrderUI ì°¸ì¡°ìš©. ë‹¤ë¥¸ ë³´ìŠ¤ëŠ” 1)</summary>
+    /// <summary>µğ ¿À¸®Áö³Î ÇöÀç ÆäÀÌÁî (FinalOrderUI ÂüÁ¶¿ë. ´Ù¸¥ º¸½º´Â 1)</summary>
     public int OriginalPhaseNow { get { return originalPhase; } }
 
-    /// <summary>ê°‘ì£¼ í™œì„± ì—¬ë¶€ (ThawCannonUI ì°¸ì¡°ìš©)</summary>
+    /// <summary>°©ÁÖ È°¼º ¿©ºÎ (ThawCannonUI ÂüÁ¶¿ë)</summary>
     public bool ArmorActive { get { return armorActive; } }
 
-    // â”€â”€ ë””ë²„í”„ ìš”ë¦¬ ë³µêµ¬ìš© â”€â”€
+    // ¦¡¦¡ µğ¹öÇÁ ¿ä¸® º¹±¸¿ë ¦¡¦¡
     private float baseDefenseValue;
     private float baseResistanceValue;
 
-    // â”€â”€ ì—°ì¶œ â”€â”€
+    // ¦¡¦¡ ¿¬Ãâ ¦¡¦¡
     private SpriteRenderer[] sprites;
     private Color baseTint = Color.white;
     private WaveManager waveManagerRef;
 
     private void Awake()
     {
-        // ë³´ìŠ¤ ë°ì´í„° ì´ˆê¸°í™” (ì´ë¦„/ìˆ˜ì¹˜ëŠ” Startì—ì„œ ì§€ì—­ ê¸°ë°˜ìœ¼ë¡œ ì±„ì›€)
+        // º¸½º µ¥ÀÌÅÍ ÃÊ±âÈ­ (ÀÌ¸§/¼öÄ¡´Â Start¿¡¼­ Áö¿ª ±â¹İÀ¸·Î Ã¤¿ò)
         data = new EnemyData
         {
-            enemyName = "ë©”ì¹´ í‹°ë ‰ìŠ¤ ë³´ìŠ¤",
+            enemyName = "¸ŞÄ« Æ¼·º½º º¸½º",
             baseHP = 1000f,
             baseATK = 50f,
             baseSPD = 1.0f,
-            dropMaterialName = "ë©”ì¹´ í‹°ë ‰ìŠ¤ì˜ ì‹¬ì¥",
+            dropMaterialName = "¸ŞÄ« Æ¼·º½ºÀÇ ½ÉÀå",
             goldReward = 1000,
             xpReward = 500,
-            targetPriority = "ê¸°ì°¨ ì „ì²´",
-            specialAbility = "HP 75/50/25% ê·¸ë¡œê¸°"
+            targetPriority = "±âÂ÷ ÀüÃ¼",
+            specialAbility = "HP 75/50/25% ±×·Î±â"
         };
     }
 
@@ -152,47 +152,47 @@ public class BossEnemy : Enemy
     {
         int wave = GameManager.Instance != null ? GameManager.Instance.currentWave : 3;
 
-        // â”€â”€ ì§€ì—­ ê¸°ë°˜ ë³´ìŠ¤ ì¢…ë¥˜ ê²°ì • â”€â”€
+        // ¦¡¦¡ Áö¿ª ±â¹İ º¸½º Á¾·ù °áÁ¤ ¦¡¦¡
         int region = GameBalance.RegionOf(wave);
         if (region == 1) kind = BossKind.RustClaw;
         else if (region == 2) kind = BossKind.ThunderNest;
         else if (region == 3) kind = BossKind.Hibernator;
         else kind = BossKind.Original;
 
-        // â”€â”€ ê³µí†µ ì›¨ì´ë¸Œ ë¹„ë¡€ ìŠ¤íƒ¯ â”€â”€
+        // ¦¡¦¡ °øÅë ¿şÀÌºê ºñ·Ê ½ºÅÈ ¦¡¦¡
         bossMaxHP = GameBalance.BossHPBase + wave * GameBalance.BossHPPerWave;
         float bossATK = GameBalance.BossATKBase + wave * GameBalance.BossATKPerWave;
         float spd = bossMoveSpeed;
 
-        // â”€â”€ ì¢…ë¥˜ë³„ ê°œì„± (ì´ë¦„ / ìŠ¤íƒ¯ ë°©í–¥ / ìƒ‰) â”€â”€
+        // ¦¡¦¡ Á¾·ùº° °³¼º (ÀÌ¸§ / ½ºÅÈ ¹æÇâ / »ö) ¦¡¦¡
         string intro;
         if (kind == BossKind.RustClaw)
         {
-            data.enemyName = "ë…¹ìŠ¨ ë°œí†±";
-            bossMaxHP *= 0.9f; bossATK *= 0.9f; spd = 2.0f;      // ë¹ ë¥´ê³  ê°€ë²¼ì›€
+            data.enemyName = "³ì½¼ ¹ßÅé";
+            bossMaxHP *= 0.9f; bossATK *= 0.9f; spd = 2.0f;      // ºü¸£°í °¡º­¿ò
             baseTint = new Color(0.9f, 0.55f, 0.38f);
-            intro = "ë¬´ë¦¬ì˜ ì™•ì´ ë‚˜íƒ€ë‚¬ë‹¤! í˜¸ë ¹ì€ ìŠ¤í„´ìœ¼ë¡œ ì €ì§€í•  ìˆ˜ ìˆë‹¤!";
+            intro = "¹«¸®ÀÇ ¿ÕÀÌ ³ªÅ¸³µ´Ù! È£·ÉÀº ½ºÅÏÀ¸·Î ÀúÁöÇÒ ¼ö ÀÖ´Ù!";
         }
         else if (kind == BossKind.ThunderNest)
         {
-            data.enemyName = "ì²œë‘¥ ë‘¥ì§€";
-            bossMaxHP *= 0.95f; spd = 1.5f; bossAttackRange = 6.5f; // ë©€ë¦¬ì„œ ë•Œë¦¼
+            data.enemyName = "ÃµµÕ µÕÁö";
+            bossMaxHP *= 0.95f; spd = 1.5f; bossAttackRange = 6.5f; // ¸Ö¸®¼­ ¶§¸²
             baseTint = new Color(0.72f, 0.72f, 1f);
-            intro = "ì„ ëŒ€ì˜ ë²ˆê°œ ë³‘ì´ ê¸°ì°¨ì— ì‹¤ë ¤ ìˆë‹¤ - ë‚™ë¢°ì˜ ë§ˆì§€ë§‰ ìˆœê°„, [Space]ë¡œ ë³‘ì„ ë‚´ë°€ì–´ë¼!";
+            intro = "¼±´ëÀÇ ¹ø°³ º´ÀÌ ±âÂ÷¿¡ ½Ç·Á ÀÖ´Ù - ³«·ÚÀÇ ¸¶Áö¸· ¼ø°£, [Space]·Î º´À» ³»¹Ğ¾î¶ó!";
         }
         else if (kind == BossKind.Hibernator)
         {
-            data.enemyName = "ë™ë©´ì";
-            bossMaxHP *= 1.15f; spd = 1.25f;                      // ëŠë¦¬ê³  ë‹¨ë‹¨í•¨
+            data.enemyName = "µ¿¸éÀÚ";
+            bossMaxHP *= 1.15f; spd = 1.25f;                      // ´À¸®°í ´Ü´ÜÇÔ
             baseTint = new Color(0.6f, 0.85f, 1f);
-            intro = "ê³ ëŒ€ ëª¨ì‚¬! ê°‘ì£¼ëŠ” í™”ì—¼ìœ¼ë¡œë§Œ ë…¹ëŠ”ë‹¤ - ê´‘ì‚°ì˜ í•´ë™í¬ì— í™”ì—¼ì„ ì¥ì „í•˜ë¼!";
+            intro = "°í´ë ¸ğ»ç! °©ÁÖ´Â È­¿°À¸·Î¸¸ ³ì´Â´Ù - ±¤»êÀÇ ÇØµ¿Æ÷¿¡ È­¿°À» ÀåÀüÇÏ¶ó!";
         }
         else
         {
-            data.enemyName = "ë”” ì˜¤ë¦¬ì§€ë„";
+            data.enemyName = "µğ ¿À¸®Áö³Î";
             bossMaxHP *= 1.2f; bossATK *= 1.1f; spd = 1.4f;
             baseTint = new Color(1f, 0.5f, 0.45f);
-            intro = "ëŒ€ë¥™ì—ì„œ ê°€ì¥ ì˜¤ë˜ êµ¶ì€ ì†ë‹˜ì´ ì‹íƒì— ì•‰ì•˜ë‹¤.";
+            intro = "´ë·ú¿¡¼­ °¡Àå ¿À·¡ ±¾Àº ¼Õ´ÔÀÌ ½ÄÅ¹¿¡ ¾É¾Ò´Ù.";
         }
 
         currentHP = bossMaxHP;
@@ -200,7 +200,7 @@ public class BossEnemy : Enemy
         scaledATK = bossATK;
         scaledSPD = spd;
 
-        // ë°©ì–´ ìŠ¤íƒ¯ (ë¶€ëª¨ ìë™ë°°ì •ì´ ì•ˆ ëŒë¯€ë¡œ ì§ì ‘)
+        // ¹æ¾î ½ºÅÈ (ºÎ¸ğ ÀÚµ¿¹èÁ¤ÀÌ ¾È µ¹¹Ç·Î Á÷Á¢)
         defense = bossDefense;
         resistance = bossResistance;
         baseDefenseValue = defense;
@@ -214,55 +214,55 @@ public class BossEnemy : Enemy
         trainManager = FindFirstObjectByType<TrainManager>();
         waveManagerRef = FindFirstObjectByType<WaveManager>();
 
-        // ìƒ‰ ì…íˆê¸° (ìì‹ ìŠ¤í”„ë¼ì´íŠ¸ ì „ë¶€)
+        // »ö ÀÔÈ÷±â (ÀÚ½Ä ½ºÇÁ¶óÀÌÆ® ÀüºÎ)
         sprites = GetComponentsInChildren<SpriteRenderer>();
         ApplyTint(baseTint);
 
-        // ë™ë©´ì: ê°œì „ ì‹œ ë¹™í•˜ ê°‘ì£¼ ì „ê°œ
+        // µ¿¸éÀÚ: °³Àü ½Ã ºùÇÏ °©ÁÖ Àü°³
         if (kind == BossKind.Hibernator)
             ActivateArmor();
 
-        // ì²« íŒ¨í„´ íƒ€ì´ë¨¸
+        // Ã¹ ÆĞÅÏ Å¸ÀÌ¸Ó
         patternTimer = GameBalance.BossPatternFirstDelay;
 
         BossGimmickSystem.Instance?.RegisterBoss(this);
         UIManager.Instance?.ShowWaveNotice("[" + data.enemyName + "]", intro);
 
-        Debug.Log("[BossEnemy] " + data.enemyName + " ë“±ì¥! (ì›¨ì´ë¸Œ " + wave + ") HP:" + (int)bossMaxHP
-            + " ATK:" + (int)scaledATK + " ì¢…ë¥˜:" + kind);
+        Debug.Log("[BossEnemy] " + data.enemyName + " µîÀå! (¿şÀÌºê " + wave + ") HP:" + (int)bossMaxHP
+            + " ATK:" + (int)scaledATK + " Á¾·ù:" + kind);
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ë©”ì¸ ë£¨í”„
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ¸ŞÀÎ ·çÇÁ
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     private void Update()
     {
         if (!IsAlive) return;
 
-        // ë„íŠ¸/ë°©ê¹ íƒ€ì´ë¨¸ (v3ì—ì„œ ìˆ˜ì •ëœ ë³´ìŠ¤ ë„íŠ¸ ë²„ê·¸ ìœ ì§€)
+        // µµÆ®/¹æ±ğ Å¸ÀÌ¸Ó (v3¿¡¼­ ¼öÁ¤µÈ º¸½º µµÆ® ¹ö±× À¯Áö)
         TickStatusEffects();
 
-        // ë¹™í•˜ ê°‘ì£¼ íŒŒê´´ íŒì • (í™”ìƒ ìŠ¤íƒ ëˆ„ì  ê°ì‹œ)
+        // ºùÇÏ °©ÁÖ ÆÄ±« ÆÇÁ¤ (È­»ó ½ºÅÃ ´©Àû °¨½Ã)
         if (armorActive && TotalBurnApplied - burnBaseline >= GameBalance.GlacierBreakBurnStacks)
             BreakArmor();
 
-        // v5: ë°œì•… í˜ì´ì¦ˆ ì§„ì… (HP 50% ì´í•˜, 1íšŒ)
+        // v5: ¹ß¾Ç ÆäÀÌÁî ÁøÀÔ (HP 50% ÀÌÇÏ, 1È¸)
         if (!enraged && currentHP / bossMaxHP <= GameBalance.EnrageHPRatio)
         {
             enraged = true;
-            UIManager.Instance?.ShowStatChange("[" + data.enemyName + "] ë°œì•…! íŒ¨í„´ì´ ë¹¨ë¼ì§„ë‹¤!");
-            Debug.Log("[BossEnemy] ë°œì•… í˜ì´ì¦ˆ ì§„ì…!");
+            UIManager.Instance?.ShowStatChange("[" + data.enemyName + "] ¹ß¾Ç! ÆĞÅÏÀÌ »¡¶óÁø´Ù!");
+            Debug.Log("[BossEnemy] ¹ß¾Ç ÆäÀÌÁî ÁøÀÔ!");
         }
 
-        // v6: ë”” ì˜¤ë¦¬ì§€ë„ í˜ì´ì¦ˆ ì „í™˜
+        // v6: µğ ¿À¸®Áö³Î ÆäÀÌÁî ÀüÈ¯
         if (kind == BossKind.Original)
             CheckOriginalPhases();
 
-        // ê·¸ë¡œê¸° ì§„ì… ì²´í¬
+        // ±×·Î±â ÁøÀÔ Ã¼Å©
         if (!isGroggy && Time.time >= groggyLockUntil)
             CheckGroggyThresholds();
 
-        if (isServing) return;   // v7: ë§ˆì§€ë§‰ ì‹ì‚¬ ì—°ì¶œ ì¤‘ - ì™„ì „ ì •ì§€
+        if (isServing) return;   // v7: ¸¶Áö¸· ½Ä»ç ¿¬Ãâ Áß - ¿ÏÀü Á¤Áö
         if (isGroggy || isLunging || isCasting) return;
 
         if (trainTarget == null)
@@ -272,7 +272,7 @@ public class BossEnemy : Enemy
             return;
         }
 
-        // íŒ¨í„´ íƒ€ì´ë¨¸ (í†µìƒ ìƒíƒœì—ì„œë§Œ ê°ì†Œ)
+        // ÆĞÅÏ Å¸ÀÌ¸Ó (Åë»ó »óÅÂ¿¡¼­¸¸ °¨¼Ò)
         patternTimer -= Time.deltaTime;
         if (patternTimer <= 0f)
         {
@@ -280,7 +280,7 @@ public class BossEnemy : Enemy
             return;
         }
 
-        // í†µìƒ ì´ë™/ê³µê²© (v6: ë„ë°œ ì¤‘ì´ë©´ ë¯¸ë¼ë¥¼ ì¶”ì )
+        // Åë»ó ÀÌµ¿/°ø°İ (v6: µµ¹ß ÁßÀÌ¸é ¹Ì³¢¸¦ ÃßÀû)
         attackTimer += Time.deltaTime;
         float distanceToTrain = Vector3.Distance(transform.position, CurrentTarget.position);
 
@@ -293,43 +293,43 @@ public class BossEnemy : Enemy
         }
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // v6: ë”” ì˜¤ë¦¬ì§€ë„ 3í˜ì´ì¦ˆ ê´€ë¦¬
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // v6: µğ ¿À¸®Áö³Î 3ÆäÀÌÁî °ü¸®
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     private void CheckOriginalPhases()
     {
         float ratio = currentHP / bossMaxHP;
 
-        // P2 í­ì‹ (70% ì´í•˜): ì¬ë£Œ ì¡°ê° ìŸíƒˆì „ ì‹œì‘
+        // P2 Æø½Ä (70% ÀÌÇÏ): Àç·á Á¶°¢ ÀïÅ»Àü ½ÃÀÛ
         if (originalPhase == 1 && ratio <= GameBalance.FeedPhaseStartRatio)
         {
             originalPhase = 2;
             PickupFX.FeedingBoss = this;
-            UIManager.Instance?.ShowWaveNotice("[ë”” ì˜¤ë¦¬ì§€ë„] í­ì‹!",
-                "ì¬ë£Œ ì¡°ê°ì„ ë„ë‘‘ë§ëŠ”ë‹¤ - ë³´ìŠ¤ ê³ì—ì„œ ì ì„ ì¡ì§€ ë§ˆë¼!");
-            Debug.Log("[BossEnemy] P2 í­ì‹ í˜ì´ì¦ˆ - ì¡°ê° ìŸíƒˆì „ ì‹œì‘");
+            UIManager.Instance?.ShowWaveNotice("[µğ ¿À¸®Áö³Î] Æø½Ä!",
+                "Àç·á Á¶°¢À» µµµÏ¸Â´Â´Ù - º¸½º °ç¿¡¼­ ÀûÀ» ÀâÁö ¸¶¶ó!");
+            Debug.Log("[BossEnemy] P2 Æø½Ä ÆäÀÌÁî - Á¶°¢ ÀïÅ»Àü ½ÃÀÛ");
         }
 
-        // P3 í•´ì¹˜ ê°œë°© (35% ì´í•˜): í­ì‹ ì¢…ë£Œ + ë°›ëŠ” í”¼í•´ ì¦ê°€
+        // P3 ÇØÄ¡ °³¹æ (35% ÀÌÇÏ): Æø½Ä Á¾·á + ¹Ş´Â ÇÇÇØ Áõ°¡
         if (originalPhase == 2 && ratio <= GameBalance.HatchPhaseStartRatio)
         {
             originalPhase = 3;
             PickupFX.FeedingBoss = null;
             hatchOpen = true;
-            ApplyTint(Color.Lerp(baseTint, Color.white, 0.35f));   // í•´ì¹˜ì˜ ë¹›
-            UIManager.Instance?.ShowWaveNotice("[ë”” ì˜¤ë¦¬ì§€ë„] ê°€ìŠ´ í•´ì¹˜ ê°œë°©!",
-                "ë°›ëŠ” í”¼í•´ +" + Mathf.RoundToInt((GameBalance.HatchDamageTakenMul - 1f) * 100f)
-                + "%! ì§€ê¸ˆì´ ê¸°íšŒë‹¤!");
-            Debug.Log("[BossEnemy] P3 í•´ì¹˜ ê°œë°© - ë°›ëŠ” í”¼í•´ ì¦ê°€");
+            ApplyTint(Color.Lerp(baseTint, Color.white, 0.35f));   // ÇØÄ¡ÀÇ ºû
+            UIManager.Instance?.ShowWaveNotice("[µğ ¿À¸®Áö³Î] °¡½¿ ÇØÄ¡ °³¹æ!",
+                "¹Ş´Â ÇÇÇØ +" + Mathf.RoundToInt((GameBalance.HatchDamageTakenMul - 1f) * 100f)
+                + "%! Áö±İÀÌ ±âÈ¸´Ù!");
+            Debug.Log("[BossEnemy] P3 ÇØÄ¡ °³¹æ - ¹Ş´Â ÇÇÇØ Áõ°¡");
         }
     }
 
-    /// <summary>v6: í­ì‹ - ì¬ë£Œ ì¡°ê°ì„ ë¨¹ì–´ì¹˜ì›€ (PickupFXê°€ í˜¸ì¶œ)</summary>
+    /// <summary>v6: Æø½Ä - Àç·á Á¶°¢À» ¸Ô¾îÄ¡¿ò (PickupFX°¡ È£Ãâ)</summary>
     public void EatFragment()
     {
         if (!IsAlive) return;
 
-        // íšŒë³µ (ì´ëŸ‰ ìƒí•œ)
+        // È¸º¹ (ÃÑ·® »óÇÑ)
         float cap = bossMaxHP * GameBalance.FeedHealCapRatio;
         if (feedHealAccum < cap)
         {
@@ -338,20 +338,20 @@ public class BossEnemy : Enemy
             currentHP = Mathf.Min(currentHP + heal, bossMaxHP);
         }
 
-        // ê³µê²©ë ¥ ìŠ¤íƒ (ìƒí•œ)
+        // °ø°İ·Â ½ºÅÃ (»óÇÑ)
         if (feedAtkBonus < GameBalance.FeedAtkCap)
         {
             feedAtkBonus += GameBalance.FeedAtkPerFragment;
             scaledATK *= (1f + GameBalance.FeedAtkPerFragment);
         }
 
-        Debug.Log("[BossEnemy] í­ì‹! ì¡°ê° í¡ìˆ˜ (íšŒë³µ ëˆ„ì  " + (int)feedHealAccum
-            + " / ATK ë³´ë„ˆìŠ¤ " + Mathf.RoundToInt(feedAtkBonus * 100f) + "%)");
+        Debug.Log("[BossEnemy] Æø½Ä! Á¶°¢ Èí¼ö (È¸º¹ ´©Àû " + (int)feedHealAccum
+            + " / ATK º¸³Ê½º " + Mathf.RoundToInt(feedAtkBonus * 100f) + "%)");
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // íŒ¨í„´ ì‹œìŠ¤í…œ (Aë‹¨ê³„: ì¢…ë¥˜ë³„ ì‹œê·¸ë‹ˆì²˜ 1ê°œ)
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ÆĞÅÏ ½Ã½ºÅÛ (A´Ü°è: Á¾·ùº° ½Ã±×´ÏÃ³ 1°³)
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     private IEnumerator RunPattern()
     {
         isCasting = true;
@@ -367,17 +367,17 @@ public class BossEnemy : Enemy
 
         isCasting = false;
 
-        // v5: ë°œì•… ì‹œ íŒ¨í„´ ê°„ê²© ë‹¨ì¶•
+        // v5: ¹ß¾Ç ½Ã ÆĞÅÏ °£°İ ´ÜÃà
         float interval = GameBalance.BossPatternInterval + Random.Range(-2f, 2f);
         if (enraged) interval *= GameBalance.EnragePatternIntervalMul;
         patternTimer = interval;
     }
 
-    /// <summary>ì˜ˆê³  ëŒ€ê¸° ê³µí†µ ì²˜ë¦¬. ê·¸ë¡œê¸°/ì‚¬ë§ìœ¼ë¡œ ëŠê¸°ë©´ false</summary>
+    /// <summary>¿¹°í ´ë±â °øÅë Ã³¸®. ±×·Î±â/»ç¸ÁÀ¸·Î ²÷±â¸é false</summary>
     private IEnumerator Telegraph(string text)
     {
         BossGimmickSystem.Instance?.ShowPatternTelegraph(text, GameBalance.BossTelegraphSec);
-        ApplyTint(Color.Lerp(baseTint, Color.white, 0.6f));   // ì˜ˆê³  ì¤‘ ë°œê´‘
+        ApplyTint(Color.Lerp(baseTint, Color.white, 0.6f));   // ¿¹°í Áß ¹ß±¤
 
         float t = 0f;
         while (t < GameBalance.BossTelegraphSec)
@@ -390,37 +390,37 @@ public class BossEnemy : Enemy
         ApplyTint(armorActive ? ArmorTint() : baseTint);
     }
 
-    /// <summary>ì§€ì—­ 1 - ì‚¬ëƒ¥ í˜¸ë ¹: ë©í„° ì†Œí™˜. ì˜ˆê³  ì¤‘ ìŠ¤í„´ ëª…ì¤‘ ì‹œ ì ˆë°˜ìœ¼ë¡œ ì €ì§€</summary>
+    /// <summary>Áö¿ª 1 - »ç³É È£·É: ·¦ÅÍ ¼ÒÈ¯. ¿¹°í Áß ½ºÅÏ ¸íÁß ½Ã Àı¹İÀ¸·Î ÀúÁö</summary>
     private IEnumerator PatternHowl()
     {
         float castStart = Time.time;
-        yield return StartCoroutine(Telegraph("ì‚¬ëƒ¥ í˜¸ë ¹! ìš¸ìŒì†Œë¦¬ê°€ í™©ì•¼ë¥¼ ê°€ë¥¸ë‹¤ (ìŠ¤í„´ìœ¼ë¡œ ì €ì§€!)"));
+        yield return StartCoroutine(Telegraph("»ç³É È£·É! ¿ïÀ½¼Ò¸®°¡ È²¾ß¸¦ °¡¸¥´Ù (½ºÅÏÀ¸·Î ÀúÁö!)"));
         if (isGroggy || !IsAlive) yield break;
 
         int count = GameBalance.HowlSummonCount + (enraged ? GameBalance.EnrageExtraSummon : 0);
-        bool disrupted = LastStunTime >= castStart;   // ì˜ˆê³  ì¤‘ ìŠ¤í„´ ë§ì•˜ëŠ”ê°€
+        bool disrupted = LastStunTime >= castStart;   // ¿¹°í Áß ½ºÅÏ ¸Â¾Ò´Â°¡
         if (disrupted)
         {
             count = Mathf.Max(1, count / 2);
-            UIManager.Instance?.ShowStatChange("í˜¸ë ¹ ì €ì§€ ì„±ê³µ! ì†Œí™˜ ì ˆë°˜!");
+            UIManager.Instance?.ShowStatChange("È£·É ÀúÁö ¼º°ø! ¼ÒÈ¯ Àı¹İ!");
         }
 
         if (waveManagerRef != null)
             waveManagerRef.SpawnReinforcements("raptor", count, 0.7f);
-        Debug.Log("[BossEnemy] ì‚¬ëƒ¥ í˜¸ë ¹ - ë©í„° " + count + "ë§ˆë¦¬" + (disrupted ? " (ì €ì§€ë¨)" : ""));
+        Debug.Log("[BossEnemy] »ç³É È£·É - ·¦ÅÍ " + count + "¸¶¸®" + (disrupted ? " (ÀúÁöµÊ)" : ""));
     }
 
     /// <summary>
-    /// ì§€ì—­ 2 - ë‚™ë¢° í­ê²© + ë²ˆê°œ ë³‘ íŒ¨ë§ (v5)
-    /// ì˜ˆê³  ë§ˆì§€ë§‰ ParryWindowSec ë™ì•ˆ Space -> ë‚™ë¢°ë¥¼ ë³‘ì— ë‹´ëŠ”ë‹¤ (ë‚™ë¢° ë¬´íš¨ + 1ì¶©ì „)
-    /// ë„ˆë¬´ ì¼ì° ëˆ„ë¥´ë©´ í—›ìŠ¤ìœ™ (ì´ë²ˆ ë‚™ë¢°ì˜ íŒ¨ë§ ê¸°íšŒ ì†Œì§„)
-    /// 3ë³‘ ëª¨ìœ¼ë©´ ì—¬ì™•ì—ê²Œ ë˜ì˜ì•„ ê°•ì œ ê·¸ë¡œê¸°
+    /// Áö¿ª 2 - ³«·Ú Æø°İ + ¹ø°³ º´ ÆĞ¸µ (v5)
+    /// ¿¹°í ¸¶Áö¸· ParryWindowSec µ¿¾È Space -> ³«·Ú¸¦ º´¿¡ ´ã´Â´Ù (³«·Ú ¹«È¿ + 1ÃæÀü)
+    /// ³Ê¹« ÀÏÂï ´©¸£¸é Çê½ºÀ® (ÀÌ¹ø ³«·ÚÀÇ ÆĞ¸µ ±âÈ¸ ¼ÒÁø)
+    /// 3º´ ¸ğÀ¸¸é ¿©¿Õ¿¡°Ô µÇ½î¾Æ °­Á¦ ±×·Î±â
     /// </summary>
     private IEnumerator PatternLightning()
     {
         float teleSec = GameBalance.BossTelegraphSec;
         BossGimmickSystem.Instance?.ShowPatternTelegraph(
-            "ë‚™ë¢° í­ê²©! ê²Œì´ì§€ ëìë½ì—ì„œ [Space] íŒ¨ë§ - ë²ˆê°œë¥¼ ë³‘ì— ë‹´ì•„ë¼!", teleSec);
+            "³«·Ú Æø°İ! °ÔÀÌÁö ³¡ÀÚ¶ô¿¡¼­ [Space] ÆĞ¸µ - ¹ø°³¸¦ º´¿¡ ´ã¾Æ¶ó!", teleSec);
         ApplyTint(Color.Lerp(baseTint, Color.white, 0.6f));
 
         bool parried = false;
@@ -434,7 +434,7 @@ public class BossEnemy : Enemy
 
             bool inWindow = (teleSec - t) <= GameBalance.ParryWindowSec;
 
-            // íŒ¨ë§ ì°½ì´ ì—´ë¦¬ë©´ ì¡°ë¦¬ ë¯¸ë‹ˆê²Œì„ì„ ì ì‹œ ëŒ€ê¸°ì‹œì¼œ Spaceë¥¼ ë¹Œë ¤ì˜¨ë‹¤
+            // ÆĞ¸µ Ã¢ÀÌ ¿­¸®¸é Á¶¸® ¹Ì´Ï°ÔÀÓÀ» Àá½Ã ´ë±â½ÃÄÑ Space¸¦ ºô·Á¿Â´Ù
             if (inWindow && CookingMinigame.Instance != null)
                 CookingMinigame.Instance.HoldFor(0.2f);
 
@@ -446,13 +446,13 @@ public class BossEnemy : Enemy
                     parried = true;
                     ParryCharges++;
                     SoundManager.Play("sfx_parry");
-                    UIManager.Instance?.ShowStatChange("íŒ¨ë§! ë²ˆê°œë¥¼ ë³‘ì— ë‹´ì•˜ë‹¤ ("
+                    UIManager.Instance?.ShowStatChange("ÆĞ¸µ! ¹ø°³¸¦ º´¿¡ ´ã¾Ò´Ù ("
                         + ParryCharges + "/" + GameBalance.ParryChargesForCounter + ")");
-                    Debug.Log("[BossEnemy] ë²ˆê°œ ë³‘ íŒ¨ë§ ì„±ê³µ! ì¶©ì „ " + ParryCharges);
+                    Debug.Log("[BossEnemy] ¹ø°³ º´ ÆĞ¸µ ¼º°ø! ÃæÀü " + ParryCharges);
                 }
                 else
                 {
-                    UIManager.Instance?.ShowStatChange("ë„ˆë¬´ ë¹¨ëë‹¤! ë²ˆê°œê°€ ë³‘ì„ ë¹„ê»´ê°”ë‹¤...");
+                    UIManager.Instance?.ShowStatChange("³Ê¹« »¡¶ú´Ù! ¹ø°³°¡ º´À» ºñ²¸°¬´Ù...");
                 }
             }
 
@@ -462,14 +462,14 @@ public class BossEnemy : Enemy
         ApplyTint(armorActive ? ArmorTint() : baseTint);
         if (isGroggy || !IsAlive) yield break;
 
-        // íŒ¨ë§ ì„±ê³µ -> ë‚™ë¢° ë¬´íš¨. 3ë³‘ì´ë©´ ë˜ì˜ê¸°(ê°•ì œ ê·¸ë¡œê¸°)
+        // ÆĞ¸µ ¼º°ø -> ³«·Ú ¹«È¿. 3º´ÀÌ¸é µÇ½î±â(°­Á¦ ±×·Î±â)
         if (parried)
         {
             if (ParryCharges >= GameBalance.ParryChargesForCounter)
             {
                 ParryCharges = 0;
-                UIManager.Instance?.ShowWaveNotice("ë˜ì˜ê¸°!", "ë³‘ì— ë‹´ì€ ë²ˆê°œê°€ ì—¬ì™•ì„ ê¿°ëš«ëŠ”ë‹¤ - ê·¸ë¡œê¸°!");
-                Debug.Log("[BossEnemy] ë²ˆê°œ ë˜ì˜ê¸° - ê°•ì œ ê·¸ë¡œê¸°!");
+                UIManager.Instance?.ShowWaveNotice("µÇ½î±â!", "º´¿¡ ´ãÀº ¹ø°³°¡ ¿©¿ÕÀ» ²ç¶Õ´Â´Ù - ±×·Î±â!");
+                Debug.Log("[BossEnemy] ¹ø°³ µÇ½î±â - °­Á¦ ±×·Î±â!");
                 ForceGroggy(GameBalance.ParryCounterGroggySec);
             }
             yield break;
@@ -477,7 +477,7 @@ public class BossEnemy : Enemy
 
         if (TurretSlotManager.Instance == null) yield break;
 
-        // ë§ˆë¹„ í›„ë³´: ê°€ë™ ì¤‘(ë¹„ì–´ìˆì§€ ì•Šê³ , ì ê¸ˆ ì•„ë‹ˆê³ , ì´ë¯¸ ë§ˆë¹„ ì•„ë‹˜)
+        // ¸¶ºñ ÈÄº¸: °¡µ¿ Áß(ºñ¾îÀÖÁö ¾Ê°í, Àá±İ ¾Æ´Ï°í, ÀÌ¹Ì ¸¶ºñ ¾Æ´Ô)
         TurretSlot[] slots = TurretSlotManager.Instance.slots;
         System.Collections.Generic.List<TurretSlot> candidates =
             new System.Collections.Generic.List<TurretSlot>();
@@ -498,127 +498,127 @@ public class BossEnemy : Enemy
         }
 
         if (hitCount > 0)
-            UIManager.Instance?.ShowStatChange("í¬íƒ‘ " + hitCount + "ê¸° ê°ì „! ìŠ¬ë¡¯ ê³ì—ì„œ [E]ë¡œ ì¬ê°€ë™!");
-        Debug.Log("[BossEnemy] ë‚™ë¢° í­ê²© - ìŠ¬ë¡¯ " + hitCount + "ê³³ ë§ˆë¹„");
+            UIManager.Instance?.ShowStatChange("Æ÷Å¾ " + hitCount + "±â °¨Àü! ½½·Ô °ç¿¡¼­ [E]·Î Àç°¡µ¿!");
+        Debug.Log("[BossEnemy] ³«·Ú Æø°İ - ½½·Ô " + hitCount + "°÷ ¸¶ºñ");
     }
 
-    /// <summary>ì§€ì—­ 3 - ê°‘ì£¼ ì¬ì „ê°œ: 50% ì´í•˜ì—ì„œ 1íšŒ, ë¹™í•˜ ê°‘ì£¼ë¥¼ ë‹¤ì‹œ ë‘ë¥¸ë‹¤</summary>
+    /// <summary>Áö¿ª 3 - °©ÁÖ ÀçÀü°³: 50% ÀÌÇÏ¿¡¼­ 1È¸, ºùÇÏ °©ÁÖ¸¦ ´Ù½Ã µÎ¸¥´Ù</summary>
     private IEnumerator PatternRearmor()
     {
-        // ê°‘ì£¼ê°€ ì´ë¯¸ ìˆê±°ë‚˜ ì¬ì „ê°œë¥¼ ì¼ìœ¼ë©´ ì´ë²ˆ ì‚¬ì´í´ì€ ì¡°ìš©íˆ ë„˜ì–´ê°„ë‹¤
+        // °©ÁÖ°¡ ÀÌ¹Ì ÀÖ°Å³ª ÀçÀü°³¸¦ ½èÀ¸¸é ÀÌ¹ø »çÀÌÅ¬Àº Á¶¿ëÈ÷ ³Ñ¾î°£´Ù
         if (armorActive || secondArmorUsed || currentHP / bossMaxHP > 0.5f)
             yield break;
 
-        yield return StartCoroutine(Telegraph("ëƒ‰ê¸°ê°€ ë‹¤ì‹œ ë­‰ì¹œë‹¤ - ê°‘ì£¼ ì¬ì „ê°œ!"));
+        yield return StartCoroutine(Telegraph("³Ã±â°¡ ´Ù½Ã ¹¶Ä£´Ù - °©ÁÖ ÀçÀü°³!"));
         if (isGroggy || !IsAlive) yield break;
 
         secondArmorUsed = true;
         ActivateArmor();
     }
 
-    /// <summary>ìµœì¢… - í¬íš¨: ì •ì˜ˆ ì¦ì› ì†Œí™˜</summary>
+    /// <summary>ÃÖÁ¾ - Æ÷È¿: Á¤¿¹ Áõ¿ø ¼ÒÈ¯</summary>
     private IEnumerator PatternRoar()
     {
-        yield return StartCoroutine(Telegraph("í¬íš¨! ëŒ€ë¥™ì´ ìš¸ë¦°ë‹¤!"));
+        yield return StartCoroutine(Telegraph("Æ÷È¿! ´ë·úÀÌ ¿ï¸°´Ù!"));
         if (isGroggy || !IsAlive) yield break;
 
         int roarCount = GameBalance.OriginalRoarCount + (enraged ? GameBalance.EnrageExtraSummon : 0);
         if (waveManagerRef != null)
             waveManagerRef.SpawnReinforcements("raptor", roarCount, 0.8f);
-        Debug.Log("[BossEnemy] í¬íš¨ - ì¦ì› " + roarCount + "ë§ˆë¦¬");
+        Debug.Log("[BossEnemy] Æ÷È¿ - Áõ¿ø " + roarCount + "¸¶¸®");
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ë¹™í•˜ ê°‘ì£¼ (ë™ë©´ì)
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ºùÇÏ °©ÁÖ (µ¿¸éÀÚ)
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     private void ActivateArmor()
     {
         armorActive = true;
-        armorDR = GameBalance.GlacierArmorDR;   // v5: í˜„ì¬ ê°ì‡„ìœ¨ (í•´ë™í¬ GOODìœ¼ë¡œ ì ˆë°˜ ê°€ëŠ¥)
+        armorDR = GameBalance.GlacierArmorDR;   // v5: ÇöÀç °¨¼âÀ² (ÇØµ¿Æ÷ GOODÀ¸·Î Àı¹İ °¡´É)
         burnBaseline = TotalBurnApplied;
         ApplyTint(ArmorTint());
-        UIManager.Instance?.ShowStatChange("[ë¹™í•˜ ê°‘ì£¼] ë°›ëŠ” í”¼í•´ -"
-            + Mathf.RoundToInt(GameBalance.GlacierArmorDR * 100f) + "%! í™”ì—¼ìœ¼ë¡œ ë…¹ì—¬ë¼!");
-        Debug.Log("[BossEnemy] ë¹™í•˜ ê°‘ì£¼ ì „ê°œ (í™”ìƒ " + GameBalance.GlacierBreakBurnStacks + "ìŠ¤íƒìœ¼ë¡œ íŒŒê´´)");
+        UIManager.Instance?.ShowStatChange("[ºùÇÏ °©ÁÖ] ¹Ş´Â ÇÇÇØ -"
+            + Mathf.RoundToInt(GameBalance.GlacierArmorDR * 100f) + "%! È­¿°À¸·Î ³ì¿©¶ó!");
+        Debug.Log("[BossEnemy] ºùÇÏ °©ÁÖ Àü°³ (È­»ó " + GameBalance.GlacierBreakBurnStacks + "½ºÅÃÀ¸·Î ÆÄ±«)");
     }
 
     private void BreakArmor()
     {
         armorActive = false;
         ApplyTint(baseTint);
-        UIManager.Instance?.ShowStatChange("ë¹™í•˜ ê°‘ì£¼ íŒŒê´´! ë³´ìŠ¤ ê·¸ë¡œê¸°!");
-        Debug.Log("[BossEnemy] ë¹™í•˜ ê°‘ì£¼ íŒŒê´´ - ë³´ë„ˆìŠ¤ ê·¸ë¡œê¸° " + GameBalance.GlacierBreakGroggySec + "ì´ˆ");
+        UIManager.Instance?.ShowStatChange("ºùÇÏ °©ÁÖ ÆÄ±«! º¸½º ±×·Î±â!");
+        Debug.Log("[BossEnemy] ºùÇÏ °©ÁÖ ÆÄ±« - º¸³Ê½º ±×·Î±â " + GameBalance.GlacierBreakGroggySec + "ÃÊ");
 
-        // íŒŒê´´ ë³´ìƒ: ì§§ì€ ë³´ë„ˆìŠ¤ ê·¸ë¡œê¸°
+        // ÆÄ±« º¸»ó: ÂªÀº º¸³Ê½º ±×·Î±â
         ForceGroggy(GameBalance.GlacierBreakGroggySec);
     }
 
     private Color ArmorTint()
     {
-        return new Color(0.45f, 0.95f, 1f);   // ê°‘ì£¼ ì¤‘ì—” ì–¼ìŒë¹› ê°•ì¡°
+        return new Color(0.45f, 0.95f, 1f);   // °©ÁÖ Áß¿£ ¾óÀ½ºû °­Á¶
     }
 
-    /// <summary>ê°•ì œ ê·¸ë¡œê¸° (ê°‘ì£¼ íŒŒê´´ ë³´ìƒ / ì¶”í›„ íŒ¨ë§ ë°˜ê²© ë“±ì—ì„œ ì‚¬ìš©)</summary>
+    /// <summary>°­Á¦ ±×·Î±â (°©ÁÖ ÆÄ±« º¸»ó / ÃßÈÄ ÆĞ¸µ ¹İ°İ µî¿¡¼­ »ç¿ë)</summary>
     public void ForceGroggy(float seconds)
     {
         if (isGroggy || !IsAlive) return;
         StartCoroutine(EnterGroggyState(seconds));
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ê°‘ì£¼ ë°ë¯¸ì§€ ê°ì‡„ (Enemy í›… ì˜¤ë²„ë¼ì´ë“œ)
-    // ë„íŠ¸(í™”ìƒ/ë…)ëŠ” ì´ í›…ì„ ê±°ì¹˜ì§€ ì•ŠëŠ”ë‹¤ - í™”ì—¼ ë„íŠ¸ê°€ ê°‘ì£¼ íŒŒí›¼ ìˆ˜ë‹¨
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // °©ÁÖ µ¥¹ÌÁö °¨¼â (Enemy ÈÅ ¿À¹ö¶óÀÌµå)
+    // µµÆ®(È­»ó/µ¶)´Â ÀÌ ÈÅÀ» °ÅÄ¡Áö ¾Ê´Â´Ù - È­¿° µµÆ®°¡ °©ÁÖ ÆÄÈÑ ¼ö´Ü
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     protected override float ModifyIncomingDamage(float damage, DamageType dtype)
     {
         if (armorActive)
             return damage * (1f - armorDR);
 
-        // v6: í•´ì¹˜ ê°œë°© (ë”” ì˜¤ë¦¬ì§€ë„ P3) - ë°›ëŠ” í”¼í•´ ì¦ê°€
+        // v6: ÇØÄ¡ °³¹æ (µğ ¿À¸®Áö³Î P3) - ¹Ş´Â ÇÇÇØ Áõ°¡
         if (hatchOpen)
             return damage * GameBalance.HatchDamageTakenMul;
 
         return damage;
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // v5: í•´ë™í¬ (ThawCannonUIê°€ í˜¸ì¶œ)
-    // quality: 2=PERFECT(ì •ì¤‘ì•™) / 1=GOOD(ì¡´ ì•ˆ) / 0=MISS(ì¡´ ë°–)
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // v5: ÇØµ¿Æ÷ (ThawCannonUI°¡ È£Ãâ)
+    // quality: 2=PERFECT(Á¤Áß¾Ó) / 1=GOOD(Á¸ ¾È) / 0=MISS(Á¸ ¹Û)
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     public void HitByThawCannon(int quality)
     {
         if (!IsAlive) return;
 
         if (quality >= 2)
         {
-            // ì •ì¤‘ì•™: ê°‘ì£¼ ì¦‰ì‹œ ì „íŒŒê´´(ë³´ë„ˆìŠ¤ ê·¸ë¡œê¸° í¬í•¨) + ëŒ€ë¯¸ì§€
+            // Á¤Áß¾Ó: °©ÁÖ Áï½Ã ÀüÆÄ±«(º¸³Ê½º ±×·Î±â Æ÷ÇÔ) + ´ë¹ÌÁö
             if (armorActive) BreakArmor();
             TakeDamage(GameBalance.ThawPerfectDamage, DamageType.Magic);
-            UIManager.Instance?.ShowStatChange("í•´ë™í¬ ì§ê²©! ê°‘ì£¼ê°€ ì‚°ì‚°ì¡°ê°ë‚¬ë‹¤!");
+            UIManager.Instance?.ShowStatChange("ÇØµ¿Æ÷ Á÷°İ! °©ÁÖ°¡ »ê»êÁ¶°¢³µ´Ù!");
         }
         else if (quality == 1)
         {
-            // ì¡´ ì•ˆ: ê°‘ì£¼ ê°ì‡„ìœ¨ ì ˆë°˜ + ì¤‘ê°„ ëŒ€ë¯¸ì§€
+            // Á¸ ¾È: °©ÁÖ °¨¼âÀ² Àı¹İ + Áß°£ ´ë¹ÌÁö
             if (armorActive)
             {
                 armorDR *= 0.5f;
-                UIManager.Instance?.ShowStatChange("í•´ë™í¬ ëª…ì¤‘! ê°‘ì£¼ ê°ì‡„ìœ¨ ì ˆë°˜!");
+                UIManager.Instance?.ShowStatChange("ÇØµ¿Æ÷ ¸íÁß! °©ÁÖ °¨¼âÀ² Àı¹İ!");
             }
             TakeDamage(GameBalance.ThawGoodDamage, DamageType.Magic);
         }
         else
         {
-            // ë¹—ë§ìŒ: ëŒ€ë¯¸ì§€ë§Œ
+            // ºø¸ÂÀ½: ´ë¹ÌÁö¸¸
             TakeDamage(GameBalance.ThawMissDamage, DamageType.Magic);
-            UIManager.Instance?.ShowStatChange("í•´ë™í¬ ë¹—ë§ìŒ...");
+            UIManager.Instance?.ShowStatChange("ÇØµ¿Æ÷ ºø¸ÂÀ½...");
         }
 
-        Debug.Log("[BossEnemy] í•´ë™í¬ í”¼ê²© (í’ˆì§ˆ " + quality + ")");
+        Debug.Log("[BossEnemy] ÇØµ¿Æ÷ ÇÇ°İ (Ç°Áú " + quality + ")");
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ëŒì§„ ê³µê²© (v3 ìœ ì§€)
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // µ¹Áø °ø°İ (v3 À¯Áö)
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     private IEnumerator AttackLunge()
     {
         isLunging = true;
@@ -635,18 +635,18 @@ public class BossEnemy : Enemy
             yield return null;
         }
 
-        // P1 ê²Œì„í•„: ëŸ°ì§€ ì°©ì§€ ì„íŒ©íŠ¸ (ê¸°ì°¨ í”¼ê²© ì…°ì´í¬ì™€ ë³„ê°œì˜ ìœ¡ì¤‘í•¨ - ì ˆë°˜ ê°•ë„)
+        // P1 °ÔÀÓÇÊ: ·±Áö ÂøÁö ÀÓÆÑÆ® (±âÂ÷ ÇÇ°İ ¼ÎÀÌÅ©¿Í º°°³ÀÇ À°ÁßÇÔ - Àı¹İ °­µµ)
         GameFeel.Shake(GameBalance.ShakeBoss * 0.5f);
 
-        // v6: ë„ë°œ ì¤‘ì´ë©´ ë¯¸ë¼ë¥¼ ë¬¼ì–´ëœ¯ëŠ”ë‹¤ (ê¸°ì°¨ ë¬´í”¼í•´)
+        // v6: µµ¹ß ÁßÀÌ¸é ¹Ì³¢¸¦ ¹°¾î¶â´Â´Ù (±âÂ÷ ¹«ÇÇÇØ)
         if (!IsTaunted)
         {
             AttackTrain();
-            Debug.Log("[BossEnemy] ê¸°ì°¨ ê³µê²©! -" + (int)scaledATK);
+            Debug.Log("[BossEnemy] ±âÂ÷ °ø°İ! -" + (int)scaledATK);
         }
         else
         {
-            Debug.Log("[BossEnemy] ë¯¸ë¼ë¥¼ ë¬¼ì–´ëœ¯ëŠ” ì¤‘!");
+            Debug.Log("[BossEnemy] ¹Ì³¢¸¦ ¹°¾î¶â´Â Áß!");
         }
 
         t = 0f;
@@ -661,9 +661,9 @@ public class BossEnemy : Enemy
         isLunging = false;
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ê·¸ë¡œê¸° (v3 ìœ ì§€ + ì§€ì† ì‹œê°„ íŒŒë¼ë¯¸í„°í™”)
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ±×·Î±â (v3 À¯Áö + Áö¼Ó ½Ã°£ ÆÄ¶ó¹ÌÅÍÈ­)
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     private void CheckGroggyThresholds()
     {
         float hpRatio = currentHP / bossMaxHP;
@@ -677,13 +677,13 @@ public class BossEnemy : Enemy
             }
         }
 
-        // v7.1 (C3): ë”” ì˜¤ë¦¬ì§€ë„ - ë§ˆì§€ë§‰ ê·¸ë¡œê¸°(25%) ë’¤ í•œ ë²ˆ ë” (ê¸°ë³¸ 12%)
+        // v7.1 (C3): µğ ¿À¸®Áö³Î - ¸¶Áö¸· ±×·Î±â(25%) µÚ ÇÑ ¹ø ´õ (±âº» 12%)
         if (kind == BossKind.Original && !extraGroggyTriggered && !isGroggy
             && GameBalance.OriginalExtraGroggyRatio > 0f
             && hpRatio <= GameBalance.OriginalExtraGroggyRatio)
         {
             extraGroggyTriggered = true;
-            UIManager.Instance?.ShowWaveNotice("[ë”” ì˜¤ë¦¬ì§€ë„] ë§ˆì§€ë§‰ í‹ˆ", "ì†ë‹˜ì´ ë‹¤ì‹œ ì‹íƒ ì•ì— ë¬´ë¦ì„ ê¿‡ì—ˆë‹¤ - ë§ˆì§€ë§‰ ê¸°íšŒ");
+            UIManager.Instance?.ShowWaveNotice("[µğ ¿À¸®Áö³Î] ¸¶Áö¸· Æ´", "¼Õ´ÔÀÌ ´Ù½Ã ½ÄÅ¹ ¾Õ¿¡ ¹«¸­À» ²İ¾ú´Ù - ¸¶Áö¸· ±âÈ¸");
             StartCoroutine(EnterGroggyState(groggyDuration));
         }
     }
@@ -692,9 +692,9 @@ public class BossEnemy : Enemy
     {
         isGroggy = true;
         CurrentGroggyDuration = duration;
-        Debug.Log("[BossEnemy] !! ë³´ìŠ¤ ê·¸ë¡œê¸° !! Fí‚¤ë¡œ ë””ë²„í”„ ìš”ë¦¬ íˆ¬ì²™! (" + duration + "ì´ˆ)");
+        Debug.Log("[BossEnemy] !! º¸½º ±×·Î±â !! FÅ°·Î µğ¹öÇÁ ¿ä¸® ÅõÃ´! (" + duration + "ÃÊ)");
 
-        // P1 ê²Œì„í•„: ê·¸ë¡œê¸° ì§„ì… = íˆíŠ¸ìŠ¤í†± + ê°•í•œ ì…°ì´í¬ (ê±°ì²´ê°€ ë¬´ë„ˆì§€ëŠ” ìˆœê°„)
+        // P1 °ÔÀÓÇÊ: ±×·Î±â ÁøÀÔ = È÷Æ®½ºÅé + °­ÇÑ ¼ÎÀÌÅ© (°ÅÃ¼°¡ ¹«³ÊÁö´Â ¼ø°£)
         GameFeel.Hitstop(GameBalance.HitstopBossGroggy);
         GameFeel.Shake(GameBalance.ShakeBoss);
 
@@ -706,53 +706,53 @@ public class BossEnemy : Enemy
 
         defense = baseDefenseValue;
         resistance = baseResistanceValue;
-        Debug.Log("[BossEnemy] ë³´ìŠ¤ ê·¸ë¡œê¸° ì¢…ë£Œ - ë°©ì–´ë ¥ ë³µêµ¬");
+        Debug.Log("[BossEnemy] º¸½º ±×·Î±â Á¾·á - ¹æ¾î·Â º¹±¸");
     }
 
     public void ReceiveDebuffFood(float reductionMultiplier = 0.5f)
     {
         if (!isGroggy)
         {
-            Debug.Log("[BossEnemy] ê·¸ë¡œê¸° ìƒíƒœê°€ ì•„ë‹ˆì–´ì„œ ë””ë²„í”„ ìš”ë¦¬ ë¬´íš¨!");
+            Debug.Log("[BossEnemy] ±×·Î±â »óÅÂ°¡ ¾Æ´Ï¾î¼­ µğ¹öÇÁ ¿ä¸® ¹«È¿!");
             return;
         }
 
         defense = baseDefenseValue * reductionMultiplier;
         resistance = baseResistanceValue * reductionMultiplier;
-        Debug.Log("[BossEnemy] ë””ë²„í”„ ìš”ë¦¬ ì ì¤‘! DEF/RES " +
-                  ((1f - reductionMultiplier) * 100f).ToString("F0") + "% ê°ì†Œ! (" +
+        Debug.Log("[BossEnemy] µğ¹öÇÁ ¿ä¸® ÀûÁß! DEF/RES " +
+                  ((1f - reductionMultiplier) * 100f).ToString("F0") + "% °¨¼Ò! (" +
                   (int)defense + "/" + (int)resistance + ")");
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // v7 (C-2): ë§ˆì§€ë§‰ ì‹ì‚¬ - í’€ì½”ìŠ¤ QTE ì„±ê³µ ì‹œ (FinalOrderUIê°€ í˜¸ì¶œ)
-    // ê²©íŒŒê°€ ì•„ë‹ˆë¼ "ëŒ€ì ‘"ìœ¼ë¡œ ëë‚˜ëŠ” ì§„ì—”ë”© ê²½ë¡œ
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // v7 (C-2): ¸¶Áö¸· ½Ä»ç - Ç®ÄÚ½º QTE ¼º°ø ½Ã (FinalOrderUI°¡ È£Ãâ)
+    // °İÆÄ°¡ ¾Æ´Ï¶ó "´ëÁ¢"À¸·Î ³¡³ª´Â Áø¿£µù °æ·Î
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     public void ServeLastSupper()
     {
         if (!IsAlive || isServing) return;
 
         isServing = true;
-        isGroggy = false;   // ê·¸ë¡œê¸° í•´ì œ (ì—°ì¶œ ìš°ì„ )
-        StopAllCoroutines();   // íŒ¨í„´/ê·¸ë¡œê¸° ì½”ë£¨í‹´ ì •ë¦¬
+        isGroggy = false;   // ±×·Î±â ÇØÁ¦ (¿¬Ãâ ¿ì¼±)
+        StopAllCoroutines();   // ÆĞÅÏ/±×·Î±â ÄÚ·çÆ¾ Á¤¸®
 
-        // í¡ìˆ˜ ì°¸ì¡° ì •ë¦¬
+        // Èí¼ö ÂüÁ¶ Á¤¸®
         if (PickupFX.FeedingBoss == this) PickupFX.FeedingBoss = null;
 
-        Debug.Log("[BossEnemy] ë§ˆì§€ë§‰ ì‹ì‚¬ - ë”” ì˜¤ë¦¬ì§€ë„ì´ ì •ì°¬ì„ ë°›ì•˜ë‹¤");
+        Debug.Log("[BossEnemy] ¸¶Áö¸· ½Ä»ç - µğ ¿À¸®Áö³ÎÀÌ Á¤ÂùÀ» ¹Ş¾Ò´Ù");
         SoundManager.Play("sfx_train_whistle");
 
-        // ì—”ë”© B ì—°ì¶œ -> ë‹«íˆë©´ ê¸°ë¡ + ì²˜ì¹˜ ì²˜ë¦¬ (ì›¨ì´ë¸Œ í´ë¦¬ì–´ -> Victoryë¡œ ì´ì–´ì§)
+        // ¿£µù B ¿¬Ãâ -> ´İÈ÷¸é ±â·Ï + Ã³Ä¡ Ã³¸® (¿şÀÌºê Å¬¸®¾î -> Victory·Î ÀÌ¾îÁü)
         StoryTexts.ShowEndingB(delegate
         {
             MetaProgress.RecordEndingB();
-            Die();   // ë³´ìƒ ì§€ê¸‰ + ì›¨ì´ë¸Œ í´ë¦¬ì–´ ì²´ì¸ (ìµœì¢…ì „ -> Victory)
+            Die();   // º¸»ó Áö±Ş + ¿şÀÌºê Å¬¸®¾î Ã¼ÀÎ (ÃÖÁ¾Àü -> Victory)
         });
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ì—°ì¶œ í—¬í¼
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ¿¬Ãâ ÇïÆÛ
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     private void ApplyTint(Color c)
     {
         if (sprites == null) return;
@@ -760,29 +760,29 @@ public class BossEnemy : Enemy
             if (sprites[i] != null) sprites[i].color = c;
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ì‚¬ë§
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // »ç¸Á
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     protected override void Die()
     {
-        // P1 ê²Œì„í•„: ë³´ìŠ¤ ì²˜ì¹˜ = ê°€ì¥ ê¸´ íˆíŠ¸ìŠ¤í†± + ê°•í•œ ì…°ì´í¬ + ê¸ˆìƒ‰ ëŒ€í˜• íŒ
+        // P1 °ÔÀÓÇÊ: º¸½º Ã³Ä¡ = °¡Àå ±ä È÷Æ®½ºÅé + °­ÇÑ ¼ÎÀÌÅ© + ±İ»ö ´ëÇü ÆË
         GameFeel.Hitstop(GameBalance.HitstopBossKill);
         GameFeel.Shake(GameBalance.ShakeBoss);
         GameFeel.DeathPop(transform.position, new Color(1f, 0.85f, 0.4f), 3f);
 
-        // ë³´ìŠ¤ëŠ” ì „ ì¬ë£Œ 2ê°œì”© ì§€ê¸‰ (base.Die()ê°€ ì‹¬ì¥ ë§¤í•‘ 1ê°œë„ ì¶”ê°€ë¡œ ì¤Œ)
+        // º¸½º´Â Àü Àç·á 2°³¾¿ Áö±Ş (base.Die()°¡ ½ÉÀå ¸ÅÇÎ 1°³µµ Ãß°¡·Î ÁÜ)
         if (MaterialInventory.Instance != null)
         {
             foreach (MaterialType t in System.Enum.GetValues(typeof(MaterialType)))
                 MaterialInventory.Instance.Add(t, 2);
-            Debug.Log("[BossEnemy] ë³´ìŠ¤ ì²˜ì¹˜ ë³´ìƒ: ì „ ì¬ë£Œ 2ê°œì”© ì§€ê¸‰!");
+            Debug.Log("[BossEnemy] º¸½º Ã³Ä¡ º¸»ó: Àü Àç·á 2°³¾¿ Áö±Ş!");
         }
 
-        // v5: ë¯¸ì‚¬ìš© ë²ˆê°œ ë³‘ì€ ì „ê¸° ì¬ë£Œë¡œ í™˜ê¸‰ (íŒ¨ë§ ë³´ìƒ = ì‹ì¬ë£Œ ìˆ˜í™•)
+        // v5: ¹Ì»ç¿ë ¹ø°³ º´Àº Àü±â Àç·á·Î È¯±Ş (ÆĞ¸µ º¸»ó = ½ÄÀç·á ¼öÈ®)
         if (ParryCharges > 0 && MaterialInventory.Instance != null)
         {
             MaterialInventory.Instance.Add(MaterialType.Elec, ParryCharges);
-            UIManager.Instance?.ShowStatChange("ë²ˆê°œ ë³‘ " + ParryCharges + "ê°œ -> ì „ê¸° ì¬ë£Œë¡œ í™˜ê¸‰!");
+            UIManager.Instance?.ShowStatChange("¹ø°³ º´ " + ParryCharges + "°³ -> Àü±â¾Ë·Î È¯±Ş!");
             ParryCharges = 0;
         }
 
@@ -790,7 +790,7 @@ public class BossEnemy : Enemy
         BossGimmickSystem.Instance?.OnBossDefeated();
     }
 
-    // v6: ì–´ë–¤ ì´ìœ ë¡œë“  ì‚¬ë¼ì§ˆ ë•Œ í­ì‹ ì°¸ì¡° ì •ë¦¬ (ì”¬ ì „í™˜/ì‚¬ë§)
+    // v6: ¾î¶² ÀÌÀ¯·Îµç »ç¶óÁú ¶§ Æø½Ä ÂüÁ¶ Á¤¸® (¾À ÀüÈ¯/»ç¸Á)
     private void OnDestroy()
     {
         if (PickupFX.FeedingBoss == this)

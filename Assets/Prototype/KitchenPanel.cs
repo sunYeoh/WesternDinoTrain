@@ -4,7 +4,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 /// <summary>
-/// [KitchenPanel.cs] v2.3 (v9.10 2026-09-17 테스터 피드백: [ESC] 로도 닫힘(단축키로 열고 ESC 로 닫기) / 행상인·베팅·선로 창 중 Tab 금지 / 도감 카드 클릭 = 오른쪽 상세(무엇을 하나·어떤 손님에·언제, RecipeText)) / v2.2 (v9.8 재료 아이콘) / v2.1
+/// [KitchenPanel.cs] v2.4 (v9.10.1 2026-09-21: 재료 이름 MaterialNames 한 곳 / 안내줄에 정차 조리 남은 횟수(CookingBridge.StopCookHint)) / v2.3 (v9.10 2026-09-17 테스터 피드백: [ESC] 로도 닫힘(단축키로 열고 ESC 로 닫기) / 행상인·베팅·선로 창 중 Tab 금지 / 도감 카드 클릭 = 오른쪽 상세(무엇을 하나·어떤 손님에·언제, RecipeText)) / v2.2 (v9.8 재료 아이콘) / v2.1
 /// Tab키 주방 패널 (uGUI 코드 생성) - 조리 / 합성 / 도감 3탭
 /// GameSystems 오브젝트에 부착
 ///
@@ -50,9 +50,9 @@ public class KitchenPanel : MonoBehaviour
 
     private readonly List<GameObject> spawned = new List<GameObject>();
     private Text detailText;             // v2.3: 요리 설명 상자 (조리·도감 탭 아래) - 카드에 마우스를 올리거나 클릭하면 채워진다
+    private Text hintText;               // v2.4: 오른쪽 위 안내줄 - 정차 중엔 남은 조리 횟수도
     private Button[] tabButtons = new Button[3];
 
-    private static readonly string[] MAT_KOR = { "고기", "등심", "전기", "화염", "얼음", "독" };
     private static readonly string[] METHOD_NAMES = { "굽기", "볶기", "끓이기" };
 
     void Awake()
@@ -202,7 +202,8 @@ public class KitchenPanel : MonoBehaviour
             title.rectTransform.offsetMax = new Vector2(0f, -16f);
         }
 
-        Text hint = UIFactory.CreateText(panel, "Hint", "[Tab] 닫기", 16, UIFactory.DIM, TextAnchor.UpperRight);
+        hintText = UIFactory.CreateText(panel, "Hint", "[Tab]/[ESC] 닫기", 16, UIFactory.DIM, TextAnchor.UpperRight);
+        Text hint = hintText;
         hint.rectTransform.anchorMin = new Vector2(0f, 1f);
         hint.rectTransform.anchorMax = new Vector2(1f, 1f);
         hint.rectTransform.offsetMin = new Vector2(0f, skin ? -60f : -46f);
@@ -239,6 +240,7 @@ public class KitchenPanel : MonoBehaviour
     // ─────────────────────────────────────────
     private void Refresh()
     {
+        if (hintText != null) hintText.text = CookingBridge.StopCookHint() + "[Tab]/[ESC] 닫기";
         // 탭 버튼 강조
         for (int i = 0; i < 3; i++)
         {
@@ -333,7 +335,7 @@ public class KitchenPanel : MonoBehaviour
             {
                 float cellX = 14f + mi * 128f;
                 UISkin.AddMaterialIcon(matBar, t, new Vector2(0f, 0.5f), new Vector2(cellX, 0f), 32f);
-                Text cnt = UIFactory.CreateText(matBar, "MatCnt" + mi, MAT_KOR[mi] + " " + have, 19,
+                Text cnt = UIFactory.CreateText(matBar, "MatCnt" + mi, MaterialNames.KOR[mi] + " " + have, 19,
                     have > 0 ? UIFactory.CREAM : UIFactory.DIM, TextAnchor.MiddleLeft);
                 RectTransform cRt = cnt.rectTransform;
                 cRt.anchorMin = new Vector2(0f, 0f);
@@ -343,7 +345,7 @@ public class KitchenPanel : MonoBehaviour
                 cRt.sizeDelta = new Vector2(86f, 0f);
             }
             else
-                matStr += MAT_KOR[mi] + " " + have + "   ";
+                matStr += MaterialNames.KOR[mi] + " " + have + "   ";
             mi++;
         }
         // 조리대에서 열었으면 필터 안내 추가 (아이콘 모드에서는 오른쪽 끝에 따로)
@@ -664,19 +666,8 @@ public class KitchenPanel : MonoBehaviour
         }
     }
 
-    private string MatKor(string s)
-    {
-        switch (s)
-        {
-            case "meat": return "고기";
-            case "armor": return "등심";
-            case "elec": return "전기";
-            case "fire": return "화염";
-            case "ice": return "얼음";
-            case "poison": return "독";
-            default: return s;
-        }
-    }
+    /// <summary>레시피 키 낱말 -> 재료 이름 (v9.10.1: MaterialNames 한 곳에서)</summary>
+    private string MatKor(string s) { return MaterialNames.Kor(s); }
 }
 
 /// <summary>v2.3: 요리 카드 호버/클릭 수신기 - KitchenPanel.OnCardHover 로 설명 상자를 채운다</summary>

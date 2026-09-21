@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [MerchantUI.cs] v1.2 (v9.10 2026-09-17: 떠나기 안내를 [ESC] 로 - "0 키가 멀고 뜬금없다", 0 도 여전히 된다) / v1.1 (v9.9.2 2026-09-16: 창 머리에 안킬로 실루엣 ui_npc_ankylo - "이름만 있으면 불편" 유저 09-16) / v1 (신규 파일) - Phase 2-3: 등짐장수 안킬로 (아이템 행상인)
+/// [MerchantUI.cs] v1.3 (v9.10.1 2026-09-21: 선택이 없으면 GameBalance.MerchantAutoLeaveSec(10초) 뒤 스스로 떠난다 - 판 위 구리 막대가 줄어들고 안내줄에 남은 초. 사면 다시 센다) / [MerchantUI.cs] v1.2 (v9.10 2026-09-17: 떠나기 안내를 [ESC] 로 - "0 키가 멀고 뜬금없다", 0 도 여전히 된다) / v1.1 (v9.9.2 2026-09-16: 창 머리에 안킬로 실루엣 ui_npc_ankylo - "이름만 있으면 불편" 유저 09-16) / v1 (신규 파일) - Phase 2-3: 등짐장수 안킬로 (아이템 행상인)
 ///
 /// 세계관: 등껍질에 냄비며 부지깽이를 주렁주렁 매단 안킬로사우르스 행상인.
 /// 도박꾼 스피노와 대비되는 캐릭터 - 느긋하고, 값은 정직하다.
@@ -22,6 +22,9 @@ public class MerchantUI : MonoBehaviour
     public static bool IsOpen { get; private set; }
 
     private System.Action onClosed;
+    private float leaveAt = 0f;            // v1.3: 이 시각이 되면 스스로 떠난다 (0 = 안 떠남)
+    private RectTransform timerBar;        // v1.3: 남은 시간 막대 (판 위쪽)
+    private float timerFullW = 0f;
     private ItemData cardA;
     private ItemData cardB;
     private bool soldA = false;
@@ -74,6 +77,7 @@ public class MerchantUI : MonoBehaviour
         BuildUI();
 
         speechText.text = PickGreeting();
+        RestartLeaveTimer();
         MetaProgress.AddAnkyMeeting();
         SoundManager.Play("sfx_train_whistle");   // 임시: 무거운 발소리 클립(sfx_anky) 생기면 교체
 
@@ -95,7 +99,33 @@ public class MerchantUI : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Alpha1)) TryBuy(0);
         else if (Input.GetKeyDown(KeyCode.Alpha2)) TryBuy(1);
-        else if (Input.GetKeyDown(KeyCode.Alpha0) || Input.GetKeyDown(KeyCode.Escape)) Leave();
+        else if (Input.GetKeyDown(KeyCode.Alpha0) || Input.GetKeyDown(KeyCode.Escape)) { Leave(); return; }
+
+        // v1.3: 자동 퇴장 - 유저: "10초 동안 선택 안 하면 자동으로 넘어가게". 일시정지(timeScale 0) 중엔 안 흐른다
+        if (leaveAt > 0f)
+        {
+            float left = leaveAt - Time.time;
+            if (timerBar != null) timerBar.sizeDelta = new Vector2(timerFullW * Mathf.Clamp01(left / Mathf.Max(0.1f, GameBalance.MerchantAutoLeaveSec)), 4f);
+            RefreshGoldText();
+            if (left <= 0f) LeaveAuto();
+        }
+    }
+
+    /// <summary>v1.3: 자동 퇴장 타이머를 (다시) 시작. GameBalance.MerchantAutoLeaveSec 이 0 이면 안 떠남</summary>
+    private void RestartLeaveTimer()
+    {
+        leaveAt = GameBalance.MerchantAutoLeaveSec > 0f ? Time.time + GameBalance.MerchantAutoLeaveSec : 0f;
+    }
+
+    /// <summary>v1.3: 시간이 다 돼 스스로 떠남</summary>
+    private void LeaveAuto()
+    {
+        if (closing) return;
+        closing = true;
+        leaveAt = 0f;
+        speechText.text = "\"시간이 다 됐구려. 다음 역에서 또 보시우.\"";
+        SoundManager.Play("sfx_ui_click");
+        Invoke("CloseNow", 0.9f);
     }
 
     private void TryBuy(int index)
@@ -118,6 +148,7 @@ public class MerchantUI : MonoBehaviour
         else { soldB = true; if (titleB != null) titleB.text = "- 팔림 -"; }
 
         speechText.text = "\"좋은 선택이우. 오래 쓰시구려.\"";
+        RestartLeaveTimer();   // v1.3: 사면 다시 센다 (두 번째 물건 볼 시간)
         RefreshGoldText();
         SoundManager.Play("sfx_pickup");
 
@@ -134,6 +165,7 @@ public class MerchantUI : MonoBehaviour
     {
         if (closing) return;
         closing = true;
+        leaveAt = 0f;
 
         speechText.text = "\"허허. 황야는 넓고 역은 또 있지. 살펴 가시우.\"";
         SoundManager.Play("sfx_ui_click");
@@ -197,6 +229,18 @@ public class MerchantUI : MonoBehaviour
         border.anchoredPosition = Vector2.zero;
         border.sizeDelta = new Vector2(0f, 3f);
 
+        // v1.3: 남은 시간 막대 - 판 위쪽 가장자리, 왼쪽에서 줄어든다 (구리색)
+        if (GameBalance.MerchantAutoLeaveSec > 0f)
+        {
+            timerBar = KitchenEventManager.MakeBox(panel, "LeaveTimer", new Color(0.95f, 0.65f, 0.3f, 0.9f));
+            timerBar.anchorMin = new Vector2(0f, 1f); timerBar.anchorMax = new Vector2(0f, 1f);
+            timerBar.pivot = new Vector2(0f, 1f);
+            timerBar.anchoredPosition = Vector2.zero;
+            timerFullW = panel.sizeDelta.x;
+            timerBar.sizeDelta = new Vector2(timerFullW, 4f);
+            timerBar.GetComponent<Image>().raycastTarget = false;
+        }
+
         // 명패
         Text name = KitchenEventManager.MakeText(panel, "Name",
             "등짐장수 안킬로  -  등껍질이 철렁, 하고 내려앉는다", 22, new Color(0.95f, 0.75f, 0.45f));
@@ -248,7 +292,8 @@ public class MerchantUI : MonoBehaviour
     private void RefreshGoldText()
     {
         if (goldText == null) return;
-        goldText.text = "[ESC]  안 산다   (보유 골드 "
+        string timer = leaveAt > 0f ? "   " + Mathf.CeilToInt(Mathf.Max(0f, leaveAt - Time.time)) + "초 뒤 떠난다" : "";
+        goldText.text = "[ESC]  안 산다" + timer + "   (보유 골드 "
             + (GameManager.Instance != null ? GameManager.Instance.playerGold : 0) + "G)";
     }
 

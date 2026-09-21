@@ -3,63 +3,64 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [GameHUD.cs] v3.3 (v9.9 2026-09-16: ë¡œë¹„ì—ì„œëŠ” í•˜ë‹¨ ë°” ìˆ¨ê¹€ - ë¡œë¹„ ë²„íŠ¼ì´ ë°” ìœ„ì— ê²¹ì³ ìˆë˜ ê²ƒ) / v3.2 (v9.8 ì¬ë£Œ ì•„ì´ì½˜) / v3.1 (êµìˆ˜ í”¼ë“œë°± A9 ë°˜ì˜ 2026-09-14) / v3 - ì „íˆ¬ ì¤‘ í•µì‹¬ HUD (ì „ë¶€ ì½”ë“œ ìƒì„± - Canvas ì„¸íŒ… ë¶ˆí•„ìš”)
-/// - v3.2: ì¬ë£Œ ì¹¸ì˜ 16px ê³„ì—´ìƒ‰ íŒì„ ui_mat_*.png ì•„ì´ì½˜(32px)ìœ¼ë¡œ. ì¹¸ í­ 96 -> 102, ê°„ê²© 100 -> 106 (3ì—´ 318 <= ì¬ë£Œ êµ¬ì—­ 326).
-///   PNG ê°€ ì—†ìœ¼ë©´ v3.1 ê·¸ëŒ€ë¡œ(ê³„ì—´ìƒ‰ íŒ + ê¸€ì). ì´ë²¤íŠ¸ "ì¬ë£Œ í˜ë¦¼" ì¹©ê³¼ ê°™ì€ ê·¸ë¦¼ì´ë¼ ì¬ë£Œ = í•œ ê·¸ë¦¼ìœ¼ë¡œ í†µì¼
-/// - í•˜ë‹¨ ë°”: ì¬ë£Œ 6ì¢… ì¹´ìš´íŠ¸ + ë³´ìœ  ìš”ë¦¬ ì¹´ë“œ ëª©ë¡ (2ì¤„ ê·¸ë¦¬ë“œ, íœ  ê°€ë¡œ ìŠ¤í¬ë¡¤)
-/// - ìš”ë¦¬ ì¹´ë“œ í´ë¦­ -> íˆ¬ì… ëª¨ë“œ (ìŠ¬ë¡¯ ë§ˆì»¤ í´ë¦­ìœ¼ë¡œ íˆ¬ì…)
-/// - v3.1 (A9): í•˜ë‹¨ ë°” ì˜¤ë¥¸ìª½ ìœ„ íŒŒì´í”„ì— ì¹¼/íŒ¬ ìƒíƒœ ì¹© 2ê°œ (ëª…íŒ). ë§ˆëª¨ê°€ ì½˜ì†”ì—ë§Œ ì°í˜€
-///   "íŒì •ì´ ì™œ ì¢ì•„ì¡ŒëŠ”ì§€" ì•Œ ìˆ˜ ì—†ë˜ ë¬¸ì œ - 0.25ì´ˆë§ˆë‹¤ ê°±ì‹ , 60% ì´í•˜ í˜¸ë°•ìƒ‰, 30% ì´í•˜ ë¹¨ê°• + "!".
-///   GameBalance.ToolWearEnabled ê°€ false(ë§ˆëª¨ off ì‹¤í—˜)ë©´ ì¹©ì„ ìˆ¨ê¸´ë‹¤
-/// - v3 ë³€ê²½ì  (2026-09-07, "ì‡³ëƒ„ìƒˆ" í”½ì…€ ìŠ¤í‚¨ - HUD ëª©ì—… v3 ì»¨íŒ):
-///   1) í•˜ë‹¨ ë°” 158 -> 184: êµ¬ë¦¬ íŒŒì´í”„ í”„ë ˆì„(í…Œ 28px) ì•ˆì— ì¬ë£Œ 2x3 + ìš”ë¦¬ ì¹´ë“œ 2ì¤„ì´ ë“¤ì–´ê°€ë„ë¡
-///   2) "ì¬ë£Œ"/"ìš”ë¦¬" ì œëª©ì„ íŒŒì´í”„ ìœ„ì— ê±¸ë¦° í™©ë™ ëª…íŒìœ¼ë¡œ (ì•ˆìª½ ë†’ì´ ì ˆì•½)
-///   3) ìš”ë¦¬ ì¹´ë“œ = ë¬´ì‡  í‰íŒ + ê³„ì—´ìƒ‰ í…Œ(ë¦¬ë²³), ì„ íƒ ì¤‘ì´ë©´ í™©ë™ í…Œ. ì¬ë£Œ ì¹¸ = ê³„ì—´ìƒ‰ íŒ + ê¸€ì
-///   4) ì˜¤ë¥¸ìª½ ë ì¥ì‹: ì••ë ¥ ê²Œì´ì§€ + ë°¸ë¸Œ íœ  + ë°°ê¸° ê·¸ë¦´
-///   5) íˆ¬ì… ëª¨ë“œ ë°°ë„ˆ: í‰íŒ + í™©ë™ í…Œ ì¹´ë“œ(880x72) + ìœ„í—˜ ìŠ¤íŠ¸ë¼ì´í”„, ê¸€ì ì¢Œìš° 84Â·ìƒí•˜ 10 ì—¬ë°± (í…Œë‘ë¦¬ì— ë¶™ì§€ ì•Šê²Œ)
-///   UISkin(ui_*.png)ì´ ì—†ìœ¼ë©´ v2 ë‹¨ìƒ‰ ë°•ìŠ¤ ë°°ì¹˜ë¡œ ìë™ í´ë°± (ìˆ˜ì¹˜ë§Œ ë‹¤ë¦„)
-/// GameSystems ì˜¤ë¸Œì íŠ¸ì— ë¶€ì°©
-/// VS 2017 (C# 7.3) í˜¸í™˜
+/// [GameHUD.cs] v3.4 (v9.10.1 2026-09-21: Àç·á ÀÌ¸§ MaterialNames ÇÑ °÷(Àü±â¾Ë¡¤È­¿°²É¡¤¾óÀ½²É¡¤µ¶»ù) - Ä­ Æø 102 ¿¡ ¼¼ ±ÛÀÚ ÀÌ¸§ÀÌ ¾È µé¾î°¡ ÀÌ¸§(11px, À§)¡¤°³¼ö(20px, ¾Æ·¡) µÎ ÁÙ) / v3.3 (v9.9 2026-09-16: ·Îºñ¿¡¼­´Â ÇÏ´Ü ¹Ù ¼û±è - ·Îºñ ¹öÆ°ÀÌ ¹Ù À§¿¡ °ãÃÄ ÀÖ´ø °Í) / v3.2 (v9.8 Àç·á ¾ÆÀÌÄÜ) / v3.1 (±³¼ö ÇÇµå¹é A9 ¹İ¿µ 2026-09-14) / v3 - ÀüÅõ Áß ÇÙ½É HUD (ÀüºÎ ÄÚµå »ı¼º - Canvas ¼¼ÆÃ ºÒÇÊ¿ä)
+/// - v3.2: Àç·á Ä­ÀÇ 16px °è¿­»ö ÆÇÀ» ui_mat_*.png ¾ÆÀÌÄÜ(32px)À¸·Î. Ä­ Æø 96 -> 102, °£°İ 100 -> 106 (3¿­ 318 <= Àç·á ±¸¿ª 326).
+///   PNG °¡ ¾øÀ¸¸é v3.1 ±×´ë·Î(°è¿­»ö ÆÇ + ±ÛÀÚ). ÀÌº¥Æ® "Àç·á Èê¸²" Ä¨°ú °°Àº ±×¸²ÀÌ¶ó Àç·á = ÇÑ ±×¸²À¸·Î ÅëÀÏ
+/// - ÇÏ´Ü ¹Ù: Àç·á 6Á¾ Ä«¿îÆ® + º¸À¯ ¿ä¸® Ä«µå ¸ñ·Ï (2ÁÙ ±×¸®µå, ÈÙ °¡·Î ½ºÅ©·Ñ)
+/// - ¿ä¸® Ä«µå Å¬¸¯ -> ÅõÀÔ ¸ğµå (½½·Ô ¸¶Ä¿ Å¬¸¯À¸·Î ÅõÀÔ)
+/// - v3.1 (A9): ÇÏ´Ü ¹Ù ¿À¸¥ÂÊ À§ ÆÄÀÌÇÁ¿¡ Ä®/ÆÒ »óÅÂ Ä¨ 2°³ (¸íÆÇ). ¸¶¸ğ°¡ ÄÜ¼Ö¿¡¸¸ ÂïÇô
+///   "ÆÇÁ¤ÀÌ ¿Ö Á¼¾ÆÁ³´ÂÁö" ¾Ë ¼ö ¾ø´ø ¹®Á¦ - 0.25ÃÊ¸¶´Ù °»½Å, 60% ÀÌÇÏ È£¹Ú»ö, 30% ÀÌÇÏ »¡°­ + "!".
+///   GameBalance.ToolWearEnabled °¡ false(¸¶¸ğ off ½ÇÇè)¸é Ä¨À» ¼û±ä´Ù
+/// - v3 º¯°æÁ¡ (2026-09-07, "¼í³¿»õ" ÇÈ¼¿ ½ºÅ² - HUD ¸ñ¾÷ v3 ÄÁÆß):
+///   1) ÇÏ´Ü ¹Ù 158 -> 184: ±¸¸® ÆÄÀÌÇÁ ÇÁ·¹ÀÓ(Å× 28px) ¾È¿¡ Àç·á 2x3 + ¿ä¸® Ä«µå 2ÁÙÀÌ µé¾î°¡µµ·Ï
+///   2) "Àç·á"/"¿ä¸®" Á¦¸ñÀ» ÆÄÀÌÇÁ À§¿¡ °É¸° È²µ¿ ¸íÆÇÀ¸·Î (¾ÈÂÊ ³ôÀÌ Àı¾à)
+///   3) ¿ä¸® Ä«µå = ¹«¼è ÆòÆÇ + °è¿­»ö Å×(¸®ºª), ¼±ÅÃ ÁßÀÌ¸é È²µ¿ Å×. Àç·á Ä­ = °è¿­»ö ÆÇ + ±ÛÀÚ
+///   4) ¿À¸¥ÂÊ ³¡ Àå½Ä: ¾Ğ·Â °ÔÀÌÁö + ¹ëºê ÈÙ + ¹è±â ±×¸±
+///   5) ÅõÀÔ ¸ğµå ¹è³Ê: ÆòÆÇ + È²µ¿ Å× Ä«µå(880x72) + À§Çè ½ºÆ®¶óÀÌÇÁ, ±ÛÀÚ ÁÂ¿ì 84¡¤»óÇÏ 10 ¿©¹é (Å×µÎ¸®¿¡ ºÙÁö ¾Ê°Ô)
+///   UISkin(ui_*.png)ÀÌ ¾øÀ¸¸é v2 ´Ü»ö ¹Ú½º ¹èÄ¡·Î ÀÚµ¿ Æú¹é (¼öÄ¡¸¸ ´Ù¸§)
+/// GameSystems ¿ÀºêÁ§Æ®¿¡ ºÎÂø
+/// VS 2017 (C# 7.3) È£È¯
 /// </summary>
 public class GameHUD : MonoBehaviour
 {
     public static GameHUD Instance { get; private set; }
 
-    // íˆ¬ì… ëª¨ë“œ: ì„ íƒëœ ìš”ë¦¬ recipeId ("" = ëª¨ë“œ ì•„ë‹˜)
+    // ÅõÀÔ ¸ğµå: ¼±ÅÃµÈ ¿ä¸® recipeId ("" = ¸ğµå ¾Æ´Ô)
     public string placingRecipeId = "";
 
     /// <summary>
-    /// v3.1: ìš°í´ë¦­ìœ¼ë¡œ íˆ¬ì… ëª¨ë“œë¥¼ ì·¨ì†Œí•œ ì‹œê° (unscaled). ì´ UpdateëŠ” ë²„íŠ¼ì„ ëˆ„ë¥´ëŠ” ìˆœê°„ ì·¨ì†Œí•˜ê³ 
-    /// ìŠ¬ë¡¯ ë§ˆì»¤ì˜ í´ë¦­ ì´ë²¤íŠ¸ëŠ” ë²„íŠ¼ì„ ë—„ ë•Œ ì˜¤ë¯€ë¡œ, ë§ˆì»¤ ìª½ì€ ì´ ì‹œê° ì§í›„ì˜ ìš°í´ë¦­ì„ "ì·¨ì†Œ"ë¡œ ì·¨ê¸‰í•œë‹¤
-    /// (ì·¨ì†Œí•˜ë ¤ë˜ ìš°í´ë¦­ì´ ì»¤ì„œ ë°‘ í¬íƒ‘ì˜ íê¸° ì˜ˆê³ ë¡œ ìƒˆëŠ” ê²ƒì„ ë§‰ëŠ”ë‹¤)
+    /// v3.1: ¿ìÅ¬¸¯À¸·Î ÅõÀÔ ¸ğµå¸¦ Ãë¼ÒÇÑ ½Ã°¢ (unscaled). ÀÌ Update´Â ¹öÆ°À» ´©¸£´Â ¼ø°£ Ãë¼ÒÇÏ°í
+    /// ½½·Ô ¸¶Ä¿ÀÇ Å¬¸¯ ÀÌº¥Æ®´Â ¹öÆ°À» ¶¿ ¶§ ¿À¹Ç·Î, ¸¶Ä¿ ÂÊÀº ÀÌ ½Ã°¢ Á÷ÈÄÀÇ ¿ìÅ¬¸¯À» "Ãë¼Ò"·Î Ãë±ŞÇÑ´Ù
+    /// (Ãë¼ÒÇÏ·Á´ø ¿ìÅ¬¸¯ÀÌ Ä¿¼­ ¹Ø Æ÷Å¾ÀÇ Æó±â ¿¹°í·Î »õ´Â °ÍÀ» ¸·´Â´Ù)
     /// </summary>
     public static float LastPlacingCancelTime = -10f;
 
     private Canvas canvas;
-    private RectTransform bottomBarRt;     // v3.3: ë¡œë¹„ì—ì„œ ìˆ¨ê¸°ê¸° ìœ„í•´ ë³´ê´€
+    private RectTransform bottomBarRt;     // v3.3: ·Îºñ¿¡¼­ ¼û±â±â À§ÇØ º¸°ü
     private Text[] matTexts = new Text[6];
-    private RectTransform foodListRoot;    // ìŠ¤í¬ë¡¤ ë‚´ìš©ë¬¼ (ì¹´ë“œ ë¶€ëª¨)
+    private RectTransform foodListRoot;    // ½ºÅ©·Ñ ³»¿ë¹° (Ä«µå ºÎ¸ğ)
     private Text placingBanner;
     private readonly List<GameObject> foodCards = new List<GameObject>();
 
-    // v3.1 (A9): ë„êµ¬ ìƒíƒœ ì¹©
-    private GameObject knifeChipGo, panChipGo;   // ì¹© ë£¨íŠ¸ (ìŠ¤í‚¨ = ëª…íŒ / ë‹¨ìƒ‰ = ê¸€ì)
-    private Text knifeText, panText;             // ì¹© ê¸€ì
-    private ChefController chefRef;              // ë§ˆëª¨ ìˆ˜ì¹˜ ì¶œì²˜ (ì”¬ì— 1ëª…)
-    private float toolRefreshAt;                 // ë‹¤ìŒ ê°±ì‹  ì‹œê° (unscaled)
+    // v3.1 (A9): µµ±¸ »óÅÂ Ä¨
+    private GameObject knifeChipGo, panChipGo;   // Ä¨ ·çÆ® (½ºÅ² = ¸íÆÇ / ´Ü»ö = ±ÛÀÚ)
+    private Text knifeText, panText;             // Ä¨ ±ÛÀÚ
+    private ChefController chefRef;              // ¸¶¸ğ ¼öÄ¡ ÃâÃ³ (¾À¿¡ 1¸í)
+    private float toolRefreshAt;                 // ´ÙÀ½ °»½Å ½Ã°¢ (unscaled)
     private int lastKnifeShown = -1, lastPanShown = -1;
     private bool chipsVisible = true;
     private const float TOOL_REFRESH_SEC = 0.25f;
-    private const float CHIP_W = 92f;            // ì¹© ëª…íŒ í­
+    private const float CHIP_W = 92f;            // Ä¨ ¸íÆÇ Æø
 
-    private const float BAR_H = 184f;          // v3: í•˜ë‹¨ ë°” ë†’ì´ (v2 158)
-    private const float FRAME = 28f;           // íŒŒì´í”„ í…Œ ë‘ê»˜ (ui_pipe í…Œë‘ë¦¬ = 28px @1080p)
-    private const float MAT_W = 330f;          // ì¬ë£Œ êµ¬ì—­ í­ (ë°” ì™¼ìª½)
+    private const float BAR_H = 184f;          // v3: ÇÏ´Ü ¹Ù ³ôÀÌ (v2 158)
+    private const float FRAME = 28f;           // ÆÄÀÌÇÁ Å× µÎ²² (ui_pipe Å×µÎ¸® = 28px @1080p)
+    private const float MAT_W = 330f;          // Àç·á ±¸¿ª Æø (¹Ù ¿ŞÂÊ)
     private const float CARD_W = 116f;
     private const float CARD_H = 56f;
     private const float CARD_GAP = 6f;
 
-    private static readonly string[] MAT_SHORT = { "ê³ ê¸°", "ë“±ì‹¬", "ì „ê¸°", "í™”ì—¼", "ì–¼ìŒ", "ë…" };
+    // v3.4: Àç·á ÀÌ¸§Àº MaterialNames.KOR (ÇÑ °÷). ¿©±â¼± ÀÌ¸§(ÀÛ°Ô)¡¤°³¼ö(Å©°Ô) µÎ ÁÙ·Î ³õ´Â´Ù
+    private Text[] matNameTexts = new Text[6];
     private static readonly FoodTag[] MAT_TAG = { FoodTag.Phys, FoodTag.Def, FoodTag.Elec, FoodTag.Fire, FoodTag.Ice, FoodTag.Poison };
 
     void Awake()
@@ -83,13 +84,13 @@ public class GameHUD : MonoBehaviour
 
     void Update()
     {
-        // v3.3: ë¡œë¹„(ëŒ€ê¸° í™”ë©´)ì—ì„œëŠ” í•˜ë‹¨ ë°”ë¥¼ ìˆ¨ê¸´ë‹¤ - ë¡œë¹„ UI(ì¶œë°œ/[T]/ìƒì  ë²„íŠ¼)ê°€ ì´ ìë¦¬ì— ì•‰ëŠ”ë‹¤
+        // v3.3: ·Îºñ(´ë±â È­¸é)¿¡¼­´Â ÇÏ´Ü ¹Ù¸¦ ¼û±ä´Ù - ·Îºñ UI(Ãâ¹ß/[T]/»óÁ¡ ¹öÆ°)°¡ ÀÌ ÀÚ¸®¿¡ ¾É´Â´Ù
         bool lobby = GameManager.Instance != null && GameManager.Instance.currentState == GameManager.GameState.Lobby;
         if (bottomBarRt != null && bottomBarRt.gameObject.activeSelf == lobby)
             bottomBarRt.gameObject.SetActive(!lobby);
         if (lobby) return;
 
-        // ìš°í´ë¦­ = íˆ¬ì… ëª¨ë“œ ì·¨ì†Œ
+        // ¿ìÅ¬¸¯ = ÅõÀÔ ¸ğµå Ãë¼Ò
         if (!string.IsNullOrEmpty(placingRecipeId) && Input.GetMouseButtonDown(1))
         {
             LastPlacingCancelTime = Time.unscaledTime;
@@ -99,42 +100,42 @@ public class GameHUD : MonoBehaviour
         UpdateToolChips();
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // UI ìƒì„±
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // UI »ı¼º
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     private void BuildUI()
     {
         canvas = UIFactory.CreateCanvas("GameHUD_Canvas", 10);
         bool skin = UISkin.Available;
-        float inset = skin ? FRAME : 12f;              // ë°” ì•ˆìª½ ì—¬ë°±
-        float topInset = skin ? FRAME - 4f : 34f;      // ìœ„ìª½ ì—¬ë°± (ìŠ¤í‚¨: ëª…íŒì´ íŒŒì´í”„ì— ê±¸ë¦¬ë¯€ë¡œ ì œëª© ì¤„ì´ í•„ìš” ì—†ë‹¤)
+        float inset = skin ? FRAME : 12f;              // ¹Ù ¾ÈÂÊ ¿©¹é
+        float topInset = skin ? FRAME - 4f : 34f;      // À§ÂÊ ¿©¹é (½ºÅ²: ¸íÆÇÀÌ ÆÄÀÌÇÁ¿¡ °É¸®¹Ç·Î Á¦¸ñ ÁÙÀÌ ÇÊ¿ä ¾ø´Ù)
 
-        // â”€â”€ í•˜ë‹¨ ë°” (ì „ì²´ í­) â”€â”€
+        // ¦¡¦¡ ÇÏ´Ü ¹Ù (ÀüÃ¼ Æø) ¦¡¦¡
         RectTransform bottomBar = UIFactory.CreatePanel(canvas.transform, "BottomBar",
             new Vector2(0f, 0f), new Vector2(1f, 0f),
             new Vector2(6f, 6f), new Vector2(-6f, 6f + BAR_H),
             UIFactory.PANEL, UIFactory.COPPER, 3f);
         bottomBarRt = bottomBar;   // v3.3
 
-        // â”€â”€ ì œëª©: ìŠ¤í‚¨ì´ë©´ íŒŒì´í”„ ìœ„ì— ê±¸ë¦° í™©ë™ ëª…íŒ, ì•„ë‹ˆë©´ ê¸€ì â”€â”€
+        // ¦¡¦¡ Á¦¸ñ: ½ºÅ²ÀÌ¸é ÆÄÀÌÇÁ À§¿¡ °É¸° È²µ¿ ¸íÆÇ, ¾Æ´Ï¸é ±ÛÀÚ ¦¡¦¡
         if (skin)
         {
-            UISkin.Nameplate(bottomBar, "Mat", "ì¬ë£Œ", 17, new Vector2(0f, 1f), new Vector2(34f, 4f), 76f);           // íŒŒì´í”„ ìœ„ì— 4px ê±¸ë¦¼ (ëª©ì—…ê³¼ ë™ì¼)
-            UISkin.Nameplate(bottomBar, "Food", "ìš”ë¦¬  (í´ë¦­ = íˆ¬ì…,  íœ  = ìŠ¤í¬ë¡¤)", 16, new Vector2(0f, 1f), new Vector2(MAT_W + 56f, 4f));
+            UISkin.Nameplate(bottomBar, "Mat", "Àç·á", 17, new Vector2(0f, 1f), new Vector2(34f, 4f), 76f);           // ÆÄÀÌÇÁ À§¿¡ 4px °É¸² (¸ñ¾÷°ú µ¿ÀÏ)
+            UISkin.Nameplate(bottomBar, "Food", "¿ä¸®  (Å¬¸¯ = ÅõÀÔ,  ÈÙ = ½ºÅ©·Ñ)", 16, new Vector2(0f, 1f), new Vector2(MAT_W + 56f, 4f));
         }
         else
         {
-            Text matTitle = UIFactory.CreateText(bottomBar, "MatTitle", "ì¬ë£Œ", 18, UIFactory.GOLD, TextAnchor.UpperLeft);
+            Text matTitle = UIFactory.CreateText(bottomBar, "MatTitle", "Àç·á", 18, UIFactory.GOLD, TextAnchor.UpperLeft);
             matTitle.rectTransform.anchorMin = new Vector2(0f, 1f); matTitle.rectTransform.anchorMax = new Vector2(0f, 1f);
             matTitle.rectTransform.pivot = new Vector2(0f, 1f);
             matTitle.rectTransform.anchoredPosition = new Vector2(16f, -8f); matTitle.rectTransform.sizeDelta = new Vector2(200f, 24f);
-            Text foodTitle = UIFactory.CreateText(bottomBar, "FoodTitle", "ìš”ë¦¬ (í´ë¦­ = íˆ¬ì… ëª¨ë“œ, íœ  = ìŠ¤í¬ë¡¤)", 18, UIFactory.GOLD, TextAnchor.UpperLeft);
+            Text foodTitle = UIFactory.CreateText(bottomBar, "FoodTitle", "¿ä¸® (Å¬¸¯ = ÅõÀÔ ¸ğµå, ÈÙ = ½ºÅ©·Ñ)", 18, UIFactory.GOLD, TextAnchor.UpperLeft);
             foodTitle.rectTransform.anchorMin = new Vector2(0f, 1f); foodTitle.rectTransform.anchorMax = new Vector2(0f, 1f);
             foodTitle.rectTransform.pivot = new Vector2(0f, 1f);
             foodTitle.rectTransform.anchoredPosition = new Vector2(MAT_W + 20f, -8f); foodTitle.rectTransform.sizeDelta = new Vector2(600f, 24f);
         }
 
-        // â”€â”€ ì¬ë£Œ ëª©ë¡ (í•˜ë‹¨ ë°” ì™¼ìª½): 2í–‰ 3ì—´ (ê³„ì—´ìƒ‰ íŒ + ì´ë¦„ + ìˆ˜) â”€â”€
+        // ¦¡¦¡ Àç·á ¸ñ·Ï (ÇÏ´Ü ¹Ù ¿ŞÂÊ): 2Çà 3¿­ (°è¿­»ö ÆÇ + ÀÌ¸§ + ¼ö) ¦¡¦¡
         RectTransform matPanel = new GameObject("MatPanel").AddComponent<RectTransform>();
         matPanel.SetParent(bottomBar, false);
         matPanel.anchorMin = new Vector2(0f, 0f);
@@ -142,7 +143,7 @@ public class GameHUD : MonoBehaviour
         matPanel.offsetMin = new Vector2(inset + 4f, inset);
         matPanel.offsetMax = new Vector2(inset + MAT_W, -topInset);
 
-        // v3.2: ì¬ë£Œ ì•„ì´ì½˜(ui_mat_*)ì´ ìˆìœ¼ë©´ 32px ê·¸ë¦¼ + ê¸€ì, ì—†ìœ¼ë©´ v3.1 ê³„ì—´ìƒ‰ íŒ + ê¸€ì
+        // v3.2: Àç·á ¾ÆÀÌÄÜ(ui_mat_*)ÀÌ ÀÖÀ¸¸é 32px ±×¸² + ±ÛÀÚ, ¾øÀ¸¸é v3.1 °è¿­»ö ÆÇ + ±ÛÀÚ
         bool matIcons = skin && UISkin.MaterialIcon(MaterialType.Meat) != null;
         float cellW = matIcons ? 102f : 96f;
         float cellGap = matIcons ? 106f : 100f;
@@ -164,13 +165,13 @@ public class GameHUD : MonoBehaviour
             float labelX;
             if (matIcons)
             {
-                // ì¬ë£Œ ì•„ì´ì½˜ 32px (ì¹¸ ì™¼ìª½ ê°€ìš´ë°)
+                // Àç·á ¾ÆÀÌÄÜ 32px (Ä­ ¿ŞÂÊ °¡¿îµ¥)
                 UISkin.AddMaterialIcon(crt, (MaterialType)i, new Vector2(0f, 0.5f), new Vector2(2f, 0f), 32f);
                 labelX = 40f;
             }
             else
             {
-                // ê³„ì—´ìƒ‰ íŒ (ìŠ¤í‚¨: í‹´íŠ¸ í‰íŒ, ì•„ë‹ˆë©´ ìƒ‰ì )
+                // °è¿­»ö ÆÇ (½ºÅ²: Æ¾Æ® ÆòÆÇ, ¾Æ´Ï¸é »öÁ¡)
                 GameObject dot = new GameObject("Chip");
                 RectTransform drt = dot.AddComponent<RectTransform>();
                 drt.SetParent(crt, false);
@@ -185,27 +186,34 @@ public class GameHUD : MonoBehaviour
                 labelX = 26f;
             }
 
-            Text label = UIFactory.CreateText(crt, "Label", MAT_SHORT[i] + " 0", 18, UIFactory.CREAM, TextAnchor.MiddleLeft);
-            label.rectTransform.offsetMin = new Vector2(labelX, 0f);
+            // v3.4: À§ = ÀÌ¸§ 11px (Èå¸®°Ô), ¾Æ·¡ = °³¼ö 20px. Ä­ ³ôÀÌ 34 ¾È¿¡ µÎ ÁÙ
+            Text nameLabel = UIFactory.CreateText(crt, "Name", MaterialNames.KOR[i], 11, UIFactory.DIM, TextAnchor.UpperLeft);
+            nameLabel.rectTransform.offsetMin = new Vector2(labelX, 16f);
+            nameLabel.rectTransform.offsetMax = new Vector2(0f, 0f);
+            matNameTexts[i] = nameLabel;
+
+            Text label = UIFactory.CreateText(crt, "Label", "0", 20, UIFactory.CREAM, TextAnchor.LowerLeft);
+            label.rectTransform.offsetMin = new Vector2(labelX, -2f);
+            label.rectTransform.offsetMax = new Vector2(0f, -14f);
             matTexts[i] = label;
         }
 
-        // â”€â”€ ìš”ë¦¬ ìŠ¤í¬ë¡¤ ì˜ì—­ (2ì¤„ ê·¸ë¦¬ë“œ + ê°€ë¡œ ìŠ¤í¬ë¡¤) â”€â”€
+        // ¦¡¦¡ ¿ä¸® ½ºÅ©·Ñ ¿µ¿ª (2ÁÙ ±×¸®µå + °¡·Î ½ºÅ©·Ñ) ¦¡¦¡
         GameObject scrollGo = new GameObject("FoodScroll");
         RectTransform scrollRt = scrollGo.AddComponent<RectTransform>();
         scrollRt.SetParent(bottomBar, false);
         scrollRt.anchorMin = new Vector2(0f, 0f);
         scrollRt.anchorMax = new Vector2(1f, 1f);
         scrollRt.offsetMin = new Vector2(inset + MAT_W + 24f, inset - 2f);
-        scrollRt.offsetMax = new Vector2(-(inset + (skin ? 150f : 8f)), -topInset + 2f);   // ì˜¤ë¥¸ìª½ì€ ì¥ì‹ ìë¦¬
+        scrollRt.offsetMax = new Vector2(-(inset + (skin ? 150f : 8f)), -topInset + 2f);   // ¿À¸¥ÂÊÀº Àå½Ä ÀÚ¸®
 
-        // ìŠ¤í¬ë¡¤ íŒì •ìš© íˆ¬ëª… ì´ë¯¸ì§€ (íœ  ì…ë ¥ì„ ë°›ìœ¼ë ¤ë©´ ë ˆì´ìºìŠ¤íŠ¸ ëŒ€ìƒ í•„ìš”)
+        // ½ºÅ©·Ñ ÆÇÁ¤¿ë Åõ¸í ÀÌ¹ÌÁö (ÈÙ ÀÔ·ÂÀ» ¹ŞÀ¸·Á¸é ·¹ÀÌÄ³½ºÆ® ´ë»ó ÇÊ¿ä)
         Image scrollBg = scrollGo.AddComponent<Image>();
         scrollBg.color = new Color(0f, 0f, 0f, 0.01f);
 
         ScrollRect sr = scrollGo.AddComponent<ScrollRect>();
 
-        // ë·°í¬íŠ¸ (ë„˜ì¹˜ëŠ” ì¹´ë“œ ì˜ë¼ëƒ„)
+        // ºäÆ÷Æ® (³ÑÄ¡´Â Ä«µå Àß¶ó³¿)
         GameObject viewportGo = new GameObject("Viewport");
         RectTransform viewportRt = viewportGo.AddComponent<RectTransform>();
         viewportRt.SetParent(scrollRt, false);
@@ -215,7 +223,7 @@ public class GameHUD : MonoBehaviour
         viewportRt.offsetMax = Vector2.zero;
         viewportGo.AddComponent<RectMask2D>();
 
-        // ë‚´ìš©ë¬¼ (ì¹´ë“œ ë¶€ëª¨) - ì¹´ë“œ 2ì¤„ì´ ìŠ¤í¬ë¡¤ ì˜ì—­ ì„¸ë¡œ ê°€ìš´ë°ì— ì˜¤ë„ë¡ ë‚¨ëŠ” ë†’ì´ë¥¼ ìœ„ì•„ë˜ë¡œ ë‚˜ëˆˆë‹¤
+        // ³»¿ë¹° (Ä«µå ºÎ¸ğ) - Ä«µå 2ÁÙÀÌ ½ºÅ©·Ñ ¿µ¿ª ¼¼·Î °¡¿îµ¥¿¡ ¿Àµµ·Ï ³²´Â ³ôÀÌ¸¦ À§¾Æ·¡·Î ³ª´«´Ù
         float scrollH = BAR_H - (inset - 2f) - (topInset - 2f);
         float gridPadY = Mathf.Max(0f, (scrollH - (CARD_H * 2f + CARD_GAP)) * 0.5f);
         GameObject listGo = new GameObject("FoodList");
@@ -235,7 +243,7 @@ public class GameHUD : MonoBehaviour
         sr.scrollSensitivity = 35f;
         sr.inertia = true;
 
-        // â”€â”€ ì¬ë£Œ/ìš”ë¦¬ ì‚¬ì´ ì„¸ë¡œ íŒŒì´í”„ êµ¬ë¶„ì„  + ì˜¤ë¥¸ìª½ ë ì¥ì‹ (ìŠ¤í‚¨): ì••ë ¥ ê²Œì´ì§€ + ë°¸ë¸Œ íœ  + ë°°ê¸° ê·¸ë¦´ â”€â”€
+        // ¦¡¦¡ Àç·á/¿ä¸® »çÀÌ ¼¼·Î ÆÄÀÌÇÁ ±¸ºĞ¼± + ¿À¸¥ÂÊ ³¡ Àå½Ä (½ºÅ²): ¾Ğ·Â °ÔÀÌÁö + ¹ëºê ÈÙ + ¹è±â ±×¸± ¦¡¦¡
         if (skin)
         {
             GameObject divGo = new GameObject("Divider");
@@ -244,7 +252,7 @@ public class GameHUD : MonoBehaviour
             divRt.anchorMin = new Vector2(0f, 0f);
             divRt.anchorMax = new Vector2(0f, 1f);
             divRt.pivot = new Vector2(0f, 1f);
-            divRt.offsetMin = new Vector2(inset + MAT_W - 12f, 20f);       // í­ 28, ìœ„ì•„ë˜ íŒŒì´í”„ì— 8px ê²¹ì³ ì´ì–´ì§„ ê²ƒì²˜ëŸ¼
+            divRt.offsetMin = new Vector2(inset + MAT_W - 12f, 20f);       // Æø 28, À§¾Æ·¡ ÆÄÀÌÇÁ¿¡ 8px °ãÃÄ ÀÌ¾îÁø °ÍÃ³·³
             divRt.offsetMax = new Vector2(inset + MAT_W + 16f, -20f);
             Image divImg = divGo.AddComponent<Image>();
             divImg.raycastTarget = false;
@@ -255,12 +263,12 @@ public class GameHUD : MonoBehaviour
             UISkin.AddOrnament(bottomBar, "vent", new Vector2(1f, 1f), new Vector2(-124f, -118f), new Vector2(64f, 24f));
         }
 
-        // â”€â”€ v3.1 (A9): ì¹¼/íŒ¬ ìƒíƒœ ì¹© - ë°” ì˜¤ë¥¸ìª½ ìœ„ íŒŒì´í”„ì— ê±¸ë¦° ì‘ì€ ëª…íŒ 2ê°œ (ì¥ì‹ ìœ„, ê²¹ì¹˜ì§€ ì•ŠìŒ) â”€â”€
+        // ¦¡¦¡ v3.1 (A9): Ä®/ÆÒ »óÅÂ Ä¨ - ¹Ù ¿À¸¥ÂÊ À§ ÆÄÀÌÇÁ¿¡ °É¸° ÀÛÀº ¸íÆÇ 2°³ (Àå½Ä À§, °ãÄ¡Áö ¾ÊÀ½) ¦¡¦¡
         if (skin)
         {
-            RectTransform panPlate = UISkin.Nameplate(bottomBar, "Pan", "íŒ¬ 100%", 15,
+            RectTransform panPlate = UISkin.Nameplate(bottomBar, "Pan", "ÆÒ 100%", 15,
                 new Vector2(1f, 1f), new Vector2(-34f - CHIP_W, 4f), CHIP_W);
-            RectTransform knifePlate = UISkin.Nameplate(bottomBar, "Knife", "ì¹¼ 100%", 15,
+            RectTransform knifePlate = UISkin.Nameplate(bottomBar, "Knife", "Ä® 100%", 15,
                 new Vector2(1f, 1f), new Vector2(-34f - CHIP_W * 2f - 6f, 4f), CHIP_W);
             panChipGo = panPlate.gameObject;
             knifeChipGo = knifePlate.gameObject;
@@ -269,11 +277,11 @@ public class GameHUD : MonoBehaviour
         }
         else
         {
-            knifeText = UIFactory.CreateText(bottomBar, "KnifeChip", "ì¹¼ 100%", 16, UIFactory.GOLD, TextAnchor.UpperRight);
+            knifeText = UIFactory.CreateText(bottomBar, "KnifeChip", "Ä® 100%", 16, UIFactory.GOLD, TextAnchor.UpperRight);
             knifeText.rectTransform.anchorMin = new Vector2(1f, 1f); knifeText.rectTransform.anchorMax = new Vector2(1f, 1f);
             knifeText.rectTransform.pivot = new Vector2(1f, 1f);
             knifeText.rectTransform.anchoredPosition = new Vector2(-118f, -8f); knifeText.rectTransform.sizeDelta = new Vector2(96f, 24f);
-            panText = UIFactory.CreateText(bottomBar, "PanChip", "íŒ¬ 100%", 16, UIFactory.GOLD, TextAnchor.UpperRight);
+            panText = UIFactory.CreateText(bottomBar, "PanChip", "ÆÒ 100%", 16, UIFactory.GOLD, TextAnchor.UpperRight);
             panText.rectTransform.anchorMin = new Vector2(1f, 1f); panText.rectTransform.anchorMax = new Vector2(1f, 1f);
             panText.rectTransform.pivot = new Vector2(1f, 1f);
             panText.rectTransform.anchoredPosition = new Vector2(-16f, -8f); panText.rectTransform.sizeDelta = new Vector2(96f, 24f);
@@ -281,9 +289,9 @@ public class GameHUD : MonoBehaviour
             panChipGo = panText.gameObject;
         }
 
-        // â”€â”€ íˆ¬ì… ëª¨ë“œ ì•ˆë‚´ ë°°ë„ˆ (í™”ë©´ ìƒë‹¨ ì¤‘ì•™, ì›¨ì´ë¸Œ ì˜ˆê³ /ì•ˆë‚´ ì¹´ë“œ ì•„ë˜) â”€â”€
-        //    í‰íŒ + í™©ë™ í…Œ ì¹´ë“œ (íŒŒì´í”„ í”„ë ˆì„ì€ í…Œê°€ 28px ë¼ 72px ë°°ë„ˆì—ì„  ê¸€ìê°€ íŒŒì´í”„ì— ë¶™ëŠ”ë‹¤)
-        //    ê¸€ì ì¢Œìš° 84px ì•ˆì— ìœ„í—˜ ìŠ¤íŠ¸ë¼ì´í”„, ìƒí•˜ 10px ì—¬ë°±
+        // ¦¡¦¡ ÅõÀÔ ¸ğµå ¾È³» ¹è³Ê (È­¸é »ó´Ü Áß¾Ó, ¿şÀÌºê ¿¹°í/¾È³» Ä«µå ¾Æ·¡) ¦¡¦¡
+        //    ÆòÆÇ + È²µ¿ Å× Ä«µå (ÆÄÀÌÇÁ ÇÁ·¹ÀÓÀº Å×°¡ 28px ¶ó 72px ¹è³Ê¿¡¼± ±ÛÀÚ°¡ ÆÄÀÌÇÁ¿¡ ºÙ´Â´Ù)
+        //    ±ÛÀÚ ÁÂ¿ì 84px ¾È¿¡ À§Çè ½ºÆ®¶óÀÌÇÁ, »óÇÏ 10px ¿©¹é
         RectTransform bannerPanel = UIFactory.CreatePanel(canvas.transform, "PlacingBanner",
             new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
             new Vector2(-440f, -318f), new Vector2(440f, -246f),
@@ -293,14 +301,14 @@ public class GameHUD : MonoBehaviour
         placingBanner.rectTransform.offsetMax = new Vector2(-84f, -10f);
         if (skin)
         {
-            // í”¼ë²—ì´ ì™¼ìª½ ìœ„ë¼ y=+8 ì´ ì„¸ë¡œ ê°€ìš´ë°
+            // ÇÇ¹şÀÌ ¿ŞÂÊ À§¶ó y=+8 ÀÌ ¼¼·Î °¡¿îµ¥
             UISkin.AddOrnament(bannerPanel, "hazard", new Vector2(0f, 0.5f), new Vector2(16f, 8f), new Vector2(56f, 16f));
             UISkin.AddOrnament(bannerPanel, "hazard", new Vector2(1f, 0.5f), new Vector2(-72f, 8f), new Vector2(56f, 16f));
         }
         bannerPanel.gameObject.SetActive(false);
     }
 
-    /// <summary>ëª…íŒ ì•ˆì˜ ê¸€ì ì»´í¬ë„ŒíŠ¸ (UISkin.Nameplate ê°€ "Label" ì´ë¦„ìœ¼ë¡œ ë§Œë“ ë‹¤)</summary>
+    /// <summary>¸íÆÇ ¾ÈÀÇ ±ÛÀÚ ÄÄÆ÷³ÍÆ® (UISkin.Nameplate °¡ "Label" ÀÌ¸§À¸·Î ¸¸µç´Ù)</summary>
     private static Text FindLabel(RectTransform plate)
     {
         if (plate == null) return null;
@@ -308,16 +316,16 @@ public class GameHUD : MonoBehaviour
         return lt != null ? lt.GetComponent<Text>() : null;
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // v3.1 (A9): ì¹¼/íŒ¬ ìƒíƒœ ì¹© ê°±ì‹  (0.25ì´ˆ ê°„ê²©, ê°’ì´ ë°”ë€” ë•Œë§Œ ê¸€ìë¥¼ ë‹¤ì‹œ ì“´ë‹¤)
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // v3.1 (A9): Ä®/ÆÒ »óÅÂ Ä¨ °»½Å (0.25ÃÊ °£°İ, °ªÀÌ ¹Ù²ğ ¶§¸¸ ±ÛÀÚ¸¦ ´Ù½Ã ¾´´Ù)
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     private void UpdateToolChips()
     {
         if (knifeText == null || panText == null) return;
         if (Time.unscaledTime < toolRefreshAt) return;
         toolRefreshAt = Time.unscaledTime + TOOL_REFRESH_SEC;
 
-        // ë§ˆëª¨ off ì‹¤í—˜(B3) ì¤‘ì—ëŠ” ì˜ë¯¸ ì—†ëŠ” 100% ì¹©ì„ ì¹˜ìš´ë‹¤
+        // ¸¶¸ğ off ½ÇÇè(B3) Áß¿¡´Â ÀÇ¹Ì ¾ø´Â 100% Ä¨À» Ä¡¿î´Ù
         bool show = GameBalance.ToolWearEnabled;
         if (show != chipsVisible)
         {
@@ -335,18 +343,18 @@ public class GameHUD : MonoBehaviour
         if (knife != lastKnifeShown)
         {
             lastKnifeShown = knife;
-            knifeText.text = "ì¹¼ " + knife + "%" + (knife <= 30 ? " !" : "");
+            knifeText.text = "Ä® " + knife + "%" + (knife <= 30 ? " !" : "");
             knifeText.color = ChipColor(knife);
         }
         if (pan != lastPanShown)
         {
             lastPanShown = pan;
-            panText.text = "íŒ¬ " + pan + "%" + (pan <= 30 ? " !" : "");
+            panText.text = "ÆÒ " + pan + "%" + (pan <= 30 ? " !" : "");
             panText.color = ChipColor(pan);
         }
     }
 
-    /// <summary>ì¹© ê¸€ììƒ‰: 30% ì´í•˜ ë¹¨ê°•(ê²½ê³ ì™€ ê°™ì€ ë¬¸í„±), 60% ì´í•˜ í˜¸ë°•ìƒ‰, ê·¸ ì™¸ ê¸°ë³¸(ëª…íŒ = ë¨¹ìƒ‰ / ë‹¨ìƒ‰ = ê¸ˆìƒ‰)</summary>
+    /// <summary>Ä¨ ±ÛÀÚ»ö: 30% ÀÌÇÏ »¡°­(°æ°í¿Í °°Àº ¹®ÅÎ), 60% ÀÌÇÏ È£¹Ú»ö, ±× ¿Ü ±âº»(¸íÆÇ = ¸Ô»ö / ´Ü»ö = ±İ»ö)</summary>
     private static Color ChipColor(int percent)
     {
         if (percent <= 30) return UISkin.HP_RED;
@@ -354,30 +362,32 @@ public class GameHUD : MonoBehaviour
         return UISkin.Available ? UISkin.INK : UIFactory.GOLD;
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ê°±ì‹ 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // °»½Å
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     private void RefreshMaterials()
     {
         if (MaterialInventory.Instance == null) return;
         int i = 0;
         foreach (MaterialType t in System.Enum.GetValues(typeof(MaterialType)))
         {
-            matTexts[i].text = MAT_SHORT[i] + " " + MaterialInventory.Instance.Get(t);
+            int have = MaterialInventory.Instance.Get(t);
+            matTexts[i].text = have.ToString();
+            matTexts[i].color = have > 0 ? UIFactory.CREAM : UIFactory.DIM;   // 0°³´Â Èå¸®°Ô
             i++;
         }
     }
 
     private void RebuildFoodList()
     {
-        // ê¸°ì¡´ ì¹´ë“œ ì œê±°
+        // ±âÁ¸ Ä«µå Á¦°Å
         for (int i = 0; i < foodCards.Count; i++)
             Destroy(foodCards[i]);
         foodCards.Clear();
 
         if (FoodStock.Instance == null) return;
 
-        // ë³´ìœ  ìš”ë¦¬ ìˆ˜ì§‘ í›„ ì •ë ¬: í‹°ì–´ -> ì†ì„± -> ì´ë¦„ (ê°™ì€ ê³„ì—´ì´ ëª¨ì´ê²Œ)
+        // º¸À¯ ¿ä¸® ¼öÁı ÈÄ Á¤·Ä: Æ¼¾î -> ¼Ó¼º -> ÀÌ¸§ (°°Àº °è¿­ÀÌ ¸ğÀÌ°Ô)
         List<KeyValuePair<string, int>> owned = new List<KeyValuePair<string, int>>();
         foreach (KeyValuePair<string, int> kv in FoodStock.Instance.AllStock)
         {
@@ -394,7 +404,7 @@ public class GameHUD : MonoBehaviour
             return string.CompareOrdinal(ra.displayName, rb.displayName);
         });
 
-        // 2ì¤„ ê·¸ë¦¬ë“œ ë°°ì¹˜ (ì„¸ë¡œ ë¨¼ì € ì±„ìš°ê³  ì˜¤ë¥¸ìª½ìœ¼ë¡œ)
+        // 2ÁÙ ±×¸®µå ¹èÄ¡ (¼¼·Î ¸ÕÀú Ã¤¿ì°í ¿À¸¥ÂÊÀ¸·Î)
         for (int i = 0; i < owned.Count; i++)
         {
             int col = i / 2;
@@ -404,7 +414,7 @@ public class GameHUD : MonoBehaviour
             foodCards.Add(card);
         }
 
-        // ìŠ¤í¬ë¡¤ ë‚´ìš©ë¬¼ í­ ê°±ì‹  (ì„¸ë¡œëŠ” BuildUI ì—ì„œ ì •í•œ ìœ„ì•„ë˜ ì—¬ë°± ìœ ì§€)
+        // ½ºÅ©·Ñ ³»¿ë¹° Æø °»½Å (¼¼·Î´Â BuildUI ¿¡¼­ Á¤ÇÑ À§¾Æ·¡ ¿©¹é À¯Áö)
         int cols = (owned.Count + 1) / 2;
         foodListRoot.sizeDelta = new Vector2(cols * (CARD_W + CARD_GAP) + 4f, foodListRoot.sizeDelta.y);
     }
@@ -415,7 +425,7 @@ public class GameHUD : MonoBehaviour
         bool skin = UISkin.Available;
         Color tagC = UIFactory.TagColor(r.tag);
 
-        // ì¹´ë“œ í…Œ ìƒ‰: ì„ íƒ ì¤‘ = í™©ë™, T2 = í•‘í¬, ê·¸ ì™¸ = ê³„ì—´ìƒ‰ (ìŠ¤í‚¨) / êµ¬ë¦¬ (ë‹¨ìƒ‰)
+        // Ä«µå Å× »ö: ¼±ÅÃ Áß = È²µ¿, T2 = ÇÎÅ©, ±× ¿Ü = °è¿­»ö (½ºÅ²) / ±¸¸® (´Ü»ö)
         Color border = (placingRecipeId == id) ? UIFactory.GOLD
             : r.tier == 2 ? UIFactory.T2PINK
             : skin ? tagC : UIFactory.COPPER;
@@ -436,7 +446,7 @@ public class GameHUD : MonoBehaviour
         Button btn = cardGo.AddComponent<Button>();
         btn.onClick.AddListener(delegate { OnFoodCardClicked(id); });
 
-        // ë‚´ë¶€ ë°°ê²½ (ìŠ¤í‚¨: ë¬´ì‡  í‰íŒ / ë‹¨ìƒ‰: ê³„ì—´ìƒ‰ ì–´ë‘¡ê²Œ)
+        // ³»ºÎ ¹è°æ (½ºÅ²: ¹«¼è ÆòÆÇ / ´Ü»ö: °è¿­»ö ¾îµÓ°Ô)
         GameObject bg = new GameObject("BG");
         RectTransform bgRt = bg.AddComponent<RectTransform>();
         bgRt.SetParent(rt, false);
@@ -450,13 +460,13 @@ public class GameHUD : MonoBehaviour
         bgImg.raycastTarget = false;
         if (skin) UISkin.Plate(bgImg, Color.white);
 
-        // ì´ë¦„
+        // ÀÌ¸§
         Text nameText = UIFactory.CreateText(bgRt, "Name", r.displayName, 14, UIFactory.CREAM, TextAnchor.UpperCenter);
         nameText.rectTransform.offsetMin = new Vector2(2f, 18f);
         nameText.rectTransform.offsetMax = new Vector2(-2f, -3f);
         nameText.horizontalOverflow = HorizontalWrapMode.Wrap;
 
-        // í•˜ë‹¨: í‹°ì–´ + ìˆ˜ëŸ‰
+        // ÇÏ´Ü: Æ¼¾î + ¼ö·®
         string bottomStr = (r.tier == 2 ? "T2  " : "") + "x" + count;
         Text cntText = UIFactory.CreateText(bgRt, "Count", bottomStr, 14,
             r.tier == 2 ? UIFactory.T2PINK : UIFactory.GOLD, TextAnchor.LowerCenter);
@@ -466,12 +476,12 @@ public class GameHUD : MonoBehaviour
         return cardGo;
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // íˆ¬ì… ëª¨ë“œ
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ÅõÀÔ ¸ğµå
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     private void OnFoodCardClicked(string recipeId)
     {
-        // ê°™ì€ ì¹´ë“œ ë‹¤ì‹œ í´ë¦­ = ì·¨ì†Œ
+        // °°Àº Ä«µå ´Ù½Ã Å¬¸¯ = Ãë¼Ò
         SetPlacing(placingRecipeId == recipeId ? "" : recipeId);
     }
 
@@ -487,13 +497,13 @@ public class GameHUD : MonoBehaviour
             if (on)
             {
                 RecipeData r = RecipeDatabase.Get(recipeId);
-                placingBanner.text = r.displayName + " - ìŠ¬ë¡¯ì„ ê³¨ë¼ì„œ í´ë¦­ (ìš°í´ë¦­ ì·¨ì†Œ)";
+                placingBanner.text = r.displayName + " - ½½·ÔÀ» °ñ¶ó¼­ Å¬¸¯ (¿ìÅ¬¸¯ Ãë¼Ò)";
             }
         }
-        RebuildFoodList(); // ì„ íƒ í…Œë‘ë¦¬ ê°±ì‹ 
+        RebuildFoodList(); // ¼±ÅÃ Å×µÎ¸® °»½Å
     }
 
-    /// <summary>ìŠ¬ë¡¯ ë§ˆì»¤ë¥¼ í´ë¦­í–ˆì„ ë•Œ í˜¸ì¶œ (SlotMarkerUIì—ì„œ)</summary>
+    /// <summary>½½·Ô ¸¶Ä¿¸¦ Å¬¸¯ÇßÀ» ¶§ È£Ãâ (SlotMarkerUI¿¡¼­)</summary>
     public void OnSlotClicked(TurretSlot slot)
     {
         if (string.IsNullOrEmpty(placingRecipeId)) return;
@@ -501,13 +511,13 @@ public class GameHUD : MonoBehaviour
         if (slot.TryInsertFood(placingRecipeId))
         {
             FoodStock.Instance.TryConsume(placingRecipeId, 1);
-            // ì¬ê³  ì „ë¶€ ì†Œì§„ë˜ë©´ ëª¨ë“œ í•´ì œ
+            // Àç°í ÀüºÎ ¼ÒÁøµÇ¸é ¸ğµå ÇØÁ¦
             if (FoodStock.Instance.Get(placingRecipeId) <= 0)
                 SetPlacing("");
         }
         else
         {
-            Debug.Log("[GameHUD] ì´ ìŠ¬ë¡¯ì— íˆ¬ì… ë¶ˆê°€ (ì ê¸ˆ ë˜ëŠ” ë‹¤ë¥¸ ìš”ë¦¬ ì¡´ì¬)");
+            Debug.Log("[GameHUD] ÀÌ ½½·Ô¿¡ ÅõÀÔ ºÒ°¡ (Àá±İ ¶Ç´Â ´Ù¸¥ ¿ä¸® Á¸Àç)");
         }
     }
 }
