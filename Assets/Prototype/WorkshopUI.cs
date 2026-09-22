@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 
 /// <summary>
-/// [WorkshopUI.cs] v2.6 (v9.11 2026-09-22: 등장 연출 ModalFeel) / v2.5 (v9.10.1 2026-09-21: 재료 이름 MaterialNames) / [WorkshopUI.cs] v2.4 (v9.10 2026-09-17 테스터 피드백·개정안 §3: 기차 수리·장갑 보강은 정차(Town)에서만(ShopRepairInBattle), 수리 정차당 1회(ShopRepairPerStop), 장갑 지역당 1회·최종전 앞 없음(ShopArmorPerRegion),
+/// [WorkshopUI.cs] v2.7 (v9.11.1 2026-09-22 문구: 구매 불가 이유, 이번 운행) / v2.6 (v9.11 2026-09-22: 등장 연출 ModalFeel) / v2.5 (v9.10.1 2026-09-21: 재료 이름 MaterialNames) / [WorkshopUI.cs] v2.4 (v9.10 2026-09-17 테스터 피드백·개정안 §3: 기차 수리·장갑 보강은 정차(Town)에서만(ShopRepairInBattle), 수리 정차당 1회(ShopRepairPerStop), 장갑 지역당 1회·최종전 앞 없음(ShopArmorPerRegion),
 ///   장갑은 현재 HP 를 안 채운다(ShopArmorHealsCurrent) / [ESC] 로도 닫기 / 상태 줄에 "정차 후 이용"·"이번 정차 구매 끝"·"이 지역 구매 끝") / v2.3 (v9.9.2 2026-09-16: 제목 "안킬로의 정비소" + 본체 왼쪽에 안킬로 실루엣 - 정비소 주인 = 등짐장수 안킬로로 통일) / v2.2 (v9.8: 재료 시장 행에 재료 아이콘) / v2.1 (2026-09-14: 전투 중 수리 기록) / v2
 /// 정비소 - 골드를 소모해 도구/기차를 정비하고 재료를 구매하는 상점
 ///
@@ -202,8 +202,8 @@ public class WorkshopUI : MonoBehaviour
     private bool CanBuyRepair(out string why)
     {
         why = "";
-        if (!GameBalance.ShopRepairInBattle && InBattleNow()) { why = "정차 후 이용"; return false; }
-        if (GameBalance.ShopRepairPerStop > 0 && repairsThisStop >= GameBalance.ShopRepairPerStop) { why = "이번 정차 구매 끝"; return false; }
+        if (!GameBalance.ShopRepairInBattle && InBattleNow()) { why = "정차 중에만"; return false; }
+        if (GameBalance.ShopRepairPerStop > 0 && repairsThisStop >= GameBalance.ShopRepairPerStop) { why = "이번 정차에선 이미 수리했다"; return false; }
         return true;
     }
 
@@ -211,12 +211,12 @@ public class WorkshopUI : MonoBehaviour
     private bool CanBuyArmor(out string why)
     {
         why = "";
-        if (!GameBalance.ShopRepairInBattle && InBattleNow()) { why = "정차 후 이용"; return false; }
+        if (!GameBalance.ShopRepairInBattle && InBattleNow()) { why = "정차 중에만"; return false; }
         if (GameBalance.ShopArmorPerRegion > 0)
         {
             int region = CurrentRegion();
             if (region >= 4) { why = "최종전 앞에선 안 판다"; return false; }
-            if (armorBoughtRegion[region]) { why = "이 지역 구매 끝 (다음 지역에서)"; return false; }
+            if (armorBoughtRegion[region]) { why = "이 지역에선 이미 보강했다 (다음 지역에서)"; return false; }
         }
         return true;
     }
@@ -250,7 +250,7 @@ public class WorkshopUI : MonoBehaviour
         if (GameBalance.ShopArmorPerRegion > 0) armorBoughtRegion[CurrentRegion()] = true;
         train.AddMaxHP(armorAmount, GameBalance.ShopArmorHealsCurrent);   // v2.4: 기본 = 최대 HP 만 (현재 HP 회복 없음)
         UIManager.Instance?.ShowStatChange("장갑 보강! 최대 HP +" + Mathf.RoundToInt(armorAmount)
-            + (GameBalance.ShopArmorHealsCurrent ? "" : " (수리는 따로)"));
+            + (GameBalance.ShopArmorHealsCurrent ? "" : " (현재 HP 는 그대로 - 수리는 따로)"));
     }
 
     /// <summary>
@@ -308,7 +308,7 @@ public class WorkshopUI : MonoBehaviour
         // 장갑 보강 (v2.4: 정차에서만, 지역당 1회, 현재 HP 회복 없음)
         string whyArmor;
         bool armorOk = CanBuyArmor(out whyArmor);
-        armorStatus.text = "장갑 보강  -  최대 HP +" + Mathf.RoundToInt(armorAmount) + " (영구, 지역당 1회)" + (armorOk ? "" : "   [" + whyArmor + "]");
+        armorStatus.text = "장갑 보강  -  최대 HP +" + Mathf.RoundToInt(armorAmount) + " (이번 운행 동안, 지역당 1회)" + (armorOk ? "" : "   [" + whyArmor + "]");
         SetButtonState(armorBtn, armorOk && gold >= armorCost);
 
         // 재료 시장

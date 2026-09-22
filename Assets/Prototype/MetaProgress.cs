@@ -2,56 +2,56 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// [MetaProgress.cs] v1.2 (2026-09-14: ì´ë²ˆ ëŸ° í´ë¦¬ì–´ ì›¨ì´ë¸Œ + ëŸ° í†µê³„ í•œ ì¤„ RunStatsLine) / v1.1 (ë§ˆìŠ¤í„° ì…°í”„ ì¹­í˜¸ + ë„ê° ì™„ì„± ë³´ë„ˆìŠ¤) / v1
-/// ëŸ°ì´ ëë‚˜ë„ ì‚¬ë¼ì§€ì§€ ì•ŠëŠ” "ë©”íƒ€ ì§„í–‰" ì €ì¥ì†Œ.
+/// [MetaProgress.cs] v1.2 (2026-09-14: ÀÌ¹ø ·± Å¬¸®¾î ¿şÀÌºê + ·± Åë°è ÇÑ ÁÙ RunStatsLine) / v1.1 (¸¶½ºÅÍ ¼ÎÇÁ ÄªÈ£ + µµ°¨ ¿Ï¼º º¸³Ê½º) / v1
+/// ·±ÀÌ ³¡³ªµµ »ç¶óÁöÁö ¾Ê´Â "¸ŞÅ¸ ÁøÇà" ÀúÀå¼Ò.
 ///
-/// - PlayerPrefs ê¸°ë°˜ static í´ë˜ìŠ¤ë¼ì„œ ì”¬ ë°°ì¹˜, ì˜¤ë¸Œì íŠ¸ ì—°ê²°ì´ ì „í˜€ í•„ìš” ì—†ë‹¤.
-///   íŒŒì¼ì„ Assets/Prototype í´ë”ì— ë„£ê¸°ë§Œ í•˜ë©´ ì–´ë””ì„œë“  MetaProgress.Fame ì²˜ëŸ¼ í˜¸ì¶œ ê°€ëŠ¥.
-/// - ì €ì¥ ìœ„ì¹˜ëŠ” ìœ ë‹ˆí‹°ê°€ ì•Œì•„ì„œ ê´€ë¦¬í•œë‹¤ (WindowsëŠ” ë ˆì§€ìŠ¤íŠ¸ë¦¬).
+/// - PlayerPrefs ±â¹İ static Å¬·¡½º¶ó¼­ ¾À ¹èÄ¡, ¿ÀºêÁ§Æ® ¿¬°áÀÌ ÀüÇô ÇÊ¿ä ¾ø´Ù.
+///   ÆÄÀÏÀ» Assets/Prototype Æú´õ¿¡ ³Ö±â¸¸ ÇÏ¸é ¾îµğ¼­µç MetaProgress.Fame Ã³·³ È£Ãâ °¡´É.
+/// - ÀúÀå À§Ä¡´Â À¯´ÏÆ¼°¡ ¾Ë¾Æ¼­ °ü¸®ÇÑ´Ù (Windows´Â ·¹Áö½ºÆ®¸®).
 ///
-/// ì €ì¥ í•­ëª©:
-///  1) ëª…ì„±(Fame)        : ëŸ°ì„ ë°˜ë³µí• ìˆ˜ë¡ ìŒ“ì´ëŠ” ì˜êµ¬ ì ìˆ˜. ì›¨ì´ë¸Œ í´ë¦¬ì–´ë§ˆë‹¤ ì¦‰ì‹œ ì ë¦½.
-///                         ë‚˜ì¤‘ì— ëª…ì„±ìœ¼ë¡œ ì–¸ë½(ìƒˆ ê¸°ì°¨, ì‹œì‘ ë³´ë„ˆìŠ¤ ë“±)ì„ ì—¬ëŠ” í™”íê°€ ëœë‹¤.
-///  2) ì´ ëŸ° íšŸìˆ˜        : ëª‡ ë²ˆ ë„ì „í–ˆëŠ”ì§€ (ìŠ¤í† ë¦¬ íšŒì°¨ ì¡°ê±´ì—ë„ ì‚¬ìš© ì˜ˆì •)
-///  3) ìµœê³  ë„ë‹¬ ì›¨ì´ë¸Œ   : ê°œì¸ ê¸°ë¡
-///  4) ëˆ„ì  í´ë¦¬ì–´ ì›¨ì´ë¸Œ : í†µê³„ìš©
-///  5) ë„ê°(ë°œê²¬ ë ˆì‹œí”¼)  : í•œ ë²ˆ ë§Œë“  ìš”ë¦¬ëŠ” ë‹¤ìŒ ëŸ°ì—ì„œë„ "ë°œê²¬ë¨" ìƒíƒœ ìœ ì§€
+/// ÀúÀå Ç×¸ñ:
+///  1) ¸í¼º(Fame)        : ·±À» ¹İº¹ÇÒ¼ö·Ï ½×ÀÌ´Â ¿µ±¸ Á¡¼ö. ¿şÀÌºê Å¬¸®¾î¸¶´Ù Áï½Ã Àû¸³.
+///                         ³ªÁß¿¡ ¸í¼ºÀ¸·Î ¾ğ¶ô(»õ ±âÂ÷, ½ÃÀÛ º¸³Ê½º µî)À» ¿©´Â È­Æó°¡ µÈ´Ù.
+///  2) ÃÑ ·± È½¼ö        : ¸î ¹ø µµÀüÇß´ÂÁö (½ºÅä¸® È¸Â÷ Á¶°Ç¿¡µµ »ç¿ë ¿¹Á¤)
+///  3) ÃÖ°í µµ´Ş ¿şÀÌºê   : °³ÀÎ ±â·Ï
+///  4) ´©Àû Å¬¸®¾î ¿şÀÌºê : Åë°è¿ë
+///  5) µµ°¨(¹ß°ß ·¹½ÃÇÇ)  : ÇÑ ¹ø ¸¸µç ¿ä¸®´Â ´ÙÀ½ ·±¿¡¼­µµ "¹ß°ßµÊ" »óÅÂ À¯Áö
 ///
-/// ëª…ì„± ì ë¦½ ê·œì¹™ (v1):
-///  - ì›¨ì´ë¸Œ í´ë¦¬ì–´: 10 + ì›¨ì´ë¸Œ ë²ˆí˜¸ (ë’¤ë¡œ ê°ˆìˆ˜ë¡ ë” ì¤€ë‹¤)
-///  - ìŠ¹ë¦¬(ì—”ë”©): +300 ë³´ë„ˆìŠ¤
-///  - ì¦‰ì‹œ ì €ì¥ ë°©ì‹ì´ë¼ ì¤‘ê°„ì— ê²Œì„ì„ êº¼ë„ ê·¸ë•Œê¹Œì§€ ë²ˆ ëª…ì„±ì€ ë‚¨ëŠ”ë‹¤.
+/// ¸í¼º Àû¸³ ±ÔÄ¢ (v1):
+///  - ¿şÀÌºê Å¬¸®¾î: 10 + ¿şÀÌºê ¹øÈ£ (µÚ·Î °¥¼ö·Ï ´õ ÁØ´Ù)
+///  - ½Â¸®(¿£µù): +300 º¸³Ê½º
+///  - Áï½Ã ÀúÀå ¹æ½ÄÀÌ¶ó Áß°£¿¡ °ÔÀÓÀ» ²¨µµ ±×¶§±îÁö ¹ø ¸í¼ºÀº ³²´Â´Ù.
 ///
-/// VS 2017 (C# 7.3) í˜¸í™˜.
+/// VS 2017 (C# 7.3) È£È¯.
 /// </summary>
 public static class MetaProgress
 {
-    // PlayerPrefs í‚¤ ì ‘ë‘ì–´ (ë‹¤ë¥¸ í”„ë¡œì íŠ¸/ì—ì…‹ê³¼ í‚¤ ì¶©ëŒ ë°©ì§€)
+    // PlayerPrefs Å° Á¢µÎ¾î (´Ù¸¥ ÇÁ·ÎÁ§Æ®/¿¡¼Â°ú Å° Ãæµ¹ ¹æÁö)
     private const string PREFIX = "WDT_";
 
-    // ì´ë²ˆ ëŸ°ì—ì„œ ì–»ì€ ëª…ì„± (í™”ë©´ í‘œì‹œìš©. ì´í•©ì€ ì–´ì°¨í”¼ ì €ì¥ë¼ ìˆìœ¼ë¯€ë¡œ ì €ì¥ ì•ˆ í•¨)
+    // ÀÌ¹ø ·±¿¡¼­ ¾òÀº ¸í¼º (È­¸é Ç¥½Ã¿ë. ÃÑÇÕÀº ¾îÂ÷ÇÇ ÀúÀåµÅ ÀÖÀ¸¹Ç·Î ÀúÀå ¾È ÇÔ)
     public static int RunFame { get; private set; }
 
-    // v1.2: ì´ë²ˆ ëŸ°ì—ì„œ í´ë¦¬ì–´í•œ ë§ˆì§€ë§‰ ì›¨ì´ë¸Œ (ê´€ì°° ì‹œíŠ¸ "ì›¨ì´ë¸Œ 8 ë„ë‹¬ë¥ " - BeginRun ì—ì„œ 0)
+    // v1.2: ÀÌ¹ø ·±¿¡¼­ Å¬¸®¾îÇÑ ¸¶Áö¸· ¿şÀÌºê (°üÂû ½ÃÆ® "¿şÀÌºê 8 µµ´Ş·ü" - BeginRun ¿¡¼­ 0)
     public static int WaveClearedThisRun { get; private set; }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ì½ê¸° í”„ë¡œí¼í‹° (ì–´ë””ì„œë“  ë°”ë¡œ ì‚¬ìš© ê°€ëŠ¥)
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ÀĞ±â ÇÁ·ÎÆÛÆ¼ (¾îµğ¼­µç ¹Ù·Î »ç¿ë °¡´É)
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     public static int Fame { get { return PlayerPrefs.GetInt(PREFIX + "Fame", 0); } }
     public static int RunsPlayed { get { return PlayerPrefs.GetInt(PREFIX + "RunsPlayed", 0); } }
     public static int BestWave { get { return PlayerPrefs.GetInt(PREFIX + "BestWave", 0); } }
     public static int TotalWavesCleared { get { return PlayerPrefs.GetInt(PREFIX + "TotalWaves", 0); } }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ëŸ° íë¦„ í›… (GameManagerê°€ í˜¸ì¶œ)
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ·± Èå¸§ ÈÅ (GameManager°¡ È£Ãâ)
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ì„¸ì´ë¸Œ ë²„ì „ (ê¸°ìˆ ê°ì‚¬ ì§€ì  - ì§€ê¸ˆ ì•ˆ ë„£ìœ¼ë©´ ë‚˜ì¤‘ì— êµ¬ë¶„ ë¶ˆê°€)
-    // í‚¤ êµ¬ì¡°ë¥¼ ë°”ê¾¸ëŠ” ì—…ë°ì´íŠ¸ë¥¼ í•˜ë©´ CurrentSaveVersionì„ ì˜¬ë¦¬ê³ 
-    // EnsureSaveVersion ì•ˆì— ë§ˆì´ê·¸ë ˆì´ì…˜ ì½”ë“œë¥¼ ì¶”ê°€í•œë‹¤
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ¼¼ÀÌºê ¹öÀü (±â¼ú°¨»ç ÁöÀû - Áö±İ ¾È ³ÖÀ¸¸é ³ªÁß¿¡ ±¸ºĞ ºÒ°¡)
+    // Å° ±¸Á¶¸¦ ¹Ù²Ù´Â ¾÷µ¥ÀÌÆ®¸¦ ÇÏ¸é CurrentSaveVersionÀ» ¿Ã¸®°í
+    // EnsureSaveVersion ¾È¿¡ ¸¶ÀÌ±×·¹ÀÌ¼Ç ÄÚµå¸¦ Ãß°¡ÇÑ´Ù
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     private const int CurrentSaveVersion = 1;
 
     public static void EnsureSaveVersion()
@@ -59,20 +59,20 @@ public static class MetaProgress
         int saved = PlayerPrefs.GetInt(PREFIX + "SaveVersion", 0);
         if (saved == 0)
         {
-            // ì‹ ê·œ or ë²„ì „ ë„ì… ì´ì „ ì„¸ì´ë¸Œ -> í˜„ì¬ ë²„ì „ìœ¼ë¡œ í‘œê¸°
+            // ½Å±Ô or ¹öÀü µµÀÔ ÀÌÀü ¼¼ÀÌºê -> ÇöÀç ¹öÀüÀ¸·Î Ç¥±â
             PlayerPrefs.SetInt(PREFIX + "SaveVersion", CurrentSaveVersion);
             PlayerPrefs.Save();
         }
         else if (saved < CurrentSaveVersion)
         {
-            // (ì—¬ê¸°ì— ë²„ì „ë³„ ë§ˆì´ê·¸ë ˆì´ì…˜ ì¶”ê°€)
+            // (¿©±â¿¡ ¹öÀüº° ¸¶ÀÌ±×·¹ÀÌ¼Ç Ãß°¡)
             PlayerPrefs.SetInt(PREFIX + "SaveVersion", CurrentSaveVersion);
             PlayerPrefs.Save();
-            Debug.Log("[MetaProgress] ì„¸ì´ë¸Œ ë§ˆì´ê·¸ë ˆì´ì…˜: v" + saved + " -> v" + CurrentSaveVersion);
+            Debug.Log("[MetaProgress] ¼¼ÀÌºê ¸¶ÀÌ±×·¹ÀÌ¼Ç: v" + saved + " -> v" + CurrentSaveVersion);
         }
     }
 
-    /// <summary>ìƒˆ ëŸ° ì‹œì‘ ì‹œ 1íšŒ í˜¸ì¶œ. ëŸ° ì¹´ìš´íŠ¸ ì¦ê°€ + ì´ë²ˆ ëŸ° ëª…ì„± ì´ˆê¸°í™”.</summary>
+    /// <summary>»õ ·± ½ÃÀÛ ½Ã 1È¸ È£Ãâ. ·± Ä«¿îÆ® Áõ°¡ + ÀÌ¹ø ·± ¸í¼º ÃÊ±âÈ­.</summary>
     public static void BeginRun()
     {
         EnsureSaveVersion();
@@ -80,18 +80,18 @@ public static class MetaProgress
         WaveClearedThisRun = 0;
         PlayerPrefs.SetInt(PREFIX + "RunsPlayed", RunsPlayed + 1);
         PlayerPrefs.Save();
-        Debug.Log("[MetaProgress] " + RunsPlayed + "ë²ˆì§¸ ëŸ° ì‹œì‘ | ëˆ„ì  ëª…ì„± " + Fame
-            + " | ìµœê³  ê¸°ë¡ " + BestWave + "ì›¨ì´ë¸Œ");
+        Debug.Log("[MetaProgress] " + RunsPlayed + "¹øÂ° ·± ½ÃÀÛ | ´©Àû ¸í¼º " + Fame
+            + " | ÃÖ°í ±â·Ï " + BestWave + "¿şÀÌºê");
     }
 
-    /// <summary>ì›¨ì´ë¸Œ í´ë¦¬ì–´ ì‹œ í˜¸ì¶œ. ëª…ì„± ì ë¦½ + ê¸°ë¡ ê°±ì‹  + ì¦‰ì‹œ ì €ì¥.</summary>
+    /// <summary>¿şÀÌºê Å¬¸®¾î ½Ã È£Ãâ. ¸í¼º Àû¸³ + ±â·Ï °»½Å + Áï½Ã ÀúÀå.</summary>
     public static void OnWaveCleared(int wave)
     {
         int gain = 10 + wave;
         RunFame += gain;
         if (wave > WaveClearedThisRun) WaveClearedThisRun = wave;
-        // v1.2: ì›¨ì´ë¸Œë§ˆë‹¤ í†µê³„ í•œ ì¤„ (ëŸ°ì„ í¬ê¸°í•˜ë©´ ìš”ì•½ ì°½ì´ ì•ˆ ëœ¨ë¯€ë¡œ Console/Player.log ì˜ ì´ ì¤„ì´ ê¸°ë¡ì´ ëœë‹¤)
-        Debug.Log("[MetaProgress] ì›¨ì´ë¸Œ " + wave + " í´ë¦¬ì–´ | " + RunStatsLine());
+        // v1.2: ¿şÀÌºê¸¶´Ù Åë°è ÇÑ ÁÙ (·±À» Æ÷±âÇÏ¸é ¿ä¾à Ã¢ÀÌ ¾È ¶ß¹Ç·Î Console/Player.log ÀÇ ÀÌ ÁÙÀÌ ±â·ÏÀÌ µÈ´Ù)
+        Debug.Log("[MetaProgress] ¿şÀÌºê " + wave + " Å¬¸®¾î | " + RunStatsLine());
         PlayerPrefs.SetInt(PREFIX + "Fame", Fame + gain);
         PlayerPrefs.SetInt(PREFIX + "TotalWaves", TotalWavesCleared + 1);
         if (wave > BestWave)
@@ -99,7 +99,7 @@ public static class MetaProgress
         PlayerPrefs.Save();
     }
 
-    /// <summary>ë³´ë„ˆìŠ¤ ëª…ì„± (ìŠ¹ë¦¬ ì—”ë”©, íŠ¹ë³„ ì—…ì  ë“±).</summary>
+    /// <summary>º¸³Ê½º ¸í¼º (½Â¸® ¿£µù, Æ¯º° ¾÷Àû µî).</summary>
     public static void AddFame(int amount)
     {
         if (amount <= 0) return;
@@ -108,53 +108,53 @@ public static class MetaProgress
         PlayerPrefs.Save();
     }
 
-    /// <summary>ê²Œì„ì˜¤ë²„/ìŠ¹ë¦¬ í™”ë©´ì— ë„ìš¸ ìš”ì•½ ë¬¸ìì—´.</summary>
+    /// <summary>°ÔÀÓ¿À¹ö/½Â¸® È­¸é¿¡ ¶ç¿ï ¿ä¾à ¹®ÀÚ¿­.</summary>
     public static string RunSummary()
     {
-        string s = "ì´ë²ˆ ëŸ° ëª…ì„± +" + RunFame
-            + "  |  ë³´ìœ  ëª…ì„± " + Fame
-            + "  |  ìµœê³  ê¸°ë¡ " + BestWave + "ì›¨ì´ë¸Œ";
-        // v1.1 (êµìˆ˜ í”¼ë“œë°± C4Â·ê´€ì°° ì‹œíŠ¸): ì¡°ë¦¬ í†µê³„ì™€ ì „íˆ¬ ì¤‘ ìˆ˜ë¦¬ ê¸°ë¡ -> v1.2: í•œ ì¤„ í•¨ìˆ˜ë¡œ ë¶„ë¦¬ (ëª…ì„± ìƒì ë„ ê°™ì€ ì¤„ì„ ë„ìš´ë‹¤)
+        string s = "ÀÌ¹ø ¿îÇà ¸í¼º +" + RunFame
+            + "  |  º¸À¯ ¸í¼º " + Fame
+            + "  |  ÃÖ°í ±â·Ï " + BestWave + "¿şÀÌºê";
+        // v1.1 (±³¼ö ÇÇµå¹é C4¡¤°üÂû ½ÃÆ®): Á¶¸® Åë°è¿Í ÀüÅõ Áß ¼ö¸® ±â·Ï -> v1.2: ÇÑ ÁÙ ÇÔ¼ö·Î ºĞ¸® (¸í¼º »óÁ¡µµ °°Àº ÁÙÀ» ¶ç¿î´Ù)
         s += "\n" + RunStatsLine();
         return s;
     }
 
     /// <summary>
-    /// v1.2: ì´ë²ˆ ëŸ° í†µê³„ í•œ ì¤„ - ìŠ¤ìœ„ì¹˜ ì‹¤í—˜ ê´€ì°° ì‹œíŠ¸ì— ê·¸ëŒ€ë¡œ ì˜®ê²¨ ì ëŠ” ê°’ë“¤.
-    /// "Nì›¨ì´ë¸Œ í´ë¦¬ì–´ | ì¡°ë¦¬ N (ì‹¤íŒ¨ N) | ì „íˆ¬ ì¤‘ ìˆ˜ë¦¬ NíšŒ NG | ê³¼ì—´ NíšŒ ì •ì§€ Nì´ˆ"
-    /// ê²Œì„ì˜¤ë²„ ì•Œë¦¼(3ì´ˆ)ë¿ ì•„ë‹ˆë¼ ëª…ì„± ìƒì  ìƒë‹¨(FameShopUI)ì— ëŸ°ì´ ëë‚˜ ìˆëŠ” ë™ì•ˆ ê³„ì† ë³´ì¸ë‹¤.
+    /// v1.2: ÀÌ¹ø ·± Åë°è ÇÑ ÁÙ - ½ºÀ§Ä¡ ½ÇÇè °üÂû ½ÃÆ®¿¡ ±×´ë·Î ¿Å°Ü Àû´Â °ªµé.
+    /// "N¿şÀÌºê Å¬¸®¾î | Á¶¸® N (½ÇÆĞ N) | ÀüÅõ Áß ¼ö¸® NÈ¸ NG | °ú¿­ NÈ¸ Á¤Áö NÃÊ"
+    /// °ÔÀÓ¿À¹ö ¾Ë¸²(3ÃÊ)»Ó ¾Æ´Ï¶ó ¸í¼º »óÁ¡ »ó´Ü(FameShopUI)¿¡ ·±ÀÌ ³¡³ª ÀÖ´Â µ¿¾È °è¼Ó º¸ÀÎ´Ù.
     /// </summary>
     public static string RunStatsLine()
     {
-        // êµ¬ë¶„ìëŠ” í•œ ì¹¸ ê³µë°± - ëª…ì„± ìƒì  íŒ¨ë„(860px) ì•ˆì— 17pt í•œ ì¤„ë¡œ ë“¤ì–´ê°€ì•¼ í•œë‹¤
-        string s = WaveClearedThisRun + "ì›¨ì´ë¸Œ í´ë¦¬ì–´ | ì¡°ë¦¬ " + CookingBridge.CooksThisRun
-            + " (ì‹¤íŒ¨ " + CookingBridge.BadsThisRun + ")";
+        // ±¸ºĞÀÚ´Â ÇÑ Ä­ °ø¹é - ¸í¼º »óÁ¡ ÆĞ³Î(860px) ¾È¿¡ 17pt ÇÑ ÁÙ·Î µé¾î°¡¾ß ÇÑ´Ù
+        string s = WaveClearedThisRun + "¿şÀÌºê Å¬¸®¾î | Á¶¸® " + CookingBridge.CooksThisRun
+            + " (½ÇÆĞ " + CookingBridge.BadsThisRun + ")";
         int repairs = 0, repairGold = 0;
         if (GameManager.Instance != null)
         {
             repairs = GameManager.Instance.RepairsInBattle;
             repairGold = GameManager.Instance.RepairGoldInBattle;
         }
-        s += " | ì „íˆ¬ ì¤‘ ìˆ˜ë¦¬ " + repairs + "íšŒ " + repairGold + "G";
-        s += " | ê³¼ì—´ " + TurretSlot.OverheatsThisRun + "íšŒ ì •ì§€ " + Mathf.RoundToInt(TurretSlot.OverheatStunSecThisRun) + "ì´ˆ";
+        s += " | ÀüÅõ Áß ¼ö¸® " + repairs + "È¸ " + repairGold + "G";
+        s += " | °ú¿­ " + TurretSlot.OverheatsThisRun + "È¸ Á¤Áö " + Mathf.RoundToInt(TurretSlot.OverheatStunSecThisRun) + "ÃÊ";
         return s;
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ëª…ì„± ìƒì  (ì˜êµ¬ ì—…ê·¸ë ˆì´ë“œ)
-    // ëª…ì„±ì€ "ìŒ“ì´ëŠ” ì ìˆ˜"ì´ì "ì“°ëŠ” í™”í"ë‹¤ (í•˜ë°ìŠ¤ì˜ ì–´ë‘  ê²°ì • ë°©ì‹).
-    // ì—…ê·¸ë ˆì´ë“œ ë ˆë²¨ì€ PlayerPrefsì— ì €ì¥ë˜ì–´ ëª¨ë“  ëŸ°ì— ì ìš©ëœë‹¤.
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ¸í¼º »óÁ¡ (¿µ±¸ ¾÷±×·¹ÀÌµå)
+    // ¸í¼ºÀº "½×ÀÌ´Â Á¡¼ö"ÀÌÀÚ "¾²´Â È­Æó"´Ù (ÇÏµ¥½ºÀÇ ¾îµÒ °áÁ¤ ¹æ½Ä).
+    // ¾÷±×·¹ÀÌµå ·¹º§Àº PlayerPrefs¿¡ ÀúÀåµÇ¾î ¸ğµç ·±¿¡ Àû¿ëµÈ´Ù.
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
 
-    /// <summary>ì—…ê·¸ë ˆì´ë“œ í˜„ì¬ ë ˆë²¨ (0 = ë¯¸êµ¬ë§¤).</summary>
+    /// <summary>¾÷±×·¹ÀÌµå ÇöÀç ·¹º§ (0 = ¹Ì±¸¸Å).</summary>
     public static int UpgradeLevel(string upgradeId)
     {
         return PlayerPrefs.GetInt(PREFIX + "Up_" + upgradeId, 0);
     }
 
     /// <summary>
-    /// ëª…ì„±ì„ ì†Œëª¨í•´ ì—…ê·¸ë ˆì´ë“œ 1ë ˆë²¨ êµ¬ë§¤.
-    /// ìµœëŒ€ ë ˆë²¨ì´ê±°ë‚˜ ëª…ì„±ì´ ë¶€ì¡±í•˜ë©´ false.
+    /// ¸í¼ºÀ» ¼Ò¸ğÇØ ¾÷±×·¹ÀÌµå 1·¹º§ ±¸¸Å.
+    /// ÃÖ´ë ·¹º§ÀÌ°Å³ª ¸í¼ºÀÌ ºÎÁ·ÇÏ¸é false.
     /// </summary>
     public static bool TryBuyUpgrade(string upgradeId, int cost, int maxLevel)
     {
@@ -165,35 +165,35 @@ public static class MetaProgress
         PlayerPrefs.SetInt(PREFIX + "Fame", Fame - cost);
         PlayerPrefs.SetInt(PREFIX + "Up_" + upgradeId, level + 1);
         PlayerPrefs.Save();
-        Debug.Log("[MetaProgress] ì—…ê·¸ë ˆì´ë“œ êµ¬ë§¤: " + upgradeId + " Lv." + (level + 1)
-            + " (-" + cost + " ëª…ì„±, ì”ì—¬ " + Fame + ")");
+        Debug.Log("[MetaProgress] ¾÷±×·¹ÀÌµå ±¸¸Å: " + upgradeId + " Lv." + (level + 1)
+            + " (-" + cost + " ¸í¼º, ÀÜ¿© " + Fame + ")");
         return true;
     }
 
-    // â”€â”€ ë³´ë„ˆìŠ¤ ì½ê¸° í—¬í¼ (ê²Œì„ ì½”ë“œëŠ” ì´ê²ƒë§Œ ì½ìœ¼ë©´ ëœë‹¤) â”€â”€
+    // ¦¡¦¡ º¸³Ê½º ÀĞ±â ÇïÆÛ (°ÔÀÓ ÄÚµå´Â ÀÌ°Í¸¸ ÀĞÀ¸¸é µÈ´Ù) ¦¡¦¡
 
-    /// <summary>ì‹œì‘ ê³¨ë“œ ë³´ë„ˆìŠ¤ (ë ˆë²¨ë‹¹ +100)</summary>
+    /// <summary>½ÃÀÛ °ñµå º¸³Ê½º (·¹º§´ç +100)</summary>
     public static int StartGoldBonus { get { return UpgradeLevel("gold") * 100; } }
 
-    /// <summary>ê¸°ì°¨ ìµœëŒ€ HP ë³´ë„ˆìŠ¤ (ë ˆë²¨ë‹¹ +50)</summary>
+    /// <summary>±âÂ÷ ÃÖ´ë HP º¸³Ê½º (·¹º§´ç +50)</summary>
     public static int TrainHPBonus { get { return UpgradeLevel("hp") * 50; } }
 
-    /// <summary>ì‹œì‘ ë³´ê¸‰í’ˆ ìš”ë¦¬ ì¶”ê°€ ê°œìˆ˜ (ë ˆë²¨ë‹¹ +1)</summary>
+    /// <summary>½ÃÀÛ º¸±ŞÇ° ¿ä¸® Ãß°¡ °³¼ö (·¹º§´ç +1)</summary>
     public static int StarterFoodBonus { get { return UpgradeLevel("food"); } }
 
-    /// <summary>ì‹œì‘ ì‹œ ëœë¤ ì¬ë£Œ ì¶”ê°€ ê°œìˆ˜ (ë ˆë²¨ë‹¹ +2)</summary>
+    /// <summary>½ÃÀÛ ½Ã ·£´ı Àç·á Ãß°¡ °³¼ö (·¹º§´ç +2)</summary>
     public static int StartMaterialBonus { get { return UpgradeLevel("mat") * 2; } }
 
-    /// <summary>ì¡°ë¦¬ íŒì • ì¡´ í™•ëŒ€ ë°°ìœ¨ ê°€ì‚° (ë ˆë²¨ë‹¹ +4%)</summary>
+    /// <summary>Á¶¸® ÆÇÁ¤ Á¸ È®´ë ¹èÀ² °¡»ê (·¹º§´ç +4%)</summary>
     public static float CookJudgeBonus { get { return UpgradeLevel("judge") * 0.04f; } }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ë„ê° ì˜êµ¬í™” (ë°œê²¬í•œ ë ˆì‹œí”¼ ëª©ë¡)
-    // FoodStock/RecipeDatabase ìª½ì—ì„œ ë°œê²¬ ì‹œ DiscoverRecipe()ë¥¼ í˜¸ì¶œí•´ì£¼ë©´
-    // ë‹¤ìŒ ëŸ°ì—ì„œë„ IsRecipeDiscovered()ê°€ trueë¥¼ ë°˜í™˜í•œë‹¤.
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // µµ°¨ ¿µ±¸È­ (¹ß°ßÇÑ ·¹½ÃÇÇ ¸ñ·Ï)
+    // FoodStock/RecipeDatabase ÂÊ¿¡¼­ ¹ß°ß ½Ã DiscoverRecipe()¸¦ È£ÃâÇØÁÖ¸é
+    // ´ÙÀ½ ·±¿¡¼­µµ IsRecipeDiscovered()°¡ true¸¦ ¹İÈ¯ÇÑ´Ù.
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
 
-    // ë§¤ë²ˆ ë¬¸ìì—´ íŒŒì‹±ì„ í”¼í•˜ê¸° ìœ„í•œ ë©”ëª¨ë¦¬ ìºì‹œ
+    // ¸Å¹ø ¹®ÀÚ¿­ ÆÄ½ÌÀ» ÇÇÇÏ±â À§ÇÑ ¸Ş¸ğ¸® Ä³½Ã
     private static HashSet<string> discoveredCache;
 
     private static void LoadDiscoveredCache()
@@ -204,7 +204,7 @@ public static class MetaProgress
         string raw = PlayerPrefs.GetString(PREFIX + "Recipes", "");
         if (string.IsNullOrEmpty(raw)) return;
 
-        // êµ¬ë¶„ì '|' ë¡œ ì €ì¥ëœ ë ˆì‹œí”¼ id ëª©ë¡ ë³µì›
+        // ±¸ºĞÀÚ '|' ·Î ÀúÀåµÈ ·¹½ÃÇÇ id ¸ñ·Ï º¹¿ø
         string[] parts = raw.Split('|');
         for (int i = 0; i < parts.Length; i++)
         {
@@ -213,14 +213,14 @@ public static class MetaProgress
         }
     }
 
-    /// <summary>ì´ ë ˆì‹œí”¼ë¥¼ ê³¼ê±° ëŸ°ì—ì„œ í•œ ë²ˆì´ë¼ë„ ë°œê²¬(ì œì‘)í–ˆëŠ”ê°€?</summary>
+    /// <summary>ÀÌ ·¹½ÃÇÇ¸¦ °ú°Å ·±¿¡¼­ ÇÑ ¹øÀÌ¶óµµ ¹ß°ß(Á¦ÀÛ)Çß´Â°¡?</summary>
     public static bool IsRecipeDiscovered(string recipeId)
     {
         LoadDiscoveredCache();
         return discoveredCache.Contains(recipeId);
     }
 
-    /// <summary>ë ˆì‹œí”¼ ë°œê²¬ ê¸°ë¡. ì²˜ìŒ ë°œê²¬ì´ë©´ ì €ì¥í•˜ê³  true ë°˜í™˜ (ë„ê° ì‹ ê·œ ë“±ë¡ ì—°ì¶œìš©).</summary>
+    /// <summary>·¹½ÃÇÇ ¹ß°ß ±â·Ï. Ã³À½ ¹ß°ßÀÌ¸é ÀúÀåÇÏ°í true ¹İÈ¯ (µµ°¨ ½Å±Ô µî·Ï ¿¬Ãâ¿ë).</summary>
     public static bool DiscoverRecipe(string recipeId)
     {
         if (string.IsNullOrEmpty(recipeId)) return false;
@@ -229,7 +229,7 @@ public static class MetaProgress
 
         discoveredCache.Add(recipeId);
 
-        // HashSet -> "id1|id2|id3" í˜•íƒœë¡œ ì§ë ¬í™”í•˜ì—¬ ì €ì¥
+        // HashSet -> "id1|id2|id3" ÇüÅÂ·Î Á÷·ÄÈ­ÇÏ¿© ÀúÀå
         string raw = "";
         foreach (string id in discoveredCache)
         {
@@ -239,27 +239,27 @@ public static class MetaProgress
         PlayerPrefs.SetString(PREFIX + "Recipes", raw);
         PlayerPrefs.Save();
 
-        Debug.Log("[MetaProgress] ë„ê° ì‹ ê·œ ë“±ë¡: " + recipeId + " (ì´ " + discoveredCache.Count + "ì¢…)");
+        Debug.Log("[MetaProgress] µµ°¨ ½Å±Ô µî·Ï: " + recipeId + " (ÃÑ " + discoveredCache.Count + "Á¾)");
         return true;
     }
 
-    /// <summary>ì§€ê¸ˆê¹Œì§€ ë°œê²¬í•œ ë ˆì‹œí”¼ ì´ ìˆ˜.</summary>
+    /// <summary>Áö±İ±îÁö ¹ß°ßÇÑ ·¹½ÃÇÇ ÃÑ ¼ö.</summary>
     public static int DiscoveredCount
     {
         get { LoadDiscoveredCache(); return discoveredCache.Count; }
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // C-2: ì—”ë”© ê¸°ë¡
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // C-2: ¿£µù ±â·Ï
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
 
-    /// <summary>ì§„ì—”ë”©(ì—”ë”© B: ë§ˆì§€ë§‰ ì‹ì‚¬)ì„ ë‹¬ì„±í–ˆëŠ”ê°€ (ì˜êµ¬ ê¸°ë¡)</summary>
+    /// <summary>Áø¿£µù(¿£µù B: ¸¶Áö¸· ½Ä»ç)À» ´Ş¼ºÇß´Â°¡ (¿µ±¸ ±â·Ï)</summary>
     public static bool EndingBCleared
     {
         get { return PlayerPrefs.GetInt(PREFIX + "EndingB", 0) == 1; }
     }
 
-    /// <summary>ì—”ë”© B ë‹¬ì„± ê¸°ë¡ + ë³´ë„ˆìŠ¤ ëª…ì„± (ìµœì´ˆ 1íšŒë§Œ ë³´ë„ˆìŠ¤)</summary>
+    /// <summary>¿£µù B ´Ş¼º ±â·Ï + º¸³Ê½º ¸í¼º (ÃÖÃÊ 1È¸¸¸ º¸³Ê½º)</summary>
     public static void RecordEndingB()
     {
         bool first = !EndingBCleared;
@@ -269,36 +269,36 @@ public static class MetaProgress
         if (first)
         {
             AddFame(GameBalance.EndingBFame);
-            Debug.Log("[MetaProgress] ì§„ì—”ë”© ë‹¬ì„±! ë³´ë„ˆìŠ¤ ëª…ì„± +" + GameBalance.EndingBFame);
+            Debug.Log("[MetaProgress] Áø¿£µù ´Ş¼º! º¸³Ê½º ¸í¼º +" + GameBalance.EndingBFame);
         }
 
-        // v1.1 (ì‚¬ìš©ì ê²°ì • C1): ë„ê° 42ì¢… ì™„ì„± ìƒíƒœë¡œ ì—”ë”© Bë¥¼ ë³¸ ìµœì´ˆ 1íšŒ - ëª…ì˜ˆ ë³´ìƒ (ëª…ì„± + ì¹­í˜¸ í”Œë˜ê·¸)
+        // v1.1 (»ç¿ëÀÚ °áÁ¤ C1): µµ°¨ 42Á¾ ¿Ï¼º »óÅÂ·Î ¿£µù B¸¦ º» ÃÖÃÊ 1È¸ - ¸í¿¹ º¸»ó (¸í¼º + ÄªÈ£ ÇÃ·¡±×)
         if (DiscoveredCount >= GameBalance.TrueEndingRecipesNeeded
             && PlayerPrefs.GetInt(PREFIX + "MasterChef", 0) == 0)
         {
             PlayerPrefs.SetInt(PREFIX + "MasterChef", 1);
             PlayerPrefs.Save();
             AddFame(GameBalance.DexCompleteFameBonus);
-            UIManager.Instance?.ShowStatChange("[ì¹­í˜¸] í™©ì•¼ì˜ ë§ˆìŠ¤í„° ì…°í”„ - ìš”ë¦¬ì±… ì™„ì„± ë³´ë„ˆìŠ¤ ëª…ì„± +" + GameBalance.DexCompleteFameBonus);
-            Debug.Log("[MetaProgress] ë„ê° ì™„ì„± + ì§„ì—”ë”© - ë§ˆìŠ¤í„° ì…°í”„ ì¹­í˜¸ (+" + GameBalance.DexCompleteFameBonus + ")");
+            UIManager.Instance?.ShowStatChange("[ÄªÈ£] È²¾ßÀÇ ¸¶½ºÅÍ ¼ÎÇÁ - ¿ä¸®Ã¥ ¿Ï¼º º¸³Ê½º ¸í¼º +" + GameBalance.DexCompleteFameBonus);
+            Debug.Log("[MetaProgress] µµ°¨ ¿Ï¼º + Áø¿£µù - ¸¶½ºÅÍ ¼ÎÇÁ ÄªÈ£ (+" + GameBalance.DexCompleteFameBonus + ")");
         }
     }
 
-    /// <summary>ì¹­í˜¸ 'í™©ì•¼ì˜ ë§ˆìŠ¤í„° ì…°í”„' íšë“ ì—¬ë¶€ (ë„ê° 42 + ì—”ë”© B)</summary>
+    /// <summary>ÄªÈ£ 'È²¾ßÀÇ ¸¶½ºÅÍ ¼ÎÇÁ' È¹µæ ¿©ºÎ (µµ°¨ 42 + ¿£µù B)</summary>
     public static bool MasterChefTitle
     {
         get { return PlayerPrefs.GetInt(PREFIX + "MasterChef", 0) == 1; }
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ìš”ë¦¬ ìˆ™ë ¨ (P1+: ë‹¨ê³¨ ë©”ë‰´ì˜ ì˜êµ¬í™” - ì‚¬ìš©ì ê²°ì • 2026-08-24)
-    // ë ˆì‹œí”¼ë³„ "í‰ìƒ" ì¡°ë¦¬ íšŸìˆ˜. ì£½ì–´ë„ ë¦¬ì…‹ë˜ì§€ ì•ŠëŠ”ë‹¤ - ê°™ì€ ì…°í”„ê°€ ê³„ì† êµ½ê³  ìˆìœ¼ë‹ˆê¹Œ.
-    // ë§ˆì¼ìŠ¤í†¤/ë³´ìƒ ìˆ˜ì¹˜ëŠ” GameBalance Mastery* ì°¸ì¡°.
-    // ì €ì¥: ë‹¨ì¼ í‚¤ "WDT_CookCounts" = "ë ˆì‹œí”¼id:íšŸìˆ˜;..." (42ì¢…ì´ë¼ ê°€ë³ë‹¤)
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ¿ä¸® ¼÷·Ã (P1+: ´Ü°ñ ¸Ş´ºÀÇ ¿µ±¸È­ - »ç¿ëÀÚ °áÁ¤ 2026-08-24)
+    // ·¹½ÃÇÇº° "Æò»ı" Á¶¸® È½¼ö. Á×¾îµµ ¸®¼ÂµÇÁö ¾Ê´Â´Ù - °°Àº ¼ÎÇÁ°¡ °è¼Ó ±Á°í ÀÖÀ¸´Ï±î.
+    // ¸¶ÀÏ½ºÅæ/º¸»ó ¼öÄ¡´Â GameBalance Mastery* ÂüÁ¶.
+    // ÀúÀå: ´ÜÀÏ Å° "WDT_CookCounts" = "·¹½ÃÇÇid:È½¼ö;..." (42Á¾ÀÌ¶ó °¡º±´Ù)
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
 
     private static Dictionary<string, int> cookCountCache;
-    private static HashSet<string> masterFamedCache;   // 100íšŒ ëª…ì„±ì„ ì´ë¯¸ ë°›ì€ ë ˆì‹œí”¼
+    private static HashSet<string> masterFamedCache;   // 100È¸ ¸í¼ºÀ» ÀÌ¹Ì ¹ŞÀº ·¹½ÃÇÇ
 
     private static void LoadCookCounts()
     {
@@ -332,7 +332,7 @@ public static class MetaProgress
         PlayerPrefs.Save();
     }
 
-    /// <summary>ì´ ë ˆì‹œí”¼ì˜ í‰ìƒ ì¡°ë¦¬ íšŸìˆ˜</summary>
+    /// <summary>ÀÌ ·¹½ÃÇÇÀÇ Æò»ı Á¶¸® È½¼ö</summary>
     public static int GetCookCount(string recipeId)
     {
         LoadCookCounts();
@@ -340,7 +340,7 @@ public static class MetaProgress
         return cookCountCache.TryGetValue(recipeId, out n) ? n : 0;
     }
 
-    /// <summary>ì¡°ë¦¬ 1íšŒ ê¸°ë¡ (FoodStock.CountCookì´ í˜¸ì¶œ). ê°±ì‹ ëœ íšŸìˆ˜ ë°˜í™˜</summary>
+    /// <summary>Á¶¸® 1È¸ ±â·Ï (FoodStock.CountCookÀÌ È£Ãâ). °»½ÅµÈ È½¼ö ¹İÈ¯</summary>
     public static int AddCookCount(string recipeId)
     {
         LoadCookCounts();
@@ -350,59 +350,59 @@ public static class MetaProgress
         return n;
     }
 
-    /// <summary>ì´ ë ˆì‹œí”¼ì˜ í˜„ì¬ ìˆ™ë ¨ í‹°ì–´ (-1 = ì—†ìŒ)</summary>
+    /// <summary>ÀÌ ·¹½ÃÇÇÀÇ ÇöÀç ¼÷·Ã Æ¼¾î (-1 = ¾øÀ½)</summary>
     public static int GetMasteryTier(string recipeId)
     {
         return GameBalance.MasteryTier(GetCookCount(recipeId));
     }
 
-    /// <summary>ìˆ™ë ¨ ê³µê²©ë ¥ ë³´ë„ˆìŠ¤ (TurretAttackExecutorê°€ ë§¤ íƒ€ê²© ì°¸ì¡°)</summary>
+    /// <summary>¼÷·Ã °ø°İ·Â º¸³Ê½º (TurretAttackExecutor°¡ ¸Å Å¸°İ ÂüÁ¶)</summary>
     public static float GetMasteryAtk(string recipeId)
     {
         int t = GetMasteryTier(recipeId);
         return t >= 0 ? GameBalance.MasteryAtkBonus[t] : 0f;
     }
 
-    /// <summary>ìˆ™ë ¨ íŒì • ì¡´ ë³´ë„ˆìŠ¤ (CookingMinigameì´ ì°¸ì¡°)</summary>
+    /// <summary>¼÷·Ã ÆÇÁ¤ Á¸ º¸³Ê½º (CookingMinigameÀÌ ÂüÁ¶)</summary>
     public static float GetMasteryJudge(string recipeId)
     {
         int t = GetMasteryTier(recipeId);
         return t >= 0 ? GameBalance.MasteryJudgeBonus[t] : 0f;
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ìŠ¤í”¼ë…¸ ë² íŒ… ê¸°ë¡ (Phase 2-1) - ë§Œë‚¨ íšŸìˆ˜/ìŠ¹íŒ¨ ì˜êµ¬ ì €ì¥
-    // ê³ íšŒì°¨ ëŒ€ì‚¬ ì¡°ê±´("ë„¤ ëˆˆë¹›ì´ ì ì  ë‚˜ë¥¼ ë‹®ì•„ê°„ë‹¤" ë“±)ì— ì¬ì‚¬ìš©ëœë‹¤.
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ½ºÇÇ³ë º£ÆÃ ±â·Ï (Phase 2-1) - ¸¸³² È½¼ö/½ÂÆĞ ¿µ±¸ ÀúÀå
+    // °íÈ¸Â÷ ´ë»ç Á¶°Ç("³× ´«ºûÀÌ Á¡Á¡ ³ª¸¦ ´à¾Æ°£´Ù" µî)¿¡ Àç»ç¿ëµÈ´Ù.
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
 
-    /// <summary>ìŠ¤í”¼ë…¸ì™€ ë§Œë‚œ ì´ íšŸìˆ˜ (ì²«ë§Œë‚¨ ëŒ€ì‚¬ ë¶„ê¸°ìš©)</summary>
+    /// <summary>½ºÇÇ³ë¿Í ¸¸³­ ÃÑ È½¼ö (Ã¹¸¸³² ´ë»ç ºĞ±â¿ë)</summary>
     public static int SpinoMeetings { get { return PlayerPrefs.GetInt(PREFIX + "SpinoMet", 0); } }
 
     public static int BetWins { get { return PlayerPrefs.GetInt(PREFIX + "BetWins", 0); } }
     public static int BetLosses { get { return PlayerPrefs.GetInt(PREFIX + "BetLosses", 0); } }
 
-    /// <summary>ìŠ¤í”¼ë…¸ ë“±ì¥ 1íšŒ ê¸°ë¡</summary>
+    /// <summary>½ºÇÇ³ë µîÀå 1È¸ ±â·Ï</summary>
     public static void AddSpinoMeeting()
     {
         PlayerPrefs.SetInt(PREFIX + "SpinoMet", SpinoMeetings + 1);
         PlayerPrefs.Save();
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ë“±ì§ì¥ìˆ˜ ì•ˆí‚¬ë¡œ ê¸°ë¡ (Phase 2-3) - ì²«ë§Œë‚¨ ëŒ€ì‚¬ ë¶„ê¸°ìš©
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // µîÁüÀå¼ö ¾ÈÅ³·Î ±â·Ï (Phase 2-3) - Ã¹¸¸³² ´ë»ç ºĞ±â¿ë
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
 
-    /// <summary>ì•ˆí‚¬ë¡œ í–‰ìƒì¸ê³¼ ë§Œë‚œ ì´ íšŸìˆ˜</summary>
+    /// <summary>¾ÈÅ³·Î Çà»óÀÎ°ú ¸¸³­ ÃÑ È½¼ö</summary>
     public static int AnkyMeetings { get { return PlayerPrefs.GetInt(PREFIX + "AnkyMet", 0); } }
 
-    /// <summary>ì•ˆí‚¬ë¡œ ë“±ì¥ 1íšŒ ê¸°ë¡</summary>
+    /// <summary>¾ÈÅ³·Î µîÀå 1È¸ ±â·Ï</summary>
     public static void AddAnkyMeeting()
     {
         PlayerPrefs.SetInt(PREFIX + "AnkyMet", AnkyMeetings + 1);
         PlayerPrefs.Save();
     }
 
-    /// <summary>ë² íŒ… ê²°ê³¼ ê¸°ë¡</summary>
+    /// <summary>º£ÆÃ °á°ú ±â·Ï</summary>
     public static void RecordBetResult(bool win)
     {
         if (win) PlayerPrefs.SetInt(PREFIX + "BetWins", BetWins + 1);
@@ -410,7 +410,7 @@ public static class MetaProgress
         PlayerPrefs.Save();
     }
 
-    /// <summary>100íšŒ ë§ˆìŠ¤í„° ëª…ì„±ì„ ìµœì´ˆ 1íšŒë§Œ ì§€ê¸‰ (ì§€ê¸‰í–ˆìœ¼ë©´ true)</summary>
+    /// <summary>100È¸ ¸¶½ºÅÍ ¸í¼ºÀ» ÃÖÃÊ 1È¸¸¸ Áö±Ş (Áö±ŞÇßÀ¸¸é true)</summary>
     public static bool TryGrantMasterFame(string recipeId)
     {
         if (masterFamedCache == null)
@@ -436,10 +436,10 @@ public static class MetaProgress
         return true;
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ì„ ëŒ€ì˜ ì¼ì§€ ìˆ˜ì§‘ (ë¶„ê¸° ì„ ë¡œ 'íì—­' ë³´ìƒ - 12ì¥, ì˜êµ¬ ì €ì¥)
-    // ìˆœì„œ ë¬´ê´€ ìˆ˜ì§‘ì´ì§€ë§Œ 12ì¥(ìµœì¢…)ì€ ë‚˜ë¨¸ì§€ 11ì¥ì„ ë‹¤ ëª¨ì•„ì•¼ ë‚˜ì˜¨ë‹¤.
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ¼±´ëÀÇ ÀÏÁö ¼öÁı (ºĞ±â ¼±·Î 'Æó¿ª' º¸»ó - 12Àå, ¿µ±¸ ÀúÀå)
+    // ¼ø¼­ ¹«°ü ¼öÁıÀÌÁö¸¸ 12Àå(ÃÖÁ¾)Àº ³ª¸ÓÁö 11ÀåÀ» ´Ù ¸ğ¾Æ¾ß ³ª¿Â´Ù.
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
 
     private static HashSet<int> journalCache;
 
@@ -471,8 +471,8 @@ public static class MetaProgress
     }
 
     /// <summary>
-    /// ì•„ì§ ì•ˆ ëª¨ì€ ì¼ì§€ ë²ˆí˜¸ë¥¼ ë¬´ì‘ìœ„ë¡œ í•˜ë‚˜ ê³ ë¥¸ë‹¤.
-    /// 1~11 ì¤‘ ë¬´ì‘ìœ„, 11ì¥ì„ ë‹¤ ëª¨ì•˜ìœ¼ë©´ 12(ìµœì¢…), ì „ë¶€ ëª¨ì•˜ìœ¼ë©´ -1.
+    /// ¾ÆÁ÷ ¾È ¸ğÀº ÀÏÁö ¹øÈ£¸¦ ¹«ÀÛÀ§·Î ÇÏ³ª °í¸¥´Ù.
+    /// 1~11 Áß ¹«ÀÛÀ§, 11ÀåÀ» ´Ù ¸ğ¾ÒÀ¸¸é 12(ÃÖÁ¾), ÀüºÎ ¸ğ¾ÒÀ¸¸é -1.
     /// </summary>
     public static int PickUncollectedJournal()
     {
@@ -489,7 +489,7 @@ public static class MetaProgress
         return -1;
     }
 
-    /// <summary>ì¼ì§€ ìˆ˜ì§‘ ê¸°ë¡ (ì¦‰ì‹œ ì €ì¥).</summary>
+    /// <summary>ÀÏÁö ¼öÁı ±â·Ï (Áï½Ã ÀúÀå).</summary>
     public static void CollectJournal(int number)
     {
         LoadJournalCache();
@@ -505,13 +505,13 @@ public static class MetaProgress
         }
         PlayerPrefs.SetString(PREFIX + "Journals", raw);
         PlayerPrefs.Save();
-        Debug.Log("[MetaProgress] ì„ ëŒ€ì˜ ì¼ì§€ #" + number + " ìˆ˜ì§‘ (" + journalCache.Count + "/12)");
+        Debug.Log("[MetaProgress] ¼±´ëÀÇ ÀÏÁö #" + number + " ¼öÁı (" + journalCache.Count + "/12)");
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ì „ì²´ ì´ˆê¸°í™” (í…ŒìŠ¤íŠ¸ìš©)
-    // ì—ë””í„°ì—ì„œ ë©”íƒ€ ì €ì¥ì„ ì§€ìš°ê³  ì‹¶ì„ ë•Œë§Œ í˜¸ì¶œí•œë‹¤.
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ÀüÃ¼ ÃÊ±âÈ­ (Å×½ºÆ®¿ë)
+    // ¿¡µğÅÍ¿¡¼­ ¸ŞÅ¸ ÀúÀåÀ» Áö¿ì°í ½ÍÀ» ¶§¸¸ È£ÃâÇÑ´Ù.
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     public static void ResetAll()
     {
         PlayerPrefs.DeleteKey(PREFIX + "Fame");
@@ -531,7 +531,7 @@ public static class MetaProgress
         cookCountCache = null;
         masterFamedCache = null;
 
-        // ëª…ì„± ìƒì  ì—…ê·¸ë ˆì´ë“œë„ ì´ˆê¸°í™”
+        // ¸í¼º »óÁ¡ ¾÷±×·¹ÀÌµåµµ ÃÊ±âÈ­
         string[] upgradeIds = { "gold", "hp", "food", "mat", "judge" };
         for (int i = 0; i < upgradeIds.Length; i++)
             PlayerPrefs.DeleteKey(PREFIX + "Up_" + upgradeIds[i]);
@@ -540,6 +540,6 @@ public static class MetaProgress
         discoveredCache = null;
         journalCache = null;
         RunFame = 0;
-        Debug.Log("[MetaProgress] ë©”íƒ€ ì €ì¥ ì „ì²´ ì´ˆê¸°í™” ì™„ë£Œ");
+        Debug.Log("[MetaProgress] ¸ŞÅ¸ ÀúÀå ÀüÃ¼ ÃÊ±âÈ­ ¿Ï·á");
     }
 }

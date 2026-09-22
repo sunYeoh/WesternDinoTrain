@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 
 /// <summary>
-/// [RecipeText.cs] v1 (신규, v9.10 2026-09-17) - 요리(포탑) 설명을 일상어로 만드는 한 곳
+/// [RecipeText.cs] v1.1 (v9.11.1 2026-09-22: 재료·조리대 줄(Source) 추가, 무방비 표현) / v1 (신규, v9.10 2026-09-17) - 요리(포탑) 설명을 일상어로 만드는 한 곳
 ///
 /// 테스터 피드백: "도감에 요리를 눌렀을 때 뭔 요린지 모르니까 만들지 말지도 모르겠음", "포탑 효과를 읽을 시간이 없음",
 /// "모르겠는 말(공명·인퓨징·DPS) 쓰지 말기". RecipeData 의 수치 필드(형태·속성·도트·감속·폭발·체인·회복·버프·패시브)를 그대로 읽어
@@ -80,7 +80,7 @@ public static class RecipeText
         if (r.shape == AttackShape.Passive) return "슬롯 하나를 화력 대신 기차 자체에 쓰고 싶을 때";
         if (!string.IsNullOrEmpty(r.buffType)) return "이미 좋은 포탑 곁에 두어 더 세게 만들 때";
         if (r.role == TurretRole.Debuffer || r.shredDef > 0 || r.shredRes > 0)
-            return "두꺼운 손님·보스 - 보스 그로기 때 [F] 로 던지는 요리이기도 하다";
+            return "두꺼운 손님·보스 - 보스가 무방비(그로기)일 때 [F] 로 던지는 요리이기도 하다";
         if (r.role == TurretRole.CC || r.slowLevel > 0 || r.stunSec > 0f) return "손님이 기차에 붙기 전에 늦추고 싶을 때";
         if (r.healOnHit > 0f || r.role == TurretRole.Support) return "기차가 자주 다칠 때 - 쏘면서 조금씩 고친다";
         switch (r.shape)
@@ -106,13 +106,22 @@ public static class RecipeText
         return "공격 " + dmg.ToString("F0") + "  " + r.cooldown.ToString("F1") + "초마다  (초당 " + (dmg / r.cooldown).ToString("F0") + ")";
     }
 
-    /// <summary>툴팁·도감 상세용 전체 (줄바꿈)</summary>
+    /// <summary>재료·조리대 한 줄: "고기 + 고기 · 굽기(그릴)" / 전설 요리는 "전설 요리 - 기본 포탑 둘을 합쳐 진화"</summary>
+    public static string Source(RecipeData r)
+    {
+        if (r == null) return "";
+        if (r.tier >= 2 || string.IsNullOrEmpty(r.recipeId) || r.recipeId.IndexOf('+') < 0) return "전설 요리 - 기본 포탑 둘을 합쳐 진화";
+        return MaterialNames.PairKor(r.recipeId) + " · " + MethodWord(r);
+    }
+
+    /// <summary>툴팁·도감 상세용 전체 (줄바꿈). 순서 = 무엇을 하나 / 어떤 손님에 / 언제 / 재료·조리대 / 숫자</summary>
     public static string Full(RecipeData r, float levelMult)
     {
         if (r == null) return "";
         string s = What(r);
         string ag = Against(r); if (ag.Length > 0) s += "\n" + ag;
         string wh = When(r); if (wh.Length > 0) s += "\n쓰는 때: " + wh;
+        string so = Source(r); if (so.Length > 0) s += "\n재료: " + so;
         string num = Numbers(r, levelMult); if (num.Length > 0) s += "\n" + num;
         return s;
     }

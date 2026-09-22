@@ -3,7 +3,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 /// <summary>
-/// [SlotMarkerUI.cs] v5.3 (v9.10 2026-09-17 테스터 피드백: 포탑 정보창이 마우스를 따라다니며 커서 밑에 겹쳐 깜빡이고 클릭을 가로채던 것 ->
+/// [SlotMarkerUI.cs] v5.4 (v9.11.1 2026-09-22 문구: 마비 종류별 안내, 전설·진화 조리 용어, 역할 낱말) / v5.3 (v9.10 2026-09-17 테스터 피드백: 포탑 정보창이 마우스를 따라다니며 커서 밑에 겹쳐 깜빡이고 클릭을 가로채던 것 ->
 ///   화면 한 자리(왼쪽 아래, 하단 바 위) 고정 + 클릭 통과(raycastTarget off) + 합체 선택 중엔 고정 유지 / 포탑 실물 클릭·호버도 이름표와 같이 /
 ///   설명은 RecipeText 일상어 ("무엇을 하나 / 어떤 손님에 / 언제")) /
 /// v5.2 (v9.9.2 2026-09-16: 마비 칩 = "감전!/빙결!/과열!" + 할 일 한 줄, 빨간 테, 칩 위 모서리 경광등 0.3초 교대 (GameBalance.StunChipBeacons) - 목업 v3 (E), 정식 런 공용) / v5.1 (v9.9 2026-09-16: 4모서리 배치 - 남쪽 슬롯 마커는 발 아래, 폭 96->120(GameBalance.SlotMarkerWidth), 로비에서 숨김) / v5 (교수 피드백 A5/A12 반영 2026-09-14) / v4 (B-1: 근접 위기 대응 - 방향결정 2026-08-31)
@@ -462,7 +462,7 @@ public class SlotMarkerUI : MonoBehaviour
         {
             if (GameBalance.ProximityInteract)
             {
-                UIManager.Instance?.ShowDanger("포탑 곁으로 달려가 [E]로 되살려라!");
+                UIManager.Instance?.ShowDanger((slot.StunKind == "빙결" ? "포탑 곁으로 달려가 [E] 여러 번 - 얼음을 깨라!" : slot.StunKind == "과열" ? "포탑 곁에서 [E] 를 누른 채 마우스를 움직여 식혀라!" : "포탑 곁으로 달려가 [E] 한 번 - 감전을 털어라!"));
                 return;
             }
             string kind = slot.StunKind;
@@ -633,7 +633,7 @@ public class SlotMarkerUI : MonoBehaviour
         // 2) 진화: 다른 T1 두 개
         if (ra.tier == 1 && rb.tier == 1)
         {
-            if (AugmentManager.BasicsDoctrine) return "[진화 불가] 선대의 기본기 - T2 진화 봉인";
+            if (AugmentManager.BasicsDoctrine) return "[진화 불가] 선대의 기본기 - 전설 요리 진화 봉인";
             RecipeData fusion = RecipeDatabase.GetFusion(ra.tag, rb.tag);
             if (fusion == null) return "[진화 불가] 이 조합의 진화 레시피 없음";
 
@@ -642,10 +642,10 @@ public class SlotMarkerUI : MonoBehaviour
             bool known = FoodStock.Instance != null && FoodStock.Instance.IsDiscovered(fusion.recipeId);
 
             string s = "[진화] " + ra.displayName + " + " + rb.displayName + "\n";
-            s += "-> " + (known ? fusion.displayName + " [T2]" : "미발견 전설 요리 [T2]") + "\n";
+            s += "-> " + (known ? fusion.displayName + " [전설]" : "미발견 전설 요리") + "\n";
             s += "역할: " + RoleName(fusion.role) + " / " + ShapeName(fusion.shape) + "\n";
-            s += "레벨: Lv" + (baseLevel + (masteryUp ? 1 : 0)) + " (+인퓨징 판정 보너스 최대 +1)\n";
-            s += "슬롯 1개 비움 / 인퓨징 미니게임 진행\n";
+            s += "레벨: Lv" + (baseLevel + (masteryUp ? 1 : 0)) + " (+진화 조리 판정 보너스 최대 +1)\n";
+            s += "슬롯 1개 비움 / 진화 조리(미니게임) 진행\n";
 
             // 공명 변화: 두 T1 태그 -1씩, T2 태그 +1
             int ca = mgr.GetTagCount(ra.tag), cb = mgr.GetTagCount(rb.tag);
@@ -664,7 +664,7 @@ public class SlotMarkerUI : MonoBehaviour
             return s;
         }
 
-        return "[합체 불가] T2 포탑은 같은 요리끼리만 강화 가능";
+        return "[합체 불가] 전설 포탑은 같은 요리끼리만 합칠 수 있다";
     }
 
     public void OnMarkerExit(int index)
@@ -684,12 +684,12 @@ public class SlotMarkerUI : MonoBehaviour
     {
         switch (role)
         {
-            case TurretRole.PhysDealer: return "물리 딜러";
-            case TurretRole.MagicDealer: return "마법 딜러";
-            case TurretRole.Debuffer: return "디버퍼";
-            case TurretRole.Buffer: return "버퍼";
-            case TurretRole.CC: return "CC";
-            default: return "서포트";
+            case TurretRole.PhysDealer: return "물리 화력";
+            case TurretRole.MagicDealer: return "속성 화력";
+            case TurretRole.Debuffer: return "약화";
+            case TurretRole.Buffer: return "이웃 강화";
+            case TurretRole.CC: return "제어";
+            default: return "지원";
         }
     }
 
@@ -698,10 +698,10 @@ public class SlotMarkerUI : MonoBehaviour
         switch (shape)
         {
             case AttackShape.Projectile: return "단일 투사체";
-            case AttackShape.Pierce: return "관통 레일";
+            case AttackShape.Pierce: return "직선 관통";
             case AttackShape.Cone: return "부채꼴 방사";
             case AttackShape.Explode: return "착탄 폭발";
-            case AttackShape.Chain: return "체인";
+            case AttackShape.Chain: return "번개 튐";
             case AttackShape.Field: return "장판";
             case AttackShape.Aura: return "오라";
             default: return "상시";

@@ -1,52 +1,52 @@
 using UnityEngine;
 
 /// <summary>
-/// [TurretSlotManager.cs] v2.1 (v9.9 2026-09-16: ìŠ¬ë¡¯ 4ëª¨ì„œë¦¬ ë°°ì¹˜ GameBalance.SlotPosition + ê·¼ì ‘ íŒì • "ê°€ê¹Œìš´ ë²½ ìª½ ê±°ë¦¬") / v2
-/// í¬íƒ‘ ìŠ¬ë¡¯ 8ê°œë¥¼ ìë™ ìƒì„±/ê´€ë¦¬í•˜ëŠ” ë§¤ë‹ˆì € (ì‹±ê¸€í†¤)
-/// - v2.1: ìŠ¬ë¡¯ ìœ„ì¹˜ëŠ” GameBalance.SlotPosition(i) í•œ ê³³ì—ì„œ (ëª¨ì„œë¦¬ 4 = ë¶ 2 ì§€ë¶•ì„  ìœ„ / ë‚¨ 2 ì„€ì‹œ ìœ„).
-///   FindStunnedSlotNear ëŠ” ì…°í”„ê°€ ê±¸ì„ ìˆ˜ ìˆëŠ” ë (TrainWalkMinY~MaxY)ë¡œ ìŠ¬ë¡¯ y ë¥¼ ë¶™ì¸ ì ê¹Œì§€ì˜ ê±°ë¦¬ë¡œ ì°ë‹¤ -
-///   ê°€ë¡œë§Œ ì¬ë©´ ê°™ì€ x ì˜ ë¶/ë‚¨ ìŠ¬ë¡¯ì´ êµ¬ë¶„ë˜ì§€ ì•Šê³ , ì§ì„  ê±°ë¦¬ë¡œ ì¬ë©´ ì§€ë¶• ìœ„ ìŠ¬ë¡¯ì— ì˜ì˜ ëª» ë‹¿ëŠ”ë‹¤
-/// - ê¸°ì°¨ ì˜¤ë¸Œì íŠ¸ì— ë¶™ì´ë©´ ì‹œì‘ ì‹œ ìŠ¬ë¡¯ 8ê°œ(2x4)ë¥¼ ìì‹ìœ¼ë¡œ ìƒì„±
-/// - ë§¤ í”„ë ˆì„: ì¸ì ‘ ë²„í”„ ê³„ì‚° + ê° ìŠ¬ë¡¯ ë°œì‚¬ + íŒ¨ì‹œë¸Œ(ì¬ìƒ/ì˜¤ë¼) ì²˜ë¦¬
-/// - v2 ë³€ê²½ì : ìŠ¬ë¡¯ ì ê¸ˆ ì‹œìŠ¤í…œ
-///   ê¸°ë³¸ í•´ê¸ˆ = GameBalance.BaseSlotCount (6ì¹¸)
-///   ì¦ê°• 'ì¦ì¶•ëœ ì£¼ë°© ì¹¸'(ExtraSlotUnlock)ìœ¼ë¡œ ìµœëŒ€ 8ì¹¸ê¹Œì§€ í™•ì¥
-/// - v3 ë³€ê²½ì : ì†ì„± ê³µëª… (ê¸°íš B-5)
-///   ê°™ì€ ì†ì„±(FoodTag) í¬íƒ‘ 3ê°œ ì´ìƒ ë°°ì¹˜ ì‹œ í•´ë‹¹ ì†ì„± ë°ë¯¸ì§€ +20%
-///   ë°©ì–´(Def) ì†ì„± ê³µëª…ì€ ê¸°ì°¨ ë°›ëŠ” í”¼í•´ -10%ë¡œ ëŒ€ì²´
-///   ì¦ê°• 'ì†ì„± ê³µëª… ì¦í­ê¸°'ë¡œ ë³´ë„ˆìŠ¤ ê°•í™” ê°€ëŠ¥
-/// VS 2017 (C# 7.3) í˜¸í™˜
+/// [TurretSlotManager.cs] v2.1 (v9.9 2026-09-16: ½½·Ô 4¸ğ¼­¸® ¹èÄ¡ GameBalance.SlotPosition + ±ÙÁ¢ ÆÇÁ¤ "°¡±î¿î º® ÂÊ °Å¸®") / v2
+/// Æ÷Å¾ ½½·Ô 8°³¸¦ ÀÚµ¿ »ı¼º/°ü¸®ÇÏ´Â ¸Å´ÏÀú (½Ì±ÛÅæ)
+/// - v2.1: ½½·Ô À§Ä¡´Â GameBalance.SlotPosition(i) ÇÑ °÷¿¡¼­ (¸ğ¼­¸® 4 = ºÏ 2 ÁöºØ¼± À§ / ³² 2 ¼¨½Ã À§).
+///   FindStunnedSlotNear ´Â ¼ÎÇÁ°¡ °ÉÀ» ¼ö ÀÖ´Â ¶ì(TrainWalkMinY~MaxY)·Î ½½·Ô y ¸¦ ºÙÀÎ Á¡±îÁöÀÇ °Å¸®·Î Àé´Ù -
+///   °¡·Î¸¸ Àç¸é °°Àº x ÀÇ ºÏ/³² ½½·ÔÀÌ ±¸ºĞµÇÁö ¾Ê°í, Á÷¼± °Å¸®·Î Àç¸é ÁöºØ À§ ½½·Ô¿¡ ¿µ¿µ ¸ø ´ê´Â´Ù
+/// - ±âÂ÷ ¿ÀºêÁ§Æ®¿¡ ºÙÀÌ¸é ½ÃÀÛ ½Ã ½½·Ô 8°³(2x4)¸¦ ÀÚ½ÄÀ¸·Î »ı¼º
+/// - ¸Å ÇÁ·¹ÀÓ: ÀÎÁ¢ ¹öÇÁ °è»ê + °¢ ½½·Ô ¹ß»ç + ÆĞ½Ãºê(Àç»ı/¿À¶ó) Ã³¸®
+/// - v2 º¯°æÁ¡: ½½·Ô Àá±İ ½Ã½ºÅÛ
+///   ±âº» ÇØ±İ = GameBalance.BaseSlotCount (6Ä­)
+///   Áõ°­ 'ÁõÃàµÈ ÁÖ¹æ Ä­'(ExtraSlotUnlock)À¸·Î ÃÖ´ë 8Ä­±îÁö È®Àå
+/// - v3 º¯°æÁ¡: ¼Ó¼º °ø¸í (±âÈ¹ B-5)
+///   °°Àº ¼Ó¼º(FoodTag) Æ÷Å¾ 3°³ ÀÌ»ó ¹èÄ¡ ½Ã ÇØ´ç ¼Ó¼º µ¥¹ÌÁö +20%
+///   ¹æ¾î(Def) ¼Ó¼º °ø¸íÀº ±âÂ÷ ¹Ş´Â ÇÇÇØ -10%·Î ´ëÃ¼
+///   Áõ°­ '¼Ó¼º °ø¸í ÁõÆø±â'·Î º¸³Ê½º °­È­ °¡´É
+/// VS 2017 (C# 7.3) È£È¯
 /// </summary>
 public class TurretSlotManager : MonoBehaviour
 {
     public static TurretSlotManager Instance { get; private set; }
 
-    // (B-2: êµ¬ 2ì—´ 4í–‰ ë°°ì¹˜ í•„ë“œ ì œê±° - ë°°ì¹˜ëŠ” GameBalance.SlotRowAX/BX/GapX/SlotYê°€ ë‹´ë‹¹)
+    // (B-2: ±¸ 2¿­ 4Çà ¹èÄ¡ ÇÊµå Á¦°Å - ¹èÄ¡´Â GameBalance.SlotRowAX/BX/GapX/SlotY°¡ ´ã´ç)
 
-    [Header("â”€ ëŸ°íƒ€ì„ â”€")]
+    [Header("¦¡ ·±Å¸ÀÓ ¦¡")]
     public TurretSlot[] slots = new TurretSlot[8];
 
     private TrainManager train;
     private float auraTimer = 0f;
 
-    // B-2.2: ì •ë¹„ ì‹œê°„ ì§„ì… ê°ì§€ìš© (ë§ˆë¹„/ê³¼ì—´ ì¼ê´„ í•´ì œ)
+    // B-2.2: Á¤ºñ ½Ã°£ ÁøÀÔ °¨Áö¿ë (¸¶ºñ/°ú¿­ ÀÏ°ı ÇØÁ¦)
     private GameManager.GameState lastSeenState = GameManager.GameState.Lobby;
 
-    // ì†ì„± ê³µëª… (v3): íƒœê·¸ë³„ ë°°ì¹˜ ìˆ˜ + ë°œë™ ì•Œë¦¼ ìƒíƒœ
+    // ¼Ó¼º °ø¸í (v3): ÅÂ±×º° ¹èÄ¡ ¼ö + ¹ßµ¿ ¾Ë¸² »óÅÂ
     private int[] tagCounts = new int[16];
     private System.Collections.Generic.HashSet<FoodTag> resonanceActive =
         new System.Collections.Generic.HashSet<FoodTag>();
 
-    // ê³µëª… í˜„í™© HUD (v3.1): ìš°í•˜ë‹¨ ìƒì‹œ í‘œì‹œ
+    // °ø¸í ÇöÈ² HUD (v3.1): ¿ìÇÏ´Ü »ó½Ã Ç¥½Ã
     private UnityEngine.UI.Text resonanceText;
 
-    /// <summary>í˜„ì¬ í•´ê¸ˆëœ ìŠ¬ë¡¯ ìˆ˜ (ê¸°ë³¸ + ì¦ê°•)</summary>
+    /// <summary>ÇöÀç ÇØ±İµÈ ½½·Ô ¼ö (±âº» + Áõ°­)</summary>
     public int UnlockedSlotCount
     {
         get { return Mathf.Min(8, GameBalance.BaseSlotCount + AugmentManager.ExtraSlotUnlock); }
     }
 
-    /// <summary>í•´ë‹¹ ì¸ë±ìŠ¤ ìŠ¬ë¡¯ì´ í•´ê¸ˆëëŠ”ì§€</summary>
+    /// <summary>ÇØ´ç ÀÎµ¦½º ½½·ÔÀÌ ÇØ±İµÆ´ÂÁö</summary>
     public bool IsSlotUnlocked(int index)
     {
         return index < UnlockedSlotCount;
@@ -62,26 +62,26 @@ public class TurretSlotManager : MonoBehaviour
     {
         train = FindFirstObjectByType<TrainManager>();
 
-        // B-2: ìŠ¬ë¡¯ 8ê°œ (íŠ¸ë ˆì¼ëŸ¬ í™•ì¥ - ë°©í–¥ê²°ì • 2026-08-31)
-        // v2.1 (v9.9): ë°°ì¹˜ëŠ” GameBalance.SlotPosition(i) - ê¸°ë³¸ = ì¹¸ë‹¹ 4ëª¨ì„œë¦¬ (0 NW / 1 NE / 2 SW / 3 SE = í¬íƒ‘ A, 4~7 = í¬íƒ‘ B)
-        //   6Â·7(í¬íƒ‘ B ë‚¨ìª½)ì€ ê¸°ë³¸ ì ê¸ˆ - ì¦ê°• í•´ê¸ˆ. SlotCornerLayout=false ë©´ ì¢…ì „ ë¶ìª½ 1ì—´ 4+4
+        // B-2: ½½·Ô 8°³ (Æ®·¹ÀÏ·¯ È®Àå - ¹æÇâ°áÁ¤ 2026-08-31)
+        // v2.1 (v9.9): ¹èÄ¡´Â GameBalance.SlotPosition(i) - ±âº» = Ä­´ç 4¸ğ¼­¸® (0 NW / 1 NE / 2 SW / 3 SE = Æ÷Å¾ A, 4~7 = Æ÷Å¾ B)
+        //   6¡¤7(Æ÷Å¾ B ³²ÂÊ)Àº ±âº» Àá±İ - Áõ°­ ÇØ±İ. SlotCornerLayout=false ¸é Á¾Àü ºÏÂÊ 1¿­ 4+4
         for (int i = 0; i < 8; i++)
         {
             Vector2 p = GameBalance.SlotPosition(i);
 
             GameObject go = new GameObject("TurretSlot_" + i);
             go.transform.SetParent(transform);
-            // B-2.1: ì›”ë“œ ì¢Œí‘œë¡œ ê³ ì • (ë¶€ëª¨ ì˜¤ë¸Œì íŠ¸ê°€ ì–´ë””ì— ìˆë“  ë°í¬ ì¹¸ ìœ„ì— ì •í™•íˆ ì•‰ëŠ”ë‹¤)
+            // B-2.1: ¿ùµå ÁÂÇ¥·Î °íÁ¤ (ºÎ¸ğ ¿ÀºêÁ§Æ®°¡ ¾îµğ¿¡ ÀÖµç µ¥Å© Ä­ À§¿¡ Á¤È®È÷ ¾É´Â´Ù)
             go.transform.position = new Vector3(p.x, p.y, 0f);
 
             slots[i] = go.AddComponent<TurretSlot>();
         }
 
         BuildResonanceHUD();
-        Debug.Log("[TurretSlotManager] ìŠ¬ë¡¯ 8ê°œ ìƒì„± ì™„ë£Œ (í•´ê¸ˆ " + UnlockedSlotCount + "ì¹¸, ë‚˜ë¨¸ì§€ëŠ” ì¦ê°•ìœ¼ë¡œ í™•ì¥)");
+        Debug.Log("[TurretSlotManager] ½½·Ô 8°³ »ı¼º ¿Ï·á (ÇØ±İ " + UnlockedSlotCount + "Ä­, ³ª¸ÓÁö´Â Áõ°­À¸·Î È®Àå)");
     }
 
-    /// <summary>ê³µëª… í˜„í™© ìƒì‹œ í‘œì‹œ HUD (ìš°í•˜ë‹¨, ì½”ë“œ ìƒì„±)</summary>
+    /// <summary>°ø¸í ÇöÈ² »ó½Ã Ç¥½Ã HUD (¿ìÇÏ´Ü, ÄÚµå »ı¼º)</summary>
     private void BuildResonanceHUD()
     {
         GameObject canvasGo = new GameObject("ResonanceHUDCanvas");
@@ -100,7 +100,7 @@ public class TurretSlotManager : MonoBehaviour
         rt.anchorMin = new Vector2(1f, 0f);
         rt.anchorMax = new Vector2(1f, 0f);
         rt.pivot = new Vector2(1f, 0f);
-        rt.anchoredPosition = new Vector2(-16f, 195f);   // í•˜ë‹¨ HUD(176px) ìœ„
+        rt.anchoredPosition = new Vector2(-16f, 195f);   // ÇÏ´Ü HUD(176px) À§
         rt.sizeDelta = new Vector2(420f, 30f);
         resonanceText.alignment = TextAnchor.LowerRight;
         resonanceText.supportRichText = true;
@@ -109,17 +109,17 @@ public class TurretSlotManager : MonoBehaviour
     void Update()
     {
         if (train == null || !train.IsAlive) return;
-        if (train.IsPowerSaveMode) return; // (êµ¬ì‹œìŠ¤í…œ í˜¸í™˜ - í•­ìƒ false)
+        if (train.IsPowerSaveMode) return; // (±¸½Ã½ºÅÛ È£È¯ - Ç×»ó false)
 
-        // ìŠ¬ë¡¯ ì ê¸ˆ ìƒíƒœ ë™ê¸°í™” (ì¦ê°• íšë“ ì¦‰ì‹œ ë°˜ì˜)
+        // ½½·Ô Àá±İ »óÅÂ µ¿±âÈ­ (Áõ°­ È¹µæ Áï½Ã ¹İ¿µ)
         for (int i = 0; i < 8; i++)
             if (slots[i] != null) slots[i].isLocked = !IsSlotUnlocked(i);
 
-        // ì†ì„± ê³µëª… ì§‘ê³„ (ê°™ì€ íƒœê·¸ í¬íƒ‘ ìˆ˜)
+        // ¼Ó¼º °ø¸í Áı°è (°°Àº ÅÂ±× Æ÷Å¾ ¼ö)
         UpdateResonance();
 
-        // B-2.2: ì •ë¹„ ì‹œê°„(Town) ì§„ì… ì‹œ ë§ˆë¹„/ê³¼ì—´ ì „ì²´ í•´ì œ
-        // ê³¼ì—´ì€ [E] í™€ë“œ ì „ìš©ì´ë¼ ë°©ì¹˜í•˜ë©´ ë‹¤ìŒ ì›¨ì´ë¸Œê¹Œì§€ ëŒê³  ê°„ë‹¤ - ì •ë¹„ ì‹œê°„ ì„œì‚¬ì™€ ëª¨ìˆœ
+        // B-2.2: Á¤ºñ ½Ã°£(Town) ÁøÀÔ ½Ã ¸¶ºñ/°ú¿­ ÀüÃ¼ ÇØÁ¦
+        // °ú¿­Àº [E] È¦µå Àü¿ëÀÌ¶ó ¹æÄ¡ÇÏ¸é ´ÙÀ½ ¿şÀÌºê±îÁö ²ø°í °£´Ù - Á¤ºñ ½Ã°£ ¼­»ç¿Í ¸ğ¼ø
         if (GameBalance.ClearStunsOnTown && GameManager.Instance != null)
         {
             GameManager.GameState st = GameManager.Instance.currentState;
@@ -131,19 +131,19 @@ public class TurretSlotManager : MonoBehaviour
                     for (int i = 0; i < 8; i++)
                         if (slots[i] != null && slots[i].IsStunned) { slots[i].ClearStun(); cleared++; }
                     if (cleared > 0)
-                        UIManager.Instance?.ShowStatChange("[ì •ë¹„ ì‹œê°„] ë©ˆì·„ë˜ í¬íƒ‘ " + cleared + "ë¬¸ ì‘ê¸‰ ì •ë¹„ ì™„ë£Œ!");
+                        UIManager.Instance?.ShowStatChange("[Á¤ºñ ½Ã°£] ¸ØÃè´ø Æ÷Å¾ " + cleared + "¹® ÀÀ±Ş Á¤ºñ ¿Ï·á!");
                 }
                 lastSeenState = st;
             }
         }
 
-        // ì „íˆ¬ ì¤‘ì—ë§Œ ë°œì‚¬
+        // ÀüÅõ Áß¿¡¸¸ ¹ß»ç
         if (GameManager.Instance != null &&
             GameManager.Instance.currentState != GameManager.GameState.Battle) return;
 
         float dt = Time.deltaTime;
 
-        // ê° ìŠ¬ë¡¯ ë°œì‚¬ (ì¸ì ‘ ë²„í”„ ë°˜ì˜)
+        // °¢ ½½·Ô ¹ß»ç (ÀÎÁ¢ ¹öÇÁ ¹İ¿µ)
         for (int i = 0; i < 8; i++)
         {
             TurretSlot s = slots[i];
@@ -155,13 +155,13 @@ public class TurretSlotManager : MonoBehaviour
 
             float dmgBuff = (r.damageType == DamageType.Magic) ? buffMD : buffPD;
 
-            // ì†ì„± ê³µëª… ë³´ë„ˆìŠ¤ (ê°™ì€ íƒœê·¸ 3ê°œ ì´ìƒì´ë©´ í•´ë‹¹ íƒœê·¸ ë°ë¯¸ì§€ ì¦í­)
+            // ¼Ó¼º °ø¸í º¸³Ê½º (°°Àº ÅÂ±× 3°³ ÀÌ»óÀÌ¸é ÇØ´ç ÅÂ±× µ¥¹ÌÁö ÁõÆø)
             dmgBuff += GetResonanceBonus(r.tag);
 
             s.TickFire(dt, buffAS, dmgBuff);
         }
 
-        // íŒ¨ì‹œë¸Œ: ì¬ìƒ (í•´ë… ìŠ¤íŠœ / ì •í™”ì˜ ì„±ì°¬ / ì˜¤ë©”ê°€ ë¦¬í˜ì–´)
+        // ÆĞ½Ãºê: Àç»ı (ÇØµ¶ ½ºÆ© / Á¤È­ÀÇ ¼ºÂù / ¿À¸Ş°¡ ¸®Æä¾î)
         for (int i = 0; i < 8; i++)
         {
             TurretSlot s = slots[i];
@@ -173,7 +173,7 @@ public class TurretSlotManager : MonoBehaviour
                 train.Heal(3f * s.LevelMult * dt);
         }
 
-        // ì˜¤ë¼: 0.5ì´ˆ ê°„ê²©ìœ¼ë¡œ ì²˜ë¦¬ (ë§¤ í”„ë ˆì„ì€ ë‚­ë¹„)
+        // ¿À¶ó: 0.5ÃÊ °£°İÀ¸·Î Ã³¸® (¸Å ÇÁ·¹ÀÓÀº ³¶ºñ)
         auraTimer += dt;
         if (auraTimer >= 0.5f)
         {
@@ -182,7 +182,7 @@ public class TurretSlotManager : MonoBehaviour
         }
     }
 
-    // ì¸ì ‘ ë²„í”„ í•©ì‚° ê³„ì‚° (B-2: ê°€ë¡œ 1ì—´ ì¬ë°°ì¹˜ - ì¸ì ‘ = ê°™ì€ í¬íƒ‘ì¹¸ ì•ˆì˜ ì–‘ì˜† ìŠ¬ë¡¯)
+    // ÀÎÁ¢ ¹öÇÁ ÇÕ»ê °è»ê (B-2: °¡·Î 1¿­ Àç¹èÄ¡ - ÀÎÁ¢ = °°Àº Æ÷Å¾Ä­ ¾ÈÀÇ ¾ç¿· ½½·Ô)
     private void GetBuffsFor(int index, out float atkSpeed, out float physDmg, out float magDmg)
     {
         atkSpeed = 0f; physDmg = 0f; magDmg = 0f;
@@ -195,8 +195,8 @@ public class TurretSlotManager : MonoBehaviour
             RecipeData r = o.Recipe;
             if (string.IsNullOrEmpty(r.buffType)) continue;
 
-            // ê°™ì€ ì¹¸(0~3 / 4~7) ì•ˆì—ì„œ ë°”ë¡œ ì˜† ìŠ¬ë¡¯ë§Œ ì¸ì ‘ìœ¼ë¡œ ì¹œë‹¤
-            // v2.1 (ëª¨ì„œë¦¬ ë°°ì¹˜): 0 NW / 1 NE / 2 SW / 3 SE - ê°€ë¡œ ì´ì›ƒ(0-1, 2-3)ê³¼ ì„¸ë¡œ ì´ì›ƒ(0-2, 1-3)ë§Œ, ëŒ€ê°ì„ (0-3, 1-2)ì€ ì•„ë‹ˆë‹¤
+            // °°Àº Ä­(0~3 / 4~7) ¾È¿¡¼­ ¹Ù·Î ¿· ½½·Ô¸¸ ÀÎÁ¢À¸·Î Ä£´Ù
+            // v2.1 (¸ğ¼­¸® ¹èÄ¡): 0 NW / 1 NE / 2 SW / 3 SE - °¡·Î ÀÌ¿ô(0-1, 2-3)°ú ¼¼·Î ÀÌ¿ô(0-2, 1-3)¸¸, ´ë°¢¼±(0-3, 1-2)Àº ¾Æ´Ï´Ù
             bool sameCar = (i / 4 == index / 4);
             bool adjacent;
             if (GameBalance.SlotCornerLayout)
@@ -207,8 +207,8 @@ public class TurretSlotManager : MonoBehaviour
             else adjacent = sameCar && Mathf.Abs(i - index) == 1;
             if (!adjacent) continue;
 
-            // ì¦ê°• 'ì£¼ë°© ë™ì„  ìµœì í™”': ì¸ì ‘ ë²„í”„ ë°°ìœ¨
-            // ë°¸ëŸ°ìŠ¤ 1ì°¨: AdjBuffScale - 1ì—´ ì¬ë°°ì¹˜ë¡œ ì¤„ì–´ë“  ìˆ˜í˜œ í­ ë³´ì • (GameBalance ì°¸ê³ )
+            // Áõ°­ 'ÁÖ¹æ µ¿¼± ÃÖÀûÈ­': ÀÎÁ¢ ¹öÇÁ ¹èÀ²
+            // ¹ë·±½º 1Â÷: AdjBuffScale - 1¿­ Àç¹èÄ¡·Î ÁÙ¾îµç ¼öÇı Æø º¸Á¤ (GameBalance Âü°í)
             float v = r.buffValue * o.LevelMult * AugmentManager.AdjacentBuffMul
                 * GameBalance.AdjBuffScale;
             if (r.buffType == "as") atkSpeed += v;
@@ -217,7 +217,7 @@ public class TurretSlotManager : MonoBehaviour
         }
     }
 
-    // ì˜¤ë¼ ìŠ¬ë¡¯ ì²˜ë¦¬ (í™”ì—¼ ë°©ë²½ / ë¹™ë²½ ìŠ¤íŠœ / ë¶€ì‹ì˜ ì •ìˆ˜)
+    // ¿À¶ó ½½·Ô Ã³¸® (È­¿° ¹æº® / ºùº® ½ºÆ© / ºÎ½ÄÀÇ Á¤¼ö)
     private void TickAuras()
     {
         float auraRange = 10f;
@@ -237,20 +237,20 @@ public class TurretSlotManager : MonoBehaviour
                 if (d > auraRange) continue;
 
                 if (r.passiveType == "auraBurn")
-                    all[e].TakeDamage(3f * s.LevelMult); // 0.5ì´ˆë§ˆë‹¤ í™”ì—¼ í‹±
+                    all[e].TakeDamage(3f * s.LevelMult); // 0.5ÃÊ¸¶´Ù È­¿° Æ½
                 else if (r.passiveType == "auraSlow")
                     all[e].ApplySpeedDebuff(0.5f, 0.6f);
                 else if (r.passiveType == "auraShred")
-                    all[e].ApplySpeedDebuff(0.85f, 0.6f); // ë°©ê¹/ë§ˆê¹ì€ 5ë‹¨ê³„ì—ì„œ, ì„ì‹œë¡œ ì´ì† ê°ì†
+                    all[e].ApplySpeedDebuff(0.85f, 0.6f); // ¹æ±ğ/¸¶±ğÀº 5´Ü°è¿¡¼­, ÀÓ½Ã·Î ÀÌ¼Ó °¨¼Ó
             }
         }
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ì†ì„± ê³µëª… (v3)
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ¼Ó¼º °ø¸í (v3)
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
 
-    /// <summary>íƒœê·¸ë³„ ë°°ì¹˜ ìˆ˜ ì§‘ê³„ + ìƒˆë¡œ ë°œë™í•œ ê³µëª… ì•Œë¦¼</summary>
+    /// <summary>ÅÂ±×º° ¹èÄ¡ ¼ö Áı°è + »õ·Î ¹ßµ¿ÇÑ °ø¸í ¾Ë¸²</summary>
     private void UpdateResonance()
     {
         for (int t = 0; t < tagCounts.Length; t++) tagCounts[t] = 0;
@@ -263,7 +263,7 @@ public class TurretSlotManager : MonoBehaviour
             if (tagIdx >= 0 && tagIdx < tagCounts.Length) tagCounts[tagIdx]++;
         }
 
-        // ë°œë™/í•´ì œ ê°ì§€ (ë°œë™ ìˆœê°„ì—ë§Œ ì•Œë¦¼)
+        // ¹ßµ¿/ÇØÁ¦ °¨Áö (¹ßµ¿ ¼ø°£¿¡¸¸ ¾Ë¸²)
         foreach (FoodTag tag in System.Enum.GetValues(typeof(FoodTag)))
         {
             bool active = tagCounts[(int)tag] >= GameBalance.ResonanceCount;
@@ -271,10 +271,10 @@ public class TurretSlotManager : MonoBehaviour
             {
                 resonanceActive.Add(tag);
                 string effect = (tag == FoodTag.Def)
-                    ? "ê¸°ì°¨ ë°›ëŠ” í”¼í•´ -10%"
-                    : "ë°ë¯¸ì§€ +" + Mathf.RoundToInt((GameBalance.ResonanceBonus + AugmentManager.ResonanceBonusAdd) * 100f) + "%";
-                Debug.Log("[ê³µëª…] [" + TagKor(tag) + "] ì†ì„± ê³µëª… ë°œë™! " + effect);
-                UIManager.Instance?.ShowStatChange("[" + TagKor(tag) + "] ì†ì„± ê³µëª… ë°œë™! " + effect);
+                    ? "±âÂ÷ ¹Ş´Â ÇÇÇØ -10%"
+                    : "µ¥¹ÌÁö +" + Mathf.RoundToInt((GameBalance.ResonanceBonus + AugmentManager.ResonanceBonusAdd) * 100f) + "%";
+                Debug.Log("[°ø¸í] [" + TagKor(tag) + "] ¼Ó¼º °ø¸í ¹ßµ¿! " + effect);
+                UIManager.Instance?.ShowStatChange("[" + TagKor(tag) + "] ¼Ó¼º °ø¸í ¹ßµ¿! " + effect);
             }
             else if (!active && resonanceActive.Contains(tag))
             {
@@ -282,7 +282,7 @@ public class TurretSlotManager : MonoBehaviour
             }
         }
 
-        // ê³µëª… í˜„í™© HUD ê°±ì‹ : ë°°ì¹˜ëœ íƒœê·¸ë§Œ "í™”ì—¼ 2/3" í˜•íƒœë¡œ, ë°œë™ ì¤‘ì´ë©´ ê¸ˆìƒ‰
+        // °ø¸í ÇöÈ² HUD °»½Å: ¹èÄ¡µÈ ÅÂ±×¸¸ "È­¿° 2/3" ÇüÅÂ·Î, ¹ßµ¿ ÁßÀÌ¸é ±İ»ö
         if (resonanceText != null)
         {
             string line = "";
@@ -293,52 +293,52 @@ public class TurretSlotManager : MonoBehaviour
                 if (line.Length > 0) line += "   ";
 
                 if (c >= GameBalance.ResonanceCount)
-                    line += "<color=#FFD24D>" + TagKor(tag) + " " + c + "/" + GameBalance.ResonanceCount + " ê³µëª…!</color>";
+                    line += "<color=#FFD24D>" + TagKor(tag) + " " + c + "/" + GameBalance.ResonanceCount + " °ø¸í!</color>";
                 else
                     line += TagKor(tag) + " " + c + "/" + GameBalance.ResonanceCount;
             }
-            resonanceText.text = line.Length > 0 ? "ì†ì„±:  " + line : "";
+            resonanceText.text = line.Length > 0 ? "¼Ó¼º:  " + line : "";
         }
     }
 
-    /// <summary>v5.1 (í•©ì²´ ë¯¸ë¦¬ë³´ê¸°ìš©): í˜„ì¬ ë°°ì¹˜ëœ í•´ë‹¹ íƒœê·¸ í¬íƒ‘ ìˆ˜</summary>
+    /// <summary>v5.1 (ÇÕÃ¼ ¹Ì¸®º¸±â¿ë): ÇöÀç ¹èÄ¡µÈ ÇØ´ç ÅÂ±× Æ÷Å¾ ¼ö</summary>
     public int GetTagCount(FoodTag tag)
     {
         int idx = (int)tag;
         return (idx >= 0 && idx < tagCounts.Length) ? tagCounts[idx] : 0;
     }
 
-    /// <summary>íƒœê·¸ í•œê¸€ëª… (ì™¸ë¶€ìš©)</summary>
+    /// <summary>ÅÂ±× ÇÑ±Û¸í (¿ÜºÎ¿ë)</summary>
     public string TagName(FoodTag tag) { return TagKor(tag); }
 
-    /// <summary>í•´ë‹¹ íƒœê·¸ì˜ ê³µëª… ë°ë¯¸ì§€ ë³´ë„ˆìŠ¤ (ë¯¸ë°œë™ì´ë©´ 0)</summary>
+    /// <summary>ÇØ´ç ÅÂ±×ÀÇ °ø¸í µ¥¹ÌÁö º¸³Ê½º (¹Ì¹ßµ¿ÀÌ¸é 0)</summary>
     public float GetResonanceBonus(FoodTag tag)
     {
-        if (tag == FoodTag.Def) return 0f;   // ë°©ì–´ ê³µëª…ì€ í”¼í•´ê°ì†Œë¡œ ì²˜ë¦¬
+        if (tag == FoodTag.Def) return 0f;   // ¹æ¾î °ø¸íÀº ÇÇÇØ°¨¼Ò·Î Ã³¸®
         int idx = (int)tag;
         if (idx < 0 || idx >= tagCounts.Length) return 0f;
-        // Phase 2-2 ì¦ê°• 'ê³µëª… í­ì£¼': ë°œë™ ì¡°ê±´ 3ê°œ -> 2ê°œ
+        // Phase 2-2 Áõ°­ '°ø¸í ÆøÁÖ': ¹ßµ¿ Á¶°Ç 3°³ -> 2°³
         int need = AugmentManager.ResonanceNeedOverride > 0
             ? AugmentManager.ResonanceNeedOverride : GameBalance.ResonanceCount;
         if (tagCounts[idx] < need) return 0f;
         return GameBalance.ResonanceBonus + AugmentManager.ResonanceBonusAdd;
     }
 
-    /// <summary>íƒœê·¸ í•œê¸€ ì´ë¦„</summary>
+    /// <summary>ÅÂ±× ÇÑ±Û ÀÌ¸§</summary>
     private string TagKor(FoodTag tag)
     {
         switch (tag)
         {
-            case FoodTag.Phys: return "ë¬¼ë¦¬";
-            case FoodTag.Elec: return "ì „ê¸°";
-            case FoodTag.Fire: return "í™”ì—¼";
-            case FoodTag.Ice: return "ëƒ‰ê¸°";
-            case FoodTag.Poison: return "ë…";
-            default: return "ë°©ì–´";
+            case FoodTag.Phys: return "¹°¸®";
+            case FoodTag.Elec: return "Àü±â";
+            case FoodTag.Fire: return "È­¿°";
+            case FoodTag.Ice: return "³Ã±â";
+            case FoodTag.Poison: return "µ¶";
+            default: return "¹æ¾î";
         }
     }
 
-    // ìŠ¬ë¡¯ íŒ¨ì‹œë¸Œ ì¡°íšŒ: ë°›ëŠ” í”¼í•´ ê°ì†Œ í•©ì‚° (ìµœëŒ€ 60%)
+    // ½½·Ô ÆĞ½Ãºê Á¶È¸: ¹Ş´Â ÇÇÇØ °¨¼Ò ÇÕ»ê (ÃÖ´ë 60%)
     public float GetDamageReduction()
     {
         float dr = 0f;
@@ -351,7 +351,7 @@ public class TurretSlotManager : MonoBehaviour
                 dr += r.passiveValue * s.LevelMult;
         }
 
-        // ë°©ì–´ ì†ì„± ê³µëª…: ë°›ëŠ” í”¼í•´ -10% ì¶”ê°€
+        // ¹æ¾î ¼Ó¼º °ø¸í: ¹Ş´Â ÇÇÇØ -10% Ãß°¡
         if ((int)FoodTag.Def < tagCounts.Length &&
             tagCounts[(int)FoodTag.Def] >= GameBalance.ResonanceCount)
             dr += 0.10f;
@@ -359,7 +359,7 @@ public class TurretSlotManager : MonoBehaviour
         return Mathf.Min(0.6f, dr);
     }
 
-    // ì¶•ì „ ì¥ê°‘: ê¸°ì°¨ í”¼ê²© ì‹œ ì£¼ë³€ ê°ì „ ë°˜ê²©
+    // ÃàÀü Àå°©: ±âÂ÷ ÇÇ°İ ½Ã ÁÖº¯ °¨Àü ¹İ°İ
     public void TriggerThorns(Vector3 trainPos)
     {
         bool hasThorns = false;
@@ -388,87 +388,87 @@ public class TurretSlotManager : MonoBehaviour
         }
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // í¬íƒ‘ í•©ì²´ ì§„í™” (ê¸°íš B-3, DRD ë°©ì‹)
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // Æ÷Å¾ ÇÕÃ¼ ÁøÈ­ (±âÈ¹ B-3, DRD ¹æ½Ä)
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
 
     /// <summary>
-    /// ìŠ¬ë¡¯ Aë¥¼ ìŠ¬ë¡¯ Bì— í•©ì¹œë‹¤. ì„±ê³µ ì‹œ AëŠ” ë¹„ì›Œì§„ë‹¤.
-    /// - ê°™ì€ ìš”ë¦¬: ë ˆë²¨ í•©ì‚° (ìŠ¬ë¡¯ ì •ë¦¬ + ê³ ì† ë“±ê¸‰ì—…)
-    /// - ë‹¤ë¥¸ T1 ìš”ë¦¬: ë‘ íƒœê·¸ì˜ T2 ì „ì„¤ í¬íƒ‘ìœ¼ë¡œ ì§„í™” (ë ˆë²¨ì€ í‰ê· )
-    /// ë°˜í™˜: ì„±ê³µ ì—¬ë¶€. resultMsgì— ê²°ê³¼ ì„¤ëª…
+    /// ½½·Ô A¸¦ ½½·Ô B¿¡ ÇÕÄ£´Ù. ¼º°ø ½Ã A´Â ºñ¿öÁø´Ù.
+    /// - °°Àº ¿ä¸®: ·¹º§ ÇÕ»ê (½½·Ô Á¤¸® + °í¼Ó µî±Ş¾÷)
+    /// - ´Ù¸¥ T1 ¿ä¸®: µÎ ÅÂ±×ÀÇ T2 Àü¼³ Æ÷Å¾À¸·Î ÁøÈ­ (·¹º§Àº Æò±Õ)
+    /// ¹İÈ¯: ¼º°ø ¿©ºÎ. resultMsg¿¡ °á°ú ¼³¸í
     /// </summary>
     public bool TryMergeSlots(int idxA, int idxB, out string resultMsg)
     {
         resultMsg = "";
-        if (idxA == idxB) { resultMsg = "ê°™ì€ ìŠ¬ë¡¯"; return false; }
+        if (idxA == idxB) { resultMsg = "°°Àº ½½·Ô"; return false; }
         if (idxA < 0 || idxA >= 8 || idxB < 0 || idxB >= 8) return false;
 
         TurretSlot a = slots[idxA];
         TurretSlot b = slots[idxB];
         if (a == null || b == null || a.IsEmpty || b.IsEmpty || a.isLocked || b.isLocked)
         {
-            resultMsg = "ë¹ˆ ìŠ¬ë¡¯ì´ë‚˜ ì ê¸´ ìŠ¬ë¡¯ì€ í•©ì²´ ë¶ˆê°€";
+            resultMsg = "ºó ½½·ÔÀÌ³ª Àá±ä ½½·ÔÀº ÇÕÃ¼ ºÒ°¡";
             return false;
         }
 
         RecipeData ra = a.Recipe;
         RecipeData rb = b.Recipe;
 
-        // 1) ê°™ì€ ìš”ë¦¬: ë ˆë²¨ í•©ì‚° ë³‘í•©
+        // 1) °°Àº ¿ä¸®: ·¹º§ ÇÕ»ê º´ÇÕ
         if (a.recipeId == b.recipeId)
         {
             int merged = a.level + b.level;
             b.SetTurret(b.recipeId, merged);
             a.ClearSlot();
-            resultMsg = rb.displayName + " í•©ì²´! " + b.GradeName + "ë“±ê¸‰ Lv" + merged;
-            Debug.Log("[í•©ì²´] ë™ì¢… ë³‘í•©: " + resultMsg);
+            resultMsg = rb.displayName + " ÇÕÃ¼! " + b.GradeName + "µî±Ş Lv" + merged;
+            Debug.Log("[ÇÕÃ¼] µ¿Á¾ º´ÇÕ: " + resultMsg);
             return true;
         }
 
-        // 2) ë‹¤ë¥¸ ìš”ë¦¬: ë‘˜ ë‹¤ T1ì´ë©´ T2 ì§„í™”
-        // P1 (ê°ì‚¬ 1-A ì²˜ë°© 2): ì¦‰ì‹œ ì§„í™” ëŒ€ì‹  'ì¸í“¨ì§• ë¯¸ë‹ˆê²Œì„'ì„ ê±°ì¹œë‹¤.
-        // íŒì •ì´ ì¢‹ìœ¼ë©´ T2ê°€ +1ë ˆë²¨ë¡œ íƒ„ìƒ - ì‹¤ì œ ì§„í™”ëŠ” CompleteFusionì—ì„œ ìˆ˜í–‰.
+        // 2) ´Ù¸¥ ¿ä¸®: µÑ ´Ù T1ÀÌ¸é T2 ÁøÈ­
+        // P1 (°¨»ç 1-A Ã³¹æ 2): Áï½Ã ÁøÈ­ ´ë½Å 'ÀÎÇ»Â¡ ¹Ì´Ï°ÔÀÓ'À» °ÅÄ£´Ù.
+        // ÆÇÁ¤ÀÌ ÁÁÀ¸¸é T2°¡ +1·¹º§·Î Åº»ı - ½ÇÁ¦ ÁøÈ­´Â CompleteFusion¿¡¼­ ¼öÇà.
         if (ra.tier == 1 && rb.tier == 1)
         {
-            // Phase 2-3 ì¦ê°• 'ì„ ëŒ€ì˜ ê¸°ë³¸ê¸°': T2 ì§„í™” ë´‰ì¸ (T1 ê°•í™”ì˜ ëŒ€ê°€)
+            // Phase 2-3 Áõ°­ '¼±´ëÀÇ ±âº»±â': T2 ÁøÈ­ ºÀÀÎ (T1 °­È­ÀÇ ´ë°¡)
             if (AugmentManager.BasicsDoctrine)
             {
-                resultMsg = "ì„ ëŒ€ì˜ ê¸°ë³¸ê¸° - T2 ì§„í™”ëŠ” ë´‰ì¸ëë‹¤. ê¸°ë³¸ìœ¼ë¡œ ëŒì•„ê°€ë¼";
+                resultMsg = "¼±´ëÀÇ ±âº»±â - Àü¼³ ¿ä¸® ÁøÈ­´Â ºÀÀÎµÆ´Ù";
                 return false;
             }
 
             RecipeData fusion = RecipeDatabase.GetFusion(ra.tag, rb.tag);
             if (fusion == null)
             {
-                resultMsg = "ì´ ì¡°í•©ì˜ ì§„í™” ë ˆì‹œí”¼ ì—†ìŒ";
+                resultMsg = "ÀÌ Á¶ÇÕÀÇ ÁøÈ­ ·¹½ÃÇÇ ¾øÀ½";
                 return false;
             }
 
             if (InfusingMinigame.IsActive)
             {
-                resultMsg = "ì¸í“¨ì§•ì´ ì´ë¯¸ ì§„í–‰ ì¤‘";
+                resultMsg = "ÁøÈ­ Á¶¸®°¡ ÀÌ¹Ì ÁøÇà Áß";
                 return false;
             }
             if (CookingMinigame.IsActive)
             {
-                resultMsg = "ì¡°ë¦¬ ì¤‘ì—ëŠ” ì¸í“¨ì§• ë¶ˆê°€";
+                resultMsg = "Á¶¸® Áß¿¡´Â ÁøÈ­ Á¶¸® ºÒ°¡";
                 return false;
             }
 
             InfusingMinigame.Begin(idxA, idxB, fusion, this);
-            resultMsg = "[ì¸í“¨ì§•] " + ra.displayName + " + " + rb.displayName + " - ì •ìˆ˜ë¥¼ ìœµí•©í•œë‹¤!";
+            resultMsg = "[ÁøÈ­ Á¶¸®] " + ra.displayName + " + " + rb.displayName + " - µÎ ¿ä¸®¸¦ ÇÏ³ª·Î!";
             return true;
         }
 
-        resultMsg = "T2 í¬íƒ‘ì€ ê°™ì€ ìš”ë¦¬ë¼ë¦¬ë§Œ í•©ì²´ ê°€ëŠ¥";
+        resultMsg = "Àü¼³ Æ÷Å¾Àº °°Àº ¿ä¸®³¢¸®¸¸ ÇÕÃ¼ °¡´É";
         return false;
     }
 
-    // â”€â”€ B-2: ê³¼ì—´ ë¹ˆë„ ì œì–´ (ë™ì‹œ ìœ„ê¸° ìƒí•œ 1 + ê¸°ì°¨ ì „ì²´ ìµœì†Œ ê°„ê²©) â”€â”€
+    // ¦¡¦¡ B-2: °ú¿­ ºóµµ Á¦¾î (µ¿½Ã À§±â »óÇÑ 1 + ±âÂ÷ ÀüÃ¼ ÃÖ¼Ò °£°İ) ¦¡¦¡
     private float lastOverheatTime = -999f;
 
-    /// <summary>ì–´ëŠ ìŠ¬ë¡¯ì´ë“  ë§ˆë¹„(ê°ì „/ë¹™ê²°/ê³¼ì—´) ì¤‘ì¸ê°€ - ê³¼ì—´ ë™ì‹œ ë°œìƒ ì°¨ë‹¨ìš©</summary>
+    /// <summary>¾î´À ½½·ÔÀÌµç ¸¶ºñ(°¨Àü/ºù°á/°ú¿­) ÁßÀÎ°¡ - °ú¿­ µ¿½Ã ¹ß»ı Â÷´Ü¿ë</summary>
     public bool AnySlotStunned()
     {
         for (int i = 0; i < slots.Length; i++)
@@ -476,18 +476,18 @@ public class TurretSlotManager : MonoBehaviour
         return false;
     }
 
-    /// <summary>ì§€ê¸ˆ ìƒˆ ê³¼ì—´ì´ ë°œìƒí•´ë„ ë˜ëŠ”ê°€ (TurretSlot.TickFireê°€ í™•ì¸)</summary>
+    /// <summary>Áö±İ »õ °ú¿­ÀÌ ¹ß»ıÇØµµ µÇ´Â°¡ (TurretSlot.TickFire°¡ È®ÀÎ)</summary>
     public bool CanOverheatNow()
     {
         return Time.time - lastOverheatTime >= GameBalance.OverheatGlobalGap && !AnySlotStunned();
     }
 
-    /// <summary>ê³¼ì—´ ë°œìƒ ê¸°ë¡ (ì „ì²´ ê°„ê²© íƒ€ì´ë¨¸ ë¦¬ì…‹)</summary>
+    /// <summary>°ú¿­ ¹ß»ı ±â·Ï (ÀüÃ¼ °£°İ Å¸ÀÌ¸Ó ¸®¼Â)</summary>
     public void NoteOverheat() { lastOverheatTime = Time.time; }
 
     /// <summary>
-    /// B-1: ì…°í”„ ê·¼ì²˜ì— ë§ˆë¹„(ë¹™ê²°/ê°ì „)ëœ í¬íƒ‘ì´ ìˆëŠ”ê°€.
-    /// CookingStationì´ [E] ìš°ì„ ìˆœìœ„ íŒë³„ì— ì‚¬ìš© (ìœ„ê¸° ëŒ€ì‘ > ì¡°ë¦¬ëŒ€ ì—´ê¸°)
+    /// B-1: ¼ÎÇÁ ±ÙÃ³¿¡ ¸¶ºñ(ºù°á/°¨Àü)µÈ Æ÷Å¾ÀÌ ÀÖ´Â°¡.
+    /// CookingStationÀÌ [E] ¿ì¼±¼øÀ§ ÆÇº°¿¡ »ç¿ë (À§±â ´ëÀÀ > Á¶¸®´ë ¿­±â)
     /// </summary>
     public bool HasStunnedSlotNear(Vector3 chefPos, float reach)
     {
@@ -495,11 +495,11 @@ public class TurretSlotManager : MonoBehaviour
     }
 
     /// <summary>
-    /// B-1: ì…°í”„ ê·¼ì²˜ì˜ ë§ˆë¹„ëœ í¬íƒ‘ ì¤‘ ê°€ì¥ ê°€ê¹Œìš´ ìŠ¬ë¡¯ ì¸ë±ìŠ¤ (-1 = ì—†ìŒ).
-    /// SlotMarkerUIê°€ ê·¼ì ‘ [E] í•´ì œ ëŒ€ìƒ ê²°ì •ì— ì‚¬ìš©.
-    /// v2.1 (v9.9 ëª¨ì„œë¦¬ ë°°ì¹˜): ìŠ¬ë¡¯ y ë¥¼ ì…°í”„ê°€ ì„¤ ìˆ˜ ìˆëŠ” ë (TrainWalkMinY~MaxY)ë¡œ ë¶™ì¸ ì (ë²½ ì•)ê¹Œì§€ì˜ ê±°ë¦¬.
-    ///   ë¶ìª½ ìŠ¬ë¡¯(ì§€ë¶• ìœ„ 1.95)ì€ ë¶ìª½ ë²½ ì• y 1.5, ë‚¨ìª½ ìŠ¬ë¡¯(ì„€ì‹œ -1.45)ì€ ë‚¨ìª½ ë²½ ì• y -1.5 ì—ì„œ ì¬ë¯€ë¡œ
-    ///   ê°™ì€ x ì˜ ë¶/ë‚¨ í¬íƒ‘ì„ ì…°í”„ê°€ ì„œ ìˆëŠ” ìª½ìœ¼ë¡œ êµ¬ë¶„í•œë‹¤. ì¢…ì „(ê°€ë¡œ ê±°ë¦¬ë§Œ)ì€ SlotCornerLayout=false ì¼ ë•Œ
+    /// B-1: ¼ÎÇÁ ±ÙÃ³ÀÇ ¸¶ºñµÈ Æ÷Å¾ Áß °¡Àå °¡±î¿î ½½·Ô ÀÎµ¦½º (-1 = ¾øÀ½).
+    /// SlotMarkerUI°¡ ±ÙÁ¢ [E] ÇØÁ¦ ´ë»ó °áÁ¤¿¡ »ç¿ë.
+    /// v2.1 (v9.9 ¸ğ¼­¸® ¹èÄ¡): ½½·Ô y ¸¦ ¼ÎÇÁ°¡ ¼³ ¼ö ÀÖ´Â ¶ì(TrainWalkMinY~MaxY)·Î ºÙÀÎ Á¡(º® ¾Õ)±îÁöÀÇ °Å¸®.
+    ///   ºÏÂÊ ½½·Ô(ÁöºØ À§ 1.95)Àº ºÏÂÊ º® ¾Õ y 1.5, ³²ÂÊ ½½·Ô(¼¨½Ã -1.45)Àº ³²ÂÊ º® ¾Õ y -1.5 ¿¡¼­ Àç¹Ç·Î
+    ///   °°Àº x ÀÇ ºÏ/³² Æ÷Å¾À» ¼ÎÇÁ°¡ ¼­ ÀÖ´Â ÂÊÀ¸·Î ±¸ºĞÇÑ´Ù. Á¾Àü(°¡·Î °Å¸®¸¸)Àº SlotCornerLayout=false ÀÏ ¶§
     /// </summary>
     public int FindStunnedSlotNear(Vector3 chefPos, float reach)
     {
@@ -515,7 +515,7 @@ public class TurretSlotManager : MonoBehaviour
         return best;
     }
 
-    /// <summary>ì…°í”„ ìœ„ì¹˜ì—ì„œ ìŠ¬ë¡¯ê¹Œì§€ì˜ "ì •ë¹„ ê±°ë¦¬" (v2.1). ë‹¤ë¥¸ ì‹œìŠ¤í…œ(íŠœí† ë¦¬ì–¼ ë§ˆì»¤ ë“±)ë„ ê°™ì€ ìë¡œ ì°ë‹¤</summary>
+    /// <summary>¼ÎÇÁ À§Ä¡¿¡¼­ ½½·Ô±îÁöÀÇ "Á¤ºñ °Å¸®" (v2.1). ´Ù¸¥ ½Ã½ºÅÛ(Æ©Åä¸®¾ó ¸¶Ä¿ µî)µµ °°Àº ÀÚ·Î Àé´Ù</summary>
     public static float SlotReachDistance(Vector3 chefPos, Vector3 slotPos)
     {
         if (!GameBalance.SlotCornerLayout)
@@ -527,8 +527,8 @@ public class TurretSlotManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Phase 2-3 ì¦ê°• 'ì£¼ë°©ì¥ì€ í•˜ë‚˜ë‹¤': í˜„ì¬ ê°€ì¥ ë ˆë²¨ì´ ë†’ì€ í¬íƒ‘ì˜ ë ˆì‹œí”¼ í‚¤.
-    /// ë™ë¥ ì´ë©´ ì• ìŠ¬ë¡¯ ìš°ì„ . ë¹ˆ ì£¼ë°©ì´ë©´ "" (ë³´ë„ˆìŠ¤/í˜ë„í‹° ë‘˜ ë‹¤ ë¯¸ì ìš©)
+    /// Phase 2-3 Áõ°­ 'ÁÖ¹æÀåÀº ÇÏ³ª´Ù': ÇöÀç °¡Àå ·¹º§ÀÌ ³ôÀº Æ÷Å¾ÀÇ ·¹½ÃÇÇ Å°.
+    /// µ¿·üÀÌ¸é ¾Õ ½½·Ô ¿ì¼±. ºó ÁÖ¹æÀÌ¸é "" (º¸³Ê½º/Æä³ÎÆ¼ µÑ ´Ù ¹ÌÀû¿ë)
     /// </summary>
     public string GetChefRecipeId()
     {
@@ -548,9 +548,9 @@ public class TurretSlotManager : MonoBehaviour
     }
 
     /// <summary>
-    /// P1: ì¸í“¨ì§• ë¯¸ë‹ˆê²Œì„ ì™„ë£Œ ì½œë°± - ì‹¤ì œ T2 ì§„í™”ë¥¼ ì—¬ê¸°ì„œ ìˆ˜í–‰í•œë‹¤.
-    /// bonusLevel = íŒì • ë³´ë„ˆìŠ¤ (ê¸°ì¤€ ë¯¸ë‹¬ì´ë©´ 0), perfect = ë§Œì (ì—°ì¶œìš©).
-    /// ë¯¸ë‹ˆê²Œì„ ë„ì¤‘ ìŠ¬ë¡¯ì´ ë¹„ì—ˆìœ¼ë©´(ë‹¤ë¥¸ í•©ì²´ ë“±) ì§„í™”ëŠ” ë¬´ì‚°ë˜ê³  ì•„ë¬´ê²ƒë„ ìƒì§€ ì•ŠëŠ”ë‹¤.
+    /// P1: ÀÎÇ»Â¡ ¹Ì´Ï°ÔÀÓ ¿Ï·á Äİ¹é - ½ÇÁ¦ T2 ÁøÈ­¸¦ ¿©±â¼­ ¼öÇàÇÑ´Ù.
+    /// bonusLevel = ÆÇÁ¤ º¸³Ê½º (±âÁØ ¹Ì´ŞÀÌ¸é 0), perfect = ¸¸Á¡(¿¬Ãâ¿ë).
+    /// ¹Ì´Ï°ÔÀÓ µµÁß ½½·ÔÀÌ ºñ¾úÀ¸¸é(´Ù¸¥ ÇÕÃ¼ µî) ÁøÈ­´Â ¹«»êµÇ°í ¾Æ¹«°Íµµ ÀÒÁö ¾Ê´Â´Ù.
     /// </summary>
     public void CompleteFusion(int idxA, int idxB, RecipeData fusion, int bonusLevel, bool perfect)
     {
@@ -559,52 +559,52 @@ public class TurretSlotManager : MonoBehaviour
 
         if (a == null || b == null || a.IsEmpty || b.IsEmpty || fusion == null)
         {
-            UIManager.Instance?.ShowStatChange("ì¸í“¨ì§• ë¬´ì‚° - ì¬ë£Œ í¬íƒ‘ì´ ì‚¬ë¼ì¡Œë‹¤ (ì•„ë¬´ê²ƒë„ ìƒì§€ ì•ŠìŒ)");
-            Debug.Log("[í•©ì²´] ì¸í“¨ì§• ë¬´ì‚°: ìŠ¬ë¡¯ ìƒíƒœ ë³€ê²½ë¨");
+            UIManager.Instance?.ShowStatChange("ÁøÈ­ Á¶¸® ¹«»ê - Àç·á Æ÷Å¾ÀÌ »ç¶óÁ³´Ù (¾Æ¹«°Íµµ ÀÒÁö ¾ÊÀ½)");
+            Debug.Log("[ÇÕÃ¼] ÀÎÇ»Â¡ ¹«»ê: ½½·Ô »óÅÂ º¯°æµÊ");
             return;
         }
 
-        // ë ˆë²¨ì€ ì™„ë£Œ ì‹œì ì˜ ì‹¤ì œ ë ˆë²¨ë¡œ ê³„ì‚° (ë¯¸ë‹ˆê²Œì„ ì¤‘ ë™ì¢… ë³‘í•©ìœ¼ë¡œ ì˜¬ëë‹¤ë©´ ë°˜ì˜)
+        // ·¹º§Àº ¿Ï·á ½ÃÁ¡ÀÇ ½ÇÁ¦ ·¹º§·Î °è»ê (¹Ì´Ï°ÔÀÓ Áß µ¿Á¾ º´ÇÕÀ¸·Î ¿Ã¶ú´Ù¸é ¹İ¿µ)
         int newLevel = Mathf.Max(1, (a.level + b.level) / 2) + bonusLevel;
 
-        // P1+: ìš”ë¦¬ ìˆ™ë ¨ 'ì¥ì¸ì˜ ê°ê°'(50íšŒ) - ìˆ™ë ¨ëœ T2 ë ˆì‹œí”¼ëŠ” íƒ„ìƒ ë ˆë²¨ +1
+        // P1+: ¿ä¸® ¼÷·Ã 'ÀåÀÎÀÇ °¨°¢'(50È¸) - ¼÷·ÃµÈ T2 ·¹½ÃÇÇ´Â Åº»ı ·¹º§ +1
         if (MetaProgress.GetMasteryTier(fusion.recipeId) >= GameBalance.MasteryStartLevelTier)
             newLevel += 1;
 
         b.SetTurret(fusion.recipeId, newLevel);
         a.ClearSlot();
 
-        // ë„ê° ë°œê²¬ ì²˜ë¦¬ (ìˆ˜ëŸ‰ 0ìœ¼ë¡œ ë“±ë¡ - FoodStock.AddëŠ” 0ì´ì–´ë„ ë°œê²¬ ì²˜ë¦¬)
+        // µµ°¨ ¹ß°ß Ã³¸® (¼ö·® 0À¸·Î µî·Ï - FoodStock.Add´Â 0ÀÌ¾îµµ ¹ß°ß Ã³¸®)
         if (FoodStock.Instance != null && !FoodStock.Instance.IsDiscovered(fusion.recipeId))
             FoodStock.Instance.Add(fusion.recipeId, 0);
 
         string msg;
         if (perfect)
-            msg = "ì™„ë²½í•œ ìœµí•©! " + fusion.displayName + " [T2] Lv" + newLevel + " - ë‘ ìš”ë¦¬ì˜ ì‹¬ì¥ì´ í•˜ë‚˜ë¡œ ë›´ë‹¤";
+            msg = "¿Ïº®ÇÑ À¶ÇÕ! " + fusion.displayName + " [Àü¼³] Lv" + newLevel + " - µÎ ¿ä¸®ÀÇ ½ÉÀåÀÌ ÇÏ³ª·Î ¶Ú´Ù";
         else if (bonusLevel > 0)
-            msg = fusion.displayName + " [T2] ì§„í™”! Lv" + newLevel + " (ì¸í“¨ì§• ë³´ë„ˆìŠ¤ +" + bonusLevel + ")";
+            msg = fusion.displayName + " [Àü¼³] ÁøÈ­! Lv" + newLevel + " (ÆÇÁ¤ º¸³Ê½º +" + bonusLevel + ")";
         else
-            msg = fusion.displayName + " [T2] ì§„í™”! Lv" + newLevel;
+            msg = fusion.displayName + " [Àü¼³] ÁøÈ­! Lv" + newLevel;
 
         UIManager.Instance?.ShowStatChange(msg);
         SoundManager.Play(bonusLevel > 0 ? "sfx_judge_perfect" : "sfx_augment_pick");
-        Debug.Log("[í•©ì²´] T2 ì§„í™” ì™„ë£Œ: " + msg);
+        Debug.Log("[ÇÕÃ¼] T2 ÁøÈ­ ¿Ï·á: " + msg);
     }
 
-    // ì™¸ë¶€ ìš”ë¦¬ íˆ¬ì…: ê°™ì€ ìš”ë¦¬ ìŠ¬ë¡¯ ìš°ì„ , ì—†ìœ¼ë©´ ì²« í•´ê¸ˆ ë¹ˆ ìŠ¬ë¡¯
+    // ¿ÜºÎ ¿ä¸® ÅõÀÔ: °°Àº ¿ä¸® ½½·Ô ¿ì¼±, ¾øÀ¸¸é Ã¹ ÇØ±İ ºó ½½·Ô
     public bool TryInsertFood(string recipeId)
     {
-        // 1ìˆœìœ„: ê°™ì€ ìš”ë¦¬ê°€ ì´ë¯¸ ìˆëŠ” ìŠ¬ë¡¯ (ë ˆë²¨ì—…)
+        // 1¼øÀ§: °°Àº ¿ä¸®°¡ ÀÌ¹Ì ÀÖ´Â ½½·Ô (·¹º§¾÷)
         for (int i = 0; i < 8; i++)
             if (slots[i] != null && !slots[i].isLocked && slots[i].recipeId == recipeId)
                 return slots[i].TryInsertFood(recipeId);
 
-        // 2ìˆœìœ„: í•´ê¸ˆëœ ë¹ˆ ìŠ¬ë¡¯
+        // 2¼øÀ§: ÇØ±İµÈ ºó ½½·Ô
         for (int i = 0; i < 8; i++)
             if (slots[i] != null && !slots[i].isLocked && slots[i].IsEmpty)
                 return slots[i].TryInsertFood(recipeId);
 
-        Debug.Log("[TurretSlotManager] ë¹ˆ ìŠ¬ë¡¯ ì—†ìŒ! (í•´ê¸ˆ " + UnlockedSlotCount + "ì¹¸ - ì¦ê°• 'ì¦ì¶•ëœ ì£¼ë°© ì¹¸'ìœ¼ë¡œ í™•ì¥ ê°€ëŠ¥)");
+        Debug.Log("[TurretSlotManager] ºó ½½·Ô ¾øÀ½! (ÇØ±İ " + UnlockedSlotCount + "Ä­ - Áõ°­ 'ÁõÃàµÈ ÁÖ¹æ Ä­'À¸·Î È®Àå °¡´É)");
         return false;
     }
 }

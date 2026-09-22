@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// [Enemy.cs] v3.3 (v9.11 2026-09-22 타격감: 직접 명중 때 HitFeel.OnHit(플래시·찌그러짐·딜 비례 스파크), 죽을 때 HitFeel.OnKill(킬 버스트) - 도트 틱은 제외) / v3.2 (v9.10.1 2026-09-21: 물량 1.6배에 맞춘 처치 보상 배율 - 일반 손님 골드 GameBalance.KillGoldMul, 재료 드랍 확률 KillMaterialChance(보스는 항상). 드랍 이름을 재료 이름표(전기알·화염꽃·독샘)에 맞춤) / v3.1 (2026-09-14: 해빙 문구 / 전갈 마모 대체 스위치) / v3
+/// [Enemy.cs] v3.4 (v9.11.1 2026-09-22 문구: 특기 설명 일상어, 강철 = 방어 50) / v3.3 (v9.11 2026-09-22 타격감: 직접 명중 때 HitFeel.OnHit(플래시·찌그러짐·딜 비례 스파크), 죽을 때 HitFeel.OnKill(킬 버스트) - 도트 틱은 제외) / v3.2 (v9.10.1 2026-09-21: 물량 1.6배에 맞춘 처치 보상 배율 - 일반 손님 골드 GameBalance.KillGoldMul, 재료 드랍 확률 KillMaterialChance(보스는 항상). 드랍 이름을 재료 이름표(전기알·화염꽃·독샘)에 맞춤) / v3.1 (2026-09-14: 해빙 문구 / 전갈 마모 대체 스위치) / v3
 /// 모든 적 유닛의 기본 동작 + 전투 스탯(DEF/RES) + 상태이상(도트/방깎/마깎)
 /// - v3 변경점: 행동 패턴 시스템 (이름 기반 자동 배정 - 프리팹 설정 불필요)
 ///   1) 무리 사냥꾼(랩터): 주변 랩터가 많을수록 이동 속도 증가
@@ -61,7 +61,7 @@ public class Enemy : MonoBehaviour
         goldReward = 30,
         xpReward = 15,
         targetPriority = "엔진(헤드)",
-        specialAbility = "돌진 공격 시 DEF +20"
+        specialAbility = "돌진할 때 물리 방어 +20"
     };
 
     public static EnemyData OilCactus = new EnemyData
@@ -100,7 +100,7 @@ public class Enemy : MonoBehaviour
         goldReward = 40,
         xpReward = 20,
         targetPriority = "엔진(헤드)",
-        specialAbility = "고방어력 (관통 속성 필요)"
+        specialAbility = "물리 방어 45 (속성 요리로)"
     };
 
     // ═══════════════════════════════════════════
@@ -182,7 +182,7 @@ public class Enemy : MonoBehaviour
         goldReward = 45,
         xpReward = 22,
         targetPriority = "포탑 슬롯",
-        specialAbility = "물리 면역 (속성 공격 필요)"
+        specialAbility = "물리 방어 50 (물리 요리는 피해 절반 - 속성 요리로)"
     };
 
     // ═══════════════════════════════════════════
@@ -225,7 +225,7 @@ public class Enemy : MonoBehaviour
         goldReward = 120,
         xpReward = 60,
         targetPriority = "기차 전체",
-        specialAbility = "화염 방사(도트 데미지)"
+        specialAbility = "화염 방사(계속 피해)"
     };
 
     public static EnemyData FrostMammoth = new EnemyData
@@ -695,7 +695,7 @@ public class Enemy : MonoBehaviour
         target.StunSlot(GameBalance.FreezeSlotSec, "빙결");
         nextFreezeAllowed = Time.time + GameBalance.FreezeGlobalCooldown;
 
-        UIManager.Instance?.ShowDanger("[아이스 모사] 냉기가 포탑을 덮쳤다! 빙결 - 슬롯 곁에서 [E] 연타로 해빙");
+        UIManager.Instance?.ShowDanger("[아이스 모사] 냉기가 포탑을 덮쳤다! 빙결 - 포탑 곁에서 [E] 여러 번 눌러 얼음을 깨라");
         Debug.Log("[Enemy] 아이스 모사 빙결: " + (target.Recipe != null ? target.Recipe.displayName : "?"));
     }
 

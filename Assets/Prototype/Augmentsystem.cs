@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 
 /// <summary>
-/// [AugmentSystem.cs] v4.2 (v9.10 2026-09-17 테스터 피드백 "증강에 모르겠는 말": 첫 지역은 바로 이해되는 증강만 후보(EARLY_SIMPLE, GameBalance.AugmentSimpleEarly) / 설명 낱말 일상어 - 도트·스택·인접 버프·공명·DEF·감쇄) / v4.1 (2026-09-14: 중첩 배수 상한 AugmentStackMulCap) / v4
+/// [AugmentSystem.cs] v4.3 (v9.11.1 2026-09-22 문구: 이번 운행·유물·진화) / v4.2 (v9.10 2026-09-17 테스터 피드백 "증강에 모르겠는 말": 첫 지역은 바로 이해되는 증강만 후보(EARLY_SIMPLE, GameBalance.AugmentSimpleEarly) / 설명 낱말 일상어 - 도트·스택·인접 버프·공명·DEF·감쇄) / v4.1 (2026-09-14: 중첩 배수 상한 AugmentStackMulCap) / v4
 /// 로그라이크 증강 시스템 (기획 C) - 창의적 증강 재설계판
 ///
 /// 설계 철학
@@ -519,7 +519,7 @@ public static class AugmentDatabase
             delegate { AugmentManager.DoubleTapChance = 0.25f; }));
 
         all.Add(new AugmentData("gold_fieldrepair", "야전 정비반",
-            "웨이브 클리어마다 기차 최대 HP +50 (영구, 중복 가능)", AugmentGrade.Gold, true,
+            "웨이브 클리어마다 기차 최대 HP +50 (이번 운행 동안, 겹칠수록 더)", AugmentGrade.Gold, true,
             delegate { AugmentManager.MaxHPPerWave += 50f; }));
 
         all.Add(new AugmentData("gold_luckycharm", "행운의 부적",
@@ -716,7 +716,7 @@ public static class AugmentDatabase
             }));
 
         all.Add(new AugmentData("gold_collector", "골동품 감정가",
-            "보유한 아이템 1개당 모든 포탑 데미지 +6% (이후 획득분도 반영)",
+            "보유한 유물 1개당 모든 포탑 데미지 +6% (이후 획득분도 반영)",
             AugmentGrade.Gold, false,
             delegate { AugmentManager.HasCollector = true; }));
 
@@ -727,7 +727,7 @@ public static class AugmentDatabase
             delegate { AugmentManager.SteelHeart = true; }));
 
         all.Add(new AugmentData("prism_basics", "선대의 기본기",
-            "전설 요리 합성이 막힌다 (이미 있는 건 유지). 대신 기본 요리 포탑 피해 +65%, 새로 놓으면 레벨 2 부터",
+            "전설 요리 진화(다른 기본 포탑 둘 합치기)가 막힌다 (이미 있는 건 유지). 대신 기본 요리 포탑 피해 +65%, 새로 놓으면 레벨 2 부터",
             AugmentGrade.Prismatic, false,
             delegate { AugmentManager.BasicsDoctrine = true; }));
 

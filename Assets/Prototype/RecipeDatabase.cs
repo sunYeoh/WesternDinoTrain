@@ -64,47 +64,47 @@ public static class RecipeDatabase
         AddT1("meat+meat", "더블 육포", FoodTag.Phys, TurretRole.PhysDealer, AttackShape.Projectile, DamageType.Phys,
               26f, 1.0f, 430f, r => { r.description = "묵직한 물리 강타"; });
         AddT1("armor+meat", "하티 스테이크", FoodTag.Phys, TurretRole.Support, AttackShape.Projectile, DamageType.Phys,
-              14f, 1.0f, 420f, r => { r.healOnHit = 1f; r.description = "물리탄 · 명중 시 기차 HP+1"; });
+              14f, 1.0f, 420f, r => { r.healOnHit = 1f; r.description = "물리 공격 · 맞출 때마다 기차 HP +1"; });
         AddT1("fire+meat", "매운 육포", FoodTag.Phys, TurretRole.PhysDealer, AttackShape.Projectile, DamageType.Phys,
-              13f, 0.9f, 450f, r => { r.burnStack = 1; r.description = "물리탄 + 화상 도트"; });
+              13f, 0.9f, 450f, r => { r.burnStack = 1; r.description = "물리 공격 + 화상(계속 피해)"; });
         AddT1("ice+meat", "냉동 육포", FoodTag.Phys, TurretRole.CC, AttackShape.Projectile, DamageType.Phys,
-              12f, 0.9f, 420f, r => { r.slowLevel = 1; r.description = "물리탄 + 감속"; });
+              12f, 0.9f, 420f, r => { r.slowLevel = 1; r.description = "물리 공격 + 감속"; });
         AddT1("meat+poison", "독침 육포", FoodTag.Phys, TurretRole.Debuffer, AttackShape.Projectile, DamageType.Phys,
-              10f, 0.9f, 430f, r => { r.shredDef = 1; r.description = "물리탄 + 방어력 감소(방깎)"; });
+              10f, 0.9f, 430f, r => { r.shredDef = 1; r.description = "물리 공격 + 물리 방어 감소"; });
 
         // 전기 계열 (3)
         AddT1("elec+meat", "전기 스테이크", FoodTag.Elec, TurretRole.CC, AttackShape.Projectile, DamageType.Magic,
-              12f, 0.8f, 520f, r => { r.stunSec = 0.45f; r.description = "감전탄 · 짧은 스턴"; });
+              12f, 0.8f, 520f, r => { r.stunSec = 0.45f; r.description = "전기 공격 · 잠깐 멈춤"; });
         AddT1("elec+elec", "과부하 코일", FoodTag.Elec, TurretRole.MagicDealer, AttackShape.Chain, DamageType.Magic,
-              9f, 0.55f, 600f, r => { r.chainCount = 3; r.description = "체인 라이트닝 · 3체 전이"; });
+              9f, 0.55f, 600f, r => { r.chainCount = 3; r.description = "번개가 손님 3마리로 튄다"; });
         AddT1("elec+fire", "플라즈마 볶음", FoodTag.Elec, TurretRole.MagicDealer, AttackShape.Pierce, DamageType.Magic,
-              11f, 1.1f, 0f, r => { r.description = "관통 레일 · 일직선 전부 타격"; });
+              11f, 1.1f, 0f, r => { r.description = "직선 관통 · 줄 선 손님 전부"; });
 
         // 화염 계열 (4)
         AddT1("armor+fire", "화염 방벽", FoodTag.Fire, TurretRole.MagicDealer, AttackShape.Aura, DamageType.Magic,
-              0f, 0f, 0f, r => { r.passiveType = "auraBurn"; r.description = "[오라] 근접 적에게 화상"; });
+              0f, 0f, 0f, r => { r.passiveType = "auraBurn"; r.description = "[오라] 가까운 손님에게 화상"; });
         AddT1("fire+fire", "용암 폭탄밥", FoodTag.Fire, TurretRole.MagicDealer, AttackShape.Explode, DamageType.Magic,
-              15f, 1.3f, 360f, r => { r.explodeRadius = 70f; r.description = "착탄 폭발 (직스식)"; });
+              15f, 1.3f, 360f, r => { r.explodeRadius = 70f; r.description = "적중한 곳에서 폭발 - 주변 손님도 맞는다"; });
         AddT1("fire+ice", "증기 폭발", FoodTag.Fire, TurretRole.MagicDealer, AttackShape.Explode, DamageType.Magic,
               11f, 1.4f, 340f, r => { r.explodeRadius = 100f; r.slowLevel = 1; r.description = "대범위 폭발 + 감속"; });
         AddT1("fire+poison", "맹독 화염방사", FoodTag.Fire, TurretRole.MagicDealer, AttackShape.Cone, DamageType.Magic,
-              5f, 0.4f, 0f, r => { r.burnStack = 1; r.description = "부채꼴 지속 방사 + 화상"; });
+              5f, 0.4f, 0f, r => { r.burnStack = 1; r.description = "부채꼴로 계속 뿜는다 + 화상"; });
 
         // 냉기 계열 (4)
         AddT1("armor+ice", "빙벽 스튜", FoodTag.Ice, TurretRole.CC, AttackShape.Aura, DamageType.Magic,
-              0f, 0f, 0f, r => { r.passiveType = "auraSlow"; r.description = "[오라] 근접 적 감속"; });
+              0f, 0f, 0f, r => { r.passiveType = "auraSlow"; r.description = "[오라] 가까운 손님 감속"; });
         AddT1("elec+ice", "정전기 서리", FoodTag.Ice, TurretRole.CC, AttackShape.Projectile, DamageType.Magic,
-              8f, 0.7f, 500f, r => { r.slowLevel = 1; r.stunSec = 0.3f; r.description = "감속 + 짧은 감전"; });
+              8f, 0.7f, 500f, r => { r.slowLevel = 1; r.stunSec = 0.3f; r.description = "감속 + 잠깐 멈춤"; });
         AddT1("ice+ice", "절대영도 수프", FoodTag.Ice, TurretRole.CC, AttackShape.Field, DamageType.Magic,
-              5f, 1.6f, 340f, r => { r.slowLevel = 2; r.description = "착탄 지점에 강감속 장판"; });
+              5f, 1.6f, 340f, r => { r.slowLevel = 2; r.description = "적중한 곳에 강한 감속 장판"; });
         AddT1("ice+poison", "맹독 빙수", FoodTag.Ice, TurretRole.MagicDealer, AttackShape.Projectile, DamageType.Magic,
-              7f, 1.0f, 400f, r => { r.slowLevel = 1; r.poisonStack = 1; r.description = "감속 + 독 도트"; });
+              7f, 1.0f, 400f, r => { r.slowLevel = 1; r.poisonStack = 1; r.description = "감속 + 독(계속 피해)"; });
 
         // 독 계열 (2)
         AddT1("elec+poison", "마비독 꼬치", FoodTag.Poison, TurretRole.Debuffer, AttackShape.Projectile, DamageType.Magic,
-              8f, 0.8f, 500f, r => { r.shredRes = 1; r.description = "마법탄 + 마법저항 감소(마깎)"; });
+              8f, 0.8f, 500f, r => { r.shredRes = 1; r.description = "속성 공격 + 마법 저항 감소"; });
         AddT1("poison+poison", "맹독 진액", FoodTag.Poison, TurretRole.MagicDealer, AttackShape.Projectile, DamageType.Magic,
-              6f, 0.9f, 430f, r => { r.poisonStack = 2; r.description = "맹독 · 도트 2중첩"; });
+              6f, 0.9f, 430f, r => { r.poisonStack = 2; r.description = "맹독 · 계속 피해 2겹"; });
 
         // 방어 계열 (3)
         AddT1("armor+armor", "철판 정식", FoodTag.Def, TurretRole.Support, AttackShape.Passive, DamageType.Phys,
@@ -119,27 +119,27 @@ public static class RecipeDatabase
         AddT2(FoodTag.Phys, FoodTag.Phys, "거포 정식", TurretRole.PhysDealer, AttackShape.Projectile, DamageType.Phys,
               70f, 1.6f, 460f, r => { r.description = "초강력 물리 강타"; });
         AddT2(FoodTag.Phys, FoodTag.Elec, "개틀링 티렉스", TurretRole.PhysDealer, AttackShape.Projectile, DamageType.Phys,
-              8f, 0.14f, 640f, r => { r.description = "초고속 연사 물리탄"; });
+              8f, 0.14f, 640f, r => { r.description = "초고속 연사 물리 공격"; });
         AddT2(FoodTag.Phys, FoodTag.Fire, "화포 바베큐", TurretRole.PhysDealer, AttackShape.Explode, DamageType.Phys,
-              30f, 1.4f, 380f, r => { r.explodeRadius = 85f; r.description = "물리 폭발탄"; });
+              30f, 1.4f, 380f, r => { r.explodeRadius = 85f; r.description = "물리 폭발"; });
         AddT2(FoodTag.Phys, FoodTag.Ice, "얼음송곳 정식", TurretRole.PhysDealer, AttackShape.Pierce, DamageType.Phys,
-              24f, 1.0f, 0f, r => { r.slowLevel = 1; r.description = "관통 물리 레일 + 감속"; });
+              24f, 1.0f, 0f, r => { r.slowLevel = 1; r.description = "직선 관통 물리 + 감속"; });
         AddT2(FoodTag.Phys, FoodTag.Poison, "부식탄 정식", TurretRole.Debuffer, AttackShape.Projectile, DamageType.Phys,
-              18f, 0.9f, 450f, r => { r.shredDef = 2; r.description = "물리탄 + 강력 방깎(2중)"; });
+              18f, 0.9f, 450f, r => { r.shredDef = 2; r.description = "물리 공격 + 물리 방어 감소 2겹"; });
         AddT2(FoodTag.Phys, FoodTag.Def, "지휘관의 만찬", TurretRole.Buffer, AttackShape.Passive, DamageType.Phys,
-              0f, 0f, 0f, r => { r.buffType = "pd"; r.buffValue = 0.4f; r.description = "[버프] 인접 슬롯 물리 공격력 +40%"; });
+              0f, 0f, 0f, r => { r.buffType = "pd"; r.buffValue = 0.4f; r.description = "[강화] 가로·세로 이웃 포탑 물리 공격력 +40%"; });
 
         // 전기 조합
         AddT2(FoodTag.Elec, FoodTag.Elec, "테슬라 갓 핑거", TurretRole.MagicDealer, AttackShape.Chain, DamageType.Magic,
-              14f, 0.5f, 640f, r => { r.chainCount = 6; r.description = "체인 라이트닝 6체 전이"; });
+              14f, 0.5f, 640f, r => { r.chainCount = 6; r.description = "번개가 손님 6마리로 튄다"; });
         AddT2(FoodTag.Elec, FoodTag.Fire, "플라즈마 캐논", TurretRole.MagicDealer, AttackShape.Pierce, DamageType.Magic,
-              26f, 1.2f, 0f, r => { r.burnStack = 1; r.description = "강화 관통 레일 + 화상"; });
+              26f, 1.2f, 0f, r => { r.burnStack = 1; r.description = "강한 직선 관통 + 화상"; });
         AddT2(FoodTag.Elec, FoodTag.Ice, "뇌빙 결정포", TurretRole.CC, AttackShape.Explode, DamageType.Magic,
-              18f, 1.3f, 400f, r => { r.explodeRadius = 80f; r.stunSec = 0.6f; r.description = "폭발 + 스턴 0.6초"; });
+              18f, 1.3f, 400f, r => { r.explodeRadius = 80f; r.stunSec = 0.6f; r.description = "폭발 + 0.6초 멈춤"; });
         AddT2(FoodTag.Elec, FoodTag.Poison, "신경독 코일", TurretRole.Debuffer, AttackShape.Chain, DamageType.Magic,
-              10f, 0.7f, 580f, r => { r.chainCount = 3; r.shredRes = 1; r.description = "체인 3 + 마깎 전파"; });
+              10f, 0.7f, 580f, r => { r.chainCount = 3; r.shredRes = 1; r.description = "번개 3마리 + 마법 저항 감소 전파"; });
         AddT2(FoodTag.Elec, FoodTag.Def, "축포의 연회", TurretRole.Buffer, AttackShape.Passive, DamageType.Phys,
-              0f, 0f, 0f, r => { r.buffType = "as"; r.buffValue = 0.3f; r.description = "[버프] 인접 슬롯 공격 속도 +30%"; });
+              0f, 0f, 0f, r => { r.buffType = "as"; r.buffValue = 0.3f; r.description = "[강화] 가로·세로 이웃 포탑 공격 속도 +30%"; });
 
         // 화염 조합
         AddT2(FoodTag.Fire, FoodTag.Fire, "태양의 심장포", TurretRole.MagicDealer, AttackShape.Explode, DamageType.Magic,
@@ -147,9 +147,9 @@ public static class RecipeDatabase
         AddT2(FoodTag.Fire, FoodTag.Ice, "증기 기관포", TurretRole.MagicDealer, AttackShape.Explode, DamageType.Magic,
               24f, 1.5f, 350f, r => { r.explodeRadius = 120f; r.slowLevel = 2; r.description = "대범위 폭발 + 강감속"; });
         AddT2(FoodTag.Fire, FoodTag.Poison, "지옥불 정찬", TurretRole.MagicDealer, AttackShape.Cone, DamageType.Magic,
-              9f, 0.35f, 0f, r => { r.burnStack = 1; r.poisonStack = 1; r.description = "강화 부채꼴 방사 + 화상/독"; });
+              9f, 0.35f, 0f, r => { r.burnStack = 1; r.poisonStack = 1; r.description = "강한 부채꼴 + 화상·독"; });
         AddT2(FoodTag.Fire, FoodTag.Def, "마법사의 만찬", TurretRole.Buffer, AttackShape.Passive, DamageType.Phys,
-              0f, 0f, 0f, r => { r.buffType = "md"; r.buffValue = 0.4f; r.description = "[버프] 인접 슬롯 주문력 +40%"; });
+              0f, 0f, 0f, r => { r.buffType = "md"; r.buffValue = 0.4f; r.description = "[강화] 가로·세로 이웃 포탑 속성 공격력 +40%"; });
 
         // 냉기 조합
         AddT2(FoodTag.Ice, FoodTag.Ice, "절대영도 엔진", TurretRole.CC, AttackShape.Field, DamageType.Magic,
@@ -161,7 +161,7 @@ public static class RecipeDatabase
 
         // 독/방어 조합
         AddT2(FoodTag.Poison, FoodTag.Poison, "부식의 정수", TurretRole.Debuffer, AttackShape.Aura, DamageType.Magic,
-              0f, 0f, 0f, r => { r.passiveType = "auraShred"; r.description = "[오라] 주변 적 방깎+마깎"; });
+              0f, 0f, 0f, r => { r.passiveType = "auraShred"; r.description = "[오라] 주변 손님 방어·저항 감소"; });
         AddT2(FoodTag.Poison, FoodTag.Def, "정화의 성찬", TurretRole.Support, AttackShape.Passive, DamageType.Phys,
               0f, 0f, 0f, r => { r.passiveType = "regen"; r.passiveValue = 5f; r.description = "[상시] 기차 HP 초당 +5"; });
         AddT2(FoodTag.Def, FoodTag.Def, "오메가 리페어", TurretRole.Support, AttackShape.Passive, DamageType.Phys,

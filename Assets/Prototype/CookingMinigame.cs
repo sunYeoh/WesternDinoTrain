@@ -194,7 +194,7 @@ public class CookingMinigame : MonoBehaviour
         // P1: 인퓨징 진행 중에는 조리 시작 불가 (Space 입력이 겹치는 사고 방지)
         if (InfusingMinigame.IsActive)
         {
-            UIManager.Instance?.ShowStatChange("인퓨징 중에는 조리를 시작할 수 없다!");
+            UIManager.Instance?.ShowStatChange("진화 조리 중에는 조리를 시작할 수 없다!");
             return;
         }
 
@@ -562,7 +562,7 @@ public class CookingMinigame : MonoBehaviour
         boilZoneRect.anchoredPosition = new Vector2(0f, zoneY);
 
         float ratio = boilInZone / Mathf.Max(0.1f, boilTotal);
-        infoText.text = "[Space] 홀드로 게이지를 초록 존에 유지!\n남은 " + Mathf.Max(0f, boilTimer).ToString("F1") +
+        infoText.text = "[Space] 를 누르면 오르고 떼면 내려간다 - 눈금을 초록 구간에!\n남은 " + Mathf.Max(0f, boilTimer).ToString("F1") +
                         "s   유지율 " + Mathf.RoundToInt(ratio * 100f) + "%   투입 " + boilPromptOk + "/2";
 
         if (boilTimer <= 0f)
@@ -590,9 +590,9 @@ public class CookingMinigame : MonoBehaviour
         finished = true;
         finishTimer = 0.8f;
 
-        if (quality == "perfect") ShowJudge("PERFECT! 최고의 한 접시!", UIFactory.GOLD);
-        else if (quality == "good") ShowJudge("Good! 완성", new Color(0.6f, 0.85f, 0.54f));
-        else ShowJudge("실패...", new Color(1f, 0.6f, 0.48f));
+        if (quality == "perfect") ShowJudge("PERFECT!  접시 2개", UIFactory.GOLD);
+        else if (quality == "good") ShowJudge("GOOD!  접시 1개", new Color(0.6f, 0.85f, 0.54f));
+        else ShowJudge("실패...  접시 없음", new Color(1f, 0.6f, 0.48f));
 
         // 도구 마모 (굽기=칼, 볶기/끓이기=팬) - 정비소 수리의 의미가 생긴다
         ChefController chefRef = FindFirstObjectByType<ChefController>();

@@ -3,36 +3,36 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [FinalOrderUI.cs] v2 (êµìˆ˜ í”¼ë“œë°± A7/C1/C3 ë°˜ì˜ 2026-09-14) - C-2: ë§ˆì§€ë§‰ ì£¼ë¬¸ (ì§„ì—”ë”© B)
-/// ë”” ì˜¤ë¦¬ì§€ë„ P3(í•´ì¹˜ ê°œë°©)ì—ì„œ, ìê²©ì„ ê°–ì¶˜ ìš”ë¦¬ì‚¬ì—ê²Œë§Œ ì—´ë¦¬ëŠ” ë§ˆì§€ë§‰ ì„ íƒì§€.
+/// [FinalOrderUI.cs] v2 (±³¼ö ÇÇµå¹é A7/C1/C3 ¹İ¿µ 2026-09-14) - C-2: ¸¶Áö¸· ÁÖ¹® (Áø¿£µù B)
+/// µğ ¿À¸®Áö³Î P3(ÇØÄ¡ °³¹æ)¿¡¼­, ÀÚ°İÀ» °®Ãá ¿ä¸®»ç¿¡°Ô¸¸ ¿­¸®´Â ¸¶Áö¸· ¼±ÅÃÁö.
 ///
-/// - v2 ë³€ê²½ì :
-///   ìê²© = (ì‚¬ìš©ì ê²°ì • C1) ì„ ëŒ€ì˜ ì¼ì§€ 12ì¥ + ì „ì„¤ ìš”ë¦¬(T2) 1ì¢… ì´ìƒ ë³´ìœ (ì¬ê³  ë˜ëŠ” ë°°ì¹˜). ë„ê° 42ì¢…ì€ ëª…ì˜ˆ ë³´ìƒ.
-///   ê·¸ë¡œê¸° ì§„ì… ìˆœê°„ ì„¸ê³„ë¥¼ ë©ˆì¶”ê³  "[R] ëŒ€ì ‘ / [F] ê²©íŒŒ" ì„ íƒì°½ - í¬íƒ‘ì´ ìë™ìœ¼ë¡œ ì˜ëŠ” 7ì´ˆ ë™ì•ˆ Rì„ ëª» ëˆŒëŸ¬
-///   ê¸°íšŒë¥¼ ìƒë˜ ë¬¸ì œ(A7) í•´ê²°. ì¡°ë¦¬ ì¤‘ì´ì—ˆìœ¼ë©´ ë¬´ì†ì‹¤ ì¤‘ë‹¨ í›„ ì„ íƒì°½.
-///   ì‹¤íŒ¨ ë¬¸êµ¬ëŠ” ì‚¬ì‹¤ëŒ€ë¡œ: ë”” ì˜¤ë¦¬ì§€ë„ì˜ ì¶”ê°€ ê·¸ë¡œê¸°(C3, 12%)ê°€ ë‚¨ì•˜ìœ¼ë©´ "í•œ ë²ˆ ë”", ì—†ìœ¼ë©´ "ì´ë²ˆ ëŸ°ì—” ì—†ë‹¤".
+/// - v2 º¯°æÁ¡:
+///   ÀÚ°İ = (»ç¿ëÀÚ °áÁ¤ C1) ¼±´ëÀÇ ÀÏÁö 12Àå + Àü¼³ ¿ä¸®(T2) 1Á¾ ÀÌ»ó º¸À¯(Àç°í ¶Ç´Â ¹èÄ¡). µµ°¨ 42Á¾Àº ¸í¿¹ º¸»ó.
+///   ±×·Î±â ÁøÀÔ ¼ø°£ ¼¼°è¸¦ ¸ØÃß°í "[R] ´ëÁ¢ / [F] °İÆÄ" ¼±ÅÃÃ¢ - Æ÷Å¾ÀÌ ÀÚµ¿À¸·Î ½î´Â 7ÃÊ µ¿¾È RÀ» ¸ø ´­·¯
+///   ±âÈ¸¸¦ ÀÒ´ø ¹®Á¦(A7) ÇØ°á. Á¶¸® ÁßÀÌ¾úÀ¸¸é ¹«¼Õ½Ç Áß´Ü ÈÄ ¼±ÅÃÃ¢.
+///   ½ÇÆĞ ¹®±¸´Â »ç½Ç´ë·Î: µğ ¿À¸®Áö³ÎÀÇ Ãß°¡ ±×·Î±â(C3, 12%)°¡ ³²¾ÒÀ¸¸é "ÇÑ ¹ø ´õ", ¾øÀ¸¸é "ÀÌ¹ø ·±¿£ ¾ø´Ù".
 ///
-/// íë¦„:
-///  - P3 ì§„ì… + ìê²© ë¯¸ë‹¬: ë¬´ì—‡ì´ ë¶€ì¡±í•œì§€ íŒíŠ¸ 1íšŒ (ë‹¤íšŒì°¨ ë™ê¸°)
-///  - P3 ì§„ì… + ìê²© + ê·¸ë¡œê¸° ì‹œì‘: ì‹œê°„ ì •ì§€ + ì„ íƒì°½ ([R] ëŒ€ì ‘ / [F] ì´ëŒ€ë¡œ ê²©íŒŒ)
-///  - R -> í’€ì½”ìŠ¤ QTE 3ë¼ìš´ë“œ (êµ½ê¸° ë¬¸ë²•, ë¼ìš´ë“œë§ˆë‹¤ ë¹¨ë¼ì§)
-///  - 2ë¼ìš´ë“œ ì´ìƒ ì„±ê³µ -> ì •ì°¬ ëŒ€ì ‘ -> ì—”ë”© B / ì‹¤íŒ¨ -> ì¶”ê°€ ê·¸ë¡œê¸°ê°€ ìˆìœ¼ë©´ ì¬ë„ì „
+/// Èå¸§:
+///  - P3 ÁøÀÔ + ÀÚ°İ ¹Ì´Ş: ¹«¾ùÀÌ ºÎÁ·ÇÑÁö ÈùÆ® 1È¸ (´ÙÈ¸Â÷ µ¿±â)
+///  - P3 ÁøÀÔ + ÀÚ°İ + ±×·Î±â ½ÃÀÛ: ½Ã°£ Á¤Áö + ¼±ÅÃÃ¢ ([R] ´ëÁ¢ / [F] ÀÌ´ë·Î °İÆÄ)
+///  - R -> Ç®ÄÚ½º QTE 3¶ó¿îµå (±Á±â ¹®¹ı, ¶ó¿îµå¸¶´Ù »¡¶óÁü)
+///  - 2¶ó¿îµå ÀÌ»ó ¼º°ø -> Á¤Âù ´ëÁ¢ -> ¿£µù B / ½ÇÆĞ -> Ãß°¡ ±×·Î±â°¡ ÀÖÀ¸¸é ÀçµµÀü
 ///
-/// ì‚¬ìš©ë²•: ì—†ìŒ! BossGimmickSystemì´ ë”” ì˜¤ë¦¬ì§€ë„ì „ì—ì„œ ìë™ ìƒì„±.
-/// ì¡°ê±´/ë¼ìš´ë“œ ìˆ˜ëŠ” GameBalance 'C-2' ì„¹ì…˜ì—ì„œ ì¡°ì • (í…ŒìŠ¤íŠ¸ ì‹œ TrueEndingRecipesNeededë¥¼ ë‚®ì¶œ ê²ƒ).
-/// VS 2017 (C# 7.3) í˜¸í™˜.
+/// »ç¿ë¹ı: ¾øÀ½! BossGimmickSystemÀÌ µğ ¿À¸®Áö³ÎÀü¿¡¼­ ÀÚµ¿ »ı¼º.
+/// Á¶°Ç/¶ó¿îµå ¼ö´Â GameBalance 'C-2' ¼½¼Ç¿¡¼­ Á¶Á¤ (Å×½ºÆ® ½Ã TrueEndingRecipesNeeded¸¦ ³·Ãâ °Í).
+/// VS 2017 (C# 7.3) È£È¯.
 /// </summary>
 public class FinalOrderUI : MonoBehaviour
 {
-    /// <summary>QTE ì§„í–‰ ì¤‘ ì—¬ë¶€ (PauseMenu ë“± ì™¸ë¶€ì—ì„œ ESC ì¶©ëŒ ë°©ì§€ìš©)</summary>
+    /// <summary>QTE ÁøÇà Áß ¿©ºÎ (PauseMenu µî ¿ÜºÎ¿¡¼­ ESC Ãæµ¹ ¹æÁö¿ë)</summary>
     public static bool QteOpen = false;
 
-    /// <summary>v2: ì„ íƒì°½ì´ [R]/[F]/[ESC]ë¥¼ ì†Œë¹„í•œ í”„ë ˆì„ - ê°™ì€ í‚¤ë¥¼ ë³´ëŠ” ë‹¤ë¥¸ ì‹œìŠ¤í…œ(ë³´ìŠ¤ íˆ¬ì²™, ì¼ì‹œì •ì§€)ì´ ì–‘ë³´í•œë‹¤</summary>
+    /// <summary>v2: ¼±ÅÃÃ¢ÀÌ [R]/[F]/[ESC]¸¦ ¼ÒºñÇÑ ÇÁ·¹ÀÓ - °°Àº Å°¸¦ º¸´Â ´Ù¸¥ ½Ã½ºÅÛ(º¸½º ÅõÃ´, ÀÏ½ÃÁ¤Áö)ÀÌ ¾çº¸ÇÑ´Ù</summary>
     public static int KeyConsumedFrame = -1;
 
     private BossEnemy boss;
 
-    // â”€â”€ UI â”€â”€
+    // ¦¡¦¡ UI ¦¡¦¡
     private GameObject canvasGo;
     private GameObject hintGo;
     private Text hintText;
@@ -41,19 +41,19 @@ public class FinalOrderUI : MonoBehaviour
     private Text feedbackText;
     private RectTransform cursor;
 
-    // â”€â”€ QTE ìƒíƒœ â”€â”€
+    // ¦¡¦¡ QTE »óÅÂ ¦¡¦¡
     private bool qteActive = false;
     private int round = 0;
     private int successes = 0;
     private float pos = 0f;
     private float dir = 1f;
 
-    // â”€â”€ ì§„í–‰ ìƒíƒœ â”€â”€
+    // ¦¡¦¡ ÁøÇà »óÅÂ ¦¡¦¡
     private bool attemptedThisGroggy = false;
     private bool wasGroggy = false;
     private bool lockedNoticeShown = false;
 
-    // v2: ì„ íƒì°½ (ì‹œê°„ ì •ì§€)
+    // v2: ¼±ÅÃÃ¢ (½Ã°£ Á¤Áö)
     private bool choiceOpen = false;
     private GameObject choiceGo;
     private Text choiceText;
@@ -65,19 +65,19 @@ public class FinalOrderUI : MonoBehaviour
     {
         boss = targetBoss;
         BuildUI();
-        Debug.Log("[FinalOrder] ë§ˆì§€ë§‰ ì£¼ë¬¸ ëŒ€ê¸° (ìê²© " + (Qualified() ? "ì¶©ì¡±" : "ë¯¸ë‹¬: " + MissingText()) + ")");
+        Debug.Log("[FinalOrder] ¸¶Áö¸· ÁÖ¹® ´ë±â (ÀÚ°İ " + (Qualified() ? "ÃæÁ·" : "¹Ì´Ş: " + MissingText()) + ")");
     }
 
     private void OnDestroy()
     {
         if (canvasGo != null) Destroy(canvasGo);
-        if (qteActive || choiceOpen) Time.timeScale = 1f;   // ì•ˆì „ì¥ì¹˜
+        if (qteActive || choiceOpen) Time.timeScale = 1f;   // ¾ÈÀüÀåÄ¡
         QteOpen = false;
     }
 
     /// <summary>
-    /// v2 (C1): ë§ˆì§€ë§‰ ì£¼ë¬¸ ìê²©. ì´ì •í‘œ ë°©ì‹ì´ë©´ ì¼ì§€ 12ì¥ + T2 ìš”ë¦¬ 1ì¢… ë³´ìœ (ì¬ê³  ë˜ëŠ” ë°°ì¹˜ í¬íƒ‘).
-    /// ì„¸ ì§€ì—­ ë³´ìŠ¤ëŠ” ìµœì¢…ì „ì— ì˜¨ ê²ƒìœ¼ë¡œ ì´ë¯¸ ë„˜ì€ ìƒíƒœ. êµ¬ ë°©ì‹(ë„ê° 42)ì€ ìŠ¤ìœ„ì¹˜ë¡œ ë‚¨ê¸´ë‹¤.
+    /// v2 (C1): ¸¶Áö¸· ÁÖ¹® ÀÚ°İ. ÀÌÁ¤Ç¥ ¹æ½ÄÀÌ¸é ÀÏÁö 12Àå + T2 ¿ä¸® 1Á¾ º¸À¯(Àç°í ¶Ç´Â ¹èÄ¡ Æ÷Å¾).
+    /// ¼¼ Áö¿ª º¸½º´Â ÃÖÁ¾Àü¿¡ ¿Â °ÍÀ¸·Î ÀÌ¹Ì ³ÑÀº »óÅÂ. ±¸ ¹æ½Ä(µµ°¨ 42)Àº ½ºÀ§Ä¡·Î ³²±ä´Ù.
     /// </summary>
     public static bool Qualified()
     {
@@ -87,7 +87,7 @@ public class FinalOrderUI : MonoBehaviour
         return CountTier2Kinds() >= Mathf.Max(1, GameBalance.TrueEndingT2Needed);
     }
 
-    /// <summary>ì§€ê¸ˆ ì†ì— ìˆëŠ” ì „ì„¤ ìš”ë¦¬(T2)ì˜ ì¢…ë¥˜ ìˆ˜ - ì¬ê³ ì™€ ë°°ì¹˜ í¬íƒ‘ì„ í•©ì³ ê°™ì€ ìš”ë¦¬ëŠ” 1ì¢…ìœ¼ë¡œ ì„¼ë‹¤</summary>
+    /// <summary>Áö±İ ¼Õ¿¡ ÀÖ´Â Àü¼³ ¿ä¸®(T2)ÀÇ Á¾·ù ¼ö - Àç°í¿Í ¹èÄ¡ Æ÷Å¾À» ÇÕÃÄ °°Àº ¿ä¸®´Â 1Á¾À¸·Î ¼¾´Ù</summary>
     private static int CountTier2Kinds()
     {
         List<string> kinds = new List<string>();
@@ -114,17 +114,17 @@ public class FinalOrderUI : MonoBehaviour
         return kinds.Count;
     }
 
-    /// <summary>ìê²© ë¯¸ë‹¬ì¼ ë•Œ ë¬´ì—‡ì´ ë¶€ì¡±í•œì§€ (íŒíŠ¸ ë¬¸êµ¬)</summary>
+    /// <summary>ÀÚ°İ ¹Ì´ŞÀÏ ¶§ ¹«¾ùÀÌ ºÎÁ·ÇÑÁö (ÈùÆ® ¹®±¸)</summary>
     private static string MissingText()
     {
         if (!GameBalance.TrueEndingMilestoneMode)
-            return "ë„ê° " + GameBalance.TrueEndingRecipesNeeded + "ì¢… (í˜„ì¬ " + MetaProgress.DiscoveredCount + "ì¢…)";
+            return "µµ°¨ " + GameBalance.TrueEndingRecipesNeeded + "Á¾ (ÇöÀç " + MetaProgress.DiscoveredCount + "Á¾)";
         string s = "";
         if (MetaProgress.CollectedJournalCount < GameBalance.TrueEndingJournalsNeeded)
-            s += "ì„ ëŒ€ì˜ ì¼ì§€ " + GameBalance.TrueEndingJournalsNeeded + "ì¥ (í˜„ì¬ " + MetaProgress.CollectedJournalCount + "ì¥, íì—­ ì„ ë¡œì—ì„œ)";
+            s += "¼±´ëÀÇ ÀÏÁö " + GameBalance.TrueEndingJournalsNeeded + "Àå (ÇöÀç " + MetaProgress.CollectedJournalCount + "Àå, Æó¿ª ¼±·Î¿¡¼­)";
         int t2Need = Mathf.Max(1, GameBalance.TrueEndingT2Needed);
         if (CountTier2Kinds() < t2Need)
-            s += (s.Length > 0 ? " + " : "") + "ì „ì„¤ ìš”ë¦¬(T2) " + (t2Need == 1 ? "í•œ ì ‘ì‹œ" : t2Need + "ì¢…");
+            s += (s.Length > 0 ? " + " : "") + "Àü¼³ ¿ä¸® " + (t2Need == 1 ? "ÇÑ Á¢½Ã" : t2Need + "Á¾");
         return s;
     }
 
@@ -136,7 +136,7 @@ public class FinalOrderUI : MonoBehaviour
             return;
         }
 
-        // ê·¸ë¡œê¸°ê°€ ìƒˆë¡œ ì‹œì‘ë  ë•Œë§ˆë‹¤ ë„ì „ ê¸°íšŒ ê°±ì‹ 
+        // ±×·Î±â°¡ »õ·Î ½ÃÀÛµÉ ¶§¸¶´Ù µµÀü ±âÈ¸ °»½Å
         if (boss.IsGroggy && !wasGroggy)
             attemptedThisGroggy = false;
         wasGroggy = boss.IsGroggy;
@@ -144,14 +144,14 @@ public class FinalOrderUI : MonoBehaviour
         bool phase3 = boss.OriginalPhaseNow >= 3;
         bool qualified = Qualified();
 
-        // ìê²© ë¯¸ë‹¬ íŒíŠ¸ (ì „íˆ¬ë‹¹ 1íšŒ - ë‹¤íšŒì°¨ ë™ê¸°)
+        // ÀÚ°İ ¹Ì´Ş ÈùÆ® (ÀüÅõ´ç 1È¸ - ´ÙÈ¸Â÷ µ¿±â)
         if (phase3 && !qualified && !lockedNoticeShown)
         {
             lockedNoticeShown = true;
-            UIManager.Instance?.ShowStatChange("ë‹¤ë¥¸ ê²°ë§ì´ ìˆë‹¤... í•„ìš”í•œ ê²ƒ: " + MissingText());
+            UIManager.Instance?.ShowStatChange("´Ù¸¥ °á¸»ÀÌ ÀÖ´Ù... ÇÊ¿äÇÑ °Í: " + MissingText());
         }
 
-        // v2 (A7): ìê²©ì„ ê°–ì¶˜ ì±„ ê·¸ë¡œê¸°ê°€ ì‹œì‘ë˜ë©´ ì„¸ê³„ë¥¼ ë©ˆì¶”ê³  ì„ íƒì„ ë¬»ëŠ”ë‹¤
+        // v2 (A7): ÀÚ°İÀ» °®Ãá Ã¤ ±×·Î±â°¡ ½ÃÀÛµÇ¸é ¼¼°è¸¦ ¸ØÃß°í ¼±ÅÃÀ» ¹¯´Â´Ù
         bool ready = phase3 && qualified && boss.IsGroggy && !attemptedThisGroggy && !qteActive && !choiceOpen;
         if (ready)
             OpenChoice();
@@ -167,10 +167,10 @@ public class FinalOrderUI : MonoBehaviour
             else if (Input.GetKeyDown(KeyCode.F) || Input.GetKeyDown(KeyCode.Escape))
             {
                 KeyConsumedFrame = Time.frameCount;
-                CookingMinigame.EscConsumedFrame = Time.frameCount;   // ê°™ì€ í”„ë ˆì„ì— ì¼ì‹œì •ì§€ ë©”ë‰´ê°€ ì—´ë¦¬ì§€ ì•Šê²Œ
+                CookingMinigame.EscConsumedFrame = Time.frameCount;   // °°Àº ÇÁ·¹ÀÓ¿¡ ÀÏ½ÃÁ¤Áö ¸Ş´º°¡ ¿­¸®Áö ¾Ê°Ô
                 CloseChoice();
                 attemptedThisGroggy = true;
-                UIManager.Instance?.ShowStatChange("ê²©íŒŒë¥¼ íƒí–ˆë‹¤ - [F] ë””ë²„í”„ ìš”ë¦¬ë¡œ ë°€ì–´ë¶™ì—¬ë¼");
+                UIManager.Instance?.ShowStatChange("°İÆÄ¸¦ ÅÃÇß´Ù - [F] µ¶»ù ¿ä¸®·Î ¹Ğ¾îºÙ¿©¶ó");
             }
             return;
         }
@@ -181,20 +181,20 @@ public class FinalOrderUI : MonoBehaviour
 
     private void OpenChoice()
     {
-        // ì¡°ë¦¬ ì¤‘ì´ë©´ ë¬´ì†ì‹¤ ì¤‘ë‹¨ (ì¬ë£Œ í™˜ê¸‰) - ì„ íƒì°½ê³¼ Space ì…ë ¥ì´ ê²¹ì¹˜ì§€ ì•Šê²Œ
+        // Á¶¸® ÁßÀÌ¸é ¹«¼Õ½Ç Áß´Ü (Àç·á È¯±Ş) - ¼±ÅÃÃ¢°ú Space ÀÔ·ÂÀÌ °ãÄ¡Áö ¾Ê°Ô
         if (CookingMinigame.IsActive && CookingMinigame.Instance != null)
             CookingMinigame.Instance.AbortExternal();
 
         choiceOpen = true;
-        QteOpen = true;   // PauseMenu ë“± ì™¸ë¶€ ESC ì¶©ëŒ ë°©ì§€ (ê°™ì€ í”Œë˜ê·¸ ê³µìœ )
+        QteOpen = true;   // PauseMenu µî ¿ÜºÎ ESC Ãæµ¹ ¹æÁö (°°Àº ÇÃ·¡±× °øÀ¯)
         Time.timeScale = 0f;
-        string second = boss.HasExtraGroggyPending ? "ì‹¤íŒ¨í•´ë„ ë§ˆì§€ë§‰ í‹ˆì´ í•œ ë²ˆ ë” ì˜¨ë‹¤" : "ì´ë²ˆ ëŸ°ì˜ ë§ˆì§€ë§‰ ê¸°íšŒ";
-        choiceText.text = "ëŒ€ë¥™ì—ì„œ ê°€ì¥ ì˜¤ë˜ êµ¶ì€ ì†ë‹˜ì´ ë¬´ë¦ì„ ê¿‡ì—ˆë‹¤.\n\n"
-            + "[R]  ë§ˆì§€ë§‰ ì‹ì‚¬ë¥¼ ëŒ€ì ‘í•œë‹¤  (í’€ì½”ìŠ¤ 3ì½”ìŠ¤ - " + second + ")\n"
-            + "[F]  ì´ëŒ€ë¡œ ê²©íŒŒí•œë‹¤  (ê·¸ë¡œê¸° ì¤‘ ë””ë²„í”„ ìš”ë¦¬ íˆ¬ì²™)";
+        string second = boss.HasExtraGroggyPending ? "½ÇÆĞÇØµµ ¸¶Áö¸· Æ´ÀÌ ÇÑ ¹ø ´õ ¿Â´Ù" : "ÀÌ¹ø ¿îÇàÀÇ ¸¶Áö¸· ±âÈ¸";
+        choiceText.text = "´ë·ú¿¡¼­ °¡Àå ¿À·¡ ±¾Àº ¼Õ´ÔÀÌ ¹«¸­À» ²İ¾ú´Ù.\n\n"
+            + "[R]  ¸¶Áö¸· ½Ä»ç¸¦ ´ëÁ¢ÇÑ´Ù  (Ç®ÄÚ½º 3ÄÚ½º - " + second + ")\n"
+            + "[F]  ÀÌ´ë·Î °İÆÄÇÑ´Ù  (¹«¹æºñ ¶§ µ¶»ù ¿ä¸® ÅõÃ´)";
         choiceGo.SetActive(true);
         hintGo.SetActive(false);
-        Debug.Log("[FinalOrder] ì„ íƒì°½ ì—´ë¦¼ (ì‹œê°„ ì •ì§€)");
+        Debug.Log("[FinalOrder] ¼±ÅÃÃ¢ ¿­¸² (½Ã°£ Á¤Áö)");
     }
 
     private void CloseChoice()
@@ -205,9 +205,9 @@ public class FinalOrderUI : MonoBehaviour
         Time.timeScale = 1f;
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // í’€ì½”ìŠ¤ QTE
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // Ç®ÄÚ½º QTE
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     private void StartQTE()
     {
         qteActive = true;
@@ -218,17 +218,17 @@ public class FinalOrderUI : MonoBehaviour
         pos = 0f;
         dir = 1f;
 
-        Time.timeScale = 0f;   // ì„¸ê³„ê°€ ë©ˆì¶”ê³  ì‹íƒë§Œ ë‚¨ëŠ”ë‹¤
+        Time.timeScale = 0f;   // ¼¼°è°¡ ¸ØÃß°í ½ÄÅ¹¸¸ ³²´Â´Ù
         qteRoot.SetActive(true);
         feedbackText.text = "";
         UpdateRoundLabel();
 
-        Debug.Log("[FinalOrder] í’€ì½”ìŠ¤ QTE ì‹œì‘");
+        Debug.Log("[FinalOrder] Ç®ÄÚ½º QTE ½ÃÀÛ");
     }
 
     private void UpdateQTE()
     {
-        // ë¼ìš´ë“œê°€ ì˜¤ë¥¼ìˆ˜ë¡ ë¹¨ë¼ì§„ë‹¤ (ì½”ìŠ¤ê°€ ì´ì–´ì§ˆìˆ˜ë¡ ê¸´ì¥)
+        // ¶ó¿îµå°¡ ¿À¸¦¼ö·Ï »¡¶óÁø´Ù (ÄÚ½º°¡ ÀÌ¾îÁú¼ö·Ï ±äÀå)
         float speed = BASE_SPEED * (1f + 0.18f * round);
         pos += dir * speed * Time.unscaledDeltaTime;
         if (pos >= 100f) { pos = 100f; dir = -1f; }
@@ -257,7 +257,7 @@ public class FinalOrderUI : MonoBehaviour
         }
         else
         {
-            feedbackText.text = "íƒ”ë‹¤...";
+            feedbackText.text = "ÅÀ´Ù...";
             SoundManager.Play("sfx_judge_bad");
         }
 
@@ -273,9 +273,9 @@ public class FinalOrderUI : MonoBehaviour
 
     private void UpdateRoundLabel()
     {
-        string course = round == 0 ? "ì „ì±„" : (round == 1 ? "ë³¸ì‹" : "í›„ì‹");
-        roundText.text = "ì½”ìŠ¤ " + (round + 1) + "/" + GameBalance.FinalOrderRounds
-            + "  [" + course + "]   ì •ì¤‘ì•™ì—ì„œ [Space]";
+        string course = round == 0 ? "ÀüÃ¤" : (round == 1 ? "º»½Ä" : "ÈÄ½Ä");
+        roundText.text = "ÄÚ½º " + (round + 1) + "/" + GameBalance.FinalOrderRounds
+            + "  [" + course + "]   Á¤Áß¾Ó¿¡¼­ [Space]";
     }
 
     private void Resolve()
@@ -286,8 +286,8 @@ public class FinalOrderUI : MonoBehaviour
         Time.timeScale = 1f;
 
         bool win = successes >= GameBalance.FinalOrderNeeded;
-        Debug.Log("[FinalOrder] í’€ì½”ìŠ¤ ê²°ê³¼: " + successes + "/" + GameBalance.FinalOrderRounds
-            + (win ? " - ëŒ€ì ‘ ì„±ê³µ" : " - ì‹¤íŒ¨"));
+        Debug.Log("[FinalOrder] Ç®ÄÚ½º °á°ú: " + successes + "/" + GameBalance.FinalOrderRounds
+            + (win ? " - ´ëÁ¢ ¼º°ø" : " - ½ÇÆĞ"));
 
         if (win)
         {
@@ -296,30 +296,30 @@ public class FinalOrderUI : MonoBehaviour
         }
         else
         {
-            // v2 (A7/C3): ì¬ë„ì „ ì •ì±…ê³¼ ë¬¸êµ¬ë¥¼ ë§ì¶˜ë‹¤
+            // v2 (A7/C3): ÀçµµÀü Á¤Ã¥°ú ¹®±¸¸¦ ¸ÂÃá´Ù
             if (boss.HasExtraGroggyPending)
-                UIManager.Instance?.ShowStatChange("ì†ì´ ë–¨ë ¸ë‹¤... ìš”ë¦¬ê°€ ì‹ì—ˆë‹¤. ì†ë‹˜ì´ í•œ ë²ˆ ë” ë¬´ë¦ì„ ê¿‡ì„ ë•Œ ë‹¤ì‹œ - HP "
+                UIManager.Instance?.ShowStatChange("¼ÕÀÌ ¶³·È´Ù... ¿ä¸®°¡ ½Ä¾ú´Ù. ¼Õ´ÔÀÌ ÇÑ ¹ø ´õ ¹«¸­À» ²İÀ» ¶§ ´Ù½Ã - HP "
                     + Mathf.RoundToInt(GameBalance.OriginalExtraGroggyRatio * 100f) + "%");
             else
-                UIManager.Instance?.ShowStatChange("ì†ì´ ë–¨ë ¸ë‹¤... ìš”ë¦¬ê°€ ì‹ì—ˆë‹¤. ì´ë²ˆ ëŸ°ì—ëŠ” ê¸°íšŒê°€ ì—†ë‹¤ - ê²©íŒŒë¡œ ê°„ë‹¤");
+                UIManager.Instance?.ShowStatChange("¼ÕÀÌ ¶³·È´Ù... ¿ä¸®°¡ ½Ä¾ú´Ù. ÀÌ¹ø ¿îÇà¿¡´Â ±âÈ¸°¡ ¾ø´Ù - °İÆÄ·Î °£´Ù");
         }
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // UI ìƒì„±
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // UI »ı¼º
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     private void BuildUI()
     {
         canvasGo = new GameObject("FinalOrderCanvas");
         Canvas canvas = canvasGo.AddComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-        canvas.sortingOrder = 645;   // ê²½ê³ (640) ìœ„, ìŠ¤í† ë¦¬(650) ì•„ë˜
+        canvas.sortingOrder = 645;   // °æ°í(640) À§, ½ºÅä¸®(650) ¾Æ·¡
         CanvasScaler scaler = canvasGo.AddComponent<CanvasScaler>();
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
         scaler.referenceResolution = new Vector2(1920f, 1080f);
         canvasGo.AddComponent<GraphicRaycaster>();
 
-        // â”€â”€ [R] íŒíŠ¸ (ìš°ì¸¡ ì¤‘ë‹¨, ê¸ˆìƒ‰) â”€â”€
+        // ¦¡¦¡ [R] ÈùÆ® (¿ìÃø Áß´Ü, ±İ»ö) ¦¡¦¡
         RectTransform hint = KitchenEventManager.MakeBox(canvasGo.transform, "Hint",
             new Color(0.12f, 0.09f, 0.04f, 0.92f));
         hint.anchorMin = new Vector2(1f, 0.5f);
@@ -330,7 +330,7 @@ public class FinalOrderUI : MonoBehaviour
         hintGo = hint.gameObject;
 
         hintText = KitchenEventManager.MakeText(hint, "Text",
-            "[R] ë§ˆì§€ë§‰ ì‹ì‚¬ë¥¼ ëŒ€ì ‘í•œë‹¤", 22, new Color(1f, 0.85f, 0.35f));
+            "[R] ¸¶Áö¸· ½Ä»ç¸¦ ´ëÁ¢ÇÑ´Ù", 22, new Color(1f, 0.85f, 0.35f));
         RectTransform htRt = hintText.rectTransform;
         htRt.anchorMin = Vector2.zero;
         htRt.anchorMax = Vector2.one;
@@ -339,7 +339,7 @@ public class FinalOrderUI : MonoBehaviour
 
         hintGo.SetActive(false);
 
-        // â”€â”€ v2: ì„ íƒì°½ (ì‹œê°„ ì •ì§€, ì¤‘ì•™) â”€â”€
+        // ¦¡¦¡ v2: ¼±ÅÃÃ¢ (½Ã°£ Á¤Áö, Áß¾Ó) ¦¡¦¡
         RectTransform choice = KitchenEventManager.MakeBox(canvasGo.transform, "Choice",
             new Color(0.10f, 0.08f, 0.05f, 0.96f));
         choice.anchorMin = new Vector2(0.5f, 0.5f);
@@ -349,7 +349,7 @@ public class FinalOrderUI : MonoBehaviour
         choice.sizeDelta = new Vector2(760f, 200f);
         choiceGo = choice.gameObject;
 
-        Text choiceTitle = KitchenEventManager.MakeText(choice, "Title", "ë§ˆì§€ë§‰ ì£¼ë¬¸", 26,
+        Text choiceTitle = KitchenEventManager.MakeText(choice, "Title", "¸¶Áö¸· ÁÖ¹®", 26,
             new Color(1f, 0.8f, 0.35f));
         RectTransform ctRt = choiceTitle.rectTransform;
         ctRt.anchorMin = new Vector2(0f, 1f);
@@ -366,7 +366,7 @@ public class FinalOrderUI : MonoBehaviour
         cbRt.offsetMax = new Vector2(-24f, -52f);
         choiceGo.SetActive(false);
 
-        // â”€â”€ í’€ì½”ìŠ¤ QTE ì˜¤ë²„ë ˆì´ (ê±°ëŒ€í•œ ì£¼ë¬¸ì„œ) â”€â”€
+        // ¦¡¦¡ Ç®ÄÚ½º QTE ¿À¹ö·¹ÀÌ (°Å´ëÇÑ ÁÖ¹®¼­) ¦¡¦¡
         RectTransform order = KitchenEventManager.MakeBox(canvasGo.transform, "OrderSheet",
             new Color(0.09f, 0.07f, 0.05f, 0.97f));
         order.anchorMin = new Vector2(0.5f, 0.5f);
@@ -377,7 +377,7 @@ public class FinalOrderUI : MonoBehaviour
         qteRoot = order.gameObject;
 
         Text title = KitchenEventManager.MakeText(order, "Title",
-            "ë§ˆì§€ë§‰ ì£¼ë¬¸ - ëŒ€ë¥™ì—ì„œ ê°€ì¥ ì˜¤ë˜ êµ¶ì€ ì†ë‹˜ì˜, ì²« ì£¼ë¬¸", 24,
+            "¸¶Áö¸· ÁÖ¹® - ´ë·ú¿¡¼­ °¡Àå ¿À·¡ ±¾Àº ¼Õ´ÔÀÇ, Ã¹ ÁÖ¹®", 24,
             new Color(1f, 0.8f, 0.35f));
         RectTransform tRt = title.rectTransform;
         tRt.anchorMin = new Vector2(0f, 1f);
@@ -404,7 +404,7 @@ public class FinalOrderUI : MonoBehaviour
         fRt.anchoredPosition = new Vector2(0f, -100f);
         fRt.sizeDelta = new Vector2(0f, 40f);
 
-        // íŒì • íŠ¸ë™ (êµ½ê¸° ë¬¸ë²•)
+        // ÆÇÁ¤ Æ®·¢ (±Á±â ¹®¹ı)
         RectTransform track = KitchenEventManager.MakeBox(order, "Track", new Color(0f, 0f, 0f, 0.6f));
         track.anchorMin = new Vector2(0.5f, 0f);
         track.anchorMax = new Vector2(0.5f, 0f);
@@ -430,7 +430,7 @@ public class FinalOrderUI : MonoBehaviour
         cursor.sizeDelta = new Vector2(7f, 10f);
 
         Text subText = KitchenEventManager.MakeText(order, "Sub",
-            "ì„¸ ì½”ìŠ¤ ì¤‘ " + GameBalance.FinalOrderNeeded + "ë²ˆ ì´ìƒ ì„±ê³µí•˜ë©´ ì‹ì‚¬ê°€ ì™„ì„±ëœë‹¤", 17,
+            "¼¼ ÄÚ½º Áß " + GameBalance.FinalOrderNeeded + "¹ø ÀÌ»ó ¼º°øÇÏ¸é ½Ä»ç°¡ ¿Ï¼ºµÈ´Ù", 17,
             new Color(0.7f, 0.68f, 0.6f));
         RectTransform sRt = subText.rectTransform;
         sRt.anchorMin = new Vector2(0f, 0f);

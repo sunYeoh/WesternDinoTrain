@@ -2,42 +2,42 @@ using UnityEngine;
 using System.Collections.Generic;
 
 /// <summary>
-/// [ItemSystem.cs] v1.1 (2026-09-14: IsItemUsable ìŠ¤ìœ„ì¹˜ ì—°ë™) / v1 (ì‹ ê·œ íŒŒì¼) - Phase 2-3: ì•„ì´í…œ(ìœ ë¬¼) ì‹œìŠ¤í…œ
+/// [ItemSystem.cs] v1.1 (2026-09-14: IsItemUsable ½ºÀ§Ä¡ ¿¬µ¿) / v1 (½Å±Ô ÆÄÀÏ) - Phase 2-3: ¾ÆÀÌÅÛ(À¯¹°) ½Ã½ºÅÛ
 ///
-/// ì„¤ê³„ (ì‚¬ìš©ì ê²°ì • - ì¦ê°•/ì•„ì´í…œ ì´ì›í™”):
-///  - ì¦ê°• = í¬íƒ‘ ê°•í™” + ê¸°ì°¨ ìœ í‹¸ (ì „íˆ¬ ì¶œë ¥ì— ê´€ì—¬)
-///  - ì•„ì´í…œ = ì£¼ë°© ë‚´ë¶€ì˜ ì¼ (ì¡°ë¦¬ ë¯¸ë‹ˆê²Œì„ / ë°©í•´ ì´ë²¤íŠ¸ / ë„êµ¬) ë‹´ë‹¹
-///    ê¸°ì¡´ ì¦ê°• 5ì¢…(ì˜ ë“œëŠ” ì‹ì¹¼/í™©ê¸ˆ ì¡°ë¦¬ ê¸°êµ¬/ë³´í—˜ ê³„ì•½/ë¶€ì±„ì§ˆ ì¥ì¸/ë¯¸ë„ëŸ¼ ë°©ì§€ ë§¤íŠ¸)ì´
-///    ì´ìª½ìœ¼ë¡œ ì´ê´€ëê³ , ì‹ ê·œ 10ì¢…ì´ ì¶”ê°€ëë‹¤. (ìŠ¬ë ˆì´ ë” ìŠ¤íŒŒì´ì–´ ìœ ë¬¼ ìŠ¤íƒ€ì¼)
+/// ¼³°è (»ç¿ëÀÚ °áÁ¤ - Áõ°­/¾ÆÀÌÅÛ ÀÌ¿øÈ­):
+///  - Áõ°­ = Æ÷Å¾ °­È­ + ±âÂ÷ À¯Æ¿ (ÀüÅõ Ãâ·Â¿¡ °ü¿©)
+///  - ¾ÆÀÌÅÛ = ÁÖ¹æ ³»ºÎÀÇ ÀÏ (Á¶¸® ¹Ì´Ï°ÔÀÓ / ¹æÇØ ÀÌº¥Æ® / µµ±¸) ´ã´ç
+///    ±âÁ¸ Áõ°­ 5Á¾(Àß µå´Â ½ÄÄ®/È²±İ Á¶¸® ±â±¸/º¸Çè °è¾à/ºÎÃ¤Áú ÀåÀÎ/¹Ì²ô·³ ¹æÁö ¸ÅÆ®)ÀÌ
+///    ÀÌÂÊÀ¸·Î ÀÌ°üµÆ°í, ½Å±Ô 10Á¾ÀÌ Ãß°¡µÆ´Ù. (½½·¹ÀÌ ´õ ½ºÆÄÀÌ¾î À¯¹° ½ºÅ¸ÀÏ)
 ///
-/// ê·œì¹™:
-///  - ì•„ì´í…œì€ ì „ë¶€ "ìœ ì¼ ë³´ìœ " (ì¦ê°•ê³¼ ë‹¬ë¦¬ ì¤‘ë³µ íšë“ ì—†ìŒ)
-///  - íšë“ ì¦‰ì‹œ ë°œë™í•˜ëŠ” íŒ¨ì‹œë¸Œ. ëŸ° ë‹¨ìœ„ë¡œ ë¦¬ì…‹ (ResetRun)
-///  - íšë“ì²˜ 4ê³³: í–‰ìƒì¸ ì•ˆí‚¬ë¡œ(MerchantUI) / íì—­ ì„ ë¡œ / ì  ì €í™•ë¥  ë“œë / ì¹¨ì…ì ê²©í‡´
+/// ±ÔÄ¢:
+///  - ¾ÆÀÌÅÛÀº ÀüºÎ "À¯ÀÏ º¸À¯" (Áõ°­°ú ´Ş¸® Áßº¹ È¹µæ ¾øÀ½)
+///  - È¹µæ Áï½Ã ¹ßµ¿ÇÏ´Â ÆĞ½Ãºê. ·± ´ÜÀ§·Î ¸®¼Â (ResetRun)
+///  - È¹µæÃ³ 4°÷: Çà»óÀÎ ¾ÈÅ³·Î(MerchantUI) / Æó¿ª ¼±·Î / Àû ÀúÈ®·ü µå¶ø / Ä§ÀÔÀÚ °İÅğ
 ///
-/// ë‹¤ë¥¸ ì‹œìŠ¤í…œì€ ItemManagerì˜ static ê°’ë§Œ ì½ìœ¼ë©´ ëœë‹¤.
-/// í›… ìœ„ì¹˜: CookingMinigame(ì¡°ë¦¬ ë°°ìœ¨/ê¸°ë¦„) / CookingBridge(í™˜ê¸‰/í–¥ì‹ ë£Œ) /
-///          ChefController(ë§ˆëª¨/ê³ ê¸€) / KitchenEventManager(ì´ë²¤íŠ¸ ë°°ìœ¨/ì†Œí™”ê¸°) /
-///          KitchenEvents(ì¹¨ì…ì) / Enemy(ë“œë/ì „ê°ˆ) / WaveManager(íì—­ ë³´ìƒ)
-/// VS 2017 (C# 7.3) í˜¸í™˜
+/// ´Ù¸¥ ½Ã½ºÅÛÀº ItemManagerÀÇ static °ª¸¸ ÀĞÀ¸¸é µÈ´Ù.
+/// ÈÅ À§Ä¡: CookingMinigame(Á¶¸® ¹èÀ²/±â¸§) / CookingBridge(È¯±Ş/Çâ½Å·á) /
+///          ChefController(¸¶¸ğ/°í±Û) / KitchenEventManager(ÀÌº¥Æ® ¹èÀ²/¼ÒÈ­±â) /
+///          KitchenEvents(Ä§ÀÔÀÚ) / Enemy(µå¶ø/Àü°¥) / WaveManager(Æó¿ª º¸»ó)
+/// VS 2017 (C# 7.3) È£È¯
 /// </summary>
 
 public enum ItemRarity
 {
-    Common,   // ì¼ë°˜ - í–‰ìƒì¸ ë‹¨ê³¨ ë§¤ë¬¼
-    Rare,     // í¬ê·€ - ë¹„ì‹¸ì§€ë§Œ ê°•í•œ íš¨ê³¼
-    Special   // ìœ ì¼ - ìƒì ì— ì—†ìŒ, íŠ¹ì • íšë“ì²˜ ì „ìš© (ì˜ˆ: ì¥ë¬¼ ì£¼ë¨¸ë‹ˆ)
+    Common,   // ÀÏ¹İ - Çà»óÀÎ ´Ü°ñ ¸Å¹°
+    Rare,     // Èñ±Í - ºñ½ÎÁö¸¸ °­ÇÑ È¿°ú
+    Special   // À¯ÀÏ - »óÁ¡¿¡ ¾øÀ½, Æ¯Á¤ È¹µæÃ³ Àü¿ë (¿¹: Àå¹° ÁÖ¸Ó´Ï)
 }
 
-/// <summary>ì•„ì´í…œ 1ì¢…ì˜ ì •ì˜</summary>
+/// <summary>¾ÆÀÌÅÛ 1Á¾ÀÇ Á¤ÀÇ</summary>
 public class ItemData
 {
-    public string id;              // ë‚´ë¶€ ì‹ë³„ì
-    public string name;            // í‘œì‹œ ì´ë¦„
-    public string desc;            // í‘œì‹œ ì„¤ëª…
-    public ItemRarity rarity;      // í¬ê·€ë„
-    public int price;              // í–‰ìƒì¸ íŒë§¤ê°€ (Specialì€ 0 = ë¹„ë§¤í’ˆ)
-    public System.Action apply;    // íšë“ ì‹œ ì‹¤í–‰ë˜ëŠ” íš¨ê³¼
+    public string id;              // ³»ºÎ ½Äº°ÀÚ
+    public string name;            // Ç¥½Ã ÀÌ¸§
+    public string desc;            // Ç¥½Ã ¼³¸í
+    public ItemRarity rarity;      // Èñ±Íµµ
+    public int price;              // Çà»óÀÎ ÆÇ¸Å°¡ (SpecialÀº 0 = ºñ¸ÅÇ°)
+    public System.Action apply;    // È¹µæ ½Ã ½ÇÇàµÇ´Â È¿°ú
 
     public ItemData(string id, string name, string desc, ItemRarity rarity, int price, System.Action apply)
     {
@@ -49,18 +49,18 @@ public class ItemData
         this.apply = apply;
     }
 
-    /// <summary>í¬ê·€ë„ í‘œì‹œ ë¬¸ìì—´</summary>
+    /// <summary>Èñ±Íµµ Ç¥½Ã ¹®ÀÚ¿­</summary>
     public string RarityName()
     {
         switch (rarity)
         {
-            case ItemRarity.Common: return "ì¼ë°˜";
-            case ItemRarity.Rare: return "í¬ê·€";
-            default: return "ìœ ì¼";
+            case ItemRarity.Common: return "ÀÏ¹İ";
+            case ItemRarity.Rare: return "Èñ±Í";
+            default: return "À¯ÀÏ";
         }
     }
 
-    /// <summary>í¬ê·€ë„ë³„ í‘œì‹œ ìƒ‰ (ì¼ë°˜=ë¬´ì‡  / í¬ê·€=êµ¬ë¦¬ê¸ˆ / ìœ ì¼=ë³´ë¼)</summary>
+    /// <summary>Èñ±Íµµº° Ç¥½Ã »ö (ÀÏ¹İ=¹«¼è / Èñ±Í=±¸¸®±İ / À¯ÀÏ=º¸¶ó)</summary>
     public Color RarityColor()
     {
         switch (rarity)
@@ -74,45 +74,45 @@ public class ItemData
 
 
 /// <summary>
-/// ë³´ìœ  ì•„ì´í…œê³¼ ê·¸ íš¨ê³¼(ë°°ìœ¨/í”Œë˜ê·¸)ë¥¼ ì „ì—­ìœ¼ë¡œ ì œê³µí•œë‹¤. (AugmentManagerì™€ ê°™ì€ íŒ¨í„´)
+/// º¸À¯ ¾ÆÀÌÅÛ°ú ±× È¿°ú(¹èÀ²/ÇÃ·¡±×)¸¦ Àü¿ªÀ¸·Î Á¦°øÇÑ´Ù. (AugmentManager¿Í °°Àº ÆĞÅÏ)
 /// </summary>
 public static class ItemManager
 {
-    // ---------- ì¡°ë¦¬ ë¯¸ë‹ˆê²Œì„ (CookingMinigameì—ì„œ ì½ìŒ) ----------
-    public static float CookTimeMul = 1f;        // ì˜ ë“œëŠ” ì‹ì¹¼: ì œí•œ ì‹œê°„ ë°°ìœ¨
-    public static float CookJudgeMul = 1f;       // í™©ê¸ˆ ì¡°ë¦¬ ê¸°êµ¬: íŒì • ì¡´ ë°°ìœ¨
-    public static float GrillJudgeMul = 1f;      // êµ¬ë¦¬ ì˜¨ë„ê³„: êµ½ê¸° íŒì • ì¡´
-    public static float StirTimeMul = 1f;        // ê· í˜• ì¡íŒ ë’¤ì§‘ê°œ: ë³¶ê¸° ì œí•œ ì‹œê°„
-    public static float BoilJudgeMul = 1f;       // ì••ë ¥ ì¡°ì ˆ ë°¸ë¸Œ: ë“ì´ê¸° ì•ˆì •ì¡´
-    public static bool OilImmune = false;        // ë¯¸ë„ëŸ¼ ë°©ì§€ ë§¤íŠ¸: ê¸°ë¦„ íŠ ë¬´íš¨ (ì¦ê°•ì—ì„œ ì´ê´€)
+    // ---------- Á¶¸® ¹Ì´Ï°ÔÀÓ (CookingMinigame¿¡¼­ ÀĞÀ½) ----------
+    public static float CookTimeMul = 1f;        // Àß µå´Â ½ÄÄ®: Á¦ÇÑ ½Ã°£ ¹èÀ²
+    public static float CookJudgeMul = 1f;       // È²±İ Á¶¸® ±â±¸: ÆÇÁ¤ Á¸ ¹èÀ²
+    public static float GrillJudgeMul = 1f;      // ±¸¸® ¿Âµµ°è: ±Á±â ÆÇÁ¤ Á¸
+    public static float StirTimeMul = 1f;        // ±ÕÇü ÀâÈù µÚÁı°³: ºº±â Á¦ÇÑ ½Ã°£
+    public static float BoilJudgeMul = 1f;       // ¾Ğ·Â Á¶Àı ¹ëºê: ²úÀÌ±â ¾ÈÁ¤Á¸
+    public static bool OilImmune = false;        // ¹Ì²ô·³ ¹æÁö ¸ÅÆ®: ±â¸§ Æ¦ ¹«È¿ (Áõ°­¿¡¼­ ÀÌ°ü)
 
-    // ---------- ë„êµ¬ / ì…°í”„ (ChefControllerì—ì„œ ì½ìŒ) ----------
-    public static float ToolWearMul = 1f;        // íœ´ëŒ€ìš© ìˆ«ëŒ: ë„êµ¬ ë§ˆëª¨ ë°°ìœ¨ (ì „ê°ˆ ë¶€ì‹ í¬í•¨)
-    public static bool SnipeImmune = false;      // ê¹€ì„œë¦¼ ë°©ì§€ ê³ ê¸€: í”„í…Œë¼ ì €ê²© ë¬´íš¨
+    // ---------- µµ±¸ / ¼ÎÇÁ (ChefController¿¡¼­ ÀĞÀ½) ----------
+    public static float ToolWearMul = 1f;        // ÈŞ´ë¿ë ¼ıµ¹: µµ±¸ ¸¶¸ğ ¹èÀ² (Àü°¥ ºÎ½Ä Æ÷ÇÔ)
+    public static bool SnipeImmune = false;      // ±è¼­¸² ¹æÁö °í±Û: ÇÁÅ×¶ó Àú°İ ¹«È¿
 
-    // ---------- ì£¼ë°© ì´ë²¤íŠ¸ (KitchenEventManager/KitchenEventsì—ì„œ ì½ìŒ) ----------
-    public static float EventPenaltyMul = 1f;    // ë³´í—˜ ê³„ì•½ì„œ: ì‹¤íŒ¨ í˜ë„í‹° ë°°ìœ¨
-    public static float EventRewardMul = 1f;     // ë¶€ì±„ì§ˆ ì¥ì¸ì˜ ë¶€ì±„: ì„±ê³µ ë³´ìƒ ë°°ìœ¨
-    public static float EventIntervalMul = 1f;   // ë¶€ì±„ì§ˆ ì¥ì¸ì˜ ë¶€ì±„: ë°œìƒ ê°„ê²© ë°°ìœ¨
-    public static bool HasExtinguisher = false;  // êµ¬ë¦¬ ì†Œí™”ê¸°: í™”ì¬ ìë™ ì§„ì•• (ì›¨ì´ë¸Œë‹¹ 1íšŒ)
-    public static float IntruderGaugeMul = 1f;   // ë©í„° ë«: ì¹¨ì…ì ê²©í‡´ ê²Œì´ì§€ ë°°ìœ¨
-    public static int SwagGoldPerIntruder = 0;   // ì¥ë¬¼ ì£¼ë¨¸ë‹ˆ: ì¹¨ì…ì ê²©í‡´ ì‹œ ì¶”ê°€ ê³¨ë“œ
+    // ---------- ÁÖ¹æ ÀÌº¥Æ® (KitchenEventManager/KitchenEvents¿¡¼­ ÀĞÀ½) ----------
+    public static float EventPenaltyMul = 1f;    // º¸Çè °è¾à¼­: ½ÇÆĞ Æä³ÎÆ¼ ¹èÀ²
+    public static float EventRewardMul = 1f;     // ºÎÃ¤Áú ÀåÀÎÀÇ ºÎÃ¤: ¼º°ø º¸»ó ¹èÀ²
+    public static float EventIntervalMul = 1f;   // ºÎÃ¤Áú ÀåÀÎÀÇ ºÎÃ¤: ¹ß»ı °£°İ ¹èÀ²
+    public static bool HasExtinguisher = false;  // ±¸¸® ¼ÒÈ­±â: È­Àç ÀÚµ¿ Áø¾Ğ (¿şÀÌºê´ç 1È¸)
+    public static float IntruderGaugeMul = 1f;   // ·¦ÅÍ µ£: Ä§ÀÔÀÚ °İÅğ °ÔÀÌÁö ¹èÀ²
+    public static int SwagGoldPerIntruder = 0;   // Àå¹° ÁÖ¸Ó´Ï: Ä§ÀÔÀÚ °İÅğ ½Ã Ãß°¡ °ñµå
 
-    // ---------- ì¡°ë¦¬ ê²°ê³¼ (CookingBridgeì—ì„œ ì½ìŒ) ----------
-    public static bool FailRefund = false;       // ì„ ëŒ€ì˜ ì•ì¹˜ë§ˆ: ì‹¤íŒ¨ ì‹œ ì¬ë£Œ í™˜ê¸‰
-    public static float PerfectExtraChance = 0f; // ë¹„ë°€ í–¥ì‹ ë£Œ ì£¼ë¨¸ë‹ˆ: PERFECT ì‹œ ìš”ë¦¬ +1 í™•ë¥ 
+    // ---------- Á¶¸® °á°ú (CookingBridge¿¡¼­ ÀĞÀ½) ----------
+    public static bool FailRefund = false;       // ¼±´ëÀÇ ¾ÕÄ¡¸¶: ½ÇÆĞ ½Ã Àç·á È¯±Ş
+    public static float PerfectExtraChance = 0f; // ºñ¹Ğ Çâ½Å·á ÁÖ¸Ó´Ï: PERFECT ½Ã ¿ä¸® +1 È®·ü
 
-    // ---------- ë‚´ë¶€ ìƒíƒœ ----------
-    private static int lastExtinguishWave = -1;  // ì†Œí™”ê¸°: ì´ë²ˆ ì›¨ì´ë¸Œì— ì´ë¯¸ ì¼ëŠ”ê°€
-    public static int MerchantGuaranteedRegion = 0; // í–‰ìƒì¸: ì§€ì—­ ì²« ì •ì°¨ í™•ì • ë“±ì¥ ê¸°ë¡
+    // ---------- ³»ºÎ »óÅÂ ----------
+    private static int lastExtinguishWave = -1;  // ¼ÒÈ­±â: ÀÌ¹ø ¿şÀÌºê¿¡ ÀÌ¹Ì ½è´Â°¡
+    public static int MerchantGuaranteedRegion = 0; // Çà»óÀÎ: Áö¿ª Ã¹ Á¤Â÷ È®Á¤ µîÀå ±â·Ï
 
-    /// <summary>ì§€ê¸ˆê¹Œì§€ íšë“í•œ ì•„ì´í…œ ëª©ë¡ (UI í‘œì‹œ/ê°ì •ê°€ ì¦ê°• ì°¸ì¡°ìš©)</summary>
+    /// <summary>Áö±İ±îÁö È¹µæÇÑ ¾ÆÀÌÅÛ ¸ñ·Ï (UI Ç¥½Ã/°¨Á¤°¡ Áõ°­ ÂüÁ¶¿ë)</summary>
     public static List<ItemData> Owned = new List<ItemData>();
 
-    /// <summary>ë³´ìœ  ì•„ì´í…œ ìˆ˜ (ì¦ê°• 'ê³¨ë™í’ˆ ê°ì •ê°€'ê°€ ì°¸ì¡°)</summary>
+    /// <summary>º¸À¯ ¾ÆÀÌÅÛ ¼ö (Áõ°­ '°ñµ¿Ç° °¨Á¤°¡'°¡ ÂüÁ¶)</summary>
     public static int OwnedCount { get { return Owned.Count; } }
 
-    /// <summary>ëŸ° ì‹œì‘ ì‹œ ì´ˆê¸°í™” (staticì€ ì”¬ ì¬ì‹œì‘ì—ë„ ë‚¨ìœ¼ë¯€ë¡œ ë°˜ë“œì‹œ í˜¸ì¶œ)</summary>
+    /// <summary>·± ½ÃÀÛ ½Ã ÃÊ±âÈ­ (staticÀº ¾À Àç½ÃÀÛ¿¡µµ ³²À¸¹Ç·Î ¹İµå½Ã È£Ãâ)</summary>
     public static void ResetRun()
     {
         CookTimeMul = 1f; CookJudgeMul = 1f;
@@ -124,10 +124,10 @@ public static class ItemManager
         lastExtinguishWave = -1;
         MerchantGuaranteedRegion = 0;
         Owned.Clear();
-        Debug.Log("[ì•„ì´í…œ] ëŸ° ì´ˆê¸°í™” ì™„ë£Œ");
+        Debug.Log("[¾ÆÀÌÅÛ] ·± ÃÊ±âÈ­ ¿Ï·á");
     }
 
-    /// <summary>í•´ë‹¹ ì•„ì´í…œì„ ì´ë¯¸ ê°–ê³  ìˆëŠ”ì§€</summary>
+    /// <summary>ÇØ´ç ¾ÆÀÌÅÛÀ» ÀÌ¹Ì °®°í ÀÖ´ÂÁö</summary>
     public static bool HasItem(string id)
     {
         for (int i = 0; i < Owned.Count; i++)
@@ -136,8 +136,8 @@ public static class ItemManager
     }
 
     /// <summary>
-    /// ì•„ì´í…œ íšë“ (íš¨ê³¼ ì¦‰ì‹œ ë°œë™ + ì•Œë¦¼).
-    /// sourceLabelì´ ìˆìœ¼ë©´ "[ì „ë¦¬í’ˆ] {ì¶œì²˜}: ..." í˜•íƒœë¡œ í‘œì‹œ (ë“œë íšë“ìš©)
+    /// ¾ÆÀÌÅÛ È¹µæ (È¿°ú Áï½Ã ¹ßµ¿ + ¾Ë¸²).
+    /// sourceLabelÀÌ ÀÖÀ¸¸é "[Àü¸®Ç°] {ÃâÃ³}: ..." ÇüÅÂ·Î Ç¥½Ã (µå¶ø È¹µæ¿ë)
     /// </summary>
     public static void Acquire(ItemData item, string sourceLabel = null)
     {
@@ -147,16 +147,16 @@ public static class ItemManager
         if (item.apply != null) item.apply();
 
         if (string.IsNullOrEmpty(sourceLabel))
-            UIManager.Instance?.ShowStatChange("[ì•„ì´í…œ] " + item.name + " - " + item.desc);
+            UIManager.Instance?.ShowStatChange("[À¯¹°] " + item.name + " - " + item.desc);
         else
-            UIManager.Instance?.ShowStatChange("[ì „ë¦¬í’ˆ] " + sourceLabel + " - " + item.name + "!");
+            UIManager.Instance?.ShowStatChange("[Àü¸®Ç°] " + sourceLabel + " - " + item.name + "!");
 
         SoundManager.Play("sfx_pickup");
-        Debug.Log("[ì•„ì´í…œ] íšë“: " + item.name + " (" + item.RarityName() + ")"
-            + (sourceLabel != null ? " / ì¶œì²˜: " + sourceLabel : ""));
+        Debug.Log("[¾ÆÀÌÅÛ] È¹µæ: " + item.name + " (" + item.RarityName() + ")"
+            + (sourceLabel != null ? " / ÃâÃ³: " + sourceLabel : ""));
     }
 
-    /// <summary>ë¯¸ë³´ìœ  ì•„ì´í…œì´ ë‚¨ì•„ ìˆëŠ”ê°€ (Special ì œì™¸ - í–‰ìƒì¸/ë“œë ê³µìš© ì²´í¬)</summary>
+    /// <summary>¹Ìº¸À¯ ¾ÆÀÌÅÛÀÌ ³²¾Æ ÀÖ´Â°¡ (Special Á¦¿Ü - Çà»óÀÎ/µå¶ø °ø¿ë Ã¼Å©)</summary>
     public static bool HasStock()
     {
         List<ItemData> all = ItemDatabase.All;
@@ -166,10 +166,10 @@ public static class ItemManager
     }
 
     /// <summary>
-    /// ë¬´ì‘ìœ„ ë¯¸ë³´ìœ  ì•„ì´í…œ 1ê°œ ì§€ê¸‰ (Special ì œì™¸).
-    /// ì „ë¶€ ë³´ìœ  ì¤‘ì´ë©´ ê³¨ë“œë¡œ ëŒ€ì²´ - "í–‰ë‚­ì´ ê°€ë“ ì°¼ë‹¤"
+    /// ¹«ÀÛÀ§ ¹Ìº¸À¯ ¾ÆÀÌÅÛ 1°³ Áö±Ş (Special Á¦¿Ü).
+    /// ÀüºÎ º¸À¯ ÁßÀÌ¸é °ñµå·Î ´ëÃ¼ - "Çà³¶ÀÌ °¡µæ Ã¡´Ù"
     /// </summary>
-    /// <summary>2026-09-14 (êµìˆ˜ í”¼ë“œë°± B3): ì‹¤í—˜ ìŠ¤ìœ„ì¹˜ì— ë”°ë¼ ì˜ë¯¸ê°€ ì‚¬ë¼ì§€ëŠ” ì•„ì´í…œì€ í’€Â·ìƒì ì—ì„œ ëº€ë‹¤</summary>
+    /// <summary>2026-09-14 (±³¼ö ÇÇµå¹é B3): ½ÇÇè ½ºÀ§Ä¡¿¡ µû¶ó ÀÇ¹Ì°¡ »ç¶óÁö´Â ¾ÆÀÌÅÛÀº Ç®¡¤»óÁ¡¿¡¼­ »«´Ù</summary>
     public static bool IsItemUsable(string id)
     {
         if (id == "item_whetstone" && !GameBalance.ToolWearEnabled) return false;
@@ -183,32 +183,32 @@ public static class ItemManager
         for (int i = 0; i < all.Count; i++)
         {
             if (all[i].rarity == ItemRarity.Special || HasItem(all[i].id)) continue;
-            if (!IsItemUsable(all[i].id)) continue;   // 2026-09-14 (B3): ë§ˆëª¨ offë©´ ìˆ«ëŒì€ ì˜ë¯¸ê°€ ì—†ë‹¤
+            if (!IsItemUsable(all[i].id)) continue;   // 2026-09-14 (B3): ¸¶¸ğ off¸é ¼ıµ¹Àº ÀÇ¹Ì°¡ ¾ø´Ù
             pool.Add(all[i]);
         }
 
         if (pool.Count == 0)
         {
             GameManager.Instance?.AddGold(60);
-            UIManager.Instance?.ShowStatChange("[ì „ë¦¬í’ˆ] í–‰ë‚­ì´ ê°€ë“ ì°¼ë‹¤... ëŒ€ì‹  ê³¨ë“œ +60");
+            UIManager.Instance?.ShowStatChange("[Àü¸®Ç°] Çà³¶ÀÌ °¡µæ Ã¡´Ù... ´ë½Å °ñµå +60");
             return;
         }
         Acquire(pool[Random.Range(0, pool.Count)], sourceLabel);
     }
 
-    /// <summary>êµ¬ë¦¬ ì†Œí™”ê¸°: í™”ì¬ ìë™ ì§„ì•• ì‹œë„ (ì›¨ì´ë¸Œë‹¹ 1íšŒ). ì„±ê³µí•˜ë©´ true</summary>
+    /// <summary>±¸¸® ¼ÒÈ­±â: È­Àç ÀÚµ¿ Áø¾Ğ ½Ãµµ (¿şÀÌºê´ç 1È¸). ¼º°øÇÏ¸é true</summary>
     public static bool TryAutoExtinguish()
     {
         if (!HasExtinguisher) return false;
         int wave = GameManager.Instance != null ? GameManager.Instance.currentWave : 0;
-        if (lastExtinguishWave == wave) return false;   // ì´ë²ˆ ì›¨ì´ë¸Œ ë¶„ëŸ‰ì€ ì´ë¯¸ ì†Œì§„
+        if (lastExtinguishWave == wave) return false;   // ÀÌ¹ø ¿şÀÌºê ºĞ·®Àº ÀÌ¹Ì ¼ÒÁø
         lastExtinguishWave = wave;
         return true;
     }
 
     /// <summary>
-    /// ì¹¨ì…ì ê²©í‡´ ë“œë íŒì • (KitchenEventsê°€ í˜¸ì¶œ).
-    /// ì¥ë¬¼ ì£¼ë¨¸ë‹ˆ(ìœ ì¼)ë¥¼ ì•„ì§ ëª» ì–»ì—ˆìœ¼ë©´ ê·¸ê²ƒë¶€í„° ë‚˜ì˜¨ë‹¤ - "ë„ë‘‘ì´ í›”ì¹œ ë¬¼ê±´"
+    /// Ä§ÀÔÀÚ °İÅğ µå¶ø ÆÇÁ¤ (KitchenEvents°¡ È£Ãâ).
+    /// Àå¹° ÁÖ¸Ó´Ï(À¯ÀÏ)¸¦ ¾ÆÁ÷ ¸ø ¾ò¾úÀ¸¸é ±×°ÍºÎÅÍ ³ª¿Â´Ù - "µµµÏÀÌ ÈÉÄ£ ¹°°Ç"
     /// </summary>
     public static void TryIntruderDrop()
     {
@@ -217,14 +217,14 @@ public static class ItemManager
         if (!HasItem("item_swagbag"))
         {
             ItemData swag = ItemDatabase.Find("item_swagbag");
-            if (swag != null) { Acquire(swag, "ì¹¨ì…ìê°€ ë–¨ì–´ëœ¨ë ¸ë‹¤"); return; }
+            if (swag != null) { Acquire(swag, "Ä§ÀÔÀÚ°¡ ¶³¾î¶ß·È´Ù"); return; }
         }
-        GrantRandom("ì¹¨ì…ìê°€ ë–¨ì–´ëœ¨ë ¸ë‹¤");
+        GrantRandom("Ä§ÀÔÀÚ°¡ ¶³¾î¶ß·È´Ù");
     }
 
     /// <summary>
-    /// í–‰ìƒì¸ ë§¤ëŒ€ 2ì¹¸ êµ¬ì„±: ì¼ë°˜ 1 + í¬ê·€ 1 ìš°ì„ , ëª¨ìë¼ë©´ ë‚¨ì€ ê²ƒ ì•„ë¬´ê±°ë‚˜.
-    /// ë‚¨ì€ ë¬¼ê±´ì´ 1ê°œë©´ bëŠ” null.
+    /// Çà»óÀÎ ¸Å´ë 2Ä­ ±¸¼º: ÀÏ¹İ 1 + Èñ±Í 1 ¿ì¼±, ¸ğÀÚ¶ó¸é ³²Àº °Í ¾Æ¹«°Å³ª.
+    /// ³²Àº ¹°°ÇÀÌ 1°³¸é b´Â null.
     /// </summary>
     public static void GetShopOffer(out ItemData a, out ItemData b)
     {
@@ -243,7 +243,7 @@ public static class ItemManager
         if (commons.Count > 0) a = commons[Random.Range(0, commons.Count)];
         if (rares.Count > 0) b = rares[Random.Range(0, rares.Count)];
 
-        // í•œìª½ í’€ì´ ë¹„ì—ˆìœ¼ë©´ ë‚¨ì€ í’€ì—ì„œ ì±„ìš´ë‹¤ (ê°™ì€ ê²ƒ ì¤‘ë³µë§Œ ë°©ì§€)
+        // ÇÑÂÊ Ç®ÀÌ ºñ¾úÀ¸¸é ³²Àº Ç®¿¡¼­ Ã¤¿î´Ù (°°Àº °Í Áßº¹¸¸ ¹æÁö)
         List<ItemData> rest = commons.Count > 0 ? commons : rares;
         if (a == null && rest.Count > 0) a = rest[Random.Range(0, rest.Count)];
         if (b == null)
@@ -251,10 +251,10 @@ public static class ItemManager
             for (int i = 0; i < rest.Count; i++)
                 if (rest[i] != a) { b = rest[i]; break; }
         }
-        if (a == null) { a = b; b = null; }   // ì •ë¦¬: aë¶€í„° ì±„ìš´ë‹¤
+        if (a == null) { a = b; b = null; }   // Á¤¸®: aºÎÅÍ Ã¤¿î´Ù
     }
 
-    /// <summary>íŒë§¤ê°€ (GameBalance ë°°ìœ¨ ë°˜ì˜)</summary>
+    /// <summary>ÆÇ¸Å°¡ (GameBalance ¹èÀ² ¹İ¿µ)</summary>
     public static int PriceOf(ItemData item)
     {
         return item == null ? 0 : Mathf.RoundToInt(item.price * GameBalance.ItemPriceMul);
@@ -262,7 +262,7 @@ public static class ItemManager
 }
 
 
-/// <summary>ì „ì²´ ì•„ì´í…œ ëª©ë¡ (15ì¢…)</summary>
+/// <summary>ÀüÃ¼ ¾ÆÀÌÅÛ ¸ñ·Ï (15Á¾)</summary>
 public static class ItemDatabase
 {
     private static List<ItemData> all;
@@ -289,84 +289,84 @@ public static class ItemDatabase
         all = new List<ItemData>();
 
         // ==========================================================
-        //  ì¦ê°•ì—ì„œ ì´ê´€ëœ 5ì¢… (íš¨ê³¼ ìœ ì§€)
+        //  Áõ°­¿¡¼­ ÀÌ°üµÈ 5Á¾ (È¿°ú À¯Áö)
         // ==========================================================
-        all.Add(new ItemData("item_knife", "ì˜ ë“œëŠ” ì‹ì¹¼",
-            "ì¡°ë¦¬ ë¯¸ë‹ˆê²Œì„ ì œí•œ ì‹œê°„ +20% (êµ½ê¸° ì»¤ì„œë„ ëŠë ¤ì§„ë‹¤)",
+        all.Add(new ItemData("item_knife", "Àß µå´Â ½ÄÄ®",
+            "Á¶¸® ¹Ì´Ï°ÔÀÓ Á¦ÇÑ ½Ã°£ +20% (±Á±â Ä¿¼­µµ ´À·ÁÁø´Ù)",
             ItemRarity.Common, 150,
             delegate { ItemManager.CookTimeMul *= 1.20f; }));
 
-        all.Add(new ItemData("item_goldentool", "í™©ê¸ˆ ì¡°ë¦¬ ê¸°êµ¬",
-            "ì¡°ë¦¬ íŒì • ì¡´ +35%, ì œí•œ ì‹œê°„ +10%",
+        all.Add(new ItemData("item_goldentool", "È²±İ Á¶¸® ±â±¸",
+            "Á¶¸® ÆÇÁ¤ ±¸°£ +35%, Á¦ÇÑ ½Ã°£ +10%",
             ItemRarity.Rare, 300,
             delegate { ItemManager.CookJudgeMul *= 1.35f; ItemManager.CookTimeMul *= 1.10f; }));
 
-        all.Add(new ItemData("item_insurance", "ë³´í—˜ ê³„ì•½ì„œ",
-            "ì£¼ë°© ì´ë²¤íŠ¸ ì‹¤íŒ¨ í˜ë„í‹° 60% ê°ì†Œ",
+        all.Add(new ItemData("item_insurance", "º¸Çè °è¾à¼­",
+            "ÁÖ¹æ ÀÌº¥Æ® ½ÇÆĞ Æä³ÎÆ¼ 60% °¨¼Ò",
             ItemRarity.Common, 160,
             delegate { ItemManager.EventPenaltyMul *= 0.40f; }));
 
-        all.Add(new ItemData("item_fan", "ë¶€ì±„ì§ˆ ì¥ì¸ì˜ ë¶€ì±„",
-            "ì£¼ë°© ì´ë²¤íŠ¸ê°€ 2ë°° ìì£¼ ë°œìƒí•˜ì§€ë§Œ, ì„±ê³µ ë³´ìƒ 3ë°°",
+        all.Add(new ItemData("item_fan", "ºÎÃ¤Áú ÀåÀÎÀÇ ºÎÃ¤",
+            "ÁÖ¹æ ÀÌº¥Æ®°¡ 2¹è ÀÚÁÖ ¹ß»ıÇÏÁö¸¸, ¼º°ø º¸»ó 3¹è",
             ItemRarity.Rare, 280,
             delegate { ItemManager.EventIntervalMul *= 0.5f; ItemManager.EventRewardMul *= 3f; }));
 
-        all.Add(new ItemData("item_oilmat", "ë¯¸ë„ëŸ¼ ë°©ì§€ ë§¤íŠ¸",
-            "ì˜¤ì¼ ìº‘í„°ìŠ¤ì˜ ê¸°ë¦„ íŠì— ë©´ì—­ì´ ëœë‹¤",
+        all.Add(new ItemData("item_oilmat", "¹Ì²ô·³ ¹æÁö ¸ÅÆ®",
+            "¿ÀÀÏ Ä´ÅÍ½ºÀÇ ±â¸§ Æ¦¿¡ ¸é¿ªÀÌ µÈ´Ù",
             ItemRarity.Common, 140,
             delegate { ItemManager.OilImmune = true; }));
 
         // ==========================================================
-        //  ì‹ ê·œ 10ì¢…
+        //  ½Å±Ô 10Á¾
         // ==========================================================
-        all.Add(new ItemData("item_whetstone", "íœ´ëŒ€ìš© ìˆ«ëŒ",
-            "ì¡°ë¦¬ ë„êµ¬ ë§ˆëª¨ê°€ ì ˆë°˜ì´ ëœë‹¤ (ì „ê°ˆì˜ ë¶€ì‹ í¬í•¨)",
+        all.Add(new ItemData("item_whetstone", "ÈŞ´ë¿ë ¼ıµ¹",
+            "Á¶¸® µµ±¸ ¸¶¸ğ°¡ Àı¹İÀÌ µÈ´Ù (Àü°¥ÀÇ ºÎ½Ä Æ÷ÇÔ)",
             ItemRarity.Common, 150,
             delegate { ItemManager.ToolWearMul *= 0.5f; }));
 
-        all.Add(new ItemData("item_thermometer", "êµ¬ë¦¬ ì˜¨ë„ê³„",
-            "êµ½ê¸° íŒì • ì¡´ +25%",
+        all.Add(new ItemData("item_thermometer", "±¸¸® ¿Âµµ°è",
+            "±Á±â ÆÇÁ¤ ±¸°£ +25%",
             ItemRarity.Common, 150,
             delegate { ItemManager.GrillJudgeMul *= 1.25f; }));
 
-        all.Add(new ItemData("item_spatula", "ê· í˜• ì¡íŒ ë’¤ì§‘ê°œ",
-            "ë³¶ê¸° ì œí•œ ì‹œê°„ +25%",
+        all.Add(new ItemData("item_spatula", "±ÕÇü ÀâÈù µÚÁı°³",
+            "ºº±â Á¦ÇÑ ½Ã°£ +25%",
             ItemRarity.Common, 150,
             delegate { ItemManager.StirTimeMul *= 1.25f; }));
 
-        all.Add(new ItemData("item_valve", "ì••ë ¥ ì¡°ì ˆ ë°¸ë¸Œ",
-            "ë“ì´ê¸° ì•ˆì •ì¡´ +25%",
+        all.Add(new ItemData("item_valve", "¾Ğ·Â Á¶Àı ¹ëºê",
+            "²úÀÌ±â ÆÇÁ¤ ±¸°£ +25%",
             ItemRarity.Common, 150,
             delegate { ItemManager.BoilJudgeMul *= 1.25f; }));
 
-        all.Add(new ItemData("item_extinguisher", "êµ¬ë¦¬ ì†Œí™”ê¸°",
-            "ì£¼ë°© í™”ì¬ë¥¼ ì›¨ì´ë¸Œë‹¹ 1íšŒ ìë™ ì§„ì••í•œë‹¤",
+        all.Add(new ItemData("item_extinguisher", "±¸¸® ¼ÒÈ­±â",
+            "ÁÖ¹æ È­Àç¸¦ ¿şÀÌºê´ç 1È¸ ÀÚµ¿ Áø¾ĞÇÑ´Ù",
             ItemRarity.Rare, 260,
             delegate { ItemManager.HasExtinguisher = true; }));
 
-        all.Add(new ItemData("item_rattrap", "ë©í„° ë«",
-            "ì¹¨ì…ìê°€ ë«ì„ ë°Ÿê³  ì‹œì‘í•œë‹¤: ê²©í‡´ ê²Œì´ì§€ -40%",
+        all.Add(new ItemData("item_rattrap", "·¦ÅÍ µ£",
+            "Ä§ÀÔÀÚ°¡ µ£À» ¹â°í ½ÃÀÛÇÑ´Ù: °İÅğ °ÔÀÌÁö -40%",
             ItemRarity.Common, 160,
             delegate { ItemManager.IntruderGaugeMul *= 0.6f; }));
 
-        all.Add(new ItemData("item_goggles", "ê¹€ì„œë¦¼ ë°©ì§€ ê³ ê¸€",
-            "ë…ì¹¨ í”„í…Œë¼ì˜ ì €ê²©(ì¡°ë¦¬ ì†ë„ ì €í•˜)ì„ ë¬´ì‹œí•œë‹¤",
+        all.Add(new ItemData("item_goggles", "±è¼­¸² ¹æÁö °í±Û",
+            "µ¶Ä§ ÇÁÅ×¶óÀÇ Àú°İ(Á¶¸® ¼Óµµ ÀúÇÏ)À» ¹«½ÃÇÑ´Ù",
             ItemRarity.Rare, 260,
             delegate { ItemManager.SnipeImmune = true; }));
 
-        all.Add(new ItemData("item_apron", "ì„ ëŒ€ì˜ ì•ì¹˜ë§ˆ",
-            "ì¡°ë¦¬ì— ì‹¤íŒ¨í•´ë„ ì¬ë£Œë¥¼ ëŒë ¤ë°›ëŠ”ë‹¤",
+        all.Add(new ItemData("item_apron", "¼±´ëÀÇ ¾ÕÄ¡¸¶",
+            "Á¶¸®¿¡ ½ÇÆĞÇØµµ Àç·á¸¦ µ¹·Á¹Ş´Â´Ù",
             ItemRarity.Rare, 320,
             delegate { ItemManager.FailRefund = true; }));
 
-        all.Add(new ItemData("item_spicebag", "ë¹„ë°€ í–¥ì‹ ë£Œ ì£¼ë¨¸ë‹ˆ",
-            "PERFECT ì¡°ë¦¬ ì‹œ 20% í™•ë¥ ë¡œ ìš”ë¦¬ +1",
+        all.Add(new ItemData("item_spicebag", "ºñ¹Ğ Çâ½Å·á ÁÖ¸Ó´Ï",
+            "PERFECT Á¶¸® ½Ã 20% È®·ü·Î ¿ä¸® +1",
             ItemRarity.Rare, 300,
             delegate { ItemManager.PerfectExtraChance += 0.20f; }));
 
-        // ìœ ì¼ - ì¹¨ì…ì ê²©í‡´ ì‹œì—ë§Œ ë‚®ì€ í™•ë¥ ë¡œ íšë“ (ë¹„ë§¤í’ˆ)
-        all.Add(new ItemData("item_swagbag", "ì¥ë¬¼ ì£¼ë¨¸ë‹ˆ",
-            "íšë“ ì¦‰ì‹œ ê³¨ë“œ +150. ì´í›„ ì¹¨ì…ì ê²©í‡´ë§ˆë‹¤ ê³¨ë“œ +40",
+        // À¯ÀÏ - Ä§ÀÔÀÚ °İÅğ ½Ã¿¡¸¸ ³·Àº È®·ü·Î È¹µæ (ºñ¸ÅÇ°)
+        all.Add(new ItemData("item_swagbag", "Àå¹° ÁÖ¸Ó´Ï",
+            "È¹µæ Áï½Ã °ñµå +150. ÀÌÈÄ Ä§ÀÔÀÚ °İÅğ¸¶´Ù °ñµå +40",
             ItemRarity.Special, 0,
             delegate
             {
@@ -374,6 +374,6 @@ public static class ItemDatabase
                 ItemManager.SwagGoldPerIntruder += 40;
             }));
 
-        Debug.Log("[ì•„ì´í…œ] ë°ì´í„°ë² ì´ìŠ¤ ë¡œë“œ ì™„ë£Œ - ì´ " + all.Count + "ì¢…");
+        Debug.Log("[¾ÆÀÌÅÛ] µ¥ÀÌÅÍº£ÀÌ½º ·Îµå ¿Ï·á - ÃÑ " + all.Count + "Á¾");
     }
 }

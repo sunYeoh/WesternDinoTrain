@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 /// <summary>
-/// [TutorialDirector.cs] v1.2 (v9.9.2 2026-09-16: 단계 7~12 - 낙뢰 [E] / 작살 / 레버 / 실전 랩터 5 + 프테라 1 (기차 피해 켬, 멈추면 이 단계만 재시작) /
+/// [TutorialDirector.cs] v1.3 (v9.11.1 2026-09-22 문구: 목표 카드는 지금 할 행동만, 정식 운행) / v1.2 (v9.9.2 2026-09-16: 단계 7~12 - 낙뢰 [E] / 작살 / 레버 / 실전 랩터 5 + 프테라 1 (기차 피해 켬, 멈추면 이 단계만 재시작) /
 ///   정산 = 진짜 증강 선택 + [G] 정비소 / 도박꾼·앞길 카드. 발밑 링은 오브젝트 "발" 자리에 오브젝트보다 넓게(tut_ring_l 72x26) - 포탑·작살·레버 밑에 깔린다 (유저 09-16).
 ///   단계별 걸린 시간 로그) / v1.1 (v9.9.1: 1단계 목표 = 통로 건너 포탑 칸 / 손님은 화면 오른쪽에서 / 4단계는 재료가 찬 뒤 설명 / 완료 1.2초 비트)
 ///   / v1 (신규, v9.9 2026-09-16) - "견습 운행": 로비 [T]로 들어가는 전용 튜토리얼 런
@@ -291,7 +291,7 @@ public class TutorialDirector : MonoBehaviour
     // ── 1. 이동: 통로를 건너 포탑 칸 A 로 (셰프는 주방 칸 한가운데서 시작한다 - 2단계 투입 슬롯이 바로 그 칸에 있다) ──
     private IEnumerator Step1_Move()
     {
-        BeginStep(1, "[WASD] 통로를 건너 포탑 칸으로 달려라", "[Shift] 대시\n칸 사이는 발판으로만 건넌다", null, 0, 0);
+        BeginStep(1, "오른쪽 포탑 칸으로 달려라", "[WASD] 이동, [Shift] 대시\n칸 사이는 통로 발판으로만 건넌다", null, 0, 0);
         float carL = GameBalance.CarEdgesX[2] + 0.12f, carR = GameBalance.CarEdgesX[3] - 0.12f;
         Vector3 target = new Vector3((carL + carR) * 0.5f, 0.3f, 0f);   // 포탑 칸 A 바닥 가운데 (약 4.75, 0.3)
         ShowMarkerAt(target, 0.9f, RING_FLOOR);
@@ -312,7 +312,7 @@ public class TutorialDirector : MonoBehaviour
     private IEnumerator Step2_Insert()
     {
         TurretSlot slot = SlotAt(1);
-        BeginStep(2, "보급 요리를 포탑 이름표에 투입하라", "하단 바 요리 카드 클릭\n→ 화살표 아래 이름표 클릭", "투입", 0, 1);
+        BeginStep(2, "보급 요리를 포탑에 넣어라", "하단 바의 더블 육포 카드를 클릭\n그다음 화살표 아래 [+] 이름표를 클릭", "투입", 0, 1);
         if (FoodStock.Instance != null && FoodStock.Instance.Get(STARTER_RECIPE) < 1) FoodStock.Instance.Add(STARTER_RECIPE, 1);
         if (slot != null) ShowMarkerFollow(slot.transform, SlotArrowTip(1), RING_TURRET);
         yield return Brief(BriefingTexts.Tutorial(2));
@@ -334,7 +334,7 @@ public class TutorialDirector : MonoBehaviour
     // ── 3. 첫 손님 (랩터 2, 약체, 기차 무적) - 기차 꼬리 오른쪽 화면 안에서 걸어온다 (보이는 자리에서 포탑이 잡게) ──
     private IEnumerator Step3_FirstGuests()
     {
-        BeginStep(3, "첫 손님이다 - 포탑이 알아서 쏜다", "쓰러질 때까지 지켜봐라\n기차는 다치지 않는다", "손님", 0, 2);
+        BeginStep(3, "첫 손님이다 - 포탑이 알아서 쏜다", "포탑이 손님을 쏘는 걸 지켜봐라\n쓰러진 손님의 재료가 기차로 모인다", "손님", 0, 2);
         HideMarker();
         yield return Brief(BriefingTexts.Tutorial(3));
 
@@ -386,7 +386,7 @@ public class TutorialDirector : MonoBehaviour
     private IEnumerator Step5_Grill()
     {
         CookingStation grill = FindStation(CookingStation.StationType.Grilling);
-        BeginStep(5, "[E] 그릴 조리대 - 더블 육포를 구워라", "그릴 곁에서 [E] → 더블 육포\n판정 칸 안에서 [Space]", "조리", 0, 1);
+        BeginStep(5, "그릴에서 더블 육포를 구워라", "그릴 곁에서 [E] → 더블 육포 고르기\n눈금이 판정 칸 안에 오면 [Space]", "조리", 0, 1);
         if (grill != null) ShowMarkerFollow(grill.transform, 1.0f, RING_STATION);
         yield return Brief(BriefingTexts.Tutorial(5));
 
@@ -424,7 +424,7 @@ public class TutorialDirector : MonoBehaviour
     private IEnumerator Step6_LevelUp()
     {
         TurretSlot first = SlotAt(0);
-        BeginStep(6, "만든 요리를 첫 포탑에 투입하라", "같은 요리 = 레벨업\n다른 포탑에 넣어도 좋다", "투입", 0, 1);
+        BeginStep(6, "구운 육포를 아까 그 포탑에 넣어라", "같은 요리를 넣으면 레벨업\n빈 칸에 넣으면 새 포탑", "투입", 0, 1);
         if (FoodStock.Instance != null && TotalFood() < 1) FoodStock.Instance.Add(STARTER_RECIPE, 1);
         if (first != null) ShowMarkerFollow(first.transform, SlotArrowTip(0), RING_TURRET);
         yield return Brief(BriefingTexts.Tutorial(6));
@@ -503,7 +503,7 @@ public class TutorialDirector : MonoBehaviour
                 nextRockAt = Time.time + 1.5f;
             }
             if (Time.time > hintAt) { hintAt = float.MaxValue; UIManager.Instance?.ShowStatChange("[견습] 작살포 곁(기관실 왼쪽 위)에서 [E] - 바위가 사거리 안이면 바로 맞는다"); }
-            if (Time.time > giveUpAt) { UIManager.Instance?.ShowStatChange("[견습] 작살은 정식 런에서 다시 - 넘어간다"); break; }
+            if (Time.time > giveUpAt) { UIManager.Instance?.ShowStatChange("[견습] 작살은 정식 운행에서 다시 - 넘어간다"); break; }
             yield return null;
         }
         SetProgress(1, 1);
@@ -524,7 +524,7 @@ public class TutorialDirector : MonoBehaviour
         {
             if (EngineCab.LeverPulls > mark) break;
             if (Time.time > hintAt) { hintAt = float.MaxValue; UIManager.Instance?.ShowStatChange("[견습] 레버 곁에서 [E] 를 " + GameBalance.LeverHoldSec + "초 꾹 - 손을 떼면 취소"); }
-            if (Time.time > giveUpAt) { UIManager.Instance?.ShowStatChange("[견습] 레버는 정식 런에서 다시 - 넘어간다"); break; }
+            if (Time.time > giveUpAt) { UIManager.Instance?.ShowStatChange("[견습] 레버는 정식 운행에서 다시 - 넘어간다"); break; }
             yield return null;
         }
         SetProgress(1, 1);
@@ -563,7 +563,7 @@ public class TutorialDirector : MonoBehaviour
                 godMode = true;
                 yield return Brief(BriefingTexts.TutorialRetry());
                 if (retries10 >= 2) statMul = 0.6f;
-                if (retries10 >= 4) { UIManager.Instance?.ShowStatChange("[견습] 손님들이 물러갔다 - 정식 런에서 다시 해보자"); break; }
+                if (retries10 >= 4) { UIManager.Instance?.ShowStatChange("[견습] 손님들이 물러갔다 - 정식 운행에서 다시 해보자"); break; }
                 if (MaterialInventory.Instance != null && MeatCount() < 2) MaterialInventory.Instance.Add(MaterialType.Meat, 2 - MeatCount());
                 godMode = false;
                 guests = SpawnDefenseWave(RAPTORS, PTERAS, statMul, out need);
@@ -618,7 +618,7 @@ public class TutorialDirector : MonoBehaviour
             if (!highlighted && Time.unscaledTime > hintAt)
             {
                 highlighted = true;
-                if (linesText != null) { linesText.text = "[G] 정비소 - 지금 눌러봐라\n(정식 런에선 정차역마다)"; linesText.color = new Color(1f, 0.9f, 0.3f, 1f); }
+                if (linesText != null) { linesText.text = "[G] 정비소 - 지금 눌러봐라\n(정식 운행에선 정차역마다)"; linesText.color = new Color(1f, 0.9f, 0.3f, 1f); }
                 UIManager.Instance?.ShowStatChange("[견습] [G] 를 눌러 정비소를 열어봐라 - 수리·연마·재료 시장");
             }
             yield return null;

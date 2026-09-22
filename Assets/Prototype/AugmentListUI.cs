@@ -3,26 +3,26 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [AugmentListUI.cs] v9.9 (2026-09-16: ReadingOpen ì— BriefingUI.IsOpen í¬í•¨) / v3 (êµìˆ˜ í”¼ë“œë°± A10 ë°˜ì˜ 2026-09-14) / v2 - ê°ì‚¬ 3-B ê²°ì • ì‚¬í•­ + Phase 2-3 ì•„ì´í…œ í‘œì‹œ
-/// ë³´ìœ  ì¦ê°• + ì•„ì´í…œ(ìœ ë¬¼) ëª©ë¡ íŒ¨ë„ - Ví‚¤ë¡œ ì—´ê³  ë‹«ëŠ”ë‹¤.
-/// "ë‚´ê°€ ì§€ê¸ˆ ë­˜ ê³¨ëë”ë¼?"ë¥¼ ì–¸ì œë“  í™•ì¸ (ë ˆë²¨ ì‹œìŠ¤í…œ ì ˆë‹¨ì˜ ëŒ€ì²´ ì •ë³´ì°½).
-/// - v2: ì¦ê°• ëª©ë¡ ì•„ë˜ì— ë³´ìœ  ì•„ì´í…œë„ ì´ì–´ì„œ í‘œì‹œ (í¬ê·€ë„ ìƒ‰)
-/// - v3 (A10): ì—´ë ¤ ìˆëŠ” ë™ì•ˆ ì„¸ê³„ê°€ ë©ˆì¶˜ë‹¤ (ì „íˆ¬ ì¤‘ ì½ë‹¤ê°€ ë§ë˜ ë¬¸ì œ).
-///   ì´ë¯¸ ë©ˆì¶˜ í™”ë©´(ì •ë¹„ì†Œ/ì¦ê°• ì„ íƒ ë“±) ìœ„ì— ê²¹ì³ ì—´ë¦° ê²½ìš°ì—” ì‹œê°„ì„ ê±´ë“œë¦¬ì§€ ì•Šê³ ,
-///   ë‹«ì„ ë•Œë„ ë‹¤ë¥¸ ì •ì§€ UIê°€ ë–  ìˆìœ¼ë©´ ê·¸ìª½ì´ ì‹œê°„ì„ ëŒë ¤ì£¼ë„ë¡ ì–‘ë³´í•œë‹¤.
-///   [ESC]ë¡œë„ ë‹«íŒë‹¤ (ê°™ì€ í”„ë ˆì„ì— ì¼ì‹œì •ì§€ ë©”ë‰´ê°€ ì—´ë¦¬ì§€ ì•Šê²Œ ì†Œë¹„ í‘œì‹œ).
+/// [AugmentListUI.cs] v9.9 (2026-09-16: ReadingOpen ¿¡ BriefingUI.IsOpen Æ÷ÇÔ) / v3 (±³¼ö ÇÇµå¹é A10 ¹İ¿µ 2026-09-14) / v2 - °¨»ç 3-B °áÁ¤ »çÇ× + Phase 2-3 ¾ÆÀÌÅÛ Ç¥½Ã
+/// º¸À¯ Áõ°­ + ¾ÆÀÌÅÛ(À¯¹°) ¸ñ·Ï ÆĞ³Î - VÅ°·Î ¿­°í ´İ´Â´Ù.
+/// "³»°¡ Áö±İ ¹» °ñ¶ú´õ¶ó?"¸¦ ¾ğÁ¦µç È®ÀÎ (·¹º§ ½Ã½ºÅÛ Àı´ÜÀÇ ´ëÃ¼ Á¤º¸Ã¢).
+/// - v2: Áõ°­ ¸ñ·Ï ¾Æ·¡¿¡ º¸À¯ ¾ÆÀÌÅÛµµ ÀÌ¾î¼­ Ç¥½Ã (Èñ±Íµµ »ö)
+/// - v3 (A10): ¿­·Á ÀÖ´Â µ¿¾È ¼¼°è°¡ ¸ØÃá´Ù (ÀüÅõ Áß ÀĞ´Ù°¡ ¸Â´ø ¹®Á¦).
+///   ÀÌ¹Ì ¸ØÃá È­¸é(Á¤ºñ¼Ò/Áõ°­ ¼±ÅÃ µî) À§¿¡ °ãÃÄ ¿­¸° °æ¿ì¿£ ½Ã°£À» °Çµå¸®Áö ¾Ê°í,
+///   ´İÀ» ¶§µµ ´Ù¸¥ Á¤Áö UI°¡ ¶° ÀÖÀ¸¸é ±×ÂÊÀÌ ½Ã°£À» µ¹·ÁÁÖµµ·Ï ¾çº¸ÇÑ´Ù.
+///   [ESC]·Îµµ ´İÈù´Ù (°°Àº ÇÁ·¹ÀÓ¿¡ ÀÏ½ÃÁ¤Áö ¸Ş´º°¡ ¿­¸®Áö ¾Ê°Ô ¼Òºñ Ç¥½Ã).
 ///
-/// ì‚¬ìš©ë²•: ì—†ìŒ! AugmentPickUIê°€ ì‹œì‘ ì‹œ ìë™ ìƒì„±í•œë‹¤. íŒŒì¼ë§Œ ë„£ìœ¼ë©´ ë.
-/// VS 2017 (C# 7.3) í˜¸í™˜.
+/// »ç¿ë¹ı: ¾øÀ½! AugmentPickUI°¡ ½ÃÀÛ ½Ã ÀÚµ¿ »ı¼ºÇÑ´Ù. ÆÄÀÏ¸¸ ³ÖÀ¸¸é ³¡.
+/// VS 2017 (C# 7.3) È£È¯.
 /// </summary>
 public class AugmentListUI : MonoBehaviour
 {
     public static bool IsOpen { get; private set; }
 
     /// <summary>
-    /// A10: ì—´ëŒ íŒ¨ë„(ì¦ê°• ëª©ë¡ [V] / ì„ ëŒ€ì˜ ì¼ì§€ [J]) ì¤‘ í•˜ë‚˜ë¼ë„ ì—´ë ¤ ìˆëŠ”ì§€ - ë‹¤ë¥¸ ì‹œìŠ¤í…œì˜ ì…ë ¥ ì°¨ë‹¨ìš©.
-    /// v9.9: ë¸Œë¦¬í•‘ ì¹´ë“œ(BriefingUI - ê²¬ìŠµ ìš´í–‰ ë‹¨ê³„ ì„¤ëª…, ì²« ë“±ì¥ ì¹´ë“œ)ë„ "ì½ëŠ” ë™ì•ˆ ì‹œê°„ ì •ì§€" ì´ë¯€ë¡œ ê°™ì´ ë³¸ë‹¤ -
-    ///   ì´ í”Œë˜ê·¸ë¥¼ ë³´ëŠ” 7ê³³(ì¼ì‹œì •ì§€Â·ì´ë²¤íŠ¸Â·ìŠ¬ë¡¯ ë§ˆì»¤Â·ê¸°ê´€ì‹¤Â·ì¡°ë¦¬ëŒ€Â·ì£¼ë°©ì°½Â·ì •ë¹„ì†Œ)ì´ ìˆ˜ì • ì—†ì´ ì¹´ë“œ ìœ„ í‚¤ ì…ë ¥ì„ ë¬´ì‹œí•œë‹¤
+    /// A10: ¿­¶÷ ÆĞ³Î(Áõ°­ ¸ñ·Ï [V] / ¼±´ëÀÇ ÀÏÁö [J]) Áß ÇÏ³ª¶óµµ ¿­·Á ÀÖ´ÂÁö - ´Ù¸¥ ½Ã½ºÅÛÀÇ ÀÔ·Â Â÷´Ü¿ë.
+    /// v9.9: ºê¸®ÇÎ Ä«µå(BriefingUI - °ß½À ¿îÇà ´Ü°è ¼³¸í, Ã¹ µîÀå Ä«µå)µµ "ÀĞ´Â µ¿¾È ½Ã°£ Á¤Áö" ÀÌ¹Ç·Î °°ÀÌ º»´Ù -
+    ///   ÀÌ ÇÃ·¡±×¸¦ º¸´Â 7°÷(ÀÏ½ÃÁ¤Áö¡¤ÀÌº¥Æ®¡¤½½·Ô ¸¶Ä¿¡¤±â°ü½Ç¡¤Á¶¸®´ë¡¤ÁÖ¹æÃ¢¡¤Á¤ºñ¼Ò)ÀÌ ¼öÁ¤ ¾øÀÌ Ä«µå À§ Å° ÀÔ·ÂÀ» ¹«½ÃÇÑ´Ù
     /// </summary>
     public static bool ReadingOpen
     {
@@ -34,7 +34,7 @@ public class AugmentListUI : MonoBehaviour
     private RectTransform listArea;
     private Text titleText;
 
-    private bool pausedByMe;   // ì´ íŒ¨ë„ì´ ì‹œê°„ì„ ë©ˆì¶˜ ì£¼ì²´ì¸ì§€ (ë‹¤ë¥¸ ì •ì§€ UI ìœ„ì— ê²¹ì³ ì—´ë¦° ê²½ìš°ì™€ êµ¬ë¶„)
+    private bool pausedByMe;   // ÀÌ ÆĞ³ÎÀÌ ½Ã°£À» ¸ØÃá ÁÖÃ¼ÀÎÁö (´Ù¸¥ Á¤Áö UI À§¿¡ °ãÃÄ ¿­¸° °æ¿ì¿Í ±¸ºĞ)
 
     private void Start()
     {
@@ -46,14 +46,14 @@ public class AugmentListUI : MonoBehaviour
     private void OnDestroy()
     {
         if (canvasGo != null) Destroy(canvasGo);
-        // ì”¬ ë¦¬ë¡œë“œ ì•ˆì „ì¥ì¹˜: ì´ íŒ¨ë„ì´ ë©ˆì¶˜ ì‹œê°„ì€ ë°˜ë“œì‹œ ëŒë ¤ë†“ëŠ”ë‹¤
+        // ¾À ¸®·Îµå ¾ÈÀüÀåÄ¡: ÀÌ ÆĞ³ÎÀÌ ¸ØÃá ½Ã°£Àº ¹İµå½Ã µ¹·Á³õ´Â´Ù
         if (pausedByMe) { pausedByMe = false; Time.timeScale = 1f; }
         IsOpen = false;
     }
 
     private void Update()
     {
-        // Ví‚¤ í† ê¸€ (ì¡°ë¦¬ ë¯¸ë‹ˆê²Œì„/ì¦ê°• ì„ íƒ/ì¼ì§€ ë“± ë‹¤ë¥¸ ì „ì²´í™”ë©´ UI ì¤‘ì—ëŠ” ì—´ì§€ ì•ŠìŒ - í™”ë©´ ê²¹ì¹¨ ë°©ì§€)
+        // VÅ° Åä±Û (Á¶¸® ¹Ì´Ï°ÔÀÓ/Áõ°­ ¼±ÅÃ/ÀÏÁö µî ´Ù¸¥ ÀüÃ¼È­¸é UI Áß¿¡´Â ¿­Áö ¾ÊÀ½ - È­¸é °ãÄ§ ¹æÁö)
         if (Input.GetKeyDown(KeyCode.V))
         {
             if (IsOpen) Close();
@@ -62,17 +62,17 @@ public class AugmentListUI : MonoBehaviour
 
         if (IsOpen && Input.GetKeyDown(KeyCode.Escape))
         {
-            CookingMinigame.EscConsumedFrame = Time.frameCount;   // ê°™ì€ í”„ë ˆì„ì— ì¼ì‹œì •ì§€ ë©”ë‰´ê°€ ì—´ë¦¬ì§€ ì•Šê²Œ
+            CookingMinigame.EscConsumedFrame = Time.frameCount;   // °°Àº ÇÁ·¹ÀÓ¿¡ ÀÏ½ÃÁ¤Áö ¸Ş´º°¡ ¿­¸®Áö ¾Ê°Ô
             Close();
         }
     }
 
-    /// <summary>ë‹¤ë¥¸ ì „ì²´í™”ë©´ UI/ì—°ì¶œê³¼ ê²¹ì¹˜ì§€ ì•Šì„ ë•Œë§Œ ì—°ë‹¤</summary>
+    /// <summary>´Ù¸¥ ÀüÃ¼È­¸é UI/¿¬Ãâ°ú °ãÄ¡Áö ¾ÊÀ» ¶§¸¸ ¿¬´Ù</summary>
     private static bool CanOpen()
     {
         return !CookingMinigame.IsActive && !AugmentPickUI.IsOpen && !PauseMenu.IsOpen && !WorkshopUI.IsOpen
             && !JournalViewerUI.IsOpen && !FinalOrderUI.QteOpen && !StoryTexts.IsBlocking
-            && !BranchRouteUI.IsOpen && !InfusingMinigame.IsActive && !BriefingUI.IsOpen;   // v9.9: ë¸Œë¦¬í•‘ ì¹´ë“œ ìœ„ì—ì„œëŠ” ì•ˆ ì—°ë‹¤
+            && !BranchRouteUI.IsOpen && !InfusingMinigame.IsActive && !BriefingUI.IsOpen;   // v9.9: ºê¸®ÇÎ Ä«µå À§¿¡¼­´Â ¾È ¿¬´Ù
     }
 
     private void Open()
@@ -81,7 +81,7 @@ public class AugmentListUI : MonoBehaviour
         root.SetActive(true);
         IsOpen = true;
 
-        // A10: ì½ëŠ” ë™ì•ˆ ì„¸ê³„ë¥¼ ë©ˆì¶˜ë‹¤. ì´ë¯¸ ë©ˆì¶° ìˆëŠ” í™”ë©´ ìœ„ì— ì—´ë ¸ë‹¤ë©´ ì†ëŒ€ì§€ ì•ŠëŠ”ë‹¤
+        // A10: ÀĞ´Â µ¿¾È ¼¼°è¸¦ ¸ØÃá´Ù. ÀÌ¹Ì ¸ØÃç ÀÖ´Â È­¸é À§¿¡ ¿­·È´Ù¸é ¼Õ´ëÁö ¾Ê´Â´Ù
         pausedByMe = Time.timeScale > 0f;
         if (pausedByMe) Time.timeScale = 0f;
     }
@@ -94,23 +94,23 @@ public class AugmentListUI : MonoBehaviour
         if (pausedByMe)
         {
             pausedByMe = false;
-            // ì—´ëŒ ì¤‘ì— ë‹¤ë¥¸ ì •ì§€ UIê°€ ë–  ìˆìœ¼ë©´ ê·¸ìª½ì´ ë‹«í ë•Œ ì‹œê°„ì„ ëŒë ¤ì¤€ë‹¤
+            // ¿­¶÷ Áß¿¡ ´Ù¸¥ Á¤Áö UI°¡ ¶° ÀÖÀ¸¸é ±×ÂÊÀÌ ´İÈú ¶§ ½Ã°£À» µ¹·ÁÁØ´Ù
             if (!PauseMenu.IsOpen && !AugmentPickUI.IsOpen && !WorkshopUI.IsOpen
                 && !FinalOrderUI.QteOpen && !BranchRouteUI.IsOpen)
                 Time.timeScale = 1f;
         }
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ëª©ë¡ ê°±ì‹  (ì—´ ë•Œë§ˆë‹¤ ë‹¤ì‹œ ê·¸ë¦°ë‹¤)
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ¸ñ·Ï °»½Å (¿­ ¶§¸¶´Ù ´Ù½Ã ±×¸°´Ù)
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     private void RefreshList()
     {
-        // ì´ì „ í–‰ ì •ë¦¬
+        // ÀÌÀü Çà Á¤¸®
         for (int i = listArea.childCount - 1; i >= 0; i--)
             Destroy(listArea.GetChild(i).gameObject);
 
-        // ê°™ì€ ì¦ê°• ì¤‘ì²©ì€ xNìœ¼ë¡œ ë¬¶ëŠ”ë‹¤
+        // °°Àº Áõ°­ ÁßÃ¸Àº xNÀ¸·Î ¹­´Â´Ù
         List<AugmentData> unique = new List<AugmentData>();
         List<int> counts = new List<int>();
         for (int i = 0; i < AugmentManager.Owned.Count; i++)
@@ -124,13 +124,13 @@ public class AugmentListUI : MonoBehaviour
             else { unique.Add(a); counts.Add(1); }
         }
 
-        titleText.text = "ë³´ìœ  ì¦ê°• (" + AugmentManager.Owned.Count + ") / ì•„ì´í…œ ("
-            + ItemManager.OwnedCount + ")   [V] ë‹«ê¸°   (ì½ëŠ” ë™ì•ˆ ì‹œê°„ ì •ì§€)";
+        titleText.text = "º¸À¯ Áõ°­ (" + AugmentManager.Owned.Count + ") / À¯¹° ("
+            + ItemManager.OwnedCount + ")   [V] ´İ±â   (ÀĞ´Â µ¿¾È ½Ã°£ Á¤Áö)";
 
         if (unique.Count == 0 && ItemManager.OwnedCount == 0)
         {
             Text empty = KitchenEventManager.MakeText(listArea, "Empty",
-                "ì•„ì§ íšë“í•œ ì¦ê°•ë„ ì•„ì´í…œë„ ì—†ë‹¤", 22, new Color(0.6f, 0.58f, 0.52f));
+                "¾ÆÁ÷ È¹µæÇÑ Áõ°­µµ À¯¹°µµ ¾ø´Ù", 22, new Color(0.6f, 0.58f, 0.52f));
             RectTransform eRt = empty.rectTransform;
             eRt.anchorMin = new Vector2(0.5f, 1f);
             eRt.anchorMax = new Vector2(0.5f, 1f);
@@ -140,7 +140,7 @@ public class AugmentListUI : MonoBehaviour
             return;
         }
 
-        // 2ì—´ ë°°ì¹˜: ì¦ê°• ë¨¼ì €, ì´ì–´ì„œ ì•„ì´í…œ (ê°™ì€ ê·¸ë¦¬ë“œì— ê³„ì† ì±„ìš´ë‹¤)
+        // 2¿­ ¹èÄ¡: Áõ°­ ¸ÕÀú, ÀÌ¾î¼­ ¾ÆÀÌÅÛ (°°Àº ±×¸®µå¿¡ °è¼Ó Ã¤¿î´Ù)
         int slot = 0;
         for (int i = 0; i < unique.Count; i++)
         {
@@ -151,15 +151,15 @@ public class AugmentListUI : MonoBehaviour
             MakeRow(slot++, label, a.GradeColor(), a.desc);
         }
 
-        // Phase 2-3: ë³´ìœ  ì•„ì´í…œ(ìœ ë¬¼) - í¬ê·€ë„ ìƒ‰ + [ì•„ì´í…œ] ì ‘ë‘
+        // Phase 2-3: º¸À¯ ¾ÆÀÌÅÛ(À¯¹°) - Èñ±Íµµ »ö + [¾ÆÀÌÅÛ] Á¢µÎ
         for (int i = 0; i < ItemManager.Owned.Count; i++)
         {
             ItemData it = ItemManager.Owned[i];
-            MakeRow(slot++, "[ì•„ì´í…œ] " + it.name, it.RarityColor(), it.desc);
+            MakeRow(slot++, "[À¯¹°] " + it.name, it.RarityColor(), it.desc);
         }
     }
 
-    /// <summary>ëª©ë¡ í–‰ 1ê°œ ìƒì„± (ì¦ê°•/ì•„ì´í…œ ê³µìš©)</summary>
+    /// <summary>¸ñ·Ï Çà 1°³ »ı¼º (Áõ°­/¾ÆÀÌÅÛ °ø¿ë)</summary>
     private void MakeRow(int index, string label, Color labelColor, string desc)
     {
         float rowH = 58f;
@@ -174,7 +174,7 @@ public class AugmentListUI : MonoBehaviour
         row.anchoredPosition = new Vector2(14f + col * 462f, -8f - rowIdx * (rowH + 6f));
         row.sizeDelta = new Vector2(450f, rowH);
 
-        // ì´ë¦„ (ë“±ê¸‰/í¬ê·€ë„ ìƒ‰)
+        // ÀÌ¸§ (µî±Ş/Èñ±Íµµ »ö)
         Text nameTxt = KitchenEventManager.MakeText(row, "Name", label, 19, labelColor);
         nameTxt.alignment = TextAnchor.MiddleLeft;
         RectTransform nRt = nameTxt.rectTransform;
@@ -186,7 +186,7 @@ public class AugmentListUI : MonoBehaviour
         nRt.offsetMax = new Vector2(-12f, nRt.offsetMax.y);
         nRt.sizeDelta = new Vector2(nRt.sizeDelta.x, 26f);
 
-        // ì„¤ëª… (ì‘ê²Œ, í•œ ì¤„ ì˜ë¦¼ í—ˆìš©)
+        // ¼³¸í (ÀÛ°Ô, ÇÑ ÁÙ Àß¸² Çã¿ë)
         Text descTxt = KitchenEventManager.MakeText(row, "Desc", desc, 15,
             new Color(0.72f, 0.7f, 0.65f));
         descTxt.alignment = TextAnchor.MiddleLeft;
@@ -201,15 +201,15 @@ public class AugmentListUI : MonoBehaviour
         dRt.sizeDelta = new Vector2(dRt.sizeDelta.x, 24f);
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // UI ìƒì„±
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // UI »ı¼º
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     private void BuildUI()
     {
         canvasGo = new GameObject("AugmentListCanvas");
         Canvas canvas = canvasGo.AddComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-        canvas.sortingOrder = 585;   // ì •ë¹„ì†Œ(550)ì™€ ë¶„ê¸°ì„ ë¡œ(590) ì‚¬ì´
+        canvas.sortingOrder = 585;   // Á¤ºñ¼Ò(550)¿Í ºĞ±â¼±·Î(590) »çÀÌ
         CanvasScaler scaler = canvasGo.AddComponent<CanvasScaler>();
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
         scaler.referenceResolution = new Vector2(1920f, 1080f);
@@ -224,7 +224,7 @@ public class AugmentListUI : MonoBehaviour
         panel.sizeDelta = new Vector2(960f, 640f);
         root = panel.gameObject;
 
-        titleText = KitchenEventManager.MakeText(panel, "Title", "ë³´ìœ  ì¦ê°•", 28,
+        titleText = KitchenEventManager.MakeText(panel, "Title", "º¸À¯ Áõ°­", 28,
             new Color(1f, 0.78f, 0.32f));
         RectTransform tRt = titleText.rectTransform;
         tRt.anchorMin = new Vector2(0f, 1f);
@@ -233,7 +233,7 @@ public class AugmentListUI : MonoBehaviour
         tRt.anchoredPosition = new Vector2(0f, -10f);
         tRt.sizeDelta = new Vector2(0f, 36f);
 
-        // ëª©ë¡ ì˜ì—­
+        // ¸ñ·Ï ¿µ¿ª
         RectTransform area = KitchenEventManager.MakeBox(panel, "ListArea", new Color(0f, 0f, 0f, 0f));
         area.anchorMin = new Vector2(0f, 0f);
         area.anchorMax = new Vector2(1f, 1f);

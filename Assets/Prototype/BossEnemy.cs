@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 
 /// <summary>
-/// [BossEnemy.cs] v7.2 (v9.10.1 2026-09-21: 재료 이름 전기알) / v7.1 (교수 피드백 C3: 디 오리지널 추가 그로기 / A8: 재가동 문구) / v6 - 보스 패턴 C단계 1차 (보스패턴설계 문서)
+/// [BossEnemy.cs] v7.3 (v9.11.1 2026-09-22 문구: 무방비, 실행 가능한 예고) / v7.2 (v9.10.1 2026-09-21: 재료 이름 전기알) / v7.1 (교수 피드백 C3: 디 오리지널 추가 그로기 / A8: 재가동 문구) / v6 - 보스 패턴 C단계 1차 (보스패턴설계 문서)
 /// - v6 변경점:
 ///   1) 미끼 도발 대응: 도발 중엔 미끼를 쫓아가고 물어뜯는다 (기차 무피해)
 ///   2) 디 오리지널 3페이즈:
@@ -144,7 +144,7 @@ public class BossEnemy : Enemy
             goldReward = 1000,
             xpReward = 500,
             targetPriority = "기차 전체",
-            specialAbility = "HP 75/50/25% 그로기"
+            specialAbility = "HP 75/50/25% 무방비(그로기)"
         };
     }
 
@@ -171,7 +171,7 @@ public class BossEnemy : Enemy
             data.enemyName = "녹슨 발톱";
             bossMaxHP *= 0.9f; bossATK *= 0.9f; spd = 2.0f;      // 빠르고 가벼움
             baseTint = new Color(0.9f, 0.55f, 0.38f);
-            intro = "무리의 왕이 나타났다! 호령은 스턴으로 저지할 수 있다!";
+            intro = "무리의 왕이 나타났다! 호령(예고) 중에 보스를 멈추면 소환이 절반!";
         }
         else if (kind == BossKind.ThunderNest)
         {
@@ -306,7 +306,7 @@ public class BossEnemy : Enemy
             originalPhase = 2;
             PickupFX.FeedingBoss = this;
             UIManager.Instance?.ShowWaveNotice("[디 오리지널] 폭식!",
-                "재료 조각을 도둑맞는다 - 보스 곁에서 적을 잡지 마라!");
+                "보스가 곁에 떨어진 재료 조각을 먹으면 회복하고 세진다!");
             Debug.Log("[BossEnemy] P2 폭식 페이즈 - 조각 쟁탈전 시작");
         }
 
@@ -394,7 +394,7 @@ public class BossEnemy : Enemy
     private IEnumerator PatternHowl()
     {
         float castStart = Time.time;
-        yield return StartCoroutine(Telegraph("사냥 호령! 울음소리가 황야를 가른다 (스턴으로 저지!)"));
+        yield return StartCoroutine(Telegraph("사냥 호령! 울음소리가 황야를 가른다 (마비·멈춤으로 저지!)"));
         if (isGroggy || !IsAlive) yield break;
 
         int count = GameBalance.HowlSummonCount + (enraged ? GameBalance.EnrageExtraSummon : 0);
@@ -468,7 +468,7 @@ public class BossEnemy : Enemy
             if (ParryCharges >= GameBalance.ParryChargesForCounter)
             {
                 ParryCharges = 0;
-                UIManager.Instance?.ShowWaveNotice("되쏘기!", "병에 담은 번개가 여왕을 꿰뚫는다 - 그로기!");
+                UIManager.Instance?.ShowWaveNotice("되쏘기!", "병에 담은 번개가 여왕을 꿰뚫는다 - 무방비!");
                 Debug.Log("[BossEnemy] 번개 되쏘기 - 강제 그로기!");
                 ForceGroggy(GameBalance.ParryCounterGroggySec);
             }
@@ -498,7 +498,7 @@ public class BossEnemy : Enemy
         }
 
         if (hitCount > 0)
-            UIManager.Instance?.ShowStatChange("포탑 " + hitCount + "기 감전! 슬롯 곁에서 [E]로 재가동!");
+            UIManager.Instance?.ShowStatChange("포탑 " + hitCount + "기 감전! 포탑 곁에서 [E] 한 번!");
         Debug.Log("[BossEnemy] 낙뢰 폭격 - 슬롯 " + hitCount + "곳 마비");
     }
 
@@ -546,7 +546,7 @@ public class BossEnemy : Enemy
     {
         armorActive = false;
         ApplyTint(baseTint);
-        UIManager.Instance?.ShowStatChange("빙하 갑주 파괴! 보스 그로기!");
+        UIManager.Instance?.ShowStatChange("빙하 갑주 파괴! 보스 무방비!");
         Debug.Log("[BossEnemy] 빙하 갑주 파괴 - 보너스 그로기 " + GameBalance.GlacierBreakGroggySec + "초");
 
         // 파괴 보상: 짧은 보너스 그로기

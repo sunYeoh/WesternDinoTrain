@@ -79,7 +79,7 @@ public class InfusingMinigame : MonoBehaviour
         bar = 0f; dir = 1f;
 
         BuildUI();
-        titleText.text = "인퓨징  -  " + fusion.displayName + " [T2]";
+        titleText.text = "진화 조리  -  " + fusion.displayName + " [전설]";
         SetPhaseInfo();
 
         Debug.Log("[Infusing] 인퓨징 시작 -> " + fusion.displayName);
@@ -108,7 +108,7 @@ public class InfusingMinigame : MonoBehaviour
         // ESC = 중단 (포탑은 그대로 - 아무 일도 일어나지 않은 것으로)
         if (phase < 2 && Input.GetKeyDown(KeyCode.Escape))
         {
-            UIManager.Instance?.ShowStatChange("인퓨징 중단 - 두 요리는 그대로 남았다");
+            UIManager.Instance?.ShowStatChange("진화 조리 중단 - 두 요리는 그대로 남았다");
             Destroy(gameObject);
             return;
         }
@@ -219,7 +219,7 @@ public class InfusingMinigame : MonoBehaviour
             infoText.text = "1/2 [정수 추출]  정중앙에서 [Space]  (합계 "
                 + GameBalance.InfuseBonusScoreNeed + "점 이상 = Lv+" + GameBalance.InfuseBonusLevel + " 탄생)";
         else if (phase == 1)
-            infoText.text = "2/2 [융합 안정화]  [Space] 홀드로 게이지를 존에 유지  (현재 " + score + "점)";
+            infoText.text = "2/2 [융합 안정화]  [Space] 를 누르고 떼며 눈금을 판정 구간에 유지  (현재 " + score + "점)";
         else
             infoText.text = "융합 판정 합계 " + score + "점...";
     }

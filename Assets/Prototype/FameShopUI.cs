@@ -3,41 +3,41 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// [FameShopUI.cs] v1.3 (2026-09-14: ëŸ° ì¢…ë£Œ í™”ë©´ì— ì´ë²ˆ ëŸ° í†µê³„ í•œ ì¤„) / v1.2 (ì¦‰ì‹œ ì¬ì¶œë°œ ë²„íŠ¼) / v1
-/// ëª…ì„± ìƒì  - ëŸ° ì‚¬ì´(ë¡œë¹„/ê²Œì„ì˜¤ë²„)ì— ëª…ì„±ì„ ì†Œëª¨í•´ ì˜êµ¬ ì—…ê·¸ë ˆì´ë“œë¥¼ ì‚¬ëŠ” UI.
+/// [FameShopUI.cs] v1.3 (2026-09-14: ·± Á¾·á È­¸é¿¡ ÀÌ¹ø ·± Åë°è ÇÑ ÁÙ) / v1.2 (Áï½Ã ÀçÃâ¹ß ¹öÆ°) / v1
+/// ¸í¼º »óÁ¡ - ·± »çÀÌ(·Îºñ/°ÔÀÓ¿À¹ö)¿¡ ¸í¼ºÀ» ¼Ò¸ğÇØ ¿µ±¸ ¾÷±×·¹ÀÌµå¸¦ »ç´Â UI.
 ///
-/// - v1.3 ë³€ê²½ì  (ìŠ¤ìœ„ì¹˜ ì‹¤í—˜ ê´€ì°° ì‹œíŠ¸): ê²Œì„ì˜¤ë²„/ìŠ¹ë¦¬ë¡œ ì—´ë ¸ì„ ë•Œ ë³´ìœ  ëª…ì„± ì¤„ ì•„ë˜ì—
-///   MetaProgress.RunStatsLine() (í´ë¦¬ì–´ ì›¨ì´ë¸Œ / ì¡°ë¦¬Â·ì‹¤íŒ¨ / ì „íˆ¬ ì¤‘ ìˆ˜ë¦¬ / ê³¼ì—´ íšŸìˆ˜Â·ì •ì§€ ì‹œê°„) ì„ ë„ìš´ë‹¤.
-///   ê²Œì„ì˜¤ë²„ ì•Œë¦¼ì€ 3ì´ˆ ë§Œì— ì‚¬ë¼ì ¸ì„œ ì˜®ê²¨ ì ì„ ìˆ˜ ì—†ì—ˆë˜ ê²ƒ - ì´ ì°½ì€ [ë‹¤ì‹œ êµ½ëŠ”ë‹¤] ë¥¼ ëˆ„ë¥¼ ë•Œê¹Œì§€ ë‚¨ëŠ”ë‹¤. ë¡œë¹„ì—ì„œëŠ” ë¹ˆ ì¤„.
-/// í•˜ë°ìŠ¤ì˜ 'ì–´ë‘ ì˜ ê±°ìš¸' í¬ì§€ì…˜: ì£½ì–´ë„ ëª…ì„±ì€ ë‚¨ê³ , ê·¸ê±¸ë¡œ ë‹¤ìŒ ëŸ°ì„ ê°•í•˜ê²Œ ë§Œë“ ë‹¤.
+/// - v1.3 º¯°æÁ¡ (½ºÀ§Ä¡ ½ÇÇè °üÂû ½ÃÆ®): °ÔÀÓ¿À¹ö/½Â¸®·Î ¿­·ÈÀ» ¶§ º¸À¯ ¸í¼º ÁÙ ¾Æ·¡¿¡
+///   MetaProgress.RunStatsLine() (Å¬¸®¾î ¿şÀÌºê / Á¶¸®¡¤½ÇÆĞ / ÀüÅõ Áß ¼ö¸® / °ú¿­ È½¼ö¡¤Á¤Áö ½Ã°£) À» ¶ç¿î´Ù.
+///   °ÔÀÓ¿À¹ö ¾Ë¸²Àº 3ÃÊ ¸¸¿¡ »ç¶óÁ®¼­ ¿Å°Ü ÀûÀ» ¼ö ¾ø¾ú´ø °Í - ÀÌ Ã¢Àº [´Ù½Ã ±Á´Â´Ù] ¸¦ ´©¸¦ ¶§±îÁö ³²´Â´Ù. ·Îºñ¿¡¼­´Â ºó ÁÙ.
+/// ÇÏµ¥½ºÀÇ '¾îµÒÀÇ °Å¿ï' Æ÷Áö¼Ç: Á×¾îµµ ¸í¼ºÀº ³²°í, ±×°É·Î ´ÙÀ½ ·±À» °­ÇÏ°Ô ¸¸µç´Ù.
 ///
-/// ì‚¬ìš©ë²•:
-///  1) ì´ íŒŒì¼ì„ Assets/Prototype í´ë”ì— ë„£ëŠ”ë‹¤
-///  2) í•˜ì´ì–´ë¼í‚¤ì˜ ì•„ë¬´ ì˜¤ë¸Œì íŠ¸(ì˜ˆ: UIManagerê°€ ë¶™ì€ ì˜¤ë¸Œì íŠ¸)ì— AddComponent
-///  3) ì”¬ ë°°ì¹˜ í•„ìš” ì—†ìŒ - UIëŠ” ì „ë¶€ ì½”ë“œë¡œ ìƒì„±ëœë‹¤
+/// »ç¿ë¹ı:
+///  1) ÀÌ ÆÄÀÏÀ» Assets/Prototype Æú´õ¿¡ ³Ö´Â´Ù
+///  2) ÇÏÀÌ¾î¶óÅ°ÀÇ ¾Æ¹« ¿ÀºêÁ§Æ®(¿¹: UIManager°¡ ºÙÀº ¿ÀºêÁ§Æ®)¿¡ AddComponent
+///  3) ¾À ¹èÄ¡ ÇÊ¿ä ¾øÀ½ - UI´Â ÀüºÎ ÄÚµå·Î »ı¼ºµÈ´Ù
 ///
-/// ë™ì‘:
-///  - ë¡œë¹„ / ê²Œì„ì˜¤ë²„ ìƒíƒœì—ì„œ ìë™ìœ¼ë¡œ í‘œì‹œ, ì „íˆ¬ ì‹œì‘í•˜ë©´ ìë™ìœ¼ë¡œ ìˆ¨ê¹€
-///  - M í‚¤ë¡œ ì ‘ê¸°/í¼ì¹˜ê¸° (ë¡œë¹„, ê²Œì„ì˜¤ë²„ì—ì„œë§Œ)
-///  - ì—…ê·¸ë ˆì´ë“œ íš¨ê³¼ëŠ” ì´ë¯¸ GameManager/TrainManager/CookingMinigameì— ì—°ê²°ë˜ì–´ ìˆì–´
-///    êµ¬ë§¤ ì¦‰ì‹œ(ë‹¤ìŒ ëŸ°ë¶€í„°) ì ìš©ëœë‹¤
-/// VS 2017 (C# 7.3) í˜¸í™˜.
+/// µ¿ÀÛ:
+///  - ·Îºñ / °ÔÀÓ¿À¹ö »óÅÂ¿¡¼­ ÀÚµ¿À¸·Î Ç¥½Ã, ÀüÅõ ½ÃÀÛÇÏ¸é ÀÚµ¿À¸·Î ¼û±è
+///  - M Å°·Î Á¢±â/ÆîÄ¡±â (·Îºñ, °ÔÀÓ¿À¹ö¿¡¼­¸¸)
+///  - ¾÷±×·¹ÀÌµå È¿°ú´Â ÀÌ¹Ì GameManager/TrainManager/CookingMinigame¿¡ ¿¬°áµÇ¾î ÀÖ¾î
+///    ±¸¸Å Áï½Ã(´ÙÀ½ ·±ºÎÅÍ) Àû¿ëµÈ´Ù
+/// VS 2017 (C# 7.3) È£È¯.
 /// </summary>
 public class FameShopUI : MonoBehaviour
 {
     public static bool IsOpen { get; private set; }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ìƒí’ˆ ì •ì˜
-    // ê°€ê²©ì€ baseCost * (í˜„ì¬ë ˆë²¨ + 1) - ë ˆë²¨ì´ ì˜¤ë¥¼ìˆ˜ë¡ ë¹„ì‹¸ì§„ë‹¤
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // »óÇ° Á¤ÀÇ
+    // °¡°İÀº baseCost * (ÇöÀç·¹º§ + 1) - ·¹º§ÀÌ ¿À¸¦¼ö·Ï ºñ½ÎÁø´Ù
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     private class ShopItem
     {
-        public string id;        // MetaProgress ì €ì¥ í‚¤
-        public string itemName;  // í‘œì‹œ ì´ë¦„
-        public string desc;      // íš¨ê³¼ ì„¤ëª…
-        public int baseCost;     // 1ë ˆë²¨ ê°€ê²©
-        public int maxLevel;     // ìµœëŒ€ ë ˆë²¨
+        public string id;        // MetaProgress ÀúÀå Å°
+        public string itemName;  // Ç¥½Ã ÀÌ¸§
+        public string desc;      // È¿°ú ¼³¸í
+        public int baseCost;     // 1·¹º§ °¡°İ
+        public int maxLevel;     // ÃÖ´ë ·¹º§
 
         public ShopItem(string id, string itemName, string desc, int baseCost, int maxLevel)
         {
@@ -50,23 +50,23 @@ public class FameShopUI : MonoBehaviour
 
     private ShopItem[] items;
 
-    // â”€â”€ UI ì°¸ì¡° â”€â”€
+    // ¦¡¦¡ UI ÂüÁ¶ ¦¡¦¡
     private GameObject canvasGo;
     private GameObject root;
     private Text fameText;
-    private Text runText;      // v1.3: ì´ë²ˆ ëŸ° í†µê³„ (ê²Œì„ì˜¤ë²„/ìŠ¹ë¦¬ì—ì„œë§Œ ë‚´ìš© ìˆìŒ)
+    private Text runText;      // v1.3: ÀÌ¹ø ·± Åë°è (°ÔÀÓ¿À¹ö/½Â¸®¿¡¼­¸¸ ³»¿ë ÀÖÀ½)
     private Text[] levelTexts;
     private Text[] buyLabels;
     private Button[] buyButtons;
-    private GameObject restartButtonGo;   // v1.2: [ë‹¤ì‹œ êµ½ëŠ”ë‹¤] - ê²Œì„ì˜¤ë²„/ìŠ¹ë¦¬ ì‹œì—ë§Œ í‘œì‹œ
+    private GameObject restartButtonGo;   // v1.2: [´Ù½Ã ±Á´Â´Ù] - °ÔÀÓ¿À¹ö/½Â¸® ½Ã¿¡¸¸ Ç¥½Ã
 
-    // í‘œì‹œ ìƒíƒœ ì¶”ì 
-    // í”Œë ˆì´í…ŒìŠ¤íŠ¸ í”½ìŠ¤: ë¡œë¹„ì—ì„œëŠ” ê¸°ë³¸ ì ‘í˜ - ì‹œì‘ í™”ë©´ì„ ê°€ë¦¬ì§€ ì•ŠëŠ”ë‹¤.
-    // ë¡œë¹„ì˜ [ëª…ì„± ìƒì ] ë²„íŠ¼ì´ë‚˜ M í‚¤ë¡œ ì—´ì–´ ë³¸ë‹¤. (ì‚¬ë§/ìŠ¹ë¦¬ ì‹œì—ëŠ” ìë™ìœ¼ë¡œ í¼ì³ì§„ë‹¤)
+    // Ç¥½Ã »óÅÂ ÃßÀû
+    // ÇÃ·¹ÀÌÅ×½ºÆ® ÇÈ½º: ·Îºñ¿¡¼­´Â ±âº» Á¢Èû - ½ÃÀÛ È­¸éÀ» °¡¸®Áö ¾Ê´Â´Ù.
+    // ·ÎºñÀÇ [¸í¼º »óÁ¡] ¹öÆ°ÀÌ³ª M Å°·Î ¿­¾î º»´Ù. (»ç¸Á/½Â¸® ½Ã¿¡´Â ÀÚµ¿À¸·Î ÆîÃÄÁø´Ù)
     private bool userCollapsed = true;
     private GameManager.GameState lastSeenState = GameManager.GameState.Lobby;
 
-    /// <summary>ë¡œë¹„ ë²„íŠ¼(LobbyUI)ì´ ì ‘ê¸°/í¼ì¹˜ê¸°ë¥¼ í˜¸ì¶œí•  ìˆ˜ ìˆê²Œ ê³µê°œ</summary>
+    /// <summary>·Îºñ ¹öÆ°(LobbyUI)ÀÌ Á¢±â/ÆîÄ¡±â¸¦ È£ÃâÇÒ ¼ö ÀÖ°Ô °ø°³</summary>
     public static FameShopUI Instance { get; private set; }
 
     public void ToggleShop() { userCollapsed = !userCollapsed; }
@@ -76,18 +76,18 @@ public class FameShopUI : MonoBehaviour
         Instance = this;
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ì´ˆê¸°í™”
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ÃÊ±âÈ­
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     private void Start()
     {
         items = new ShopItem[]
         {
-            new ShopItem("gold",  "ë‘ë‘‘í•œ ì „ëŒ€",   "ì‹œì‘ ê³¨ë“œ +100",             80,  3),
-            new ShopItem("hp",    "ê°•í™” ë³´ì¼ëŸ¬",   "ê¸°ì°¨ ìµœëŒ€ HP +50",           100, 3),
-            new ShopItem("food",  "ì—¬ë¶„ì˜ ë„ì‹œë½", "ì‹œì‘ ìš”ë¦¬ +1 (ì²« í¬íƒ‘ ê°€ì†)", 120, 2),
-            new ShopItem("mat",   "ì¬ë£Œ ê°€ë°©",     "ì‹œì‘ ì‹œ ëœë¤ ì¬ë£Œ +2",        100, 2),
-            new ShopItem("judge", "ì…°í”„ì˜ ê°ê°",   "ì¡°ë¦¬ íŒì • ì¡´ +4% (ì˜êµ¬)",     150, 3),
+            new ShopItem("gold",  "µÎµÏÇÑ Àü´ë",   "½ÃÀÛ °ñµå +100",             80,  3),
+            new ShopItem("hp",    "°­È­ º¸ÀÏ·¯",   "±âÂ÷ ÃÖ´ë HP +50",           100, 3),
+            new ShopItem("food",  "¿©ºĞÀÇ µµ½Ã¶ô", "½ÃÀÛ ¿ä¸® +1 (Ã¹ Æ÷Å¾ °¡¼Ó)", 120, 2),
+            new ShopItem("mat",   "Àç·á °¡¹æ",     "½ÃÀÛ ½Ã ·£´ı Àç·á +2",        100, 2),
+            new ShopItem("judge", "¼ÎÇÁÀÇ °¨°¢",   "Á¶¸® ÆÇÁ¤ ±¸°£ +4% (´ÙÀ½ ¿îÇà¿¡µµ À¯Áö)",     150, 3),
         };
 
         BuildUI();
@@ -101,9 +101,9 @@ public class FameShopUI : MonoBehaviour
         IsOpen = false;
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // í‘œì‹œ ì¡°ê±´: ë¡œë¹„ ë˜ëŠ” ê²Œì„ì˜¤ë²„ ìƒíƒœ
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // Ç¥½Ã Á¶°Ç: ·Îºñ ¶Ç´Â °ÔÀÓ¿À¹ö »óÅÂ
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     private void Update()
     {
         bool allowed = false;
@@ -114,8 +114,8 @@ public class FameShopUI : MonoBehaviour
                 || s == GameManager.GameState.GameOver
                 || s == GameManager.GameState.Victory);
 
-            // í”Œë ˆì´í…ŒìŠ¤íŠ¸ í”½ìŠ¤: ì‚¬ë§/ìŠ¹ë¦¬ í™”ë©´ì— ë“¤ì–´ì˜¨ ìˆœê°„ì—” ìë™ìœ¼ë¡œ í¼ì¹œë‹¤
-            // (ì£½ì€ ì§í›„ê°€ ëª…ì„±ì„ ì“¸ ê°€ì¥ ëœ¨ê±°ìš´ ìˆœê°„ - ë¡œë¹„ ê¸°ë³¸ ì ‘í˜ê³¼ ë³„ê°œ)
+            // ÇÃ·¹ÀÌÅ×½ºÆ® ÇÈ½º: »ç¸Á/½Â¸® È­¸é¿¡ µé¾î¿Â ¼ø°£¿£ ÀÚµ¿À¸·Î ÆîÄ£´Ù
+            // (Á×Àº Á÷ÈÄ°¡ ¸í¼ºÀ» ¾µ °¡Àå ¶ß°Å¿î ¼ø°£ - ·Îºñ ±âº» Á¢Èû°ú º°°³)
             if (s != lastSeenState)
             {
                 if (s == GameManager.GameState.GameOver || s == GameManager.GameState.Victory)
@@ -126,7 +126,7 @@ public class FameShopUI : MonoBehaviour
             }
         }
 
-        // M í‚¤ë¡œ ì ‘ê¸°/í¼ì¹˜ê¸°
+        // M Å°·Î Á¢±â/ÆîÄ¡±â
         if (allowed && Input.GetKeyDown(KeyCode.M))
             userCollapsed = !userCollapsed;
 
@@ -135,10 +135,10 @@ public class FameShopUI : MonoBehaviour
         {
             root.SetActive(shouldShow);
             IsOpen = shouldShow;
-            if (shouldShow) Refresh();   // ì—´ë¦´ ë•Œë§ˆë‹¤ ëª…ì„±/ê°€ê²© ê°±ì‹ 
+            if (shouldShow) Refresh();   // ¿­¸± ¶§¸¶´Ù ¸í¼º/°¡°İ °»½Å
         }
 
-        // v1.2 (ê°ì‚¬ 3-E): [ë‹¤ì‹œ êµ½ëŠ”ë‹¤] ë²„íŠ¼ì€ ëŸ°ì´ ëë‚¬ì„ ë•Œë§Œ (ë¡œë¹„ì—ì„œëŠ” ìˆ¨ê¹€)
+        // v1.2 (°¨»ç 3-E): [´Ù½Ã ±Á´Â´Ù] ¹öÆ°Àº ·±ÀÌ ³¡³µÀ» ¶§¸¸ (·Îºñ¿¡¼­´Â ¼û±è)
         if (restartButtonGo != null && GameManager.Instance != null)
         {
             bool runEnded = GameManager.Instance.currentState == GameManager.GameState.GameOver
@@ -150,8 +150,8 @@ public class FameShopUI : MonoBehaviour
     }
 
     /// <summary>
-    /// v1.2 (ê°ì‚¬ 3-E): ì¦‰ì‹œ ì¬ì¶œë°œ - ì£½ìŒì´ ê°€ì¥ ëœ¨ê±°ìš´ ì¬ë„ì „ ìš•êµ¬ì˜ ìˆœê°„.
-    /// PauseMenuì˜ ëŸ° í¬ê¸°ì™€ ê°™ì€ ë°©ì‹: GameManager íŒŒê´´ í›„ ì”¬ ë¦¬ë¡œë“œ (DontDestroyOnLoad ì”ì¬ ë°©ì§€)
+    /// v1.2 (°¨»ç 3-E): Áï½Ã ÀçÃâ¹ß - Á×À½ÀÌ °¡Àå ¶ß°Å¿î ÀçµµÀü ¿å±¸ÀÇ ¼ø°£.
+    /// PauseMenuÀÇ ·± Æ÷±â¿Í °°Àº ¹æ½Ä: GameManager ÆÄ±« ÈÄ ¾À ¸®·Îµå (DontDestroyOnLoad ÀÜÀç ¹æÁö)
     /// </summary>
     private void RestartRun()
     {
@@ -161,12 +161,12 @@ public class FameShopUI : MonoBehaviour
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // UI ìƒì„± (ì „ë¶€ ì½”ë“œ)
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // UI »ı¼º (ÀüºÎ ÄÚµå)
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     private void BuildUI()
     {
-        // ì „ìš© ìº”ë²„ìŠ¤ (Workshop 550 ê³¼ Augment 600 ì‚¬ì´)
+        // Àü¿ë Äµ¹ö½º (Workshop 550 °ú Augment 600 »çÀÌ)
         canvasGo = new GameObject("FameShopCanvas");
         Canvas canvas = canvasGo.AddComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
@@ -176,7 +176,7 @@ public class FameShopUI : MonoBehaviour
         scaler.referenceResolution = new Vector2(1920f, 1080f);
         canvasGo.AddComponent<GraphicRaycaster>();
 
-        // ë°˜íˆ¬ëª… ë°°ê²½ íŒ¨ë„ (ì¤‘ì•™)
+        // ¹İÅõ¸í ¹è°æ ÆĞ³Î (Áß¾Ó)
         RectTransform panel = KitchenEventManager.MakeBox(canvasGo.transform, "FameShopPanel",
             new Color(0.08f, 0.06f, 0.05f, 0.94f));
         panel.anchorMin = new Vector2(0.5f, 0.5f);
@@ -186,22 +186,22 @@ public class FameShopUI : MonoBehaviour
         panel.sizeDelta = new Vector2(860f, 600f);
         root = panel.gameObject;
 
-        // ì œëª©
+        // Á¦¸ñ
         Text title = KitchenEventManager.MakeText(panel, "Title",
-            "ëª…ì„± ìƒì  - í™©ì•¼ì˜ ì „ì„¤", 32, new Color(1f, 0.78f, 0.32f));
+            "¸í¼º »óÁ¡ - È²¾ßÀÇ Àü¼³", 32, new Color(1f, 0.78f, 0.32f));
         SetTopStretch(title.rectTransform, -14f, 40f);
 
-        // ë³´ìœ  ëª…ì„±
+        // º¸À¯ ¸í¼º
         fameText = KitchenEventManager.MakeText(panel, "Fame", "", 24,
             new Color(0.95f, 0.9f, 0.6f));
         SetTopStretch(fameText.rectTransform, -58f, 30f);
 
-        // v1.3: ì´ë²ˆ ëŸ° í†µê³„ í•œ ì¤„ (ë³´ìœ  ëª…ì„± ì¤„ê³¼ ì²« ìƒí’ˆ í–‰ ì‚¬ì´ì˜ ë¹ˆ ë  - ì²« í–‰ ìœ—ë³€ì€ íŒ¨ë„ ì¤‘ì‹¬ +166)
+        // v1.3: ÀÌ¹ø ·± Åë°è ÇÑ ÁÙ (º¸À¯ ¸í¼º ÁÙ°ú Ã¹ »óÇ° Çà »çÀÌÀÇ ºó ¶ì - Ã¹ Çà À­º¯Àº ÆĞ³Î Áß½É +166)
         runText = KitchenEventManager.MakeText(panel, "RunStats", "", 17,
             new Color(0.7f, 0.9f, 0.75f));
         SetTopStretch(runText.rectTransform, -90f, 26f);
 
-        // ìƒí’ˆ ëª©ë¡
+        // »óÇ° ¸ñ·Ï
         int count = items.Length;
         levelTexts = new Text[count];
         buyLabels = new Text[count];
@@ -210,7 +210,7 @@ public class FameShopUI : MonoBehaviour
         float rowY = 130f;
         for (int i = 0; i < count; i++)
         {
-            // í´ë¡œì € ìº¡ì²˜ìš© ì§€ì—­ ë³€ìˆ˜ (for ë³€ìˆ˜ ì§ì ‘ ìº¡ì²˜ ê¸ˆì§€)
+            // Å¬·ÎÀú Ä¸Ã³¿ë Áö¿ª º¯¼ö (for º¯¼ö Á÷Á¢ Ä¸Ã³ ±İÁö)
             int index = i;
 
             RectTransform row = KitchenEventManager.MakeBox(panel, "Row_" + items[i].id,
@@ -222,7 +222,7 @@ public class FameShopUI : MonoBehaviour
             row.sizeDelta = new Vector2(800f, 72f);
             rowY -= 82f;
 
-            // ì´ë¦„ (ì¢Œì¸¡ ìƒë‹¨)
+            // ÀÌ¸§ (ÁÂÃø »ó´Ü)
             Text nameText = KitchenEventManager.MakeText(row, "Name", items[i].itemName, 23,
                 new Color(1f, 0.92f, 0.8f));
             nameText.alignment = TextAnchor.MiddleLeft;
@@ -233,7 +233,7 @@ public class FameShopUI : MonoBehaviour
             nRt.anchoredPosition = new Vector2(18f, 14f);
             nRt.sizeDelta = new Vector2(300f, 30f);
 
-            // ì„¤ëª… (ì¢Œì¸¡ í•˜ë‹¨)
+            // ¼³¸í (ÁÂÃø ÇÏ´Ü)
             Text descText = KitchenEventManager.MakeText(row, "Desc", items[i].desc, 18,
                 new Color(0.75f, 0.72f, 0.65f));
             descText.alignment = TextAnchor.MiddleLeft;
@@ -244,7 +244,7 @@ public class FameShopUI : MonoBehaviour
             dRt.anchoredPosition = new Vector2(18f, -14f);
             dRt.sizeDelta = new Vector2(420f, 26f);
 
-            // ë ˆë²¨ í‘œì‹œ (ì¤‘ì•™ ìš°ì¸¡)
+            // ·¹º§ Ç¥½Ã (Áß¾Ó ¿ìÃø)
             levelTexts[i] = KitchenEventManager.MakeText(row, "Level", "", 21,
                 new Color(0.6f, 0.85f, 0.95f));
             RectTransform lRt = levelTexts[i].rectTransform;
@@ -254,29 +254,29 @@ public class FameShopUI : MonoBehaviour
             lRt.anchoredPosition = new Vector2(-190f, 0f);
             lRt.sizeDelta = new Vector2(120f, 30f);
 
-            // êµ¬ë§¤ ë²„íŠ¼ (ìš°ì¸¡)
-            buyButtons[i] = KitchenEventManager.MakeButton(row, "êµ¬ë§¤",
+            // ±¸¸Å ¹öÆ° (¿ìÃø)
+            buyButtons[i] = KitchenEventManager.MakeButton(row, "±¸¸Å",
                 new Color(0.55f, 0.35f, 0.12f), new Vector2(310f, 0f), new Vector2(150f, 50f));
             buyLabels[i] = buyButtons[i].GetComponentInChildren<Text>();
             buyButtons[i].onClick.AddListener(delegate { OnBuy(index); });
         }
 
-        // v1.2 (ê°ì‚¬ 3-E): [ë‹¤ì‹œ êµ½ëŠ”ë‹¤] ë²„íŠ¼ - ìº”ë²„ìŠ¤ ì§ì† (íŒ¨ë„ ì•„ë˜)
+        // v1.2 (°¨»ç 3-E): [´Ù½Ã ±Á´Â´Ù] ¹öÆ° - Äµ¹ö½º Á÷¼Ó (ÆĞ³Î ¾Æ·¡)
         Button restartBtn = KitchenEventManager.MakeButton(canvasGo.transform,
-            "ë‹¤ì‹œ êµ½ëŠ”ë‹¤ (ì¦‰ì‹œ ì¬ì¶œë°œ)",
+            "´Ù½Ã ±Á´Â´Ù (Áï½Ã ÀçÃâ¹ß)",
             new Color(0.62f, 0.25f, 0.12f), Vector2.zero, new Vector2(340f, 58f));
         RectTransform rRt = restartBtn.GetComponent<RectTransform>();
         rRt.anchorMin = new Vector2(0.5f, 0.5f);
         rRt.anchorMax = new Vector2(0.5f, 0.5f);
         rRt.pivot = new Vector2(0.5f, 0.5f);
-        rRt.anchoredPosition = new Vector2(0f, -330f);   // ìƒì  íŒ¨ë„ ë°”ë¡œ ì•„ë˜
+        rRt.anchoredPosition = new Vector2(0f, -330f);   // »óÁ¡ ÆĞ³Î ¹Ù·Î ¾Æ·¡
         restartBtn.onClick.AddListener(RestartRun);
         restartButtonGo = restartBtn.gameObject;
         restartButtonGo.SetActive(false);
 
-        // í•˜ë‹¨ ì•ˆë‚´
+        // ÇÏ´Ü ¾È³»
         Text hint = KitchenEventManager.MakeText(panel, "Hint",
-            "ëª…ì„±ì€ ì›¨ì´ë¸Œë¥¼ í´ë¦¬ì–´í•  ë•Œë§ˆë‹¤ ìŒ“ì´ê³ , ì£½ì–´ë„ ìƒì§€ ì•ŠëŠ”ë‹¤.  [M] ì ‘ê¸°/í¼ì¹˜ê¸°", 17,
+            "¸í¼ºÀº ¿şÀÌºê¸¦ Å¬¸®¾îÇÒ ¶§¸¶´Ù ½×ÀÌ°í, Á×¾îµµ ÀÒÁö ¾Ê´Â´Ù.  [M] Á¢±â/ÆîÄ¡±â", 17,
             new Color(0.6f, 0.58f, 0.52f));
         RectTransform hRt = hint.rectTransform;
         hRt.anchorMin = new Vector2(0f, 0f);
@@ -286,7 +286,7 @@ public class FameShopUI : MonoBehaviour
         hRt.sizeDelta = new Vector2(0f, 26f);
     }
 
-    /// <summary>ìƒë‹¨ì— ê°€ë¡œë¡œ ë¶™ëŠ” í…ìŠ¤íŠ¸ ë°°ì¹˜ í—¬í¼</summary>
+    /// <summary>»ó´Ü¿¡ °¡·Î·Î ºÙ´Â ÅØ½ºÆ® ¹èÄ¡ ÇïÆÛ</summary>
     private void SetTopStretch(RectTransform rt, float y, float height)
     {
         rt.anchorMin = new Vector2(0f, 1f);
@@ -296,9 +296,9 @@ public class FameShopUI : MonoBehaviour
         rt.sizeDelta = new Vector2(0f, height);
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // êµ¬ë§¤ ì²˜ë¦¬
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ±¸¸Å Ã³¸®
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     private void OnBuy(int index)
     {
         ShopItem item = items[index];
@@ -307,25 +307,25 @@ public class FameShopUI : MonoBehaviour
 
         if (MetaProgress.TryBuyUpgrade(item.id, cost, item.maxLevel))
         {
-            UIManager.Instance?.ShowStatChange("[ëª…ì„± ìƒì ] " + item.itemName + " Lv."
-                + MetaProgress.UpgradeLevel(item.id) + " êµ¬ë§¤!");
+            UIManager.Instance?.ShowStatChange("[¸í¼º »óÁ¡] " + item.itemName + " Lv."
+                + MetaProgress.UpgradeLevel(item.id) + " ±¸¸Å!");
         }
         Refresh();
     }
 
-    /// <summary>ë³´ìœ  ëª…ì„± / ê° ìƒí’ˆì˜ ë ˆë²¨, ê°€ê²©, ë²„íŠ¼ ìƒíƒœ ê°±ì‹ </summary>
+    /// <summary>º¸À¯ ¸í¼º / °¢ »óÇ°ÀÇ ·¹º§, °¡°İ, ¹öÆ° »óÅÂ °»½Å</summary>
     private void Refresh()
     {
-        fameText.text = "ë³´ìœ  ëª…ì„±: " + MetaProgress.Fame
-            + "   |   ìµœê³  ê¸°ë¡: " + MetaProgress.BestWave + "ì›¨ì´ë¸Œ"
-            + "   |   ë„ê°: " + MetaProgress.DiscoveredCount + "ì¢…";
+        fameText.text = "º¸À¯ ¸í¼º: " + MetaProgress.Fame
+            + "   |   ÃÖ°í ±â·Ï: " + MetaProgress.BestWave + "¿şÀÌºê"
+            + "   |   µµ°¨: " + MetaProgress.DiscoveredCount + "Á¾";
 
-        // v1.3: ëŸ°ì´ ëë‚œ ìƒíƒœë¡œ ì—´ë ¸ì„ ë•Œë§Œ ì´ë²ˆ ëŸ° í†µê³„ (ë¡œë¹„ì—ì„œëŠ” ì§€ë‚œ ëŸ° ê°’ì´ ë‚¨ì•„ ìˆì–´ë„ ì•ˆ ë³´ì—¬ ì¤€ë‹¤)
+        // v1.3: ·±ÀÌ ³¡³­ »óÅÂ·Î ¿­·ÈÀ» ¶§¸¸ ÀÌ¹ø ·± Åë°è (·Îºñ¿¡¼­´Â Áö³­ ·± °ªÀÌ ³²¾Æ ÀÖ¾îµµ ¾È º¸¿© ÁØ´Ù)
         bool runEnded = GameManager.Instance != null
             && (GameManager.Instance.currentState == GameManager.GameState.GameOver
                 || GameManager.Instance.currentState == GameManager.GameState.Victory);
         if (runText != null)
-            runText.text = runEnded ? "ì´ë²ˆ ëŸ°:  " + MetaProgress.RunStatsLine() : "";
+            runText.text = runEnded ? "ÀÌ¹ø ¿îÇà:  " + MetaProgress.RunStatsLine() : "";
 
         for (int i = 0; i < items.Length; i++)
         {
@@ -335,13 +335,13 @@ public class FameShopUI : MonoBehaviour
 
             if (maxed)
             {
-                buyLabels[i].text = "ì™„ì„±";
+                buyLabels[i].text = "¿Ï¼º";
                 buyButtons[i].interactable = false;
             }
             else
             {
                 int cost = items[i].CostAt(level);
-                buyLabels[i].text = cost + " ëª…ì„±";
+                buyLabels[i].text = cost + " ¸í¼º";
                 buyButtons[i].interactable = MetaProgress.Fame >= cost;
             }
         }

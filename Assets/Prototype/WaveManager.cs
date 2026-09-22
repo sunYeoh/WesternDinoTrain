@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// [WaveManager.cs] v6.11 (v9.10.1 2026-09-21: 웨이브 손님 수 배율 GameBalance.WaveCountMul(프롤로그·견습 제외, ApplyRouteCounts 재사용) / 웨이브 시작에 정차 조리 카운터(CookingBridge.StopCooksUsed) 초기화) / v6.10 (v9.10 2026-09-17 테스터 피드백·개정안 §4·§5·§7: 스폰 간격 배율 + 무리 사이 쉼(WaveLengthMul/WaveGroupSize/GapSec) /
+/// [WaveManager.cs] v6.12 (v9.11.1 2026-09-22 문구) / v6.11 (v9.10.1 2026-09-21: 웨이브 손님 수 배율 GameBalance.WaveCountMul(프롤로그·견습 제외, ApplyRouteCounts 재사용) / 웨이브 시작에 정차 조리 카운터(CookingBridge.StopCooksUsed) 초기화) / v6.10 (v9.10 2026-09-17 테스터 피드백·개정안 §4·§5·§7: 스폰 간격 배율 + 무리 사이 쉼(WaveLengthMul/WaveGroupSize/GapSec) /
 ///   정차 뒤 자동 출발 대신 [Enter]·출발 버튼 확인(DepartConfirm, WaitingDepart 정적) / 증강 선택은 GameBalance.AugmentPickAt 웨이브만(안 여는 웨이브도 웨이브 효과는 적용) /
 ///   분기 선로 RouteChoiceMinWave·베팅 BetMinWave·행상인 MerchantMinWave 부터 / 웨이브 3 시작에 화염 재료 보장 + 범위 요리 소개 카드) / v6.9 (v9.9.2 2026-09-16: 정식 런 첫 등장 카드 훅 - 지역(지역 첫 웨이브)·새 손님(카운트 > 0 인 종류 처음)은 StartWave 예고 때, 보스는 SpawnBoss 때. BriefingUI.ShowOnce 1회) / v6.8 (v9.9 2026-09-16: 견습 운행 - TutorialDirector 가 진행 중이면 StartWave/B 점프 거부, TutorialGateActive 에 디렉터의 BlockAmbient 포함, SpawnForTutorial) / v6.7 (v9.8.1: B 점프는 GameBalance.CheatsAllowed 일 때만) / v6.6 (v9.8: 위험 적 전용 PNG) / v6.5 (교수 피드백 반영 2026-09-14) / v6.4 (고퀄 PNG 적용 2026-09-03) / v6.3 탑뷰 재스킨
 /// 웨이브 단위로 적 유닛을 스폰하고, 모든 적 처치 시 웨이브 완료를 알립니다.
@@ -261,7 +261,7 @@ public class WaveManager : MonoBehaviour
             MaterialInventory.Instance.Add(MaterialType.Meat, 1);
             Debug.Log("[WaveManager] 보스 감지 - 긴급 보급: 독 재료 + 고기 지급");
             UIManager.Instance?.ShowWaveNotice("보스 접근 중! 긴급 보급 도착!",
-                "독샘 + 고기 지급 - 독침 육포를 조리해 그로기 때 던져라! (그릴에서 굽기)");
+                "독샘 + 고기 지급 - 그릴에서 독침 육포를 구워 두고, 보스가 무방비(그로기)일 때 [F] 로 던져라");
         }
 
         WaveConfig config = GetWaveConfig(waveNumber);
@@ -493,7 +493,7 @@ public class WaveManager : MonoBehaviour
             if (config.crystalPachyCount > 0)
                 notice += "  반사 장갑 주의!";
             if (config.necroSpinoCount > 0)
-                notice += "  힐러 우선 처치!";
+                notice += "  힐러(네크로 스피노)가 무리를 회복시킨다 - 무리째 맞는 요리로!";
         }
 
         Debug.Log("[WaveManager] " + notice + " | " + warning);
@@ -1174,7 +1174,7 @@ public class WaveManager : MonoBehaviour
 
         EnsureCookGateMaterials();
         UIManager.Instance?.ShowWaveNotice("[첫 조리] 찬장에 고기 2개가 있다",
-            "그릴 앞에서 [E] - 더블 육포를 굽고, 완성되면 요리 카드를 클릭해 빈 슬롯에 넣어라   ([Enter] 건너뛰기)");
+            "그릴 앞에서 [E] - 더블 육포를 굽고, 완성되면 요리 카드를 클릭해 빈 포탑 자리([+] 이름표)에 넣어라   ([Enter] 건너뛰기)");
         UIManager.Instance?.ShowStatChange("\"애피타이저는 끝났다. 이번엔 네 손으로 한 접시 - 보여줘라.\" - 스피노");
         Debug.Log("[WaveManager] 프롤로그 조리 게이트 시작");
     }
@@ -1232,7 +1232,7 @@ public class WaveManager : MonoBehaviour
         {
             cookGateHintTimer = 12f;
             if (CookingBridge.LastGoodCookTime > cookGateStartTime)
-                UIManager.Instance?.ShowStatChange("완성된 요리를 하단 카드에서 클릭 -> 빈 슬롯 클릭 (투입)");
+                UIManager.Instance?.ShowStatChange("완성된 요리를 하단 카드에서 클릭 -> 빈 포탑 자리의 [+] 이름표 클릭 (투입)");
             else if (Time.time - cookGateStartTime > 12f)
                 UIManager.Instance?.ShowStatChange("그릴은 주방 칸 왼쪽 - [E]로 조리 창을 열고 더블 육포를 고르자   ([Enter] 건너뛰기)");
         }

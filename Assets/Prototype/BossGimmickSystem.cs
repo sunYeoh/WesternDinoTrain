@@ -6,33 +6,33 @@ using UnityEngine.UI;
 
 /// <summary>
 /// [BossGimmickSystem.cs] v4.1
-/// ë³´ìŠ¤ì „ ì „ìš© ê¸°ë¯¹ + ë³´ìŠ¤ UIë¥¼ ê´€ë¦¬í•©ë‹ˆë‹¤.
+/// º¸½ºÀü Àü¿ë ±â¹Í + º¸½º UI¸¦ °ü¸®ÇÕ´Ï´Ù.
 ///
-/// - v4.1 (êµìˆ˜ í”¼ë“œë°± A6, 2026-09-14): ì”¬ì— ì´ ì»´í¬ë„ŒíŠ¸ê°€ ì—†ìœ¼ë©´ ìë™ ìƒì„±í•œë‹¤.
-///   ì €ì¥ì†Œ ì”¬(08-25 ì»¤ë°‹)ì—ëŠ” ë¶€ì°©ë¼ ìˆì§€ ì•Šì•˜ê³ , í˜¸ì¶œë¶€ê°€ ì „ë¶€ Instance?. ë¼ ë³´ìŠ¤ HP ë°”Â·ê·¸ë¡œê¸°Â·[F] íˆ¬ì²™Â·
-///   ë¯¸ë¼/í•´ë™í¬/ë§ˆì§€ë§‰ ì£¼ë¬¸Â·ë² íŒ… ì •ì‚°ì´ ì˜¤ë¥˜ ì—†ì´ í†µì§¸ë¡œ ë¹ ì§€ê³  ìˆì—ˆë‹¤. ì´ì œ ì”¬ ì˜ì¡´ ì—†ìŒ.
+/// - v4.1 (±³¼ö ÇÇµå¹é A6, 2026-09-14): ¾À¿¡ ÀÌ ÄÄÆ÷³ÍÆ®°¡ ¾øÀ¸¸é ÀÚµ¿ »ı¼ºÇÑ´Ù.
+///   ÀúÀå¼Ò ¾À(08-25 Ä¿¹Ô)¿¡´Â ºÎÂøµÅ ÀÖÁö ¾Ê¾Ò°í, È£ÃâºÎ°¡ ÀüºÎ Instance?. ¶ó º¸½º HP ¹Ù¡¤±×·Î±â¡¤[F] ÅõÃ´¡¤
+///   ¹Ì³¢/ÇØµ¿Æ÷/¸¶Áö¸· ÁÖ¹®¡¤º£ÆÃ Á¤»êÀÌ ¿À·ù ¾øÀÌ ÅëÂ°·Î ºüÁö°í ÀÖ¾ú´Ù. ÀÌÁ¦ ¾À ÀÇÁ¸ ¾øÀ½.
 ///
-/// - v4 ë³€ê²½ì  (UI ì¬ì‘ì„±):
-///   í•˜ì´ì–´ë¼í‚¤ ìˆ˜ë™ íŒ¨ë„ ì „ë¶€ ì œê±° -> UIë¥¼ ì½”ë“œë¡œ ìë™ ìƒì„± (ê²¹ì¹¨ ë¬¸ì œ í•´ê²°)
-///   * ìƒë‹¨ ì¤‘ì•™: ë³´ìŠ¤ ì´ë¦„ + HP ë°” + ìˆ˜ì¹˜
-///   * ê·¸ ì•„ë˜: ê·¸ë¡œê¸° ë°°ë„ˆ (ì•ˆë‚´ ë¬¸êµ¬ + ë‚¨ì€ ì‹œê°„ ê²Œì´ì§€)
-///   ì”¬ ì„¸íŒ… í•„ìš” ì—†ìŒ - ê¸°ì¡´ ë³´ìŠ¤ HP/ê·¸ë¡œê¸° íŒ¨ë„ì€ í•˜ì´ì–´ë¼í‚¤ì—ì„œ ì‚­ì œí•  ê²ƒ
+/// - v4 º¯°æÁ¡ (UI ÀçÀÛ¼º):
+///   ÇÏÀÌ¾î¶óÅ° ¼öµ¿ ÆĞ³Î ÀüºÎ Á¦°Å -> UI¸¦ ÄÚµå·Î ÀÚµ¿ »ı¼º (°ãÄ§ ¹®Á¦ ÇØ°á)
+///   * »ó´Ü Áß¾Ó: º¸½º ÀÌ¸§ + HP ¹Ù + ¼öÄ¡
+///   * ±× ¾Æ·¡: ±×·Î±â ¹è³Ê (¾È³» ¹®±¸ + ³²Àº ½Ã°£ °ÔÀÌÁö)
+///   ¾À ¼¼ÆÃ ÇÊ¿ä ¾øÀ½ - ±âÁ¸ º¸½º HP/±×·Î±â ÆĞ³ÎÀº ÇÏÀÌ¾î¶óÅ°¿¡¼­ »èÁ¦ÇÒ °Í
 ///
-/// ë™ì‘ íë¦„:
-///   ë³´ìŠ¤ HP 75/50/25% ë„ë‹¬ -> ê·¸ë¡œê¸° ë°œë™ (groggyDuration 7ì´ˆ ì •ì§€, ë”” ì˜¤ë¦¬ì§€ë„ì€ 12%ì— í•œ ë²ˆ ë” - C3)
-///   ê·¸ë¡œê¸° ì¤‘ ë³´ìœ í•œ ë””ë²„í”„ ìš”ë¦¬ë¥¼ ìë™ íƒìƒ‰í•´ í‘œì‹œ
-///   Fí‚¤ -> FoodStockì—ì„œ 1ê°œ ì†Œëª¨ -> ë³´ìŠ¤ DEF/RES ë¬´ë ¥í™”
+/// µ¿ÀÛ Èå¸§:
+///   º¸½º HP 75/50/25% µµ´Ş -> ±×·Î±â ¹ßµ¿ (groggyDuration 7ÃÊ Á¤Áö, µğ ¿À¸®Áö³ÎÀº 12%¿¡ ÇÑ ¹ø ´õ - C3)
+///   ±×·Î±â Áß º¸À¯ÇÑ µğ¹öÇÁ ¿ä¸®¸¦ ÀÚµ¿ Å½»öÇØ Ç¥½Ã
+///   FÅ° -> FoodStock¿¡¼­ 1°³ ¼Ò¸ğ -> º¸½º DEF/RES ¹«·ÂÈ­
 ///
-/// ì‚¬ìš©ë²•: ì—†ìŒ - ì”¬ì— ì—†ìœ¼ë©´ ìŠ¤ìŠ¤ë¡œ ìƒì„±ëœë‹¤ (v4.1). ë¶™ì—¬ ë‘ì–´ë„ ë¬´ë°© (ì¤‘ë³µ ìƒì„± ì•ˆ í•¨)
-/// VS 2017 (C# 7.3) í˜¸í™˜
+/// »ç¿ë¹ı: ¾øÀ½ - ¾À¿¡ ¾øÀ¸¸é ½º½º·Î »ı¼ºµÈ´Ù (v4.1). ºÙ¿© µÎ¾îµµ ¹«¹æ (Áßº¹ »ı¼º ¾È ÇÔ)
+/// VS 2017 (C# 7.3) È£È¯
 /// </summary>
 public class BossGimmickSystem : MonoBehaviour
 {
     public static BossGimmickSystem Instance { get; private set; }
 
     /// <summary>
-    /// v4.1: ì”¬ì— ì—†ìœ¼ë©´ ìŠ¤ìŠ¤ë¡œ ìƒì„± (ë‹¤ë¥¸ ìë™ ìƒì„± ì‹œìŠ¤í…œê³¼ ê°™ì€ ë°©ì‹).
-    /// ëŸ° í¬ê¸°/ì¬ë„ì „ì€ ì”¬ì„ ë‹¤ì‹œ ë¶ˆëŸ¬ì˜¤ë¯€ë¡œ(ìë™ ìƒì„± ì˜¤ë¸Œì íŠ¸ë„ í•¨ê»˜ ì‚¬ë¼ì§„ë‹¤) ì”¬ì´ ë¡œë“œë  ë•Œë§ˆë‹¤ ë‹¤ì‹œ í™•ì¸í•œë‹¤.
+    /// v4.1: ¾À¿¡ ¾øÀ¸¸é ½º½º·Î »ı¼º (´Ù¸¥ ÀÚµ¿ »ı¼º ½Ã½ºÅÛ°ú °°Àº ¹æ½Ä).
+    /// ·± Æ÷±â/ÀçµµÀüÀº ¾ÀÀ» ´Ù½Ã ºÒ·¯¿À¹Ç·Î(ÀÚµ¿ »ı¼º ¿ÀºêÁ§Æ®µµ ÇÔ²² »ç¶óÁø´Ù) ¾ÀÀÌ ·ÎµåµÉ ¶§¸¶´Ù ´Ù½Ã È®ÀÎÇÑ´Ù.
     /// </summary>
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void Bootstrap()
@@ -53,30 +53,30 @@ public class BossGimmickSystem : MonoBehaviour
         if (FindFirstObjectByType<BossGimmickSystem>() != null) return;
         GameObject go = new GameObject("BossGimmickSystem(auto)");
         go.AddComponent<BossGimmickSystem>();
-        Debug.Log("[BossGimmickSystem] ì”¬ì— ì—†ì–´ ìë™ ìƒì„± (v4.1)");
+        Debug.Log("[BossGimmickSystem] ¾À¿¡ ¾ø¾î ÀÚµ¿ »ı¼º (v4.1)");
     }
 
-    [Header("â”€ ì„¤ì • â”€")]
-    public float groggyDuration = 7f;         // ê·¸ë¡œê¸° ì§€ì† ì‹œê°„ (BossEnemy.groggyDuration 7ì´ˆì™€ ë™ì¼ - v4.1ì—ì„œ 10 -> 7 ë™ê¸°í™”)
+    [Header("¦¡ ¼³Á¤ ¦¡")]
+    public float groggyDuration = 7f;         // ±×·Î±â Áö¼Ó ½Ã°£ (BossEnemy.groggyDuration 7ÃÊ¿Í µ¿ÀÏ - v4.1¿¡¼­ 10 -> 7 µ¿±âÈ­)
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ë‚´ë¶€ ìƒíƒœ
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ³»ºÎ »óÅÂ
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     private BossEnemy currentBoss = null;
     private bool isGroggyPhase = false;
     private float groggyTimer = 0f;
     private bool hasThrownThisGroggy = false;
     private float guideRefreshTimer = 0f;
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ì½”ë“œ ìƒì„± UI
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ÄÚµå »ı¼º UI
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     private Canvas canvas;
-    private RectTransform bossRoot;       // ë³´ìŠ¤ ì´ë¦„ + HP ë°”
+    private RectTransform bossRoot;       // º¸½º ÀÌ¸§ + HP ¹Ù
     private Text bossNameText;
     private Text bossHPText;
     private RectTransform hpFill;
-    private RectTransform groggyRoot;     // ê·¸ë¡œê¸° ë°°ë„ˆ
+    private RectTransform groggyRoot;     // ±×·Î±â ¹è³Ê
     private Text groggyGuideText;
     private RectTransform groggyTimeFill;
     private Image groggyTimeFillImg;
@@ -96,14 +96,14 @@ public class BossGimmickSystem : MonoBehaviour
 
     private void OnDestroy()
     {
-        // ì”¬ ë¦¬ë¡œë“œë¡œ ì‚¬ë¼ì§ˆ ë•Œ ì£½ì€ ì°¸ì¡°ë¥¼ ë‚¨ê¸°ì§€ ì•ŠëŠ”ë‹¤ (Instance?. í˜¸ì¶œë¶€ê°€ íŒŒê´´ëœ ì˜¤ë¸Œì íŠ¸ë¥¼ ê±´ë“œë¦¬ì§€ ì•Šê²Œ)
+        // ¾À ¸®·Îµå·Î »ç¶óÁú ¶§ Á×Àº ÂüÁ¶¸¦ ³²±âÁö ¾Ê´Â´Ù (Instance?. È£ÃâºÎ°¡ ÆÄ±«µÈ ¿ÀºêÁ§Æ®¸¦ °Çµå¸®Áö ¾Ê°Ô)
         if (Instance == this) Instance = null;
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ë³´ìŠ¤ ë“±ë¡ (BossEnemy.Startì—ì„œ í˜¸ì¶œ)
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    /// <summary>ë³´ìŠ¤ê°€ ì‚´ì•„ì„œ í™œë™ ì¤‘ì¸ê°€? (ì£¼ë°© ì´ë²¤íŠ¸ ì°¨ë‹¨ ë“± ì™¸ë¶€ ì°¸ì¡°ìš©)</summary>
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // º¸½º µî·Ï (BossEnemy.Start¿¡¼­ È£Ãâ)
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    /// <summary>º¸½º°¡ »ì¾Æ¼­ È°µ¿ ÁßÀÎ°¡? (ÁÖ¹æ ÀÌº¥Æ® Â÷´Ü µî ¿ÜºÎ ÂüÁ¶¿ë)</summary>
     public bool HasActiveBoss
     {
         get { return currentBoss != null && currentBoss.IsAlive; }
@@ -113,57 +113,57 @@ public class BossGimmickSystem : MonoBehaviour
     {
         currentBoss = boss;
 
-        // Phase 2-1: ìŠ¤í”¼ë…¸ ë² íŒ… ì¡°ê±´ ì¶”ì  ì‹œì‘ (ì‹œê°„/ì¡°ë¦¬/í”¼ê²©/íˆ¬ì²™ ì¹´ìš´í„° ë¦¬ì…‹)
+        // Phase 2-1: ½ºÇÇ³ë º£ÆÃ Á¶°Ç ÃßÀû ½ÃÀÛ (½Ã°£/Á¶¸®/ÇÇ°İ/ÅõÃ´ Ä«¿îÅÍ ¸®¼Â)
         SpinoBet.OnBossStart();
 
-        // v4.1: ê·¸ë¡œê¸° ì‹œê°„ì„ ë³´ìŠ¤ ìª½ ì„¤ì •ê³¼ ìë™ ë™ê¸°í™” (ê²Œì´ì§€ ë°” ê¸¸ì´ ë¶ˆì¼ì¹˜ ë°©ì§€)
+        // v4.1: ±×·Î±â ½Ã°£À» º¸½º ÂÊ ¼³Á¤°ú ÀÚµ¿ µ¿±âÈ­ (°ÔÀÌÁö ¹Ù ±æÀÌ ºÒÀÏÄ¡ ¹æÁö)
         groggyDuration = boss.groggyDuration;
 
         bossRoot.gameObject.SetActive(true);
-        // v5: ë³´ìŠ¤ 4ì¢… ê°œì„±í™” - ë“±ë¡ëœ ë³´ìŠ¤ì˜ ì‹¤ì œ ì´ë¦„ í‘œì‹œ
+        // v5: º¸½º 4Á¾ °³¼ºÈ­ - µî·ÏµÈ º¸½ºÀÇ ½ÇÁ¦ ÀÌ¸§ Ç¥½Ã
         if (bossNameText != null) bossNameText.text = boss.data.enemyName;
 
-        // v5.1: ë™ë©´ì ë³´ìŠ¤ì „ì´ë©´ í•´ë™í¬ UI ìë™ ìƒì„± (ì”¬ ì„¸íŒ… ë¶ˆí•„ìš”)
+        // v5.1: µ¿¸éÀÚ º¸½ºÀüÀÌ¸é ÇØµ¿Æ÷ UI ÀÚµ¿ »ı¼º (¾À ¼¼ÆÃ ºÒÇÊ¿ä)
         if (boss.kind == BossEnemy.BossKind.Hibernator)
         {
             GameObject cannonGo = new GameObject("ThawCannon");
             cannonGo.AddComponent<ThawCannonUI>().Setup(boss);
         }
 
-        // v5.2 (Cë‹¨ê³„): ë…¹ìŠ¨ ë°œí†± ë³´ìŠ¤ì „ì´ë©´ ë¯¸ë¼ í™”ë• ìë™ ìƒì„±
+        // v5.2 (C´Ü°è): ³ì½¼ ¹ßÅé º¸½ºÀüÀÌ¸é ¹Ì³¢ È­´ö ÀÚµ¿ »ı¼º
         if (boss.kind == BossEnemy.BossKind.RustClaw)
         {
             GameObject baitGo = new GameObject("BaitStation");
             baitGo.AddComponent<BaitStationUI>().Setup(boss);
         }
 
-        // v5.3 (C-2): ë”” ì˜¤ë¦¬ì§€ë„ ë³´ìŠ¤ì „ì´ë©´ 'ë§ˆì§€ë§‰ ì£¼ë¬¸' UI ìë™ ìƒì„± (ì—”ë”© B ë¶„ê¸° ë‹´ë‹¹)
+        // v5.3 (C-2): µğ ¿À¸®Áö³Î º¸½ºÀüÀÌ¸é '¸¶Áö¸· ÁÖ¹®' UI ÀÚµ¿ »ı¼º (¿£µù B ºĞ±â ´ã´ç)
         if (boss.kind == BossEnemy.BossKind.Original)
         {
             GameObject finalGo = new GameObject("FinalOrder");
             finalGo.AddComponent<FinalOrderUI>().Setup(boss);
         }
 
-        Debug.Log("[BossGimmickSystem] ë³´ìŠ¤ ë“±ë¡ ì™„ë£Œ: " + boss.data.enemyName);
+        Debug.Log("[BossGimmickSystem] º¸½º µî·Ï ¿Ï·á: " + boss.data.enemyName);
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // v5: íŒ¨í„´ ì˜ˆê³ (í…”ë ˆê·¸ë˜í”„) ë°°ë„ˆ - ê·¸ë¡œê¸° ë°°ë„ˆ ì¬ì‚¬ìš©
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // v5: ÆĞÅÏ ¿¹°í(ÅÚ·¹±×·¡ÇÁ) ¹è³Ê - ±×·Î±â ¹è³Ê Àç»ç¿ë
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     private Coroutine telegraphCo = null;
 
-    /// <summary>ë³´ìŠ¤ íŒ¨í„´ ì˜ˆê³  í‘œì‹œ. seconds í›„ ìë™ìœ¼ë¡œ ìˆ¨ê¹€ (ê·¸ë¡œê¸°ê°€ ì‹œì‘ë˜ë©´ ê·¸ë¡œê¸°ê°€ ìš°ì„ )</summary>
+    /// <summary>º¸½º ÆĞÅÏ ¿¹°í Ç¥½Ã. seconds ÈÄ ÀÚµ¿À¸·Î ¼û±è (±×·Î±â°¡ ½ÃÀÛµÇ¸é ±×·Î±â°¡ ¿ì¼±)</summary>
     public void ShowPatternTelegraph(string text, float seconds)
     {
-        if (isGroggyPhase) return;   // ê·¸ë¡œê¸° ì•ˆë‚´ê°€ ìš°ì„ 
+        if (isGroggyPhase) return;   // ±×·Î±â ¾È³»°¡ ¿ì¼±
 
         groggyRoot.gameObject.SetActive(true);
         if (groggyGuideText != null) groggyGuideText.text = text;
-        if (groggyTimeFillImg != null) groggyTimeFillImg.color = new Color(0.8f, 0.3f, 0.9f); // ë³´ë¼ = íŒ¨í„´ ì˜ˆê³ 
+        if (groggyTimeFillImg != null) groggyTimeFillImg.color = new Color(0.8f, 0.3f, 0.9f); // º¸¶ó = ÆĞÅÏ ¿¹°í
         SetFill(groggyTimeFill, 1f);
-        SoundManager.Play("sfx_boss_warning");   // ì˜ˆê³  ê²½ë³´ìŒ
+        SoundManager.Play("sfx_boss_warning");   // ¿¹°í °æº¸À½
 
-        // v5.2 (ê°ì‚¬ 2-D): í™”ë©´ ê°€ì¥ìë¦¬ ë¶‰ì€ í”Œë˜ì‹œ + ëŒ€í˜• ê²½ê³  - ì˜ˆê³ ê°€ ëˆˆì— í™• ë“¤ì–´ì˜¤ê²Œ
+        // v5.2 (°¨»ç 2-D): È­¸é °¡ÀåÀÚ¸® ºÓÀº ÇÃ·¡½Ã + ´ëÇü °æ°í - ¿¹°í°¡ ´«¿¡ È® µé¾î¿À°Ô
         WarningFX.Flash(text, seconds);
 
         if (telegraphCo != null) StopCoroutine(telegraphCo);
@@ -176,7 +176,7 @@ public class BossGimmickSystem : MonoBehaviour
         while (t < seconds)
         {
             t += Time.deltaTime;
-            if (isGroggyPhase) yield break;   // ê·¸ë¡œê¸° ì‹œì‘ë˜ë©´ ë°°ë„ˆ ë„˜ê²¨ì¤Œ
+            if (isGroggyPhase) yield break;   // ±×·Î±â ½ÃÀÛµÇ¸é ¹è³Ê ³Ñ°ÜÁÜ
             SetFill(groggyTimeFill, 1f - Mathf.Clamp01(t / seconds));
             yield return null;
         }
@@ -186,9 +186,9 @@ public class BossGimmickSystem : MonoBehaviour
         telegraphCo = null;
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ë§¤ í”„ë ˆì„
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ¸Å ÇÁ·¹ÀÓ
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     private void Update()
     {
         if (currentBoss == null || !currentBoss.IsAlive)
@@ -215,15 +215,15 @@ public class BossGimmickSystem : MonoBehaviour
         if (bossHPText != null)
             bossHPText.text = (int)currentBoss.currentHP + " / " + (int)currentBoss.bossMaxHP;
 
-        // v5.1: ì²œë‘¥ ë‘¥ì§€ - ë²ˆê°œ ë³‘ ì¶©ì „ ìˆ˜ í‘œì‹œ
+        // v5.1: ÃµµÕ µÕÁö - ¹ø°³ º´ ÃæÀü ¼ö Ç¥½Ã
         if (bossNameText != null && currentBoss.kind == BossEnemy.BossKind.ThunderNest)
-            bossNameText.text = currentBoss.data.enemyName + "   [ë²ˆê°œ ë³‘ "
+            bossNameText.text = currentBoss.data.enemyName + "   [¹ø°³ º´ "
                 + currentBoss.ParryCharges + "/" + GameBalance.ParryChargesForCounter + "]";
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ê·¸ë¡œê¸° í˜ì´ì¦ˆ
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ±×·Î±â ÆäÀÌÁî
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     private void StartGroggyPhase()
     {
         isGroggyPhase = true;
@@ -231,10 +231,10 @@ public class BossGimmickSystem : MonoBehaviour
         hasThrownThisGroggy = false;
         guideRefreshTimer = 0f;
 
-        // v5: íŒ¨í„´ ì˜ˆê³ ê°€ ë–  ìˆì—ˆìœ¼ë©´ ì¤‘ë‹¨í•˜ê³  ê·¸ë¡œê¸°ê°€ ë°°ë„ˆë¥¼ ê°€ì ¸ê°„ë‹¤
+        // v5: ÆĞÅÏ ¿¹°í°¡ ¶° ÀÖ¾úÀ¸¸é Áß´ÜÇÏ°í ±×·Î±â°¡ ¹è³Ê¸¦ °¡Á®°£´Ù
         if (telegraphCo != null) { StopCoroutine(telegraphCo); telegraphCo = null; }
 
-        // v5: ë³´ë„ˆìŠ¤ ê·¸ë¡œê¸°(ë¹™í•˜ ê°‘ì£¼ íŒŒê´´ ë“±)ëŠ” ë³´ìŠ¤ê°€ ì§€ì •í•œ ì§§ì€ ì‹œê°„ ì‚¬ìš©
+        // v5: º¸³Ê½º ±×·Î±â(ºùÇÏ °©ÁÖ ÆÄ±« µî)´Â º¸½º°¡ ÁöÁ¤ÇÑ ÂªÀº ½Ã°£ »ç¿ë
         if (currentBoss != null && currentBoss.CurrentGroggyDuration > 0f)
             groggyDuration = currentBoss.CurrentGroggyDuration;
 
@@ -242,12 +242,12 @@ public class BossGimmickSystem : MonoBehaviour
         if (groggyTimeFillImg != null) groggyTimeFillImg.color = new Color(1f, 0.55f, 0.15f);
         SoundManager.Play("sfx_boss_groggy");
 
-        // v5.2: ê·¸ë¡œê¸°ëŠ” ê¸°íšŒì˜ ìˆœê°„ - ê¸ˆìƒ‰ í”Œë˜ì‹œë¡œ êµ¬ë¶„
-        WarningFX.Flash("ë³´ìŠ¤ ê·¸ë¡œê¸°! [F] ë””ë²„í”„ ìš”ë¦¬ íˆ¬ì²™!", 1.6f, new Color(1f, 0.8f, 0.2f));
+        // v5.2: ±×·Î±â´Â ±âÈ¸ÀÇ ¼ø°£ - ±İ»ö ÇÃ·¡½Ã·Î ±¸ºĞ
+        WarningFX.Flash("º¸½º ¹«¹æºñ! [F] µ¶»ù ¿ä¸® ÅõÃ´!", 1.6f, new Color(1f, 0.8f, 0.2f));
         RefreshGuideText();
 
-        Debug.Log("[BossGimmickSystem] ë³´ìŠ¤ ê·¸ë¡œê¸° ë°œë™! 10ì´ˆ ì•ˆì— ë””ë²„í”„ ìš”ë¦¬ íˆ¬ì²™!");
-        UIManager.Instance?.ShowStatChange("ë³´ìŠ¤ ê·¸ë¡œê¸°!! [F] ë””ë²„í”„ ìš”ë¦¬ íˆ¬ì²™!");
+        Debug.Log("[BossGimmickSystem] º¸½º ±×·Î±â ¹ßµ¿! 10ÃÊ ¾È¿¡ µğ¹öÇÁ ¿ä¸® ÅõÃ´!");
+        UIManager.Instance?.ShowStatChange("º¸½º ¹«¹æºñ!! [F] µ¶»ù ¿ä¸® ÅõÃ´!");
     }
 
     private void UpdateGroggyPhase()
@@ -255,7 +255,7 @@ public class BossGimmickSystem : MonoBehaviour
         groggyTimer += Time.deltaTime;
         SetFill(groggyTimeFill, 1f - Mathf.Clamp01(groggyTimer / groggyDuration));
 
-        // ì•ˆë‚´ ë¬¸êµ¬ ì£¼ê¸° ê°±ì‹  (ê·¸ë¡œê¸° ì¤‘ì— ìš”ë¦¬ë¥¼ ìƒˆë¡œ ë§Œë“¤ ìˆ˜ë„ ìˆìœ¼ë¯€ë¡œ)
+        // ¾È³» ¹®±¸ ÁÖ±â °»½Å (±×·Î±â Áß¿¡ ¿ä¸®¸¦ »õ·Î ¸¸µé ¼öµµ ÀÖÀ¸¹Ç·Î)
         guideRefreshTimer -= Time.deltaTime;
         if (guideRefreshTimer <= 0f && !hasThrownThisGroggy)
         {
@@ -263,7 +263,7 @@ public class BossGimmickSystem : MonoBehaviour
             RefreshGuideText();
         }
 
-        // v4.1: ë§ˆì§€ë§‰ ì£¼ë¬¸ ì„ íƒì°½([R]/[F])ì´ ë–  ìˆëŠ” ë™ì•ˆ, ê·¸ë¦¬ê³  ì„ íƒì°½ì´ Fë¥¼ ë§‰ ì†Œë¹„í•œ í”„ë ˆì„ì—ëŠ” ë˜ì§€ì§€ ì•ŠëŠ”ë‹¤
+        // v4.1: ¸¶Áö¸· ÁÖ¹® ¼±ÅÃÃ¢([R]/[F])ÀÌ ¶° ÀÖ´Â µ¿¾È, ±×¸®°í ¼±ÅÃÃ¢ÀÌ F¸¦ ¸· ¼ÒºñÇÑ ÇÁ·¹ÀÓ¿¡´Â ´øÁöÁö ¾Ê´Â´Ù
         if (Input.GetKeyDown(KeyCode.F) && !FinalOrderUI.QteOpen && FinalOrderUI.KeyConsumedFrame != Time.frameCount)
             TryThrowDebuffFood();
 
@@ -271,11 +271,11 @@ public class BossGimmickSystem : MonoBehaviour
             EndGroggyPhase(hasThrownThisGroggy);
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ë””ë²„í”„ ìš”ë¦¬ íƒìƒ‰ (FoodStock + RecipeDatabase ìë™ íŒì •)
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // µğ¹öÇÁ ¿ä¸® Å½»ö (FoodStock + RecipeDatabase ÀÚµ¿ ÆÇÁ¤)
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
 
-    /// <summary>ë³´ìœ  ìš”ë¦¬ ì¤‘ ê°€ì¥ ì¢‹ì€ ë””ë²„í”„ ìš”ë¦¬. ì—†ìœ¼ë©´ null</summary>
+    /// <summary>º¸À¯ ¿ä¸® Áß °¡Àå ÁÁÀº µğ¹öÇÁ ¿ä¸®. ¾øÀ¸¸é null</summary>
     private RecipeData FindBestDebuffFood()
     {
         if (FoodStock.Instance == null) return null;
@@ -301,7 +301,7 @@ public class BossGimmickSystem : MonoBehaviour
         return best;
     }
 
-    /// <summary>ë””ë²„í”„ ìš”ë¦¬ ì ìˆ˜. 0ì´ë©´ ë””ë²„í”„ ìš”ë¦¬ê°€ ì•„ë‹˜</summary>
+    /// <summary>µğ¹öÇÁ ¿ä¸® Á¡¼ö. 0ÀÌ¸é µğ¹öÇÁ ¿ä¸®°¡ ¾Æ´Ô</summary>
     private int GetDebuffScore(RecipeData r)
     {
         int score = 0;
@@ -314,12 +314,12 @@ public class BossGimmickSystem : MonoBehaviour
         return score;
     }
 
-    /// <summary>ê³„ì—´ë³„ ë””ë²„í”„ ê°•ë„ (ë‚¨ëŠ” ë°©ì–´ë ¥ ë¹„ìœ¨ - ë‚®ì„ìˆ˜ë¡ ê°•ë ¥)</summary>
+    /// <summary>°è¿­º° µğ¹öÇÁ °­µµ (³²´Â ¹æ¾î·Â ºñÀ² - ³·À»¼ö·Ï °­·Â)</summary>
     private float GetDebuffPower(RecipeData r)
     {
-        if (r.shredDef > 0 || r.shredRes > 0) return 0.25f;  // ë¶€ì‹ ê³„ì—´
-        if (r.stunSec > 0f) return 0.40f;                    // ë§ˆë¹„ ê³„ì—´
-        return 0.50f;                                        // ë¹™ê²° ê³„ì—´
+        if (r.shredDef > 0 || r.shredRes > 0) return 0.25f;  // ºÎ½Ä °è¿­
+        if (r.stunSec > 0f) return 0.40f;                    // ¸¶ºñ °è¿­
+        return 0.50f;                                        // ºù°á °è¿­
     }
 
     private void RefreshGuideText()
@@ -328,9 +328,9 @@ public class BossGimmickSystem : MonoBehaviour
 
         RecipeData found = FindBestDebuffFood();
         if (found != null)
-            groggyGuideText.text = "ê·¸ë¡œê¸°!  [F] " + found.displayName + " íˆ¬ì²™!";
+            groggyGuideText.text = "¹«¹æºñ!  [F] " + found.displayName + " ÅõÃ´!";
         else
-            groggyGuideText.text = "ë””ë²„í”„ ìš”ë¦¬ ì—†ìŒ!  ë…ì¹¨ ìœ¡í¬(ê³ ê¸°+ë…) ë“±ì„ ì¡°ë¦¬í•˜ë¼!";
+            groggyGuideText.text = "´øÁú ¿ä¸® ¾øÀ½!  µ¶Ä§ À°Æ÷(°í±â+µ¶»ù)¸¦ ±×¸±¿¡¼­ ±¸¿ö¶ó!";
     }
 
     private void TryThrowDebuffFood()
@@ -353,12 +353,12 @@ public class BossGimmickSystem : MonoBehaviour
         currentBoss.ReceiveDebuffFood(power);
 
         int reducedPct = Mathf.RoundToInt((1f - power) * 100f);
-        Debug.Log("[BossGimmickSystem] " + food.displayName + " íˆ¬ì²™! ë³´ìŠ¤ ë°©ì–´ë ¥ " + reducedPct + "% ê°ì†Œ!");
-        UIManager.Instance?.ShowStatChange(food.displayName + " ì ì¤‘! ë³´ìŠ¤ ë°©ì–´ë ¥ -" + reducedPct + "%!");
-        SpinoBet.CountThrowHit();   // Phase 2-1: [ì™¸ìƒ ì¥ë¶€] ë² íŒ… ì¡°ê±´ ì¶”ì 
+        Debug.Log("[BossGimmickSystem] " + food.displayName + " ÅõÃ´! º¸½º ¹æ¾î·Â " + reducedPct + "% °¨¼Ò!");
+        UIManager.Instance?.ShowStatChange(food.displayName + " ÀûÁß! º¸½º ¹æ¾î·Â -" + reducedPct + "%!");
+        SpinoBet.CountThrowHit();   // Phase 2-1: [¿Ü»ó ÀåºÎ] º£ÆÃ Á¶°Ç ÃßÀû
 
         if (groggyGuideText != null)
-            groggyGuideText.text = food.displayName + " ì ì¤‘!  ë°©ì–´ë ¥ -" + reducedPct + "%";
+            groggyGuideText.text = food.displayName + " ÀûÁß!  ¹æ¾î·Â -" + reducedPct + "%";
         if (groggyTimeFillImg != null)
             groggyTimeFillImg.color = new Color(0.25f, 0.9f, 0.3f);
     }
@@ -370,14 +370,14 @@ public class BossGimmickSystem : MonoBehaviour
 
         if (!wasDebuffed)
         {
-            Debug.Log("[BossGimmickSystem] ê·¸ë¡œê¸° ë¯¸íˆ¬ì²™ - ê¸°íšŒë¥¼ ë†“ì³¤ë‹¤!");
-            UIManager.Instance?.ShowStatChange("íˆ¬ì²™ ì‹¤íŒ¨! ê·¸ë¡œê¸° ê¸°íšŒë¥¼ ë†“ì³¤ë‹¤!");
+            Debug.Log("[BossGimmickSystem] ±×·Î±â ¹ÌÅõÃ´ - ±âÈ¸¸¦ ³õÃÆ´Ù!");
+            UIManager.Instance?.ShowStatChange("ÅõÃ´ ½ÇÆĞ! ¹«¹æºñ ±âÈ¸¸¦ ³õÃÆ´Ù!");
         }
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ë³´ìŠ¤ ì²˜ì¹˜ ì‹œ ì •ë¦¬
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // º¸½º Ã³Ä¡ ½Ã Á¤¸®
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     public void OnBossDefeated()
     {
         currentBoss = null;
@@ -385,30 +385,30 @@ public class BossGimmickSystem : MonoBehaviour
         bossRoot.gameObject.SetActive(false);
         groggyRoot.gameObject.SetActive(false);
 
-        Debug.Log("[BossGimmickSystem] ë³´ìŠ¤ ì²˜ì¹˜!");
-        UIManager.Instance?.ShowStatChange("ë³´ìŠ¤ ì²˜ì¹˜! ìŠ¹ë¦¬!");
+        Debug.Log("[BossGimmickSystem] º¸½º Ã³Ä¡!");
+        UIManager.Instance?.ShowStatChange("º¸½º Ã³Ä¡! ½Â¸®!");
 
-        // Phase 2-1: ìŠ¤í”¼ë…¸ ë² íŒ… ì •ì‚° (ê²©íŒŒ ë³´ë„ˆìŠ¤ ëª°ìˆ˜ íŒì •ì€ GameManager ì§€ê¸‰ë¶€ì—ì„œ)
+        // Phase 2-1: ½ºÇÇ³ë º£ÆÃ Á¤»ê (°İÆÄ º¸³Ê½º ¸ô¼ö ÆÇÁ¤Àº GameManager Áö±ŞºÎ¿¡¼­)
         SpinoBet.Resolve();
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // UI ìƒì„± (ì½”ë“œ ìƒì„± - ì”¬ ì„¸íŒ… ë¶ˆí•„ìš”)
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // UI »ı¼º (ÄÚµå »ı¼º - ¾À ¼¼ÆÃ ºÒÇÊ¿ä)
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     private void BuildUI()
     {
         GameObject canvasGo = new GameObject("BossUICanvas");
         canvasGo.transform.SetParent(transform, false);
         canvas = canvasGo.AddComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-        canvas.sortingOrder = 480;   // ì£¼ë°© ì´ë²¤íŠ¸(500)/ì •ë¹„ì†Œ(550)/ì¦ê°•(600)ë³´ë‹¤ ì•„ë˜
+        canvas.sortingOrder = 480;   // ÁÖ¹æ ÀÌº¥Æ®(500)/Á¤ºñ¼Ò(550)/Áõ°­(600)º¸´Ù ¾Æ·¡
         CanvasScaler scaler = canvasGo.AddComponent<CanvasScaler>();
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
         scaler.referenceResolution = new Vector2(1920f, 1080f);
         scaler.matchWidthOrHeight = 0.5f;
         canvasGo.AddComponent<GraphicRaycaster>();
 
-        // ---------- ë³´ìŠ¤ HP ë°” (ìƒë‹¨ ì¤‘ì•™) ----------
+        // ---------- º¸½º HP ¹Ù (»ó´Ü Áß¾Ó) ----------
         bossRoot = KitchenEventManager.MakeBox(canvasGo.transform, "BossBar", new Color(0.08f, 0.06f, 0.05f, 0.88f));
         bossRoot.anchorMin = new Vector2(0.5f, 1f);
         bossRoot.anchorMax = new Vector2(0.5f, 1f);
@@ -417,8 +417,8 @@ public class BossGimmickSystem : MonoBehaviour
         bossRoot.sizeDelta = new Vector2(700f, 64f);
         bossRoot.GetComponent<Image>().raycastTarget = false;
 
-        // ë³´ìŠ¤ ì´ë¦„ (ì¢Œì¸¡)
-        bossNameText = KitchenEventManager.MakeText(bossRoot, "Name", "ë©”ì¹´ í‹°ë ‰ìŠ¤ ë³´ìŠ¤", 20, new Color(1f, 0.45f, 0.35f));
+        // º¸½º ÀÌ¸§ (ÁÂÃø)
+        bossNameText = KitchenEventManager.MakeText(bossRoot, "Name", "¸ŞÄ« Æ¼·º½º º¸½º", 20, new Color(1f, 0.45f, 0.35f));
         RectTransform nRt = bossNameText.rectTransform;
         nRt.anchorMin = new Vector2(0f, 1f);
         nRt.anchorMax = new Vector2(0.5f, 1f);
@@ -427,7 +427,7 @@ public class BossGimmickSystem : MonoBehaviour
         nRt.sizeDelta = new Vector2(0f, 24f);
         bossNameText.alignment = TextAnchor.MiddleLeft;
 
-        // HP ë°” ë°°ê²½
+        // HP ¹Ù ¹è°æ
         RectTransform hpBg = KitchenEventManager.MakeBox(bossRoot, "HPBG", new Color(0f, 0f, 0f, 0.6f));
         hpBg.anchorMin = new Vector2(0f, 0f);
         hpBg.anchorMax = new Vector2(1f, 0f);
@@ -437,7 +437,7 @@ public class BossGimmickSystem : MonoBehaviour
         hpBg.sizeDelta = new Vector2(hpBg.sizeDelta.x, 26f);
         hpBg.GetComponent<Image>().raycastTarget = false;
 
-        // HP ì±„ì›€ (ë¹¨ê°•)
+        // HP Ã¤¿ò (»¡°­)
         hpFill = KitchenEventManager.MakeBox(hpBg, "HPFill", new Color(0.85f, 0.2f, 0.15f));
         hpFill.anchorMin = new Vector2(0f, 0f);
         hpFill.anchorMax = new Vector2(1f, 1f);
@@ -445,7 +445,7 @@ public class BossGimmickSystem : MonoBehaviour
         hpFill.offsetMax = Vector2.zero;
         hpFill.GetComponent<Image>().raycastTarget = false;
 
-        // HP ìˆ˜ì¹˜ (ë°” ìœ„ ì¤‘ì•™)
+        // HP ¼öÄ¡ (¹Ù À§ Áß¾Ó)
         bossHPText = KitchenEventManager.MakeText(hpBg, "HPText", "", 17, Color.white);
         RectTransform hRt = bossHPText.rectTransform;
         hRt.anchorMin = Vector2.zero;
@@ -453,7 +453,7 @@ public class BossGimmickSystem : MonoBehaviour
         hRt.offsetMin = Vector2.zero;
         hRt.offsetMax = Vector2.zero;
 
-        // ---------- ê·¸ë¡œê¸° ë°°ë„ˆ (ë³´ìŠ¤ ë°” ì•„ë˜) ----------
+        // ---------- ±×·Î±â ¹è³Ê (º¸½º ¹Ù ¾Æ·¡) ----------
         groggyRoot = KitchenEventManager.MakeBox(canvasGo.transform, "GroggyBanner", new Color(0.25f, 0.08f, 0.05f, 0.92f));
         groggyRoot.anchorMin = new Vector2(0.5f, 1f);
         groggyRoot.anchorMax = new Vector2(0.5f, 1f);
@@ -462,7 +462,7 @@ public class BossGimmickSystem : MonoBehaviour
         groggyRoot.sizeDelta = new Vector2(700f, 66f);
         groggyRoot.GetComponent<Image>().raycastTarget = false;
 
-        // ì•ˆë‚´ ë¬¸êµ¬ (í•œ ì¤„, ê²¹ì¹¨ ì—†ìŒ)
+        // ¾È³» ¹®±¸ (ÇÑ ÁÙ, °ãÄ§ ¾øÀ½)
         groggyGuideText = KitchenEventManager.MakeText(groggyRoot, "Guide", "", 22, new Color(1f, 0.85f, 0.4f));
         RectTransform gRt = groggyGuideText.rectTransform;
         gRt.anchorMin = new Vector2(0f, 1f);
@@ -471,7 +471,7 @@ public class BossGimmickSystem : MonoBehaviour
         gRt.anchoredPosition = new Vector2(0f, -6f);
         gRt.sizeDelta = new Vector2(-20f, 32f);
 
-        // ë‚¨ì€ ì‹œê°„ ê²Œì´ì§€ (í•˜ë‹¨)
+        // ³²Àº ½Ã°£ °ÔÀÌÁö (ÇÏ´Ü)
         RectTransform tBg = KitchenEventManager.MakeBox(groggyRoot, "TimeBG", new Color(0f, 0f, 0f, 0.55f));
         tBg.anchorMin = new Vector2(0f, 0f);
         tBg.anchorMax = new Vector2(1f, 0f);
@@ -490,7 +490,7 @@ public class BossGimmickSystem : MonoBehaviour
         groggyTimeFillImg.raycastTarget = false;
     }
 
-    /// <summary>ê²Œì´ì§€ ì±„ì›€ ë¹„ìœ¨ (0~1)</summary>
+    /// <summary>°ÔÀÌÁö Ã¤¿ò ºñÀ² (0~1)</summary>
     private void SetFill(RectTransform fill, float ratio)
     {
         if (fill == null) return;

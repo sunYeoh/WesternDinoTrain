@@ -78,7 +78,7 @@ public static class SpinoBet
                 return "기차 피격 " + GameBalance.BetTankHitsMax + "회 이하로 격파\n성공: 최대 HP +"
                     + (int)GameBalance.BetTankMaxHP + "\n실패: 잃는 것 없음";
             case BetId.Ledger:
-                return "판돈 " + GameBalance.BetLedgerStake + "G 선불 - 그로기 투척 "
+                return "판돈 " + GameBalance.BetLedgerStake + "G 선불 - 무방비 때 투척 "
                     + GameBalance.BetLedgerThrowNeed + "회 명중\n성공: "
                     + GameBalance.BetLedgerPayoutMul + "배 회수 ("
                     + (GameBalance.BetLedgerStake * GameBalance.BetLedgerPayoutMul) + "G)\n실패: 판돈 몰수 + 재료 절반 압류";
@@ -270,7 +270,7 @@ public static class SpinoBet
                     + (goldRatio >= 1f ? "전부" : "절반") + " 압류!");
                 break;
         }
-        UIManager.Instance?.ShowStatChange("스피노: \"고맙게 받지. 도박은 원래 집이 이기는 거다.\"");
+        UIManager.Instance?.ShowStatChange("스피노: \"고맙게 받지. 판 벌인 나도 좀 챙겨야 하지 않겠나.\"");
     }
 
     // ─────────────────────────────────────────────

@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 
 /// <summary>
-/// [AugmentPickUI.cs] v1.3 (v9.11 2026-09-22: 등장 연출 ModalFeel) / v1.2 (v9.10 2026-09-17: 증강 선택이 매 웨이브가 아니게 되면서(GameBalance.AugmentPickAt) 선택창을 안 여는 웨이브에도 웨이브 회복·최대 HP 효과는 적용 - ApplyPerWaveEffects) / v1.1
+/// [AugmentPickUI.cs] v1.4 (v9.11.1 2026-09-22 문구: 리롤 -> 다시 뽑기) / v1.3 (v9.11 2026-09-22: 등장 연출 ModalFeel) / v1.2 (v9.10 2026-09-17: 증강 선택이 매 웨이브가 아니게 되면서(GameBalance.AugmentPickAt) 선택창을 안 여는 웨이브에도 웨이브 회복·최대 HP 효과는 적용 - ApplyPerWaveEffects) / v1.1
 /// 웨이브 클리어 시 뜨는 증강 3택1 화면 (기획 C)
 /// - v1.1: '행운의 부적'(선택지 +1) / '야전 정비반'(웨이브당 최대 HP 성장) 반영
 ///
@@ -117,7 +117,7 @@ public class AugmentPickUI : MonoBehaviour
         int cost = RerollCost();
         if (GameManager.Instance == null || !GameManager.Instance.SpendGold(cost))
         {
-            UIManager.Instance?.ShowStatChange("골드 부족! 리롤에는 " + cost + "G가 필요하다");
+            UIManager.Instance?.ShowStatChange("골드 부족! 다시 뽑기에는 " + cost + "G가 필요하다");
             return;
         }
 
@@ -136,7 +136,7 @@ public class AugmentPickUI : MonoBehaviour
     private void RefreshHeader()
     {
         headerText.text = "웨이브 " + currentWave + " 클리어!   증강 선택 [1~" + currentCards.Count
-            + "]  /  건너뛰기 [0]  /  리롤 [9] (" + RerollCost() + "G)";
+            + "]  /  건너뛰기 [0]  /  다시 뽑기 [9] (" + RerollCost() + "G)";
     }
 
     // ==================================================================
@@ -377,7 +377,7 @@ public class AugmentPickUI : MonoBehaviour
 
         // Phase 2-2: 리롤 버튼 (골드 소모 - 비용은 헤더에 표시)
         Button rerollBtn = KitchenEventManager.MakeButton(dimRoot,
-            "리롤  [9]", new Color(0.30f, 0.22f, 0.34f), Vector2.zero, new Vector2(220f, 52f));
+            "다시 뽑기  [9]", new Color(0.30f, 0.22f, 0.34f), Vector2.zero, new Vector2(220f, 52f));
         RectTransform rrRt = rerollBtn.GetComponent<RectTransform>();
         rrRt.anchorMin = new Vector2(0.5f, 0f);
         rrRt.anchorMax = new Vector2(0.5f, 0f);

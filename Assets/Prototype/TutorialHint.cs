@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [TutorialHint.cs] v1.4 (v9.9.2 2026-09-16: 승격 5 - first_town / first_augment / first_route / first_item / first_overheat 는 배너 대신 브리핑 카드(BriefingTexts.Promoted), F4 가 첫 등장 카드 기록도 지운다) / v1.3 (v9.9 2026-09-16: 견습 운행·브리핑 카드 중엔 배너 쉼, F4 가 견습 완료 기록도 지움, 배너 캔버스 DontDestroyOnLoad) / v1.2 (v9.8.1: F4 리셋은 GameBalance.CheatsAllowed 일 때만) / v1.1 (교수 피드백 A13: 표시 5초 + 아무 키 닫기 + 조리 중 대기) - 컨텍스트 트리거 튜토리얼 (설계: 튜토리얼_온보딩_설계_2026-08-18)
+/// [TutorialHint.cs] v1.5 (v9.11.1 2026-09-22 문구: 복구법 상태별·공명 예외·이번 운행·다시 뽑기·무방비) / v1.4 (v9.9.2 2026-09-16: 승격 5 - first_town / first_augment / first_route / first_item / first_overheat 는 배너 대신 브리핑 카드(BriefingTexts.Promoted), F4 가 첫 등장 카드 기록도 지운다) / v1.3 (v9.9 2026-09-16: 견습 운행·브리핑 카드 중엔 배너 쉼, F4 가 견습 완료 기록도 지움, 배너 캔버스 DontDestroyOnLoad) / v1.2 (v9.8.1: F4 리셋은 GameBalance.CheatsAllowed 일 때만) / v1.1 (교수 피드백 A13: 표시 5초 + 아무 키 닫기 + 조리 중 대기) - 컨텍스트 트리거 튜토리얼 (설계: 튜토리얼_온보딩_설계_2026-08-18)
 ///
 /// 몰아서 가르치지 않는다. 각 기믹을 "처음 마주치는 순간" 1회만 배너로 안내한다.
 /// - 영구 기록: PlayerPrefs "WDT_Tut_(id)" - 2회차부터 반복 없음 (다회차 마찰 방지)
@@ -43,17 +43,17 @@ public class TutorialHint : MonoBehaviour
         new HintDef("merge_ready", "같은 요리는 겹친다",
             "가동 중인 포탑에 같은 요리를 다시 투입 = 레벨업! 같은 포탑 2문은 좌클릭 합체"),
         new HintDef("resonance_near", "공명 임박",
-            "같은 속성 2문째다. 3문을 모으면 속성 공명 데미지 +20%!"),
+            "같은 속성 2문째다. 3문을 모으면 공명 - 그 속성 피해 +20% (방어 계열은 기차가 받는 피해 -10%)"),
         new HintDef("first_stun", "포탑 마비!",
-            "달려가서 [E]로 되살려라. 서 있는 포탑은 요리값을 못 한다"),
+            "포탑 곁으로 달려가라 - 감전은 [E] 한 번, 빙결은 [E] 여러 번. 서 있는 포탑은 요리값을 못 한다"),
         new HintDef("first_overheat", "포탑 과열!",
-            "[E]를 꾹 눌러 식혀라. 중간에 손을 놓으면 다시 달아오른다"),
+            "[E] 를 누른 채 마우스를 움직여 식혀라. 손을 떼면 식힌 게 샌다"),
         new HintDef("first_event", "주방 사고!",
             "화살표를 따라 달려가라 - 현장에 도착해야 수습이 시작된다"),
         new HintDef("first_crate", "갑판의 전리품",
             "떨어진 상자는 밟아서 회수한다"),
         new HintDef("first_item", "유물 획득",
-            "[V] 소지품 목록을 봐라 - 유물은 하나씩만, 효과는 영구다"),
+            "[V] 소지품 목록을 봐라 - 유물은 종류마다 하나, 효과는 이번 운행 동안"),
         new HintDef("first_rock", "광맥 바위 발견",
             "기관차 작살포 [E]로 낚아채라. 가끔 굶주린 것들이 딸려온다"),
         new HintDef("lever_hint", "기관차 레버",
@@ -61,11 +61,11 @@ public class TutorialHint : MonoBehaviour
         new HintDef("first_town", "간이역 정차",
             "[G] 정비소 - 수리·연마·재료 시장. 도구가 상하면 조리가 어려워진다"),
         new HintDef("first_augment", "증강 선택",
-            "[1~5] 숫자키로 선택 / [0] 건너뛰기(+명성) / [9] 리롤(골드). 증강이 이번 런의 빌드를 만든다"),
+            "[1~5] 숫자키로 선택 / [0] 건너뛰기(+명성) / [9] 다시 뽑기(골드). 증강이 이번 운행의 강화다"),
         new HintDef("first_route", "분기 선로",
             "위험과 보상의 교환이다. 폐역에는 선대의 기록이 잠들어 있다"),
         new HintDef("boss_incoming", "보스 접근!",
-            "그로기(가슴 해치 개방) 때 [F]로 디버프 요리를 던져라!"),
+            "가슴 해치가 열리면(무방비) [F] 로 독샘 요리를 던져라!"),
     };
 
     private const string PREF_PREFIX = "WDT_Tut_";   // 메타(WDT_)와 같은 계열, 독립 키

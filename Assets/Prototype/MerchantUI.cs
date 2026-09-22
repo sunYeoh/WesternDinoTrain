@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [MerchantUI.cs] v1.4 (v9.11 2026-09-22: 등장 연출 ModalFeel) / v1.3 (v9.10.1 2026-09-21: 선택이 없으면 GameBalance.MerchantAutoLeaveSec(10초) 뒤 스스로 떠난다 - 판 위 구리 막대가 줄어들고 안내줄에 남은 초. 사면 다시 센다) / [MerchantUI.cs] v1.2 (v9.10 2026-09-17: 떠나기 안내를 [ESC] 로 - "0 키가 멀고 뜬금없다", 0 도 여전히 된다) / v1.1 (v9.9.2 2026-09-16: 창 머리에 안킬로 실루엣 ui_npc_ankylo - "이름만 있으면 불편" 유저 09-16) / v1 (신규 파일) - Phase 2-3: 등짐장수 안킬로 (아이템 행상인)
+/// [MerchantUI.cs] v1.5 (v9.11.1 2026-09-22 문구: 안킬로 어미 ~구려·~시오 로 정리) / v1.4 (v9.11 2026-09-22: 등장 연출 ModalFeel) / v1.3 (v9.10.1 2026-09-21: 선택이 없으면 GameBalance.MerchantAutoLeaveSec(10초) 뒤 스스로 떠난다 - 판 위 구리 막대가 줄어들고 안내줄에 남은 초. 사면 다시 센다) / [MerchantUI.cs] v1.2 (v9.10 2026-09-17: 떠나기 안내를 [ESC] 로 - "0 키가 멀고 뜬금없다", 0 도 여전히 된다) / v1.1 (v9.9.2 2026-09-16: 창 머리에 안킬로 실루엣 ui_npc_ankylo - "이름만 있으면 불편" 유저 09-16) / v1 (신규 파일) - Phase 2-3: 등짐장수 안킬로 (아이템 행상인)
 ///
 /// 세계관: 등껍질에 냄비며 부지깽이를 주렁주렁 매단 안킬로사우르스 행상인.
 /// 도박꾼 스피노와 대비되는 캐릭터 - 느긋하고, 값은 정직하다.
@@ -123,7 +123,7 @@ public class MerchantUI : MonoBehaviour
         if (closing) return;
         closing = true;
         leaveAt = 0f;
-        speechText.text = "\"시간이 다 됐구려. 다음 역에서 또 보시우.\"";
+        speechText.text = "\"시간이 다 됐구려. 다음 역에서 또 봅시다.\"";
         SoundManager.Play("sfx_ui_click");
         Invoke("CloseNow", 0.9f);
     }
@@ -138,7 +138,7 @@ public class MerchantUI : MonoBehaviour
         int price = ItemManager.PriceOf(item);
         if (GameManager.Instance == null || !GameManager.Instance.SpendGold(price))
         {
-            speechText.text = "\"주머니가 가볍구려. 억지로는 안 팔우. 다음에 사시구려.\"";
+            speechText.text = "\"주머니가 가볍구려. 무리하지 말고 다음에 사시오.\"";
             SoundManager.Play("sfx_ui_click");
             return;
         }
@@ -147,7 +147,7 @@ public class MerchantUI : MonoBehaviour
         if (index == 0) { soldA = true; if (titleA != null) titleA.text = "- 팔림 -"; }
         else { soldB = true; if (titleB != null) titleB.text = "- 팔림 -"; }
 
-        speechText.text = "\"좋은 선택이우. 오래 쓰시구려.\"";
+        speechText.text = "\"잘 골랐구려. 오래 쓰시오.\"";
         RestartLeaveTimer();   // v1.3: 사면 다시 센다 (두 번째 물건 볼 시간)
         RefreshGoldText();
         SoundManager.Play("sfx_pickup");
@@ -156,7 +156,7 @@ public class MerchantUI : MonoBehaviour
         if ((cardA == null || soldA) && (cardB == null || soldB))
         {
             closing = true;
-            speechText.text = "\"오늘 장사는 끝이우. 살펴 가시구려, 주방장 양반.\"";
+            speechText.text = "\"오늘 장사는 끝이오. 살펴 가시오, 주방장 양반.\"";
             Invoke("CloseNow", 1.2f);
         }
     }
@@ -167,7 +167,7 @@ public class MerchantUI : MonoBehaviour
         closing = true;
         leaveAt = 0f;
 
-        speechText.text = "\"허허. 황야는 넓고 역은 또 있지. 살펴 가시우.\"";
+        speechText.text = "\"허허. 황야는 넓고 역은 또 있지. 살펴 가시오.\"";
         SoundManager.Play("sfx_ui_click");
         Invoke("CloseNow", 1.1f);
     }
@@ -186,16 +186,16 @@ public class MerchantUI : MonoBehaviour
     {
         // 첫만남 (영구 기준)
         if (MetaProgress.AnkyMeetings == 0)
-            return "\"어이쿠. 살아있는 손님은 오랜만이구려.\n등껍질에 좋은 물건 있수다. 값은 정직하게 받지.\"";
+            return "\"어이쿠. 살아있는 손님은 오랜만이구려.\n등껍질에 좋은 물건이 있소. 값은 정직하게 받으리다.\"";
 
         float roll = Random.value;
         if (roll < 0.25f)
-            return "\"그 보라색 도마뱀이랑은 엮이지 마시구려.\n...뭐, 이미 늦은 얼굴이구먼.\"";
+            return "\"그 보라색 도마뱀이랑은 엮이지 마시오.\n...뭐, 이미 늦은 얼굴이구려.\"";
         if (roll < 0.5f)
-            return "\"급하게 갈 것 없수다. 황야에서 제일 무거운 게 나요.\n천천히 골라 보시우.\"";
+            return "\"급할 것 없소. 황야에서 제일 무거운 게 나요.\n천천히 골라 보시오.\"";
         if (roll < 0.75f)
-            return "\"굶주린 것들이 요즘 사납지.\n주방 지키는 물건들, 미리 챙겨 두시구려.\"";
-        return "\"또 만났구려. 기차 냄새가 점점 그럴싸해지는구먼.\n오늘 매대는 이렇수다.\"";
+            return "\"굶주린 것들이 요즘 사납지.\n주방 지키는 물건들, 미리 챙겨 두시오.\"";
+        return "\"또 만났구려. 기차 냄새가 점점 그럴싸해지는구려.\n오늘 매대는 이렇소.\"";
     }
 
     // ─────────────────────────────────────────────

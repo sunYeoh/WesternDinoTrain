@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// [TurretSlot.cs] v6.5 (v9.11 2026-09-22 타격감: 투입·레벨업 때 접시 낙하 + 링 + "배치!/Lv N" 팝 + 포탑 1.25배 튀기 - GameBalance.CookFeelOn) / v6.4 (v9.9.2 2026-09-16: 마비 FX - 감전·빙결 = 스파크 3점(ui_ev_spark_0/1 교대, 빙결은 얼음색), 과열 = 연기(ui_ev_smoke_0/1). GameBalance.TurretStunFx) / v6.3 (v9.9 2026-09-16: 남쪽 슬롯 포신 기본 방향 -90 = 남쪽 - 4모서리 배치) / v6.2 (런 통계: 과열 횟수·정지 시간 2026-09-14) / v6.1 (교수 피드백 반영 2026-09-14) / v6 (고퀄 PNG 적용 2026-09-03)
+/// [TurretSlot.cs] v6.6 (v9.11.1 2026-09-22 문구: 과열 복구법) / v6.5 (v9.11 2026-09-22 타격감: 투입·레벨업 때 접시 낙하 + 링 + "배치!/Lv N" 팝 + 포탑 1.25배 튀기 - GameBalance.CookFeelOn) / v6.4 (v9.9.2 2026-09-16: 마비 FX - 감전·빙결 = 스파크 3점(ui_ev_spark_0/1 교대, 빙결은 얼음색), 과열 = 연기(ui_ev_smoke_0/1). GameBalance.TurretStunFx) / v6.3 (v9.9 2026-09-16: 남쪽 슬롯 포신 기본 방향 -90 = 남쪽 - 4모서리 배치) / v6.2 (런 통계: 과열 횟수·정지 시간 2026-09-14) / v6.1 (교수 피드백 반영 2026-09-14) / v6 (고퀄 PNG 적용 2026-09-03)
 /// 포탑 슬롯 1개. 요리를 투입하면 포탑으로 가동한다.
 /// - v6.2 변경점 (스위치 실험 지표 - 반영계획 §5 관찰 시트):
 ///   OverheatsThisRun / OverheatStunSecThisRun: 이번 런에 과열이 몇 번 났고, 과열로 포탑이 전투 중 몇 초 멈춰 있었는지.
@@ -337,9 +337,9 @@ public class TurretSlot : MonoBehaviour
                 StunSlot(dur, "과열");
                 SoundManager.Play("sfx_overheat");   // 클립 없으면 무시
                 if (GameBalance.OverheatAutoRecoverSec > 0f)
-                    UIManager.Instance?.ShowDanger("포탑 과열! [E]로 식히면 바로 복귀 (" + Mathf.RoundToInt(GameBalance.OverheatAutoRecoverSec) + "초 뒤 자동 복구)");
+                    UIManager.Instance?.ShowDanger("포탑 과열! 곁에서 [E] 를 누른 채 마우스를 움직여 식혀라 (" + Mathf.RoundToInt(GameBalance.OverheatAutoRecoverSec) + "초 지나면 저절로 식는다)");
                 else
-                    UIManager.Instance?.ShowDanger("포탑 과열! 달려가서 [E]를 꾹 눌러 식혀라!");
+                    UIManager.Instance?.ShowDanger("포탑 과열! 달려가서 [E] 를 누른 채 마우스를 움직여 식혀라!");
                 Debug.Log("[TurretSlot] " + (Recipe != null ? Recipe.displayName : "?")
                     + " 과열 (사격 " + shotsSinceCool + "발)");
             }

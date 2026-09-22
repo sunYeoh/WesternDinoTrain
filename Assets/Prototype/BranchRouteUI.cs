@@ -141,8 +141,8 @@ public class BranchRouteUI : MonoBehaviour
             ghost.routeName = "폐역";
             ghost.desc = "적 물량 -40%. 버려진 역에 무언가 남아 있다";
             ghost.rewardDesc = journalLeft
-                ? "클리어 시 선대의 일지 발견 + 낮은 확률로 아이템"
-                : "클리어 시 낮은 확률로 아이템 발견";
+                ? "클리어 시 선대의 일지 발견 + 낮은 확률로 유물"
+                : "클리어 시 낮은 확률로 유물 발견";
             ghost.countMul = 0.6f;
             ghost.journal = journalLeft;
             ghost.relicChance = true;
