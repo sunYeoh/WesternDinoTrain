@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// [Bullet.cs]
+/// [Bullet.cs] v1.1 (v9.12 2026-09-22: TutorialDirector.InlineFreeze 동안 정지 - 인라인 연습 중 손님이 멈춰 있는데 탄만 날아가 맞히지 않게)
 /// 포탑에서 발사된 총알의 이동과 적 충돌을 처리합니다.
 /// 총알 프리팹에 이 스크립트를 붙이세요.
 /// Turret.cs의 FireBullet()에서 Initialize()를 호출해 초기화합니다.
@@ -38,6 +38,7 @@ public class Bullet : MonoBehaviour
     private void Update()
     {
         if (!isReady) return;
+        if (TutorialDirector.InlineFreeze) return;   // v9.12: 인라인 연습 중 탄도 멈춘다
 
         lifeTimer += Time.deltaTime;
 
