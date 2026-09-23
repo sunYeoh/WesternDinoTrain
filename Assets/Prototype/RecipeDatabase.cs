@@ -66,7 +66,7 @@ public static class RecipeDatabase
         AddT1("armor+meat", "하티 스테이크", FoodTag.Phys, TurretRole.Support, AttackShape.Projectile, DamageType.Phys,
               14f, 1.0f, 420f, r => { r.healOnHit = 1f; r.description = "물리 공격 · 맞출 때마다 기차 HP +1"; });
         AddT1("fire+meat", "매운 육포", FoodTag.Phys, TurretRole.PhysDealer, AttackShape.Projectile, DamageType.Phys,
-              13f, 0.9f, 450f, r => { r.burnStack = 1; r.description = "물리 공격 + 화상(계속 피해)"; });
+              13f, 0.9f, 450f, r => { r.burnStack = 1; r.description = "물리 공격 + 화상(지속 피해)"; });
         AddT1("ice+meat", "냉동 육포", FoodTag.Phys, TurretRole.CC, AttackShape.Projectile, DamageType.Phys,
               12f, 0.9f, 420f, r => { r.slowLevel = 1; r.description = "물리 공격 + 감속"; });
         AddT1("meat+poison", "독침 육포", FoodTag.Phys, TurretRole.Debuffer, AttackShape.Projectile, DamageType.Phys,
@@ -98,13 +98,13 @@ public static class RecipeDatabase
         AddT1("ice+ice", "절대영도 수프", FoodTag.Ice, TurretRole.CC, AttackShape.Field, DamageType.Magic,
               5f, 1.6f, 340f, r => { r.slowLevel = 2; r.description = "적중한 곳에 강한 감속 장판"; });
         AddT1("ice+poison", "맹독 빙수", FoodTag.Ice, TurretRole.MagicDealer, AttackShape.Projectile, DamageType.Magic,
-              7f, 1.0f, 400f, r => { r.slowLevel = 1; r.poisonStack = 1; r.description = "감속 + 독(계속 피해)"; });
+              7f, 1.0f, 400f, r => { r.slowLevel = 1; r.poisonStack = 1; r.description = "감속 + 독(지속 피해)"; });
 
         // 독 계열 (2)
         AddT1("elec+poison", "마비독 꼬치", FoodTag.Poison, TurretRole.Debuffer, AttackShape.Projectile, DamageType.Magic,
               8f, 0.8f, 500f, r => { r.shredRes = 1; r.description = "속성 공격 + 마법 저항 감소"; });
         AddT1("poison+poison", "맹독 진액", FoodTag.Poison, TurretRole.MagicDealer, AttackShape.Projectile, DamageType.Magic,
-              6f, 0.9f, 430f, r => { r.poisonStack = 2; r.description = "맹독 · 계속 피해 2겹"; });
+              6f, 0.9f, 430f, r => { r.poisonStack = 2; r.description = "맹독 · 지속 피해 2겹"; });
 
         // 방어 계열 (3)
         AddT1("armor+armor", "철판 정식", FoodTag.Def, TurretRole.Support, AttackShape.Passive, DamageType.Phys,

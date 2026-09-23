@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 
 /// <summary>
-/// [BossEnemy.cs] v7.3 (v9.11.1 2026-09-22 문구: 무방비, 실행 가능한 예고) / v7.2 (v9.10.1 2026-09-21: 재료 이름 전기알) / v7.1 (교수 피드백 C3: 디 오리지널 추가 그로기 / A8: 재가동 문구) / v6 - 보스 패턴 C단계 1차 (보스패턴설계 문서)
+/// [BossEnemy.cs] v7.4 (v9.12 2026-09-22: practice = 견습 구간 7 "새끼 발톱" - 녹슨 발톱 고정, HP·공격력 배율(GameBalance.BossPractice*), 0.7배 크기, 패턴·무방비·발악 없음(돌진만), 처치해도 재료·베팅·"승리" 없음(ClearBossUI) / TutorialDirector.InlineFreeze 동안 정지) / v7.3 (v9.11.1 2026-09-22 문구: 무방비, 실행 가능한 예고) / v7.2 (v9.10.1 2026-09-21: 재료 이름 전기알) / v7.1 (교수 피드백 C3: 디 오리지널 추가 그로기 / A8: 재가동 문구) / v6 - 보스 패턴 C단계 1차 (보스패턴설계 문서)
 /// - v6 변경점:
 ///   1) 미끼 도발 대응: 도발 중엔 미끼를 쫓아가고 물어뜯는다 (기차 무피해)
 ///   2) 디 오리지널 3페이즈:
@@ -49,6 +49,9 @@ public class BossEnemy : Enemy
         Hibernator,   // 지역 3: 동면자 (고대 모사)
         Original      // 최종: 디 오리지널
     }
+
+    /// <summary>v7.4: 견습 구간 7 예습용 새끼 발톱 - WaveManager.SpawnBossForPractice 가 Start 전에 켠다 (보상·카드·베팅 체인 없음, 돌진만)</summary>
+    [HideInInspector] public bool practice = false;
 
     [Header("─ 보스 전용 (런타임 계산 - GameBalance에서 조정) ─")]
     public float bossMaxHP = 1000f;
@@ -151,6 +154,7 @@ public class BossEnemy : Enemy
     private void Start()
     {
         int wave = GameManager.Instance != null ? GameManager.Instance.currentWave : 3;
+        if (practice) wave = GameBalance.RegionLength;   // v7.4: 새끼 발톱은 정식 첫 보스(지역 1 마지막 웨이브) 기준으로 재고 배율을 곱한다
 
         // ── 지역 기반 보스 종류 결정 ──
         int region = GameBalance.RegionOf(wave);
@@ -193,6 +197,19 @@ public class BossEnemy : Enemy
             bossMaxHP *= 1.2f; bossATK *= 1.1f; spd = 1.4f;
             baseTint = new Color(1f, 0.5f, 0.45f);
             intro = "대륙에서 가장 오래 굶은 손님이 식탁에 앉았다.";
+        }
+
+        // v7.4: 예습 보스 - 작고 약한 새끼. 이름·안내·보상 없음
+        if (practice)
+        {
+            data.enemyName = "새끼 발톱";
+            data.goldReward = 0; data.xpReward = 0;
+            data.dropMaterialName = "고기";
+            bossMaxHP *= GameBalance.BossPracticeHpMul;
+            bossATK *= GameBalance.BossPracticeAtkMul;
+            baseTint = new Color(0.75f, 0.42f, 0.30f);
+            transform.localScale = transform.localScale * GameBalance.BossPracticeScale;
+            intro = "녹슨 발톱의 새끼 - 왕의 손님부터 대접해라 (미끼 화덕)";
         }
 
         currentHP = bossMaxHP;
@@ -238,6 +255,7 @@ public class BossEnemy : Enemy
     private void Update()
     {
         if (!IsAlive) return;
+        if (TutorialDirector.InlineFreeze) return;   // v7.4: 인라인 연습 중 정지 (보스 웨이브엔 연습이 안 뜨지만 안전장치)
 
         // 도트/방깎 타이머 (v3에서 수정된 보스 도트 버그 유지)
         TickStatusEffects();
@@ -246,8 +264,8 @@ public class BossEnemy : Enemy
         if (armorActive && TotalBurnApplied - burnBaseline >= GameBalance.GlacierBreakBurnStacks)
             BreakArmor();
 
-        // v5: 발악 페이즈 진입 (HP 50% 이하, 1회)
-        if (!enraged && currentHP / bossMaxHP <= GameBalance.EnrageHPRatio)
+        // v5: 발악 페이즈 진입 (HP 50% 이하, 1회). v7.4: 예습 보스는 발악·무방비·패턴 없음 (돌진만)
+        if (!practice && !enraged && currentHP / bossMaxHP <= GameBalance.EnrageHPRatio)
         {
             enraged = true;
             UIManager.Instance?.ShowStatChange("[" + data.enemyName + "] 발악! 패턴이 빨라진다!");
@@ -259,7 +277,7 @@ public class BossEnemy : Enemy
             CheckOriginalPhases();
 
         // 그로기 진입 체크
-        if (!isGroggy && Time.time >= groggyLockUntil)
+        if (!practice && !isGroggy && Time.time >= groggyLockUntil)
             CheckGroggyThresholds();
 
         if (isServing) return;   // v7: 마지막 식사 연출 중 - 완전 정지
@@ -272,12 +290,15 @@ public class BossEnemy : Enemy
             return;
         }
 
-        // 패턴 타이머 (통상 상태에서만 감소)
-        patternTimer -= Time.deltaTime;
-        if (patternTimer <= 0f)
+        // 패턴 타이머 (통상 상태에서만 감소). v7.4: 예습 보스는 패턴 없음
+        if (!practice)
         {
-            StartCoroutine(RunPattern());
-            return;
+            patternTimer -= Time.deltaTime;
+            if (patternTimer <= 0f)
+            {
+                StartCoroutine(RunPattern());
+                return;
+            }
         }
 
         // 통상 이동/공격 (v6: 도발 중이면 미끼를 추적)
@@ -765,6 +786,16 @@ public class BossEnemy : Enemy
     // ─────────────────────────────────────────────
     protected override void Die()
     {
+        // v7.4: 예습 보스 - 연출만, 보상·베팅·"승리" 체인 없음 (디렉터가 완료를 판정한다)
+        if (practice)
+        {
+            GameFeel.Shake(GameBalance.ShakeBoss * 0.5f);
+            GameFeel.DeathPop(transform.position, new Color(1f, 0.85f, 0.4f), 2f);
+            base.Die();
+            BossGimmickSystem.Instance?.ClearBossUI();
+            return;
+        }
+
         // P1 게임필: 보스 처치 = 가장 긴 히트스톱 + 강한 셰이크 + 금색 대형 팝
         GameFeel.Hitstop(GameBalance.HitstopBossKill);
         GameFeel.Shake(GameBalance.ShakeBoss);

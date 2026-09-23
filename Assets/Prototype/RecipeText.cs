@@ -2,14 +2,14 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 
 /// <summary>
-/// [RecipeText.cs] v1.1 (v9.11.1 2026-09-22: 재료·조리대 줄(Source) 추가, 무방비 표현) / v1 (신규, v9.10 2026-09-17) - 요리(포탑) 설명을 일상어로 만드는 한 곳
+/// [RecipeText.cs] v1.2 (v9.12 2026-09-22: 용어 "지속 피해") / v1.1 (v9.11.1 2026-09-22: 재료·조리대 줄(Source) 추가, 무방비 표현) / v1 (신규, v9.10 2026-09-17) - 요리(포탑) 설명을 일상어로 만드는 한 곳
 ///
 /// 테스터 피드백: "도감에 요리를 눌렀을 때 뭔 요린지 모르니까 만들지 말지도 모르겠음", "포탑 효과를 읽을 시간이 없음",
 /// "모르겠는 말(공명·인퓨징·DPS) 쓰지 말기". RecipeData 의 수치 필드(형태·속성·도트·감속·폭발·체인·회복·버프·패시브)를 그대로 읽어
 /// "무엇을 하나 / 어떤 손님에 잘 박히나 / 언제 쓰나" 세 줄 + 숫자 한 줄을 만든다. 문구는 코드 필드에서만 나오므로 레시피를 고쳐도 같이 맞는다.
 ///
 /// 사용법:
-///   RecipeText.What(r)   - "가까운 손님 하나를 노려 쏜다. 화상(계속 피해)." (한 줄)
+///   RecipeText.What(r)   - "가까운 손님 하나를 노려 쏜다. 화상(지속 피해)." (한 줄)
 ///   RecipeText.Against(r) - "물리 - 저항 높은 손님(날개 달린 것들)에 잘 박힌다" (한 줄)
 ///   RecipeText.When(r)   - "작은 손님이 무리로 올 때" (한 줄)
 ///   RecipeText.Numbers(r, levelMult) - "공격 26  1.0초마다  (초당 26)" (한 줄, 패시브면 "")
@@ -52,8 +52,8 @@ public static class RecipeText
         if (!string.IsNullOrEmpty(r.buffType)) s = "쏘지 않는다. 가로·세로 이웃 포탑을 강화한다 (" + BuffWord(r) + ")";
 
         string extra = "";
-        if (r.burnStack > 0) extra += ", 화상(불붙어 계속 피해)";
-        if (r.poisonStack > 0 || r.fieldPoison) extra += ", 독(계속 피해)";
+        if (r.burnStack > 0) extra += ", 화상(불붙어 지속 피해)";
+        if (r.poisonStack > 0 || r.fieldPoison) extra += ", 독(지속 피해)";
         if (r.slowLevel > 0) extra += ", 감속 " + (r.slowLevel >= 2 ? "70%" : "50%");
         if (r.stunSec > 0f) extra += ", " + r.stunSec.ToString("F1") + "초 마비";
         if (r.shredDef > 0) extra += ", 방어 깎기";

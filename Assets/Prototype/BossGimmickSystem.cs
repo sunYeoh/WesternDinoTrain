@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 /// <summary>
-/// [BossGimmickSystem.cs] v4.1
+/// [BossGimmickSystem.cs] v9.12 (2026-09-22: ClearBossUI - 예습 보스용) / v4.1
 /// 보스전 전용 기믹 + 보스 UI를 관리합니다.
 ///
 /// - v4.1 (교수 피드백 A6, 2026-09-14): 씬에 이 컴포넌트가 없으면 자동 생성한다.
@@ -378,6 +378,15 @@ public class BossGimmickSystem : MonoBehaviour
     // ─────────────────────────────────────────────
     // 보스 처치 시 정리
     // ─────────────────────────────────────────────
+    /// <summary>v9.12: 예습 보스(새끼 발톱)가 사라질 때 - HP 바·무방비 배너만 내린다 (승리 알림·베팅 정산 없음)</summary>
+    public void ClearBossUI()
+    {
+        currentBoss = null;
+        isGroggyPhase = false;
+        if (bossRoot != null) bossRoot.gameObject.SetActive(false);
+        if (groggyRoot != null) groggyRoot.gameObject.SetActive(false);
+    }
+
     public void OnBossDefeated()
     {
         currentBoss = null;

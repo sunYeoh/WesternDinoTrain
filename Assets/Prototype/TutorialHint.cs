@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [TutorialHint.cs] v1.5 (v9.11.1 2026-09-22 문구: 복구법 상태별·공명 예외·이번 운행·다시 뽑기·무방비) / v1.4 (v9.9.2 2026-09-16: 승격 5 - first_town / first_augment / first_route / first_item / first_overheat 는 배너 대신 브리핑 카드(BriefingTexts.Promoted), F4 가 첫 등장 카드 기록도 지운다) / v1.3 (v9.9 2026-09-16: 견습 운행·브리핑 카드 중엔 배너 쉼, F4 가 견습 완료 기록도 지움, 배너 캔버스 DontDestroyOnLoad) / v1.2 (v9.8.1: F4 리셋은 GameBalance.CheatsAllowed 일 때만) / v1.1 (교수 피드백 A13: 표시 5초 + 아무 키 닫기 + 조리 중 대기) - 컨텍스트 트리거 튜토리얼 (설계: 튜토리얼_온보딩_설계_2026-08-18)
+/// [TutorialHint.cs] v1.6 (v9.12 2026-09-22: F4 가 구간 기록도 지운다 / 리롤 복원) / v1.5 (v9.11.1 2026-09-22 문구: 복구법 상태별·공명 예외·이번 운행·다시 뽑기·무방비) / v1.4 (v9.9.2 2026-09-16: 승격 5 - first_town / first_augment / first_route / first_item / first_overheat 는 배너 대신 브리핑 카드(BriefingTexts.Promoted), F4 가 첫 등장 카드 기록도 지운다) / v1.3 (v9.9 2026-09-16: 견습 운행·브리핑 카드 중엔 배너 쉼, F4 가 견습 완료 기록도 지움, 배너 캔버스 DontDestroyOnLoad) / v1.2 (v9.8.1: F4 리셋은 GameBalance.CheatsAllowed 일 때만) / v1.1 (교수 피드백 A13: 표시 5초 + 아무 키 닫기 + 조리 중 대기) - 컨텍스트 트리거 튜토리얼 (설계: 튜토리얼_온보딩_설계_2026-08-18)
 ///
 /// 몰아서 가르치지 않는다. 각 기믹을 "처음 마주치는 순간" 1회만 배너로 안내한다.
 /// - 영구 기록: PlayerPrefs "WDT_Tut_(id)" - 2회차부터 반복 없음 (다회차 마찰 방지)
@@ -61,7 +61,7 @@ public class TutorialHint : MonoBehaviour
         new HintDef("first_town", "간이역 정차",
             "[G] 정비소 - 수리·연마·재료 시장. 도구가 상하면 조리가 어려워진다"),
         new HintDef("first_augment", "증강 선택",
-            "[1~5] 숫자키로 선택 / [0] 건너뛰기(+명성) / [9] 다시 뽑기(골드). 증강이 이번 운행의 강화다"),
+            "[1~5] 숫자키로 선택 / [0] 건너뛰기(+명성) / [9] 리롤(골드). 증강이 이번 운행의 강화다"),
         new HintDef("first_route", "분기 선로",
             "위험과 보상의 교환이다. 폐역에는 선대의 기록이 잠들어 있다"),
         new HintDef("boss_incoming", "보스 접근!",
@@ -143,10 +143,11 @@ public class TutorialHint : MonoBehaviour
                 PlayerPrefs.DeleteKey(PREF_PREFIX + HINTS[i].id);
             PlayerPrefs.DeleteKey("WDT_PrologueSeen");   // 프롤로그(웨이브 1 스피노 안내)도 초기화
             PlayerPrefs.DeleteKey(TutorialDirector.DONE_KEY);   // v1.3: 견습 운행 완료 기록도 (로비 [T] 강조가 다시 켜진다)
+            TutorialDirector.ResetSegments();                   // v1.6: 구간 기록(WDT_Tut_S1..S7) 도 - 인라인 연습·훈련장 표시가 처음으로
             BriefingUI.ResetSeen(BriefingTexts.AllOnceIds());  // v1.4: 정식 런 첫 등장 카드 34장 + 승격 5 기록도
             PlayerPrefs.Save();
             allSeen = false;
-            UIManager.Instance?.ShowStatChange("[치트] 튜토리얼/프롤로그/견습 운행 기록 리셋 - 처음 온 셰프가 됐다");
+            UIManager.Instance?.ShowStatChange("[치트] 튜토리얼/프롤로그/견습 운행/구간 기록 리셋 - 처음 온 셰프가 됐다");
             Debug.Log("[TutorialHint] 치트 F4 - 기록 전체 리셋");
         }
 

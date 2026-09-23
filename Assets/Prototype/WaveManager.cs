@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// [WaveManager.cs] v6.12 (v9.11.1 2026-09-22 문구) / v6.11 (v9.10.1 2026-09-21: 웨이브 손님 수 배율 GameBalance.WaveCountMul(프롤로그·견습 제외, ApplyRouteCounts 재사용) / 웨이브 시작에 정차 조리 카운터(CookingBridge.StopCooksUsed) 초기화) / v6.10 (v9.10 2026-09-17 테스터 피드백·개정안 §4·§5·§7: 스폰 간격 배율 + 무리 사이 쉼(WaveLengthMul/WaveGroupSize/GapSec) /
+/// [WaveManager.cs] v6.13 (v9.12 2026-09-22: 협곡의 낙뢰 - 지역 2 일반 웨이브마다 1회 가동 포탑 감전(GameBalance.AmbientLightning*) + 첫 등장 카드 event_lightning + 인라인 연습 구간 2 훅 / 레버 인라인 연습 구간 4 를 InlineLeverWave 시작에 요청 / TutorialDirector.InlineFreeze 동안 스폰 코루틴·클리어 판정·낙뢰 타이머가 쉰다(WaitGap) / 미니 보스 예습용 SpawnBossForPractice) / v6.12 (v9.11.1 2026-09-22 문구) / v6.11 (v9.10.1 2026-09-21: 웨이브 손님 수 배율 GameBalance.WaveCountMul(프롤로그·견습 제외, ApplyRouteCounts 재사용) / 웨이브 시작에 정차 조리 카운터(CookingBridge.StopCooksUsed) 초기화) / v6.10 (v9.10 2026-09-17 테스터 피드백·개정안 §4·§5·§7: 스폰 간격 배율 + 무리 사이 쉼(WaveLengthMul/WaveGroupSize/GapSec) /
 ///   정차 뒤 자동 출발 대신 [Enter]·출발 버튼 확인(DepartConfirm, WaitingDepart 정적) / 증강 선택은 GameBalance.AugmentPickAt 웨이브만(안 여는 웨이브도 웨이브 효과는 적용) /
 ///   분기 선로 RouteChoiceMinWave·베팅 BetMinWave·행상인 MerchantMinWave 부터 / 웨이브 3 시작에 화염 재료 보장 + 범위 요리 소개 카드) / v6.9 (v9.9.2 2026-09-16: 정식 런 첫 등장 카드 훅 - 지역(지역 첫 웨이브)·새 손님(카운트 > 0 인 종류 처음)은 StartWave 예고 때, 보스는 SpawnBoss 때. BriefingUI.ShowOnce 1회) / v6.8 (v9.9 2026-09-16: 견습 운행 - TutorialDirector 가 진행 중이면 StartWave/B 점프 거부, TutorialGateActive 에 디렉터의 BlockAmbient 포함, SpawnForTutorial) / v6.7 (v9.8.1: B 점프는 GameBalance.CheatsAllowed 일 때만) / v6.6 (v9.8: 위험 적 전용 PNG) / v6.5 (교수 피드백 반영 2026-09-14) / v6.4 (고퀄 PNG 적용 2026-09-03) / v6.3 탑뷰 재스킨
 /// 웨이브 단위로 적 유닛을 스폰하고, 모든 적 처치 시 웨이브 완료를 알립니다.
@@ -163,6 +163,10 @@ public class WaveManager : MonoBehaviour
     // v6.2: 분기 선로 - 다음 웨이브에 적용될 선로 / 이번 웨이브에 적용 중인 선로
     private RouteData pendingRoute = null;
     private RouteData activeRoute = null;
+
+    // v6.13: 협곡의 낙뢰 - 이번 웨이브에 예약된 낙뢰 시각 (0 = 없음). 인라인 연습(InlineFreeze) 동안은 시각을 뒤로 민다
+    private float ambientLightningAt = 0f;
+    private bool ambientLightningDone = true;
 
     // ─────────────────────────────────────────────
     // 초기화
@@ -336,6 +340,19 @@ public class WaveManager : MonoBehaviour
         // 웨이브 속성 예고
         if (!regionChanged)
             ShowWaveAttributeNotice(config);
+
+        // v6.13: 협곡의 낙뢰 예약 (지역 AmbientLightningRegion 의 일반 웨이브, 프롤로그·견습 제외)
+        ambientLightningDone = true; ambientLightningAt = 0f;
+        if (GameBalance.AmbientLightningOn && !TutorialDirector.Active && !(prologueRun && waveNumber == 1)
+            && GameBalance.RegionOf(waveNumber) == GameBalance.AmbientLightningRegion && !GameBalance.IsBossWave(waveNumber))
+        {
+            ambientLightningDone = false;
+            ambientLightningAt = Time.time + Random.Range(GameBalance.AmbientLightningDelayMin, GameBalance.AmbientLightningDelayMax);
+        }
+
+        // v6.13: 레버 인라인 연습 (구간 4) - 이 웨이브 시작에 (첫 등장 카드를 다 읽은 뒤 디렉터가 연다)
+        if (GameBalance.InlineLeverWave > 0 && waveNumber == GameBalance.InlineLeverWave && TutorialDirector.WantsInline(4))
+            TutorialDirector.PlayInline(4, null);
 
         Debug.Log("[WaveManager] 웨이브 " + waveNumber + " 시작!");
         // 플레이테스트 픽스: 코루틴 참조 보관 - 클리어 시 남은 스폰 예약을 끊는다
@@ -511,7 +528,7 @@ public class WaveManager : MonoBehaviour
             yield return null;
 
         // 연출이 끝난 뒤 잠깐 숨 고를 시간
-        yield return new WaitForSeconds(1f);
+        yield return WaitGap(1f);
 
         int playerLevel = GameManager.Instance != null ? GameManager.Instance.playerLevel : 1;
         float diffL = config.difficultyL > 0f ? config.difficultyL : GameBalance.EnemyDifficultyL;
@@ -530,7 +547,7 @@ public class WaveManager : MonoBehaviour
             {
                 SpawnEnemyAt(steamRaptorPrefab, Enemy.SteamRaptor, config.waveNumber, playerLevel, diffL,
                     rushAngle + Random.Range(-12f, 12f));
-                yield return new WaitForSeconds(0.15f);   // 빠른 연속 스폰 = 떼 지어 돌격
+                yield return WaitGap(0.15f);   // 빠른 연속 스폰 = 떼 지어 돌격
             }
         }
 
@@ -538,111 +555,122 @@ public class WaveManager : MonoBehaviour
         for (int i = 0; i < config.steamRaptorCount - rushCount; i++)
         {
             SpawnEnemy(steamRaptorPrefab, Enemy.SteamRaptor, config.waveNumber, playerLevel, diffL);
-            yield return new WaitForSeconds(SpawnGap(config));
+            yield return WaitGap(SpawnGap(config));
         }
 
         for (int i = 0; i < config.springAnkyloCount; i++)
         {
             SpawnEnemy(springAnkyloPrefab, Enemy.SpringAnkylo, config.waveNumber, playerLevel, diffL);
-            yield return new WaitForSeconds(SpawnGap(config));
+            yield return WaitGap(SpawnGap(config));
         }
 
         for (int i = 0; i < config.oilCactusCount; i++)
         {
             SpawnEnemy(oilCactusPrefab, Enemy.OilCactus, config.waveNumber, playerLevel, diffL);
-            yield return new WaitForSeconds(SpawnGap(config));
+            yield return WaitGap(SpawnGap(config));
         }
 
         for (int i = 0; i < config.scorpionCount; i++)
         {
             SpawnEnemy(scorpionPrefab, Enemy.DesertScorpion, config.waveNumber, playerLevel, diffL);
-            yield return new WaitForSeconds(SpawnGap(config));
+            yield return WaitGap(SpawnGap(config));
         }
 
         for (int i = 0; i < config.tortoiseCount; i++)
         {
             SpawnEnemy(tortoisePrefab, Enemy.CopperTortoise, config.waveNumber, playerLevel, diffL);
-            yield return new WaitForSeconds(SpawnGap(config) * 2f);
+            yield return WaitGap(SpawnGap(config) * 2f);
         }
 
         // ── Phase 2 유닛 스폰 ──
         for (int i = 0; i < config.boltTeranodonCount; i++)
         {
             SpawnEnemy(boltTeranodonPrefab, Enemy.BoltTeranodon, config.waveNumber, playerLevel, diffL);
-            yield return new WaitForSeconds(SpawnGap(config));
+            yield return WaitGap(SpawnGap(config));
         }
 
         for (int i = 0; i < config.poisonPteraCount; i++)
         {
             SpawnEnemy(poisonPteraPrefab, Enemy.PoisonPtera, config.waveNumber, playerLevel, diffL);
-            yield return new WaitForSeconds(SpawnGap(config));
+            yield return WaitGap(SpawnGap(config));
         }
 
         for (int i = 0; i < config.magnetParasaurCount; i++)
         {
             SpawnEnemy(magnetParasaurPrefab, Enemy.MagnetParasaur, config.waveNumber, playerLevel, diffL);
-            yield return new WaitForSeconds(SpawnGap(config) * 2f);
+            yield return WaitGap(SpawnGap(config) * 2f);
         }
 
         for (int i = 0; i < config.overloadFlyCount; i++)
         {
             SpawnEnemy(overloadFlyPrefab, Enemy.OverloadFly, config.waveNumber, playerLevel, diffL);
-            yield return new WaitForSeconds(SpawnGap(config) * 0.5f); // 빠르게 스폰
+            yield return WaitGap(SpawnGap(config) * 0.5f); // 빠르게 스폰
         }
 
         for (int i = 0; i < config.steelRaptorCount; i++)
         {
             SpawnEnemy(steelRaptorPrefab, Enemy.SteelRaptor, config.waveNumber, playerLevel, diffL);
-            yield return new WaitForSeconds(SpawnGap(config));
+            yield return WaitGap(SpawnGap(config));
         }
 
         for (int i = 0; i < config.flamePteroCount; i++)
         {
             SpawnEnemy(flamePteroPrefab, Enemy.FlamePterosaur, config.waveNumber, playerLevel, diffL);
-            yield return new WaitForSeconds(SpawnGap(config));
+            yield return WaitGap(SpawnGap(config));
         }
 
         // ── Phase 3 유닛 스폰 ──
         for (int i = 0; i < config.iceMosaCount; i++)
         {
             SpawnEnemy(iceMosaPrefab, Enemy.IceMosa, config.waveNumber, playerLevel, diffL);
-            yield return new WaitForSeconds(SpawnGap(config) * 2f);
+            yield return WaitGap(SpawnGap(config) * 2f);
         }
 
         for (int i = 0; i < config.crystalPachyCount; i++)
         {
             SpawnEnemy(crystalPachyPrefab, Enemy.CrystalPachy, config.waveNumber, playerLevel, diffL);
-            yield return new WaitForSeconds(SpawnGap(config) * 2f);
+            yield return WaitGap(SpawnGap(config) * 2f);
         }
 
         for (int i = 0; i < config.magmaCarnoCount; i++)
         {
             SpawnEnemy(magmaCarnoPrefab, Enemy.MagmaCarno, config.waveNumber, playerLevel, diffL);
-            yield return new WaitForSeconds(SpawnGap(config) * 2f);
+            yield return WaitGap(SpawnGap(config) * 2f);
         }
 
         for (int i = 0; i < config.frostMammothCount; i++)
         {
             SpawnEnemy(frostMammothPrefab, Enemy.FrostMammoth, config.waveNumber, playerLevel, diffL);
-            yield return new WaitForSeconds(SpawnGap(config) * 3f);
+            yield return WaitGap(SpawnGap(config) * 3f);
         }
 
         for (int i = 0; i < config.necroSpinoCount; i++)
         {
             SpawnEnemy(necroSpinoPrefab, Enemy.NecroSpino, config.waveNumber, playerLevel, diffL);
-            yield return new WaitForSeconds(SpawnGap(config) * 3f);
+            yield return WaitGap(SpawnGap(config) * 3f);
         }
 
         // ── 보스 스폰 ──
         if (config.hasBoss)
         {
-            yield return new WaitForSeconds(3f);
+            yield return WaitGap(3f);
             SpawnBoss();
         }
 
         // v6.5: 이 시점부터 "화면의 적 0 = 클리어" 판정이 유효하다
         spawnDone = true;
         activeSpawnRoutine = null;
+    }
+
+    /// <summary>v6.13: 스폰 사이 대기 - 인라인 연습(TutorialDirector.InlineFreeze) 동안은 시간이 안 간다 (WaitForSeconds 대체)</summary>
+    private IEnumerator WaitGap(float seconds)
+    {
+        float t = 0f;
+        while (t < seconds)
+        {
+            if (!TutorialDirector.InlineFreeze) t += Time.deltaTime;
+            yield return null;
+        }
     }
 
     // ─────────────────────────────────────────────
@@ -794,8 +822,8 @@ public class WaveManager : MonoBehaviour
     {
         // 플레이테스트 픽스: 웨이브가 이미 끝났으면 어떤 경로로도 스폰 금지 (이중 안전장치)
         if (!isWaveActive) return;
-        // v6.5: 프롤로그 조리 게이트는 "적 없는 시간" - 작살 어그로 난입도 금지
-        if (TutorialGateActive) return;
+        // v6.5: 프롤로그 조리 게이트는 "적 없는 시간" - 작살 어그로 난입도 금지. v6.13: 인라인 연습 중에도
+        if (TutorialGateActive || TutorialDirector.InlineFreeze) return;
 
         Vector3 spawnPos = GetRandomSpawnPosition();
         GameObject enemyObj;
@@ -1085,6 +1113,57 @@ public class WaveManager : MonoBehaviour
         return p.Bake(ENEMY_PPU, 26f, 12f);
     }
 
+    /// <summary>
+    /// v6.13: 협곡의 낙뢰 - 가동 중인 포탑 하나를 LightningStunSec 동안 감전 (견습 7단계와 같은 연출). 웨이브당 1회.
+    /// 처음이면 사고 카드(event_lightning) + 구간 2 인라인 연습 (TutorialDirector.PlayInline - 손님이 멈추고 [E] 한 번을 해낸다).
+    /// </summary>
+    private void StrikeAmbientLightning()
+    {
+        ambientLightningDone = true;
+        if (TurretSlotManager.Instance == null) return;
+        List<TurretSlot> candidates = new List<TurretSlot>();
+        for (int i = 0; i < TurretSlotManager.Instance.slots.Length; i++)
+        {
+            TurretSlot s = TurretSlotManager.Instance.slots[i];
+            if (s != null && !s.IsEmpty && !s.isLocked && !s.IsStunned) candidates.Add(s);
+        }
+        if (candidates.Count == 0) return;   // 감전시킬 포탑이 없으면 이번 웨이브는 조용히 넘어간다
+        TurretSlot target = candidates[Random.Range(0, candidates.Count)];
+
+        TutorialDirector.LightningFx();
+        target.StunSlot(GameBalance.LightningStunSec, "감전");
+        UIManager.Instance?.ShowDanger("[낙뢰] 포탑이 감전됐다 - 곁에서 [E] 한 번");
+        Debug.Log("[WaveManager] 협곡의 낙뢰 - 슬롯 감전 " + Mathf.RoundToInt(GameBalance.LightningStunSec) + "초");
+
+        if (GameBalance.FirstEncounterBriefings) BriefingUI.ShowOnce("event_lightning", BriefingTexts.Event("lightning"));
+        if (TutorialDirector.WantsInline(2)) TutorialDirector.PlayInline(2, target);
+    }
+
+    /// <summary>
+    /// v6.13: 미니 보스 예습(견습 구간 7)용 새끼 발톱 - 보스 프리팹을 BossEnemy.practice 로 띄운다 (보상·카드·베팅·선로 체인 없음, 클리어 판정 무관).
+    /// 기차 꼬리 오른쪽 distance 에서. 프리팹이 없으면 null.
+    /// </summary>
+    public BossEnemy SpawnBossForPractice(float distance)
+    {
+        if (bossPrefab == null)
+        {
+            Debug.LogWarning("[WaveManager] 보스 프리팹 미할당 - 예습 보스 없음");
+            return null;
+        }
+        if (trainTransform == null)
+        {
+            GameObject trainObj = GameObject.FindGameObjectWithTag("Train");
+            if (trainObj != null) trainTransform = trainObj.transform;
+        }
+        Vector3 center = trainTransform != null ? trainTransform.position : Vector3.zero;
+        Vector3 pos = center + new Vector3(distance, Random.Range(-0.6f, 0.6f), 0f);
+        GameObject go = Instantiate(bossPrefab, pos, Quaternion.identity);
+        BossEnemy boss = go.GetComponent<BossEnemy>();
+        if (boss != null) boss.practice = true;   // Start 전에 (Instantiate 직후는 Awake 만 돈 상태)
+        Debug.Log("[WaveManager] 예습 보스(새끼 발톱) 스폰");
+        return boss;
+    }
+
     private void SpawnBoss()
     {
         if (bossPrefab == null)
@@ -1127,12 +1206,23 @@ public class WaveManager : MonoBehaviour
 
         if (!isWaveActive) return;
 
+        // v6.13: 인라인 연습 중 - 클리어 판정·낙뢰 타이머가 쉰다 (손님은 Enemy 가, 스폰은 WaitGap 이 멈춘다)
+        if (TutorialDirector.InlineFreeze)
+        {
+            if (!ambientLightningDone) ambientLightningAt += Time.deltaTime;
+            return;
+        }
+
         // v6.5: 프롤로그 조리 게이트 진행 중이면 그것만 본다
         if (cookGateActive)
         {
             UpdateCookGate();
             return;
         }
+
+        // v6.13: 협곡의 낙뢰
+        if (!ambientLightningDone && Time.time >= ambientLightningAt)
+            StrikeAmbientLightning();
 
         Enemy[] remainingEnemies = FindObjectsByType<Enemy>(FindObjectsSortMode.None);
 

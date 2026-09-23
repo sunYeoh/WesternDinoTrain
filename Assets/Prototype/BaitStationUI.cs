@@ -3,7 +3,8 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [BaitStationUI.cs] v1 (신규 파일) - 보스 패턴 C단계
+/// [BaitStationUI.cs] v1.1 (v9.12 2026-09-22: 판 340x190 - 무엇을 하나 두 줄 + 굽기 버튼 + 판정 안내 한 줄(목업 v4.2 (C)) / 유인 횟수 LuresThisScene·TimingActive (견습 구간 7 미니 보스 예습이 완료 판정에 쓴다) / 문구 일상어)
+/// / v1 (신규 파일) - 보스 패턴 C단계
 /// 미끼 화덕 - 녹슨 발톱(지역 1 보스) 전용 시그니처 기믹.
 ///
 /// 스토리: 선대의 메모 - "왕을 잡으려면 왕의 손님부터 대접해라."
@@ -40,11 +41,17 @@ public class BaitStationUI : MonoBehaviour
     private float cooldownUntil = 0f;
     private static Sprite baitSprite;
 
+    /// <summary>v1.1: 이 화덕이 생긴 뒤 미끼를 던져 유인에 성공한 횟수 (한 마리라도 물었으면 1). 예습 완료 판정용</summary>
+    public static int LuresThisScene { get; private set; }
+    /// <summary>v1.1: 굽기 판정 눈금이 움직이는 중</summary>
+    public static bool TimingActive { get; private set; }
+
     public void Setup(BossEnemy targetBoss)
     {
         boss = targetBoss;
+        TimingActive = false;          // LuresThisScene 은 누적 - 디렉터가 시작 전 값과의 차이로 센다
         BuildUI();
-        UIManager.Instance?.ShowStatChange("[미끼 화덕] 가동! 고기를 구워 굶주린 무리를 대접하라!");
+        UIManager.Instance?.ShowStatChange("[미끼 화덕] 가동 - 고기를 구워 던지면 무리가 미끼로 몰린다");
         Debug.Log("[BaitStation] 미끼 화덕 가동 (녹슨 발톱 보스전)");
     }
 
@@ -69,10 +76,11 @@ public class BaitStationUI : MonoBehaviour
         if (onCooldown)
             statusText.text = "화덕 재가열 중... " + Mathf.CeilToInt(cooldownUntil - Time.time) + "초";
         else if (meat <= 0)
-            statusText.text = "고기 재료가 없다!";
+            statusText.text = "고기가 없다 - 손님이 남긴 고기를 모아라";
         else
-            statusText.text = "고기 보유 " + meat + " - 잘 구울수록 오래 유인한다";
+            statusText.text = "고기 " + meat + "개 - 잘 구울수록 오래 유인한다";
 
+        TimingActive = timingActive;
         if (timingActive)
             UpdateTiming();
     }
@@ -89,6 +97,7 @@ public class BaitStationUI : MonoBehaviour
         MaterialInventory.Instance.Add(MaterialType.Meat, -1);
 
         timingActive = true;
+        TimingActive = true;
         cursorPos = 0f;
         cursorDir = 1f;
         timingRoot.SetActive(true);
@@ -109,6 +118,7 @@ public class BaitStationUI : MonoBehaviour
     private void ResolveBake()
     {
         timingActive = false;
+        TimingActive = false;
         timingRoot.SetActive(false);
         cooldownUntil = Time.time + GameBalance.BaitCooldown;
 
@@ -117,11 +127,11 @@ public class BaitStationUI : MonoBehaviour
         float duration;
         string grade;
         if (d <= 7f) { duration = GameBalance.BaitDurationPerfect; grade = "PERFECT"; }
-        else if (d <= 20f) { duration = GameBalance.BaitDurationGood; grade = "Good"; }
+        else if (d <= 20f) { duration = GameBalance.BaitDurationGood; grade = "GOOD"; }
         else { duration = GameBalance.BaitDurationMiss; grade = "탄 미끼"; }
 
         DeployBait(duration);
-        UIManager.Instance?.ShowStatChange("[" + grade + "] 미끼 투척! " + duration + "초간 유인!");
+        UIManager.Instance?.ShowStatChange("[" + grade + "] 미끼를 던졌다 - " + duration + "초 동안 무리가 미끼로 몰린다");
         Debug.Log("[BaitStation] 미끼 굽기 " + grade + " -> 유인 " + duration + "초");
     }
 
@@ -159,8 +169,11 @@ public class BaitStationUI : MonoBehaviour
             }
         }
 
+        if (lured > 0) LuresThisScene++;
+        else UIManager.Instance?.ShowStatChange("[미끼] 물 손님이 없었다 - 무리가 왔을 때 던져라");
+
         Destroy(bait, duration);
-        Debug.Log("[BaitStation] 미끼 설치 - " + lured + "마리 유인 (" + duration + "초)");
+        Debug.Log("[BaitStation] 미끼 설치 - " + lured + "마리 유인 (" + duration + "초) / 누적 성공 " + LuresThisScene);
     }
 
     /// <summary>미끼가 침 흘리게 맥동하는 연출용 보조 컴포넌트</summary>
@@ -210,7 +223,7 @@ public class BaitStationUI : MonoBehaviour
         panel.anchorMax = new Vector2(0f, 0.5f);
         panel.pivot = new Vector2(0f, 0.5f);
         panel.anchoredPosition = new Vector2(14f, 60f);
-        panel.sizeDelta = new Vector2(280f, 130f);
+        panel.sizeDelta = new Vector2(340f, 190f);
 
         Text title = KitchenEventManager.MakeText(panel, "Title", "미끼 화덕", 21,
             new Color(1f, 0.7f, 0.35f));
@@ -220,16 +233,35 @@ public class BaitStationUI : MonoBehaviour
         tRt.anchoredPosition = new Vector2(0f, -8f);
         tRt.sizeDelta = new Vector2(0f, 26f);
 
-        statusText = KitchenEventManager.MakeText(panel, "Status", "", 15,
+        // v1.1: 무엇을 하나 (두 줄) - 처음 보는 사람도 읽고 바로 한다
+        Text how = KitchenEventManager.MakeText(panel, "How",
+            "고기 1개를 구워 던지면 무리가 미끼로 몰린다\n무리가 미끼를 물면 왕도 따라온다 (" + Mathf.RoundToInt(GameBalance.BaitDurationMiss) + "~" + Mathf.RoundToInt(GameBalance.BaitDurationPerfect) + "초)", 14,
+            new Color(0.969f, 0.910f, 0.776f));
+        RectTransform hRt = how.rectTransform;
+        hRt.anchorMin = new Vector2(0f, 1f); hRt.anchorMax = new Vector2(1f, 1f);
+        hRt.pivot = new Vector2(0.5f, 1f);
+        hRt.anchoredPosition = new Vector2(0f, -36f);
+        hRt.sizeDelta = new Vector2(-20f, 40f);
+
+        statusText = KitchenEventManager.MakeText(panel, "Status", "", 14,
             new Color(0.85f, 0.8f, 0.7f));
         RectTransform sRt = statusText.rectTransform;
         sRt.anchorMin = new Vector2(0f, 1f); sRt.anchorMax = new Vector2(1f, 1f);
         sRt.pivot = new Vector2(0.5f, 1f);
-        sRt.anchoredPosition = new Vector2(0f, -36f);
+        sRt.anchoredPosition = new Vector2(0f, -80f);
         sRt.sizeDelta = new Vector2(0f, 22f);
 
-        bakeButton = KitchenEventManager.MakeButton(panel, "미끼 굽기 (고기 1)",
-            new Color(0.5f, 0.3f, 0.12f), new Vector2(0f, -20f), new Vector2(250f, 38f));
+        bakeButton = KitchenEventManager.MakeButton(panel, "미끼 굽기  (고기 1)",
+            new Color(0.5f, 0.3f, 0.12f), new Vector2(0f, -30f), new Vector2(280f, 44f));
+
+        Text hint = KitchenEventManager.MakeText(panel, "Hint",
+            "눈금이 판정 구간에 오면 [Space]  -  유인 " + Mathf.RoundToInt(GameBalance.BaitDurationPerfect) + "초 / " + Mathf.RoundToInt(GameBalance.BaitDurationGood) + "초 / " + Mathf.RoundToInt(GameBalance.BaitDurationMiss) + "초", 12,
+            new Color(0.627f, 0.549f, 0.431f));
+        RectTransform hiRt = hint.rectTransform;
+        hiRt.anchorMin = new Vector2(0f, 0f); hiRt.anchorMax = new Vector2(1f, 0f);
+        hiRt.pivot = new Vector2(0.5f, 0f);
+        hiRt.anchoredPosition = new Vector2(0f, 8f);
+        hiRt.sizeDelta = new Vector2(-20f, 18f);
         bakeLabel = bakeButton.GetComponentInChildren<Text>();
         bakeButton.onClick.AddListener(OnBake);
 
@@ -244,7 +276,7 @@ public class BaitStationUI : MonoBehaviour
         timingRoot = tRoot.gameObject;
 
         Text tTitle = KitchenEventManager.MakeText(tRoot, "TTitle",
-            "노릇한 정중앙에서 [Space] - 미끼 굽기!", 22, new Color(1f, 0.8f, 0.4f));
+            "눈금이 판정 구간에 오면 [Space] - 가운데일수록 오래 유인한다", 22, new Color(1f, 0.8f, 0.4f));
         RectTransform ttRt = tTitle.rectTransform;
         ttRt.anchorMin = new Vector2(0f, 1f); ttRt.anchorMax = new Vector2(1f, 1f);
         ttRt.pivot = new Vector2(0.5f, 1f);

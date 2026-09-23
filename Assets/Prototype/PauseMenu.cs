@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// [PauseMenu.cs] v1.5 (v9.11.1 2026-09-22 문구) / v1.4 (v9.11 2026-09-22: 등장 연출 ModalFeel) / v1.3 (v9.10 2026-09-17: 주방 패널(Tab)·정비소(G)가 열려 있으면 ESC 는 그 창을 닫는 용도 - 일시정지 안 열림) / v1.2 (v9.9 2026-09-16: 견습 운행 중엔 "런 포기" 대신 "견습 운행 그만두기", 브리핑 카드 위에선 안 열림) / v1.1 (교수 피드백 A10 반영 2026-09-14) / v1
+/// [PauseMenu.cs] v1.6 (v9.12 2026-09-22: 훈련장 창이 떠 있으면 ESC 양보) / v1.5 (v9.11.1 2026-09-22 문구) / v1.4 (v9.11 2026-09-22: 등장 연출 ModalFeel) / v1.3 (v9.10 2026-09-17: 주방 패널(Tab)·정비소(G)가 열려 있으면 ESC 는 그 창을 닫는 용도 - 일시정지 안 열림) / v1.2 (v9.9 2026-09-16: 견습 운행 중엔 "런 포기" 대신 "견습 운행 그만두기", 브리핑 카드 위에선 안 열림) / v1.1 (교수 피드백 A10 반영 2026-09-14) / v1
 /// ESC 일시정지 메뉴: 계속하기 / 런 포기(재시작) / 게임 종료
 /// - v1.2: TutorialDirector.Active 면 가운데 버튼이 "견습 운행 그만두기" -> TutorialDirector.Quit() (완료 기록 없이 로비)
 /// - v1.1: 열람 패널(증강 목록 [V] / 일지 [J])이 열려 있으면 ESC는 그쪽 닫기에 양보
@@ -60,6 +60,7 @@ public class PauseMenu : MonoBehaviour
         if (SpinoBetUI.IsOpen) return;           // Phase 2-1: 스피노 베팅 중 (ESC = 거절이 우선)
         if (MerchantUI.IsOpen) return;           // Phase 2-3: 행상인 안킬로 응대 중 (ESC = 떠나기가 우선)
         if (AugmentListUI.ReadingOpen) return;   // A10: 증강 목록[V]/일지[J] 열람 중 (ESC = 열람 닫기가 우선). v9.9: 브리핑 카드도 포함
+        if (TrainingGroundUI.IsOpen) return;     // v9.12: 로비 훈련장 목록 (ESC = 닫기가 우선)
 
         Open();
     }

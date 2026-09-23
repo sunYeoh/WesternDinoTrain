@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// [BriefingTexts.cs] v2.3 (v9.11.1 2026-09-22 문구 검토 반영: 첫 카드는 지금 행동만·시간 정지 명시·수리 시점·실행 가능한 조언·이번 운행/다음 운행·공명 예외·그로기=무방비·디버프 요리=독샘 요리·리롤=다시 뽑기) / v2.2 (v9.10.1 2026-09-21: 재료 이름 MaterialNames - 전기알·화염꽃·얼음꽃·독샘) / [BriefingTexts.cs] v2.1 (v9.10 2026-09-17: RecipeIntro(레시피) 소개 카드 - 웨이브 3 용암 폭탄밥 / 숙련·베팅 문구 일상어) / v2 (v9.9.2 2026-09-16: 정식 런 첫 등장 카드 34장 - 지역 4 / 새 손님 16 / 주방 사고 4 / 베팅 1 / 보스 4 / 승격 5.
+/// [BriefingTexts.cs] v2.4 (v9.12 2026-09-22: 견습 구간화 - 미니 보스 예습 카드·구간 완료 카드·협곡 낙뢰 사고 카드, 첫 보스 카드는 예습 여부로 분기, 굽기 카드 제목 = 그릴만, 리롤 복원(유저 09-22)) / v2.3 (v9.11.1 2026-09-22 문구 검토 반영: 첫 카드는 지금 행동만·시간 정지 명시·수리 시점·실행 가능한 조언·이번 운행/다음 운행·공명 예외·그로기=무방비·디버프 요리=독샘 요리·리롤=다시 뽑기) / v2.2 (v9.10.1 2026-09-21: 재료 이름 MaterialNames - 전기알·화염꽃·얼음꽃·독샘) / [BriefingTexts.cs] v2.1 (v9.10 2026-09-17: RecipeIntro(레시피) 소개 카드 - 웨이브 3 용암 폭탄밥 / 숙련·베팅 문구 일상어) / v2 (v9.9.2 2026-09-16: 정식 런 첫 등장 카드 34장 - 지역 4 / 새 손님 16 / 주방 사고 4 / 베팅 1 / 보스 4 / 승격 5.
 ///   스피노 카드는 전부 실루엣 초상(ui_npc_spino) + 키, 정비소는 안킬로(ui_npc_ankylo). 12번 카드는 실제 베팅 창(카드 2장, [1] 일반 / [2] 도박 / [0] 거절)에 맞춤)
 ///   / v1 (신규, v9.9 2026-09-16) - 브리핑 카드 문구 표
 ///
@@ -49,7 +49,7 @@ public static class BriefingTexts
             "region_1", "region_2", "region_3", "region_4",
             "enemy_raptor", "enemy_ankylo", "enemy_cactus", "enemy_scorpion", "enemy_tortoise", "enemy_bolt", "enemy_ptera", "enemy_parasaur",
             "enemy_fly", "enemy_steel", "enemy_flame", "enemy_mosa", "enemy_pachy", "enemy_carno", "enemy_mammoth", "enemy_necro",
-            "event_intrusion", "event_break", "event_fire", "event_spill",
+            "event_intrusion", "event_break", "event_fire", "event_spill", "event_lightning",
             "bet_first",
             "boss_1", "boss_2", "boss_3", "boss_4",
             "promo_first_town", "promo_first_augment", "promo_first_route", "promo_first_item", "promo_first_overheat",
@@ -93,7 +93,7 @@ public static class BriefingTexts
                     "고기 2개가 찼다. 이제 굽는다." },
                     "재료 2", "= 요리 1");
             case 5:
-                return Make("스피노", "불 앞에 서라 - 조리대 세 가지", new string[] {
+                return Make("스피노", "불 앞에 서라 - 그릴부터", new string[] {
                     "그릴 곁에 서서 [E] - 조리창이 열린다. 더블 육포를 골라라.",
                     "움직이는 눈금이 판정 칸(초록) 안에 왔을 때 [Space].",
                     "칸 한가운데면 PERFECT - 접시가 두 개. 칸 안이면 GOOD - 한 개.",
@@ -110,8 +110,8 @@ public static class BriefingTexts
                 return Make("스피노", "낙뢰다 - 포탑이 멈췄다", new string[] {
                     "감전된 포탑은 다시 만질 때까지 한 발도 못 쏜다. 스파크가 그 표시다.",
                     "곁으로 달려가 [E] 한 번 - 털어내면 바로 재가동.",
-                    "스파크가 꺼지면 다시 쏜다. 감전은 저절로 안 풀린다 - 네가 가야 한다.",
-                    "네가 주방에만 있을 수 없는 이유다. 손님은 기다려 주지 않는다." },
+                    "가만두면 " + Mathf.RoundToInt(GameBalance.LightningStunSec) + "초는 멈춰 있다. 그동안 손님은 기다려 주지 않는다.",
+                    "네가 주방에만 있을 수 없는 이유다. 협곡에 들어서면 웨이브마다 한 번쯤 친다." },
                     "[E]", "멈춘 포탑 곁에서");
             case 8:
                 return Make("스피노", "창밖 바위는 재료 광맥이다", new string[] {
@@ -137,7 +137,7 @@ public static class BriefingTexts
             case 11:
                 return Make("스피노", "정산 - 증강과 정비소", new string[] {
                     "웨이브를 넘기면 정산이다. 증강 카드 셋 중 하나 - [1~5] 숫자키.",
-                    "[0] 건너뛰면 명성이 조금, [9] 선택지 다시 뽑기는 골드가 든다.",
+                    "[0] 건너뛰면 명성이 조금, [9] 리롤(선택지 새로 뽑기)은 골드가 든다.",
                     "정차역에선 [G] 정비소 - 기차 수리·칼 연마·재료 시장. 수리와 장갑 보강은 정차 중에만 판다.",
                     "칼과 팬은 쓸수록 닳는다. 하단 바 오른쪽 명판이 상태다." },
                     "[1~5]", "[G] 정비소");
@@ -179,6 +179,37 @@ public static class BriefingTexts
                 stat,
                 "이제 진짜 손님들이다. 로비에서 [출발]을 눌러라." }, "완료", "[Enter] 로비로");
         return d;
+    }
+
+    /// <summary>v9.12 구간 7 시작 브리핑 - 왜 미끼인가 (목업 v4.2 (D))</summary>
+    public static BriefingUI.BriefDef TutorialBossPractice()
+    {
+        return Make("스피노", "첫 보스 예습 - 미끼로 무리를 유인한다", new string[] {
+            "곧 진짜 왕(녹슨 발톱)이 온다. 그 전에 새끼로 연습이다.",
+            "왕은 세다. 정면으로 때리면 기차가 먼저 부서진다.",
+            "무리가 미끼를 물면 왕도 따라온다 - 그동안 포탑이 때린다.",
+            "왼쪽 아래 미끼 화덕에서 고기를 굽는다. 유인이 끝나면 다시 기차를 노린다." },
+            "[미끼 굽기]", "왼쪽 아래 화덕");
+    }
+
+    /// <summary>v9.12 구간 7 실패(기차 HP 50% 아래) 뒤 다시 - 한 번만</summary>
+    public static BriefingUI.BriefDef TutorialBossRetry()
+    {
+        BriefingUI.BriefDef d = Make("스피노", "기차가 너무 물렸다 - 다시", new string[] {
+            "무리를 기차 곁에 두면 왕이 같이 문다. 기차를 고쳐 놨다.",
+            "먼저 미끼를 던져라 - 무리가 미끼로 가 있는 동안 포탑이 때린다.",
+            "고기가 없으면 못 굽는다. 고기를 채워 뒀다." }, "다시", "미끼부터");
+        d.ring = RED;
+        return d;
+    }
+
+    /// <summary>v9.12 한 구간만 연습했을 때의 완료 카드 (훈련장에서 들어온 런). 전부 돌린 런은 TutorialDone</summary>
+    public static BriefingUI.BriefDef TutorialSegmentDone(string segTitle, float seconds, bool skipped)
+    {
+        int m = Mathf.FloorToInt(seconds / 60f), sec = Mathf.FloorToInt(seconds % 60f);
+        return Make("훈련장", skipped ? "구간 끝 - 건너뛴 단계가 있다" : "구간 완료 - " + segTitle, new string[] {
+            "걸린 시간 " + m + "분 " + sec + "초" + (skipped ? "  /  건너뛴 단계가 있어 완료로 적지 않는다" : ""),
+            "로비로 돌아간다. 다른 구간은 [T] 훈련장에서 고른다." }, "완료", "[Enter] 로비로");
     }
 
     /// <summary>단계 실패/재시작 안내 (단계 10 기차 정지)</summary>
@@ -382,6 +413,14 @@ public static class BriefingTexts
                     "사고는 전투 중 가끔 온다. 경보가 울리면 손부터 멈춰라." }, "[E] 꾹", "불길 앞에서");
                 d.portrait = "ui_ev_fire_1"; d.ring = FIRE;
                 return d;
+            case "lightning":
+                d = Make("사고", "낙뢰 - 포탑이 감전됐다", new string[] {
+                    "협곡의 번개가 포탑 하나를 때렸다. 스파크가 튀는 동안 그 포탑은 한 발도 못 쏜다.",
+                    "곁으로 달려가 [E] 한 번 - 바로 재가동.",
+                    "가만두면 " + Mathf.RoundToInt(GameBalance.LightningStunSec) + "초 뒤에 풀린다. 그동안 손님은 기다려 주지 않는다.",
+                    "이 협곡에선 웨이브마다 한 번쯤 친다. 스파크가 보이면 손부터 멈춰라." }, "[E]", "멈춘 포탑 곁에서");
+                d.portrait = "ui_ev_spark_1"; d.ring = ELEC;
+                return d;
             default:
                 d = Make("주방 사고", "흔들림 - 재료가 바닥에 쏟아졌다", new string[] {
                     "바닥에 떨어진 재료를 [마우스 좌클릭]으로 전부 주워라. 제한 7.5초.",
@@ -414,11 +453,17 @@ public static class BriefingTexts
         switch (region)
         {
             case 1:
-                d = Make("보스", "녹슨 발톱 - 무리의 왕", new string[] {
-                    "알파 랩터. 빠르고 가볍다. 패턴 '사냥 호령' = 랩터 소환.",
-                    "예고 중에 보스를 마비시키면 소환이 절반으로 준다.",
-                    "HP 75 / 50 / 25% 에서 가슴 해치가 열린다 = 무방비(그로기). 그때 [F] 로 독샘 요리를 던져라.",
-                    "던질 요리는 독샘으로 만든다 (독침 육포·마비독 꼬치). 긴급 보급으로 독샘 1개가 왔다." }, "[F]", "무방비 때 투척");
+                {
+                    // v9.12: 미끼 화덕 줄은 예습(견습 구간 7) 을 했나로 갈린다
+                    string bait = TutorialDirector.SegDone(7)
+                        ? "미끼 화덕은 예습 때 한 그대로 - 왼쪽 아래 [미끼 굽기] 로 무리와 왕을 유인해라."
+                        : "왼쪽 아래 미끼 화덕: 고기 1개를 구워 던지면 무리가 몰리고 왕도 따라온다 - 그동안 포탑이 때린다.";
+                    d = Make("보스", "녹슨 발톱 - 무리의 왕", new string[] {
+                        "알파 랩터. 빠르고 가볍다. 패턴 '사냥 호령' = 랩터 소환 - 예고 중에 마비시키면 절반.",
+                        bait,
+                        "HP 75 / 50 / 25% 에서 가슴 해치가 열린다 = 무방비(그로기). 그때 [F] 로 독샘 요리를 던져라.",
+                        "던질 요리는 독샘으로 만든다 (독침 육포·마비독 꼬치). 긴급 보급으로 독샘 1개가 왔다." }, "[F]", "무방비 때 투척");
+                }
                 d.portrait = "e_raptor"; d.portraitTint = new Color(0.9f, 0.55f, 0.38f); d.ring = RED;
                 return d;
             case 2:
@@ -464,9 +509,9 @@ public static class BriefingTexts
             case "first_augment":
                 return Make("차장", "증강 - 이번 운행의 강화", new string[] {
                     "카드 셋 중 하나 - [1~5] 숫자키. 효과는 이번 운행 동안 (다음 운행엔 안 남는다).",
-                    "[0] 건너뛰면 명성이 조금, [9] 선택지 다시 뽑기는 골드가 든다.",
+                    "[0] 건너뛰면 명성이 조금, [9] 리롤(선택지 새로 뽑기)은 골드가 든다.",
                     "같은 계열을 겹치면 세진다. 고른 증강은 [V] 소지품에서 다시 본다.",
-                    "읽는 동안 시간은 멈춘다. 카드마다 효과를 보고 하나 골라라." }, "[1~5]", "[0] 건너뛰기 / [9] 다시 뽑기");
+                    "읽는 동안 시간은 멈춘다. 카드마다 효과를 보고 하나 골라라." }, "[1~5]", "[0] 건너뛰기 / [9] 리롤");
             case "first_route":
                 return Make("차장", "분기 선로 - 위험과 보상의 교환", new string[] {
                     "다음 구간의 선로를 고른다 - [1] [2] [3]. 곧은 선로는 규칙 없음.",

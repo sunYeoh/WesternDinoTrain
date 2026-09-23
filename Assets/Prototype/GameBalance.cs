@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// [GameBalance.cs] v1 (v9.11 2026-09-22: 타격감 섹션 - 피격 플래시·찌그러짐·스파크·킬 버스트·기차 피격·버튼·모달·웨이브 띠 스위치 / v9.10.1 2026-09-21: 유저 플레이 소감 섹션 - 웨이브 물량·길이, 정차 조리 제한, 행상인 자동 퇴장, 처치 보상 배율 / v9.9 2026-09-16: 포탑 4모서리 배치 SlotPosition + 견습 운행/브리핑 스위치 섹션)
+/// [GameBalance.cs] v9.12 (2026-09-22 튜토리얼 구간화·인라인 연습·협곡 낙뢰·미니 보스 예습 섹션 추가) / v1 (v9.11 2026-09-22: 타격감 섹션 - 피격 플래시·찌그러짐·스파크·킬 버스트·기차 피격·버튼·모달·웨이브 띠 스위치 / v9.10.1 2026-09-21: 유저 플레이 소감 섹션 - 웨이브 물량·길이, 정차 조리 제한, 행상인 자동 퇴장, 처치 보상 배율 / v9.9 2026-09-16: 포탑 4모서리 배치 SlotPosition + 견습 운행/브리핑 스위치 섹션)
 /// 게임 전체 밸런스 수치를 한 곳에 모은 설정 파일.
 ///
 /// 여기 값을 바꾸면 Inspector 값과 상관없이 게임에 적용된다
@@ -911,4 +911,41 @@ public static class GameBalance
     public static bool WaveBannerOn = true;
     /// <summary>조리 완료 접시가 하단 바 카드로 날아가 카드가 튀고, 투입 때 접시 낙하 + 링 + 포탑 튀기</summary>
     public static bool CookFeelOn = true;
+
+    // ── (v9.12 2026-09-22) 튜토리얼 구간화 + 미니 보스 예습 - 설계 claude/다음팩_설계메모_2026-09-21.md B·C, 목업 v4.2 ──
+    // ── 처음 1회 ──
+    /// <summary>처음 실행(견습 기록이 하나도 없음)이면 로비의 [출발]·[Enter] 도 견습 운행(1~7 전부)부터 연다. false = 구 동작(강조만)</summary>
+    public static bool TutorialForceFirst = true;
+    // ── 인라인 연습 (정식 운행 안에서 새 기믹 첫 등장 순간 그 구간만) ──
+    /// <summary>정식 운행 인라인 연습 전체 스위치 (낙뢰 / 첫 바위 / 레버). 훈련장에서 완료·건너뜀으로 기록된 구간은 다시 안 뜬다</summary>
+    public static bool InlinePracticeOn = true;
+    /// <summary>인라인 연습에서 이 시간(초) 동안 못 해내면 힌트 한 줄 추가 (자동 통과는 없다 - [Enter] 건너뛰기만)</summary>
+    public static float InlineHintSec = 30f;
+    /// <summary>작살 인라인 연습(구간 3)이 뜨는 최소 웨이브 (1 = 프롤로그 웨이브라 제외)</summary>
+    public static int InlineHarpoonMinWave = 2;
+    /// <summary>레버 인라인 연습(구간 4)이 뜨는 웨이브의 시작 (0 = 안 뜸)</summary>
+    public static int InlineLeverWave = 4;
+    // ── 협곡의 낙뢰 (지역 2 일반 웨이브에 웨이브당 1회 - 견습 7단계·구간 2 가 정식 운행에서 처음 쓰이는 자리. 지역 2 카드 "낙뢰가 포탑을 감전시킨다" 가 이것) ──
+    /// <summary>지역 2(테슬라 협곡) 일반 웨이브마다 낙뢰 1회 - 가동 포탑 1기 감전 (LightningStunSec). false = 구 동작(보스만)</summary>
+    public static bool AmbientLightningOn = true;
+    public static int AmbientLightningRegion = 2;
+    /// <summary>웨이브 시작 뒤 낙뢰까지 (초, 이 사이 랜덤)</summary>
+    public static float AmbientLightningDelayMin = 14f;
+    public static float AmbientLightningDelayMax = 26f;
+    // ── 미니 보스 예습 (견습 구간 7 - 새끼 발톱 + 랩터 무리 + 미끼 화덕) ──
+    /// <summary>새끼 발톱 HP = 정식 첫 보스(웨이브 RegionLength 기준 녹슨 발톱) x 이 값</summary>
+    public static float BossPracticeHpMul = 0.25f;
+    /// <summary>새끼 발톱 공격력 배율 (기차 HP 50% 아래 = 다시 이므로 세게 두지 않는다)</summary>
+    public static float BossPracticeAtkMul = 0.5f;
+    /// <summary>새끼 발톱 크기 (정식 보스 스프라이트 배율)</summary>
+    public static float BossPracticeScale = 0.7f;
+    /// <summary>같이 나오는 랩터 수와 스탯 배율</summary>
+    public static int BossPracticeRaptors = 4;
+    public static float BossPracticeRaptorMul = 0.7f;
+    /// <summary>완료 조건 = 미끼 유인 성공 횟수</summary>
+    public static int BossPracticeLures = 2;
+    /// <summary>기차 HP 가 이 비율 아래로 떨어지면 "다시" (1회). 두 번째부터는 기차가 안 다친다</summary>
+    public static float BossPracticeRetryHp = 0.5f;
+    /// <summary>예습 시작 때 주는 고기 (미끼 1회 = 고기 1)</summary>
+    public static int BossPracticeMeat = 4;
 }

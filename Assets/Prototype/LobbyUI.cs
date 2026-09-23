@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [LobbyUI.cs] v1.4 (v9.10.1 2026-09-21: 재료 이름 MaterialNames) / [LobbyUI.cs] v1.3 (v9.10 2026-09-17: 요리 도감에 설명 상자 - 이름에 마우스를 올리거나 클릭하면 무엇을 하나·어떤 손님에·언제 (RecipeText)) / v1.2 (v9.9 2026-09-16: [T] 견습 운행 버튼 + 첫 실행 강조) / v1.1 (v9.8: 칭호 표시) / v1 - 로비 개편 (튜토리얼_온보딩_설계 6절 + 화면 검수 "시작 버튼 묻힘")
+/// [LobbyUI.cs] v1.5 (v9.12 2026-09-22: [T] = 견습 기록이 없으면 견습 운행 전부, 있으면 훈련장(TrainingGroundUI) 목록 / 처음 실행이면 [출발]·[Enter] 도 견습부터(GameBalance.TutorialForceFirst) / 버튼 글자 "훈련장") / v1.4 (v9.10.1 2026-09-21: 재료 이름 MaterialNames) / [LobbyUI.cs] v1.3 (v9.10 2026-09-17: 요리 도감에 설명 상자 - 이름에 마우스를 올리거나 클릭하면 무엇을 하나·어떤 손님에·언제 (RecipeText)) / v1.2 (v9.9 2026-09-16: [T] 견습 운행 버튼 + 첫 실행 강조) / v1.1 (v9.8: 칭호 표시) / v1 - 로비 개편 (튜토리얼_온보딩_설계 6절 + 화면 검수 "시작 버튼 묻힘")
 ///
 /// - v1.2: 출발 버튼 아래 [T] 견습 운행 (340x44, y 130). 미완료(TutorialDirector.Done == false)면 목업 v2 (C) 대로
 ///   위에 현장 마커 화살표(tut_arrow 2배)가 까딱이고, 버튼 양끝 경광등(ui_ev_beacon_0/1)이 0.3초마다 교대, 황동 테,
@@ -82,9 +82,9 @@ public class LobbyUI : MonoBehaviour
 
         TickTutorialHighlight();
 
-        // v1.2: [T] 견습 운행 (일지/일시정지/브리핑이 열려 있으면 양보)
+        // v1.2: [T] 견습 운행 (일지/일시정지/브리핑이 열려 있으면 양보). v1.5: 훈련장 창이 떠 있으면 그 창이 T 를 닫기로 쓴다
         if (Input.GetKeyDown(KeyCode.T) && !JournalViewerUI.IsOpen && !PauseMenu.IsOpen && !BriefingUI.IsOpen
-            && !AugmentListUI.ReadingOpen && !FameShopUI.IsOpen)
+            && !AugmentListUI.ReadingOpen && !FameShopUI.IsOpen && !TrainingGroundUI.IsOpen)
             StartTutorial();
 
         // 구 씬 로비 패널 숨김 (Uimanager.ShowOnlyPanel이 다시 켜도 매 프레임 꺼서 유지)
@@ -93,9 +93,9 @@ public class LobbyUI : MonoBehaviour
             && UIManager.Instance.lobbyPanel.activeSelf)
             UIManager.Instance.lobbyPanel.SetActive(false);
 
-        // [Enter] 출발 (일지/일시정지가 열려 있으면 양보)
+        // [Enter] 출발 (일지/일시정지/훈련장이 열려 있으면 양보)
         if ((Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
-            && !JournalViewerUI.IsOpen && !PauseMenu.IsOpen
+            && !JournalViewerUI.IsOpen && !PauseMenu.IsOpen && !TrainingGroundUI.IsOpen
             && !BriefingUI.IsOpen && BriefingUI.KeyConsumedFrame != Time.frameCount)   // v1.2: 카드를 닫은 Enter 로 출발하지 않게
             StartRun();
     }
@@ -111,17 +111,32 @@ public class LobbyUI : MonoBehaviour
 
     private void StartRun()
     {
+        // v1.5: 처음 실행이면 출발 대신 견습 운행부터 (끝나면 로비로 돌아와 바로 출발할 수 있다)
+        if (TutorialDirector.MustPlayFirst)
+        {
+            if (collectionRoot != null) { Destroy(collectionRoot.gameObject); collectionRoot = null; }
+            UIManager.Instance?.ShowStatChange("처음이니 견습 운행부터 - 끝나면 바로 출발할 수 있다");
+            Debug.Log("[LobbyUI] 처음 실행 - 출발 대신 견습 운행 (TutorialForceFirst)");
+            TutorialDirector.Begin();
+            return;
+        }
         SoundManager.Play("sfx_train_whistle");   // 출발 기적 (클립 없으면 무시)
         if (UIManager.Instance != null) UIManager.Instance.OnClickStartGame();
         else GameManager.Instance?.ChangeState(GameManager.GameState.Battle);
         Debug.Log("[LobbyUI] 출발! 로비 -> 전투");
     }
 
-    /// <summary>v1.2: [T] 견습 운행 - 전용 튜토리얼 런 (TutorialDirector 가 진행)</summary>
+    /// <summary>v1.2: [T] 견습 운행 - 전용 튜토리얼 런 (TutorialDirector 가 진행). v1.5: 기록이 있으면 훈련장 목록(구간별 연습)</summary>
     private void StartTutorial()
     {
         if (!GameBalance.TutorialRunEnabled) return;
         if (collectionRoot != null) { Destroy(collectionRoot.gameObject); collectionRoot = null; }
+        if (TutorialDirector.Done || TutorialDirector.HasAnyRecord())
+        {
+            Debug.Log("[LobbyUI] [T] 훈련장 열기");
+            TrainingGroundUI.Toggle();
+            return;
+        }
         Debug.Log("[LobbyUI] [T] 견습 운행 -> TutorialDirector.Begin");
         TutorialDirector.Begin();
     }
@@ -132,12 +147,13 @@ public class LobbyUI : MonoBehaviour
         if (tutorialBtn == null) return;
         bool enabled = GameBalance.TutorialRunEnabled;
         tutorialBtn.gameObject.SetActive(enabled);
-        bool done = TutorialDirector.Done;
+        bool done = TutorialDirector.Done || TutorialDirector.HasAnyRecord();   // v1.5: 구간 기록이 있어도 "한 번 한 것" 으로
         highlightOn = enabled && !done && GameBalance.TutorialFirstLaunchHighlight;
         if (tutorialLabel != null)
         {
-            tutorialLabel.text = done ? "[T] 견습 운행  -  다시 보기" : "[T] 견습 운행";
-            tutorialLabel.color = done ? UIFactory.CREAM : UIFactory.GOLD;
+            int did = TutorialDirector.CompletedCount();
+            tutorialLabel.text = done ? "[T] 훈련장  -  구간 연습 " + did + "/" + TutorialDirector.SEGMENTS : "[T] 견습 운행";   // 340px 버튼 - 짧게
+            tutorialLabel.color = done && did >= TutorialDirector.SEGMENTS ? UIFactory.CREAM : UIFactory.GOLD;
         }
         if (tutorialRing != null) tutorialRing.enabled = highlightOn;
         if (beaconL != null) beaconL.gameObject.SetActive(highlightOn);

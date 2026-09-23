@@ -4,7 +4,7 @@ using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 
 /// <summary>
-/// [EngineCab.cs] v4 (v9.9.2 2026-09-16: 견습 운행 8·9단계용 - HarpoonRetrievals/LeverPulls 카운터, RockCount, SpawnRockNow(x), TutorialDirector.EngineCabUnlocked 면 게이트 무시,
+/// [EngineCab.cs] v4.1 (v9.12 2026-09-22: 첫 바위 때 작살 인라인 연습 훅 / ForceCruise / 인라인 연습 중 작살 어그로 없음) / v4 (v9.9.2 2026-09-16: 견습 운행 8·9단계용 - HarpoonRetrievals/LeverPulls 카운터, RockCount, SpawnRockNow(x), TutorialDirector.EngineCabUnlocked 면 게이트 무시,
 ///   견습 중엔 작살 어그로 없음, 작살·레버 기둥 z -0.02 (튜토리얼 발밑 링이 그 밑에 깔리게)) / v3.1 (교수 피드백 A10: 열람 패널 중 레버/작살 입력 차단 2026-09-14) / v3 - B-3: 기관차 칸 = 기관사 페르소나 (방향결정 2026-08-31)
 ///
 /// - v3 (고퀄 PNG 적용 2026-09-03): 작살포/레버/바위가 Resources/Sprites/WDT/ 의 harpoon / leverpost / leverhandle /
@@ -232,6 +232,11 @@ public class EngineCab : MonoBehaviour
             nextRockTime = Time.time
                 + Random.Range(GameBalance.RockSpawnIntervalMin, GameBalance.RockSpawnIntervalMax);
             SpawnRock();
+
+            // v4.1: 정식 운행 첫 바위 - 작살 인라인 연습 (구간 3). 프롤로그 웨이브는 제외 (InlineHarpoonMinWave)
+            int wave = GameManager.Instance != null ? GameManager.Instance.currentWave : 0;
+            if (!TutorialDirector.Active && wave >= GameBalance.InlineHarpoonMinWave && TutorialDirector.WantsInline(3))
+                TutorialDirector.PlayInline(3, null);
         }
     }
 
@@ -389,8 +394,8 @@ public class EngineCab : MonoBehaviour
             UIManager.Instance?.ShowStatChange("선대도 이 작살로 황야를 낚았다...");
         }
 
-        // 원안의 리트리벌 리스크: 가끔 황야가 마주 낚아챈다 (v4: 견습 운행 중에는 없음 - 8단계는 작살만 배운다)
-        if (!TutorialDirector.Active && Random.value < GameBalance.HarpoonAggroChance && WaveManager.Instance != null)
+        // 원안의 리트리벌 리스크: 가끔 황야가 마주 낚아챈다 (v4: 견습 운행 중에는 없음 - 8단계는 작살만 배운다. v4.1: 인라인 연습 중에도 없음)
+        if (!TutorialDirector.Active && !TutorialDirector.InlineFreeze && Random.value < GameBalance.HarpoonAggroChance && WaveManager.Instance != null)
         {
             int n = Random.Range(GameBalance.HarpoonAggroMin, GameBalance.HarpoonAggroMax + 1);
             WaveManager.Instance.SpawnAmbush(n);
@@ -399,6 +404,17 @@ public class EngineCab : MonoBehaviour
 
         rocks.Remove(target);
         Destroy(target.gameObject);
+    }
+
+    /// <summary>v4.1: 전속이면 순항으로 되돌린다 (레버 인라인 연습이 끝날 때 - 연습 때문에 어려워지지 않게). 조용히, 카운터 없음</summary>
+    public static void ForceCruise()
+    {
+        if (!FullSteam || instance == null) return;
+        FullSteam = false;
+        ParallaxBackground.SetSpeedMultiplier(1f);
+        if (instance.leverHandle != null)
+            instance.leverHandle.localEulerAngles = new Vector3(0f, 0f, 25f);
+        Debug.Log("[EngineCab] 레버 순항으로 되돌림 (연습 끝)");
     }
 
     private void ToggleLever()

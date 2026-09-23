@@ -3,7 +3,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 /// <summary>
-/// [SlotMarkerUI.cs] v5.4 (v9.11.1 2026-09-22 문구: 마비 종류별 안내, 전설·진화 조리 용어, 역할 낱말) / v5.3 (v9.10 2026-09-17 테스터 피드백: 포탑 정보창이 마우스를 따라다니며 커서 밑에 겹쳐 깜빡이고 클릭을 가로채던 것 ->
+/// [SlotMarkerUI.cs] v5.5 (v9.12 2026-09-22: 체인 = "연쇄 번개") / v5.4 (v9.11.1 2026-09-22 문구: 마비 종류별 안내, 전설·진화 조리 용어, 역할 낱말) / v5.3 (v9.10 2026-09-17 테스터 피드백: 포탑 정보창이 마우스를 따라다니며 커서 밑에 겹쳐 깜빡이고 클릭을 가로채던 것 ->
 ///   화면 한 자리(왼쪽 아래, 하단 바 위) 고정 + 클릭 통과(raycastTarget off) + 합체 선택 중엔 고정 유지 / 포탑 실물 클릭·호버도 이름표와 같이 /
 ///   설명은 RecipeText 일상어 ("무엇을 하나 / 어떤 손님에 / 언제")) /
 /// v5.2 (v9.9.2 2026-09-16: 마비 칩 = "감전!/빙결!/과열!" + 할 일 한 줄, 빨간 테, 칩 위 모서리 경광등 0.3초 교대 (GameBalance.StunChipBeacons) - 목업 v3 (E), 정식 런 공용) / v5.1 (v9.9 2026-09-16: 4모서리 배치 - 남쪽 슬롯 마커는 발 아래, 폭 96->120(GameBalance.SlotMarkerWidth), 로비에서 숨김) / v5 (교수 피드백 A5/A12 반영 2026-09-14) / v4 (B-1: 근접 위기 대응 - 방향결정 2026-08-31)
@@ -701,7 +701,7 @@ public class SlotMarkerUI : MonoBehaviour
             case AttackShape.Pierce: return "직선 관통";
             case AttackShape.Cone: return "부채꼴 방사";
             case AttackShape.Explode: return "착탄 폭발";
-            case AttackShape.Chain: return "번개 튐";
+            case AttackShape.Chain: return "연쇄 번개";
             case AttackShape.Field: return "장판";
             case AttackShape.Aura: return "오라";
             default: return "상시";
