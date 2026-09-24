@@ -2,49 +2,71 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// [ParallaxBackground.cs] v4.1 - ì™„ì „ íƒ‘ë‹¤ìš´ ì§€ë©´ (2026-09-07) / v3 ê³ í€„ PNG ì§€ë©´ / v2 íƒ‘ë·° ì§€ë©´ ìŠ¤í¬ë¡¤
+/// [ParallaxBackground.cs] v4.2 (v9.13 2026-09-23: ¼±·Î v2 °¥¸²±æ + ¼¼°è ¹Ğ¸²) / v4.1 - ¿ÏÀü Å¾´Ù¿î Áö¸é (2026-09-07) / v3 °íÄ÷ PNG Áö¸é / v2 Å¾ºä Áö¸é ½ºÅ©·Ñ
 ///
-/// v4 (Apocalypse Express ë¬¸ë²•, ì§€í‰ì„  ì—†ìŒ):
-///   - Resources/Sprites/WDT/ ì— ground_ae(ëª¨ë˜ 32x32ìœ ë‹›, ì¤‘ì•™ í”¼ë²—) + rails_ae(ì„ ë¡œ 16x5ìœ ë‹›, ì¤‘ì•™ í”¼ë²—)ê°€ ìˆìœ¼ë©´ "íƒ‘ë‹¤ìš´ ëª¨ë“œ"
-///       ì¸µ 0: ground_ae 5x3ì¥ (ì •ë ¬ -30)  - í™”ë©´ ì „ì²´ë¥¼ ë®ëŠ”ë‹¤
-///       ì¸µ 1: (ì—†ìŒ) - ì§€í‰ì„  ì¸µ ì œê±°
-///       ì¸µ 2: rails_ae 10ì¥ ê°€ë¡œ ìˆœí™˜, y=0 = ê¸°ì°¨ ì¤‘ì‹¬ ë°‘ (ì •ë ¬ -10) - ì¹¸ ì‚¬ì´ í‹ˆê³¼ ê¸°ì°¨ ìœ„ì•„ë˜ë¡œ ì¹¨ëª© ëì´ ë³´ì¸ë‹¤
-///     v4.1: íƒ‘ë‹¤ìš´ ëª¨ë“œëŠ” **ì¤Œì„ ë”°ë¼ ìŠ¤ì¼€ì¼í•˜ì§€ ì•ŠëŠ”ë‹¤** (ì„¸ê³„ì— ê³ ì •). íœ  ì¤Œ ì‹œ ì§€ë©´Â·ì„ ë¡œë„ ê¸°ì°¨ì™€ ê°™ì´ ì»¤ì§€ê³  ì‘ì•„ì§„ë‹¤.
-///           ëŒ€ì‹  ìµœëŒ€ ì¤Œì•„ì›ƒ(20 = ì„¸ë¡œ 40ìœ ë‹›, ìš¸íŠ¸ë¼ì™€ì´ë“œ ê°€ë¡œ 93ìœ ë‹›)ê¹Œì§€ ë®ë„ë¡ ëª¨ë˜ 5x3ì¥(160x96ìœ ë‹›), ì„ ë¡œ 10ì¥(160ìœ ë‹›)ì„ ê¹ë‹¤
-///   - ground_ae ê°€ ì—†ìœ¼ë©´ v3 ë™ì‘ ê·¸ëŒ€ë¡œ (ground_a/b + horizon + rails, ê·¸ê²ƒë„ ì—†ìœ¼ë©´ v2 ì½”ë“œ ë„íŠ¸. ì´ìª½ì€ ì¤Œ ìŠ¤ì¼€ì¼ ìœ ì§€)
-///   - ë¨¼ì§€ ì—°ì¶œ(DustFX.cs)ì´ ì“°ëŠ” í˜„ì¬ ì§€ë©´ ì†ë„: ParallaxBackground.CurrentSpeed (ì›”ë“œ ìœ ë‹›/ì´ˆ)
+/// v4.2 (¼±·Î v2 - ¸ñ¾÷ v2 ±×´ë·Î. µµÆ® px/route.py v2.1: rails_fork / rails_fork_up / rails_fork_hi_up¡¤down¡¤straight):
+///   - Á¤Â÷(¼±·Î ¼±ÅÃ)¿¡ µÎ»ó ¾Õ¿¡ °¥¸²±æ(ÀüÃ¶±â ½ºÇÁ¶óÀÌÆ®)À» ¶ì(rails_ae) À§¿¡ ³õ´Â´Ù - PlaceFork(À§ °¡Áö, ¾Æ·¡ °¡Áö)
+///       * ½ºÇÁ¶óÀÌÆ® ÇÇ¹ş = À§ °¡Áö ºĞ±âÁ¡(¿À¸¥ÂÊ ³¡). ºĞ±âÁ¡ x ´Â ¶ì Ä§¸ñ À§»ó(20px)¿¡ ½º³À - ½ºÇÁ¶óÀÌÆ®°¡ º»¼± Ä§¸ñ¡¤·¹ÀÏÀ» ´Ù½Ã ±×·Á µ¤À¸¹Ç·Î À§»óÀÌ ¾î±ß³ª¸é ÀÌÀ½¸Å°¡ º¸ÀÎ´Ù
+///       * °¥¸²±æÀº ¶ì ¸Å°³º¯¼ö(s)·Î ºÙ¾î ÀÖ¾î ¶ì¿Í °°ÀÌ Èå¸¥´Ù (°¨¼Ó Áß¿¡ ³õ¾Æµµ ¸ØÃâ ÀÚ¸®¸¦ ¹Ì¸® °è»êÇØ µÎ»ó ¾Õ -8.4 ±ÙÃ³¿¡ ¼±´Ù)
+///       * °í¸¥ ±æ °­Á¶ = °°Àº Å©±âÀÇ ¹İÅõ¸í ±İ»ö ¶ì ½ºÇÁ¶óÀÌÆ® ±ôºıÀÓ (SetHighlight)
+///   - Ãâ¹ß(BeginLaneShift(sign)): µÎ»ó ¾Õ(RouteHeadFrontX)ÀÌ ºĞ±âÁ¡À» Áö³­ °Å¸® d ÀÇ °¡Áö ¿ÀÇÁ¼Â f(d) ¸¸Å­ ¼¼°è°¡ ¹İ´ë·Î ¹Ğ¸°´Ù - ±âÂ÷´Â y 0 °íÁ¤
+///       * ¹Ğ¸®´Â °Í: ¸ğ·¡ Ãş(´©Àû, 32u ·Î °¨¾Æ ¾¸) / ¿¾ °ğÀº ¶ì + °¥¸²±æ (railsY) / ¼Õ´Ô¡¤¹ÙÀ§¡¤Àç·á Á¶°¢¡¤¹Ì³¢ (RouteFX.ShiftWorldObjects)
+///       * °í¸¥ °¡ÁöÀÇ ÀÌ¾îÁö´Â ¶ì = rails_ae Å¸ÀÏ 8ÀåÀ» °¥¸²±æ ¿ŞÂÊ ³¡¿¡ µü ºÙ¿© ¿ŞÂÊÀ¸·Î (Ä§¸ñ °£°İ 20px °¡ ±×´ë·Î ÀÌ¾îÁø´Ù - route.py v2.1 ²¿¸® Ä§¸ñ °İÀÚ)
+///       * ¿øÈ£¸¦ µµ´Â µ¿¾È RouteRollDeg (CameraZoom ÀÌ È­¸éÀ» ±â¿ïÀÎ´Ù) + ºĞ±âÁ¡ ÁøÀÔ ¶§ ±âÀû¡¤´úÄÈ
+///       * °¥¸²±æÀÌ È­¸é ¿À¸¥ÂÊ ¹ÛÀ¸·Î ³ª°¡¸é ¿¾ °ğÀº ¶ì°¡ RouteOldRailFadeSec µ¿¾È »ç¶óÁö°í, °¡Áö ¶ì°¡ º»¼±(Ãş 2)ÀÌ µÈ´Ù (À§»ó¡¤³ôÀÌ °°¾Æ ´«¿¡ ¾È ¶è´Ù)
+///   - Å¾´Ù¿î ¸ğµåÀÇ Áö¸é ·çÆ®´Â Ä«¸Ş¶ó x ¸¦ µû¶ó°¡Áö ¾Ê´Â´Ù (v4.1 ±îÁö´Â µû¶ó°¬´Ù - Á¤Â÷ Ä«¸Ş¶ó°¡ ¾ÕÀ¸·Î 6u °¡¸é ¸ØÃá ±âÂ÷ ¹Ø¿¡¼­ Ä§¸ñÀÌ ¹Ì²ô·¯Á³´Ù). ¶ì 160u ¶ó Ä«¸Ş¶ó ÀÌµ¿ ÇÑ°è ¾È¿¡¼­ ºó µ¥ ¾øÀ½
 ///
-/// ë°©í–¥: ê¸°ì°¨ëŠ” ë‘ìƒ ìª½(ì™¼ìª½)ìœ¼ë¡œ ë‹¬ë¦°ë‹¤ -> ì§€ë©´ì€ ì˜¤ë¥¸ìª½ìœ¼ë¡œ íë¥¸ë‹¤ (EngineCabì˜ ë°”ìœ„ì™€ ë™ì¼ ë°©í–¥)
-/// ë™ì‘ (v1 ìœ ì§€): ì „íˆ¬(Battle) ì¤‘ì—ë§Œ ëª©í‘œ ì†ë„ 1.0, ê·¸ ì™¸ëŠ” 0 -> ìŠ¤ë¥´ë¥µ ê°€ê°ì† / ì§€ì—­ ìƒ‰ ê³± í‹´íŠ¸ / ì¤Œ ìŠ¤ì¼€ì¼ / ìŠ¤ì¼€ì¼ë“œ ì‹œê°„
+/// v4 (Apocalypse Express ¹®¹ı, ÁöÆò¼± ¾øÀ½):
+///   - Resources/Sprites/WDT/ ¿¡ ground_ae(¸ğ·¡ 32x32À¯´Ö, Áß¾Ó ÇÇ¹ş) + rails_ae(¼±·Î 16x5À¯´Ö, Áß¾Ó ÇÇ¹ş)°¡ ÀÖÀ¸¸é "Å¾´Ù¿î ¸ğµå"
+///       Ãş 0: ground_ae 5x3Àå (Á¤·Ä -30)  - È­¸é ÀüÃ¼¸¦ µ¤´Â´Ù
+///       Ãş 1: (¾øÀ½) - ÁöÆò¼± Ãş Á¦°Å
+///       Ãş 2: rails_ae 10Àå °¡·Î ¼øÈ¯, y=0 = ±âÂ÷ Áß½É ¹Ø (Á¤·Ä -10) - Ä­ »çÀÌ Æ´°ú ±âÂ÷ À§¾Æ·¡·Î Ä§¸ñ ³¡ÀÌ º¸ÀÎ´Ù
+///     v4.1: Å¾´Ù¿î ¸ğµå´Â **ÁÜÀ» µû¶ó ½ºÄÉÀÏÇÏÁö ¾Ê´Â´Ù** (¼¼°è¿¡ °íÁ¤). ÈÙ ÁÜ ½Ã Áö¸é¡¤¼±·Îµµ ±âÂ÷¿Í °°ÀÌ Ä¿Áö°í ÀÛ¾ÆÁø´Ù.
+///           ´ë½Å ÃÖ´ë ÁÜ¾Æ¿ô(20 = ¼¼·Î 40À¯´Ö, ¿ïÆ®¶ó¿ÍÀÌµå °¡·Î 93À¯´Ö)±îÁö µ¤µµ·Ï ¸ğ·¡ 5x3Àå(160x96À¯´Ö), ¼±·Î 10Àå(160À¯´Ö)À» ±ñ´Ù
+///   - ground_ae °¡ ¾øÀ¸¸é v3 µ¿ÀÛ ±×´ë·Î (ground_a/b + horizon + rails, ±×°Íµµ ¾øÀ¸¸é v2 ÄÚµå µµÆ®. ÀÌÂÊÀº ÁÜ ½ºÄÉÀÏ À¯Áö)
+///   - ¸ÕÁö ¿¬Ãâ(DustFX.cs)ÀÌ ¾²´Â ÇöÀç Áö¸é ¼Óµµ: ParallaxBackground.CurrentSpeed (¿ùµå À¯´Ö/ÃÊ)
 ///
-/// ì‚¬ìš©ë²•: ì—†ìŒ! íŒŒì¼ë§Œ ë„£ìœ¼ë©´ ê²Œì„ ì‹œì‘ ì‹œ ìŠ¤ìŠ¤ë¡œ ìƒì„±ëœë‹¤. (SpriteBank.cs, í´ë°±ìš© PixelPainter.cs í•„ìš”)
-///  - êµ¬ ë°°ê²½ì€ ì •ë¦¬í•  ê²ƒ: ì”¬ì˜ Background_1/2/3 ì‚­ì œ + BackgroundScroll.cs ì‚­ì œ (ìŠì–´ë„ ìë™ ë¹„í™œì„±)
-///  - ì†ë„ í›…: ParallaxBackground.SetSpeedMultiplier(ë°°ìœ¨) - ë ˆë²„ ì „ì†ì´ ì“´ë‹¤
-/// VS 2017 (C# 7.3) í˜¸í™˜.
+/// ¹æÇâ: ±âÂ÷´Â µÎ»ó ÂÊ(¿ŞÂÊ)À¸·Î ´Ş¸°´Ù -> Áö¸éÀº ¿À¸¥ÂÊÀ¸·Î Èå¸¥´Ù (EngineCabÀÇ ¹ÙÀ§¿Í µ¿ÀÏ ¹æÇâ)
+/// µ¿ÀÛ (v1 À¯Áö): ÀüÅõ(Battle) Áß¿¡¸¸ ¸ñÇ¥ ¼Óµµ 1.0, ±× ¿Ü´Â 0 -> ½º¸£¸¤ °¡°¨¼Ó / Áö¿ª »ö °ö Æ¾Æ® / ÁÜ ½ºÄÉÀÏ / ½ºÄÉÀÏµå ½Ã°£
+///
+/// »ç¿ë¹ı: ¾øÀ½! ÆÄÀÏ¸¸ ³ÖÀ¸¸é °ÔÀÓ ½ÃÀÛ ½Ã ½º½º·Î »ı¼ºµÈ´Ù. (SpriteBank.cs, Æú¹é¿ë PixelPainter.cs ÇÊ¿ä)
+///  - ±¸ ¹è°æÀº Á¤¸®ÇÒ °Í: ¾ÀÀÇ Background_1/2/3 »èÁ¦ + BackgroundScroll.cs »èÁ¦ (ÀØ¾îµµ ÀÚµ¿ ºñÈ°¼º)
+///  - ¼Óµµ ÈÅ: ParallaxBackground.SetSpeedMultiplier(¹èÀ²) - ·¹¹ö Àü¼ÓÀÌ ¾´´Ù
+/// VS 2017 (C# 7.3) È£È¯.
 /// </summary>
 public class ParallaxBackground : MonoBehaviour
 {
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // íŠœë‹ ìƒìˆ˜
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    private const float BASE_SPEED = 3.2f;      // ì§€ë©´ ìŠ¤í¬ë¡¤ ì†ë„ (ì›”ë“œ ë‹¨ìœ„/ì´ˆ)
-    private const float ACCEL_RATE = 0.55f;     // ì¶œë°œ ê°€ì† (1.0ê¹Œì§€ ì•½ 1.8ì´ˆ)
-    private const float DECEL_RATE = 0.45f;     // ì •ì°¨ ê°ì† (0ê¹Œì§€ ì•½ 2.2ì´ˆ)
-    private const float TINT_LERP = 1.2f;       // ì§€ì—­ ìƒ‰ ì „í™˜ ì†ë„
-    private const float REGION_TINT = 0.5f;     // ì§€ì—­ ìƒ‰ì´ ì§€ë©´ì— ë°°ëŠ” ì •ë„ (0=ì—†ìŒ 1=ë°°ê²½ìƒ‰ ê·¸ëŒ€ë¡œ)
-    private const float VIEW_HALF_H_LEGACY = 7f;   // v3 ì´í•˜ ê¸°ì¤€ ì¤Œ
-    private const float PPU = 16f;              // ì½”ë“œ ë„íŠ¸ í´ë°±ì˜ ì§€ë©´ ë°°ìœ¨
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // Æ©´× »ó¼ö
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    private const float BASE_SPEED = 3.2f;      // Áö¸é ½ºÅ©·Ñ ¼Óµµ (¿ùµå ´ÜÀ§/ÃÊ)
+    private const float ACCEL_RATE = 0.55f;     // Ãâ¹ß °¡¼Ó (1.0±îÁö ¾à 1.8ÃÊ)
+    private const float DECEL_RATE = 0.45f;     // Á¤Â÷ °¨¼Ó (0±îÁö ¾à 2.2ÃÊ)
+    private const float TINT_LERP = 1.2f;       // Áö¿ª »ö ÀüÈ¯ ¼Óµµ
+    private const float REGION_TINT = 0.5f;     // Áö¿ª »öÀÌ Áö¸é¿¡ ¹è´Â Á¤µµ (0=¾øÀ½ 1=¹è°æ»ö ±×´ë·Î)
+    private const float VIEW_HALF_H_LEGACY = 7f;   // v3 ÀÌÇÏ ±âÁØ ÁÜ
+    private const float PPU = 16f;              // ÄÚµå µµÆ® Æú¹éÀÇ Áö¸é ¹èÀ²
 
-    // v4 íƒ‘ë‹¤ìš´ ëª¨ë“œ: ì¸µë³„ íƒ€ì¼ í­(ìœ ë‹›)/ì¥ìˆ˜/y/ì •ë ¬
-    private const float GROUND_TILE_W = 32f;    // ground_ae = 1024px / 32ppu (ì •ì‚¬ê°)
-    private const int GROUND_COLS = 5;          // ê°€ë¡œ 160ìœ ë‹› (ìµœëŒ€ ì¤Œì•„ì›ƒ ìš¸íŠ¸ë¼ì™€ì´ë“œ 93ìœ ë‹› + ì—¬ìœ )
-    private const int GROUND_ROWS = 3;          // ì„¸ë¡œ 96ìœ ë‹› (ìµœëŒ€ ì¤Œì•„ì›ƒ 40ìœ ë‹› + ì¹´ë©”ë¼ y ì´ë™ ì—¬ìœ )
+    // v4 Å¾´Ù¿î ¸ğµå: Ãşº° Å¸ÀÏ Æø(À¯´Ö)/Àå¼ö/y/Á¤·Ä
+    private const float GROUND_TILE_W = 32f;    // ground_ae = 1024px / 32ppu (Á¤»ç°¢)
+    private const int GROUND_COLS = 5;          // °¡·Î 160À¯´Ö (ÃÖ´ë ÁÜ¾Æ¿ô ¿ïÆ®¶ó¿ÍÀÌµå 93À¯´Ö + ¿©À¯)
+    private const int GROUND_ROWS = 3;          // ¼¼·Î 96À¯´Ö (ÃÖ´ë ÁÜ¾Æ¿ô 40À¯´Ö + Ä«¸Ş¶ó y ÀÌµ¿ ¿©À¯)
     private const float RAILS_TILE_W = 16f;     // rails_ae = 512px / 32ppu
-    private const int RAILS_TILES = 10;         // ê°€ë¡œ 160ìœ ë‹›
+    private const int RAILS_TILES = 10;         // °¡·Î 160À¯´Ö
     private const int ORDER_GROUND = -30;
     private const int ORDER_RAILS = -10;
 
-    // v3 ì´í•˜ (ë ˆê±°ì‹œ) ì¸µ ì •ì˜
+    // v4.2 °¥¸²±æ (¼±·Î v2)
+    private const int ORDER_FORK = -9;            // ¶ì(-10) À§, ±æ°¡ ¹ÙÀ§(-8) ¾Æ·¡
+    private const int ORDER_FORK_HI = -8;
+    private const float SPRITE_PPU = 32f;         // rails_ae / rails_fork ÇÈ¼¿ ¹Ğµµ
+    private const float SLEEPER_STEP_PX = 20f;    // ¶ì Ä§¸ñ °£°İ (px)
+    /// <summary>ºĞ±âÁ¡ = Å¸ÀÏ ¿ŞÂÊ ³¡ + (7 + 20k) px ÀÏ ¶§ °¥¸²±æÀÇ ±ä Ä§¸ñÀÌ ¶ì Ä§¸ñ°ú °°Àº Ä­¿¡ ¿Â´Ù (route.py Ä§¸ñ ¹èÄ¡¿¡¼­ À¯µµ - µµÆ®¸¦ ¾È ¹Ù²Ù¸é ¼Õ´ëÁö ¸» °Í)</summary>
+    private const float FORK_SLEEPER_PHASE_PX = 7f;
+    private const int BRANCH_TILES = 8;           // °¡Áö ÀÌ¾îÁö´Â ¶ì Àå¼ö (128u - È­¸é ¿ŞÂÊ ³¡À» Ç×»ó µ¤´Â´Ù)
+    private const float HI_BLINK_SEC = 1.2f;      // °­Á¶ ¶ì ±ôºıÀÓ ÁÖ±â
+
+    // v3 ÀÌÇÏ (·¹°Å½Ã) Ãş Á¤ÀÇ
     private const float TILE_W = 16f;
     private const int TILES_PER_LAYER = 4;
     private static readonly float[] SPEED_MUL = { 1.00f, 0.12f, 1.00f };
@@ -52,7 +74,7 @@ public class ParallaxBackground : MonoBehaviour
     private static readonly float[] LAYER_Y = { -(VIEW_HALF_H_LEGACY + 1f), VIEW_HALF_H_LEGACY - 2f, -(VIEW_HALF_H_LEGACY + 1f) };
     private const float RAILS_PNG_Y = -1.9f;
 
-    // ëª¨ë˜ íŒ”ë ˆíŠ¸ (ì½”ë“œ ë„íŠ¸ í´ë°±)
+    // ¸ğ·¡ ÆÈ·¹Æ® (ÄÚµå µµÆ® Æú¹é)
     private static readonly Color32 SAND = new Color32(214, 166, 102, 255);
     private static readonly Color32 SAND_D = new Color32(206, 156, 92, 255);
     private static readonly Color32 SAND_L = new Color32(222, 176, 112, 255);
@@ -60,31 +82,51 @@ public class ParallaxBackground : MonoBehaviour
     private static readonly Color32 SPECK_L = new Color32(228, 184, 122, 255);
     private static readonly Color32 TRACK = new Color32(198, 148, 86, 255);
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ë‚´ë¶€ ìƒíƒœ
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    private bool topdown = false;                // v4 íƒ‘ë‹¤ìš´ ëª¨ë“œ (ground_ae + rails_ae ìˆìŒ)
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ³»ºÎ »óÅÂ
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    private bool topdown = false;                // v4 Å¾´Ù¿î ¸ğµå (ground_ae + rails_ae ÀÖÀ½)
     private float viewHalfH = VIEW_HALF_H_LEGACY;
     private Transform[] layerRoots = new Transform[3];
     private SpriteRenderer[][] tiles = new SpriteRenderer[3][];
-    private float[] tileW = new float[3];        // ì¸µë³„ íƒ€ì¼ í­
-    private float[] layerY = new float[3];       // ì¸µë³„ y
-    private int[] cols = new int[3];             // ì¸µë³„ ê°€ë¡œ ì¥ìˆ˜ (ì„¸ë¡œ ì¤„ ìˆ˜ = tiles.Length / cols)
-    private float[] offsets = new float[3];      // ì¸µë³„ ìŠ¤í¬ë¡¤ ì˜¤í”„ì…‹
-    private Color[] tintNow = new Color[3];      // ì¸µë³„ í˜„ì¬ ìƒ‰ (ë¶€ë“œëŸ¬ìš´ ì „í™˜ìš©)
+    private float[] tileW = new float[3];        // Ãşº° Å¸ÀÏ Æø
+    private float[] layerY = new float[3];       // Ãşº° y
+    private int[] cols = new int[3];             // Ãşº° °¡·Î Àå¼ö (¼¼·Î ÁÙ ¼ö = tiles.Length / cols)
+    private float[] offsets = new float[3];      // Ãşº° ½ºÅ©·Ñ ¿ÀÇÁ¼Â
+    private Color[] tintNow = new Color[3];      // Ãşº° ÇöÀç »ö (ºÎµå·¯¿î ÀüÈ¯¿ë)
 
-    private float speedFactor = 0f;              // 0=ì •ì°¨, 1=ì£¼í–‰ (ê°€ê°ì†ìœ¼ë¡œ ë³€í•¨)
-    private bool railsPng = false;               // v3: ë ˆì¼ ì¸µì´ PNG ë ì¸ê°€ (ê¸°ì¤€ y ì „í™˜ìš©)
-    private static float externalMul = 1f;       // ì™¸ë¶€ ë°°ìœ¨ (ë ˆë²„ ì „ì† ë“±)
+    private float speedFactor = 0f;              // 0=Á¤Â÷, 1=ÁÖÇà (°¡°¨¼ÓÀ¸·Î º¯ÇÔ)
+    private bool railsPng = false;               // v3: ·¹ÀÏ ÃşÀÌ PNG ¶ìÀÎ°¡ (±âÁØ y ÀüÈ¯¿ë)
+    private static float externalMul = 1f;       // ¿ÜºÎ ¹èÀ² (·¹¹ö Àü¼Ó µî)
 
     private static ParallaxBackground instance;
 
-    /// <summary>í˜„ì¬ ì§€ë©´ì´ íë¥´ëŠ” ì†ë„ (ì›”ë“œ ìœ ë‹›/ì´ˆ, ì˜¤ë¥¸ìª½ +). ë¨¼ì§€ ì—°ì¶œ(DustFX)ì´ ì½ëŠ”ë‹¤</summary>
+    /// <summary>ÇöÀç Áö¸éÀÌ Èå¸£´Â ¼Óµµ (¿ùµå À¯´Ö/ÃÊ, ¿À¸¥ÂÊ +). ¸ÕÁö ¿¬Ãâ(DustFX)ÀÌ ÀĞ´Â´Ù</summary>
     public static float CurrentSpeed { get; private set; }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ìë™ ë¶€íŠ¸ìŠ¤íŠ¸ë© - íŒŒì¼ë§Œ ë„£ìœ¼ë©´ ê²Œì„ ì‹œì‘ ì‹œ ìŠ¤ìŠ¤ë¡œ ìƒì„±
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡ v4.2 °¥¸²±æ »óÅÂ ¦¡¦¡
+    private Transform forkTf;                    // °¥¸²±æ ½ºÇÁ¶óÀÌÆ® (Ãş 2 ·çÆ®ÀÇ ÀÚ½Ä - ¶ì¿Í °°ÀÌ Èå¸¥´Ù)
+    private SpriteRenderer forkSr;
+    private SpriteRenderer forkHiSr;             // °í¸¥ ±æ °­Á¶ ¶ì (°°Àº Å©±â¡¤ÇÇ¹ş)
+    private float forkStripS;                    // ºĞ±âÁ¡ÀÇ ¶ì ¸Å°³º¯¼ö s: ¿ùµå x = Repeat(s + offsets[2] + 80, 160) - 80
+    private bool forkHasUp, forkHasDn;
+    private bool hiOn;
+    private int laneSign = 0;                    // µé¾î°¡´Â °¡Áö (+1 À§ / -1 ¾Æ·¡ / 0 °ğÀº ±æ)
+    private bool laneActive = false;             // ¼¼°è ¹Ğ¸² ÁøÇà Áß (°¡Áö ¶ì°¡ º»¼±ÀÌ µÇ¸é ³¡)
+    private bool laneEntered = false;            // ºĞ±âÁ¡ ÁøÀÔ ¿¬Ãâ(±âÀû¡¤´úÄÈ) Çß³ª
+    private bool laneSettled = false;            // ¿øÈ£°¡ ³¡³ª ÆòÇàÀÌ µÆ³ª (´úÄÈ 1È¸)
+    private float railsY = 0f;                   // ¶ì Ãş(¿¾ °ğÀº ¼±·Î)¡¤°¥¸²±æÀÇ ¼¼·Î ¿ÀÇÁ¼Â = -sign * f(d)
+    private float groundY = 0f;                  // ¸ğ·¡ Ãş ¼¼·Î ¿ÀÇÁ¼Â (´©Àû - 32u ·Î °¨¾Æ ¾´´Ù, ¹«´Ì¶ó ÀÌÀ½ÀÌ ¾È º¸ÀÎ´Ù)
+    private float railsAlpha = 1f;               // ¿¾ °ğÀº ¶ì ¾ËÆÄ (ÆäÀÌµå)
+    private float oldFadeT = -1f;                // ¿¾ ¶ì ÆäÀÌµå ÁøÇà ½Ã°£ (-1 = ¾ÆÁ÷)
+    private SpriteRenderer[] branchTiles;        // °í¸¥ °¡ÁöÀÇ ÀÌ¾îÁö´Â ¶ì
+
+    /// <summary>°¡Áö ¿øÈ£¸¦ µµ´Â µ¿¾ÈÀÇ È­¸é ±â¿ïÀÓ (µµ, +¸é ½Ã°è ¹æÇâÀ¸·Î º¸ÀÎ´Ù). CameraZoom v5 °¡ ÀĞ´Â´Ù</summary>
+    public static float RouteRollDeg { get; private set; }
+
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ÀÚµ¿ ºÎÆ®½ºÆ®·¦ - ÆÄÀÏ¸¸ ³ÖÀ¸¸é °ÔÀÓ ½ÃÀÛ ½Ã ½º½º·Î »ı¼º
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void Bootstrap()
     {
@@ -94,15 +136,15 @@ public class ParallaxBackground : MonoBehaviour
         go.AddComponent<ParallaxBackground>();
     }
 
-    /// <summary>ì£¼í–‰ ì†ë„ ì™¸ë¶€ ë°°ìœ¨ (ì „ì† 1.5, ì„œí–‰ 0.5 ë“±). ê¸°ë³¸ 1</summary>
+    /// <summary>ÁÖÇà ¼Óµµ ¿ÜºÎ ¹èÀ² (Àü¼Ó 1.5, ¼­Çà 0.5 µî). ±âº» 1</summary>
     public static void SetSpeedMultiplier(float mul)
     {
         externalMul = Mathf.Max(0f, mul);
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ì´ˆê¸°í™”
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ÃÊ±âÈ­
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     private void Awake()
     {
         if (instance != null && instance != this) { Destroy(gameObject); return; }
@@ -114,7 +156,7 @@ public class ParallaxBackground : MonoBehaviour
         DisableLegacyBackground();
         SceneManager.sceneLoaded += OnSceneLoaded;
 
-        Debug.Log("[ParallaxBackground] " + (topdown ? "v4 íƒ‘ë‹¤ìš´ ì§€ë©´ (ground_ae + rails_ae)" : "v3 ì§€ë©´ (ì§€í‰ì„  í¬í•¨)") + " ìƒì„±");
+        Debug.Log("[ParallaxBackground] " + (topdown ? "v4 Å¾´Ù¿î Áö¸é (ground_ae + rails_ae)" : "v3 Áö¸é (ÁöÆò¼± Æ÷ÇÔ)") + " »ı¼º");
     }
 
     private void OnDestroy()
@@ -126,13 +168,14 @@ public class ParallaxBackground : MonoBehaviour
         }
     }
 
-    // ì”¬ ë¦¬ë¡œë“œ([ë‹¤ì‹œ êµ½ëŠ”ë‹¤]) í›„ì—ë„ êµ¬ ë°°ê²½ ì •ë¦¬ë¥¼ ë‹¤ì‹œ ìˆ˜í–‰
+    // ¾À ¸®·Îµå([´Ù½Ã ±Á´Â´Ù]) ÈÄ¿¡µµ ±¸ ¹è°æ Á¤¸®¸¦ ´Ù½Ã ¼öÇà
     private void OnSceneLoaded(Scene s, LoadSceneMode mode)
     {
         DisableLegacyBackground();
+        ClearFork();   // v4.2: ·± Æ÷±â¡¤´Ù½Ã ±Á±â·Î ¾ÀÀÌ ¹Ù²î¸é °¥¸²±æ¡¤¹Ğ¸² »óÅÂ¸¦ ¹ö¸°´Ù (¸ğ·¡ ¿ÀÇÁ¼ÂÀº ¹«´Ì¶ó ±×´ë·Î µÖµµ µÈ´Ù)
     }
 
-    /// <summary>êµ¬ BackgroundScroll ë°°ê²½ì´ ì”¬ì— ë‚¨ì•„ ìˆìœ¼ë©´ ëˆë‹¤ (ê²¹ì¹¨ ë°©ì§€, ì»´íŒŒì¼ ì˜ì¡´ ì—†ìŒ)</summary>
+    /// <summary>±¸ BackgroundScroll ¹è°æÀÌ ¾À¿¡ ³²¾Æ ÀÖÀ¸¸é ²ö´Ù (°ãÄ§ ¹æÁö, ÄÄÆÄÀÏ ÀÇÁ¸ ¾øÀ½)</summary>
     private void DisableLegacyBackground()
     {
         MonoBehaviour[] all = FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None);
@@ -141,18 +184,18 @@ public class ParallaxBackground : MonoBehaviour
             if (all[i] != null && all[i].GetType().Name == "BackgroundScroll")
             {
                 all[i].gameObject.SetActive(false);
-                Debug.Log("[ParallaxBackground] êµ¬ ë°°ê²½ ë¹„í™œì„±: " + all[i].gameObject.name
-                    + " (ì”¬ì—ì„œ ì‚­ì œ ê¶Œì¥)");
+                Debug.Log("[ParallaxBackground] ±¸ ¹è°æ ºñÈ°¼º: " + all[i].gameObject.name
+                    + " (¾À¿¡¼­ »èÁ¦ ±ÇÀå)");
             }
         }
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // v4: íƒ‘ë‹¤ìš´ ì¸µ ìƒì„± (ì¸µ 0 ëª¨ë˜ / ì¸µ 2 ì„ ë¡œ, ì¸µ 1 ë¹„ì›€)
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // v4: Å¾´Ù¿î Ãş »ı¼º (Ãş 0 ¸ğ·¡ / Ãş 2 ¼±·Î, Ãş 1 ºñ¿ò)
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     private void BuildTopdownLayers()
     {
-        viewHalfH = GameBalance.CamDefaultZoom;   // (íƒ‘ë‹¤ìš´ì€ ìŠ¤ì¼€ì¼ ì•ˆ í•¨ - ì°¸ê³ ê°’)
+        viewHalfH = GameBalance.CamDefaultZoom;   // (Å¾´Ù¿îÀº ½ºÄÉÀÏ ¾È ÇÔ - Âü°í°ª)
         MakeLayer(0, SpriteBank.Get("ground_ae"), GROUND_TILE_W, GROUND_COLS, GROUND_ROWS, 0f, ORDER_GROUND);
         MakeLayer(1, null, 1f, 0, 1, 0f, 0);
         MakeLayer(2, SpriteBank.Get("rails_ae"), RAILS_TILE_W, RAILS_TILES, 1, 0f, ORDER_RAILS);
@@ -177,9 +220,9 @@ public class ParallaxBackground : MonoBehaviour
         }
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // v3 ì´í•˜: ì¸µ/íƒ€ì¼ ìƒì„± (ëª¨ë˜ a/b, ì§€í‰ì„ , ë ˆì¼)
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // v3 ÀÌÇÏ: Ãş/Å¸ÀÏ »ı¼º (¸ğ·¡ a/b, ÁöÆò¼±, ·¹ÀÏ)
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     private void BuildLegacyLayers()
     {
         for (int L = 0; L < 3; L++)
@@ -190,9 +233,9 @@ public class ParallaxBackground : MonoBehaviour
             tiles[L] = new SpriteRenderer[TILES_PER_LAYER];
             tileW[L] = TILE_W; layerY[L] = LAYER_Y[L]; cols[L] = TILES_PER_LAYER; tintNow[L] = Color.white;
 
-            // íƒ€ì¼ ë³€í˜• 2ì¢…ì„ ë²ˆê°ˆì•„ ë°°ì¹˜ (ë°˜ë³µ í‹° ì¤„ì´ê¸°)
+            // Å¸ÀÏ º¯Çü 2Á¾À» ¹ø°¥¾Æ ¹èÄ¡ (¹İº¹ Æ¼ ÁÙÀÌ±â)
             Sprite varA = MakeLayerSprite(L, 1000 + L * 77);
-            Sprite varB = MakeLayerSprite(L, 5001 + L * 131);   // í™€ìˆ˜ ì‹œë“œ -> PNG ëª¨ë˜ b ë³€í˜•
+            Sprite varB = MakeLayerSprite(L, 5001 + L * 131);   // È¦¼ö ½Ãµå -> PNG ¸ğ·¡ b º¯Çü
             if (L == 2 && railsPng) layerY[L] = RAILS_PNG_Y;
 
             for (int i = 0; i < TILES_PER_LAYER; i++)
@@ -207,15 +250,15 @@ public class ParallaxBackground : MonoBehaviour
         }
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ë§¤ í”„ë ˆì„: ì†ë„ ìƒíƒœ -> ìŠ¤í¬ë¡¤ -> ìƒ‰ -> ì¹´ë©”ë¼ ì¶”ì¢…
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ¸Å ÇÁ·¹ÀÓ: ¼Óµµ »óÅÂ -> ½ºÅ©·Ñ -> °¥¸²±æ¡¤¹Ğ¸² -> »ö -> Ä«¸Ş¶ó ÃßÁ¾
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     private void LateUpdate()
     {
         Camera cam = Camera.main;
         if (cam == null) return;
 
-        // 1) ì£¼í–‰ ìƒíƒœ: ì „íˆ¬ ì¤‘ì—ë§Œ ë‹¬ë¦°ë‹¤ (ê·¸ ì™¸ì—ëŠ” ìŠ¤ë¥´ë¥µ ì •ì°¨)
+        // 1) ÁÖÇà »óÅÂ: ÀüÅõ Áß¿¡¸¸ ´Ş¸°´Ù (±× ¿Ü¿¡´Â ½º¸£¸¤ Á¤Â÷)
         float target = 0f;
         GameManager gm = GameManager.Instance;
         if (gm != null && gm.currentState == GameManager.GameState.Battle) target = 1f;
@@ -223,47 +266,361 @@ public class ParallaxBackground : MonoBehaviour
         speedFactor = Mathf.MoveTowards(speedFactor, target, rate * Time.deltaTime);
         CurrentSpeed = BASE_SPEED * speedFactor * externalMul;
 
-        // 2) ì¸µë³„ ìŠ¤í¬ë¡¤ (ìŠ¤ì¼€ì¼ë“œ ì‹œê°„ - ì¼ì‹œì •ì§€/íˆíŠ¸ìŠ¤í†± ì‹œ ë°°ê²½ë„ ì •ì§€)
+        // 2) Ãşº° ½ºÅ©·Ñ (½ºÄÉÀÏµå ½Ã°£ - ÀÏ½ÃÁ¤Áö/È÷Æ®½ºÅé ½Ã ¹è°æµµ Á¤Áö)
         float move = CurrentSpeed * Time.deltaTime;
         for (int L = 0; L < 3; L++)
         {
             int n = tiles[L].Length;
             if (n == 0) continue;
-            int nc = cols[L]; int nr = n / nc;
-            float stripW = tileW[L] * nc;
+            float stripW = tileW[L] * cols[L];
             float mul = topdown ? 1f : SPEED_MUL[L];
             offsets[L] = Mathf.Repeat(offsets[L] + move * mul, stripW);
-            for (int i = 0; i < n; i++)
-            {
-                int col = i % nc, row = i / nc;
-                // ì˜¤í”„ì…‹ë§Œí¼ ì˜¤ë¥¸ìª½ìœ¼ë¡œ (ê¸°ì°¨ê°€ ì™¼ìª½ìœ¼ë¡œ ë‹¬ë¦°ë‹¤), ë²—ì–´ë‚˜ë©´ ë°˜ëŒ€ìª½ìœ¼ë¡œ ìˆœí™˜. ì„¸ë¡œ ì¤„ì€ íƒ€ì¼ ë†’ì´(=í­, ì •ì‚¬ê°) ê°„ê²©
-                float x = Mathf.Repeat(col * tileW[L] + offsets[L] + stripW / 2f, stripW) - stripW / 2f;
-                float y = layerY[L] + (row - (nr - 1) * 0.5f) * tileW[L];
-                tiles[L][i].transform.localPosition = new Vector3(x, y, 0f);
-            }
+            LayoutLayer(L);
         }
 
-        // 3) ì§€ì—­ ìƒ‰: ì¹´ë©”ë¼ ë°°ê²½ìƒ‰ì„ ê³± í‹´íŠ¸ë¡œ ì€ì€í•˜ê²Œ (ì§€ì—­ ì „í™˜ ì‹œ ìë™ìœ¼ë¡œ ë¶€ë“œëŸ½ê²Œ)
+        // 2.5) v4.2: °¥¸²±æ À§Ä¡¡¤°­Á¶ ±ôºıÀÓ¡¤¼¼°è ¹Ğ¸²¡¤¿¾ ¶ì ÆäÀÌµå
+        if (forkTf != null) TickFork(cam);
+
+        // 3) Áö¿ª »ö: Ä«¸Ş¶ó ¹è°æ»öÀ» °ö Æ¾Æ®·Î ÀºÀºÇÏ°Ô (Áö¿ª ÀüÈ¯ ½Ã ÀÚµ¿À¸·Î ºÎµå·´°Ô). Ãş 2 ´Â ¿¾ ¶ì ÆäÀÌµå ¾ËÆÄ¸¦ °öÇÑ´Ù
         Color bg = cam.backgroundColor;
         Color want = Color.Lerp(Color.white, Color.Lerp(bg, Color.white, 0.5f), REGION_TINT);
         for (int L = 0; L < 3; L++)
         {
             tintNow[L] = Color.Lerp(tintNow[L], want, TINT_LERP * Time.unscaledDeltaTime);
+            Color c = tintNow[L];
+            if (L == 2) c.a = railsAlpha;
             for (int i = 0; i < tiles[L].Length; i++)
-                tiles[L][i].color = tintNow[L];
+                tiles[L][i].color = c;
         }
+        if (branchTiles != null)
+            for (int i = 0; i < branchTiles.Length; i++)
+                if (branchTiles[i] != null) branchTiles[i].color = tintNow[2];
+        if (forkSr != null) forkSr.color = tintNow[2];
 
-        // 4) ì¹´ë©”ë¼ ì¶”ì¢…. íƒ‘ë‹¤ìš´ ëª¨ë“œ: xë§Œ ë”°ë¼ê°€ê³  yëŠ” 0 ê³ ì •(ë ˆì¼ì´ ê¸°ì°¨ ë°‘) + **ì¤Œ ìŠ¤ì¼€ì¼ ì—†ìŒ**(ì„¸ê³„ ê³ ì • - íœ  ì¤Œ ì‹œ ì§€ë©´ë„ ê°™ì´ ì»¤ì§„ë‹¤)
-        //    ë ˆê±°ì‹œ ëª¨ë“œ: ì¹´ë©”ë¼ yë„ ë”°ë¼ê°€ê³  ì¤Œ ë°°ìœ¨ë§Œí¼ ìŠ¤ì¼€ì¼ (êµ¬ ì§€í‰ì„  êµ¬ë„ ìœ ì§€)
-        float py = topdown ? 0f : cam.transform.position.y;
-        transform.position = new Vector3(cam.transform.position.x, py, 0f);
-        float s = topdown ? 1f : cam.orthographicSize / viewHalfH;
-        transform.localScale = new Vector3(s, s, 1f);
+        // 4) Ä«¸Ş¶ó ÃßÁ¾. Å¾´Ù¿î ¸ğµå(v4.2): x µµ y µµ ¼¼°è¿¡ °íÁ¤ - Á¤Â÷ Ä«¸Ş¶ó°¡ ¾ÕÀ¸·Î °¡µµ Ä§¸ñÀÌ ±âÂ÷ ¹Ø¿¡¼­ ¾È ¹Ì²ô·¯Áø´Ù. ¶ì 160u ¶ó Ä«¸Ş¶ó ÀÌµ¿ ÇÑ°è ¾È¿¡¼­ ºó µ¥ ¾øÀ½
+        //    ·¹°Å½Ã ¸ğµå: Ä«¸Ş¶ó¸¦ µû¶ó°¡°í ÁÜ ¹èÀ²¸¸Å­ ½ºÄÉÀÏ (±¸ ÁöÆò¼± ±¸µµ À¯Áö)
+        if (topdown)
+        {
+            transform.position = Vector3.zero;
+            transform.localScale = Vector3.one;
+        }
+        else
+        {
+            transform.position = new Vector3(cam.transform.position.x, cam.transform.position.y, 0f);
+            float sc = cam.orthographicSize / viewHalfH;
+            transform.localScale = new Vector3(sc, sc, 1f);
+        }
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // v3 ì´í•˜: íƒ€ì¼ ìŠ¤í”„ë¼ì´íŠ¸ (PNG ìš°ì„ , ì—†ìœ¼ë©´ ì½”ë“œ ë„íŠ¸)
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    /// <summary>Ãş L ÀÇ Å¸ÀÏÀ» ¿ÀÇÁ¼Â´ë·Î ´Ã¾î³õ´Â´Ù (¼¼·Î ÁÙÀº Å¸ÀÏ ³ôÀÌ(=Æø, Á¤»ç°¢) °£°İ). Ãş 0 Àº groundY(32 ·Î °¨À½), Ãş 2 ´Â railsY ¸¸Å­ ¼¼·Î·Î ¹Ğ¸°´Ù</summary>
+    private void LayoutLayer(int L)
+    {
+        int n = tiles[L].Length;
+        if (n == 0) return;
+        int nc = cols[L]; int nr = n / nc;
+        float stripW = tileW[L] * nc;
+        float dy = 0f;
+        if (topdown && L == 0) dy = Mathf.Repeat(groundY + tileW[0] * 0.5f, tileW[0]) - tileW[0] * 0.5f;
+        else if (topdown && L == 2) dy = railsY;
+        for (int i = 0; i < n; i++)
+        {
+            int col = i % nc, row = i / nc;
+            // ¿ÀÇÁ¼Â¸¸Å­ ¿À¸¥ÂÊÀ¸·Î (±âÂ÷°¡ ¿ŞÂÊÀ¸·Î ´Ş¸°´Ù), ¹ş¾î³ª¸é ¹İ´ëÂÊÀ¸·Î ¼øÈ¯
+            float x = Mathf.Repeat(col * tileW[L] + offsets[L] + stripW / 2f, stripW) - stripW / 2f;
+            float y = layerY[L] + (row - (nr - 1) * 0.5f) * tileW[L] + dy;
+            tiles[L][i].transform.localPosition = new Vector3(x, y, 0f);
+        }
+    }
+
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // v4.2 °¥¸²±æ (¼±·Î v2) - ±âÇÏ: °¡Áö Áß½É¼± = ¿øÈ£(R, ¥è) -> Á÷¼± -> ¹İ´ë ¿øÈ£ -> ÆòÇà (route.py ¿Í °°Àº ½Ä)
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    /// <summary>ºĞ±âÁ¡¿¡¼­ x(u) ¾ÕÀÇ °¡Áö Áß½É ¿ÀÇÁ¼Â (0 -> RouteDY) °ú Á¢¼± °¢(rad). route.py branch_offset °ú °°´Ù</summary>
+    public static float BranchOffset(float x, out float angRad)
+    {
+        float R = GameBalance.RouteArcR, DY = GameBalance.RouteDY, th = GameBalance.RouteAngleDeg * Mathf.Deg2Rad;
+        float y1 = R * (1f - Mathf.Cos(th));           // ¿øÈ£ ³¡ ¿ÀÇÁ¼Â
+        float a1 = R * Mathf.Sin(th);                  // ¿øÈ£ x ÁøÇà
+        float ld = Mathf.Max(0f, (DY - 2f * y1) / Mathf.Tan(th));   // Á÷¼± ±¸°£
+        float total = 2f * a1 + ld;
+        angRad = 0f;
+        if (x <= 0f) return 0f;
+        if (x <= a1) { angRad = Mathf.Asin(Mathf.Min(1f, x / R)); return R - Mathf.Sqrt(Mathf.Max(0f, R * R - x * x)); }
+        if (x <= a1 + ld) { angRad = th; return y1 + (x - a1) * Mathf.Tan(th); }
+        if (x <= total)
+        {
+            float e = total - x;
+            angRad = Mathf.Asin(Mathf.Min(1f, e / R));
+            return DY - (R - Mathf.Sqrt(Mathf.Max(0f, R * R - e * e)));
+        }
+        return DY;
+    }
+
+    /// <summary>ºĞ±âÁ¡ºÎÅÍ ÆòÇàÀÌ µÇ±â±îÁöÀÇ °Å¸® (u, ¾à 12.5)</summary>
+    public static float BranchTotal()
+    {
+        float R = GameBalance.RouteArcR, th = GameBalance.RouteAngleDeg * Mathf.Deg2Rad;
+        float y1 = R * (1f - Mathf.Cos(th)), a1 = R * Mathf.Sin(th);
+        return 2f * a1 + Mathf.Max(0f, (GameBalance.RouteDY - 2f * y1) / Mathf.Tan(th));
+    }
+
+    /// <summary>
+    /// Á¤Â÷: µÎ»ó ¾Õ¿¡ °¥¸²±æÀ» ³õ´Â´Ù (BranchRouteUI °¡ ºÎ¸¥´Ù). À§ °¡Áö¸¸ / ¾Æ·¡ °¡Áö¸¸ / µÑ ´Ù.
+    /// Å¾´Ù¿î ¸ğµå°¡ ¾Æ´Ï°Å³ª ½ºÇÁ¶óÀÌÆ®°¡ ¾øÀ¸¸é false (Ä«µå¸¸ ¶á´Ù).
+    /// </summary>
+    public static bool PlaceFork(bool up, bool down)
+    {
+        if (instance == null || !instance.topdown || !GameBalance.RouteForkOn) return false;
+        if (!up && !down) return false;
+        instance.ClearFork();
+        return instance.PlaceForkInternal(up, down);
+    }
+
+    private bool PlaceForkInternal(bool up, bool down)
+    {
+        // µÑ ´Ù = rails_fork, À§¸¸ = rails_fork_up. ¾Æ·¡¸¸Àº À§ ±×¸²À» ¼¼·Î·Î µÚÁı´Â´Ù (ÇÇ¹şÀÌ º»¼± Áß½ÉÀÌ¶ó 1px Â÷ÀÌ)
+        string spriteName = (up && down) ? "rails_fork" : "rails_fork_up";
+        Sprite sprite = SpriteBank.Get(spriteName);
+        if (sprite == null) { Debug.LogWarning("[ParallaxBackground] °¥¸²±æ ½ºÇÁ¶óÀÌÆ® ¾øÀ½: " + spriteName + " (Resources/Sprites/WDT)"); return false; }
+
+        // ¾ÆÁ÷ °¨¼Ó ÁßÀÌ¸é ¸ØÃâ ¶§±îÁö ´õ Èå¸¦ °Å¸®¸¸Å­ ¾Õ(¿ŞÂÊ)¿¡ ³õ´Â´Ù - ¸ØÃá µÚ ºĞ±âÁ¡ÀÌ RouteForkAheadX ±ÙÃ³¿¡ ¼±´Ù
+        float stopDist = (speedFactor > 0f) ? BASE_SPEED * externalMul * speedFactor * speedFactor / (2f * DECEL_RATE) : 0f;
+        float xDesired = GameBalance.RouteForkAheadX - stopDist;
+
+        // ºĞ±âÁ¡ x ¸¦ ¶ì Ä§¸ñ À§»ó¿¡ ½º³À: ºĞ±âÁ¡ÀÌ µç Å¸ÀÏÀÇ ¿ŞÂÊ ³¡ + (7 + 20k) px
+        float tileLeft = xDesired - RAILS_TILE_W * 0.5f;
+        for (int i = 0; i < tiles[2].Length; i++)
+        {
+            float tx = tiles[2][i].transform.localPosition.x;
+            if (xDesired >= tx - RAILS_TILE_W * 0.5f && xDesired < tx + RAILS_TILE_W * 0.5f) { tileLeft = tx - RAILS_TILE_W * 0.5f; break; }
+        }
+        float step = SLEEPER_STEP_PX / SPRITE_PPU, phase = FORK_SLEEPER_PHASE_PX / SPRITE_PPU;
+        float k = Mathf.Round((xDesired - tileLeft - phase) / step);
+        float jx = tileLeft + phase + k * step;
+        float stripW = tileW[2] * cols[2];
+        forkStripS = Mathf.Repeat(jx - offsets[2], stripW);
+
+        GameObject go = new GameObject("RailsFork");
+        go.transform.SetParent(layerRoots[2], false);
+        forkTf = go.transform;
+        forkSr = go.AddComponent<SpriteRenderer>();
+        forkSr.sprite = sprite;
+        forkSr.sortingOrder = ORDER_FORK;
+        forkSr.flipY = (!up && down);
+        forkSr.color = tintNow[2];
+
+        GameObject hi = new GameObject("RailsForkHi");
+        hi.transform.SetParent(go.transform, false);
+        forkHiSr = hi.AddComponent<SpriteRenderer>();
+        forkHiSr.sortingOrder = ORDER_FORK_HI;
+        forkHiSr.enabled = false;
+
+        forkHasUp = up; forkHasDn = down; hiOn = false;
+        laneSign = 0; laneActive = false; laneEntered = false; laneSettled = false;
+        forkTf.localPosition = new Vector3(jx, railsY, 0f);
+        Debug.Log("[ParallaxBackground] °¥¸²±æ ³õÀ½ x " + jx.ToString("F2") + " (" + spriteName + ", ¸ØÃâ °Å¸® " + stopDist.ToString("F1") + ")");
+        return true;
+    }
+
+    /// <summary>°í¸¥ ±æ °­Á¶ (+1 À§ / 0 °ğÀº / -1 ¾Æ·¡). ±ôºıÀÌ´Â ±İ»ö ¶ì. °¥¸²±æÀÌ ¾øÀ¸¸é ¹«½Ã</summary>
+    public static void SetHighlight(int sign)
+    {
+        if (instance == null || instance.forkHiSr == null) return;
+        string name = sign > 0 ? "rails_fork_hi_up" : sign < 0 ? "rails_fork_hi_down" : "rails_fork_hi_straight";
+        // ¾Æ·¡¸¸ ÀÖ´Â °¥¸²±æ(À§ ±×¸² µÚÁıÀ½)Àº À§ °­Á¶¸¦ °°ÀÌ µÚÁı´Â´Ù
+        if (instance.forkSr != null && instance.forkSr.flipY && sign < 0) name = "rails_fork_hi_up";
+        Sprite sp = SpriteBank.Get(name);
+        instance.forkHiSr.sprite = sp;
+        instance.forkHiSr.flipY = instance.forkSr != null && instance.forkSr.flipY;
+        instance.forkHiSr.enabled = sp != null;
+        instance.hiOn = sp != null;
+    }
+
+    /// <summary>°­Á¶ ²ô±â</summary>
+    public static void ClearHighlight()
+    {
+        if (instance == null || instance.forkHiSr == null) return;
+        instance.forkHiSr.enabled = false;
+        instance.hiOn = false;
+    }
+
+    /// <summary>
+    /// °¡Áö(sign) Áß½É¼±ÀÌ ¿ùµå x ¸¦ Áö³ª´Â ³ôÀÌ (¿ùµå y). °¥¸²±æÀÌ ¾øÀ¸¸é ÆòÇà ³ôÀÌ(sign * RouteDY). Ä«µå À§Ä¡¿ë (BranchRouteUI)
+    /// </summary>
+    public static float BranchY(int sign, float worldX)
+    {
+        if (instance == null) return sign * GameBalance.RouteDY;
+        if (instance.forkTf == null) return instance.railsY + sign * GameBalance.RouteDY;
+        if (sign == 0) return instance.railsY;
+        float u0 = instance.forkTf.localPosition.x - (sign < 0 ? GameBalance.RouteStagger : 0f);
+        float ang;
+        return instance.railsY + sign * BranchOffset(Mathf.Max(0f, u0 - worldX), out ang);
+    }
+
+    /// <summary>
+    /// Ãâ¹ß: °í¸¥ ±æ·Î µé¾î°£´Ù. sign 0(°ğÀº ±æ) = ¹Ğ¸² ¾øÀÌ °¥¸²±æÀÌ Èê·¯°¡ È­¸é ¹Û¿¡¼­ »ç¶óÁø´Ù.
+    /// ¹Ğ¸²Àº µÎ»ó ¾ÕÀÌ ºĞ±âÁ¡À» Áö³ª¸é¼­ LateUpdate °¡ ¸Å ÇÁ·¹ÀÓ f(d) ·Î °è»êÇÑ´Ù (Áö¸é ¼Óµµ°¡ ¾î¶»µç ±âÇÏ°¡ ¸Â´Â´Ù)
+    /// </summary>
+    public static void BeginLaneShift(int sign)
+    {
+        if (instance == null) return;
+        ClearHighlight();
+        RouteRollDeg = 0f;
+        if (instance.forkTf == null) return;
+        instance.laneSign = sign;
+        instance.laneActive = sign != 0;
+        instance.laneEntered = false; instance.laneSettled = false;
+        if (sign != 0) instance.MakeBranchTiles();
+        Debug.Log("[ParallaxBackground] Ãâ¹ß - " + (sign > 0 ? "À§ °¡Áö" : sign < 0 ? "¾Æ·¡ °¡Áö" : "°ğÀº ±æ"));
+    }
+
+    /// <summary>°í¸¥ °¡ÁöÀÇ ÀÌ¾îÁö´Â ¶ì: rails_ae 8Àå, °¥¸²±æ ¿ŞÂÊ ³¡¿¡ ¿À¸¥ÂÊ ³¡À» µü ºÙ¿© ¿ŞÂÊÀ¸·Î (À§Ä¡´Â TickFork °¡ ¸Å ÇÁ·¹ÀÓ)</summary>
+    private void MakeBranchTiles()
+    {
+        DestroyBranchTiles();
+        Sprite sp = SpriteBank.Get("rails_ae");
+        branchTiles = new SpriteRenderer[BRANCH_TILES];
+        for (int i = 0; i < BRANCH_TILES; i++)
+        {
+            GameObject t = new GameObject("BranchTile" + i);
+            t.transform.SetParent(layerRoots[2], false);
+            SpriteRenderer sr = t.AddComponent<SpriteRenderer>();
+            sr.sprite = sp;
+            sr.sortingOrder = ORDER_RAILS;
+            sr.color = tintNow[2];
+            branchTiles[i] = sr;
+        }
+    }
+
+    private void DestroyBranchTiles()
+    {
+        if (branchTiles == null) return;
+        for (int i = 0; i < branchTiles.Length; i++)
+            if (branchTiles[i] != null) Destroy(branchTiles[i].gameObject);
+        branchTiles = null;
+    }
+
+    /// <summary>°¥¸²±æ¡¤°¡Áö ¶ì¡¤¹Ğ¸² »óÅÂ¸¦ ÀüºÎ ¹ö¸°´Ù (¼±ÅÃ Ãë¼Ò, ¾À ÀüÈ¯, °ğÀº ±æÀÌ Èê·¯°£ µÚ). ¸ğ·¡ ¿ÀÇÁ¼ÂÀº ³²±ä´Ù</summary>
+    public void ClearFork()
+    {
+        if (forkTf != null) Destroy(forkTf.gameObject);
+        forkTf = null; forkSr = null; forkHiSr = null;
+        DestroyBranchTiles();
+        laneActive = false; laneSign = 0; hiOn = false;
+        railsY = 0f; railsAlpha = 1f; oldFadeT = -1f;
+        RouteRollDeg = 0f;
+        if (tiles[2] != null && tiles[2].Length > 0) LayoutLayer(2);
+    }
+
+    /// <summary>ClearFork ÀÇ Á¤Àû ÁøÀÔ (WaveManager Ä¡Æ® Á¡ÇÁ¡¤·± Æ÷±â)</summary>
+    public static void CancelFork()
+    {
+        if (instance != null) instance.ClearFork();
+    }
+
+    /// <summary>¸Å ÇÁ·¹ÀÓ: °¥¸²±æÀ» ¶ì ÀÚ¸®¿¡ µÎ°í, ¹Ğ¸²¡¤°­Á¶¡¤ÆäÀÌµå¸¦ ÁøÇàÇÑ´Ù</summary>
+    private void TickFork(Camera cam)
+    {
+        float stripW = tileW[2] * cols[2];
+        float fx = Mathf.Repeat(forkStripS + offsets[2] + stripW / 2f, stripW) - stripW / 2f;
+        forkTf.localPosition = new Vector3(fx, railsY, 0f);
+        float pivotU = forkSr.sprite != null ? forkSr.sprite.pivot.x / forkSr.sprite.pixelsPerUnit : 16.1f;
+        float forkLeft = fx - pivotU;   // ½ºÇÁ¶óÀÌÆ® ¿ŞÂÊ(¾Õ) ³¡
+
+        // °­Á¶ ±ôºıÀÓ (½Ç½Ã°£ - Á¤Â÷ Áß ½Ã°£ÀÌ ¸ØÃçµµ ±ôºıÀÎ´Ù)
+        if (hiOn && forkHiSr != null)
+        {
+            float a = 0.55f + 0.45f * (0.5f + 0.5f * Mathf.Sin(Time.unscaledTime * Mathf.PI * 2f / HI_BLINK_SEC));
+            forkHiSr.color = new Color(1f, 1f, 1f, a);
+        }
+
+        // ¼¼°è ¹Ğ¸²: µÎ»ó ¾ÕÀÌ (°í¸¥ °¡ÁöÀÇ) ºĞ±âÁ¡À» Áö³­ °Å¸® d -> f(d)
+        if (laneActive)
+        {
+            float u0 = fx - (laneSign < 0 ? GameBalance.RouteStagger : 0f);
+            float d = u0 - GameBalance.RouteHeadFrontX;
+            float ang;
+            float f = BranchOffset(Mathf.Max(0f, d), out ang);
+            float newRailsY = -laneSign * f;
+            float delta = newRailsY - railsY;
+            if (Mathf.Abs(delta) > 1e-5f)
+            {
+                railsY = newRailsY;
+                groundY += delta;
+                LayoutLayer(0); LayoutLayer(2);
+                forkTf.localPosition = new Vector3(fx, railsY, 0f);
+                RouteFX.ShiftWorldObjects(delta);
+            }
+            float th = GameBalance.RouteAngleDeg * Mathf.Deg2Rad;
+            RouteRollDeg = th > 0f ? laneSign * GameBalance.RouteShiftRollDeg * (ang / th) : 0f;
+
+            if (!laneEntered && d > 0f)
+            {
+                laneEntered = true;   // ºĞ±âÁ¡ ÁøÀÔ: ±âÀû + ´úÄÈ
+                SoundManager.Play("sfx_train_whistle");
+                GameFeel.Shake(0.12f);
+            }
+            if (!laneSettled && d >= BranchTotal())
+            {
+                laneSettled = true;   // ÆòÇàÀÌ µÆ´Ù: ´úÄÈ ÇÑ ¹ø ´õ
+                GameFeel.Shake(0.08f);
+                RouteRollDeg = 0f;
+            }
+
+            // °¡Áö ÀÌ¾îÁö´Â ¶ì - °¥¸²±æ ¿ŞÂÊ ³¡¿¡ ¿À¸¥ÂÊ ³¡À» ºÙÀÎ´Ù
+            if (branchTiles != null)
+            {
+                float by = railsY + laneSign * GameBalance.RouteDY;
+                for (int i = 0; i < branchTiles.Length; i++)
+                    if (branchTiles[i] != null)
+                        branchTiles[i].transform.localPosition = new Vector3(forkLeft - RAILS_TILE_W * 0.5f - RAILS_TILE_W * i, by, 0f);
+            }
+        }
+
+        // °¥¸²±æÀÌ È­¸é ¿À¸¥ÂÊ ¹ÛÀ¸·Î ³ª°¬´Ù
+        float halfW = cam.orthographicSize * cam.pixelWidth / Mathf.Max(1, cam.pixelHeight);
+        bool offRight = forkLeft > cam.transform.position.x + halfW + 1f;
+        if (offRight)
+        {
+            if (laneActive)
+            {
+                if (oldFadeT < 0f) oldFadeT = 0f;   // ¿¾ °ğÀº ¶ì ÆäÀÌµå ½ÃÀÛ
+            }
+            else
+            {
+                ClearFork();   // °ğÀº ±æ(¶Ç´Â ¼±ÅÃ ¾øÀÌ Ãâ¹ß): ±×³É Ä¡¿î´Ù
+                return;
+            }
+        }
+
+        if (oldFadeT >= 0f)
+        {
+            oldFadeT += Time.deltaTime;
+            railsAlpha = 1f - Mathf.Clamp01(oldFadeT / Mathf.Max(0.05f, GameBalance.RouteOldRailFadeSec));
+            if (railsAlpha <= 0f) RebaseToBranch(forkLeft);
+        }
+    }
+
+    /// <summary>¿¾ °ğÀº ¶ì°¡ ´Ù »ç¶óÁ³´Ù: °¡Áö ¶ì¸¦ º»¼±(Ãş 2)À¸·Î »ï´Â´Ù - ¿ÀÇÁ¼Â À§»ó¡¤³ôÀÌ°¡ °°¾Æ ¹Ù²ãÄ¡±â°¡ ´«¿¡ ¾È ¶è´Ù</summary>
+    private void RebaseToBranch(float forkLeft)
+    {
+        // º»¼± Å¸ÀÏ Áß½É x ¡Õ offsets[2] (mod 16). °¡Áö Å¸ÀÏ Áß½É = forkLeft - 8 - 16i
+        offsets[2] = Mathf.Repeat(forkLeft - RAILS_TILE_W * 0.5f, RAILS_TILE_W);
+        railsY = 0f;
+        railsAlpha = 1f;
+        oldFadeT = -1f;
+        laneActive = false; laneSign = 0;
+        RouteRollDeg = 0f;
+        DestroyBranchTiles();
+        if (forkTf != null) Destroy(forkTf.gameObject);
+        forkTf = null; forkSr = null; forkHiSr = null;
+        LayoutLayer(2);
+        Debug.Log("[ParallaxBackground] °¡Áö ¶ì°¡ º»¼±ÀÌ µÆ´Ù");
+    }
+
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // v3 ÀÌÇÏ: Å¸ÀÏ ½ºÇÁ¶óÀÌÆ® (PNG ¿ì¼±, ¾øÀ¸¸é ÄÚµå µµÆ®)
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     private Sprite MakeLayerSprite(int layer, int seed)
     {
         Sprite png = null;
@@ -277,7 +634,7 @@ public class ParallaxBackground : MonoBehaviour
         return MakeRailsAndProps(seed);
     }
 
-    /// <summary>ì¸µ 0: ëª¨ë˜ ì§€ë©´ 16x16 ìœ ë‹› - í° ëª…ì•” íŒ¨ì¹˜(ê²½ê³„ ì•ˆìª½) + ìŠ¤í™í´</summary>
+    /// <summary>Ãş 0: ¸ğ·¡ Áö¸é 16x16 À¯´Ö - Å« ¸í¾Ï ÆĞÄ¡(°æ°è ¾ÈÂÊ) + ½ºÆåÅ¬</summary>
     private Sprite MakeSand(int seed)
     {
         int w = 256, h = 256;
@@ -300,10 +657,10 @@ public class ParallaxBackground : MonoBehaviour
             p.Point(gx, gy, c); p.Point(gx + 1, gy, c);
         }
         Random.state = backup;
-        return p.Bake(PPU, w * 0.5f, h);   // í”¼ë²— = ì•„ë˜ ì¤‘ì•™
+        return p.Bake(PPU, w * 0.5f, h);   // ÇÇ¹ş = ¾Æ·¡ Áß¾Ó
     }
 
-    /// <summary>ì¸µ 1: ì§€í‰ì„  ë  16x2 ìœ ë‹› - í•˜ëŠ˜ ê·¸ë¼ë°ì´ì…˜ + ì›ê²½ ë©”ì‚¬ 2í†¤ + ì§€í‰ì„  + ëª¨ë˜ ì´ìŒ</summary>
+    /// <summary>Ãş 1: ÁöÆò¼± ¶ì 16x2 À¯´Ö - ÇÏ´Ã ±×¶óµ¥ÀÌ¼Ç + ¿ø°æ ¸Ş»ç 2Åæ + ÁöÆò¼± + ¸ğ·¡ ÀÌÀ½</summary>
     private Sprite MakeHorizon(int seed)
     {
         int w = 256, h = 32;
@@ -327,13 +684,13 @@ public class ParallaxBackground : MonoBehaviour
                 new Color32(210, 156, 112, 255), PixelPainter.CLEAR);
             x += mw + Random.Range(10, 40);
         }
-        p.Rect(0, 26, w - 1, 26, new Color32(160, 108, 70, 255));   // ì§€í‰ì„ 
-        p.Rect(0, 27, w - 1, h - 1, SAND);                          // ì•„ë˜ ëª¨ë˜ì¸µê³¼ ì´ìŒ
+        p.Rect(0, 26, w - 1, 26, new Color32(160, 108, 70, 255));   // ÁöÆò¼±
+        p.Rect(0, 27, w - 1, h - 1, SAND);                          // ¾Æ·¡ ¸ğ·¡Ãş°ú ÀÌÀ½
         Random.state = backup;
         return p.Bake(PPU, w * 0.5f, h);
     }
 
-    /// <summary>ì¸µ 2: ë ˆì¼(ê¸°ì°¨ ë°‘) + ë°”í€´ ìêµ­ + ì†Œí’ˆ (ê¸°ì°¨ ë  y -2.6~2.6 ë°”ê¹¥ì—ë§Œ)</summary>
+    /// <summary>Ãş 2: ·¹ÀÏ(±âÂ÷ ¹Ø) + ¹ÙÄû ÀÚ±¹ + ¼ÒÇ° (±âÂ÷ ¶ì y -2.6~2.6 ¹Ù±ù¿¡¸¸)</summary>
     private Sprite MakeRailsAndProps(int seed)
     {
         int w = 256, h = 256;
@@ -382,7 +739,7 @@ public class ParallaxBackground : MonoBehaviour
         return p.Bake(PPU, w * 0.5f, h);
     }
 
-    // â”€â”€ ì†Œí’ˆ (ì½”ë“œ ë„íŠ¸ í´ë°±) â”€â”€
+    // ¦¡¦¡ ¼ÒÇ° (ÄÚµå µµÆ® Æú¹é) ¦¡¦¡
     private static void Rock(PixelPainter p, int x, int y, int w, int h)
     {
         p.Shadow(x + 1, y + h - 3, x + w + 1, y + h + 2);
@@ -401,14 +758,14 @@ public class ParallaxBackground : MonoBehaviour
             p.RoundRect(x + ax[i], y + ay[i], x + ax[i] + aw[i], y + ay[i] + ah[i], 2, g, gO);
             p.Line(x + ax[i] + 1, y + ay[i] + 1, x + ax[i] + 1, y + ay[i] + ah[i] - 1, gL, 1);
         }
-        p.Point(x + 2, y - 1, new Color32(232, 120, 140, 255));   // ê½ƒ
+        p.Point(x + 2, y - 1, new Color32(232, 120, 140, 255));   // ²É
     }
 
     private static void Skull(PixelPainter p, int x, int y)
     {
         Color32 bone = new Color32(236, 226, 206, 255);
         p.Ellipse(x, y, x + 9, y + 6, bone, new Color32(150, 134, 110, 255));
-        p.Line(x - 3, y + 1, x, y + 2, bone, 1); p.Line(x + 9, y + 2, x + 12, y + 1, bone, 1);   // ë¿”
+        p.Line(x - 3, y + 1, x, y + 2, bone, 1); p.Line(x + 9, y + 2, x + 12, y + 1, bone, 1);   // »Ô
         p.Point(x + 3, y + 2, new Color32(60, 50, 40, 255)); p.Point(x + 6, y + 2, new Color32(60, 50, 40, 255));
     }
 

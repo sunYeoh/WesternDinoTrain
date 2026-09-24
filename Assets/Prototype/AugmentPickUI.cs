@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 
 /// <summary>
-/// [AugmentPickUI.cs] v1.5 (v9.12 2026-09-22: 리롤 복원 - 유저 "게이머는 아는 말") / v1.4 (v9.11.1 2026-09-22 문구: 리롤 -> 다시 뽑기) / v1.3 (v9.11 2026-09-22: 등장 연출 ModalFeel) / v1.2 (v9.10 2026-09-17: 증강 선택이 매 웨이브가 아니게 되면서(GameBalance.AugmentPickAt) 선택창을 안 여는 웨이브에도 웨이브 회복·최대 HP 효과는 적용 - ApplyPerWaveEffects) / v1.1
+/// [AugmentPickUI.cs] v1.6 (v9.13 2026-09-23: 선로 보상 "증강 1회 더" - OpenExtra(등급 고정, 머리글 "[선로 보상] ..."). 리롤도 그 등급) / v1.5 (v9.12 2026-09-22: 리롤 복원 - 유저 "게이머는 아는 말") / v1.4 (v9.11.1 2026-09-22 문구: 리롤 -> 다시 뽑기) / v1.3 (v9.11 2026-09-22: 등장 연출 ModalFeel) / v1.2 (v9.10 2026-09-17: 증강 선택이 매 웨이브가 아니게 되면서(GameBalance.AugmentPickAt) 선택창을 안 여는 웨이브에도 웨이브 회복·최대 HP 효과는 적용 - ApplyPerWaveEffects) / v1.1
 /// 웨이브 클리어 시 뜨는 증강 3택1 화면 (기획 C)
 /// - v1.1: '행운의 부적'(선택지 +1) / '야전 정비반'(웨이브당 최대 HP 성장) 반영
 ///
@@ -47,6 +47,10 @@ public class AugmentPickUI : MonoBehaviour
 
     /// <summary>선택이 끝난 뒤 실행할 동작 (WaveManager에서 다음 웨이브 시작에 사용)</summary>
     private System.Action onClosed;
+
+    // v1.6: 선로 보상 판 - 등급 고정 + 출처 (없으면 -1 / null)
+    private int extraGrade = -1;
+    private string extraSource = null;
 
     void Awake()
     {
@@ -125,18 +129,33 @@ public class AugmentPickUI : MonoBehaviour
         SoundManager.Play("sfx_ui_click");
 
         int count = CardCount();
-        currentCards = AugmentDatabase.Roll(currentWave, count);
+        currentCards = RollCards(count);
         BuildCards(currentCards);
         RefreshHeader();
 
         Debug.Log("[증강] 리롤! -" + cost + "G (다음 비용 " + RerollCost() + "G)");
     }
 
-    /// <summary>헤더 문구 갱신 (리롤 비용 포함)</summary>
+    /// <summary>v1.6: 카드 뽑기 - 선로 보상 판이면 등급을 고정한다 (리롤도)</summary>
+    private List<AugmentData> RollCards(int count)
+    {
+        AugmentDatabase.ForceGrade = extraGrade;
+        List<AugmentData> rolled = AugmentDatabase.Roll(currentWave, count);
+        AugmentDatabase.ForceGrade = -1;
+        return rolled;
+    }
+
+    /// <summary>헤더 문구 갱신 (리롤 비용 포함). v1.6: 선로 보상 판은 출처를 머리글에</summary>
     private void RefreshHeader()
     {
-        headerText.text = "웨이브 " + currentWave + " 클리어!   증강 선택 [1~" + currentCards.Count
-            + "]  /  건너뛰기 [0]  /  리롤 [9] (" + RerollCost() + "G)";
+        string tail = "  /  건너뛰기 [0]  /  리롤 [9] (" + RerollCost() + "G)";
+        if (extraGrade >= 0)
+        {
+            string gradeName = extraGrade == (int)AugmentGrade.Gold ? "금" : extraGrade == (int)AugmentGrade.Prismatic ? "프리즘" : "은";
+            headerText.text = "[선로 보상]  " + (extraSource ?? "") + "  -  " + gradeName + " 증강 한 번 더 [1~" + currentCards.Count + "]" + tail;
+        }
+        else
+            headerText.text = "웨이브 " + currentWave + " 클리어!   증강 선택 [1~" + currentCards.Count + "]" + tail;
     }
 
     // ==================================================================
@@ -175,14 +194,30 @@ public class AugmentPickUI : MonoBehaviour
     public void Open(int waveNumber, System.Action afterPick)
     {
         if (isOpen) return;
+        extraGrade = -1; extraSource = null;
+        OpenInternal(waveNumber, afterPick);
+    }
+
+    /// <summary>v1.6: 선로 보상 판 - 등급을 고정해 한 번 더 (사냥터 = 은, 위험 = 금). 끝나면 afterPick</summary>
+    public void OpenExtra(int waveNumber, AugmentGrade grade, string sourceLabel, System.Action afterPick)
+    {
+        if (isOpen) { if (afterPick != null) afterPick(); return; }
+        extraGrade = (int)grade; extraSource = sourceLabel;
+        UIManager.Instance?.ShowStatChange("[선로 보상] " + (sourceLabel ?? "") + " - 증강을 한 번 더 고른다");
+        OpenInternal(waveNumber, afterPick);
+    }
+
+    private void OpenInternal(int waveNumber, System.Action afterPick)
+    {
+        if (isOpen) return;
 
         isOpen = true;
         currentWave = waveNumber;
         onClosed = afterPick;
 
-        // '행운의 부적'(+장) / '엄선된 메뉴판'(-1장, 등급 상승) 반영
+        // '행운의 부적'(+장) / '엄선된 메뉴판'(-1장, 등급 상승) 반영. v1.6: 선로 보상 판은 등급 고정
         int count = CardCount();
-        List<AugmentData> rolled = AugmentDatabase.Roll(waveNumber, count);
+        List<AugmentData> rolled = RollCards(count);
         currentCards = rolled;   // v1.2: 숫자키 선택용 보관
         BuildCards(rolled);
 
@@ -206,6 +241,7 @@ public class AugmentPickUI : MonoBehaviour
     private void Close()
     {
         isOpen = false;
+        extraGrade = -1; extraSource = null;
         dimRoot.gameObject.SetActive(false);
         if (pauseWhilePicking) Time.timeScale = 1f;
 

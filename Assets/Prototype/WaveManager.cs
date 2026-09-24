@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// [WaveManager.cs] v6.13 (v9.12 2026-09-22: 협곡의 낙뢰 - 지역 2 일반 웨이브마다 1회 가동 포탑 감전(GameBalance.AmbientLightning*) + 첫 등장 카드 event_lightning + 인라인 연습 구간 2 훅 / 레버 인라인 연습 구간 4 를 InlineLeverWave 시작에 요청 / TutorialDirector.InlineFreeze 동안 스폰 코루틴·클리어 판정·낙뢰 타이머가 쉰다(WaitGap) / 미니 보스 예습용 SpawnBossForPractice) / v6.12 (v9.11.1 2026-09-22 문구) / v6.11 (v9.10.1 2026-09-21: 웨이브 손님 수 배율 GameBalance.WaveCountMul(프롤로그·견습 제외, ApplyRouteCounts 재사용) / 웨이브 시작에 정차 조리 카운터(CookingBridge.StopCooksUsed) 초기화) / v6.10 (v9.10 2026-09-17 테스터 피드백·개정안 §4·§5·§7: 스폰 간격 배율 + 무리 사이 쉼(WaveLengthMul/WaveGroupSize/GapSec) /
+/// [WaveManager.cs] v6.14 (v9.13 2026-09-23: 선로 v2 - 정차의 선로 선택이 카드 창 대신 갈림길 + 왼쪽 카드(BranchRouteUI v2, 시간 안 멈춤). 출발 직전 BranchRouteUI.OnDepart 로 세계 밀림·톤 시작 /
+///   선로 보상 교체: 골드·재료 -> 끝나면 증강 1회 더(사냥터 은 / 위험 금, AugmentPickUI.OpenExtra) + 유물 확률(위험·안개 50%, 폐역 확정) / 웨이브 끝에 RouteFX.ClearTone / 치트 점프·런 시작에 선택 취소) / v6.13 (v9.12 2026-09-22: 협곡의 낙뢰 - 지역 2 일반 웨이브마다 1회 가동 포탑 감전(GameBalance.AmbientLightning*) + 첫 등장 카드 event_lightning + 인라인 연습 구간 2 훅 / 레버 인라인 연습 구간 4 를 InlineLeverWave 시작에 요청 / TutorialDirector.InlineFreeze 동안 스폰 코루틴·클리어 판정·낙뢰 타이머가 쉰다(WaitGap) / 미니 보스 예습용 SpawnBossForPractice) / v6.12 (v9.11.1 2026-09-22 문구) / v6.11 (v9.10.1 2026-09-21: 웨이브 손님 수 배율 GameBalance.WaveCountMul(프롤로그·견습 제외, ApplyRouteCounts 재사용) / 웨이브 시작에 정차 조리 카운터(CookingBridge.StopCooksUsed) 초기화) / v6.10 (v9.10 2026-09-17 테스터 피드백·개정안 §4·§5·§7: 스폰 간격 배율 + 무리 사이 쉼(WaveLengthMul/WaveGroupSize/GapSec) /
 ///   정차 뒤 자동 출발 대신 [Enter]·출발 버튼 확인(DepartConfirm, WaitingDepart 정적) / 증강 선택은 GameBalance.AugmentPickAt 웨이브만(안 여는 웨이브도 웨이브 효과는 적용) /
 ///   분기 선로 RouteChoiceMinWave·베팅 BetMinWave·행상인 MerchantMinWave 부터 / 웨이브 3 시작에 화염 재료 보장 + 범위 요리 소개 카드) / v6.9 (v9.9.2 2026-09-16: 정식 런 첫 등장 카드 훅 - 지역(지역 첫 웨이브)·새 손님(카운트 > 0 인 종류 처음)은 StartWave 예고 때, 보스는 SpawnBoss 때. BriefingUI.ShowOnce 1회) / v6.8 (v9.9 2026-09-16: 견습 운행 - TutorialDirector 가 진행 중이면 StartWave/B 점프 거부, TutorialGateActive 에 디렉터의 BlockAmbient 포함, SpawnForTutorial) / v6.7 (v9.8.1: B 점프는 GameBalance.CheatsAllowed 일 때만) / v6.6 (v9.8: 위험 적 전용 PNG) / v6.5 (교수 피드백 반영 2026-09-14) / v6.4 (고퀄 PNG 적용 2026-09-03) / v6.3 탑뷰 재스킨
 /// 웨이브 단위로 적 유닛을 스폰하고, 모든 적 처치 시 웨이브 완료를 알립니다.
@@ -179,6 +180,7 @@ public class WaveManager : MonoBehaviour
         Instance = this;
         cookGateStatic = false;       // v6.5: 게이트 도중 런 포기(씬 리로드) 시 정적 플래그가 남지 않게
         WaitingDepart = false; departRequested = false;   // v6.10: 정차 대기 중 런 포기 시 잔존 방지
+        RouteFX.ClearTone();   // v6.14: 선로 톤은 런을 넘기지 않는다
     }
 
     private void Start()
@@ -1365,6 +1367,8 @@ public class WaveManager : MonoBehaviour
         cookGateStatic = false;
         pendingRoute = null;
         activeRoute = null;
+        BranchRouteUI.Instance?.Cancel();   // v6.14: 고르던 갈림길·카드·카메라 원래대로
+        RouteFX.ClearTone();
 
         // 웨이브 카운터를 보스 직전으로 두고 바로 시작
         // (currentState 직접 변경: Town 보상 지급 없이 Battle 가드만 통과)
@@ -1404,31 +1408,28 @@ public class WaveManager : MonoBehaviour
         SoundManager.Play("sfx_wave_clear");
         Debug.Log("[WaveManager] 웨이브 " + currentWaveNumber + " 모든 적 처치 완료!");
 
-        // v6.2: 분기 선로 클리어 보상 정산
+        // v6.2: 분기 선로 클리어 보상 정산. v6.14 (선로 v2): 골드·재료 대신 "증강 1회 더"(증강 선택 뒤에 이어서) + 유물 확률 (갑판 상자)
         int journalNo = -1;
+        pendingExtraPickGrade = -1; pendingExtraPickSource = null;
         if (activeRoute != null)
         {
-            if (activeRoute.rewardGold > 0)
+            if (activeRoute.extraPickGrade >= 0)
             {
-                GameManager.Instance?.AddGold(activeRoute.rewardGold);
-                UIManager.Instance?.ShowStatChange("[선로 보상] 골드 +" + activeRoute.rewardGold);
-            }
-            if (activeRoute.rewardMats > 0 && MaterialInventory.Instance != null)
-            {
-                for (int i = 0; i < activeRoute.rewardMats; i++)
-                    MaterialInventory.Instance.Add((MaterialType)Random.Range(0, 6), 1);
-                UIManager.Instance?.ShowStatChange("[선로 보상] 랜덤 재료 +" + activeRoute.rewardMats);
+                pendingExtraPickGrade = activeRoute.extraPickGrade;
+                pendingExtraPickSource = activeRoute.routeName;
             }
             if (activeRoute.journal)
                 journalNo = MetaProgress.PickUncollectedJournal();
 
-            // Phase 2-3: 폐역 잔해에서 아이템(유물)을 주울 수 있다
-            // B-2: 갑판 상자로 떨어진다 (기차 어딘가 - 걸어가서 회수)
-            if (activeRoute.relicChance && Random.value < GameBalance.RouteRelicChance)
+            // 유물: 갑판 상자로 떨어진다 (기차 어딘가 - 걸어가서 회수). 폐역은 확정, 위험·안개는 확률
+            if (activeRoute.relicChance > 0f && Random.value < activeRoute.relicChance)
                 DeckLoot.SpawnItemCrate(
                     Random.Range(GameBalance.TrainWalkMinX + 1f, GameBalance.TrainWalkMaxX - 1f),
-                    "폐역 잔해에서 발견");
+                    activeRoute.id == "ghost" ? "폐역 잔해에서 발견" : "[" + activeRoute.routeName + "] 길가에서 발견");
+            else if (activeRoute.relicChance > 0f)
+                UIManager.Instance?.ShowStatChange("[" + activeRoute.routeName + "] 이번엔 유물이 없었다");
 
+            RouteFX.ClearTone();   // 선로 톤 걷기
             activeRoute = null;
         }
 
@@ -1453,17 +1454,21 @@ public class WaveManager : MonoBehaviour
         OpenAugmentPick();
     }
 
-    /// <summary>증강 3택1을 띄우고, 선택이 끝나면 기존 흐름을 이어간다. v6.10: AugmentPickAt(wave) 가 아닌 웨이브는 선택창 없이 웨이브 효과만</summary>
+    // v6.14: 선로 보상 "증강 1회 더" (사냥터 은 / 위험 금) - 이번 웨이브 증강 선택 뒤에 이어서 한 번 더 연다
+    private int pendingExtraPickGrade = -1;
+    private string pendingExtraPickSource = null;
+
+    /// <summary>증강 3택1을 띄우고, 선택이 끝나면 기존 흐름을 이어간다. v6.10: AugmentPickAt(wave) 가 아닌 웨이브는 선택창 없이 웨이브 효과만. v6.14: 선로 보상 증강이 있으면 이어서</summary>
     private void OpenAugmentPick()
     {
         if (AugmentPickUI.Instance != null)
         {
             if (GameBalance.AugmentPickAt(currentWaveNumber))
-                AugmentPickUI.Instance.OnWaveCleared(currentWaveNumber, delegate { AfterAugmentPick(); });
+                AugmentPickUI.Instance.OnWaveCleared(currentWaveNumber, delegate { OpenExtraPickThenContinue(); });
             else
             {
                 AugmentPickUI.Instance.ApplyPerWaveEffects();
-                AfterAugmentPick();
+                OpenExtraPickThenContinue();
             }
         }
         else
@@ -1471,6 +1476,20 @@ public class WaveManager : MonoBehaviour
             // 증강 UI가 씬에 없으면 기존 흐름 그대로
             AfterAugmentPick();
         }
+    }
+
+    /// <summary>v6.14: 선로 보상 증강(등급 고정)이 있으면 한 번 더 열고, 끝나면 정차 흐름(AfterAugmentPick)</summary>
+    private void OpenExtraPickThenContinue()
+    {
+        int grade = pendingExtraPickGrade;
+        string source = pendingExtraPickSource;
+        pendingExtraPickGrade = -1; pendingExtraPickSource = null;
+        if (grade >= 0 && AugmentPickUI.Instance != null)
+        {
+            AugmentPickUI.Instance.OpenExtra(currentWaveNumber, (AugmentGrade)grade, source, delegate { AfterAugmentPick(); });
+            return;
+        }
+        AfterAugmentPick();
     }
 
     /// <summary>증강 선택 완료 후: GameManager 흐름 + (보스 직전 스피노) + 분기 선로 + 자동 시작</summary>
@@ -1536,7 +1555,11 @@ public class WaveManager : MonoBehaviour
         if (GameBalance.DepartConfirm)
         {
             Debug.Log("[WaveManager] 정차 - 출발 확인 대기 (웨이브 " + nextWave + ")");
-            UIManager.Instance?.ShowWaveNotice("정차 - 준비되면 출발", "요리·투입·[G] 정비소를 마치고  [Enter] 또는 화면 아래 [출발] 버튼");
+            // v6.14: 선로를 골랐으면 그 길 이름으로
+            if (pendingRoute != null)
+                UIManager.Instance?.ShowWaveNotice("[" + pendingRoute.routeName + "]  이 길로 간다", "준비되면  [Enter] 또는 화면 아래 [출발] 버튼  -  요리·투입·[G] 정비소는 그 전에");
+            else
+                UIManager.Instance?.ShowWaveNotice("정차 - 준비되면 출발", "요리·투입·[G] 정비소를 마치고  [Enter] 또는 화면 아래 [출발] 버튼");
             WaitingDepart = true; departRequested = false;
             while (!departRequested && !isWaveActive) yield return null;
             WaitingDepart = false; departRequested = false;
@@ -1552,8 +1575,12 @@ public class WaveManager : MonoBehaviour
         if (isWaveActive)
         {
             Debug.Log("[WaveManager] 이미 다른 경로로 웨이브가 시작됨 - 자동 시작 스킵");
+            BranchRouteUI.Instance?.Cancel();
             yield break;
         }
+
+        // v6.14: 출발 - 카드 치우고 고른 가지로 들어간다 (세계 밀림은 ParallaxBackground 가 두상 앞이 분기점을 지나며 진행)
+        BranchRouteUI.Instance?.OnDepart();
 
         // GameManager를 경유해야 currentWave 카운트와 Battle 상태가 같이 올라간다
         if (GameManager.Instance != null)

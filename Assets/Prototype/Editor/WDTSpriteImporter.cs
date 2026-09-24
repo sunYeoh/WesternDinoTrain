@@ -6,6 +6,7 @@ using UnityEngine;
 /// <summary>
 /// [WDTSpriteImporter.cs] v4.4 (Editor 전용) - 스프라이트 PNG 자동 임포트 설정 (2026-09-07, v9 픽셀 팩 + UI 스킨)
 ///
+/// v4.5 (v9.13): 선로 v2 갈림길 rails_fork / rails_fork_up / rails_fork_hi_up·down·straight (516x421, 32ppu, 피벗 = 위 가지 분기점 (515/516, 211/421)) 5줄
 /// v4.4 (v9.9.2): tut_ring_l(72x26, 중앙) 1줄. ui_npc_spino / ui_npc_ankylo 는 ui_ 규칙 그대로 (PPU 100, 단순 그림)
 /// v4.3 (v9.9): 튜토리얼 현장 마커 tut_arrow(24x21, 피벗 = 뾰족한 끝 (11.5/24, 0)) / tut_ring(36x14, 중앙) 표 2줄 - 32ppu 월드 스프라이트
 /// v4.2: 위험 적 전용 그림 4종 e_fly / e_parasaur / e_carno / e_mosa (32ppu, 중앙 피벗) 표 추가
@@ -80,6 +81,11 @@ public class WDTSpriteImporter : AssetPostprocessor
             { "leverhandle", new Info(32f, 0.4571f, 0.0621f) },
             { "leverpost", new Info(32f, 0.5053f, 0.4947f) },
             { "rails_ae", new Info(32f, 0.5000f, 0.5000f) },
+            { "rails_fork", new Info(32f, 0.9981f, 0.5012f) },        // v4.5 (v9.13): 갈림길 516x421 - 피벗 = 위 가지 분기점 (오른쪽 끝 px 515, 본선 중심 행 = 아래에서 211)
+            { "rails_fork_up", new Info(32f, 0.9981f, 0.5012f) },     // 위 가지만 (보스 직전 2택)
+            { "rails_fork_hi_up", new Info(32f, 0.9981f, 0.5012f) },  // 고른 길 강조 3종 (같은 크기·피벗)
+            { "rails_fork_hi_down", new Info(32f, 0.9981f, 0.5012f) },
+            { "rails_fork_hi_straight", new Info(32f, 0.9981f, 0.5012f) },
             { "rock_armor", new Info(32f, 0.5053f, 0.5000f) },
             { "rock_elec", new Info(32f, 0.5053f, 0.5000f) },
             { "rock_fire", new Info(32f, 0.5053f, 0.5000f) },

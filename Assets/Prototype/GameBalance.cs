@@ -364,8 +364,7 @@ public static class GameBalance
     public static float ItemDropChanceBoss = 0.25f;
     public static float ItemDropChanceIntruder = 0.12f;
 
-    /// <summary>폐역 선로 클리어 시 아이템 획득 확률</summary>
-    public static float RouteRelicChance = 0.35f;
+    /// <summary>(v9.13: 선로별 유물 확률은 아래 v9.13 섹션 RouteDangerRelic / RouteFogRelic / RouteGhostRelic 로 옮김)</summary>
 
     // ==================================================================
     //  증강 확장 (Phase 2-3) - 신규 증강 10종 계수
@@ -948,4 +947,36 @@ public static class GameBalance
     public static float BossPracticeRetryHp = 0.5f;
     /// <summary>예습 시작 때 주는 고기 (미끼 1회 = 고기 1)</summary>
     public static int BossPracticeMeat = 4;
+
+    // ── (v9.13 2026-09-23) 선로 v2 - 갈림길이 화면에 보이고 기차가 고른 가지로 들어간다 (목업 v2, 도트 px/route.py v2.1) ──
+    // ── 갈림길 (ParallaxBackground v4.2) ──
+    /// <summary>갈림길 스프라이트 + 세계 밀림 연출 전체 스위치. false = 갈림길 없이 왼쪽 카드만 (카드는 평행 높이에 고정)</summary>
+    public static bool RouteForkOn = true;
+    /// <summary>정차 때 위 가지 분기점을 놓을 x (두상 앞 -8.0 바로 앞). 띠 침목 위상(20px)에 스냅되고, 아직 감속 중이면 멈출 거리만큼 앞에 놓는다</summary>
+    public static float RouteForkAheadX = -8.4f;
+    /// <summary>두상 앞 x. 이 점이 분기점을 지난 거리 d 의 가지 오프셋 f(d) 만큼 세계가 반대로 밀린다 (기차는 y 0 고정)</summary>
+    public static float RouteHeadFrontX = -8.0f;
+    /// <summary>가지 간격 (u). 도트(route.py DY)와 같이 바꿔야 한다</summary>
+    public static float RouteDY = 4.4f;
+    /// <summary>가지 원호 반지름 (u, route.py R_ARC) / 분기 각 (도, THETA) / 아래 가지 전철기가 위 가지보다 앞선 거리 (u, STAGGER)</summary>
+    public static float RouteArcR = 7f;
+    public static float RouteAngleDeg = 25f;
+    public static float RouteStagger = 1.6f;
+    // ── 정차 카메라 (CameraZoom v5) ──
+    /// <summary>선로를 고르는 동안 카메라 x (두상 앞 13u 가 보인다) / 줌아웃 배율 (8.5 -> 10) / 이동 시간(초)</summary>
+    public static float RouteStopCamX = -3.6f;
+    public static float RouteStopZoomMul = 1.18f;
+    public static float RouteStopCamSec = 0.6f;
+    // ── 가지로 들어가는 연출 ──
+    /// <summary>가지 원호를 도는 동안 화면 기울임 최대 (도). 0 = 안 기울임</summary>
+    public static float RouteShiftRollDeg = 5f;
+    /// <summary>가지로 들어간 뒤, 갈림길이 화면 밖으로 나가면 옛 곧은 띠가 이 시간(초) 동안 사라진다</summary>
+    public static float RouteOldRailFadeSec = 3f;
+    /// <summary>선로별 화면 톤 (위험 = 붉게, 안개 = 푸르게 흐릿, 폐역 = 잿빛, 사냥터 = 따뜻하게) + 가장자리 어둡기 (RouteFX)</summary>
+    public static bool RouteToneOn = true;
+    // ── 보상 (v1 골드·재료 -> 증강 1회 더·유물) ──
+    /// <summary>위험 선로: 끝나면 금 증강 1회 더 + 유물 확률 / 안개: 유물 확률 / 폐역: 일지 + 유물 확률 (1 = 확정) / 사냥터: 은 증강 1회 더 (확률 없음)</summary>
+    public static float RouteDangerRelic = 0.5f;
+    public static float RouteFogRelic = 0.5f;
+    public static float RouteGhostRelic = 1f;
 }

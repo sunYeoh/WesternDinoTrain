@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [TutorialHint.cs] v1.6 (v9.12 2026-09-22: F4 가 구간 기록도 지운다 / 리롤 복원) / v1.5 (v9.11.1 2026-09-22 문구: 복구법 상태별·공명 예외·이번 운행·다시 뽑기·무방비) / v1.4 (v9.9.2 2026-09-16: 승격 5 - first_town / first_augment / first_route / first_item / first_overheat 는 배너 대신 브리핑 카드(BriefingTexts.Promoted), F4 가 첫 등장 카드 기록도 지운다) / v1.3 (v9.9 2026-09-16: 견습 운행·브리핑 카드 중엔 배너 쉼, F4 가 견습 완료 기록도 지움, 배너 캔버스 DontDestroyOnLoad) / v1.2 (v9.8.1: F4 리셋은 GameBalance.CheatsAllowed 일 때만) / v1.1 (교수 피드백 A13: 표시 5초 + 아무 키 닫기 + 조리 중 대기) - 컨텍스트 트리거 튜토리얼 (설계: 튜토리얼_온보딩_설계_2026-08-18)
+/// [TutorialHint.cs] v1.7 (v9.13 2026-09-23: first_route 트리거 = BranchRouteUI.ChoicePending - 선로 선택이 카드 창이 아니게 됨) / v1.6 (v9.12 2026-09-22: F4 가 구간 기록도 지운다 / 리롤 복원) / v1.5 (v9.11.1 2026-09-22 문구: 복구법 상태별·공명 예외·이번 운행·다시 뽑기·무방비) / v1.4 (v9.9.2 2026-09-16: 승격 5 - first_town / first_augment / first_route / first_item / first_overheat 는 배너 대신 브리핑 카드(BriefingTexts.Promoted), F4 가 첫 등장 카드 기록도 지운다) / v1.3 (v9.9 2026-09-16: 견습 운행·브리핑 카드 중엔 배너 쉼, F4 가 견습 완료 기록도 지움, 배너 캔버스 DontDestroyOnLoad) / v1.2 (v9.8.1: F4 리셋은 GameBalance.CheatsAllowed 일 때만) / v1.1 (교수 피드백 A13: 표시 5초 + 아무 키 닫기 + 조리 중 대기) - 컨텍스트 트리거 튜토리얼 (설계: 튜토리얼_온보딩_설계_2026-08-18)
 ///
 /// 몰아서 가르치지 않는다. 각 기믹을 "처음 마주치는 순간" 1회만 배너로 안내한다.
 /// - 영구 기록: PlayerPrefs "WDT_Tut_(id)" - 2회차부터 반복 없음 (다회차 마찰 방지)
@@ -63,7 +63,7 @@ public class TutorialHint : MonoBehaviour
         new HintDef("first_augment", "증강 선택",
             "[1~5] 숫자키로 선택 / [0] 건너뛰기(+명성) / [9] 리롤(골드). 증강이 이번 운행의 강화다"),
         new HintDef("first_route", "분기 선로",
-            "위험과 보상의 교환이다. 폐역에는 선대의 기록이 잠들어 있다"),
+            "두상 앞에서 선로가 갈라진다 - 왼쪽 카드로 길을 골라라. 폐역에는 선대의 일지가 남아 있다"),
         new HintDef("boss_incoming", "보스 접근!",
             "가슴 해치가 열리면(무방비) [F] 로 독샘 요리를 던져라!"),
     };
@@ -216,7 +216,7 @@ public class TutorialHint : MonoBehaviour
         if (id == "cook_start") return CookingMinigame.IsActive;
         if (id == "first_event") return KitchenEventManager.IsActive;
         if (id == "first_augment") return AugmentPickUI.IsOpen;
-        if (id == "first_route") return BranchRouteUI.IsOpen;
+        if (id == "first_route") return BranchRouteUI.ChoicePending;   // v1.7: 갈림길 + 왼쪽 카드 (창이 아니다)
         if (id == "first_item") return ItemManager.OwnedCount > 0;
 
         if (id == "cook_ready")

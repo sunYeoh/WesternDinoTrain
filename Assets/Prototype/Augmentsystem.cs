@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 
 /// <summary>
-/// [AugmentSystem.cs] v4.3 (v9.11.1 2026-09-22 문구: 이번 운행·유물·진화) / v4.2 (v9.10 2026-09-17 테스터 피드백 "증강에 모르겠는 말": 첫 지역은 바로 이해되는 증강만 후보(EARLY_SIMPLE, GameBalance.AugmentSimpleEarly) / 설명 낱말 일상어 - 도트·스택·인접 버프·공명·DEF·감쇄) / v4.1 (2026-09-14: 중첩 배수 상한 AugmentStackMulCap) / v4
+/// [AugmentSystem.cs] v4.4 (v9.13 2026-09-23: AugmentDatabase.ForceGrade - 선로 보상 "증강 1회 더" 의 등급 고정) / v4.3 (v9.11.1 2026-09-22 문구: 이번 운행·유물·진화) / v4.2 (v9.10 2026-09-17 테스터 피드백 "증강에 모르겠는 말": 첫 지역은 바로 이해되는 증강만 후보(EARLY_SIMPLE, GameBalance.AugmentSimpleEarly) / 설명 낱말 일상어 - 도트·스택·인접 버프·공명·DEF·감쇄) / v4.1 (2026-09-14: 중첩 배수 상한 AugmentStackMulCap) / v4
 /// 로그라이크 증강 시스템 (기획 C) - 창의적 증강 재설계판
 ///
 /// 설계 철학
@@ -802,9 +802,14 @@ public static class AugmentDatabase
         "silver_atk", "silver_hp", "silver_crit", "silver_explode", "silver_lifesteal", "silver_wavehal", "silver_aspd", "silver_range", "silver_magnet", "silver_armorpad",
         "gold_atk", "gold_explode", "gold_lifesteal", "gold_fortress", "gold_nanoarmor", "gold_fieldrepair", "gold_pantry", "gold_doubletap" };
 
-    /// <summary>웨이브가 올라갈수록 상위 등급이 잘 나온다</summary>
+    /// <summary>v9.13: 다음 Roll 의 등급을 고정 (-1 = 안 함). 선로 보상 "증강 1회 더 (은/금)" - AugmentPickUI.OpenExtra 가 걸고 푼다</summary>
+    public static int ForceGrade = -1;
+
+    /// <summary>웨이브가 올라갈수록 상위 등급이 잘 나온다. v9.13: ForceGrade 가 걸려 있으면 그 등급</summary>
     private static AugmentGrade RollGrade(int waveNumber)
     {
+        if (ForceGrade >= 0) return (AugmentGrade)ForceGrade;
+
         float roll = Random.value;
         float prismChance = Mathf.Clamp(0.05f + waveNumber * 0.015f, 0.05f, 0.30f);
         float goldChance = Mathf.Clamp(0.25f + waveNumber * 0.020f, 0.25f, 0.50f);

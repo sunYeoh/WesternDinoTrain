@@ -2,7 +2,9 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 
 /// <summary>
-/// [CameraZoom.cs] v4.1 (v9.10 2026-09-17: 최대 줌아웃을 GameBalance.CamMaxZoom(14)으로 - "화면 축소하면 셰프가 점") / v4 (B-2: 셰프 소프트 팔로우 - 방향결정 2026-08-31)
+/// [CameraZoom.cs] v5 (v9.13 2026-09-23: 선로 v2 - 정차 프레이밍 SetRouteFraming: 선로를 고르는 동안 x RouteStopCamX(-3.6)·줌 x RouteStopZoomMul(1.18) 로 0.6초에 옮겨 두상 앞 갈림길이 다 보이게, 출발하면 되돌린다 /
+///   가지로 들어가는 동안 ParallaxBackground.RouteRollDeg 만큼 화면 기울임(Dutch angle) - 기차 데크를 돌리면 셰프 활동 범위·포탑 자리가 어긋나서 카메라를 돌린다)
+/// v4.1 (v9.10 2026-09-17: 최대 줌아웃을 GameBalance.CamMaxZoom(14)으로 - "화면 축소하면 셰프가 점") / v4 (B-2: 셰프 소프트 팔로우 - 방향결정 2026-08-31)
 /// 마우스 휠로 카메라 줌인/줌아웃합니다.
 /// Main Camera 오브젝트에 붙이세요.
 /// 줌아웃: 전장 전체 파악 / 줌인: 주방 정밀 조작
@@ -43,6 +45,18 @@ public class CameraZoom : MonoBehaviour
     // v3: 셰이크를 제외한 '진짜' 카메라 위치 (셰이크가 추적 Lerp에 섞여 들어가는 것 방지)
     private Vector3 basePos;
 
+    // v5: 정차 프레이밍 (선로 선택) + 화면 기울임
+    private static bool routeFrameOn = false;   // BranchRouteUI 가 켜고 WaveManager 출발이 끈다
+    private float routeFrameT = 0f;             // 0 = 평소, 1 = 정차 프레이밍 (RouteStopCamSec 에 걸쳐)
+    private float rollNow = 0f;                 // 현재 기울임 (도)
+    private bool rollApplied = false;
+
+    /// <summary>선로를 고르는 동안 카메라를 앞으로·줌아웃 (true) / 되돌리기 (false). 씬이 바뀌면 저절로 꺼진다</summary>
+    public static void SetRouteFraming(bool on)
+    {
+        routeFrameOn = on;
+    }
+
     // ─────────────────────────────────────────────
     // 초기화
     // ─────────────────────────────────────────────
@@ -60,6 +74,7 @@ public class CameraZoom : MonoBehaviour
         cam = GetComponent<Camera>();
         targetZoom = defaultZoom;
         basePos = transform.position;   // v3: 셰이크 없는 기준 위치 초기화
+        routeFrameOn = false; routeFrameT = 0f; rollNow = 0f;   // v5: 씬 전환 뒤 정차 프레이밍·기울임 잔존 방지
 
         if (cam != null)
             cam.orthographicSize = defaultZoom;
@@ -84,8 +99,34 @@ public class CameraZoom : MonoBehaviour
     // ─────────────────────────────────────────────
     private void Update()
     {
+        // v5: 정차 프레이밍 진행도 (스케일드 시간 - 카드 창이 시간을 멈추면 카메라도 선다)
+        routeFrameT = Mathf.MoveTowards(routeFrameT, routeFrameOn ? 1f : 0f,
+            Time.deltaTime / Mathf.Max(0.05f, GameBalance.RouteStopCamSec));
+
         HandleZoom();
         HandleCameraPosition();
+        HandleRoll();
+    }
+
+    /// <summary>v5: 정차 프레이밍 가중치 0~1 (부드러운 시작·끝)</summary>
+    private float RouteFrameEase()
+    {
+        float t = routeFrameT;
+        return t * t * (3f - 2f * t);
+    }
+
+    /// <summary>v5: 가지로 들어가는 동안 화면 기울임 (ParallaxBackground.RouteRollDeg 를 부드럽게 따라간다)</summary>
+    private void HandleRoll()
+    {
+        float want = ParallaxBackground.RouteRollDeg;
+        rollNow = Mathf.Lerp(rollNow, want, Time.deltaTime * 6f);
+        if (Mathf.Abs(rollNow) < 0.01f && Mathf.Abs(want) < 0.01f)
+        {
+            if (rollApplied) { transform.rotation = Quaternion.identity; rollApplied = false; rollNow = 0f; }
+            return;
+        }
+        transform.rotation = Quaternion.Euler(0f, 0f, rollNow);
+        rollApplied = true;
     }
 
     // ─────────────────────────────────────────────
@@ -114,13 +155,14 @@ public class CameraZoom : MonoBehaviour
         ApplySmoothZoom();
     }
 
-    /// <summary>부드럽게 줌 적용</summary>
+    /// <summary>부드럽게 줌 적용. v5: 정차 프레이밍 중에는 목표 줌에 RouteStopZoomMul 을 곱한다 (휠 줌은 그대로 먹는다)</summary>
     private void ApplySmoothZoom()
     {
         if (cam == null) return;
+        float mul = Mathf.Lerp(1f, GameBalance.RouteStopZoomMul, RouteFrameEase());
         cam.orthographicSize = Mathf.Lerp(
             cam.orthographicSize,
-            targetZoom,
+            targetZoom * mul,
             Time.deltaTime * smoothSpeed
         );
     }
@@ -142,6 +184,9 @@ public class CameraZoom : MonoBehaviour
                 targetX = chefTransform.position.x - Mathf.Sign(dx) * GameBalance.CamDeadzone;
             targetX = Mathf.Clamp(targetX, GameBalance.CamFollowMinX, GameBalance.CamFollowMaxX);
 
+            // v5: 정차 프레이밍 - 두상 앞 갈림길이 다 보이는 x 로 (셰프가 움직여도 고정)
+            targetX = Mathf.Lerp(targetX, GameBalance.RouteStopCamX, RouteFrameEase());
+
             // Y는 기차 기준 유지 (기차 태그 없으면 현재 y)
             float targetY = targetTransform != null
                 ? targetTransform.position.y + offset.y : basePos.y;
@@ -151,8 +196,9 @@ public class CameraZoom : MonoBehaviour
         }
         else if (targetTransform != null)
         {
-            // 팔로우 오프 = 기존 기차 고정 추적
+            // 팔로우 오프 = 기존 기차 고정 추적 (v5: 정차 프레이밍은 여기도)
             Vector3 targetPos = targetTransform.position + offset;
+            targetPos.x = Mathf.Lerp(targetPos.x, GameBalance.RouteStopCamX, RouteFrameEase());
             basePos = Vector3.Lerp(basePos, targetPos, Time.deltaTime * smoothSpeed);
         }
 
