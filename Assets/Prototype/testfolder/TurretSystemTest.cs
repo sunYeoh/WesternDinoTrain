@@ -1,14 +1,18 @@
 using UnityEngine;
 
 /// <summary>
-/// 포탑 슬롯 시스템 테스트 (확인 후 삭제)
-/// F1: 매운 육포 투입 / F2: 과부하 코일 투입 / F3: 철판 정식 투입
+/// [TurretSystemTest.cs] v1.1 (v9.13.1 2026-09-24) - 포탑 슬롯 테스트 키 (씬의 TurretSlotManager 오브젝트에 켜진 채 붙어 있다)
+/// Shift+F1: 매운 육포 투입 / Shift+F2: 과부하 코일 투입 / Shift+F3: 철판 정식 투입 (요리 없이 공짜)
+/// v1.1: 빌드에서는 안 먹는다 (GameBalance.CheatsAllowed) - 테스터가 F1 을 눌러 포탑을 공짜로 받던 구멍.
+///       에디터에서도 Shift 를 같이 눌러야 한다 (F3 이 DevCheat 짧은 런 토글과 겹쳤다). 견습 운행 중엔 무시
 /// </summary>
 public class TurretSystemTest : MonoBehaviour
 {
     void Update()
     {
         if (TurretSlotManager.Instance == null) return;
+        if (!GameBalance.CheatsAllowed || TutorialDirector.Active) return;
+        if (!Input.GetKey(KeyCode.LeftShift) && !Input.GetKey(KeyCode.RightShift)) return;
 
         if (Input.GetKeyDown(KeyCode.F1))
         {

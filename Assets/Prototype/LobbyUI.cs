@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [LobbyUI.cs] v1.5 (v9.12 2026-09-22: [T] = 견습 기록이 없으면 견습 운행 전부, 있으면 훈련장(TrainingGroundUI) 목록 / 처음 실행이면 [출발]·[Enter] 도 견습부터(GameBalance.TutorialForceFirst) / 버튼 글자 "훈련장") / v1.4 (v9.10.1 2026-09-21: 재료 이름 MaterialNames) / [LobbyUI.cs] v1.3 (v9.10 2026-09-17: 요리 도감에 설명 상자 - 이름에 마우스를 올리거나 클릭하면 무엇을 하나·어떤 손님에·언제 (RecipeText)) / v1.2 (v9.9 2026-09-16: [T] 견습 운행 버튼 + 첫 실행 강조) / v1.1 (v9.8: 칭호 표시) / v1 - 로비 개편 (튜토리얼_온보딩_설계 6절 + 화면 검수 "시작 버튼 묻힘")
+/// [LobbyUI.cs] v1.6 (v9.13.1 2026-09-24: 오른쪽 아래 빌드 표시 GameBalance.BuildTag) / v1.5 (v9.12 2026-09-22: [T] = 견습 기록이 없으면 견습 운행 전부, 있으면 훈련장(TrainingGroundUI) 목록 / 처음 실행이면 [출발]·[Enter] 도 견습부터(GameBalance.TutorialForceFirst) / 버튼 글자 "훈련장") / v1.4 (v9.10.1 2026-09-21: 재료 이름 MaterialNames) / [LobbyUI.cs] v1.3 (v9.10 2026-09-17: 요리 도감에 설명 상자 - 이름에 마우스를 올리거나 클릭하면 무엇을 하나·어떤 손님에·언제 (RecipeText)) / v1.2 (v9.9 2026-09-16: [T] 견습 운행 버튼 + 첫 실행 강조) / v1.1 (v9.8: 칭호 표시) / v1 - 로비 개편 (튜토리얼_온보딩_설계 6절 + 화면 검수 "시작 버튼 묻힘")
 ///
 /// - v1.2: 출발 버튼 아래 [T] 견습 운행 (340x44, y 130). 미완료(TutorialDirector.Done == false)면 목업 v2 (C) 대로
 ///   위에 현장 마커 화살표(tut_arrow 2배)가 까딱이고, 버튼 양끝 경광등(ui_ev_beacon_0/1)이 0.3초마다 교대, 황동 테,
@@ -275,6 +275,16 @@ public class LobbyUI : MonoBehaviour
         credit.rectTransform.pivot = new Vector2(1f, 0f);
         credit.rectTransform.sizeDelta = new Vector2(420f, 20f);
         credit.rectTransform.anchoredPosition = new Vector2(-14f, 12f);
+
+        // v1.6: 빌드 표시 (크레딧 위) - 테스트 시트에 어느 빌드였는지 적는다
+        Text build = UIFactory.CreateText(root.transform, "BuildTag",
+            "빌드 " + GameBalance.BuildTag + (Application.isEditor ? "  에디터" : GameBalance.CheatsInBuild ? "  치트 켬" : ""), 11,
+            UIFactory.DIM, TextAnchor.MiddleRight);
+        build.rectTransform.anchorMin = new Vector2(1f, 0f);
+        build.rectTransform.anchorMax = new Vector2(1f, 0f);
+        build.rectTransform.pivot = new Vector2(1f, 0f);
+        build.rectTransform.sizeDelta = new Vector2(420f, 20f);
+        build.rectTransform.anchoredPosition = new Vector2(-14f, 30f);
 
         root.SetActive(false);   // 상태 폴링이 로비에서 켠다
     }

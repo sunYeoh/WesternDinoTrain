@@ -979,4 +979,8 @@ public static class GameBalance
     public static float RouteDangerRelic = 0.5f;
     public static float RouteFogRelic = 0.5f;
     public static float RouteGhostRelic = 1f;
+
+    // ── (v9.13.1 2026-09-24) 3인 테스트 준비 ──
+    /// <summary>빌드 표시 - 로비 오른쪽 아래에 찍힌다 (테스터 시트에 어느 빌드였는지 적기 위해). 팩마다 올린다</summary>
+    public const string BuildTag = "v9.13.1 (2026-09-24)";
 }
