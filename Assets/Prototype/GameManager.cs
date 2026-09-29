@@ -1,10 +1,10 @@
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// [GameManager.cs] v4.3 (v9.9 2026-09-16: 견습 운행 StartTutorial/EndTutorial - 튜토리얼 런은 웨이브·보급·메타 기록 없이 Battle 상태만 빌린다) / v4.2 (2026-09-14: 포탑 과열 런 통계 초기화 - TurretSlot.ResetRunStats) / v4.1 (런 통계 초기화 / 프롤로그 찬장 고기 고정 / 전투 중 수리 기록) / v4
+/// [GameManager.cs] v4.4 (v9.14 2026-09-28: 운행 시작에 증강·유물 강제 초기화 + 명성 상점 "출발 증강") / v4.3 (v9.9 2026-09-16: 견습 운행 StartTutorial/EndTutorial - 튜토리얼 런은 웨이브·보급·메타 기록 없이 Battle 상태만 빌린다) / v4.2 (2026-09-14: 포탑 과열 런 통계 초기화 - TurretSlot.ResetRunStats) / v4.1 (런 통계 초기화 / 프롤로그 찬장 고기 고정 / 전투 중 수리 기록) / v4
 /// 게임 전체 상태를 관리하는 최상위 싱글톤 클래스.
 /// Cooking 페이즈 제거 — 게임 시작하면 바로 Battle.
 /// 조리는 전투 중 언제든 가능.
@@ -134,10 +134,21 @@ public class GameManager : MonoBehaviour
             CookingBridge.ResetRunStats();   // v4.1: 런 통계 초기화 (프롤로그 조리 게이트·관찰 시트)
             TurretSlot.ResetRunStats();      // v4.2: 과열 횟수·정지 시간 (static 이라 씬 리로드 뒤에도 남는다)
             RepairsInBattle = 0; RepairGoldInBattle = 0;
+
+            // v4.4 (v9.14): 증강·유물은 운행 시작에 반드시 비운다 (테스터 "한 판 끝나고 다음 판에도 증강이 남는다" - AugmentPickUI.Awake 만 믿지 않는다)
+            if (AugmentManager.Owned.Count > 0 || ItemManager.OwnedCount > 0)
+                Debug.LogWarning("[GameManager] 운행 시작인데 증강 " + AugmentManager.Owned.Count + " / 유물 " + ItemManager.OwnedCount + " 이 남아 있었다 - 비운다");
+            AugmentManager.ResetRun();
+            ItemManager.ResetRun();
+
             GiveStarterKit();
 
             // v4: 새 런 시작을 메타 기록에 등록 (런 카운트 +1)
             MetaProgress.BeginRun();
+
+            // v4.4 (v9.14): 명성 상점 "출발 증강" - 은 증강 1회 (오프닝 카드 뒤에 뜬다 - 시간 정지 창끼리 겹치지 않게 다음 프레임)
+            if (MetaProgress.StartAugment && AugmentPickUI.Instance != null)
+                StartCoroutine(OpenStartAugmentNextFrame());
 
             // v4.2: 오프닝 연출 (클릭/아무 키로 스킵)
             StoryTexts.ShowOpening();
@@ -223,6 +234,15 @@ public class GameManager : MonoBehaviour
         UIManager.Instance?.ShowStatChange(preInstalled
             ? "보급품 도착! " + summary + " - 포탑 1문은 선대가 걸어뒀다. 나머지는 셰프의 몫!"
             : "보급품 도착! " + summary + " - 슬롯에 투입해 포탑을 세워라!");
+    }
+
+    /// <summary>v4.4: 출발 증강 - 오프닝 연출·첫 카드가 닫힌 뒤 은 증강 선택창 (명성 상점 "출발 증강")</summary>
+    private System.Collections.IEnumerator OpenStartAugmentNextFrame()
+    {
+        yield return null;
+        while (StoryTexts.IsBlocking || BriefingUI.IsOpen || AugmentPickUI.IsOpen) yield return null;
+        if (currentState != GameState.Battle) yield break;
+        AugmentPickUI.Instance.OpenExtra(currentWave, AugmentGrade.Silver, "출발 증강", null);
     }
 
     // ─────────────────────────────────────────────

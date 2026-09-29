@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 
 /// <summary>
-/// [WorkshopUI.cs] v2.7 (v9.11.1 2026-09-22 문구: 구매 불가 이유, 이번 운행) / v2.6 (v9.11 2026-09-22: 등장 연출 ModalFeel) / v2.5 (v9.10.1 2026-09-21: 재료 이름 MaterialNames) / [WorkshopUI.cs] v2.4 (v9.10 2026-09-17 테스터 피드백·개정안 §3: 기차 수리·장갑 보강은 정차(Town)에서만(ShopRepairInBattle), 수리 정차당 1회(ShopRepairPerStop), 장갑 지역당 1회·최종전 앞 없음(ShopArmorPerRegion),
+/// [WorkshopUI.cs] v2.8 (v9.14 2026-09-28: 정비 가격 지역 할증 GameBalance.WorkshopPriceRegionMul(지역 2 = 1.5배, 3 = 2배), 재료값 GameBalance 로) / v2.7 (v9.11.1 2026-09-22 문구: 구매 불가 이유, 이번 운행) / v2.6 (v9.11 2026-09-22: 등장 연출 ModalFeel) / v2.5 (v9.10.1 2026-09-21: 재료 이름 MaterialNames) / [WorkshopUI.cs] v2.4 (v9.10 2026-09-17 테스터 피드백·개정안 §3: 기차 수리·장갑 보강은 정차(Town)에서만(ShopRepairInBattle), 수리 정차당 1회(ShopRepairPerStop), 장갑 지역당 1회·최종전 앞 없음(ShopArmorPerRegion),
 ///   장갑은 현재 HP 를 안 채운다(ShopArmorHealsCurrent) / [ESC] 로도 닫기 / 상태 줄에 "정차 후 이용"·"이번 정차 구매 끝"·"이 지역 구매 끝") / v2.3 (v9.9.2 2026-09-16: 제목 "안킬로의 정비소" + 본체 왼쪽에 안킬로 실루엣 - 정비소 주인 = 등짐장수 안킬로로 통일) / v2.2 (v9.8: 재료 시장 행에 재료 아이콘) / v2.1 (2026-09-14: 전투 중 수리 기록) / v2
 /// 정비소 - 골드를 소모해 도구/기차를 정비하고 재료를 구매하는 상점
 ///
@@ -168,11 +168,32 @@ public class WorkshopUI : MonoBehaviour
         return GameManager.Instance.SpendGold(cost);
     }
 
+    // ── v2.8 (v9.14): 지역 할증 - 정비 가격이 지역마다 오른다 (테스터 "골드가 썩어 넘친다 / 사용처 구림"). 10G 단위로 반올림 ──
+    private static float PriceMul()
+    {
+        int wave = GameManager.Instance != null ? GameManager.Instance.currentWave : 1;
+        int region = Mathf.Clamp(GameBalance.RegionOf(wave), 1, 3);
+        return 1f + GameBalance.WorkshopPriceRegionMul * (region - 1);
+    }
+
+    private static int Price(int baseCost)
+    {
+        return Mathf.Max(10, Mathf.RoundToInt(baseCost * PriceMul() / 10f) * 10);
+    }
+
+    /// <summary>버튼 글자를 지금 가격으로</summary>
+    private static void SetPrice(Button btn, int cost)
+    {
+        if (btn == null) return;
+        Text t = btn.GetComponentInChildren<Text>();
+        if (t != null) t.text = cost + " G";
+    }
+
     private void BuyKnife()
     {
         FindRefs();
         if (chef == null || chef.knifeSharpness >= 100f) return;
-        if (!TrySpend(knifeCost)) return;
+        if (!TrySpend(Price(knifeCost))) return;
         chef.RepairKnife(100f);
         UIManager.Instance?.ShowStatChange("칼 연마 완료!");
     }
@@ -181,7 +202,7 @@ public class WorkshopUI : MonoBehaviour
     {
         FindRefs();
         if (chef == null || chef.panCondition >= 100f) return;
-        if (!TrySpend(panCost)) return;
+        if (!TrySpend(Price(panCost))) return;
         chef.RepairPan(100f);
         UIManager.Instance?.ShowStatChange("팬 정비 완료!");
     }
@@ -227,7 +248,7 @@ public class WorkshopUI : MonoBehaviour
         if (train == null || train.currentHP >= train.currentMaxHP) return;
         string why;
         if (!CanBuyRepair(out why)) { UIManager.Instance?.ShowStatChange("[정비소] 기차 수리 - " + why); return; }
-        if (!TrySpend(repairCost)) return;
+        if (!TrySpend(Price(repairCost))) return;
         repairsThisStop++;
         train.Heal(repairAmount);
         UIManager.Instance?.ShowStatChange("기차 수리 +" + Mathf.RoundToInt(repairAmount) + " HP!");
@@ -236,7 +257,7 @@ public class WorkshopUI : MonoBehaviour
         if (GameManager.Instance != null && GameManager.Instance.currentState == GameManager.GameState.Battle)
         {
             GameManager.Instance.RepairsInBattle++;
-            GameManager.Instance.RepairGoldInBattle += repairCost;
+            GameManager.Instance.RepairGoldInBattle += Price(repairCost);
         }
     }
 
@@ -246,7 +267,7 @@ public class WorkshopUI : MonoBehaviour
         if (train == null) return;
         string why;
         if (!CanBuyArmor(out why)) { UIManager.Instance?.ShowStatChange("[정비소] 장갑 보강 - " + why); return; }
-        if (!TrySpend(armorCost)) return;
+        if (!TrySpend(Price(armorCost))) return;
         if (GameBalance.ShopArmorPerRegion > 0) armorBoughtRegion[CurrentRegion()] = true;
         train.AddMaxHP(armorAmount, GameBalance.ShopArmorHealsCurrent);   // v2.4: 기본 = 최대 HP 만 (현재 HP 회복 없음)
         UIManager.Instance?.ShowStatChange("장갑 보강! 최대 HP +" + Mathf.RoundToInt(armorAmount)
@@ -261,7 +282,7 @@ public class WorkshopUI : MonoBehaviour
     {
         int wave = GameManager.Instance != null ? GameManager.Instance.currentWave : 1;
         int region = Mathf.Clamp(GameBalance.RegionOf(wave), 1, 3);
-        return materialCost + (region - 1) * 20;
+        return GameBalance.WorkshopMaterialCost + (region - 1) * GameBalance.WorkshopMaterialRegionAdd;   // v2.8: GameBalance (구 materialCost + 20/지역)
     }
 
     private void BuyMaterial(MaterialType t)
@@ -289,12 +310,14 @@ public class WorkshopUI : MonoBehaviour
         // 칼
         float knife = chef != null ? chef.knifeSharpness : 0f;
         knifeStatus.text = "칼 연마  -  예리함 " + Mathf.RoundToInt(knife) + "%";
-        SetButtonState(knifeBtn, gold >= knifeCost && knife < 100f);
+        SetPrice(knifeBtn, Price(knifeCost));
+        SetButtonState(knifeBtn, gold >= Price(knifeCost) && knife < 100f);
 
         // 팬
         float pan = chef != null ? chef.panCondition : 0f;
         panStatus.text = "팬 정비  -  상태 " + Mathf.RoundToInt(pan) + "%";
-        SetButtonState(panBtn, gold >= panCost && pan < 100f);
+        SetPrice(panBtn, Price(panCost));
+        SetButtonState(panBtn, gold >= Price(panCost) && pan < 100f);
 
         // 기차 수리
         float hp = train != null ? train.currentHP : 0f;
@@ -303,13 +326,15 @@ public class WorkshopUI : MonoBehaviour
         bool repairOk = CanBuyRepair(out whyRepair);
         repairStatus.text = "기차 수리 (+" + Mathf.RoundToInt(repairAmount) + " HP)  -  현재 "
             + Mathf.RoundToInt(hp) + "/" + Mathf.RoundToInt(maxHp) + (repairOk ? "" : "   [" + whyRepair + "]");
-        SetButtonState(repairBtn, repairOk && gold >= repairCost && hp < maxHp);
+        SetPrice(repairBtn, Price(repairCost));
+        SetButtonState(repairBtn, repairOk && gold >= Price(repairCost) && hp < maxHp);
 
         // 장갑 보강 (v2.4: 정차에서만, 지역당 1회, 현재 HP 회복 없음)
         string whyArmor;
         bool armorOk = CanBuyArmor(out whyArmor);
         armorStatus.text = "장갑 보강  -  최대 HP +" + Mathf.RoundToInt(armorAmount) + " (이번 운행 동안, 지역당 1회)" + (armorOk ? "" : "   [" + whyArmor + "]");
-        SetButtonState(armorBtn, armorOk && gold >= armorCost);
+        SetPrice(armorBtn, Price(armorCost));
+        SetButtonState(armorBtn, armorOk && gold >= Price(armorCost));
 
         // 재료 시장
         for (int i = 0; i < matRows.Count; i++)
@@ -317,6 +342,7 @@ public class WorkshopUI : MonoBehaviour
             MatRow row = matRows[i];
             int have = MaterialInventory.Instance != null ? MaterialInventory.Instance.Get(row.type) : 0;
             row.status.text = MaterialKoreanName(row.type) + "  -  보유 " + have + "개";
+            SetPrice(row.btn, GetMaterialCost());
             SetButtonState(row.btn, gold >= GetMaterialCost() && MaterialInventory.Instance != null);
         }
     }
@@ -348,7 +374,7 @@ public class WorkshopUI : MonoBehaviour
         canvas.sortingOrder = 550;   // 주방 이벤트(500)보다 위, 증강창(600)보다 아래
         CanvasScaler scaler = canvasGo.AddComponent<CanvasScaler>();
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-        scaler.referenceResolution = new Vector2(1920f, 1080f);
+        scaler.referenceResolution = UIFactory.RefResolution;   // v9.14: UI 전체 배율 (GameBalance.UIScale)
         scaler.matchWidthOrHeight = 0.5f;
         canvasGo.AddComponent<GraphicRaycaster>();
 
@@ -412,14 +438,14 @@ public class WorkshopUI : MonoBehaviour
         goldRt.sizeDelta = new Vector2(0f, 32f);
 
         // ---------- 정비 섹션 ----------
-        MakeSectionLabel(body, "─ 정비 ─", -100f);
+        MakeSectionLabel(body, "─ 정비  (지역이 깊어질수록 값이 오른다) ─", -100f);
         knifeStatus = MakeRow(body, -128f, knifeCost, delegate { BuyKnife(); }, out knifeBtn);
         panStatus = MakeRow(body, -190f, panCost, delegate { BuyPan(); }, out panBtn);
         repairStatus = MakeRow(body, -252f, repairCost, delegate { BuyRepair(); }, out repairBtn);
         armorStatus = MakeRow(body, -314f, armorCost, delegate { BuyArmor(); }, out armorBtn);
 
         // ---------- 재료 시장 섹션 (v2) ----------
-        MakeSectionLabel(body, "─ 재료 시장 (개당 " + materialCost + "G, 지역당 +20G 할증) ─", -388f);
+        MakeSectionLabel(body, "─ 재료 시장 (개당 " + GameBalance.WorkshopMaterialCost + "G, 지역당 +" + GameBalance.WorkshopMaterialRegionAdd + "G) ─", -388f);
 
         float matY = -416f;
         foreach (MaterialType t in System.Enum.GetValues(typeof(MaterialType)))
@@ -427,7 +453,7 @@ public class WorkshopUI : MonoBehaviour
             MaterialType captured = t;   // 클로저 캡처 (C# 7.3 필수)
             MatRow row = new MatRow();
             row.type = t;
-            row.status = MakeRow(body, matY, materialCost, delegate { BuyMaterial(captured); }, out row.btn);
+            row.status = MakeRow(body, matY, GameBalance.WorkshopMaterialCost, delegate { BuyMaterial(captured); }, out row.btn);
             // v2.2: 행 왼쪽에 재료 아이콘 (ui_mat_* 있을 때만) - 글자는 아이콘만큼 오른쪽으로
             if (UISkin.AddMaterialIcon(row.status.transform.parent, t, new Vector2(0f, 0.5f), new Vector2(14f, 0f), 32f) != null)
                 row.status.rectTransform.offsetMin = new Vector2(56f, 0f);

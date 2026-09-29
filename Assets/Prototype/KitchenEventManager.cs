@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 
 /// <summary>
-/// [KitchenEventManager.cs] v4.7 (v9.12 2026-09-22: 인라인 연습 중 사고 타이머 정지) / v4.6 (v9.11 2026-09-22: MakeButton 에 ButtonFeel) / v4.5 (v9.10 2026-09-17 테스터 피드백 "사고 중에 증강 선택이 뜨면 사고가 끝난다": 웨이브가 끝나 정차로 넘어가며 사고가 취소될 때 "정차 정비로 사고가 정리됐다 (벌점 없음)" 알림 - 조용히 사라지던 것) / v4.4 (v9.9.2 2026-09-16: 사고 종류별 첫 등장 카드 - StartEvent 에서 BriefingUI.ShowOnce("event_<종류>"), 카드가 뜨면 시간이 멈춰 제한 시간은 그 뒤 흐른다) / v4.3 (v9.9 2026-09-16: 견습 운행 중 F11 무시 - 이벤트 자체는 WaveManager.TutorialGateActive 로 쉰다) / v4.2 (v9.8.1: F11 강제 발생은 GameBalance.CheatsAllowed 일 때만) / v4.1 (2026-09-14: 마모 off 가중치 / 프롤로그 게이트 차단) / v4
+/// [KitchenEventManager.cs] v4.8 (v9.14 2026-09-28 테스터 반영: 사고 현장에 월드 마커(붉은 화살표 + 링) - "직접 가야 한다는 인식 부족" / 흘림 조각이 사고 배너 뒤에 가려지던 것 - 커스텀 층을 배너 위로) / v4.7 (v9.12 2026-09-22: 인라인 연습 중 사고 타이머 정지) / v4.6 (v9.11 2026-09-22: MakeButton 에 ButtonFeel) / v4.5 (v9.10 2026-09-17 테스터 피드백 "사고 중에 증강 선택이 뜨면 사고가 끝난다": 웨이브가 끝나 정차로 넘어가며 사고가 취소될 때 "정차 정비로 사고가 정리됐다 (벌점 없음)" 알림 - 조용히 사라지던 것) / v4.4 (v9.9.2 2026-09-16: 사고 종류별 첫 등장 카드 - StartEvent 에서 BriefingUI.ShowOnce("event_<종류>"), 카드가 뜨면 시간이 멈춰 제한 시간은 그 뒤 흐른다) / v4.3 (v9.9 2026-09-16: 견습 운행 중 F11 무시 - 이벤트 자체는 WaveManager.TutorialGateActive 로 쉰다) / v4.2 (v9.8.1: F11 강제 발생은 GameBalance.CheatsAllowed 일 때만) / v4.1 (2026-09-14: 마모 off 가중치 / 프롤로그 게이트 차단) / v4
 /// 주방 돌발 이벤트 총괄 매니저 (기획 B-4)
 /// - v4 (v9.6, 2026-09-09): "화면 전체 경보" - 기차 안 작은 아이콘은 조리하다 놓친다는 피드백
 ///   * 경보 글로우: 화면 가장자리 붉은(이벤트별 색) 비네트가 0.6초 주기로 맥동 (삐뽀삐뽀). SetAlarm(color, strength)
@@ -125,6 +125,14 @@ public class KitchenEventManager : MonoBehaviour
 
     private Transform chefTransform;   // 근접 판정용 캐시
 
+    // v4.8: 사고 현장 월드 마커 (TutorialDirector 마커와 같은 그림 - 붉은색)
+    private Transform siteRoot;
+    private Transform siteArrowTf, siteRingTf;
+    private SpriteRenderer siteArrowSr, siteRingSr;
+    private static readonly Color SITE_RED = new Color(1f, 0.38f, 0.32f, 1f);
+    private const int SITE_ARROW_ORDER = 7;   // 셰프(0+)·포탑 위
+    private const int SITE_RING_ORDER = -3;   // 갑판(-6~-4) 위, 조리대 아래
+
     /// <summary>앵커의 캔버스 X 좌표 (이벤트 아이콘 배치용, 1920 기준. 앵커 없으면 0)</summary>
     public float AnchorCanvasX()
     {
@@ -147,6 +155,61 @@ public class KitchenEventManager : MonoBehaviour
         // 셰프를 못 찾으면 막지 않는다 (안전)
         ChefInReach = chefTransform == null
             || Mathf.Abs(chefTransform.position.x - AnchorX) <= GameBalance.EventReachX;
+    }
+
+    // ─────────────────────────────────────────────
+    // v4.8: 사고 현장 마커 - 붉은 화살표(까딱) + 붉은 링(맥동). 셰프가 현장에 닿으면 링만 남고 화살표는 내려간다
+    // ─────────────────────────────────────────────
+    private void ShowSiteMarker()
+    {
+        if (siteRoot == null)
+        {
+            Sprite arrow = SpriteBank.Get("tut_arrow");
+            Sprite ring = SpriteBank.Get("tut_ring_l") ?? SpriteBank.Get("tut_ring");
+            if (arrow == null && ring == null) return;   // PNG 없으면 배너 화살표(→→)만
+            siteRoot = new GameObject("EventSiteMarker").transform;
+            if (ring != null)
+            {
+                siteRingSr = PixelPainter.Attach(siteRoot, "Ring", ring, Vector3.zero, SITE_RING_ORDER);
+                siteRingTf = siteRingSr.transform;
+                siteRingSr.color = SITE_RED;
+            }
+            if (arrow != null)
+            {
+                siteArrowSr = PixelPainter.Attach(siteRoot, "Arrow", arrow, Vector3.zero, SITE_ARROW_ORDER);
+                siteArrowTf = siteArrowSr.transform;
+                siteArrowSr.color = SITE_RED;
+                siteArrowTf.localScale = new Vector3(1.5f, 1.5f, 1f);   // 견습 마커보다 크게 - 전투 중에 눈에 띄어야 한다
+            }
+        }
+        siteRoot.gameObject.SetActive(true);
+        TickSiteMarker();
+    }
+
+    private void HideSiteMarker()
+    {
+        if (siteRoot != null) siteRoot.gameObject.SetActive(false);
+    }
+
+    private void TickSiteMarker()
+    {
+        if (siteRoot == null || !siteRoot.gameObject.activeSelf || !HasAnchor) return;
+        float t = Time.unscaledTime;
+        // 링: 기차 중심선 (갑판 바닥), 0.8초 주기로 맥동
+        float pulse = 1f + 0.12f * Mathf.Sin(t * Mathf.PI * 2f / 0.8f);
+        if (siteRingTf != null)
+        {
+            siteRingTf.position = new Vector3(AnchorX, 0f, 0.05f);
+            siteRingTf.localScale = new Vector3(pulse, pulse, 1f);
+        }
+        // 화살표: 현장 위 1.6u 에서 까딱 (0.5초 주기 0.25u). 셰프가 닿으면 작게
+        if (siteArrowTf != null)
+        {
+            float bob = 0.25f * (0.5f + 0.5f * Mathf.Sin(t * Mathf.PI * 2f / 0.5f));
+            float k = ChefInReach ? 0.9f : 1.5f;
+            siteArrowTf.position = new Vector3(AnchorX, 1.6f + bob, 0f);
+            siteArrowTf.localScale = new Vector3(k, k, 1f);
+        }
     }
 
     private static Font cachedFont;
@@ -344,6 +407,7 @@ public class KitchenEventManager : MonoBehaviour
             AnchorX = Random.Range(GameBalance.EventAnchorMinX, GameBalance.EventAnchorMaxX);
             Debug.Log("[주방이벤트] 발생 칸: " + GameBalance.CarNames[GameBalance.CarIndexOf(AnchorX)]
                 + " (x " + AnchorX.ToString("F1") + ")");
+            ShowSiteMarker();   // v4.8: 현장에 붉은 화살표 + 링
         }
         UpdateChefReach();
 
@@ -375,6 +439,7 @@ public class KitchenEventManager : MonoBehaviour
 
         // B-1: 셰프-앵커 근접 갱신 (각 이벤트가 ChefInReach로 입력을 게이트)
         UpdateChefReach();
+        TickSiteMarker();   // v4.8
 
         bool success;
         bool finished = currentEvent.OnUpdate(dt, out success);
@@ -427,6 +492,7 @@ public class KitchenEventManager : MonoBehaviour
         IKitchenEvent ev = currentEvent;
         currentEvent = null;
         HasAnchor = false; ChefInReach = true;   // B-1: 앵커 정리
+        HideSiteMarker();
 
         ClearCustomRoot();
         ClearOverlay();
@@ -440,6 +506,7 @@ public class KitchenEventManager : MonoBehaviour
         IKitchenEvent ev = currentEvent;
         currentEvent = null;
         HasAnchor = false; ChefInReach = true;   // B-1: 앵커 정리
+        HideSiteMarker();
 
         ev.OnEnd(success);
         ClearCustomRoot();
@@ -490,7 +557,7 @@ public class KitchenEventManager : MonoBehaviour
         canvas.sortingOrder = 500;
         CanvasScaler scaler = canvasGo.AddComponent<CanvasScaler>();
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-        scaler.referenceResolution = new Vector2(1920f, 1080f);
+        scaler.referenceResolution = UIFactory.RefResolution;   // v9.14: UI 전체 배율 (GameBalance.UIScale)
         scaler.matchWidthOrHeight = 0.5f;
         canvasGo.AddComponent<GraphicRaycaster>();
 
@@ -532,6 +599,7 @@ public class KitchenEventManager : MonoBehaviour
         panelRoot.sizeDelta = new Vector2(760f, 144f);
         Image panelImg = panelRoot.GetComponent<Image>();
         panelImg.raycastTarget = false;
+        customRoot.SetAsLastSibling();   // v4.8: 흘림 조각·이벤트 부품이 배너 뒤에 가려지지 않게 (테스터 "떨어진 재료가 창에 가려 안 보임")
         if (SkinReady)
         {
             // 스킨: 무쇠 평판 + 빨간 리벳 테 + 위험 스트라이프 양끝 (스캐너가 건드리지 않게 직접 지정)

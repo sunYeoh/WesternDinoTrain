@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// [MetaProgress.cs] v1.2 (2026-09-14: 이번 런 클리어 웨이브 + 런 통계 한 줄 RunStatsLine) / v1.1 (마스터 셰프 칭호 + 도감 완성 보너스) / v1
+/// [MetaProgress.cs] v1.3 (v9.14 2026-09-28: 명성 상점 "출발 증강" StartAugment) / v1.2 (2026-09-14: 이번 런 클리어 웨이브 + 런 통계 한 줄 RunStatsLine) / v1.1 (마스터 셰프 칭호 + 도감 완성 보너스) / v1
 /// 런이 끝나도 사라지지 않는 "메타 진행" 저장소.
 ///
 /// - PlayerPrefs 기반 static 클래스라서 씬 배치, 오브젝트 연결이 전혀 필요 없다.
@@ -186,6 +186,9 @@ public static class MetaProgress
 
     /// <summary>조리 판정 존 확대 배율 가산 (레벨당 +4%)</summary>
     public static float CookJudgeBonus { get { return UpgradeLevel("judge") * 0.04f; } }
+
+    /// <summary>v1.3 (v9.14): "출발 증강" - 운행 시작 때 은 증강 1회 (GameManager 가 웨이브 1 에서 연다)</summary>
+    public static bool StartAugment { get { return UpgradeLevel("augment") > 0; } }
 
     // ─────────────────────────────────────────────
     // 도감 영구화 (발견한 레시피 목록)
@@ -532,7 +535,7 @@ public static class MetaProgress
         masterFamedCache = null;
 
         // 명성 상점 업그레이드도 초기화
-        string[] upgradeIds = { "gold", "hp", "food", "mat", "judge" };
+        string[] upgradeIds = { "gold", "hp", "food", "mat", "judge", "augment" };
         for (int i = 0; i < upgradeIds.Length; i++)
             PlayerPrefs.DeleteKey(PREFIX + "Up_" + upgradeIds[i]);
 

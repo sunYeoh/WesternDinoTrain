@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [LobbyUI.cs] v1.6 (v9.13.1 2026-09-24: 오른쪽 아래 빌드 표시 GameBalance.BuildTag) / v1.5 (v9.12 2026-09-22: [T] = 견습 기록이 없으면 견습 운행 전부, 있으면 훈련장(TrainingGroundUI) 목록 / 처음 실행이면 [출발]·[Enter] 도 견습부터(GameBalance.TutorialForceFirst) / 버튼 글자 "훈련장") / v1.4 (v9.10.1 2026-09-21: 재료 이름 MaterialNames) / [LobbyUI.cs] v1.3 (v9.10 2026-09-17: 요리 도감에 설명 상자 - 이름에 마우스를 올리거나 클릭하면 무엇을 하나·어떤 손님에·언제 (RecipeText)) / v1.2 (v9.9 2026-09-16: [T] 견습 운행 버튼 + 첫 실행 강조) / v1.1 (v9.8: 칭호 표시) / v1 - 로비 개편 (튜토리얼_온보딩_설계 6절 + 화면 검수 "시작 버튼 묻힘")
+/// [LobbyUI.cs] v1.7 (v9.14 2026-09-28 테스터 반영: 화면 설정 줄(전체화면 / 창 1920·1600·1280, PlayerPrefs WDT_ScreenMode, 시작 때 적용) / 도감은 클릭으로 고정(다시 클릭 = 닫기, 마우스 스침 무시) + 설명 짧게(맛 문구 제외)) / v1.6 (v9.13.1 2026-09-24: 오른쪽 아래 빌드 표시 GameBalance.BuildTag) / v1.5 (v9.12 2026-09-22: [T] = 견습 기록이 없으면 견습 운행 전부, 있으면 훈련장(TrainingGroundUI) 목록 / 처음 실행이면 [출발]·[Enter] 도 견습부터(GameBalance.TutorialForceFirst) / 버튼 글자 "훈련장") / v1.4 (v9.10.1 2026-09-21: 재료 이름 MaterialNames) / [LobbyUI.cs] v1.3 (v9.10 2026-09-17: 요리 도감에 설명 상자 - 이름에 마우스를 올리거나 클릭하면 무엇을 하나·어떤 손님에·언제 (RecipeText)) / v1.2 (v9.9 2026-09-16: [T] 견습 운행 버튼 + 첫 실행 강조) / v1.1 (v9.8: 칭호 표시) / v1 - 로비 개편 (튜토리얼_온보딩_설계 6절 + 화면 검수 "시작 버튼 묻힘")
 ///
 /// - v1.2: 출발 버튼 아래 [T] 견습 운행 (340x44, y 130). 미완료(TutorialDirector.Done == false)면 목업 v2 (C) 대로
 ///   위에 현장 마커 화살표(tut_arrow 2배)가 까딱이고, 버튼 양끝 경광등(ui_ev_beacon_0/1)이 0.3초마다 교대, 황동 테,
@@ -60,7 +60,47 @@ public class LobbyUI : MonoBehaviour
     {
         if (instance != null && instance != this) { Destroy(gameObject); return; }
         instance = this;
+        ApplyScreenMode(PlayerPrefs.GetInt(SCREEN_PREF, 0), false);   // v1.7: 저장된 화면 모드 (0 = 전체화면 = 기본이라 손대지 않음)
         BuildUI();
+    }
+
+    // ─────────────────────────────────────────────
+    // v1.7: 화면 모드 - 0 전체화면(기본) / 1 창 1920x1080 / 2 창 1600x900 / 3 창 1280x720
+    // ─────────────────────────────────────────────
+    private const string SCREEN_PREF = "WDT_ScreenMode";
+    private static readonly string[] SCREEN_NAMES = { "전체화면", "창 1920x1080", "창 1600x900", "창 1280x720" };
+    private static readonly int[] SCREEN_W = { 0, 1920, 1600, 1280 };
+    private static readonly int[] SCREEN_H = { 0, 1080, 900, 720 };
+    private Text screenLabel;
+
+    private void CycleScreenMode(int dir)
+    {
+        int mode = (PlayerPrefs.GetInt(SCREEN_PREF, 0) + dir + SCREEN_NAMES.Length) % SCREEN_NAMES.Length;
+        ApplyScreenMode(mode, true);
+        SoundManager.Play("sfx_ui_click");
+        RefreshScreenLabel();
+    }
+
+    /// <summary>화면 모드 적용. save = PlayerPrefs 에 기록. 0 은 전체화면 창(기본) - 처음 실행에 강제하지 않는다</summary>
+    private static void ApplyScreenMode(int mode, bool save)
+    {
+        mode = Mathf.Clamp(mode, 0, SCREEN_NAMES.Length - 1);
+        if (mode == 0)
+        {
+            if (save) Screen.SetResolution(Display_W(), Display_H(), FullScreenMode.FullScreenWindow);
+        }
+        else
+            Screen.SetResolution(SCREEN_W[mode], SCREEN_H[mode], FullScreenMode.Windowed);
+        if (save) { PlayerPrefs.SetInt(SCREEN_PREF, mode); PlayerPrefs.Save(); }
+        Debug.Log("[LobbyUI] 화면 모드: " + SCREEN_NAMES[mode]);
+    }
+
+    private static int Display_W() { return Screen.currentResolution.width > 0 ? Screen.currentResolution.width : 1920; }
+    private static int Display_H() { return Screen.currentResolution.height > 0 ? Screen.currentResolution.height : 1080; }
+
+    private void RefreshScreenLabel()
+    {
+        if (screenLabel != null) screenLabel.text = SCREEN_NAMES[Mathf.Clamp(PlayerPrefs.GetInt(SCREEN_PREF, 0), 0, SCREEN_NAMES.Length - 1)];
     }
 
     private void Update()
@@ -266,6 +306,20 @@ public class LobbyUI : MonoBehaviour
         sfxLabel = MakeVolumeRow(false, 28f);
         RefreshVolumeLabels();
 
+        // ── v1.7: 화면 설정 (소리 위) - 전체화면 / 창 3종. [<] [>] 로 돌린다. Alt+Enter 도 된다 ──
+        Text screenTitle = UIFactory.CreateText(root.transform, "ScreenTitle",
+            "- 화면 -", 14, UIFactory.CREAM, TextAnchor.MiddleLeft);
+        SetCorner(screenTitle.rectTransform, true, 16f, 164f, 200f, 22f);
+        screenLabel = UIFactory.CreateText(root.transform, "ScreenRow_Label", "", 14, UIFactory.CREAM, TextAnchor.MiddleLeft);
+        SetCorner(screenLabel.rectTransform, true, 58f, 130f, 150f, 26f);
+        Button sPrev = UIFactory.CreateButton(root.transform, "ScreenRow_Prev", "<", new Vector2(30f, 26f), UIFactory.PANEL, UIFactory.CREAM, 18);
+        PlaceCornerButton(sPrev, 16f, 130f);
+        sPrev.onClick.AddListener(delegate { CycleScreenMode(-1); });
+        Button sNext = UIFactory.CreateButton(root.transform, "ScreenRow_Next", ">", new Vector2(30f, 26f), UIFactory.PANEL, UIFactory.CREAM, 18);
+        PlaceCornerButton(sNext, 214f, 130f);
+        sNext.onClick.AddListener(delegate { CycleScreenMode(1); });
+        RefreshScreenLabel();
+
         // ── 우하단: 서체 고지 (크레딧) ──
         Text credit = UIFactory.CreateText(root.transform, "Credit",
             "서체: Neo둥근모 (라이선스: FONT_LICENSE 파일 참조)", 11,
@@ -454,7 +508,8 @@ public class LobbyUI : MonoBehaviour
             new Vector2(0f, 0f), new Vector2(1f, 0f),
             new Vector2(16f, 30f), new Vector2(-16f, 30f + DEX_DETAIL_H - 10f),
             new Color(0.10f, 0.065f, 0.045f, 0.96f), UIFactory.GOLD, 2f);
-        dexDetailText = UIFactory.CreateText(box, "Text", "요리 이름에 마우스를 올리면 여기에 설명 - 무엇을 하나 / 어떤 손님에 잘 박히나 / 언제 쓰나", 14,
+        dexSelected = null;
+        dexDetailText = UIFactory.CreateText(box, "Text", DEX_PROMPT, 15,
             UIFactory.DIM, TextAnchor.UpperLeft);
         dexDetailText.rectTransform.offsetMin = new Vector2(12f, 8f);
         dexDetailText.rectTransform.offsetMax = new Vector2(-12f, -8f);
@@ -467,19 +522,29 @@ public class LobbyUI : MonoBehaviour
     private Text dexDetailText;
 
     /// <summary>v1.3: 도감 설명 (발견한 요리만 - 미발견은 ??? 그대로)</summary>
+    private RecipeData dexSelected;   // v1.7: 클릭으로 고정된 요리 (다시 클릭 = 닫기)
+
+    /// <summary>v1.7: 클릭 = 고정 (마우스가 다른 줄을 스쳐도 안 바뀐다). 같은 줄 다시 클릭 = 닫기. 설명은 짧게 - 맛 문구(flavor)는 뺀다 (테스터 "길고 현학적")</summary>
     private void ShowDexDetail(RecipeData r)
     {
         if (dexDetailText == null || r == null) return;
+        if (dexSelected == r)
+        {
+            dexSelected = null;
+            dexDetailText.text = DEX_PROMPT;
+            dexDetailText.color = UIFactory.DIM;
+            return;
+        }
+        dexSelected = r;
         bool seen = MetaProgress.IsRecipeDiscovered(r.recipeId);
-        if (!seen) { dexDetailText.text = "???  - 아직 만든 적 없는 요리. 재료 둘을 조리대에 올리면 처음 알게 된다"; dexDetailText.color = UIFactory.DIM; return; }
-        string[] parts = r.recipeId.Replace("T2:", "").Split('+');
-        string src = r.tier == 1 && parts.Length >= 2 ? MatKorName(parts[0]) + " + " + MatKorName(parts[1]) : (parts.Length >= 2 ? "합성: " + parts[0] + " + " + parts[1] : "");
-        string t = r.displayName + (r.tier == 2 ? "  [전설]" : "") + "   " + RecipeText.RoleWord(r) + "   |   " + src + "   [" + RecipeText.MethodWord(r) + "]\n";
+        if (!seen) { dexDetailText.text = "???  아직 만든 적 없는 요리 - 재료 둘을 조리대에 올리면 알게 된다"; dexDetailText.color = UIFactory.DIM; return; }
+        string t = r.displayName + (r.tier == 2 ? "  [전설]" : "") + "   " + RecipeText.RoleWord(r) + "   |   " + RecipeText.Source(r) + "\n";
         t += RecipeText.Full(r, 1f);
-        if (!string.IsNullOrEmpty(r.flavor)) t += "\n" + r.flavor;
         dexDetailText.text = t;
         dexDetailText.color = UIFactory.CREAM;
     }
+
+    private const string DEX_PROMPT = "요리 이름을 클릭하면 여기에 설명 - 무엇을 하나 / 어떤 손님에 / 언제. 다시 클릭하면 닫힌다";
 
     private static string MatKorName(string key) { return MaterialNames.Kor(key); }   // v1.4: 재료 이름 한 곳
 
@@ -489,12 +554,13 @@ public class LobbyUI : MonoBehaviour
         string label = seen ? r.displayName : "???";
         Color c = !seen ? UIFactory.DIM : (r.tier == 2 ? UIFactory.T2PINK : UIFactory.CREAM);
 
-        Text t = UIFactory.CreateText(collectionRoot, "Row_" + r.recipeId, label, 14,
+        Text t = UIFactory.CreateText(collectionRoot, "Row_" + r.recipeId, label, 15,
             c, TextAnchor.MiddleLeft);
+        t.raycastTarget = true;   // 클릭을 받아야 한다
         SetBookRow(t.rectTransform, left, height, row);
-        // v1.3: 이름에 마우스 = 설명 상자
+        // v1.7: 이름 클릭 = 설명 상자에 고정 (v1.3 의 마우스 스침은 읽는 도중 바뀌어서 뺐다)
         RecipeHoverRelay relay = t.gameObject.AddComponent<RecipeHoverRelay>();
-        relay.recipe = r; relay.onHover = ShowDexDetail;
+        relay.recipe = r; relay.onClick = ShowDexDetail;
     }
 
     /// <summary>도감 행 배치 (row -1 = 컬럼 머리글)</summary>

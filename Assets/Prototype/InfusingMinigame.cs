@@ -239,7 +239,7 @@ public class InfusingMinigame : MonoBehaviour
         canvas.sortingOrder = 31;   // 조리 미니게임(30) 바로 위 (동시 활성은 코드로 차단됨)
         CanvasScaler scaler = canvasGo.AddComponent<CanvasScaler>();
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-        scaler.referenceResolution = new Vector2(1920f, 1080f);
+        scaler.referenceResolution = UIFactory.RefResolution;   // v9.14: UI 전체 배율 (GameBalance.UIScale)
 
         // 좌하단 패널 (조리 미니게임과 같은 자리 - 주방 작업 공간)
         RectTransform panel = KitchenEventManager.MakeBox(canvasGo.transform, "Panel",

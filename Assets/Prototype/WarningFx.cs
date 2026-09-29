@@ -103,7 +103,7 @@ public class WarningFX : MonoBehaviour
         canvas.sortingOrder = 640;   // 증강(600) 위, 스토리(650) 아래
         CanvasScaler scaler = canvasGo.AddComponent<CanvasScaler>();
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-        scaler.referenceResolution = new Vector2(1920f, 1080f);
+        scaler.referenceResolution = UIFactory.RefResolution;   // v9.14: UI 전체 배율 (GameBalance.UIScale)
 
         // 가장자리 띠 4개 (상/하/좌/우) - 클릭 통과
         for (int i = 0; i < 4; i++)

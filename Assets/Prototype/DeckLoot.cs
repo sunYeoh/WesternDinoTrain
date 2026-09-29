@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// [DeckLoot.cs] v1.1 (v9.9.2 2026-09-16: 4모서리 배치의 남쪽 포탑 자리를 피해 떨어진다 - 상자가 포탑 위에 그려지던 것) / v1 (신규 파일) - B-2: 갑판 전리품 상자 (방향결정 2026-08-31)
+/// [DeckLoot.cs] v1.2 (v9.14 2026-09-28: 상자 위 노란 화살표 + 상자 조금 크게 - 테스터 "줍는 게 창에 가려 안 보임") / v1.1 (v9.9.2 2026-09-16: 4모서리 배치의 남쪽 포탑 자리를 피해 떨어진다 - 상자가 포탑 위에 그려지던 것) / v1 (신규 파일) - B-2: 갑판 전리품 상자 (방향결정 2026-08-31)
 ///
 /// 아이템(유물) 획득이 즉시 지급 대신 "갑판에 떨어진 상자"가 된다.
 /// 셰프가 걸어가서 밟으면 회수 - 걷는 것 자체가 보상 행위가 되게.
@@ -80,7 +80,7 @@ public class DeckLoot : MonoBehaviour
         body.sprite = TrainDeck.GetWhiteSprite();
         body.color = new Color(0.85f, 0.6f, 0.22f);
         body.sortingOrder = 58;   // 처치 팝과 같은 층 (셰프보다 위 아님)
-        transform.localScale = new Vector3(0.55f, 0.45f, 1f);
+        transform.localScale = new Vector3(0.7f, 0.55f, 1f);   // v1.2: 조금 크게 (구 0.55x0.45)
 
         // 띠 장식 (검정 포인트)
         GameObject strap = new GameObject("Strap");
@@ -92,6 +92,25 @@ public class DeckLoot : MonoBehaviour
         strapSr.sortingOrder = 59;
 
         bobPhase = Random.Range(0f, 6.28f);
+
+        // v1.2 (v9.14): 상자 위 화살표 (테스터 "떨어진 거 줍는 게 창에 가려 안 보임") - 크기 영향을 안 받게 자식이 아니라 따로 두고 따라다닌다
+        if (GameBalance.DeckLootMarker)
+        {
+            Sprite arrow = SpriteBank.Get("tut_arrow");
+            if (arrow != null)
+            {
+                markerSr = PixelPainter.Attach(null, "DeckLootArrow", arrow, Vector3.zero, 60);
+                markerSr.color = new Color(1f, 0.86f, 0.4f, 1f);
+                markerSr.transform.localScale = new Vector3(1.4f, 1.4f, 1f);
+            }
+        }
+    }
+
+    private SpriteRenderer markerSr;   // v1.2: 상자 위 화살표
+
+    private void OnDestroy()
+    {
+        if (markerSr != null) Destroy(markerSr.gameObject);
     }
 
     // ─────────────────────────────────────────────
@@ -104,6 +123,12 @@ public class DeckLoot : MonoBehaviour
         Vector3 p = transform.position;
         p.y = GameBalance.DeckLootY + Mathf.Abs(Mathf.Sin(bobPhase)) * 0.12f;
         transform.position = p;
+        // v1.2: 화살표는 상자 위 1.0u 에서 까딱 (0.5초 주기)
+        if (markerSr != null)
+        {
+            float bob = 0.2f * (0.5f + 0.5f * Mathf.Sin(Time.unscaledTime * Mathf.PI * 4f));
+            markerSr.transform.position = new Vector3(p.x, p.y + 1.0f + bob, 0f);
+        }
 
         if (chefTransform == null)
         {

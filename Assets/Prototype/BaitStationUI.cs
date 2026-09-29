@@ -214,7 +214,7 @@ public class BaitStationUI : MonoBehaviour
         canvas.sortingOrder = 485;
         CanvasScaler scaler = canvasGo.AddComponent<CanvasScaler>();
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-        scaler.referenceResolution = new Vector2(1920f, 1080f);
+        scaler.referenceResolution = UIFactory.RefResolution;   // v9.14: UI 전체 배율 (GameBalance.UIScale)
         canvasGo.AddComponent<GraphicRaycaster>();
 
         RectTransform panel = KitchenEventManager.MakeBox(canvasGo.transform, "BaitPanel",

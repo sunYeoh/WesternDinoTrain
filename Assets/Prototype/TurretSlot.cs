@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// [TurretSlot.cs] v6.7 (v9.12 2026-09-22: TutorialDirector.InlineFreeze 동안 사격 정지) / v6.6 (v9.11.1 2026-09-22 문구: 과열 복구법) / v6.5 (v9.11 2026-09-22 타격감: 투입·레벨업 때 접시 낙하 + 링 + "배치!/Lv N" 팝 + 포탑 1.25배 튀기 - GameBalance.CookFeelOn) / v6.4 (v9.9.2 2026-09-16: 마비 FX - 감전·빙결 = 스파크 3점(ui_ev_spark_0/1 교대, 빙결은 얼음색), 과열 = 연기(ui_ev_smoke_0/1). GameBalance.TurretStunFx) / v6.3 (v9.9 2026-09-16: 남쪽 슬롯 포신 기본 방향 -90 = 남쪽 - 4모서리 배치) / v6.2 (런 통계: 과열 횟수·정지 시간 2026-09-14) / v6.1 (교수 피드백 반영 2026-09-14) / v6 (고퀄 PNG 적용 2026-09-03)
+/// [TurretSlot.cs] v6.8 (v9.14 2026-09-28 테스터 반영: 레벨 상한 T1 3 / T2 6 (MaxLevelOf·AtMaxLevel), 전설 요리 공격력 x T2DamageMul, 표적 고르기에서 곧 죽을 손님 건너뜀(IncomingDamage)) / v6.7 (v9.12 2026-09-22: TutorialDirector.InlineFreeze 동안 사격 정지) / v6.6 (v9.11.1 2026-09-22 문구: 과열 복구법) / v6.5 (v9.11 2026-09-22 타격감: 투입·레벨업 때 접시 낙하 + 링 + "배치!/Lv N" 팝 + 포탑 1.25배 튀기 - GameBalance.CookFeelOn) / v6.4 (v9.9.2 2026-09-16: 마비 FX - 감전·빙결 = 스파크 3점(ui_ev_spark_0/1 교대, 빙결은 얼음색), 과열 = 연기(ui_ev_smoke_0/1). GameBalance.TurretStunFx) / v6.3 (v9.9 2026-09-16: 남쪽 슬롯 포신 기본 방향 -90 = 남쪽 - 4모서리 배치) / v6.2 (런 통계: 과열 횟수·정지 시간 2026-09-14) / v6.1 (교수 피드백 반영 2026-09-14) / v6 (고퀄 PNG 적용 2026-09-03)
 /// 포탑 슬롯 1개. 요리를 투입하면 포탑으로 가동한다.
 /// - v6.2 변경점 (스위치 실험 지표 - 반영계획 §5 관찰 시트):
 ///   OverheatsThisRun / OverheatStunSecThisRun: 이번 런에 과열이 몇 번 났고, 과열로 포탑이 전투 중 몇 초 멈춰 있었는지.
@@ -144,6 +144,19 @@ public class TurretSlot : MonoBehaviour
         get { return level <= 0 ? 1f : 1f + 0.6f * (level - 1); }
     }
 
+    /// <summary>v6.8: 이 요리의 레벨 상한 (0 = 없음). 기본 요리 T1MaxLevel / 전설 T2MaxLevel</summary>
+    public static int MaxLevelOf(RecipeData r)
+    {
+        if (r == null) return 0;
+        return r.tier >= 2 ? GameBalance.T2MaxLevel : GameBalance.T1MaxLevel;
+    }
+
+    /// <summary>v6.8: 상한에 닿았나 (이름표 "Lv3 (최대)" 표시용)</summary>
+    public bool AtMaxLevel
+    {
+        get { int cap = MaxLevelOf(Recipe); return cap > 0 && level >= cap; }
+    }
+
     // 등급 문자열 (UI용)
     public string GradeName
     {
@@ -173,6 +186,15 @@ public class TurretSlot : MonoBehaviour
         if (r == null) return false;
 
         bool wasEmpty = IsEmpty;   // P1+: 새 포탑 탄생인지 (레벨업 투입과 구분)
+
+        // v6.8 (v9.14): 레벨 상한 - 같은 접시를 더 넣어도 여기서 멈춘다 (테스터 "더블 육포만 올려도 됨" -> 전설로 진화해야 더 세진다)
+        int cap = MaxLevelOf(r);
+        if (!wasEmpty && cap > 0 && level >= cap)
+        {
+            UIManager.Instance?.ShowStatChange(r.displayName + " Lv" + level + " - 여기가 끝. 더 세지려면 다른 요리와 합체해 전설로 진화시켜라");
+            Debug.Log("[TurretSlot] " + r.displayName + " 레벨 상한 " + cap + " - 투입 거부");
+            return false;
+        }
 
         recipeId = id;
         level += 1;
@@ -304,6 +326,7 @@ public class TurretSlot : MonoBehaviour
         // 최종 데미지 = 기본 x 레벨배율 x (1+버프)
         // (전역 배율/증강 데미지는 TurretAttackExecutor.DealDamage에서 적용)
         float finalDamage = r.damage * LevelMult * (1f + buffDamage);
+        if (r.tier >= 2) finalDamage *= GameBalance.T2DamageMul;   // v6.8 (v9.14): 전설 요리 배율 (테스터 "전설이 더 약함")
 
         Vector3 origin = firePoint != null ? firePoint.position : transform.position;
         TurretAttackExecutor.Execute(r, origin, target, finalDamage);
@@ -373,14 +396,23 @@ public class TurretSlot : MonoBehaviour
             if (best != null) return best;
         }
 
+        // v6.8 (v9.14): 이미 날아가는 탄으로 죽을 손님(IncomingDamage >= HP)은 건너뛴다 - 여러 포탑이 한 마리에 몰려 허공에 쏘던 것.
+        //   건너뛸 손님밖에 없으면 그중 최근접 (탄이 빗나가도 표적 대체가 있다)
         float bestDist = range;
+        Enemy doomedBest = null; float doomedDist = range;
         for (int i = 0; i < all.Length; i++)
         {
             if (!all[i].IsAlive) continue;
             float d = Vector3.Distance(transform.position, all[i].transform.position);
+            if (d >= range) continue;
+            if (GameBalance.AvoidOverkillTargeting && all[i].IncomingDamage >= all[i].currentHP)
+            {
+                if (d < doomedDist) { doomedDist = d; doomedBest = all[i]; }
+                continue;
+            }
             if (d < bestDist) { bestDist = d; best = all[i]; }
         }
-        return best;
+        return best != null ? best : doomedBest;
     }
 
 

@@ -316,7 +316,7 @@ public class FinalOrderUI : MonoBehaviour
         canvas.sortingOrder = 645;   // 경고(640) 위, 스토리(650) 아래
         CanvasScaler scaler = canvasGo.AddComponent<CanvasScaler>();
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-        scaler.referenceResolution = new Vector2(1920f, 1080f);
+        scaler.referenceResolution = UIFactory.RefResolution;   // v9.14: UI 전체 배율 (GameBalance.UIScale)
         canvasGo.AddComponent<GraphicRaycaster>();
 
         // ── [R] 힌트 (우측 중단, 금색) ──

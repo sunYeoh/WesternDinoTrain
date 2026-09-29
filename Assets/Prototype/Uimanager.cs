@@ -323,7 +323,7 @@ public class UIManager : MonoBehaviour
         canvas.sortingOrder = 455;   // 공명 HUD(470) 바로 아래
         CanvasScaler scaler = canvasGo.AddComponent<CanvasScaler>();
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-        scaler.referenceResolution = new Vector2(1920f, 1080f);
+        scaler.referenceResolution = UIFactory.RefResolution;   // v9.14: UI 전체 배율 (GameBalance.UIScale)
 
         logTexts = new Text[LOG_LINES];
         for (int i = 0; i < LOG_LINES; i++)

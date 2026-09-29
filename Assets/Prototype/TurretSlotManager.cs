@@ -91,7 +91,7 @@ public class TurretSlotManager : MonoBehaviour
         cv.sortingOrder = 470;
         UnityEngine.UI.CanvasScaler scaler = canvasGo.AddComponent<UnityEngine.UI.CanvasScaler>();
         scaler.uiScaleMode = UnityEngine.UI.CanvasScaler.ScaleMode.ScaleWithScreenSize;
-        scaler.referenceResolution = new Vector2(1920f, 1080f);
+        scaler.referenceResolution = UIFactory.RefResolution;   // v9.14: UI 전체 배율 (GameBalance.UIScale)
         scaler.matchWidthOrHeight = 0.5f;
 
         resonanceText = KitchenEventManager.MakeText(canvasGo.transform, "ResonanceText", "", 19,
@@ -419,6 +419,12 @@ public class TurretSlotManager : MonoBehaviour
         if (a.recipeId == b.recipeId)
         {
             int merged = a.level + b.level;
+            int cap = TurretSlot.MaxLevelOf(rb);   // v2.3 (v9.14): 레벨 상한
+            if (cap > 0 && merged > cap)
+            {
+                if (b.level >= cap) { resultMsg = rb.displayName + " Lv" + b.level + " - 이미 최대. 다른 요리와 합체해 전설로"; return false; }
+                merged = cap;
+            }
             b.SetTurret(b.recipeId, merged);
             a.ClearSlot();
             resultMsg = rb.displayName + " 합체! " + b.GradeName + "등급 Lv" + merged;
@@ -565,7 +571,8 @@ public class TurretSlotManager : MonoBehaviour
         }
 
         // 레벨은 완료 시점의 실제 레벨로 계산 (미니게임 중 동종 병합으로 올랐다면 반영)
-        int newLevel = Mathf.Max(1, (a.level + b.level) / 2) + bonusLevel;
+        // v2.3 (v9.14): 기본 = 둘 중 높은 레벨 (구 동작 평균 - 테스터 "전설이 더 약함": Lv3+Lv3 이 Lv3 이 돼 두 칸 화력보다 약했다)
+        int newLevel = (GameBalance.FusionLevelMax ? Mathf.Max(a.level, b.level) : Mathf.Max(1, (a.level + b.level) / 2)) + bonusLevel;
 
         // P1+: 요리 숙련 '장인의 감각'(50회) - 숙련된 T2 레시피는 탄생 레벨 +1
         if (MetaProgress.GetMasteryTier(fusion.recipeId) >= GameBalance.MasteryStartLevelTier)

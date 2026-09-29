@@ -152,7 +152,7 @@ public class SpinoBetUI : MonoBehaviour
         canvas.sortingOrder = 595;   // 분기 선로(590) 위, 증강(600) 아래
         CanvasScaler scaler = canvasGo.AddComponent<CanvasScaler>();
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-        scaler.referenceResolution = new Vector2(1920f, 1080f);
+        scaler.referenceResolution = UIFactory.RefResolution;   // v9.14: UI 전체 배율 (GameBalance.UIScale)
         canvasGo.AddComponent<GraphicRaycaster>();
 
         // 하단 대화 패널

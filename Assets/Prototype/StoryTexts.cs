@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [StoryTexts.cs] v1.3 (2026-09-14: 엔딩 B 도감 완성 추가 장면) / v1.2
+/// [StoryTexts.cs] v1.4 (v9.14 2026-09-28: 오프닝 두 줄 - "후자다" 같은 번역투 제거) / v1.3 (2026-09-14: 엔딩 B 도감 완성 추가 장면) / v1.2
 /// 스토리 텍스트 - 오프닝 / 귀환 인사 / 사망 / 부활 / 승리 / 도감 플레이버 / 선대의 일지.
 /// 스토리바이블(2026-08-18) Phase 1 물량.
 ///
@@ -34,9 +34,8 @@ public static class StoryTexts
     // 오프닝 3줄 (1회차 시작)
     private static readonly string[] OpeningLines =
     {
-        "황야에는 두 종류의 기계가 있다. 굶주린 것과, 아직 저녁을 얻는 것.",
-        "너의 기차는 후자다. 네가 요리하는 한.",
-        "종착역: 황야의 끝, 디 오리지널. - 출발한다.",
+        "황야의 기계들은 전부 굶주렸다. 네 기차만 아직 저녁을 먹는다 - 네가 요리하는 동안은.",
+        "종착역은 황야 끝, 디 오리지널. 출발한다.",
     };
 
     // 사망 순간 - 기관심장이 죽은 셰프를 "다시 굽기" 시작한다 (부활의 세계관 납득)
@@ -227,7 +226,7 @@ public static class StoryTexts
         canvas.sortingOrder = 650;   // 증강(600)보다 위, 일시정지(700)보다 아래
         CanvasScaler scaler = canvasGo.AddComponent<CanvasScaler>();
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-        scaler.referenceResolution = new Vector2(1920f, 1080f);
+        scaler.referenceResolution = UIFactory.RefResolution;   // v9.14: UI 전체 배율 (GameBalance.UIScale)
 
         // 배경 (오프닝만 화면 전체를 어둡게)
         if (dimBackground)

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// [Enemy.cs] v3.5 (v9.12 2026-09-22: TutorialDirector.InlineFreeze 동안 정지 / 용어 "지속 피해") / v3.4 (v9.11.1 2026-09-22 문구: 특기 설명 일상어, 강철 = 방어 50) / v3.3 (v9.11 2026-09-22 타격감: 직접 명중 때 HitFeel.OnHit(플래시·찌그러짐·딜 비례 스파크), 죽을 때 HitFeel.OnKill(킬 버스트) - 도트 틱은 제외) / v3.2 (v9.10.1 2026-09-21: 물량 1.6배에 맞춘 처치 보상 배율 - 일반 손님 골드 GameBalance.KillGoldMul, 재료 드랍 확률 KillMaterialChance(보스는 항상). 드랍 이름을 재료 이름표(전기알·화염꽃·독샘)에 맞춤) / v3.1 (2026-09-14: 해빙 문구 / 전갈 마모 대체 스위치) / v3
+/// [Enemy.cs] v3.6 (v9.14 2026-09-28: IncomingDamage - 과잉 집중 방지용 예약 피해) / v3.5 (v9.12 2026-09-22: TutorialDirector.InlineFreeze 동안 정지 / 용어 "지속 피해") / v3.4 (v9.11.1 2026-09-22 문구: 특기 설명 일상어, 강철 = 방어 50) / v3.3 (v9.11 2026-09-22 타격감: 직접 명중 때 HitFeel.OnHit(플래시·찌그러짐·딜 비례 스파크), 죽을 때 HitFeel.OnKill(킬 버스트) - 도트 틱은 제외) / v3.2 (v9.10.1 2026-09-21: 물량 1.6배에 맞춘 처치 보상 배율 - 일반 손님 골드 GameBalance.KillGoldMul, 재료 드랍 확률 KillMaterialChance(보스는 항상). 드랍 이름을 재료 이름표(전기알·화염꽃·독샘)에 맞춤) / v3.1 (2026-09-14: 해빙 문구 / 전갈 마모 대체 스위치) / v3
 /// 모든 적 유닛의 기본 동작 + 전투 스탯(DEF/RES) + 상태이상(도트/방깎/마깎)
 /// - v3 변경점: 행동 패턴 시스템 (이름 기반 자동 배정 - 프리팹 설정 불필요)
 ///   1) 무리 사냥꾼(랩터): 주변 랩터가 많을수록 이동 속도 증가
@@ -345,6 +345,8 @@ public class Enemy : MonoBehaviour
 
     [Header("─ 런타임 스탯 ─")]
     public float currentHP;
+    /// <summary>v3.6 (v9.14): 이미 이쪽으로 날아가는 탄의 피해 합 - 포탑이 표적을 고를 때 "곧 죽을 손님"을 건너뛴다 (TurretAttackExecutor 가 더하고 뺀다)</summary>
+    [HideInInspector] public float IncomingDamage = 0f;
     public float scaledMaxHP;      // v3: 힐러 회복 상한용
     public float scaledATK;
     public float scaledSPD;
@@ -447,6 +449,9 @@ public class Enemy : MonoBehaviour
     {
         if (!isAlive) return;
         if (TutorialDirector.InlineFreeze) return;   // v3.5: 인라인 연습 중 - 손님은 그 자리에 멈춘다 (이동·공격·상태이상 전부)
+
+        // v3.6: 예약 피해는 탄이 도착하면 풀린다. 탄이 사라져 안 풀린 값이 남지 않게 천천히 흘려보낸다 (초당 35%)
+        if (IncomingDamage > 0f) IncomingDamage = Mathf.Max(0f, IncomingDamage - IncomingDamage * 0.35f * Time.deltaTime);
 
         // 플레이테스트 픽스 (정차 성역): 전투가 끝났으면 남은 손님들은 어둠 속으로 물러난다
         // - 늦게 도착한 적이 선로/베팅 고르는 정비 턴에 기차를 물어뜯던 사고 방지

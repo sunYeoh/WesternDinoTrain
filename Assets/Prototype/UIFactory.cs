@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [UIFactory.cs] v4.1 (v9.11 2026-09-22: CreateButton 에 ButtonFeel - 호버·프레스 반응) / v4 - uGUI 요소를 코드로 생성하는 헬퍼 (에디터 Canvas 세팅 불필요)
+/// [UIFactory.cs] v4.2 (v9.14 2026-09-28: RefResolution - 모든 캔버스 기준 해상도를 GameBalance.UIScale 로 나눈다, 글자·창 전체 확대) / v4.1 (v9.11 2026-09-22: CreateButton 에 ButtonFeel - 호버·프레스 반응) / v4 - uGUI 요소를 코드로 생성하는 헬퍼 (에디터 Canvas 세팅 불필요)
 ///
 /// v4 (2026-09-07, "쇳냄새" 픽셀 스킨): UISkin(ui_*.png)이 있으면
 ///   - CreatePanel: borderWidth 3 이상 + 큰 창(600x150 이상) = 구리 파이프 프레임(무쇠 평판 내장, 색 인자 무시)
@@ -76,6 +76,12 @@ public static class UIFactory
     }
 
     /// <summary>루트 캔버스 생성 (스크린 오버레이, 1920x1080 기준 스케일)</summary>
+    /// <summary>v4.2 (v9.14): 모든 캔버스의 기준 해상도 = 1920x1080 / GameBalance.UIScale - 값이 클수록 글자·창이 커진다 (테스터 "글자 크게")</summary>
+    public static Vector2 RefResolution
+    {
+        get { float k = Mathf.Max(0.5f, GameBalance.UIScale); return new Vector2(1920f / k, 1080f / k); }
+    }
+
     public static Canvas CreateCanvas(string name, int sortOrder)
     {
         GameObject go = new GameObject(name);
@@ -85,7 +91,7 @@ public static class UIFactory
 
         CanvasScaler scaler = go.AddComponent<CanvasScaler>();
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-        scaler.referenceResolution = new Vector2(1920f, 1080f);
+        scaler.referenceResolution = UIFactory.RefResolution;   // v9.14: UI 전체 배율 (GameBalance.UIScale)
         scaler.matchWidthOrHeight = 0.5f;
 
         go.AddComponent<GraphicRaycaster>();

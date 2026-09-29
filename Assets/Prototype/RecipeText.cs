@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 
 /// <summary>
-/// [RecipeText.cs] v1.2 (v9.12 2026-09-22: 용어 "지속 피해") / v1.1 (v9.11.1 2026-09-22: 재료·조리대 줄(Source) 추가, 무방비 표현) / v1 (신규, v9.10 2026-09-17) - 요리(포탑) 설명을 일상어로 만드는 한 곳
+/// [RecipeText.cs] v1.3 (v9.14 2026-09-28: 설명 짧게 - 재료 줄 제외, "잘 박힌다" 줄 간결 / RecipeHoverRelay.onClick) / v1.2 (v9.12 2026-09-22: 용어 "지속 피해") / v1.1 (v9.11.1 2026-09-22: 재료·조리대 줄(Source) 추가, 무방비 표현) / v1 (신규, v9.10 2026-09-17) - 요리(포탑) 설명을 일상어로 만드는 한 곳
 ///
 /// 테스터 피드백: "도감에 요리를 눌렀을 때 뭔 요린지 모르니까 만들지 말지도 모르겠음", "포탑 효과를 읽을 시간이 없음",
 /// "모르겠는 말(공명·인퓨징·DPS) 쓰지 말기". RecipeData 의 수치 필드(형태·속성·도트·감속·폭발·체인·회복·버프·패시브)를 그대로 읽어
@@ -69,8 +69,8 @@ public static class RecipeText
         if (r == null || r.shape == AttackShape.Passive || !string.IsNullOrEmpty(r.buffType)) return "";
         if (r.damage <= 0f) return "";
         return r.damageType == DamageType.Magic
-            ? "속성(마법) 피해 - 방어가 두꺼운 손님(거북·아르마딜로·강철)에 잘 박힌다"
-            : "물리 피해 - 저항이 높은 손님(날개 달린 것들)에 잘 박힌다";
+            ? "속성 피해 - 두꺼운 손님(거북·아르마딜로·강철)에 잘 박힌다"
+            : "물리 피해 - 날개 달린 손님(프테라·플라이)에 잘 박힌다";
     }
 
     /// <summary>언제 쓰나 - 역할 휴리스틱</summary>
@@ -80,7 +80,7 @@ public static class RecipeText
         if (r.shape == AttackShape.Passive) return "슬롯 하나를 화력 대신 기차 자체에 쓰고 싶을 때";
         if (!string.IsNullOrEmpty(r.buffType)) return "이미 좋은 포탑 곁에 두어 더 세게 만들 때";
         if (r.role == TurretRole.Debuffer || r.shredDef > 0 || r.shredRes > 0)
-            return "두꺼운 손님·보스 - 보스가 무방비(그로기)일 때 [F] 로 던지는 요리이기도 하다";
+            return "두꺼운 손님·보스 (보스가 무방비일 때 [F] 로 던지는 요리)";
         if (r.role == TurretRole.CC || r.slowLevel > 0 || r.stunSec > 0f) return "손님이 기차에 붙기 전에 늦추고 싶을 때";
         if (r.healOnHit > 0f || r.role == TurretRole.Support) return "기차가 자주 다칠 때 - 쏘면서 조금씩 고친다";
         switch (r.shape)
@@ -114,14 +114,13 @@ public static class RecipeText
         return MaterialNames.PairKor(r.recipeId) + " · " + MethodWord(r);
     }
 
-    /// <summary>툴팁·도감 상세용 전체 (줄바꿈). 순서 = 무엇을 하나 / 어떤 손님에 / 언제 / 재료·조리대 / 숫자</summary>
+    /// <summary>툴팁·도감 상세용 전체 (줄바꿈). 순서 = 무엇을 하나 / 어떤 손님에 / 언제 / 숫자. v1.3 (v9.14): 재료 줄은 뺐다 (도감 머리줄이 보여 준다) - 테스터 "길다"</summary>
     public static string Full(RecipeData r, float levelMult)
     {
         if (r == null) return "";
         string s = What(r);
         string ag = Against(r); if (ag.Length > 0) s += "\n" + ag;
         string wh = When(r); if (wh.Length > 0) s += "\n쓰는 때: " + wh;
-        string so = Source(r); if (so.Length > 0) s += "\n재료: " + so;
         string num = Numbers(r, levelMult); if (num.Length > 0) s += "\n" + num;
         return s;
     }
@@ -167,11 +166,12 @@ public static class RecipeText
     }
 }
 
-/// <summary>요리 이름/카드 위에 마우스가 오면 onHover(레시피) - 로비 도감 등 어디서나 붙여 쓴다</summary>
+/// <summary>요리 이름/카드의 마우스 이벤트 중계 - onHover(스침) / onClick(클릭). v1.3: 도감은 onClick 만 쓴다 (스침으로 바뀌면 읽는 도중 사라진다)</summary>
 public class RecipeHoverRelay : MonoBehaviour, IPointerEnterHandler, IPointerClickHandler
 {
     public RecipeData recipe;
     public System.Action<RecipeData> onHover;
+    public System.Action<RecipeData> onClick;
     public void OnPointerEnter(PointerEventData e) { if (onHover != null) onHover(recipe); }
-    public void OnPointerClick(PointerEventData e) { if (onHover != null) onHover(recipe); }
+    public void OnPointerClick(PointerEventData e) { if (onClick != null) onClick(recipe); else if (onHover != null) onHover(recipe); }
 }

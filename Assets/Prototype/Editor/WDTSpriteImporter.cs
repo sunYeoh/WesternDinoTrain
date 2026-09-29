@@ -6,6 +6,7 @@ using UnityEngine;
 /// <summary>
 /// [WDTSpriteImporter.cs] v4.4 (Editor 전용) - 스프라이트 PNG 자동 임포트 설정 (2026-09-07, v9 픽셀 팩 + UI 스킨)
 ///
+/// v4.6 (v9.14): 셰프 HERO_PPU 32 -> 27 (화면에서 18% 크게). 적용하려면 메뉴 WDT > 스프라이트 재임포트 (hero_*.png 만 다시 잡힌다)
 /// v4.5 (v9.13): 선로 v2 갈림길 rails_fork / rails_fork_up / rails_fork_hi_up·down·straight (516x421, 32ppu, 피벗 = 위 가지 분기점 (515/516, 211/421)) 5줄
 /// v4.4 (v9.9.2): tut_ring_l(72x26, 중앙) 1줄. ui_npc_spino / ui_npc_ankylo 는 ui_ 규칙 그대로 (PPU 100, 단순 그림)
 /// v4.3 (v9.9): 튜토리얼 현장 마커 tut_arrow(24x21, 피벗 = 뾰족한 끝 (11.5/24, 0)) / tut_ring(36x14, 중앙) 표 2줄 - 32ppu 월드 스프라이트
@@ -50,7 +51,7 @@ public class WDTSpriteImporter : AssetPostprocessor
             { "ui_vent", 0f },
     };
 
-    private const float HERO_PPU = 32f;                 // 셰프(hero_*) 크기: 낮출수록 화면에서 커진다 (32 = 기차와 같은 밀도(확정), 24 / 21 = 크게)
+    private const float HERO_PPU = 27f;                 // 셰프(hero_*) 크기: 낮출수록 화면에서 커진다. v4.6 (v9.14): 32 -> 27 (+18%, 테스터 "주인공이 너무 작다"). 24 / 21 = 더 크게
     private const float HERO_PIVOT_Y = 1f / 32f;        // 발바닥 = 아래에서 두 번째 픽셀 줄 (유저 도트 기준)
 
     // 파일 이름(확장자 제외) -> 픽셀/유닛 + 피벗. (렌더러 meta.json에서 생성)

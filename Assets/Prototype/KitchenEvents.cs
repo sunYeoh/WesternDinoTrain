@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 
 /// <summary>
-/// [KitchenEvents.cs] v2 / v9.10.1 2026-09-21: 재료 이름 MaterialNames
+/// [KitchenEvents.cs] v2.1 (v9.14 2026-09-28: 흘림 조각 자리가 사고 배너와 겹치지 않게) / v2 / v9.10.1 2026-09-21: 재료 이름 MaterialNames
 /// 주방 돌발 이벤트 인터페이스 + 4종 구현체 (기획 B-4)
 ///
 /// 새 조작키를 만들지 않고 기존 조작만 재활용한다
@@ -731,7 +731,10 @@ public class MaterialSpillEvent : IKitchenEvent
         {
             int kind = Random.Range(0, NAMES.Length);
             string label = NAMES[kind];
+            // v2.1 (v9.14): 사고 배너(가운데 아래 760x144, 캔버스 중심 기준 y -252~-108)와 겹치는 자리는 다시 뽑는다 - 테스터 "떨어진 재료가 창에 가려 안 보임"
             Vector2 pos = new Vector2(Random.Range(-620f, 620f), Random.Range(-330f, 60f));
+            for (int tries = 0; tries < 20 && Mathf.Abs(pos.x) < 440f && pos.y > -300f && pos.y < -60f; tries++)
+                pos = new Vector2(Random.Range(-620f, 620f), Random.Range(-330f, 60f));
             Button btn = skin
                 ? MakeChipButton(mgr, kind, pos)
                 : KitchenEventManager.MakeButton(mgr.CustomRoot, label, new Color(0.55f, 0.42f, 0.24f, 0.95f), pos, new Vector2(110f, 72f));

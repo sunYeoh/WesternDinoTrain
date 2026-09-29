@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// [FameShopUI.cs] v1.3 (2026-09-14: 런 종료 화면에 이번 런 통계 한 줄) / v1.2 (즉시 재출발 버튼) / v1
+/// [FameShopUI.cs] v1.4 (v9.14 2026-09-28: 명성 사용처 "출발 증강" 줄 추가, 패널 680) / v1.3 (2026-09-14: 런 종료 화면에 이번 런 통계 한 줄) / v1.2 (즉시 재출발 버튼) / v1
 /// 명성 상점 - 런 사이(로비/게임오버)에 명성을 소모해 영구 업그레이드를 사는 UI.
 ///
 /// - v1.3 변경점 (스위치 실험 관찰 시트): 게임오버/승리로 열렸을 때 보유 명성 줄 아래에
@@ -87,7 +87,8 @@ public class FameShopUI : MonoBehaviour
             new ShopItem("hp",    "강화 보일러",   "기차 최대 HP +50",           100, 3),
             new ShopItem("food",  "여분의 도시락", "시작 요리 +1 (첫 포탑 가속)", 120, 2),
             new ShopItem("mat",   "재료 가방",     "시작 시 랜덤 재료 +2",        100, 2),
-            new ShopItem("judge", "셰프의 감각",   "조리 판정 구간 +4% (다음 운행에도 유지)",     150, 3),
+            new ShopItem("judge", "셰프의 감각",   "조리에서 맞춰야 하는 구간 +4% (다음 운행에도)",     150, 3),
+            new ShopItem("augment", "출발 증강",   "운행을 시작할 때 은 증강을 하나 고른다 (매 운행)", GameBalance.FameStartAugmentCost, 1),   // v1.4 (v9.14): 명성 사용처
         };
 
         BuildUI();
@@ -173,7 +174,7 @@ public class FameShopUI : MonoBehaviour
         canvas.sortingOrder = 560;
         CanvasScaler scaler = canvasGo.AddComponent<CanvasScaler>();
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-        scaler.referenceResolution = new Vector2(1920f, 1080f);
+        scaler.referenceResolution = UIFactory.RefResolution;   // v9.14: UI 전체 배율 (GameBalance.UIScale)
         canvasGo.AddComponent<GraphicRaycaster>();
 
         // 반투명 배경 패널 (중앙)
@@ -183,7 +184,7 @@ public class FameShopUI : MonoBehaviour
         panel.anchorMax = new Vector2(0.5f, 0.5f);
         panel.pivot = new Vector2(0.5f, 0.5f);
         panel.anchoredPosition = new Vector2(0f, 20f);
-        panel.sizeDelta = new Vector2(860f, 600f);
+        panel.sizeDelta = new Vector2(860f, 680f);   // v1.4: 6번째 줄 (구 600)
         root = panel.gameObject;
 
         // 제목
@@ -269,7 +270,7 @@ public class FameShopUI : MonoBehaviour
         rRt.anchorMin = new Vector2(0.5f, 0.5f);
         rRt.anchorMax = new Vector2(0.5f, 0.5f);
         rRt.pivot = new Vector2(0.5f, 0.5f);
-        rRt.anchoredPosition = new Vector2(0f, -330f);   // 상점 패널 바로 아래
+        rRt.anchoredPosition = new Vector2(0f, -372f);   // 상점 패널 바로 아래 (v1.4: 패널 680)
         restartBtn.onClick.AddListener(RestartRun);
         restartButtonGo = restartBtn.gameObject;
         restartButtonGo.SetActive(false);

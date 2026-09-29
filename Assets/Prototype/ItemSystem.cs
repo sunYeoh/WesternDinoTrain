@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 
 /// <summary>
-/// [ItemSystem.cs] v1.1 (2026-09-14: IsItemUsable 스위치 연동) / v1 (신규 파일) - Phase 2-3: 아이템(유물) 시스템
+/// [ItemSystem.cs] v1.2 (v9.14 2026-09-28: 유물 15종 설명을 일상어로 - 테스터 "황금 조리 기구가 뭔지 모르겠음": "판정 구간" -> "맞춰야 하는 구간이 넓어진다") / v1.1 (2026-09-14: IsItemUsable 스위치 연동) / v1 (신규 파일) - Phase 2-3: 아이템(유물) 시스템
 ///
 /// 설계 (사용자 결정 - 증강/아이템 이원화):
 ///  - 증강 = 포탑 강화 + 기차 유틸 (전투 출력에 관여)
@@ -292,27 +292,27 @@ public static class ItemDatabase
         //  증강에서 이관된 5종 (효과 유지)
         // ==========================================================
         all.Add(new ItemData("item_knife", "잘 드는 식칼",
-            "조리 미니게임 제한 시간 +20% (굽기 커서도 느려진다)",
+            "조리 제한 시간이 20% 길어진다 (굽기 눈금도 그만큼 느리게 간다)",
             ItemRarity.Common, 150,
             delegate { ItemManager.CookTimeMul *= 1.20f; }));
 
         all.Add(new ItemData("item_goldentool", "황금 조리 기구",
-            "조리 판정 구간 +35%, 제한 시간 +10%",
+            "조리할 때 맞춰야 하는 구간이 35% 넓어진다 - 판정이 쉬워진다. 제한 시간도 10% 길어진다",
             ItemRarity.Rare, 300,
             delegate { ItemManager.CookJudgeMul *= 1.35f; ItemManager.CookTimeMul *= 1.10f; }));
 
         all.Add(new ItemData("item_insurance", "보험 계약서",
-            "주방 이벤트 실패 페널티 60% 감소",
+            "주방 사고에 실패해도 기차가 받는 피해가 60% 줄어든다",
             ItemRarity.Common, 160,
             delegate { ItemManager.EventPenaltyMul *= 0.40f; }));
 
         all.Add(new ItemData("item_fan", "부채질 장인의 부채",
-            "주방 이벤트가 2배 자주 발생하지만, 성공 보상 3배",
+            "주방 사고가 2배 자주 오지만, 막아내면 보상이 3배",
             ItemRarity.Rare, 280,
             delegate { ItemManager.EventIntervalMul *= 0.5f; ItemManager.EventRewardMul *= 3f; }));
 
         all.Add(new ItemData("item_oilmat", "미끄럼 방지 매트",
-            "오일 캑터스의 기름 튐에 면역이 된다",
+            "오일 캑터스가 튀기는 기름에 안 미끄러진다",
             ItemRarity.Common, 140,
             delegate { ItemManager.OilImmune = true; }));
 
@@ -320,37 +320,37 @@ public static class ItemDatabase
         //  신규 10종
         // ==========================================================
         all.Add(new ItemData("item_whetstone", "휴대용 숫돌",
-            "조리 도구 마모가 절반이 된다 (전갈의 부식 포함)",
+            "조리 도구가 절반만 닳는다 (전갈의 부식도 절반)",
             ItemRarity.Common, 150,
             delegate { ItemManager.ToolWearMul *= 0.5f; }));
 
         all.Add(new ItemData("item_thermometer", "구리 온도계",
-            "굽기 판정 구간 +25%",
+            "굽기(그릴)에서 맞춰야 하는 구간이 25% 넓어진다",
             ItemRarity.Common, 150,
             delegate { ItemManager.GrillJudgeMul *= 1.25f; }));
 
         all.Add(new ItemData("item_spatula", "균형 잡힌 뒤집개",
-            "볶기 제한 시간 +25%",
+            "볶기(팬) 제한 시간이 25% 길어진다",
             ItemRarity.Common, 150,
             delegate { ItemManager.StirTimeMul *= 1.25f; }));
 
         all.Add(new ItemData("item_valve", "압력 조절 밸브",
-            "끓이기 판정 구간 +25%",
+            "끓이기(솥)에서 맞춰야 하는 구간이 25% 넓어진다",
             ItemRarity.Common, 150,
             delegate { ItemManager.BoilJudgeMul *= 1.25f; }));
 
         all.Add(new ItemData("item_extinguisher", "구리 소화기",
-            "주방 화재를 웨이브당 1회 자동 진압한다",
+            "주방 화재가 웨이브마다 한 번은 저절로 꺼진다",
             ItemRarity.Rare, 260,
             delegate { ItemManager.HasExtinguisher = true; }));
 
         all.Add(new ItemData("item_rattrap", "랩터 덫",
-            "침입자가 덫을 밟고 시작한다: 격퇴 게이지 -40%",
+            "손님이 기차에 뛰어들면 덫부터 밟는다 - 쫓아내는 데 채워야 하는 게이지가 40% 줄어든다",
             ItemRarity.Common, 160,
             delegate { ItemManager.IntruderGaugeMul *= 0.6f; }));
 
         all.Add(new ItemData("item_goggles", "김서림 방지 고글",
-            "독침 프테라의 저격(조리 속도 저하)을 무시한다",
+            "독침 프테라가 쏴 맞혀도 조리 속도가 안 느려진다",
             ItemRarity.Rare, 260,
             delegate { ItemManager.SnipeImmune = true; }));
 
@@ -360,13 +360,13 @@ public static class ItemDatabase
             delegate { ItemManager.FailRefund = true; }));
 
         all.Add(new ItemData("item_spicebag", "비밀 향신료 주머니",
-            "PERFECT 조리 시 20% 확률로 요리 +1",
+            "조리를 PERFECT 로 마치면 20% 확률로 요리가 하나 더 나온다",
             ItemRarity.Rare, 300,
             delegate { ItemManager.PerfectExtraChance += 0.20f; }));
 
         // 유일 - 침입자 격퇴 시에만 낮은 확률로 획득 (비매품)
         all.Add(new ItemData("item_swagbag", "장물 주머니",
-            "획득 즉시 골드 +150. 이후 침입자 격퇴마다 골드 +40",
+            "줍는 즉시 골드 +150. 그 뒤 뛰어든 손님을 쫓아낼 때마다 골드 +40",
             ItemRarity.Special, 0,
             delegate
             {

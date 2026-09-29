@@ -62,7 +62,7 @@ public class TrainStripUI : MonoBehaviour
         canvas.sortingOrder = 450;   // 알림 로그(455) 바로 아래
         CanvasScaler scaler = canvasGo.AddComponent<CanvasScaler>();
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-        scaler.referenceResolution = new Vector2(1920f, 1080f);
+        scaler.referenceResolution = UIFactory.RefResolution;   // v9.14: UI 전체 배율 (GameBalance.UIScale)
 
         int carCount = GameBalance.CarNames.Length;
         cellBorders = new Image[carCount];

@@ -3,7 +3,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 /// <summary>
-/// [SlotMarkerUI.cs] v5.5 (v9.12 2026-09-22: 체인 = "연쇄 번개") / v5.4 (v9.11.1 2026-09-22 문구: 마비 종류별 안내, 전설·진화 조리 용어, 역할 낱말) / v5.3 (v9.10 2026-09-17 테스터 피드백: 포탑 정보창이 마우스를 따라다니며 커서 밑에 겹쳐 깜빡이고 클릭을 가로채던 것 ->
+/// [SlotMarkerUI.cs] v5.6 (v9.14 2026-09-28: 레벨 상한 표시 "최대" + 강화 미리보기 상한, 진화 레벨 = 높은 쪽) / v5.5 (v9.12 2026-09-22: 체인 = "연쇄 번개") / v5.4 (v9.11.1 2026-09-22 문구: 마비 종류별 안내, 전설·진화 조리 용어, 역할 낱말) / v5.3 (v9.10 2026-09-17 테스터 피드백: 포탑 정보창이 마우스를 따라다니며 커서 밑에 겹쳐 깜빡이고 클릭을 가로채던 것 ->
 ///   화면 한 자리(왼쪽 아래, 하단 바 위) 고정 + 클릭 통과(raycastTarget off) + 합체 선택 중엔 고정 유지 / 포탑 실물 클릭·호버도 이름표와 같이 /
 ///   설명은 RecipeText 일상어 ("무엇을 하나 / 어떤 손님에 / 언제")) /
 /// v5.2 (v9.9.2 2026-09-16: 마비 칩 = "감전!/빙결!/과열!" + 할 일 한 줄, 빨간 테, 칩 위 모서리 경광등 0.3초 교대 (GameBalance.StunChipBeacons) - 목업 v3 (E), 정식 런 공용) / v5.1 (v9.9 2026-09-16: 4모서리 배치 - 남쪽 슬롯 마커는 발 아래, 폭 96->120(GameBalance.SlotMarkerWidth), 로비에서 숨김) / v5 (교수 피드백 A5/A12 반영 2026-09-14) / v4 (B-1: 근접 위기 대응 - 방향결정 2026-08-31)
@@ -372,7 +372,7 @@ public class SlotMarkerUI : MonoBehaviour
             else
             {
                 RecipeData r = slot.Recipe;
-                markerTexts[i].text = r.displayName + "\n" + slot.GradeName + " Lv" + slot.level;
+                markerTexts[i].text = r.displayName + "\n" + slot.GradeName + " Lv" + slot.level + (slot.AtMaxLevel ? " 최대" : "");   // v5.6: 상한 표시
                 markerTexts[i].color = UIFactory.CREAM;
                 markerBGs[i].color = BG_NORMAL;
 
@@ -576,7 +576,7 @@ public class SlotMarkerUI : MonoBehaviour
         RecipeData r = slot.Recipe;
 
         // v5.3: 일상어 설명 (RecipeText) - 역할 낱말 / 무엇을 하나 / 어떤 손님에 / 언제 / 숫자
-        string info = r.displayName + (r.tier == 2 ? "  [전설]" : "") + "   " + RecipeText.RoleWord(r) + "  Lv" + slot.level + " (x" + slot.LevelMult.ToString("F1") + ")\n";
+        string info = r.displayName + (r.tier == 2 ? "  [전설]" : "") + "   " + RecipeText.RoleWord(r) + "  Lv" + slot.level + (slot.AtMaxLevel ? " (최대)" : "") + " (x" + slot.LevelMult.ToString("F1") + (r.tier >= 2 && GameBalance.T2DamageMul != 1f ? " · 전설 x" + GameBalance.T2DamageMul.ToString("F1") : "") + ")\n";
         info += RecipeText.Full(r, slot.LevelMult) + "\n";
 
         // P1+: 요리 숙련 표시 (평생 조리 횟수 + 칭호) - 일상어
@@ -619,9 +619,12 @@ public class SlotMarkerUI : MonoBehaviour
         if (a.recipeId == b.recipeId)
         {
             int merged = a.level + b.level;
+            int cap = TurretSlot.MaxLevelOf(ra);   // v5.6 (v9.14): 레벨 상한
+            if (cap > 0 && b.level >= cap) return "[강화 불가] " + ra.displayName + " Lv" + b.level + " - 이미 최대\n다른 요리와 합체해 전설로 진화시켜라";
+            if (cap > 0 && merged > cap) merged = cap;
             int cnt = mgr.GetTagCount(ra.tag);
             string s = "[강화] " + ra.displayName + "\n";
-            s += "Lv" + a.level + " + Lv" + b.level + " -> Lv" + merged + " (" + GradeOf(merged) + "등급, x"
+            s += "Lv" + a.level + " + Lv" + b.level + " -> Lv" + merged + (cap > 0 && merged >= cap ? " (최대)" : "") + " (" + GradeOf(merged) + "등급, x"
                 + (1f + 0.6f * (merged - 1)).ToString("F1") + "배)\n";
             s += "슬롯 1개 비움 / 공격원 2 -> 1\n";
             s += "공명 " + mgr.TagName(ra.tag) + " " + cnt + " -> " + (cnt - 1)
@@ -637,7 +640,7 @@ public class SlotMarkerUI : MonoBehaviour
             RecipeData fusion = RecipeDatabase.GetFusion(ra.tag, rb.tag);
             if (fusion == null) return "[진화 불가] 이 조합의 진화 레시피 없음";
 
-            int baseLevel = Mathf.Max(1, (a.level + b.level) / 2);
+            int baseLevel = GameBalance.FusionLevelMax ? Mathf.Max(a.level, b.level) : Mathf.Max(1, (a.level + b.level) / 2);   // v5.6 (v9.14): 둘 중 높은 쪽
             bool masteryUp = MetaProgress.GetMasteryTier(fusion.recipeId) >= GameBalance.MasteryStartLevelTier;
             bool known = FoodStock.Instance != null && FoodStock.Instance.IsDiscovered(fusion.recipeId);
 

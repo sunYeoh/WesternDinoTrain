@@ -31,10 +31,10 @@ public static class GameBalance
 
     // ── 감사 3-A: 골드 커브 (인플레이션 억제) ──
     /// <summary>웨이브 클리어 골드 = TownGoldBase + 웨이브 x TownGoldPerWave</summary>
-    public static int TownGoldBase = 80;
-    public static int TownGoldPerWave = 18;
+    public static int TownGoldBase = 60;      // v9.14: 80 -> 60 (테스터 "한 판에 2만 골드 남음")
+    public static int TownGoldPerWave = 12;   // v9.14: 18 -> 12
     /// <summary>보스 웨이브 클리어 추가 보너스</summary>
-    public static int BossClearGold = 300;
+    public static int BossClearGold = 200;    // v9.14: 300 -> 200
 
     /// <summary>증강 건너뛰기 보상 명성 (감사 2-A)</summary>
     public static int AugmentSkipFame = 15;
@@ -107,13 +107,13 @@ public static class GameBalance
     /// 적 스케일링 난이도 계수 L. 공식: Final = Base * (1 + Wave * 0.15 / L)
     /// L이 낮을수록 웨이브당 적이 빨리 강해진다. (기존 2.0 = Easy -> 1.5)
     /// </summary>
-    public static float EnemyDifficultyL = 1.5f;
+    public static float EnemyDifficultyL = 1.15f;   // v9.14: 1.5 -> 1.15 (테스터 "너무 쉽다" - 웨이브 8 에 1.8배 -> 2.0배, 웨이브 16 에 2.6배 -> 3.1배)
 
     /// <summary>일반 적 체력 전역 배율 (웨이브 스케일링 이후 곱해짐)</summary>
-    public static float EnemyHPMul = 1.0f;
+    public static float EnemyHPMul = 1.15f;   // v9.14: 1.0 -> 1.15
 
     /// <summary>일반 적 공격력 전역 배율</summary>
-    public static float EnemyATKMul = 0.9f;
+    public static float EnemyATKMul = 1.0f;   // v9.14: 0.9 -> 1.0
 
     // ==================================================================
     //  연속 피격 완충 - 무리 러시가 같은 순간에 우르르 때려도 즉사하지 않게
@@ -132,8 +132,8 @@ public static class GameBalance
     //  예) 웨이브 3: HP 1550 / ATK 64   웨이브 10: HP 3300 / ATK 120
     // ==================================================================
 
-    public static float BossHPBase = 800f;
-    public static float BossHPPerWave = 250f;
+    public static float BossHPBase = 900f;      // v9.14: 800 -> 900
+    public static float BossHPPerWave = 300f;   // v9.14: 250 -> 300
     public static float BossATKBase = 40f;
     public static float BossATKPerWave = 8f;
 
@@ -342,8 +342,8 @@ public static class GameBalance
     // ==================================================================
 
     /// <summary>증강 리롤 기본 비용 (골드). 사용할 때마다 Growth만큼 비싸진다 (런 단위 리셋)</summary>
-    public static int RerollBaseCost = 80;
-    public static int RerollCostGrowth = 40;
+    public static int RerollBaseCost = 120;    // v9.14: 80 -> 120 (골드 사용처)
+    public static int RerollCostGrowth = 60;   // v9.14: 40 -> 60
 
     /// <summary>증강 '최후의 만찬': 이 HP 비율 이하일 때 공속 배율 발동</summary>
     public static float LastSupperHPRatio = 0.4f;
@@ -869,7 +869,7 @@ public static class GameBalance
     // WaveLengthMul 은 v9.10 섹션의 값을 2.0 으로 올렸다 (1.5 -> 2.0). 늘어지면 1.6, 너무 짧으면 2.4
     // ── 처치 보상 (물량이 1.6배면 골드·재료도 1.6배가 되므로 상쇄 - 웨이브당 총량은 v9.10 과 비슷하게) ──
     /// <summary>일반 손님 처치 골드 배율 (보스 제외). 1 = 구 동작</summary>
-    public static float KillGoldMul = 0.6f;
+    public static float KillGoldMul = 0.35f;   // v9.14: 0.6 -> 0.35 (테스터 "골드가 썩어 넘친다")
     /// <summary>일반 손님 처치 시 재료가 떨어질 확률 (보스는 항상). 1 = 구 동작(항상)</summary>
     public static float KillMaterialChance = 0.6f;
     // ── 정차 ──
@@ -982,5 +982,37 @@ public static class GameBalance
 
     // ── (v9.13.1 2026-09-24) 3인 테스트 준비 ──
     /// <summary>빌드 표시 - 로비 오른쪽 아래에 찍힌다 (테스터 시트에 어느 빌드였는지 적기 위해). 팩마다 올린다</summary>
-    public const string BuildTag = "v9.13.1 (2026-09-24)";
+    public const string BuildTag = "v9.14 (2026-09-28)";
+
+    // ── (v9.14 2026-09-28) 3인 테스트 반영 1차 - 버그·밸런스·읽기 ──
+    // ── 포탑 (테스터 "더블 육포만 올려도 됨 / 전설이 더 약함 / 하나 점사하면 나머지가 빗나감") ──
+    /// <summary>기본 요리(T1) 포탑 최대 레벨 - 같은 접시를 더 넣어도 여기서 멈춘다 (전설로 진화시켜야 더 세진다). 0 = 제한 없음(구 동작)</summary>
+    public static int T1MaxLevel = 3;
+    /// <summary>전설 요리(T2) 포탑 최대 레벨. 0 = 제한 없음</summary>
+    public static int T2MaxLevel = 6;
+    /// <summary>전설 요리 공격력 배율 (레벨 배율과 별도로 곱한다). 1 = 구 동작</summary>
+    public static float T2DamageMul = 1.5f;
+    /// <summary>진화 조리 결과 레벨 = 재료 둘 중 높은 쪽 (구 동작 false = 평균)</summary>
+    public static bool FusionLevelMax = true;
+    /// <summary>날아가던 탄의 표적이 도착 전에 죽으면 이 반경(u) 안의 다른 손님을 맞힌다. 0 = 구 동작(허공에 사라짐)</summary>
+    public static float ProjectileRetargetRadius = 3f;
+    /// <summary>표적 고르기: 이미 날아가는 탄으로 죽을 손님은 건너뛴다 (과잉 집중 방지). false = 구 동작(최근접만)</summary>
+    public static bool AvoidOverkillTargeting = true;
+    // ── 화면 ──
+    /// <summary>UI 전체 배율 (테스터 "글자 크게"). 1 = 구 동작. 모든 캔버스의 기준 해상도를 1920x1080 / 이 값으로 잡는다</summary>
+    public static float UIScale = 1.12f;
+    /// <summary>조리대 [E] 안내 글자 배율 (씬의 interactPrompt)</summary>
+    public static float InteractPromptScale = 1.4f;
+    // ── 정비소·골드 사용처 ──
+    /// <summary>정비소 가격이 지역마다 이만큼 오른다 (지역 2 = 1.5배, 3 = 2배). 0 = 구 동작(고정)</summary>
+    public static float WorkshopPriceRegionMul = 0.5f;
+    /// <summary>정비소 재료 1개 기본값 / 지역당 할증</summary>
+    public static int WorkshopMaterialCost = 80;      // 구 60
+    public static int WorkshopMaterialRegionAdd = 30; // 구 20
+    // ── 명성 사용처 (명성 상점 새 줄) ──
+    /// <summary>명성 상점 "출발 증강": 운행 시작 때 은 증강 1회 (1레벨). 비용</summary>
+    public static int FameStartAugmentCost = 200;
+    // ── 갑판 상자 ──
+    /// <summary>갑판 상자 위에 화살표 마커 (창에 가려도 보이게 위로 길게)</summary>
+    public static bool DeckLootMarker = true;
 }
