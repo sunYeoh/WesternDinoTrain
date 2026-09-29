@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [FinalOrderUI.cs] v2 (교수 피드백 A7/C1/C3 반영 2026-09-14) - C-2: 마지막 주문 (진엔딩 B)
+/// [FinalOrderUI.cs] v2.1 (v9.15.1 2026-09-29 스토리 개정: 선택창 문구 "기관심장이 드러났다 - 마지막 식사를 준비할 수 있다", 풀코스 제목 "백 년 만에 차려 주는 저녁") / v2 (교수 피드백 A7/C1/C3 반영 2026-09-14) - C-2: 마지막 주문 (진엔딩 B)
 /// 디 오리지널 P3(해치 개방)에서, 자격을 갖춘 요리사에게만 열리는 마지막 선택지.
 ///
 /// - v2 변경점:
@@ -189,9 +189,9 @@ public class FinalOrderUI : MonoBehaviour
         QteOpen = true;   // PauseMenu 등 외부 ESC 충돌 방지 (같은 플래그 공유)
         Time.timeScale = 0f;
         string second = boss.HasExtraGroggyPending ? "실패해도 마지막 틈이 한 번 더 온다" : "이번 운행의 마지막 기회";
-        choiceText.text = "대륙에서 가장 오래 굶은 손님이 무릎을 꿇었다.\n\n"
+        choiceText.text = "기관심장이 드러났다. 지금이라면 식사를 건넬 수 있다.\n\n"
             + "[R]  마지막 식사를 대접한다  (풀코스 3코스 - " + second + ")\n"
-            + "[F]  이대로 격파한다  (무방비 때 독샘 요리 투척)";
+            + "[F]  이대로 격파한다  (무방비 때 독샘 요리 투척 - 철길은 열린다)";
         choiceGo.SetActive(true);
         hintGo.SetActive(false);
         Debug.Log("[FinalOrder] 선택창 열림 (시간 정지)");
@@ -377,7 +377,7 @@ public class FinalOrderUI : MonoBehaviour
         qteRoot = order.gameObject;
 
         Text title = KitchenEventManager.MakeText(order, "Title",
-            "마지막 주문 - 대륙에서 가장 오래 굶은 손님의, 첫 주문", 24,
+            "마지막 주문 - 백 년 만에 차려 주는 저녁", 24,
             new Color(1f, 0.8f, 0.35f));
         RectTransform tRt = title.rectTransform;
         tRt.anchorMin = new Vector2(0f, 1f);

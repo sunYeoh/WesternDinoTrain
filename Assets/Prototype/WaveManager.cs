@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// [WaveManager.cs] v6.14 (v9.13 2026-09-23: 선로 v2 - 정차의 선로 선택이 카드 창 대신 갈림길 + 왼쪽 카드(BranchRouteUI v2, 시간 안 멈춤). 출발 직전 BranchRouteUI.OnDepart 로 세계 밀림·톤 시작 /
+/// [WaveManager.cs] v6.15 (v9.15.1 2026-09-29 스토리 개정: 최종전 직전 정차엔 베팅 없음(GameBalance.SpinoNoBetAtFinal) / 최종전 시작에 스피노 고백 카드(BriefingTexts.SpinoFinal) / 최종전 긴급 보급 문구 = "스피노가 실어 둔 재료" / 지역 3 첫 웨이브 스피노 한 줄) / v6.14 (v9.13 2026-09-23: 선로 v2 - 정차의 선로 선택이 카드 창 대신 갈림길 + 왼쪽 카드(BranchRouteUI v2, 시간 안 멈춤). 출발 직전 BranchRouteUI.OnDepart 로 세계 밀림·톤 시작 /
 ///   선로 보상 교체: 골드·재료 -> 끝나면 증강 1회 더(사냥터 은 / 위험 금, AugmentPickUI.OpenExtra) + 유물 확률(위험·안개 50%, 폐역 확정) / 웨이브 끝에 RouteFX.ClearTone / 치트 점프·런 시작에 선택 취소) / v6.13 (v9.12 2026-09-22: 협곡의 낙뢰 - 지역 2 일반 웨이브마다 1회 가동 포탑 감전(GameBalance.AmbientLightning*) + 첫 등장 카드 event_lightning + 인라인 연습 구간 2 훅 / 레버 인라인 연습 구간 4 를 InlineLeverWave 시작에 요청 / TutorialDirector.InlineFreeze 동안 스폰 코루틴·클리어 판정·낙뢰 타이머가 쉰다(WaitGap) / 미니 보스 예습용 SpawnBossForPractice) / v6.12 (v9.11.1 2026-09-22 문구) / v6.11 (v9.10.1 2026-09-21: 웨이브 손님 수 배율 GameBalance.WaveCountMul(프롤로그·견습 제외, ApplyRouteCounts 재사용) / 웨이브 시작에 정차 조리 카운터(CookingBridge.StopCooksUsed) 초기화) / v6.10 (v9.10 2026-09-17 테스터 피드백·개정안 §4·§5·§7: 스폰 간격 배율 + 무리 사이 쉼(WaveLengthMul/WaveGroupSize/GapSec) /
 ///   정차 뒤 자동 출발 대신 [Enter]·출발 버튼 확인(DepartConfirm, WaitingDepart 정적) / 증강 선택은 GameBalance.AugmentPickAt 웨이브만(안 여는 웨이브도 웨이브 효과는 적용) /
 ///   분기 선로 RouteChoiceMinWave·베팅 BetMinWave·행상인 MerchantMinWave 부터 / 웨이브 3 시작에 화염 재료 보장 + 범위 요리 소개 카드) / v6.9 (v9.9.2 2026-09-16: 정식 런 첫 등장 카드 훅 - 지역(지역 첫 웨이브)·새 손님(카운트 > 0 인 종류 처음)은 StartWave 예고 때, 보스는 SpawnBoss 때. BriefingUI.ShowOnce 1회) / v6.8 (v9.9 2026-09-16: 견습 운행 - TutorialDirector 가 진행 중이면 StartWave/B 점프 거부, TutorialGateActive 에 디렉터의 BlockAmbient 포함, SpawnForTutorial) / v6.7 (v9.8.1: B 점프는 GameBalance.CheatsAllowed 일 때만) / v6.6 (v9.8: 위험 적 전용 PNG) / v6.5 (교수 피드백 반영 2026-09-14) / v6.4 (고퀄 PNG 적용 2026-09-03) / v6.3 탑뷰 재스킨
@@ -266,8 +266,13 @@ public class WaveManager : MonoBehaviour
             MaterialInventory.Instance.Add(MaterialType.Poison, 1);
             MaterialInventory.Instance.Add(MaterialType.Meat, 1);
             Debug.Log("[WaveManager] 보스 감지 - 긴급 보급: 독 재료 + 고기 지급");
-            UIManager.Instance?.ShowWaveNotice("보스 접근 중! 긴급 보급 도착!",
-                "독샘 + 고기 지급 - 그릴에서 독침 육포를 구워 두고, 보스가 무방비(그로기)일 때 [F] 로 던져라");
+            if (waveNumber >= GameBalance.FinalWave && GameBalance.SpinoFinalCard)
+                // v6.15: 최종전의 보급은 스피노가 실어 둔 것 (고백 카드 "필요한 재료는 실어 뒀다" 와 같은 사건)
+                UIManager.Instance?.ShowWaveNotice("[스피노] 실어 둔 재료 - 독샘 + 고기",
+                    "그릴에서 독침 육포를 구워 두고, 무방비(그로기)일 때 [F] 로 던져라");
+            else
+                UIManager.Instance?.ShowWaveNotice("보스 접근 중! 긴급 보급 도착!",
+                    "독샘 + 고기 지급 - 그릴에서 독침 육포를 구워 두고, 보스가 무방비(그로기)일 때 [F] 로 던져라");
         }
 
         WaveConfig config = GetWaveConfig(waveNumber);
@@ -373,6 +378,14 @@ public class WaveManager : MonoBehaviour
         bool regionStart = waveNumber == 1 || waveNumber >= GameBalance.FinalWave
             || (waveNumber - 1) % GameBalance.RegionLength == 0;
         if (regionStart) BriefingUI.ShowOnce("region_" + region, BriefingTexts.Region(region));
+
+        // v6.15 (스토리 개정): 최종전 시작 = 스피노의 고백 카드 (매 운행 - 기록에 안 남긴다. 지역 카드 뒤에 큐)
+        if (regionStart && waveNumber >= GameBalance.FinalWave && GameBalance.SpinoFinalCard)
+            BriefingUI.Show(BriefingTexts.SpinoFinal());
+
+        // v6.15: 지역 3 첫 웨이브 - 스피노가 낡은 기적 소리를 알아듣고 말을 멈춘다 (중후반 단서, 최종전에서 되돌아온다)
+        if (regionStart && region == 3 && GameBalance.SpinoRegion3Hint)
+            UIManager.Instance?.ShowStatChange("[스피노] ...광산 너머에서 기적 소리를 들었다. 아니, 아무것도 아니다.");
 
         if (config.steamRaptorCount > 0) BriefingUI.ShowOnce("enemy_raptor", BriefingTexts.Enemy(Enemy.SteamRaptor));
         if (config.springAnkyloCount > 0) BriefingUI.ShowOnce("enemy_ankylo", BriefingTexts.Enemy(Enemy.SpringAnkylo));
@@ -1505,7 +1518,8 @@ public class WaveManager : MonoBehaviour
             // Phase 2-3: 그 외 정차에는 등짐장수 안킬로가 확률 등장 (아이템 행상인)
             //  - 스피노와 안킬로는 같은 역에 절대 같이 서지 않는다 ("그 도마뱀 옆엔 안 앉수다")
             // v6.10: 첫 보스는 베팅 없이 (BetMinWave), 첫 정차들은 상점 없이 (MerchantMinWave) - "초반부터 우겨 넣지 말고 하나씩"
-            if (GameBalance.IsBossWave(nextWave) && nextWave >= GameBalance.BetMinWave)
+            bool finalStop = GameBalance.SpinoNoBetAtFinal && nextWave >= GameBalance.FinalWave;   // v6.15: 최종전 직전엔 판을 접는다 (고백 카드는 최종전 시작에)
+            if (GameBalance.IsBossWave(nextWave) && nextWave >= GameBalance.BetMinWave && !finalStop)
                 SpinoBetUI.Show(nextWave, delegate { ProceedRouteChoice(nextWave); });
             else if (nextWave >= GameBalance.MerchantMinWave && MerchantUI.ShouldAppear(nextWave))
                 MerchantUI.Show(nextWave, delegate { ProceedRouteChoice(nextWave); });

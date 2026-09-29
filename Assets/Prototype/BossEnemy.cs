@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 
 /// <summary>
-/// [BossEnemy.cs] v7.4 (v9.12 2026-09-22: practice = 견습 구간 7 "새끼 발톱" - 녹슨 발톱 고정, HP·공격력 배율(GameBalance.BossPractice*), 0.7배 크기, 패턴·무방비·발악 없음(돌진만), 처치해도 재료·베팅·"승리" 없음(ClearBossUI) / TutorialDirector.InlineFreeze 동안 정지) / v7.3 (v9.11.1 2026-09-22 문구: 무방비, 실행 가능한 예고) / v7.2 (v9.10.1 2026-09-21: 재료 이름 전기알) / v7.1 (교수 피드백 C3: 디 오리지널 추가 그로기 / A8: 재가동 문구) / v6 - 보스 패턴 C단계 1차 (보스패턴설계 문서)
+/// [BossEnemy.cs] v7.5 (v9.15.1 2026-09-29 스토리 개정: 디 오리지널 = 급식 열차 1호였던 것 - 등장에 낡은 기적 + 안내 문구, 폭식 = 원료 삼키기, 해치 = 기관심장이 드러남 / 마지막 식사 장면 LastSupperRoutine - 포탑 정지(LastSupperServing)·남은 손님 물러남·천천히 씹기(LastSupperChewSec)·두 대의 기적 -> 엔딩 B 글 / 격파 엔딩 = 기적 한 번 + "철길이 열렸다") / v7.4 (v9.12 2026-09-22: practice = 견습 구간 7 "새끼 발톱" - 녹슨 발톱 고정, HP·공격력 배율(GameBalance.BossPractice*), 0.7배 크기, 패턴·무방비·발악 없음(돌진만), 처치해도 재료·베팅·"승리" 없음(ClearBossUI) / TutorialDirector.InlineFreeze 동안 정지) / v7.3 (v9.11.1 2026-09-22 문구: 무방비, 실행 가능한 예고) / v7.2 (v9.10.1 2026-09-21: 재료 이름 전기알) / v7.1 (교수 피드백 C3: 디 오리지널 추가 그로기 / A8: 재가동 문구) / v6 - 보스 패턴 C단계 1차 (보스패턴설계 문서)
 /// - v6 변경점:
 ///   1) 미끼 도발 대응: 도발 중엔 미끼를 쫓아가고 물어뜯는다 (기차 무피해)
 ///   2) 디 오리지널 3페이즈:
@@ -196,7 +196,7 @@ public class BossEnemy : Enemy
             data.enemyName = "디 오리지널";
             bossMaxHP *= 1.2f; bossATK *= 1.1f; spd = 1.4f;
             baseTint = new Color(1f, 0.5f, 0.45f);
-            intro = "대륙에서 가장 오래 굶은 손님이 식탁에 앉았다.";
+            intro = "낡은 기적이 울린다 - 급식 열차 1호였던 것이 식탁에 앉았다.";   // v7.5: 기차였다는 흔적 (일지 3 의 기적)
         }
 
         // v7.4: 예습 보스 - 작고 약한 새끼. 이름·안내·보상 없음
@@ -244,6 +244,7 @@ public class BossEnemy : Enemy
 
         BossGimmickSystem.Instance?.RegisterBoss(this);
         UIManager.Instance?.ShowWaveNotice("[" + data.enemyName + "]", intro);
+        if (kind == BossKind.Original && !practice) SoundManager.Play("sfx_train_whistle", 0.7f, 0f);   // v7.5: 낡은 기적 - 두 기차의 관계 단서
 
         Debug.Log("[BossEnemy] " + data.enemyName + " 등장! (웨이브 " + wave + ") HP:" + (int)bossMaxHP
             + " ATK:" + (int)scaledATK + " 종류:" + kind);
@@ -327,7 +328,7 @@ public class BossEnemy : Enemy
             originalPhase = 2;
             PickupFX.FeedingBoss = this;
             UIManager.Instance?.ShowWaveNotice("[디 오리지널] 폭식!",
-                "보스가 곁에 떨어진 재료 조각을 먹으면 회복하고 세진다!");
+                "원료 조각을 닥치는 대로 삼킨다 - 곁에 두면 회복하고 세진다. 식사가 아니라 연료다");   // v7.5: 원료 섭취와 식사의 구분
             Debug.Log("[BossEnemy] P2 폭식 페이즈 - 조각 쟁탈전 시작");
         }
 
@@ -338,9 +339,9 @@ public class BossEnemy : Enemy
             PickupFX.FeedingBoss = null;
             hatchOpen = true;
             ApplyTint(Color.Lerp(baseTint, Color.white, 0.35f));   // 해치의 빛
-            UIManager.Instance?.ShowWaveNotice("[디 오리지널] 가슴 해치 개방!",
+            UIManager.Instance?.ShowWaveNotice("[디 오리지널] 가슴 해치 개방 - 기관심장이 드러났다",
                 "받는 피해 +" + Mathf.RoundToInt((GameBalance.HatchDamageTakenMul - 1f) * 100f)
-                + "%! 지금이 기회다!");
+                + "%. 무방비 때 [F] 격파, 또는 [R] 마지막 식사");   // v7.5: 왜 지금 식사가 가능한지
             Debug.Log("[BossEnemy] P3 해치 개방 - 받는 피해 증가");
         }
     }
@@ -749,6 +750,9 @@ public class BossEnemy : Enemy
     // v7 (C-2): 마지막 식사 - 풀코스 QTE 성공 시 (FinalOrderUI가 호출)
     // 격파가 아니라 "대접"으로 끝나는 진엔딩 경로
     // ─────────────────────────────────────────────
+    /// <summary>v7.5: 마지막 식사 장면 중 (TurretSlot.TickFire 가 사격을 멈춘다 - "공격을 멈추고 음식을 건넨다")</summary>
+    public static bool LastSupperServing = false;
+
     public void ServeLastSupper()
     {
         if (!IsAlive || isServing) return;
@@ -761,12 +765,55 @@ public class BossEnemy : Enemy
         if (PickupFX.FeedingBoss == this) PickupFX.FeedingBoss = null;
 
         Debug.Log("[BossEnemy] 마지막 식사 - 디 오리지널이 정찬을 받았다");
-        SoundManager.Play("sfx_train_whistle");
+        StartCoroutine(LastSupperRoutine());
+    }
+
+    /// <summary>
+    /// v7.5 (스토리 개정 5절 "식사 성공"): 격파와 다른 결과를 화면으로 - 포탑이 멈추고, 남은 손님이 물러나고, 접시가 건너가고,
+    /// 보스가 천천히 씹고(따뜻한 틴트 + 느린 들썩임), 두 대가 기적을 울린 뒤 엔딩 B 글이 뜬다. LastSupperChewSec 0 = 장면 없이 바로 글
+    /// </summary>
+    private IEnumerator LastSupperRoutine()
+    {
+        LastSupperServing = true;
+        float chew = GameBalance.LastSupperChewSec;
+        if (chew > 0f)
+        {
+            // 남은 손님은 물러난다 (보상 없이 사라짐 - 식탁 앞에서 싸우지 않는다)
+            Enemy[] all = FindObjectsByType<Enemy>(FindObjectsSortMode.None);
+            for (int i = 0; i < all.Length; i++)
+                if (all[i] != null && all[i] != this && all[i].IsAlive && !(all[i] is BossEnemy)) Destroy(all[i].gameObject);
+
+            UIManager.Instance?.ShowWaveNotice("[디 오리지널] 포탑이 멈췄다. 접시가 건너간다.", "");
+            SoundManager.Play("sfx_pickup");
+            WorldFeel.Ring(transform.position, new Color(1f, 0.85f, 0.5f), 1.6f, 0.6f);
+            ApplyTint(Color.Lerp(baseTint, new Color(1f, 0.9f, 0.7f), 0.7f));   // 핏빛이 가라앉는다
+
+            // 천천히 씹는다 - 느린 들썩임
+            Vector3 baseScale = transform.localScale;
+            float t = 0f;
+            while (t < chew)
+            {
+                t += Time.deltaTime;
+                float k = 1f + 0.025f * Mathf.Sin(t * Mathf.PI * 2f / 0.9f);
+                transform.localScale = new Vector3(baseScale.x * k, baseScale.y * (2f - k), baseScale.z);
+                yield return null;
+            }
+            transform.localScale = baseScale;
+
+            // 두 대의 기적 - 네 기차, 그리고 1호
+            SoundManager.Play("sfx_train_whistle");
+            yield return new WaitForSeconds(0.9f);
+            SoundManager.Play("sfx_train_whistle", 0.8f, 0f);
+            GameFeel.Shake(GameBalance.ShakeBoss * 0.4f);
+            yield return new WaitForSeconds(0.7f);
+        }
+        else SoundManager.Play("sfx_train_whistle");
 
         // 엔딩 B 연출 -> 닫히면 기록 + 처치 처리 (웨이브 클리어 -> Victory로 이어짐)
         StoryTexts.ShowEndingB(delegate
         {
             MetaProgress.RecordEndingB();
+            LastSupperServing = false;
             Die();   // 보상 지급 + 웨이브 클리어 체인 (최종전 -> Victory)
         });
     }
@@ -817,8 +864,21 @@ public class BossEnemy : Enemy
             ParryCharges = 0;
         }
 
+        // v7.5: 격파 엔딩 - 디 오리지널이 멈추면 기적 한 번 + "철길이 열렸다" (식사 엔딩의 두 번과 구분). 식사 뒤의 Die 는 조용히
+        if (kind == BossKind.Original && !isServing && GameBalance.OriginalDefeatWhistle)
+        {
+            SoundManager.Play("sfx_train_whistle");
+            UIManager.Instance?.ShowWaveNotice("[디 오리지널] 멈췄다 - 철길이 열렸다", "종착역까지 남은 열차는 네 것뿐이다");
+        }
+
         base.Die();
         BossGimmickSystem.Instance?.OnBossDefeated();
+    }
+
+    // v7.5: 어떤 이유로든 사라질 때 마지막 식사 플래그 정리 (씬 전환 등)
+    private void OnDisable()
+    {
+        if (isServing) LastSupperServing = false;
     }
 
     // v6: 어떤 이유로든 사라질 때 폭식 참조 정리 (씬 전환/사망)

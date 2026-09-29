@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// [FameShopUI.cs] v1.4 (v9.14 2026-09-28: 명성 사용처 "출발 증강" 줄 추가, 패널 680) / v1.3 (2026-09-14: 런 종료 화면에 이번 런 통계 한 줄) / v1.2 (즉시 재출발 버튼) / v1
+/// [FameShopUI.cs] v1.5 (v9.15.1 2026-09-29 스토리 개정: 재출발 버튼 "다시 굽는다" -> "다시 출발한다 - 비상 복구 끝" (셰프 재생 설정 삭제)) / v1.4 (v9.14 2026-09-28: 명성 사용처 "출발 증강" 줄 추가, 패널 680) / v1.3 (2026-09-14: 런 종료 화면에 이번 런 통계 한 줄) / v1.2 (즉시 재출발 버튼) / v1
 /// 명성 상점 - 런 사이(로비/게임오버)에 명성을 소모해 영구 업그레이드를 사는 UI.
 ///
 /// - v1.3 변경점 (스위치 실험 관찰 시트): 게임오버/승리로 열렸을 때 보유 명성 줄 아래에
@@ -264,7 +264,7 @@ public class FameShopUI : MonoBehaviour
 
         // v1.2 (감사 3-E): [다시 굽는다] 버튼 - 캔버스 직속 (패널 아래)
         Button restartBtn = KitchenEventManager.MakeButton(canvasGo.transform,
-            "다시 굽는다 (즉시 재출발)",
+            "다시 출발한다 (비상 복구 끝 - 즉시 재출발)",
             new Color(0.62f, 0.25f, 0.12f), Vector2.zero, new Vector2(340f, 58f));
         RectTransform rRt = restartBtn.GetComponent<RectTransform>();
         rRt.anchorMin = new Vector2(0.5f, 0.5f);
