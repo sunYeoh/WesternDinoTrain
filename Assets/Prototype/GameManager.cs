@@ -4,7 +4,7 @@ using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// [GameManager.cs] v4.5 (v9.15 2026-09-29: 운행 시작에 파손 포탑 자리 전부 수리 - 파손은 이번 운행 한정) / v4.4 (v9.14 2026-09-28: 운행 시작에 증강·유물 강제 초기화 + 명성 상점 "출발 증강") / v4.3 (v9.9 2026-09-16: 견습 운행 StartTutorial/EndTutorial - 튜토리얼 런은 웨이브·보급·메타 기록 없이 Battle 상태만 빌린다) / v4.2 (2026-09-14: 포탑 과열 런 통계 초기화 - TurretSlot.ResetRunStats) / v4.1 (런 통계 초기화 / 프롤로그 찬장 고기 고정 / 전투 중 수리 기록) / v4
+/// [GameManager.cs] v4.6 (v9.16 2026-09-29 손맛 2차 - 소리: 배경음을 로비부터 / 정차 골드 sfx_gold / 패배 = 기차 정지음 sfx_train_break -> 0.7초 뒤 sfx_game_over, 배경음 덕킹 / 승리 = 기적 -> 0.6초 뒤 sfx_victory) / v4.5 (v9.15 2026-09-29: 운행 시작에 파손 포탑 자리 전부 수리 - 파손은 이번 운행 한정) / v4.4 (v9.14 2026-09-28: 운행 시작에 증강·유물 강제 초기화 + 명성 상점 "출발 증강") / v4.3 (v9.9 2026-09-16: 견습 운행 StartTutorial/EndTutorial - 튜토리얼 런은 웨이브·보급·메타 기록 없이 Battle 상태만 빌린다) / v4.2 (2026-09-14: 포탑 과열 런 통계 초기화 - TurretSlot.ResetRunStats) / v4.1 (런 통계 초기화 / 프롤로그 찬장 고기 고정 / 전투 중 수리 기록) / v4
 /// 게임 전체 상태를 관리하는 최상위 싱글톤 클래스.
 /// Cooking 페이즈 제거 — 게임 시작하면 바로 Battle.
 /// 조리는 전투 중 언제든 가능.
@@ -106,6 +106,7 @@ public class GameManager : MonoBehaviour
     // ─────────────────────────────────────────────
     private void HandleLobby()
     {
+        SoundManager.PlayBGM("bgm_main");   // v4.6: 배경음은 로비부터 (같은 곡이 이미 돌고 있으면 그대로. 지난 운행의 덕킹은 여기서 풀린다)
         Debug.Log("[GameManager] 로비 진입 - 게임 시작 버튼 대기");
     }
 
@@ -284,6 +285,7 @@ public class GameManager : MonoBehaviour
             (GameBalance.TownGoldBase + currentWave * GameBalance.TownGoldPerWave)
             * AugmentManager.GoldRewardMul);
         AddGold(goldReward);
+        SoundManager.Play("sfx_gold");   // v4.6: 정차 수입 - 동전 쏟아짐
 
         // 보스 웨이브 클리어 보너스 (별도 지급)
         // Phase 2-1: 도박 베팅 패배 시 스피노가 이 보너스를 몰수한다
@@ -311,6 +313,11 @@ public class GameManager : MonoBehaviour
     {
         chefController?.EnableCooking(false);
 
+        // v4.6: 기차가 멈춘다 - 쇠 긁힘 -> 잠깐 뒤 패배 스팅. 배경음은 낮춘 채 (새 운행이 PlayBGM 으로 되돌린다)
+        SoundManager.Play("sfx_train_break");
+        SoundManager.PlayDelayed("sfx_game_over", 0.7f);
+        SoundManager.BgmDuck("gameover", true);
+
         // v4: 런 종료 요약 표시 (명성은 웨이브 클리어마다 이미 저장돼 있음)
         UIManager.Instance?.ShowWaveNotice("기차가 멈췄다...", MetaProgress.RunSummary());
 
@@ -323,8 +330,9 @@ public class GameManager : MonoBehaviour
     {
         chefController?.EnableCooking(false);
 
-        // v4.3: 승리의 기적 소리 (일지 7 - "배가 불러서 우는 소리")
+        // v4.3: 승리의 기적 소리 (일지 7 - "배가 불러서 우는 소리"). v4.6: 기적 뒤에 승리 팡파르
         SoundManager.Play("sfx_train_whistle");
+        SoundManager.PlayDelayed("sfx_victory", 0.6f);
 
         // v4: 승리 보너스 명성 + 런 종료 요약 표시
         MetaProgress.AddFame(300);

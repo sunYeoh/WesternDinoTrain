@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 
 /// <summary>
-/// [BossEnemy.cs] v7.5 (v9.15.1 2026-09-29 스토리 개정: 디 오리지널 = 급식 열차 1호였던 것 - 등장에 낡은 기적 + 안내 문구, 폭식 = 원료 삼키기, 해치 = 기관심장이 드러남 / 마지막 식사 장면 LastSupperRoutine - 포탑 정지(LastSupperServing)·남은 손님 물러남·천천히 씹기(LastSupperChewSec)·두 대의 기적 -> 엔딩 B 글 / 격파 엔딩 = 기적 한 번 + "철길이 열렸다") / v7.4 (v9.12 2026-09-22: practice = 견습 구간 7 "새끼 발톱" - 녹슨 발톱 고정, HP·공격력 배율(GameBalance.BossPractice*), 0.7배 크기, 패턴·무방비·발악 없음(돌진만), 처치해도 재료·베팅·"승리" 없음(ClearBossUI) / TutorialDirector.InlineFreeze 동안 정지) / v7.3 (v9.11.1 2026-09-22 문구: 무방비, 실행 가능한 예고) / v7.2 (v9.10.1 2026-09-21: 재료 이름 전기알) / v7.1 (교수 피드백 C3: 디 오리지널 추가 그로기 / A8: 재가동 문구) / v6 - 보스 패턴 C단계 1차 (보스패턴설계 문서)
+/// [BossEnemy.cs] v7.6 (v9.16 2026-09-29 손맛 2차 - 소리: 등장 포효 = 종류별(SoundKeys.BossRoar - 녹슨 발톱 무리 울음 / 천둥 둥지 번개 / 동면자 얼음 / 디 오리지널 기본 포효 + 낮은 기적 sfx_whistle_low, 예습 보스는 작게) / 엔딩 B 두 번째 기적 = 낮은 기적 / 공격음은 Enemy.AttackTrain 이 종류별로) / v7.5 (v9.15.1 2026-09-29 스토리 개정: 디 오리지널 = 급식 열차 1호였던 것 - 등장에 낡은 기적 + 안내 문구, 폭식 = 원료 삼키기, 해치 = 기관심장이 드러남 / 마지막 식사 장면 LastSupperRoutine - 포탑 정지(LastSupperServing)·남은 손님 물러남·천천히 씹기(LastSupperChewSec)·두 대의 기적 -> 엔딩 B 글 / 격파 엔딩 = 기적 한 번 + "철길이 열렸다") / v7.4 (v9.12 2026-09-22: practice = 견습 구간 7 "새끼 발톱" - 녹슨 발톱 고정, HP·공격력 배율(GameBalance.BossPractice*), 0.7배 크기, 패턴·무방비·발악 없음(돌진만), 처치해도 재료·베팅·"승리" 없음(ClearBossUI) / TutorialDirector.InlineFreeze 동안 정지) / v7.3 (v9.11.1 2026-09-22 문구: 무방비, 실행 가능한 예고) / v7.2 (v9.10.1 2026-09-21: 재료 이름 전기알) / v7.1 (교수 피드백 C3: 디 오리지널 추가 그로기 / A8: 재가동 문구) / v6 - 보스 패턴 C단계 1차 (보스패턴설계 문서)
 /// - v6 변경점:
 ///   1) 미끼 도발 대응: 도발 중엔 미끼를 쫓아가고 물어뜯는다 (기차 무피해)
 ///   2) 디 오리지널 3페이즈:
@@ -244,7 +244,9 @@ public class BossEnemy : Enemy
 
         BossGimmickSystem.Instance?.RegisterBoss(this);
         UIManager.Instance?.ShowWaveNotice("[" + data.enemyName + "]", intro);
-        if (kind == BossKind.Original && !practice) SoundManager.Play("sfx_train_whistle", 0.7f, 0f);   // v7.5: 낡은 기적 - 두 기차의 관계 단서
+        // v7.6: 등장 포효 - 종류별. 예습 보스(새끼 발톱)는 작게
+        SoundManager.Play(SoundKeys.BossRoar(kind.ToString()), practice ? 0.6f : 1f, -1f);
+        if (kind == BossKind.Original && !practice) SoundManager.PlayDelayed("sfx_whistle_low", 0.8f);   // v7.5: 낡은 기적 - 두 기차의 관계 단서 (v7.6: 1호의 낮은 기적, 포효 뒤에)
 
         Debug.Log("[BossEnemy] " + data.enemyName + " 등장! (웨이브 " + wave + ") HP:" + (int)bossMaxHP
             + " ATK:" + (int)scaledATK + " 종류:" + kind);
@@ -800,10 +802,10 @@ public class BossEnemy : Enemy
             }
             transform.localScale = baseScale;
 
-            // 두 대의 기적 - 네 기차, 그리고 1호
+            // 두 대의 기적 - 네 기차, 그리고 1호 (v7.6: 1호는 낮은 기적)
             SoundManager.Play("sfx_train_whistle");
             yield return new WaitForSeconds(0.9f);
-            SoundManager.Play("sfx_train_whistle", 0.8f, 0f);
+            SoundManager.Play("sfx_whistle_low", 0.9f, 0f);
             GameFeel.Shake(GameBalance.ShakeBoss * 0.4f);
             yield return new WaitForSeconds(0.7f);
         }

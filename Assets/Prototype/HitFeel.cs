@@ -3,7 +3,7 @@ using UnityEngine;
 using TMPro;
 
 /// <summary>
-/// [HitFeel.cs] v1 (신규, v9.11 2026-09-22) - 타격감 계층: 손님이 맞는다 / 죽는다 / 월드 팝 (스펙 표 A1 A2 A3 A6 + 월드 공용)
+/// [HitFeel.cs] v1.1 (v9.16 2026-09-29 손맛 2차 - 소리: 명중음이 여기서 난다 - 손님 재질별(SoundKeys.Hit: 비늘·무쇠·결정·날개·용암) + 요리 속성 겹침(SoundKeys.Accent) + 크리 sfx_hit_crit / 물리가 방어에 크게 깎이면 재질음 대신 sfx_ricochet(튕김) / 처치음은 Enemy.Die 가 재질별로) / v1 (신규, v9.11 2026-09-22) - 타격감 계층: 손님이 맞는다 / 죽는다 / 월드 팝 (스펙 표 A1 A2 A3 A6 + 월드 공용)
 ///
 /// 원칙 (타격감 스펙 표): 일반 사건(매초 수십 번인 명중)은 플래시·찌그러짐·작은 스파크·숫자까지만.
 /// 중요 사건(처치·크리·큰 손님)은 킬 버스트 + 채널 쿨타임 흔들림. 흔들림·히트스탑·줌은 여기서 늘리지 않는다.
@@ -24,21 +24,45 @@ public static class HitFeel
     private static Color nextColor = Color.clear;
     private static bool nextCrit = false;
     private static int nextFrame = -1;
+    private static FoodTag nextTag = FoodTag.Phys;   // v1.1: 명중음 속성 겹침용
+    private static bool nextHasTag = false;
 
     /// <summary>다음 한 번의 명중에 쓸 색(요리 속성색)·크리 여부. 같은 프레임 안에서만 유효</summary>
     public static void NextHit(Color col, bool crit)
     {
-        nextColor = col; nextCrit = crit; nextFrame = Time.frameCount;
+        nextColor = col; nextCrit = crit; nextFrame = Time.frameCount; nextHasTag = false;
+    }
+
+    /// <summary>v1.1: 요리 속성까지 (명중음에 화염·전기·냉기·독 겹침이 얹힌다)</summary>
+    public static void NextHit(Color col, bool crit, FoodTag tag)
+    {
+        nextColor = col; nextCrit = crit; nextFrame = Time.frameCount; nextTag = tag; nextHasTag = true;
     }
 
     /// <summary>손님이 직접 명중을 맞았다 (도트 틱은 부르지 않는다). Enemy.TakeDamage 에서</summary>
-    public static void OnHit(Enemy e, float damage, bool isMagic)
+    public static void OnHit(Enemy e, float damage, bool isMagic) { OnHit(e, damage, isMagic, false); }
+
+    /// <summary>v1.1: resisted = 방어·저항으로 크게 깎인 타격 (물리면 튕기는 소리)</summary>
+    public static void OnHit(Enemy e, float damage, bool isMagic, bool resisted)
     {
-        if (e == null || GameBalance.GameFeelMaster <= 0f || !GameBalance.HitFeelOn) return;
+        if (e == null) return;
+        bool hinted = nextFrame == Time.frameCount && nextColor.a > 0f;
         Color col; bool crit;
-        if (nextFrame == Time.frameCount && nextColor.a > 0f) { col = nextColor; crit = nextCrit; }
+        if (hinted) { col = nextColor; crit = nextCrit; }
         else { col = isMagic ? new Color(0.6f, 0.85f, 1f) : new Color(1f, 0.9f, 0.7f); crit = false; }
+        FoodTag tag = hinted && nextHasTag ? nextTag : (isMagic ? FoodTag.Elec : FoodTag.Phys);
+        bool hasTag = hinted && nextHasTag;
         nextFrame = -1;
+
+        // v1.1: 명중음 - 손님 재질 + 요리 속성 겹침. 크리는 전용음. 물리가 튕기면 재질음 대신 튕김음 (연출 스위치와 무관하게 난다)
+        Vector3 at = e.transform.position;
+        string name = e.data.enemyName;
+        if (crit) SoundManager.PlayAt("sfx_hit_crit", at);
+        else if (resisted && !isMagic) SoundManager.PlayAt("sfx_ricochet", at);
+        else SoundManager.PlayAt(SoundKeys.Hit(name), at);
+        if (hasTag && !resisted) { string acc = SoundKeys.Accent(tag); if (acc != "") SoundManager.PlayAt(acc, at); }
+
+        if (GameBalance.GameFeelMaster <= 0f || !GameBalance.HitFeelOn) return;
 
         HitFeelBody body = HitFeelBody.Of(e);
         float ratio = damage / Mathf.Max(1f, e.scaledMaxHP);   // 딜 비례 (적 최대 HP 대비)

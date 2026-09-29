@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// [TurretSlotManager.cs] v2.4 (v9.15 2026-09-29: 파손 슬롯 - RepairAllBroken(새 운행)·BrokenCount·RepairOne(정비소) / 동종 병합 레벨 배율 표기 GameBalance.LevelMultOf) / v2.3 (v9.14 레벨 상한) / v2.1 (v9.9 2026-09-16: 슬롯 4모서리 배치 GameBalance.SlotPosition + 근접 판정 "가까운 벽 쪽 거리") / v2
+/// [TurretSlotManager.cs] v2.5 (v9.16 2026-09-29 손맛 2차 - 소리: 진화 완료 sfx_fusion, 완벽 판정이면 판정음이 뒤따른다 / 오라 화염 틱은 Enemy.TakeTickDamage - 명중음 없이) / v2.4 (v9.15 2026-09-29: 파손 슬롯 - RepairAllBroken(새 운행)·BrokenCount·RepairOne(정비소) / 동종 병합 레벨 배율 표기 GameBalance.LevelMultOf) / v2.3 (v9.14 레벨 상한) / v2.1 (v9.9 2026-09-16: 슬롯 4모서리 배치 GameBalance.SlotPosition + 근접 판정 "가까운 벽 쪽 거리") / v2
 /// 포탑 슬롯 8개를 자동 생성/관리하는 매니저 (싱글톤)
 /// - v2.1: 슬롯 위치는 GameBalance.SlotPosition(i) 한 곳에서 (모서리 4 = 북 2 지붕선 위 / 남 2 섀시 위).
 ///   FindStunnedSlotNear 는 셰프가 걸을 수 있는 띠(TrainWalkMinY~MaxY)로 슬롯 y 를 붙인 점까지의 거리로 잰다 -
@@ -237,7 +237,7 @@ public class TurretSlotManager : MonoBehaviour
                 if (d > auraRange) continue;
 
                 if (r.passiveType == "auraBurn")
-                    all[e].TakeDamage(3f * s.LevelMult); // 0.5초마다 화염 틱
+                    all[e].TakeTickDamage(3f * s.LevelMult, true); // 0.5초마다 화염 틱 (v2.5: 틱은 명중음·플래시 없이 - 0.5초 메트로놈 방지)
                 else if (r.passiveType == "auraSlow")
                     all[e].ApplySpeedDebuff(0.5f, 0.6f);
                 else if (r.passiveType == "auraShred")
@@ -616,7 +616,8 @@ public class TurretSlotManager : MonoBehaviour
             msg = fusion.displayName + " [전설] 진화! Lv" + newLevel;
 
         UIManager.Instance?.ShowStatChange(msg);
-        SoundManager.Play(bonusLevel > 0 ? "sfx_judge_perfect" : "sfx_augment_pick");
+        SoundManager.Play("sfx_fusion");   // v2.5: 전설 탄생 - 쇳물 붓는 소리
+        if (bonusLevel > 0) SoundManager.PlayDelayed("sfx_judge_perfect", 0.35f);
         Debug.Log("[합체] T2 진화 완료: " + msg);
     }
 

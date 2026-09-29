@@ -4,7 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 /// <summary>
-/// [KitchenEventManager.cs] v4.9 (v9.15 2026-09-29 2차 피드백: 사고 해결 연출 - 현장 초록 링 2겹 + "해결!" + 화면 테두리 초록 한 번 + 배너가 초록 "해결 - 기차 HP +n"으로 바뀌고 EventResolveHoldSec 뒤 내려감 / 실패는 붉은 "실패" + "[사고 실패] ... 기차 HP -n" 한 줄 (훈련장에서 결과를 알게) / ForceEvent(kind) - 자유 연습 [2]~[5] / 자유 연습 중 첫 등장 카드는 세션당 1회) / v4.8 (v9.14 2026-09-28 테스터 반영: 사고 현장에 월드 마커(붉은 화살표 + 링) - "직접 가야 한다는 인식 부족" / 흘림 조각이 사고 배너 뒤에 가려지던 것 - 커스텀 층을 배너 위로) / v4.7 (v9.12 2026-09-22: 인라인 연습 중 사고 타이머 정지) / v4.6 (v9.11 2026-09-22: MakeButton 에 ButtonFeel) / v4.5 (v9.10 2026-09-17 테스터 피드백 "사고 중에 증강 선택이 뜨면 사고가 끝난다": 웨이브가 끝나 정차로 넘어가며 사고가 취소될 때 "정차 정비로 사고가 정리됐다 (벌점 없음)" 알림 - 조용히 사라지던 것) / v4.4 (v9.9.2 2026-09-16: 사고 종류별 첫 등장 카드 - StartEvent 에서 BriefingUI.ShowOnce("event_<종류>"), 카드가 뜨면 시간이 멈춰 제한 시간은 그 뒤 흐른다) / v4.3 (v9.9 2026-09-16: 견습 운행 중 F11 무시 - 이벤트 자체는 WaveManager.TutorialGateActive 로 쉰다) / v4.2 (v9.8.1: F11 강제 발생은 GameBalance.CheatsAllowed 일 때만) / v4.1 (2026-09-14: 마모 off 가중치 / 프롤로그 게이트 차단) / v4
+/// [KitchenEventManager.cs] v4.10 (v9.16 2026-09-29 손맛 2차 - 소리: 사고 시작 = 경보 + 종류별 소리(SoundKeys.Event: 침입 발소리 / 고장 쇠 삐걱 / 화재 불붙음 / 흘림 쏟아짐) + 배경음 덕킹 / 끝나면 덕킹 해제 / 결과 sfx_event_resolve·sfx_event_fail) / v4.9 (v9.15 2026-09-29 2차 피드백: 사고 해결 연출 - 현장 초록 링 2겹 + "해결!" + 화면 테두리 초록 한 번 + 배너가 초록 "해결 - 기차 HP +n"으로 바뀌고 EventResolveHoldSec 뒤 내려감 / 실패는 붉은 "실패" + "[사고 실패] ... 기차 HP -n" 한 줄 (훈련장에서 결과를 알게) / ForceEvent(kind) - 자유 연습 [2]~[5] / 자유 연습 중 첫 등장 카드는 세션당 1회) / v4.8 (v9.14 2026-09-28 테스터 반영: 사고 현장에 월드 마커(붉은 화살표 + 링) - "직접 가야 한다는 인식 부족" / 흘림 조각이 사고 배너 뒤에 가려지던 것 - 커스텀 층을 배너 위로) / v4.7 (v9.12 2026-09-22: 인라인 연습 중 사고 타이머 정지) / v4.6 (v9.11 2026-09-22: MakeButton 에 ButtonFeel) / v4.5 (v9.10 2026-09-17 테스터 피드백 "사고 중에 증강 선택이 뜨면 사고가 끝난다": 웨이브가 끝나 정차로 넘어가며 사고가 취소될 때 "정차 정비로 사고가 정리됐다 (벌점 없음)" 알림 - 조용히 사라지던 것) / v4.4 (v9.9.2 2026-09-16: 사고 종류별 첫 등장 카드 - StartEvent 에서 BriefingUI.ShowOnce("event_<종류>"), 카드가 뜨면 시간이 멈춰 제한 시간은 그 뒤 흐른다) / v4.3 (v9.9 2026-09-16: 견습 운행 중 F11 무시 - 이벤트 자체는 WaveManager.TutorialGateActive 로 쉰다) / v4.2 (v9.8.1: F11 강제 발생은 GameBalance.CheatsAllowed 일 때만) / v4.1 (2026-09-14: 마모 off 가중치 / 프롤로그 게이트 차단) / v4
 /// 주방 돌발 이벤트 총괄 매니저 (기획 B-4)
 /// - v4 (v9.6, 2026-09-09): "화면 전체 경보" - 기차 안 작은 아이콘은 조리하다 놓친다는 피드백
 ///   * 경보 글로우: 화면 가장자리 붉은(이벤트별 색) 비네트가 0.6초 주기로 맥동 (삐뽀삐뽀). SetAlarm(color, strength)
@@ -462,7 +462,10 @@ public class KitchenEventManager : MonoBehaviour
         ShowPanel();
 
         // v4: 사이렌 (클립 없으면 조용히 무시) - 이벤트가 SetAlarm 을 안 불렀으면 기본 빨강 경보
+        // v4.10: 경보 + 종류별 현장음 + 배경음 덕킹 (사고 동안 -35%)
         SoundManager.Play("sfx_alarm");
+        SoundManager.PlayDelayed(SoundKeys.Event(ev is MonsterIntrusionEvent ? "intrusion" : ev is EquipmentBreakEvent ? "break" : ev is KitchenFireEvent ? "fire" : "spill"), 0.25f);
+        SoundManager.BgmDuck("event", true);
         if (alarmStrength <= 0f) SetAlarm(new Color(0.84f, 0.16f, 0.16f, 1f), 0.45f);
 
         Debug.Log("[주방이벤트] 발생: " + ev.Title);
@@ -534,6 +537,7 @@ public class KitchenEventManager : MonoBehaviour
         ClearOverlay();
         SetAlarm(alarmColor, 0f);
         HidePanel();
+        SoundManager.BgmDuck("event", false);   // v4.10
         Debug.Log("[주방이벤트] 전투 종료로 취소: " + ev.Title);
     }
 
@@ -553,6 +557,7 @@ public class KitchenEventManager : MonoBehaviour
         ClearOverlay();
         SetAlarm(alarmColor, 0f);
         HidePanel();
+        SoundManager.BgmDuck("event", false);   // v4.10
 
         // v4.9: 결과 연출 - 해결(초록) / 실패(붉음). 원인과 결과가 화면에서 이어진다
         if (GameBalance.EventResolveFx) PlayResult(ev, success, hadAnchor, siteX, hpDelta);
@@ -612,7 +617,7 @@ public class KitchenEventManager : MonoBehaviour
         if (resultRoutine != null) StopCoroutine(resultRoutine);
         resultRoutine = StartCoroutine(ResultBannerDown());
 
-        SoundManager.Play(success ? "sfx_judge_perfect" : "sfx_judge_bad");
+        SoundManager.Play(success ? "sfx_event_resolve" : "sfx_event_fail");   // v4.10: 전용 결과음
         if (success) UIManager.Instance?.ShowStatChange("[사고 해결] " + ev.Title + (string.IsNullOrEmpty(hpStr) ? "" : " - " + hpStr));
         else UIManager.Instance?.ShowDanger("[사고 실패] " + ev.Title + (string.IsNullOrEmpty(hpStr) ? "" : " - " + hpStr));
     }

@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// [TurretSlot.cs] v6.10 (v9.15.1 2026-09-29: 마지막 식사 장면 동안 사격 정지 BossEnemy.LastSupperServing) / v6.9 (v9.15 2026-09-29 2차 피드백: 레벨 상한 해제 - 접시 곡선(platesIn / GameBalance.PlatesToNext)·레벨 체감(GameBalance.LevelMultOf) / 마비 방치 파손(StunBreakSec - 경고 뒤 요리 소실 + 슬롯 봉인, isBroken / BreakWarning / Repair)) / v6.8 (v9.14 2026-09-28 테스터 반영: 레벨 상한 T1 3 / T2 6 (MaxLevelOf·AtMaxLevel), 전설 요리 공격력 x T2DamageMul, 표적 고르기에서 곧 죽을 손님 건너뜀(IncomingDamage)) / v6.7 (v9.12 2026-09-22: TutorialDirector.InlineFreeze 동안 사격 정지) / v6.6 (v9.11.1 2026-09-22 문구: 과열 복구법) / v6.5 (v9.11 2026-09-22 타격감: 투입·레벨업 때 접시 낙하 + 링 + "배치!/Lv N" 팝 + 포탑 1.25배 튀기 - GameBalance.CookFeelOn) / v6.4 (v9.9.2 2026-09-16: 마비 FX - 감전·빙결 = 스파크 3점(ui_ev_spark_0/1 교대, 빙결은 얼음색), 과열 = 연기(ui_ev_smoke_0/1). GameBalance.TurretStunFx) / v6.3 (v9.9 2026-09-16: 남쪽 슬롯 포신 기본 방향 -90 = 남쪽 - 4모서리 배치) / v6.2 (런 통계: 과열 횟수·정지 시간 2026-09-14) / v6.1 (교수 피드백 반영 2026-09-14) / v6 (고퀄 PNG 적용 2026-09-03)
+/// [TurretSlot.cs] v6.11 (v9.16 2026-09-29 손맛 2차 - 소리: 마비 소리는 StunSlot 이 종류별로 낸다(감전 sfx_stun / 빙결 sfx_freeze / 과열 sfx_overheat - 호출부의 과열음 제거) / 저절로 식으면 sfx_cool / 투입 sfx_insert(접시 쌓기는 작게)·레벨업 sfx_levelup / 파손 sfx_break) / v6.10 (v9.15.1 2026-09-29: 마지막 식사 장면 동안 사격 정지 BossEnemy.LastSupperServing) / v6.9 (v9.15 2026-09-29 2차 피드백: 레벨 상한 해제 - 접시 곡선(platesIn / GameBalance.PlatesToNext)·레벨 체감(GameBalance.LevelMultOf) / 마비 방치 파손(StunBreakSec - 경고 뒤 요리 소실 + 슬롯 봉인, isBroken / BreakWarning / Repair)) / v6.8 (v9.14 2026-09-28 테스터 반영: 레벨 상한 T1 3 / T2 6 (MaxLevelOf·AtMaxLevel), 전설 요리 공격력 x T2DamageMul, 표적 고르기에서 곧 죽을 손님 건너뜀(IncomingDamage)) / v6.7 (v9.12 2026-09-22: TutorialDirector.InlineFreeze 동안 사격 정지) / v6.6 (v9.11.1 2026-09-22 문구: 과열 복구법) / v6.5 (v9.11 2026-09-22 타격감: 투입·레벨업 때 접시 낙하 + 링 + "배치!/Lv N" 팝 + 포탑 1.25배 튀기 - GameBalance.CookFeelOn) / v6.4 (v9.9.2 2026-09-16: 마비 FX - 감전·빙결 = 스파크 3점(ui_ev_spark_0/1 교대, 빙결은 얼음색), 과열 = 연기(ui_ev_smoke_0/1). GameBalance.TurretStunFx) / v6.3 (v9.9 2026-09-16: 남쪽 슬롯 포신 기본 방향 -90 = 남쪽 - 4모서리 배치) / v6.2 (런 통계: 과열 횟수·정지 시간 2026-09-14) / v6.1 (교수 피드백 반영 2026-09-14) / v6 (고퀄 PNG 적용 2026-09-03)
 /// 포탑 슬롯 1개. 요리를 투입하면 포탑으로 가동한다.
 /// - v6.2 변경점 (스위치 실험 지표 - 반영계획 §5 관찰 시트):
 ///   OverheatsThisRun / OverheatStunSecThisRun: 이번 런에 과열이 몇 번 났고, 과열로 포탑이 전투 중 몇 초 멈춰 있었는지.
@@ -100,6 +100,8 @@ public class TurretSlot : MonoBehaviour
         // Phase 2-2 증강 '부동액 배관': 감전/빙결 지속 단축 (과열은 무기한이라 무관)
         stunUntil = Time.time + seconds * AugmentManager.SlotStunDurMul;
         StunKind = kind;
+        // v6.11: 마비 소리 - 종류별 (같은 프레임에 여러 칸이 맞아도 SoundManager 가 한 번만)
+        SoundManager.PlayAt(kind == "빙결" ? "sfx_freeze" : kind == "과열" ? "sfx_overheat" : "sfx_stun", transform.position);
     }
 
     /// <summary>마비 즉시 해제. 과열이었다면 냉각 후 면역 시간 부여</summary>
@@ -229,7 +231,7 @@ public class TurretSlot : MonoBehaviour
                     WorldFeel.PlateDrop(transform.position, UIFactory.TagColor(r.tag));
                     WorldFeel.TextPop(transform.position + Vector3.up * 0.45f, "Lv" + (level + 1) + " 까지 " + (need - platesIn) + "접시", new Color(0.95f, 0.85f, 0.6f), 2.6f);
                 }
-                SoundManager.Play("sfx_pickup");
+                SoundManager.Play("sfx_insert", 0.7f, -1f);   // v6.11: 접시 쌓기 - 작은 투입음
                 Debug.Log("[TurretSlot] " + r.displayName + " 접시 " + platesIn + "/" + need + " (Lv" + level + ")");
                 return true;
             }
@@ -269,13 +271,15 @@ public class TurretSlot : MonoBehaviour
     /// <summary>투입·레벨업 연출: 접시 낙하 -> 링 -> "배치!" 또는 "Lv N" 팝 -> 포탑 1.25배에서 제자리</summary>
     private void PlayInsertFeel(RecipeData r, bool wasEmpty)
     {
+        // v6.11: 배치 = 쇠 접시 "탁" / 레벨업 = 투입음 + 상승음 (연출 스위치와 무관하게 난다)
+        SoundManager.Play("sfx_insert");
+        if (!wasEmpty) SoundManager.PlayDelayed("sfx_levelup", 0.12f);
         if (!GameBalance.CookFeelOn || GameBalance.GameFeelMaster <= 0f) return;
         Color c = UIFactory.TagColor(r.tag);
         Vector3 pos = transform.position;
         WorldFeel.PlateDrop(pos, c);
         WorldFeel.Ring(pos, c, 0.75f, 0.28f);
         WorldFeel.TextPop(pos + Vector3.up * 0.45f, wasEmpty ? "배치!" : "Lv" + level, new Color(1f, 0.88f, 0.45f), 3.2f);
-        SoundManager.Play("sfx_pickup");
         popT = 0f;
     }
 
@@ -356,7 +360,7 @@ public class TurretSlot : MonoBehaviour
             WorldFeel.TextPop(transform.position + Vector3.up * 0.5f, "파손!", new Color(1f, 0.35f, 0.3f), 3.6f);
             GameFeel.Shake(GameBalance.ShakeTrainHit, "break", 0.5f);
         }
-        SoundManager.Play("sfx_train_hit", 0.9f, 0f);
+        SoundManager.Play("sfx_break");   // v6.11: 전용 파손음 (v6.9 는 기차 피격음을 빌려 썼다)
         UIManager.Instance?.ShowDanger("[파손] " + (SlotNo + 1) + "번 포탑(" + name + ")이 망가졌다 - 이번 운행엔 못 쓴다" + (GameBalance.BrokenSlotRepairCost > 0 ? ". 정비소에서 " + GameBalance.BrokenSlotRepairCost + "G 로 수리" : ""));
         Debug.Log("[TurretSlot] 파손: " + name + " (방치 " + Mathf.RoundToInt(GameBalance.StunBreakSec) + "초)");
     }
@@ -369,8 +373,7 @@ public class TurretSlot : MonoBehaviour
         overheatActive = true;
         OverheatsThisRun++;
         float dur = GameBalance.OverheatAutoRecoverSec > 0f ? GameBalance.OverheatAutoRecoverSec : 9999f;
-        StunSlot(dur, "과열");
-        SoundManager.Play("sfx_overheat");
+        StunSlot(dur, "과열");   // v6.11: 과열음은 StunSlot 이 낸다
     }
 
     /// <summary>수리 (정비소 - GameBalance.BrokenSlotRepairCost > 0 일 때만 열린다). 새 운행 시작 때는 매니저가 전부 수리</summary>
@@ -423,6 +426,7 @@ public class TurretSlot : MonoBehaviour
         if (overheatActive && !IsStunned && StunKind == "과열")
         {
             FinishOverheat();
+            SoundManager.PlayAt("sfx_cool", transform.position);   // v6.11: 저절로 식음
             UIManager.Instance?.ShowStatChange("포탑이 식었다 - 다시 가동");
         }
         // v6.2: 과열로 멈춰 있는 전투 시간 누적 (관찰 시트 "과열당 정지 시간" - 여기서만 재므로 냉각 방식과 무관)
@@ -485,8 +489,7 @@ public class TurretSlot : MonoBehaviour
                 OverheatsThisRun++;   // v6.2: 런 통계
                 // v6.1 (B1 실험): 자동 복구 시간이 설정돼 있으면 그 시간 뒤 스스로 식는다 ([E] 냉각은 즉시)
                 float dur = GameBalance.OverheatAutoRecoverSec > 0f ? GameBalance.OverheatAutoRecoverSec : 9999f;
-                StunSlot(dur, "과열");
-                SoundManager.Play("sfx_overheat");   // 클립 없으면 무시
+                StunSlot(dur, "과열");   // v6.11: 과열음은 StunSlot 이 낸다
                 if (GameBalance.OverheatAutoRecoverSec > 0f)
                     UIManager.Instance?.ShowDanger("포탑 과열! 곁에서 [E] 를 누른 채 마우스를 움직여 식혀라 (" + Mathf.RoundToInt(GameBalance.OverheatAutoRecoverSec) + "초 지나면 저절로 식는다)");
                 else

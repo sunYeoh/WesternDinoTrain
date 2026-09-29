@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 
 /// <summary>
-/// [ItemSystem.cs] v1.2 (v9.14 2026-09-28: 유물 15종 설명을 일상어로 - 테스터 "황금 조리 기구가 뭔지 모르겠음": "판정 구간" -> "맞춰야 하는 구간이 넓어진다") / v1.1 (2026-09-14: IsItemUsable 스위치 연동) / v1 (신규 파일) - Phase 2-3: 아이템(유물) 시스템
+/// [ItemSystem.cs] v1.3 (v9.16 2026-09-29 손맛 2차 - 소리: 유물 획득 sfx_relic) / v1.2 (v9.14 2026-09-28: 유물 15종 설명을 일상어로 - 테스터 "황금 조리 기구가 뭔지 모르겠음": "판정 구간" -> "맞춰야 하는 구간이 넓어진다") / v1.1 (2026-09-14: IsItemUsable 스위치 연동) / v1 (신규 파일) - Phase 2-3: 아이템(유물) 시스템
 ///
 /// 설계 (사용자 결정 - 증강/아이템 이원화):
 ///  - 증강 = 포탑 강화 + 기차 유틸 (전투 출력에 관여)
@@ -151,7 +151,7 @@ public static class ItemManager
         else
             UIManager.Instance?.ShowStatChange("[전리품] " + sourceLabel + " - " + item.name + "!");
 
-        SoundManager.Play("sfx_pickup");
+        SoundManager.Play("sfx_relic");   // v1.3: 유물 전용 획득음
         Debug.Log("[아이템] 획득: " + item.name + " (" + item.RarityName() + ")"
             + (sourceLabel != null ? " / 출처: " + sourceLabel : ""));
     }

@@ -3,7 +3,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 /// <summary>
-/// [UIFeel.cs] v1 (신규, v9.11 2026-09-22) - UI 반응 계층 (스펙 표 C1 C2 + B4 의 UI 쪽)
+/// [UIFeel.cs] v1.1 (v9.16 2026-09-29 손맛 2차 - 소리: 창이 뜰 때(ModalFeel.Play) sfx_ui_open 한 번 - 호출부마다 넣지 않는다) / v1 (신규, v9.11 2026-09-22) - UI 반응 계층 (스펙 표 C1 C2 + B4 의 UI 쪽)
 ///
 ///   ButtonFeel  - 버튼 컴포넌트: 호버 1.03배 / 프레스 0.96배 / 비활성 회색. UIFactory.CreateButton, KitchenEventManager.MakeButton,
 ///                 GameHUD 요리 카드가 붙인다 (ButtonFeel.Attach(button)). 실시간 기준이라 시간이 멈춘 창에서도 반응한다
@@ -72,7 +72,9 @@ public static class ModalFeel
     /// <summary>루트(캔버스 또는 판)를 등장시킨다. 시간이 멈춰 있어도(실시간) 움직인다</summary>
     public static void Play(Transform root)
     {
-        if (root == null || !GameBalance.ModalFeelOn || GameBalance.GameFeelMaster <= 0f) return;
+        if (root == null) return;
+        SoundManager.Play("sfx_ui_open");   // v1.1: 창 열림 (같은 프레임 중복은 SoundManager 가 걸러낸다)
+        if (!GameBalance.ModalFeelOn || GameBalance.GameFeelMaster <= 0f) return;
         RectTransform rrt = root as RectTransform;
         UIFeelRunner r = UIFeel.Runner();
 

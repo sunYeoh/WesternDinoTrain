@@ -2,7 +2,7 @@
 using UnityEngine.UI;
 
 /// <summary>
-/// [CookingMinigame.cs] v2.7
+/// [CookingMinigame.cs] v2.8 (v9.16 2026-09-29 손맛 2차 - 소리: 조리 시작에 조리법별 소리 SoundKeys.Cook - 굽기 지글 / 볶기 촤악 / 끓이기 보글) / v2.7
 /// - v2.7 변경점 (교수 피드백 2026-09-14, A2/A3 - 조리 공정성):
 ///   배율 하한 CookSpeedMulFloor/CookJudgeMulFloor (팬 마모 x 프테라 x 지역이 겹쳐 0.28배까지 떨어지던 것 차단)
 ///   끓이기 = 총시간 하한(BoilMinTotalSec) + 투입 안내를 절대 초가 아니라 "진행률"로 배치 (25~40% / 55~72%),
@@ -203,6 +203,7 @@ public class CookingMinigame : MonoBehaviour
         finished = false;
         IsActive = true;
         judgeTimer = 0f;
+        SoundManager.Play(SoundKeys.Cook(method));   // v2.8: 조리법별 시작음
 
         // 증강 배율 캐시 (과하게 커지지 않게 상한)
         // Phase 2-3부터 조리 유틸은 아이템이 담당 - 증강 값은 호환용으로만 곱한다 (항상 1)

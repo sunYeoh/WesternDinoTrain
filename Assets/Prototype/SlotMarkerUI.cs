@@ -3,7 +3,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 /// <summary>
-/// [SlotMarkerUI.cs] v5.7 (v9.15 2026-09-29: 접시 곡선 표기 "(1/2)" / 파손 칩 "파손" + 파손 경고 깜빡임(BreakWarning) / 드래그 투입 - GameHUD 가 NearestMarker·SetDragHover 로 놓을 슬롯을 물어 금색 "여기에 놓기" / 강화 미리보기 GameBalance.LevelMultOf) / v5.6 (v9.14 2026-09-28: 레벨 상한 표시 "최대" + 강화 미리보기 상한, 진화 레벨 = 높은 쪽) / v5.5 (v9.12 2026-09-22: 체인 = "연쇄 번개") / v5.4 (v9.11.1 2026-09-22 문구: 마비 종류별 안내, 전설·진화 조리 용어, 역할 낱말) / v5.3 (v9.10 2026-09-17 테스터 피드백: 포탑 정보창이 마우스를 따라다니며 커서 밑에 겹쳐 깜빡이고 클릭을 가로채던 것 ->
+/// [SlotMarkerUI.cs] v5.8 (v9.16 2026-09-29 손맛 2차 - 소리: 냉각 완료 sfx_cool / 얼음 깨기 연타 = 결정 두드림(sfx_hit_crystal) -> 깨짐(sfx_die_crystal) / 감전 털기 = 레버 철컥(sfx_lever). 버튼 클릭음을 빌려 쓰던 것 교체) / v5.7 (v9.15 2026-09-29: 접시 곡선 표기 "(1/2)" / 파손 칩 "파손" + 파손 경고 깜빡임(BreakWarning) / 드래그 투입 - GameHUD 가 NearestMarker·SetDragHover 로 놓을 슬롯을 물어 금색 "여기에 놓기" / 강화 미리보기 GameBalance.LevelMultOf) / v5.6 (v9.14 2026-09-28: 레벨 상한 표시 "최대" + 강화 미리보기 상한, 진화 레벨 = 높은 쪽) / v5.5 (v9.12 2026-09-22: 체인 = "연쇄 번개") / v5.4 (v9.11.1 2026-09-22 문구: 마비 종류별 안내, 전설·진화 조리 용어, 역할 낱말) / v5.3 (v9.10 2026-09-17 테스터 피드백: 포탑 정보창이 마우스를 따라다니며 커서 밑에 겹쳐 깜빡이고 클릭을 가로채던 것 ->
 ///   화면 한 자리(왼쪽 아래, 하단 바 위) 고정 + 클릭 통과(raycastTarget off) + 합체 선택 중엔 고정 유지 / 포탑 실물 클릭·호버도 이름표와 같이 /
 ///   설명은 RecipeText 일상어 ("무엇을 하나 / 어떤 손님에 / 언제")) /
 /// v5.2 (v9.9.2 2026-09-16: 마비 칩 = "감전!/빙결!/과열!" + 할 일 한 줄, 빨간 테, 칩 위 모서리 경광등 0.3초 교대 (GameBalance.StunChipBeacons) - 목업 v3 (E), 정식 런 공용) / v5.1 (v9.9 2026-09-16: 4모서리 배치 - 남쪽 슬롯 마커는 발 아래, 폭 96->120(GameBalance.SlotMarkerWidth), 로비에서 숨김) / v5 (교수 피드백 A5/A12 반영 2026-09-14) / v4 (B-1: 근접 위기 대응 - 방향결정 2026-08-31)
@@ -191,7 +191,7 @@ public class SlotMarkerUI : MonoBehaviour
                 {
                     coolHold = 0f; coolIndex = -1;
                     slot.ClearStun();
-                    SoundManager.Play("sfx_ui_click");
+                    SoundManager.PlayAt("sfx_cool", slot.transform.position);   // v5.8: 증기 빠지는 소리
                     GameFeel.DeathPop(slot.transform.position, new Color(0.9f, 0.9f, 0.95f), 0.55f); // 증기 빠짐
                     UIManager.Instance?.ShowStatChange("포탑 냉각 완료! 다시 불을 뿜는다");
                 }
@@ -213,14 +213,13 @@ public class SlotMarkerUI : MonoBehaviour
                 // 얼음은 한 방에 안 깨진다 - 깡, 깡, 깡!
                 if (reachStunIndex != iceTapIndex) { iceTapIndex = reachStunIndex; iceTaps = 0; }
                 iceTaps++;
-                SoundManager.Play("sfx_ui_click");
                 GameFeel.DeathPop(slot.transform.position, new Color(0.6f, 0.9f, 1f), 0.3f); // 얼음 조각
-                if (iceTaps < GameBalance.UnfreezeTaps) return;
+                if (iceTaps < GameBalance.UnfreezeTaps) { SoundManager.PlayAt("sfx_hit_crystal", slot.transform.position); return; }   // v5.8: 깡, 깡
                 iceTaps = 0; iceTapIndex = -1;
             }
 
             slot.ClearStun();
-            SoundManager.Play("sfx_ui_click");
+            SoundManager.PlayAt(kind == "빙결" ? "sfx_die_crystal" : "sfx_lever", slot.transform.position);   // v5.8: 얼음 깨짐 / 레버 철컥
             GameFeel.DeathPop(slot.transform.position, kind == "빙결"
                 ? new Color(0.6f, 0.9f, 1f) : new Color(1f, 0.9f, 0.3f), 0.5f);
             UIManager.Instance?.ShowStatChange(kind == "빙결"
@@ -536,6 +535,7 @@ public class SlotMarkerUI : MonoBehaviour
             }
             string kind = slot.StunKind;
             slot.ClearStun();
+            SoundManager.PlayAt(kind == "빙결" ? "sfx_die_crystal" : kind == "과열" ? "sfx_cool" : "sfx_lever", slot.transform.position);   // v5.8
             UIManager.Instance?.ShowStatChange(kind == "빙결"
                 ? "포탑 해빙! (얼음을 깨뜨렸다)"
                 : "포탑 재가동! (감전 해제)");

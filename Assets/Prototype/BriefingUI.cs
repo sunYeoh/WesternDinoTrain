@@ -4,7 +4,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 /// <summary>
-/// [BriefingUI.cs] v1.4 (v9.15 2026-09-29: 보조 키 - BriefDef.altKey/altHint/onAlt. 구간 완료 카드의 [R] 한 번 더. 닫힘 안내 줄에 "[R] 한 번 더   [Enter] 로비로") / v1.2 (v9.11 2026-09-22: 등장 연출 ModalFeel) / v1.1 (v9.9.2 2026-09-16: 초상 + 키 동시 배치(실루엣 1배 위 + 키 아래) / 초상 틴트(EnemySkin 규칙) / 증강 선택창 위에도 열린다 - 승격 카드 "증강 선택"용)
+/// [BriefingUI.cs] v1.5 (v9.16 2026-09-29 손맛 2차 - 소리: 열림은 ModalFeel 이 sfx_ui_open, 닫힘 sfx_ui_close. 클릭음 제거) / v1.4 (v9.15 2026-09-29: 보조 키 - BriefDef.altKey/altHint/onAlt. 구간 완료 카드의 [R] 한 번 더. 닫힘 안내 줄에 "[R] 한 번 더   [Enter] 로비로") / v1.2 (v9.11 2026-09-22: 등장 연출 ModalFeel) / v1.1 (v9.9.2 2026-09-16: 초상 + 키 동시 배치(실루엣 1배 위 + 키 아래) / 초상 틴트(EnemySkin 규칙) / 증강 선택창 위에도 열린다 - 승격 카드 "증강 선택"용)
 ///   / v1 (신규, v9.9 2026-09-16) - 브리핑 카드: "읽는 동안 세계가 멈추는" 설명 창
 ///
 /// 튜토리얼 계획 v2 §5. 견습 운행(TutorialDirector)의 단계 시작마다, 그리고 정식 런에서 처음 만나는 것
@@ -247,7 +247,6 @@ public class BriefingUI : MonoBehaviour
         }
         else pausedByMe = false;
 
-        SoundManager.Play("sfx_ui_click");   // 클립 없으면 무시
         Debug.Log("[BriefingUI] 카드: " + (string.IsNullOrEmpty(current.id) ? current.title : current.id));
     }
 
@@ -255,6 +254,7 @@ public class BriefingUI : MonoBehaviour
     {
         root.SetActive(false);
         IsOpen = false;
+        SoundManager.Play("sfx_ui_close");   // v1.5
         BriefDef closed = current;
         current = null;
 

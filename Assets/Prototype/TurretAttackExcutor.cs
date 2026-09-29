@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 
 /// <summary>
-/// [TurretAttackExecutor.cs] v5.2 (v9.14 2026-09-28 테스터 "하나 점사해서 잡으면 나머지가 다 빗나감": 투사체가 도착했을 때 표적이 이미 죽었으면 그 자리 근처의 다른 손님을 맞힌다(ProjectileRetargetRadius) + 날아가는 동안 Enemy.IncomingDamage 예약 - 포탑이 곧 죽을 손님을 건너뛴다) / v5.1 (v9.11 2026-09-22 타격감: DealDamage 가 HitFeel.NextHit(속성색·크리) 를 걸고 때린다) / v5
+/// [TurretAttackExecutor.cs] v5.3 (v9.16 2026-09-29 손맛 2차 - 소리: 발사음 = 요리 속성·티어·모양별(SoundKeys.Shot, 포탑 위치에서 PlayAt) / 폭발 착탄 sfx_explosion / 장판 sfx_field / 연쇄 번개 튈 때마다 sfx_chain / 증강 폭발(동상 파편·마지막 서비스)도 폭발음 / HitFeel.NextHit 에 요리 속성을 같이 넘겨 명중음에 속성 겹침이 얹힌다) / v5.2 (v9.14 2026-09-28 테스터 "하나 점사해서 잡으면 나머지가 다 빗나감": 투사체가 도착했을 때 표적이 이미 죽었으면 그 자리 근처의 다른 손님을 맞힌다(ProjectileRetargetRadius) + 날아가는 동안 Enemy.IncomingDamage 예약 - 포탑이 곧 죽을 손님을 건너뛴다) / v5.1 (v9.11 2026-09-22 타격감: DealDamage 가 HitFeel.NextHit(속성색·크리) 를 걸고 때린다) / v5
 /// 포탑 공격 형태(8종)별 판정 및 이펙트 실행기
 /// - v3: 모든 TakeDamage에 r.damageType 적용 (DEF/RES 계산)
 /// - v4: 증강 시스템(AugmentManager) 연동
@@ -63,6 +63,9 @@ public static class TurretAttackExecutor
             }
         }
 
+        // v5.3: 발사음 - 속성·티어·모양별. 포탑 자리에서 (화면 밖 포탑은 작게)
+        SoundManager.PlayAt(SoundKeys.Shot(r, shape), origin);
+
         switch (shape)
         {
             case AttackShape.Projectile:
@@ -86,6 +89,7 @@ public static class TurretAttackExecutor
                         {
                             float radius = r.explodeRadius * 0.06f * AugmentManager.ExplodeRadiusMul;
                             vfx.Explosion(targetPos, col, radius);
+                            SoundManager.PlayAt("sfx_explosion", targetPos);   // v5.3: 착탄음 (큰 소리 - 잦은 소리를 0.3초 덕킹)
                             // P1 게임필: 폭발 미세 럼블 - 쿨타임 채널 방식 (연사돼도 2.5초에 1번만)
                             GameFeel.Shake(GameBalance.ShakeExplosion, "explosion", GameBalance.ShakeExplosionCooldown);
                             HitExplosionArea(r, targetPos, damage, capturedTarget, radius);
@@ -102,6 +106,7 @@ public static class TurretAttackExecutor
                         {
                             float radius = (r.fieldBig ? 130f : 90f) * 0.06f;
                             vfx.Field(targetPos, col, radius, 4f);
+                            SoundManager.PlayAt("sfx_field", targetPos);   // v5.3: 장판 깔림
                             HitFieldArea(r, targetPos, radius);
                         }
                     });
@@ -225,7 +230,7 @@ public static class TurretAttackExecutor
 
         float hpBefore = en.currentHP;   // Phase 2-3: 초과 데미지(옆 테이블 계산서) 판정용
 
-        HitFeel.NextHit(TagColor(r.tag), critHit);   // v5.1: 이번 명중의 스파크 색 = 요리 속성색
+        HitFeel.NextHit(TagColor(r.tag), critHit, r.tag);   // v5.1: 이번 명중의 스파크 색 = 요리 속성색 / v5.3: 속성 -> 명중음 겹침
         en.TakeDamage(finalDamage, r.damageType);
 
         // ── Phase 2-3: 처치 시 효과 (주방장 누적 / 마지막 서비스 / 옆 테이블 계산서) ──
@@ -322,6 +327,7 @@ public static class TurretAttackExecutor
 
         if (AttackVFX.Instance != null)
             AttackVFX.Instance.Explosion(pos, TagColor(FoodTag.Ice), radius);
+        SoundManager.PlayAt("sfx_explosion", pos, 0.7f);   // v5.3
 
         Enemy[] all = Object.FindObjectsByType<Enemy>(FindObjectsSortMode.None);
         for (int i = 0; i < all.Length; i++)
@@ -344,6 +350,7 @@ public static class TurretAttackExecutor
 
         if (AttackVFX.Instance != null)
             AttackVFX.Instance.Explosion(pos, new Color(1f, 0.75f, 0.35f), radius);
+        SoundManager.PlayAt("sfx_explosion", pos, 0.7f);   // v5.3
 
         Enemy[] all = Object.FindObjectsByType<Enemy>(FindObjectsSortMode.None);
         for (int i = 0; i < all.Length; i++)
@@ -395,6 +402,7 @@ public static class TurretAttackExecutor
 
             if (AttackVFX.Instance != null)
                 AttackVFX.Instance.Lightning(current.transform.position, next.transform.position, col);
+            SoundManager.PlayAt("sfx_chain", next.transform.position, 0.8f);   // v5.3
 
             DealDamage(r, next, damage, 1f);
             hit.Add(next);
@@ -534,6 +542,7 @@ public static class TurretAttackExecutor
 
             if (AttackVFX.Instance != null)
                 AttackVFX.Instance.Lightning(current.transform.position, next.transform.position, col);
+            SoundManager.PlayAt("sfx_chain", next.transform.position);   // v5.3: 튈 때마다
 
             // 증폭 전이: 튕길수록 +20% (기본은 80% 감쇄), 최대 2.2배
             float jumpMul = AugmentManager.ChainAmplify

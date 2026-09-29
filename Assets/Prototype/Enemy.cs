@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// [Enemy.cs] v3.7 (v9.15 2026-09-29: 방어·저항으로 피해가 GameBalance.ResistShowBelow 이하로 깎이면 팝업에 "저항" - 하나만 키우면 왜 안 통하는지 화면에서) / v3.6 (v9.14 2026-09-28: IncomingDamage - 과잉 집중 방지용 예약 피해) / v3.5 (v9.12 2026-09-22: TutorialDirector.InlineFreeze 동안 정지 / 용어 "지속 피해") / v3.4 (v9.11.1 2026-09-22 문구: 특기 설명 일상어, 강철 = 방어 50) / v3.3 (v9.11 2026-09-22 타격감: 직접 명중 때 HitFeel.OnHit(플래시·찌그러짐·딜 비례 스파크), 죽을 때 HitFeel.OnKill(킬 버스트) - 도트 틱은 제외) / v3.2 (v9.10.1 2026-09-21: 물량 1.6배에 맞춘 처치 보상 배율 - 일반 손님 골드 GameBalance.KillGoldMul, 재료 드랍 확률 KillMaterialChance(보스는 항상). 드랍 이름을 재료 이름표(전기알·화염꽃·독샘)에 맞춤) / v3.1 (2026-09-14: 해빙 문구 / 전갈 마모 대체 스위치) / v3
+/// [Enemy.cs] v3.8 (v9.16 2026-09-29 손맛 2차 - 소리: 공격음 = 손님 종류별(SoundKeys.Attack, 제자리에서 PlayAt) / 처치음 = 재질별(SoundKeys.Die) - 큰 손님은 sfx_kill_big / 명중음은 HitFeel.OnHit 이 재질별로 내고, 방어에 크게 깎인 물리는 튕김음(resisted 전달)) / v3.7 (v9.15 2026-09-29: 방어·저항으로 피해가 GameBalance.ResistShowBelow 이하로 깎이면 팝업에 "저항" - 하나만 키우면 왜 안 통하는지 화면에서) / v3.6 (v9.14 2026-09-28: IncomingDamage - 과잉 집중 방지용 예약 피해) / v3.5 (v9.12 2026-09-22: TutorialDirector.InlineFreeze 동안 정지 / 용어 "지속 피해") / v3.4 (v9.11.1 2026-09-22 문구: 특기 설명 일상어, 강철 = 방어 50) / v3.3 (v9.11 2026-09-22 타격감: 직접 명중 때 HitFeel.OnHit(플래시·찌그러짐·딜 비례 스파크), 죽을 때 HitFeel.OnKill(킬 버스트) - 도트 틱은 제외) / v3.2 (v9.10.1 2026-09-21: 물량 1.6배에 맞춘 처치 보상 배율 - 일반 손님 골드 GameBalance.KillGoldMul, 재료 드랍 확률 KillMaterialChance(보스는 항상). 드랍 이름을 재료 이름표(전기알·화염꽃·독샘)에 맞춤) / v3.1 (2026-09-14: 해빙 문구 / 전갈 마모 대체 스위치) / v3
 /// 모든 적 유닛의 기본 동작 + 전투 스탯(DEF/RES) + 상태이상(도트/방깎/마깎)
 /// - v3 변경점: 행동 패턴 시스템 (이름 기반 자동 배정 - 프리팹 설정 불필요)
 ///   1) 무리 사냥꾼(랩터): 주변 랩터가 많을수록 이동 속도 증가
@@ -709,6 +709,7 @@ public class Enemy : MonoBehaviour
     {
         float damage = scaledATK * (IsBuffed ? 1.25f : 1f);
         TrainFeel.NextHitX = transform.position.x;   // v3.3: 물린 칸만 번쩍이게
+        SoundManager.PlayAt(SoundKeys.Attack(data.enemyName), transform.position);   // v3.8: 종류별 공격음 (기차 피격음은 TrainManager 가 낸다)
         trainManager?.TakeDamage(damage);
 
         if (data.enemyName == "독침 프테라")
@@ -777,6 +778,12 @@ public class Enemy : MonoBehaviour
         ApplyRawDamage(damage, false);
     }
 
+    /// <summary>v3.8: 틱 피해 (오라 화염 등 0.5초마다 오는 것) - 명중 연출·명중음 없이 숫자만 (도트와 같은 취급)</summary>
+    public void TakeTickDamage(float damage, bool isMagic)
+    {
+        ApplyRawDamage(damage, isMagic);
+    }
+
     /// <summary>
     /// v3 전투 공식 - 물리/마법 타입 데미지
     /// 최종딜 = 기본딜 x 50/(50+스탯), 방깎/마깎으로 스탯 감소 가능
@@ -797,7 +804,7 @@ public class Enemy : MonoBehaviour
         // v3.7: 방어·저항으로 많이 깎였으면 팝업에 "저항" (기본 0.6 이하 = 방어 34 이상)
         bool resisted = GameBalance.ResistShowBelow > 0f && damage > 0f && finalDamage / damage <= GameBalance.ResistShowBelow;
 
-        if (isAlive) HitFeel.OnHit(this, finalDamage, dtype == DamageType.Magic);   // v3.3: 타격감
+        if (isAlive) HitFeel.OnHit(this, finalDamage, dtype == DamageType.Magic, resisted);   // v3.3: 타격감 / v3.8: 튕김음
         ApplyRawDamage(finalDamage, dtype == DamageType.Magic, resisted);
     }
 
@@ -890,7 +897,9 @@ public class Enemy : MonoBehaviour
     protected virtual void Die()
     {
         isAlive = false;
-        SoundManager.Play("sfx_enemy_die");
+        // v3.8: 처치음 - 재질별 (비늘·무쇠·결정·날개·용암). 큰 손님·보스는 큰 처치음 (잦은 소리를 0.3초 덕킹)
+        bool bigKill = this is BossEnemy || scaledMaxHP >= GameBalance.KillBurstBigHP;
+        SoundManager.PlayAt(bigKill ? "sfx_kill_big" : SoundKeys.Die(data.enemyName), transform.position);
 
         // P1 게임필: 처치 팝 (드랍 재료 색과 통일 - 조각 흡수 연출과 이어져 보이게)
         GameFeel.DeathPop(transform.position, PickupFX.ColorOf(GetDropMaterialType()));

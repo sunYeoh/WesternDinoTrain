@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 /// <summary>
-/// [BossGimmickSystem.cs] v9.12 (2026-09-22: ClearBossUI - 예습 보스용) / v4.1
+/// [BossGimmickSystem.cs] v9.16 (2026-09-29 손맛 2차 - 소리: 보스전 동안 배경음 덕킹 - 등록에 켜고 처치·정리에 끈다) / v9.12 (2026-09-22: ClearBossUI - 예습 보스용) / v4.1
 /// 보스전 전용 기믹 + 보스 UI를 관리합니다.
 ///
 /// - v4.1 (교수 피드백 A6, 2026-09-14): 씬에 이 컴포넌트가 없으면 자동 생성한다.
@@ -112,6 +112,7 @@ public class BossGimmickSystem : MonoBehaviour
     public void RegisterBoss(BossEnemy boss)
     {
         currentBoss = boss;
+        SoundManager.BgmDuck("boss", true);   // v9.16: 보스전 - 배경음 -35%
 
         // Phase 2-1: 스피노 베팅 조건 추적 시작 (시간/조리/피격/투척 카운터 리셋)
         SpinoBet.OnBossStart();
@@ -382,6 +383,7 @@ public class BossGimmickSystem : MonoBehaviour
     public void ClearBossUI()
     {
         currentBoss = null;
+        SoundManager.BgmDuck("boss", false);   // v9.16
         isGroggyPhase = false;
         if (bossRoot != null) bossRoot.gameObject.SetActive(false);
         if (groggyRoot != null) groggyRoot.gameObject.SetActive(false);
@@ -390,6 +392,7 @@ public class BossGimmickSystem : MonoBehaviour
     public void OnBossDefeated()
     {
         currentBoss = null;
+        SoundManager.BgmDuck("boss", false);   // v9.16
         isGroggyPhase = false;
         bossRoot.gameObject.SetActive(false);
         groggyRoot.gameObject.SetActive(false);
