@@ -3,7 +3,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 /// <summary>
-/// [SlotMarkerUI.cs] v5.6 (v9.14 2026-09-28: 레벨 상한 표시 "최대" + 강화 미리보기 상한, 진화 레벨 = 높은 쪽) / v5.5 (v9.12 2026-09-22: 체인 = "연쇄 번개") / v5.4 (v9.11.1 2026-09-22 문구: 마비 종류별 안내, 전설·진화 조리 용어, 역할 낱말) / v5.3 (v9.10 2026-09-17 테스터 피드백: 포탑 정보창이 마우스를 따라다니며 커서 밑에 겹쳐 깜빡이고 클릭을 가로채던 것 ->
+/// [SlotMarkerUI.cs] v5.7 (v9.15 2026-09-29: 접시 곡선 표기 "(1/2)" / 파손 칩 "파손" + 파손 경고 깜빡임(BreakWarning) / 드래그 투입 - GameHUD 가 NearestMarker·SetDragHover 로 놓을 슬롯을 물어 금색 "여기에 놓기" / 강화 미리보기 GameBalance.LevelMultOf) / v5.6 (v9.14 2026-09-28: 레벨 상한 표시 "최대" + 강화 미리보기 상한, 진화 레벨 = 높은 쪽) / v5.5 (v9.12 2026-09-22: 체인 = "연쇄 번개") / v5.4 (v9.11.1 2026-09-22 문구: 마비 종류별 안내, 전설·진화 조리 용어, 역할 낱말) / v5.3 (v9.10 2026-09-17 테스터 피드백: 포탑 정보창이 마우스를 따라다니며 커서 밑에 겹쳐 깜빡이고 클릭을 가로채던 것 ->
 ///   화면 한 자리(왼쪽 아래, 하단 바 위) 고정 + 클릭 통과(raycastTarget off) + 합체 선택 중엔 고정 유지 / 포탑 실물 클릭·호버도 이름표와 같이 /
 ///   설명은 RecipeText 일상어 ("무엇을 하나 / 어떤 손님에 / 언제")) /
 /// v5.2 (v9.9.2 2026-09-16: 마비 칩 = "감전!/빙결!/과열!" + 할 일 한 줄, 빨간 테, 칩 위 모서리 경광등 0.3초 교대 (GameBalance.StunChipBeacons) - 목업 v3 (E), 정식 런 공용) / v5.1 (v9.9 2026-09-16: 4모서리 배치 - 남쪽 슬롯 마커는 발 아래, 폭 96->120(GameBalance.SlotMarkerWidth), 로비에서 숨김) / v5 (교수 피드백 A5/A12 반영 2026-09-14) / v4 (B-1: 근접 위기 대응 - 방향결정 2026-08-31)
@@ -64,11 +64,43 @@ public class SlotMarkerUI : MonoBehaviour
     private int worldHoverIndex = -1;                  // v5.3: 포탑 실물 위 호버 (UI 이름표가 아닌 월드)
 
     private static readonly Color BG_NORMAL = new Color(0.12f, 0.075f, 0.05f, 0.9f);
+    private static readonly Color BG_BROKEN = new Color(0.06f, 0.05f, 0.05f, 0.9f);       // v5.7
+    private static readonly Color BORDER_BROKEN = new Color(0.32f, 0.27f, 0.25f);
+    private static readonly Color BG_DROP = new Color(0.16f, 0.11f, 0.04f, 0.94f);
+
+    // ── v5.7: 드래그 투입 (GameHUD 가 매 프레임 알려준다) ──
+    private int dragHoverIndex = -1;
+    /// <summary>드래그 중 커서 아래 슬롯 (없으면 -1). 이름표가 "여기에 놓기"로 바뀐다</summary>
+    public void SetDragHover(int index) { dragHoverIndex = index; }
+
+    /// <summary>화면 좌표에서 radius(px) 안의 가장 가까운 마커 슬롯. 없으면 -1. 잠긴 슬롯·파손 슬롯은 제외.
+    /// 마커 칩과 포탑 실물(월드 자리) 둘 다 재서 어느 쪽이든 가까우면 그 슬롯</summary>
+    public int NearestMarker(Vector2 screenPos, float radius)
+    {
+        if (TurretSlotManager.Instance == null || Camera.main == null) return -1;
+        int best = -1; float bestD = radius;
+        for (int i = 0; i < 8; i++)
+        {
+            TurretSlot slot = TurretSlotManager.Instance.slots[i];
+            if (slot == null || slot.isLocked || slot.isBroken) continue;
+            if (markers[i] == null || !markers[i].gameObject.activeSelf) continue;
+            float d = Vector2.Distance(screenPos, (Vector2)markers[i].position);
+            Vector3 w = Camera.main.WorldToScreenPoint(slot.transform.position);
+            float d2 = Vector2.Distance(screenPos, new Vector2(w.x, w.y));
+            if (d2 < d) d = d2;
+            if (d < bestD) { bestD = d; best = i; }
+        }
+        return best;
+    }
     private static readonly Color BG_LOCKED = new Color(0.05f, 0.04f, 0.03f, 0.85f);
     private static readonly Color BORDER_LOCKED = new Color(0.3f, 0.26f, 0.22f);
 
+    /// <summary>v5.7: GameHUD 드래그 투입이 놓을 슬롯을 물어볼 때 쓴다</summary>
+    public static SlotMarkerUI Instance { get; private set; }
+
     void Start()
     {
+        Instance = this;
         canvas = UIFactory.CreateCanvas("SlotMarker_Canvas", 9); // HUD보다 아래
 
         for (int i = 0; i < 8; i++)
@@ -325,14 +357,34 @@ public class SlotMarkerUI : MonoBehaviour
                 markerBorders[i].color = BORDER_LOCKED;
                 markerBGs[i].color = BG_LOCKED;
             }
+            else if (slot.isBroken)
+            {
+                // v5.7: 파손 - 이번 운행 동안 봉인 (수리 스위치가 켜져 있으면 정비소 안내)
+                markerTexts[i].text = "파손\n" + (GameBalance.BrokenSlotRepairCost > 0 ? "(정비소 수리)" : "(이번 운행 못 씀)");
+                markerTexts[i].color = new Color(0.55f, 0.5f, 0.48f);
+                markerBorders[i].color = BORDER_BROKEN;
+                markerBGs[i].color = BG_BROKEN;
+            }
             else if (slot.IsEmpty)
             {
-                markerTexts[i].text = "+";
-                markerTexts[i].color = UIFactory.CREAM;
-                markerBGs[i].color = BG_NORMAL;
-                // 투입 모드일 때 금색 강조
-                markerBorders[i].color = string.IsNullOrEmpty(GameHUD.Instance != null ? GameHUD.Instance.placingRecipeId : "")
-                    ? UIFactory.DIM : UIFactory.GOLD;
+                bool placingNow = GameHUD.Instance != null && !string.IsNullOrEmpty(GameHUD.Instance.placingRecipeId);
+                bool dragging = GameHUD.Instance != null && GameHUD.Instance.DragActive;
+                if (dragging && i == dragHoverIndex)
+                {
+                    // v5.7: 드래그 중 이 슬롯 위 = 놓을 자리
+                    markerTexts[i].text = "여기에 놓기";
+                    markerTexts[i].color = UIFactory.GOLD;
+                    markerBGs[i].color = BG_DROP;
+                    markerBorders[i].color = UIFactory.GOLD;
+                }
+                else
+                {
+                    markerTexts[i].text = "+";
+                    markerTexts[i].color = UIFactory.CREAM;
+                    markerBGs[i].color = BG_NORMAL;
+                    // 투입 모드·드래그 중일 때 금색 강조
+                    markerBorders[i].color = (placingNow || dragging) ? UIFactory.GOLD : UIFactory.DIM;
+                }
             }
             else if (slot.IsStunned)
             {
@@ -353,6 +405,12 @@ public class SlotMarkerUI : MonoBehaviour
                     hint = i == reachStunIndex ? "[E] 털어라!" : "[E] 한 번";
                 markerTexts[i].text = slot.StunKind + "!\n" + hint;
                 markerBorders[i].color = BORDER_STUN;
+                // v5.7: 파손 경고 - 2줄이 "파손 n초 전!" 로 바뀌고 테가 빨강/흰색으로 깜빡인다
+                if (slot.BreakWarning)
+                {
+                    markerTexts[i].text = slot.StunKind + "! 파손 " + Mathf.CeilToInt(slot.BreakSecLeft) + "초 전\n" + hint;
+                    markerBorders[i].color = (Mathf.FloorToInt(Time.unscaledTime * 6f) % 2 == 0) ? new Color(1f, 0.95f, 0.9f) : BORDER_STUN;
+                }
                 if (overheated)
                 {
                     markerTexts[i].color = new Color(1f, 0.62f, 0.35f);
@@ -372,12 +430,23 @@ public class SlotMarkerUI : MonoBehaviour
             else
             {
                 RecipeData r = slot.Recipe;
-                markerTexts[i].text = r.displayName + "\n" + slot.GradeName + " Lv" + slot.level + (slot.AtMaxLevel ? " 최대" : "");   // v5.6: 상한 표시
+                // v5.7: 접시 곡선 - 다음 레벨을 향해 넣은 접시 "(1/2)"
+                string plates = slot.platesIn > 0 ? " (" + slot.platesIn + "/" + GameBalance.PlatesToNext(slot.level) + ")" : "";
+                markerTexts[i].text = r.displayName + "\n" + slot.GradeName + " Lv" + slot.level + (slot.AtMaxLevel ? " 최대" : plates);   // v5.6: 상한 표시
                 markerTexts[i].color = UIFactory.CREAM;
                 markerBGs[i].color = BG_NORMAL;
 
+                // v5.7: 같은 요리를 끌고 와 이 위에 있으면 "놓으면 접시 +1"
+                bool dragSame = GameHUD.Instance != null && GameHUD.Instance.DragActive && i == dragHoverIndex && GameHUD.Instance.DragRecipeId == slot.recipeId;
+                if (dragSame)
+                {
+                    markerTexts[i].text = r.displayName + "\n놓기 = 접시 +1";
+                    markerTexts[i].color = UIFactory.GOLD;
+                    markerBGs[i].color = BG_DROP;
+                }
+
                 // 합체 선택된 슬롯은 금색 강조
-                if (i == mergeSelectIndex)
+                if (i == mergeSelectIndex || dragSame)
                     markerBorders[i].color = UIFactory.GOLD;
                 else
                     markerBorders[i].color = r.tier == 2 ? UIFactory.T2PINK : UIFactory.GradeColor(slot.GradeName);
@@ -578,6 +647,7 @@ public class SlotMarkerUI : MonoBehaviour
         // v5.3: 일상어 설명 (RecipeText) - 역할 낱말 / 무엇을 하나 / 어떤 손님에 / 언제 / 숫자
         string info = r.displayName + (r.tier == 2 ? "  [전설]" : "") + "   " + RecipeText.RoleWord(r) + "  Lv" + slot.level + (slot.AtMaxLevel ? " (최대)" : "") + " (x" + slot.LevelMult.ToString("F1") + (r.tier >= 2 && GameBalance.T2DamageMul != 1f ? " · 전설 x" + GameBalance.T2DamageMul.ToString("F1") : "") + ")\n";
         info += RecipeText.Full(r, slot.LevelMult) + "\n";
+        if (!slot.AtMaxLevel && GameBalance.PlatesCurveOn) info += "다음 레벨까지 같은 접시 " + slot.PlatesLeft + "장 (Lv" + (slot.level + 1) + " = x" + GameBalance.LevelMultOf(slot.level + 1).ToString("F1") + ")\n";   // v5.7
 
         // P1+: 요리 숙련 표시 (평생 조리 횟수 + 칭호) - 일상어
         int cookCount = MetaProgress.GetCookCount(r.recipeId);
@@ -625,7 +695,7 @@ public class SlotMarkerUI : MonoBehaviour
             int cnt = mgr.GetTagCount(ra.tag);
             string s = "[강화] " + ra.displayName + "\n";
             s += "Lv" + a.level + " + Lv" + b.level + " -> Lv" + merged + (cap > 0 && merged >= cap ? " (최대)" : "") + " (" + GradeOf(merged) + "등급, x"
-                + (1f + 0.6f * (merged - 1)).ToString("F1") + "배)\n";
+                + GameBalance.LevelMultOf(merged).ToString("F1") + "배)\n";   // v5.7: 체감 곡선
             s += "슬롯 1개 비움 / 공격원 2 -> 1\n";
             s += "공명 " + mgr.TagName(ra.tag) + " " + cnt + " -> " + (cnt - 1)
                 + (cnt >= GameBalance.ResonanceCount && cnt - 1 < GameBalance.ResonanceCount ? "  (공명 해제!)" : "") + "\n";

@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 /// <summary>
-/// [TutorialDirector.cs] v2 (v9.12 2026-09-22: 견습 운행 구간화 - 7구간(S1 이동과 첫 포탑 1~6 / S2 감전된 포탑 복구 7 / S3 작살로 재료 얻기 8 / S4 전속 주행 켜고 끄기 9 /
+/// [TutorialDirector.cs] v2.1 (v9.15 2026-09-29 2차 피드백 "훈련장 무한 반복·맨땅 연습": 구간 완료 카드 [R] 한 번 더(PendingSegment - 씬 리로드 뒤 자동 시작) / 자유 연습 Begin(SANDBOX=8) - 손님이 계속 오고(SandboxSpawn*) 재료가 안 떨어지고 기차가 안 죽는다, [1] 낙뢰 [2] 화재 [3] 흘림 [4] 고장 [5] 침입 을 직접 일으킨다, 나가기 = [ESC] 메뉴 그만두기. SandboxActive 동안 포탑 파손도 진짜로 일어난다) / v2 (v9.12 2026-09-22: 견습 운행 구간화 - 7구간(S1 이동과 첫 포탑 1~6 / S2 감전된 포탑 복구 7 / S3 작살로 재료 얻기 8 / S4 전속 주행 켜고 끄기 9 /
 ///   S5 요리하며 기차 지키기 10 / S6 증강 선택과 정비 11 / S7 미끼로 첫 보스 상대하기 12(신규)) + 마지막 앞길 카드 13. Begin(segment) 로 한 구간만 (훈련장 TrainingGroundUI),
 ///   구간마다 PlayerPrefs WDT_Tut_S1..S7 = 1 완료 / 2 건너뜀. 정식 운행 인라인 연습 PlayInline(seg) - 새 기믹 첫 등장 순간(협곡 낙뢰 / 첫 바위 / 레버 웨이브) 손님·스폰·사고·포탑을 멈추고(InlineFreeze)
 ///   셰프만 움직여 그 행동을 해낸다. 30초 = 힌트 추가(자동 통과 없음), [Enter] = 건너뛰기(기록 2). 큰 카드 540x250 = 연습·예습, 목표 카드 330x156 은 그대로 (목업 v4.2).
@@ -40,6 +40,15 @@ public class TutorialDirector : MonoBehaviour
 
     /// <summary>v2: 정식 운행 안에서 인라인 연습 진행 중 (카드·마커·Enter 건너뛰기가 산다)</summary>
     public static bool InlineActive { get; private set; }
+
+    /// <summary>v2.1: 자유 연습(훈련장 8) 진행 중. Active 도 같이 true. 포탑 파손·사고 강제 발생이 여기서만 열린다</summary>
+    public static bool SandboxActive { get; private set; }
+
+    /// <summary>v2.1: 구간 완료 카드 [R] - 씬이 다시 뜨면 이 구간을 자동으로 시작한다 (-1 = 없음)</summary>
+    public static int PendingSegment = -1;
+
+    /// <summary>v2.1: 훈련장 8번째 줄 = 자유 연습</summary>
+    public const int SANDBOX = 8;
 
     /// <summary>v2: 인라인 연습 동안 손님·보스·스폰·사고 타이머·포탑 사격·탄이 쉰다 (셰프·조리·[E] 는 그대로)</summary>
     public static bool InlineFreeze { get; private set; }
@@ -252,7 +261,7 @@ public class TutorialDirector : MonoBehaviour
     private void OnDestroy()
     {
         SceneManager.sceneLoaded -= OnSceneLoaded;
-        if (Instance == this) { Instance = null; Active = false; InlineActive = false; InlineFreeze = false; }
+        if (Instance == this) { Instance = null; Active = false; InlineActive = false; InlineFreeze = false; SandboxActive = false; }
     }
 
     /// <summary>씬이 다시 로드되면 진행 중이던 견습 운행·인라인 연습은 조용히 끝난다 (런 포기/재시작/EndTutorial 전부)</summary>
@@ -262,6 +271,7 @@ public class TutorialDirector : MonoBehaviour
         if (inlineRoutine != null) { StopCoroutine(inlineRoutine); inlineRoutine = null; }
         Active = false;
         InlineActive = false; InlineFreeze = false;
+        SandboxActive = false;
         BlockAmbient = true;
         EngineCabUnlocked = false;
         godMode = false;
@@ -270,6 +280,27 @@ public class TutorialDirector : MonoBehaviour
         frozenEnemies = new Enemy[0];
         HideFreezePlates();
         if (cardRoot != null) cardRoot.SetActive(false);
+
+        // v2.1: [R] 한 번 더 - 로비가 서면 같은 구간을 바로 시작
+        if (PendingSegment > 0) StartCoroutine(AutoBeginAfterReload(PendingSegment));
+        PendingSegment = -1;
+    }
+
+    /// <summary>v2.1: 씬 리로드 뒤 GameManager 가 로비 상태가 되기를 기다렸다가 Begin(seg)</summary>
+    private IEnumerator AutoBeginAfterReload(int seg)
+    {
+        float until = Time.unscaledTime + 5f;
+        while (Time.unscaledTime < until)
+        {
+            yield return null;
+            if (GameManager.Instance != null && GameManager.Instance.currentState == GameManager.GameState.Lobby && !Active) break;
+        }
+        yield return null; yield return null;   // 로비 UI 가 서도록 두 프레임
+        if (!Active && GameManager.Instance != null && GameManager.Instance.currentState == GameManager.GameState.Lobby)
+        {
+            Debug.Log("[Tutorial] [R] 한 번 더 - 구간 " + seg + " 자동 시작");
+            Begin(seg);
+        }
     }
 
     // ─────────────────────────────────────────────
@@ -285,16 +316,17 @@ public class TutorialDirector : MonoBehaviour
         if (Instance == null || Active || InlineActive) return;
         if (GameManager.Instance == null || GameManager.Instance.currentState != GameManager.GameState.Lobby) return;
         if (!GameBalance.TutorialRunEnabled) return;
-        if (segment < 0 || segment > SEGMENTS) segment = 0;
+        if (segment < 0 || segment > SANDBOX) segment = 0;
 
         Active = true;
+        SandboxActive = segment == SANDBOX;
         BlockAmbient = true;
         EngineCabUnlocked = false;
         Instance.runSegment = segment;
         BriefingUI.ClearQueue();
         GameManager.Instance.StartTutorial();          // Battle 상태로 (웨이브 시작 없음)
-        Instance.runRoutine = Instance.StartCoroutine(Instance.Run());
-        Debug.Log("[Tutorial] 견습 운행 시작 (구간 " + (segment == 0 ? "전부" : segment.ToString()) + ")");
+        Instance.runRoutine = Instance.StartCoroutine(segment == SANDBOX ? Instance.RunSandbox() : Instance.Run());
+        Debug.Log("[Tutorial] 견습 운행 시작 (구간 " + (segment == 0 ? "전부" : segment == SANDBOX ? "자유 연습" : segment.ToString()) + ")");
     }
 
     /// <summary>일시정지 메뉴 "견습 운행 그만두기": 완료 기록 없이 로비로</summary>
@@ -316,6 +348,7 @@ public class TutorialDirector : MonoBehaviour
     {
         if (runRoutine != null) { StopCoroutine(runRoutine); runRoutine = null; }
         Active = false;
+        SandboxActive = false;
         BlockAmbient = true;
         EngineCabUnlocked = false;
         godMode = false;
@@ -357,8 +390,8 @@ public class TutorialDirector : MonoBehaviour
             // 우상단 판 글자: 웨이브 대신 "견습 운행", 상태 "견습 중" (UIManager.Update 가 매 프레임 덮어쓰므로 LateUpdate 에서 다시)
             if (um != null)
             {
-                if (um.waveText != null) um.waveText.text = runSegment == 0 ? "견습 운행" : "훈련장  구간 " + runSegment;
-                if (um.stateText != null) um.stateText.text = "견습 중  " + StepPos(step) + " / " + runSteps.Count;
+                if (um.waveText != null) um.waveText.text = runSegment == 0 ? "견습 운행" : runSegment == SANDBOX ? "자유 연습" : "훈련장  구간 " + runSegment;
+                if (um.stateText != null) um.stateText.text = runSegment == SANDBOX ? "연습 중  (나가기 = [ESC] 메뉴)" : "견습 중  " + StepPos(step) + " / " + runSteps.Count;
             }
         }
         else if (um != null && um.stateText != null)
@@ -991,13 +1024,155 @@ public class TutorialDirector : MonoBehaviour
             done = BriefingTexts.TutorialSegmentDone(SEGMENT_TABLE[runSegment - 1].title, seconds, skips > 0);
         }
 
-        bool closed = false;
+        bool closed = false, again = false;
         done.onClose = delegate { closed = true; };
+        if (runSegment > 0 && GameBalance.TrainingRepeatKey)
+        {
+            // v2.1: [R] 한 번 더 - 로비를 안 거치고 같은 구간을 다시 (씬 리로드 뒤 자동 시작)
+            done.altKey = KeyCode.R;
+            done.altHint = "[R] 한 번 더";
+            done.onAlt = delegate { again = true; closed = true; };
+        }
         BriefingUI.Show(done);
         while (!closed) yield return null;
+        if (again) PendingSegment = runSegment;
 
         Teardown();
         if (GameManager.Instance != null) GameManager.Instance.EndTutorial();
+    }
+
+    // ─────────────────────────────────────────────
+    // v2.1: 자유 연습 (훈련장 8) - 배그 훈련장처럼. 끝이 없다: 나가기는 [ESC] 메뉴 "그만두기"
+    //   손님: SandboxSpawnGap 마다 SandboxSpawnCount 마리 (살아 있는 수가 SandboxMaxAlive 면 쉼), 세 번에 한 번 프테라 1
+    //   재료: 6종이 SandboxMaterialFloor 밑으로 내려가면 채움 / 기차: HP 가 SandboxTrainHealBelow 밑이면 가득 (멈춰도 GameManager 가 고친다)
+    //   사고: [1] 낙뢰(가동 포탑 감전) [2] 화재 [3] 흘림 [4] 고장 [5] 침입 - KitchenEventManager.ForceEvent / [6] 과열(TurretSlot.ForceOverheat). 파손(과열 방치)도 진짜로 일어난다
+    // ─────────────────────────────────────────────
+    private IEnumerator RunSandbox()
+    {
+        yield return null;
+        runStartTime = Time.unscaledTime;
+        skips = 0; trainStoppedFlag = false;
+        godMode = false;
+        runSteps.Clear();
+        step = 0;
+
+        // 시작 상태: 첫 포탑 + 보급 접시 1 + 재료 + 기관실 개방
+        TurretSlot first = SlotAt(0);
+        if (first != null && first.IsEmpty && !first.isLocked) first.TryInsertFood(STARTER_RECIPE);
+        if (FoodStock.Instance != null && FoodStock.Instance.Get(STARTER_RECIPE) < 1) FoodStock.Instance.Add(STARTER_RECIPE, 1);
+        TopUpMaterials();
+        EngineCabUnlocked = true;
+        if (KitchenEventManager.Instance != null) BlockAmbient = true;   // 무작위 사고는 안 온다 - 키로만
+
+        yield return Brief(BriefingTexts.SandboxIntro());
+        ShowCard(0, "자유 연습", SandboxLines(), null, 0, 0, "연습");
+        SetFooter("", "");
+        UIManager.Instance?.ShowStatChange("[자유 연습] 손님이 계속 온다. 재료는 안 떨어지고 기차는 안 죽는다");
+
+        float nextSpawn = Time.time + 2f;
+        int spawnCount = 0;
+        List<Enemy> alive = new List<Enemy>();
+        while (true)
+        {
+            // 손님
+            alive.RemoveAll(delegate (Enemy e) { return e == null || !e.IsAlive; });
+            if (Time.time >= nextSpawn && alive.Count < Mathf.Max(1, GameBalance.SandboxMaxAlive) && WaveManager.Instance != null)
+            {
+                nextSpawn = Time.time + Mathf.Max(1f, GameBalance.SandboxSpawnGap);
+                spawnCount++;
+                float dist = TailSpawnDistance();
+                List<Enemy> a = WaveManager.Instance.SpawnForTutorial("raptor", Mathf.Max(1, GameBalance.SandboxSpawnCount), 1f, 0f, dist);
+                if (a != null) alive.AddRange(a);
+                if (spawnCount % 3 == 0)
+                {
+                    List<Enemy> b = WaveManager.Instance.SpawnForTutorial("ptera", 1, 1f, 0f, dist + 2.5f);
+                    if (b != null) alive.AddRange(b);
+                }
+            }
+
+            // 재료·기차
+            TopUpMaterials();
+            if (TrainManager.Instance != null && TrainManager.Instance.HPRatio < GameBalance.SandboxTrainHealBelow)
+            {
+                TrainManager.Instance.Heal(TrainManager.Instance.currentMaxHP);
+                UIManager.Instance?.ShowStatChange("[자유 연습] 기차를 고쳤다 - 진짜 운행이었으면 멈췄다");
+            }
+            if (trainStoppedFlag)
+            {
+                trainStoppedFlag = false;
+                UIManager.Instance?.ShowStatChange("[자유 연습] 기차가 멈췄다 - 여기선 바로 고친다");
+            }
+
+            // 사고 키 (창이 떠 있거나 조리 중이면 무시)
+            if (!BriefingUI.IsOpen && !PauseMenu.IsOpen && !CookingMinigame.IsActive && !KitchenPanel.IsOpenStatic && !WorkshopUI.IsOpen && !AugmentListUI.ReadingOpen)
+            {
+                if (Input.GetKeyDown(KeyCode.Alpha1)) SandboxLightning();
+                else if (Input.GetKeyDown(KeyCode.Alpha2)) SandboxEvent(2);
+                else if (Input.GetKeyDown(KeyCode.Alpha3)) SandboxEvent(3);
+                else if (Input.GetKeyDown(KeyCode.Alpha4)) SandboxEvent(4);
+                else if (Input.GetKeyDown(KeyCode.Alpha5)) SandboxEvent(5);
+                else if (Input.GetKeyDown(KeyCode.Alpha6)) SandboxOverheat();
+            }
+            if (linesText != null && cardRoot != null && cardRoot.activeSelf) linesText.text = SandboxLines();
+            yield return null;
+        }
+    }
+
+    private static string SandboxLines()
+    {
+        bool busy = KitchenEventManager.Instance != null && KitchenEventManager.Instance.EventRunning;
+        return "[1] 낙뢰   [2] 화재   [3] 재료 흘림\n[4] 기구 고장   [5] 침입   [6] 과열" + (busy ? "   (사고 진행 중)" : "") + "\n[ESC] 메뉴 - 그만두기 = 로비로";
+    }
+
+    /// <summary>6종 재료가 바닥 밑이면 채운다</summary>
+    private static void TopUpMaterials()
+    {
+        if (MaterialInventory.Instance == null) return;
+        int floor = Mathf.Max(1, GameBalance.SandboxMaterialFloor);
+        foreach (MaterialType t in System.Enum.GetValues(typeof(MaterialType)))
+        {
+            int have = MaterialInventory.Instance.Get(t);
+            if (have < floor) MaterialInventory.Instance.Add(t, floor - have);
+        }
+    }
+
+    /// <summary>[1] 낙뢰: 가동 중인 포탑 하나를 감전 (협곡 낙뢰와 같은 연출·시간)</summary>
+    private static void SandboxLightning()
+    {
+        if (TurretSlotManager.Instance == null) return;
+        List<TurretSlot> cand = new List<TurretSlot>();
+        for (int i = 0; i < TurretSlotManager.Instance.slots.Length; i++)
+        {
+            TurretSlot s = TurretSlotManager.Instance.slots[i];
+            if (s != null && !s.IsEmpty && !s.isLocked && !s.IsStunned && !s.isBroken) cand.Add(s);
+        }
+        if (cand.Count == 0) { UIManager.Instance?.ShowStatChange("[자유 연습] 감전시킬 포탑이 없다 - 요리를 먼저 넣어라"); return; }
+        TurretSlot target = cand[Random.Range(0, cand.Count)];
+        LightningFx();
+        target.StunSlot(GameBalance.LightningStunSec, "감전");
+        UIManager.Instance?.ShowDanger("[낙뢰] 포탑이 감전됐다 - 곁에서 [E] 한 번 (가만두면 " + Mathf.RoundToInt(GameBalance.LightningStunSec) + "초 못 쏜다)");
+    }
+
+    /// <summary>[6] 과열: 가동 중인 포탑 하나를 지금 과열시킨다 - 식힐 때까지 멈추고, StunBreakSec 방치하면 파손 (파손을 눈으로 보는 길)</summary>
+    private static void SandboxOverheat()
+    {
+        if (TurretSlotManager.Instance == null) return;
+        List<TurretSlot> cand = new List<TurretSlot>();
+        for (int i = 0; i < TurretSlotManager.Instance.slots.Length; i++)
+        {
+            TurretSlot s = TurretSlotManager.Instance.slots[i];
+            if (s != null && !s.IsEmpty && !s.isLocked && !s.IsStunned && !s.isBroken) cand.Add(s);
+        }
+        if (cand.Count == 0) { UIManager.Instance?.ShowStatChange("[자유 연습] 과열시킬 포탑이 없다 - 요리를 먼저 넣어라"); return; }
+        cand[Random.Range(0, cand.Count)].ForceOverheat();
+        UIManager.Instance?.ShowDanger("[과열] 곁에서 [E] 를 누른 채 마우스를 움직여 식혀라. " + Mathf.RoundToInt(GameBalance.StunBreakSec) + "초 두면 파손");
+    }
+
+    private static void SandboxEvent(int kind)
+    {
+        if (KitchenEventManager.Instance == null) { UIManager.Instance?.ShowStatChange("[자유 연습] 사고 시스템이 없다"); return; }
+        if (KitchenEventManager.Instance.EventRunning) { UIManager.Instance?.ShowStatChange("[자유 연습] 사고가 진행 중이다 - 먼저 해결"); return; }
+        KitchenEventManager.Instance.ForceEvent(kind);
     }
 
     // ─────────────────────────────────────────────

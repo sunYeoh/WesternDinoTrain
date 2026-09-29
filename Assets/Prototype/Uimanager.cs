@@ -4,7 +4,7 @@ using UnityEngine.UI;
 using TMPro;
 
 /// <summary>
-/// [UIManager.cs] v3.1 (v9.11 2026-09-22 타격감: 기차 HP 바 지연 잔량(빨간 띠가 0.5초 뒤 따라 내려온다, 회복은 즉시) / 웨이브 예고·클리어 문구 위에서 내려오며 팝, 새 문구가 오면 이전 문구 즉시 교체) / v3
+/// [UIManager.cs] v3.2 (v9.15 2026-09-29 HUD 재배치 GameBalance.HudRegroup: 우상단 정보 2줄(UISkin.InfoLine1/2 - 손님 남음·보스까지 / 지역·예고) 0.25초마다, 알림 로그 스택을 우상단 판 아래(앵커 (1,1))로) / v3.1 (v9.11 2026-09-22 타격감: 기차 HP 바 지연 잔량(빨간 띠가 0.5초 뒤 따라 내려온다, 회복은 즉시) / 웨이브 예고·클리어 문구 위에서 내려오며 팝, 새 문구가 오면 이전 문구 즉시 교체) / v3
 /// 게임 HUD 전체를 담당하는 UI 관리 스크립트입니다.
 /// - v3 변경점 (P1: 알림 채널 2분리 - 기술감사 처방):
 ///   1) ShowStatChange가 "우측 로그 스택"으로 개조 - 여러 알림이 겹쳐도 씹히지 않고
@@ -212,6 +212,46 @@ public class UIManager : MonoBehaviour
 
         if (waveText != null)
             waveText.text = "Wave  " + gameManager.currentWave;
+
+        RefreshInfoLines();   // v3.2
+    }
+
+    // ── v3.2: 우상단 정보 2줄 (HUD 재배치) ──
+    private float infoRefreshAt = 0f;
+    private static readonly string[] REGION_NAMES = { "", "구리 사막", "테슬라 협곡", "코발트 광산", "황야의 끝" };
+
+    /// <summary>손님 남음·보스까지 / 지역·예고. 0.25초마다 (손님 수는 FindObjectsByType). 견습·로비에선 비운다</summary>
+    private void RefreshInfoLines()
+    {
+        if (UISkin.InfoLine1 == null || UISkin.InfoLine2 == null) return;
+        if (Time.unscaledTime < infoRefreshAt) return;
+        infoRefreshAt = Time.unscaledTime + 0.25f;
+
+        bool battle = gameManager.currentState == GameManager.GameState.Battle || gameManager.currentState == GameManager.GameState.Town;
+        if (!battle || TutorialDirector.Active)
+        {
+            UISkin.InfoLine1.text = TutorialDirector.Active ? "" : "";
+            UISkin.InfoLine2.text = "";
+            return;
+        }
+
+        int wave = Mathf.Max(1, gameManager.currentWave);
+        int alive = 0; bool boss = false;
+        Enemy[] all = FindObjectsByType<Enemy>(FindObjectsSortMode.None);
+        for (int i = 0; i < all.Length; i++)
+        {
+            if (!all[i].IsAlive) continue;
+            alive++;
+            if (all[i] is BossEnemy) boss = true;
+        }
+        int nextBoss = wave;
+        while (!GameBalance.IsBossWave(nextBoss) && nextBoss < GameBalance.FinalWave) nextBoss++;
+        string toBoss = GameBalance.IsBossWave(wave) ? (boss ? "보스와 싸우는 중" : "보스 라운드") : "보스까지 " + (nextBoss - wave) + " 라운드";
+        UISkin.InfoLine1.text = (gameManager.currentState == GameManager.GameState.Town ? "정차 중" : "손님 남음 " + alive) + "  /  " + toBoss;
+
+        int region = Mathf.Clamp(GameBalance.RegionOf(wave), 1, 4);
+        string hazard = region == GameBalance.AmbientLightningRegion && !GameBalance.IsBossWave(wave) ? " - 낙뢰가 친다" : "";
+        UISkin.InfoLine2.text = "지역 " + region + " " + REGION_NAMES[region] + hazard;
     }
 
     // ─────────────────────────────────────────────
@@ -330,10 +370,21 @@ public class UIManager : MonoBehaviour
         {
             Text t = KitchenEventManager.MakeText(canvasGo.transform, "Log" + i, "", 19, LOG_NORMAL);
             RectTransform rt = t.rectTransform;
-            rt.anchorMin = new Vector2(1f, 0.5f);
-            rt.anchorMax = new Vector2(1f, 0.5f);
-            rt.pivot = new Vector2(1f, 1f);
-            rt.anchoredPosition = new Vector2(-14f, 200f - i * 28f);   // 우측, 위에서 아래로
+            if (GameBalance.HudRegroup)
+            {
+                // v3.2: 우상단 정보 판(150) 바로 아래 - "정보는 오른쪽 위에" (테스터 09-29)
+                rt.anchorMin = new Vector2(1f, 1f);
+                rt.anchorMax = new Vector2(1f, 1f);
+                rt.pivot = new Vector2(1f, 1f);
+                rt.anchoredPosition = new Vector2(-16f, -172f - i * 28f);
+            }
+            else
+            {
+                rt.anchorMin = new Vector2(1f, 0.5f);
+                rt.anchorMax = new Vector2(1f, 0.5f);
+                rt.pivot = new Vector2(1f, 1f);
+                rt.anchoredPosition = new Vector2(-14f, 200f - i * 28f);   // 우측, 위에서 아래로
+            }
             rt.sizeDelta = new Vector2(560f, 26f);
             t.alignment = TextAnchor.MiddleRight;
             t.horizontalOverflow = HorizontalWrapMode.Overflow;

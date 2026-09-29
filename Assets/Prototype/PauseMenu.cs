@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// [PauseMenu.cs] v1.6 (v9.12 2026-09-22: 훈련장 창이 떠 있으면 ESC 양보) / v1.5 (v9.11.1 2026-09-22 문구) / v1.4 (v9.11 2026-09-22: 등장 연출 ModalFeel) / v1.3 (v9.10 2026-09-17: 주방 패널(Tab)·정비소(G)가 열려 있으면 ESC 는 그 창을 닫는 용도 - 일시정지 안 열림) / v1.2 (v9.9 2026-09-16: 견습 운행 중엔 "런 포기" 대신 "견습 운행 그만두기", 브리핑 카드 위에선 안 열림) / v1.1 (교수 피드백 A10 반영 2026-09-14) / v1
+/// [PauseMenu.cs] v1.7 (v9.15 2026-09-29: [설정] 버튼 - SettingsUI(화면·소리·언어). 설정창이 떠 있으면 ESC 양보. 본체 380 -> 460) / v1.6 (v9.12 2026-09-22: 훈련장 창이 떠 있으면 ESC 양보) / v1.5 (v9.11.1 2026-09-22 문구) / v1.4 (v9.11 2026-09-22: 등장 연출 ModalFeel) / v1.3 (v9.10 2026-09-17: 주방 패널(Tab)·정비소(G)가 열려 있으면 ESC 는 그 창을 닫는 용도 - 일시정지 안 열림) / v1.2 (v9.9 2026-09-16: 견습 운행 중엔 "런 포기" 대신 "견습 운행 그만두기", 브리핑 카드 위에선 안 열림) / v1.1 (교수 피드백 A10 반영 2026-09-14) / v1
 /// ESC 일시정지 메뉴: 계속하기 / 런 포기(재시작) / 게임 종료
 /// - v1.2: TutorialDirector.Active 면 가운데 버튼이 "견습 운행 그만두기" -> TutorialDirector.Quit() (완료 기록 없이 로비)
 /// - v1.1: 열람 패널(증강 목록 [V] / 일지 [J])이 열려 있으면 ESC는 그쪽 닫기에 양보
@@ -39,6 +39,8 @@ public class PauseMenu : MonoBehaviour
     void Update()
     {
         if (!Input.GetKeyDown(KeyCode.Escape)) return;
+        if (SettingsUI.IsOpen) return;                          // v1.7: 설정창이 ESC 로 먼저 닫힌다
+        if (CookingMinigame.EscConsumedFrame == Time.frameCount) return;   // 같은 프레임에 설정창이 닫혔다
 
         if (isOpen)
         {
@@ -73,7 +75,7 @@ public class PauseMenu : MonoBehaviour
         Time.timeScale = 0f;
         // v1.2: 견습 운행 중이면 가운데 버튼 글자를 바꾼다
         if (giveUpLabel != null)
-            giveUpLabel.text = TutorialDirector.Active ? "견습 운행 그만두기" : "이번 운행 포기 (다시 시작)";
+            giveUpLabel.text = TutorialDirector.SandboxActive ? "자유 연습 그만두기 (로비로)" : TutorialDirector.Active ? "견습 운행 그만두기" : "이번 운행 포기 (다시 시작)";   // v1.7: 자유 연습
     }
 
     private Text giveUpLabel;   // v1.2: 가운데 버튼 글자 (런 포기 / 견습 운행 그만두기)
@@ -146,7 +148,7 @@ public class PauseMenu : MonoBehaviour
         body.anchorMin = new Vector2(0.5f, 0.5f);
         body.anchorMax = new Vector2(0.5f, 0.5f);
         body.anchoredPosition = Vector2.zero;
-        body.sizeDelta = new Vector2(420f, 380f);
+        body.sizeDelta = new Vector2(420f, 460f);   // v1.7: 버튼 4개
 
         Text title = KitchenEventManager.MakeText(body, "Title", "일시 정지", 30, new Color(1f, 0.85f, 0.4f));
         RectTransform tRt = title.rectTransform;
@@ -156,18 +158,22 @@ public class PauseMenu : MonoBehaviour
         tRt.anchoredPosition = new Vector2(0f, -24f);
         tRt.sizeDelta = new Vector2(0f, 40f);
 
-        // 버튼 3개
+        // 버튼 4개 (v1.7: 설정 추가)
         Button resumeBtn = KitchenEventManager.MakeButton(body, "계속하기 (ESC)",
-            new Color(0.25f, 0.42f, 0.25f, 1f), new Vector2(0f, 20f), new Vector2(320f, 60f));
+            new Color(0.25f, 0.42f, 0.25f, 1f), new Vector2(0f, 60f), new Vector2(320f, 60f));
         resumeBtn.onClick.AddListener(delegate { Close(); });
 
+        Button settingsBtn = KitchenEventManager.MakeButton(body, "설정  (화면 · 소리 · 언어)",
+            new Color(0.30f, 0.30f, 0.36f, 1f), new Vector2(0f, -20f), new Vector2(320f, 60f));
+        settingsBtn.onClick.AddListener(delegate { SettingsUI.Toggle(); });
+
         Button giveUpBtn = KitchenEventManager.MakeButton(body, "이번 운행 포기 (다시 시작)",
-            new Color(0.45f, 0.32f, 0.18f, 1f), new Vector2(0f, -60f), new Vector2(320f, 60f));
+            new Color(0.45f, 0.32f, 0.18f, 1f), new Vector2(0f, -100f), new Vector2(320f, 60f));
         giveUpBtn.onClick.AddListener(delegate { GiveUpRun(); });
         giveUpLabel = giveUpBtn.GetComponentInChildren<Text>();   // v1.2: 글자 교체용
 
         Button quitBtn = KitchenEventManager.MakeButton(body, "게임 종료",
-            new Color(0.45f, 0.22f, 0.18f, 1f), new Vector2(0f, -140f), new Vector2(320f, 60f));
+            new Color(0.45f, 0.22f, 0.18f, 1f), new Vector2(0f, -180f), new Vector2(320f, 60f));
         quitBtn.onClick.AddListener(delegate { QuitGame(); });
     }
 }

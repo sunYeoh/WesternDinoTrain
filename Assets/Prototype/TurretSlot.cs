@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// [TurretSlot.cs] v6.8 (v9.14 2026-09-28 테스터 반영: 레벨 상한 T1 3 / T2 6 (MaxLevelOf·AtMaxLevel), 전설 요리 공격력 x T2DamageMul, 표적 고르기에서 곧 죽을 손님 건너뜀(IncomingDamage)) / v6.7 (v9.12 2026-09-22: TutorialDirector.InlineFreeze 동안 사격 정지) / v6.6 (v9.11.1 2026-09-22 문구: 과열 복구법) / v6.5 (v9.11 2026-09-22 타격감: 투입·레벨업 때 접시 낙하 + 링 + "배치!/Lv N" 팝 + 포탑 1.25배 튀기 - GameBalance.CookFeelOn) / v6.4 (v9.9.2 2026-09-16: 마비 FX - 감전·빙결 = 스파크 3점(ui_ev_spark_0/1 교대, 빙결은 얼음색), 과열 = 연기(ui_ev_smoke_0/1). GameBalance.TurretStunFx) / v6.3 (v9.9 2026-09-16: 남쪽 슬롯 포신 기본 방향 -90 = 남쪽 - 4모서리 배치) / v6.2 (런 통계: 과열 횟수·정지 시간 2026-09-14) / v6.1 (교수 피드백 반영 2026-09-14) / v6 (고퀄 PNG 적용 2026-09-03)
+/// [TurretSlot.cs] v6.9 (v9.15 2026-09-29 2차 피드백: 레벨 상한 해제 - 접시 곡선(platesIn / GameBalance.PlatesToNext)·레벨 체감(GameBalance.LevelMultOf) / 마비 방치 파손(StunBreakSec - 경고 뒤 요리 소실 + 슬롯 봉인, isBroken / BreakWarning / Repair)) / v6.8 (v9.14 2026-09-28 테스터 반영: 레벨 상한 T1 3 / T2 6 (MaxLevelOf·AtMaxLevel), 전설 요리 공격력 x T2DamageMul, 표적 고르기에서 곧 죽을 손님 건너뜀(IncomingDamage)) / v6.7 (v9.12 2026-09-22: TutorialDirector.InlineFreeze 동안 사격 정지) / v6.6 (v9.11.1 2026-09-22 문구: 과열 복구법) / v6.5 (v9.11 2026-09-22 타격감: 투입·레벨업 때 접시 낙하 + 링 + "배치!/Lv N" 팝 + 포탑 1.25배 튀기 - GameBalance.CookFeelOn) / v6.4 (v9.9.2 2026-09-16: 마비 FX - 감전·빙결 = 스파크 3점(ui_ev_spark_0/1 교대, 빙결은 얼음색), 과열 = 연기(ui_ev_smoke_0/1). GameBalance.TurretStunFx) / v6.3 (v9.9 2026-09-16: 남쪽 슬롯 포신 기본 방향 -90 = 남쪽 - 4모서리 배치) / v6.2 (런 통계: 과열 횟수·정지 시간 2026-09-14) / v6.1 (교수 피드백 반영 2026-09-14) / v6 (고퀄 PNG 적용 2026-09-03)
 /// 포탑 슬롯 1개. 요리를 투입하면 포탑으로 가동한다.
 /// - v6.2 변경점 (스위치 실험 지표 - 반영계획 §5 관찰 시트):
 ///   OverheatsThisRun / OverheatStunSecThisRun: 이번 런에 과열이 몇 번 났고, 과열로 포탑이 전투 중 몇 초 멈춰 있었는지.
@@ -36,6 +36,16 @@ public class TurretSlot : MonoBehaviour
     public string recipeId = "";   // 투입된 요리 키 ("" = 빈 슬롯)
     public int level = 0;          // 현재 레벨
     public bool isLocked = false;  // 잠금 슬롯 (증강 '증축된 주방 칸'으로 해금)
+    /// <summary>v6.9: 다음 레벨을 향해 넣은 접시 수 (접시 곡선 - Lv3 부터 2장, Lv6 부터 3장). 이름표 "(1/2)"</summary>
+    public int platesIn = 0;
+    /// <summary>v6.9: 파손 - 마비를 오래 방치해 망가진 슬롯. 요리는 사라지고 이번 운행 동안 투입 불가 (GameBalance.BrokenSlotRepairCost 로 수리 가능)</summary>
+    public bool isBroken = false;
+    private float stunNeglect = 0f;      // v6.9: 지금 마비를 방치한 누적 초 (마비가 풀리면 0)
+    private bool breakWarned = false;    // v6.9: 경고 한 줄을 이미 띄웠나
+    /// <summary>v6.9: 파손 경고 구간 (마커가 붉게 깜빡인다)</summary>
+    public bool BreakWarning { get { return GameBalance.StunBreakSec > 0f && IsStunned && stunNeglect >= GameBalance.StunBreakSec - GameBalance.StunBreakWarnSec; } }
+    /// <summary>v6.9: 파손까지 남은 초 (경고 표시용)</summary>
+    public float BreakSecLeft { get { return Mathf.Max(0f, GameBalance.StunBreakSec - stunNeglect); } }
 
     [Header("─ 발사 설정 ─")]
     public float targetRange = 15f;    // 타겟 탐색 사거리
@@ -138,11 +148,14 @@ public class TurretSlot : MonoBehaviour
 
     public bool IsEmpty { get { return string.IsNullOrEmpty(recipeId); } }
 
-    // 레벨 배율: 1 + 0.6 * (Lv-1)  (프로토타입 v3 검증값)
+    // 레벨 배율: v6.9 부터 GameBalance.LevelMultOf (Lv3 까지 +0.6, 그 뒤 +0.35 - 계속 세지되 체감. 구: 1 + 0.6 * (Lv-1))
     public float LevelMult
     {
-        get { return level <= 0 ? 1f : 1f + 0.6f * (level - 1); }
+        get { return level <= 0 ? 1f : GameBalance.LevelMultOf(level); }
     }
+
+    /// <summary>v6.9: 다음 레벨까지 더 넣어야 하는 접시 수 (빈 슬롯이면 0)</summary>
+    public int PlatesLeft { get { return IsEmpty ? 0 : Mathf.Max(0, GameBalance.PlatesToNext(level) - platesIn); } }
 
     /// <summary>v6.8: 이 요리의 레벨 상한 (0 = 없음). 기본 요리 T1MaxLevel / 전설 T2MaxLevel</summary>
     public static int MaxLevelOf(RecipeData r)
@@ -179,6 +192,13 @@ public class TurretSlot : MonoBehaviour
             return false;
         }
 
+        // v6.9: 파손 슬롯에는 투입 불가
+        if (isBroken)
+        {
+            UIManager.Instance?.ShowDanger("파손된 포탑 자리 - 이번 운행엔 못 쓴다" + (GameBalance.BrokenSlotRepairCost > 0 ? " (정비소에서 수리)" : ""));
+            return false;
+        }
+
         // 빈 슬롯이거나 같은 요리만 가능
         if (!IsEmpty && recipeId != id) return false;
 
@@ -195,6 +215,27 @@ public class TurretSlot : MonoBehaviour
             Debug.Log("[TurretSlot] " + r.displayName + " 레벨 상한 " + cap + " - 투입 거부");
             return false;
         }
+
+        // v6.9: 접시 곡선 - 같은 접시를 넣어도 필요한 장수를 채워야 레벨이 오른다 (벽이 아니라 값: 계속 올릴 수 있다)
+        if (!wasEmpty)
+        {
+            int need = GameBalance.PlatesToNext(level);
+            platesIn += 1;
+            if (platesIn < need)
+            {
+                LastInsertTime = Time.time;
+                if (GameBalance.CookFeelOn && GameBalance.GameFeelMaster > 0f)
+                {
+                    WorldFeel.PlateDrop(transform.position, UIFactory.TagColor(r.tag));
+                    WorldFeel.TextPop(transform.position + Vector3.up * 0.45f, "Lv" + (level + 1) + " 까지 " + (need - platesIn) + "접시", new Color(0.95f, 0.85f, 0.6f), 2.6f);
+                }
+                SoundManager.Play("sfx_pickup");
+                Debug.Log("[TurretSlot] " + r.displayName + " 접시 " + platesIn + "/" + need + " (Lv" + level + ")");
+                return true;
+            }
+            platesIn = 0;
+        }
+        else platesIn = 0;
 
         recipeId = id;
         level += 1;
@@ -244,6 +285,7 @@ public class TurretSlot : MonoBehaviour
         RemoveMaxHPPassive();
         recipeId = "";
         level = 0;
+        platesIn = 0;
         cooldownTimer = 0f;
         ResetStunState();
     }
@@ -255,6 +297,87 @@ public class TurretSlot : MonoBehaviour
         overheatActive = false;
         shotsSinceCool = 0;
         overheatThreshold = 0;
+        stunNeglect = 0f;      // v6.9
+        breakWarned = false;
+    }
+
+    // ── v6.9: 마비 방치 -> 파손 (유저 09-29 "과열이나 방해를 오래 두면 포탑이 영영 못 쓰게 되어도 좋다") ──
+
+    /// <summary>파손 판정 시각: 견습 운행(자유 연습 제외)에서는 망가지지 않는다</summary>
+    private static bool BreakAllowed
+    {
+        get { return GameBalance.StunBreakSec > 0f && !(TutorialDirector.Active && !TutorialDirector.SandboxActive); }
+    }
+
+    /// <summary>TickFire 에서 매 프레임: 마비 중이면 방치 시간을 세고, 경고 -> 파손. 마비가 풀리면 0 으로</summary>
+    private void TickNeglect(float dt)
+    {
+        if (!IsStunned || IsEmpty || isLocked || isBroken || !BreakAllowed) { stunNeglect = 0f; breakWarned = false; return; }
+        if (TutorialDirector.InlineFreeze) return;
+        stunNeglect += dt;
+        float warnAt = GameBalance.StunBreakSec - GameBalance.StunBreakWarnSec;
+        if (!breakWarned && stunNeglect >= warnAt)
+        {
+            breakWarned = true;
+            UIManager.Instance?.ShowDanger("[경고] " + (SlotNo + 1) + "번 포탑 " + StunKind + " 방치 - " + Mathf.CeilToInt(GameBalance.StunBreakWarnSec) + "초 뒤 파손. 곁에서 [E]");
+            SoundManager.Play("sfx_alarm", 0.6f, 0f);
+        }
+        if (stunNeglect >= GameBalance.StunBreakSec) BreakSlot();
+    }
+
+    /// <summary>v6.9: 이 슬롯이 몇 번째인지 (0 부터). 매니저에 없으면 0</summary>
+    public int SlotNo
+    {
+        get
+        {
+            TurretSlotManager m = TurretSlotManager.Instance;
+            if (m == null) return 0;
+            for (int i = 0; i < m.slots.Length; i++) if (m.slots[i] == this) return i;
+            return 0;
+        }
+    }
+
+    /// <summary>파손: 요리가 사라지고 슬롯이 봉인된다 (이번 운행 동안). 붉은 링 + "파손!" + 흔들림 + 경고 한 줄</summary>
+    public void BreakSlot()
+    {
+        if (isBroken) return;
+        string name = Recipe != null ? Recipe.displayName : "포탑";
+        RemoveMaxHPPassive();
+        recipeId = "";
+        level = 0;
+        platesIn = 0;
+        cooldownTimer = 0f;
+        ResetStunState();
+        isBroken = true;
+        if (GameBalance.GameFeelMaster > 0f)
+        {
+            WorldFeel.Ring(transform.position, new Color(0.9f, 0.2f, 0.15f), 1.1f, 0.4f);
+            SparkPool.Emit(transform.position, new Color(0.35f, 0.3f, 0.3f), 14, 0.12f, 3.5f);
+            WorldFeel.TextPop(transform.position + Vector3.up * 0.5f, "파손!", new Color(1f, 0.35f, 0.3f), 3.6f);
+            GameFeel.Shake(GameBalance.ShakeTrainHit, "break", 0.5f);
+        }
+        SoundManager.Play("sfx_train_hit", 0.9f, 0f);
+        UIManager.Instance?.ShowDanger("[파손] " + (SlotNo + 1) + "번 포탑(" + name + ")이 망가졌다 - 이번 운행엔 못 쓴다" + (GameBalance.BrokenSlotRepairCost > 0 ? ". 정비소에서 " + GameBalance.BrokenSlotRepairCost + "G 로 수리" : ""));
+        Debug.Log("[TurretSlot] 파손: " + name + " (방치 " + Mathf.RoundToInt(GameBalance.StunBreakSec) + "초)");
+    }
+
+    /// <summary>v6.9: 자유 연습 [6] - 지금 당장 과열시킨다 (연사 누적과 같은 상태: 식힐 때까지 멈춤, 방치하면 파손)</summary>
+    public void ForceOverheat()
+    {
+        if (IsEmpty || isLocked || isBroken || IsStunned) return;
+        if (TurretSlotManager.Instance != null) TurretSlotManager.Instance.NoteOverheat();
+        overheatActive = true;
+        OverheatsThisRun++;
+        float dur = GameBalance.OverheatAutoRecoverSec > 0f ? GameBalance.OverheatAutoRecoverSec : 9999f;
+        StunSlot(dur, "과열");
+        SoundManager.Play("sfx_overheat");
+    }
+
+    /// <summary>수리 (정비소 - GameBalance.BrokenSlotRepairCost > 0 일 때만 열린다). 새 운행 시작 때는 매니저가 전부 수리</summary>
+    public void Repair()
+    {
+        isBroken = false;
+        ResetStunState();
     }
 
     /// <summary>포탑 직접 설정 (합체 진화 결과용). 최대HP형 패시브는 1회 적용</summary>
@@ -265,6 +388,7 @@ public class TurretSlot : MonoBehaviour
 
         recipeId = id;
         level = Mathf.Max(1, newLevel);
+        platesIn = 0;
         cooldownTimer = 0f;
 
         // v6.1: 합체 결과의 패시브는 이전 기여를 회수하고 새로 1회 적용 (같은 값이면 순변화 0)
@@ -283,6 +407,7 @@ public class TurretSlot : MonoBehaviour
         RemoveMaxHPPassive();   // v6.1: 최대HP 패시브 회수
         recipeId = "";
         level = 0;
+        platesIn = 0;
         cooldownTimer = 0f;
         ResetStunState();
         return refund;
@@ -301,6 +426,7 @@ public class TurretSlot : MonoBehaviour
         }
         // v6.2: 과열로 멈춰 있는 전투 시간 누적 (관찰 시트 "과열당 정지 시간" - 여기서만 재므로 냉각 방식과 무관)
         if (IsStunned && StunKind == "과열") OverheatStunSecThisRun += deltaTime;
+        TickNeglect(deltaTime);   // v6.9: 마비 방치 -> 경고 -> 파손
         if (IsStunned) return;   // v3: 낙뢰 마비 중 발사 정지
         RecipeData r = Recipe;
         if (r == null) return;
@@ -444,6 +570,7 @@ public class TurretSlot : MonoBehaviour
     private string vRecipeId = null;       // 마지막으로 그린 상태 캐시
     private int vLevel = -1;
     private bool vLocked = false;
+    private bool vBroken = false;          // v6.9
     private Enemy lastTarget;              // 포신이 향할 표적
     private float barrelAngle = 90f;       // 현재 포신 각도 (0=동, 90=북)
     private float idlePhase;               // 슬롯마다 다른 흔들림 위상
@@ -467,7 +594,7 @@ public class TurretSlot : MonoBehaviour
         }
 
         // 상태(요리/레벨/잠금)가 바뀐 프레임에만 다시 그린다
-        if (recipeId != vRecipeId || level != vLevel || isLocked != vLocked)
+        if (recipeId != vRecipeId || level != vLevel || isLocked != vLocked || isBroken != vBroken)
             RebuildVisual();
 
         // v6.5: 투입 직후 포탑 그림이 1.25배에서 0.2초에 제자리로 (되튀김)
@@ -484,7 +611,8 @@ public class TurretSlot : MonoBehaviour
         if (bodySr != null)
         {
             Color c = Color.white;
-            if (IsStunned)
+            if (isBroken) c = new Color(0.32f, 0.3f, 0.32f);   // v6.9: 파손 = 그을린 회색
+            else if (IsStunned)
             {
                 if (StunKind == "과열") c = Color.Lerp(c, new Color(1f, 0.25f, 0.1f), 0.75f);
                 else if (StunKind == "빙결") c = Color.Lerp(c, new Color(0.5f, 0.8f, 1f), 0.65f);
@@ -579,6 +707,7 @@ public class TurretSlot : MonoBehaviour
         vRecipeId = recipeId;
         vLevel = level;
         vLocked = isLocked;
+        vBroken = isBroken;
 
         if (visualRoot != null) Destroy(visualRoot.gameObject);
         bodySr = null;
@@ -595,6 +724,26 @@ public class TurretSlot : MonoBehaviour
         if (isLocked)
         {
             baseSr.color = new Color(0.55f, 0.55f, 0.55f);   // 잠금 슬롯: 어두운 빈 받침 (마커 칩이 "잠금" 표시)
+            return;
+        }
+
+        if (isBroken)
+        {
+            // v6.9: 파손 - 그을린 받침 + 금 간 그림(ui_ev_crack 절반 크기, 없으면 어두운 페그)
+            baseSr.color = new Color(0.4f, 0.36f, 0.36f);
+            Sprite crack = SpriteBank.Get("ui_ev_crack");
+            if (crack != null)
+            {
+                SpriteRenderer cr = SpriteBank.Attach(visualRoot, "Crack", "ui_ev_crack", crack, new Vector3(0f, 0.15f, 0f), SORT_DOME + 1);
+                float k = 0.9f / Mathf.Max(0.01f, crack.bounds.size.x);   // 폭 0.9u 로
+                cr.transform.localScale = new Vector3(k, k, 1f);
+                cr.color = new Color(0.15f, 0.12f, 0.12f, 0.9f);
+            }
+            else
+            {
+                SpriteRenderer pin = PixelPainter.Attach(visualRoot, "Pin", GetPinSprite(), Vector3.zero, SORT_DOME);
+                pin.color = new Color(0.3f, 0.28f, 0.28f);
+            }
             return;
         }
 

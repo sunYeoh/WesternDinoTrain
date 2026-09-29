@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// [GameBalance.cs] v9.12 (2026-09-22 튜토리얼 구간화·인라인 연습·협곡 낙뢰·미니 보스 예습 섹션 추가) / v1 (v9.11 2026-09-22: 타격감 섹션 - 피격 플래시·찌그러짐·스파크·킬 버스트·기차 피격·버튼·모달·웨이브 띠 스위치 / v9.10.1 2026-09-21: 유저 플레이 소감 섹션 - 웨이브 물량·길이, 정차 조리 제한, 행상인 자동 퇴장, 처치 보상 배율 / v9.9 2026-09-16: 포탑 4모서리 배치 SlotPosition + 견습 운행/브리핑 스위치 섹션)
+/// [GameBalance.cs] v9.15 (2026-09-29 2차 피드백: 레벨 상한 해제 -> 접시 곡선·레벨 체감·저항 표시 / 훈련장 반복·자유 연습 / 드래그 투입 / 사고 해결 연출 / 포탑 파손 / HUD 재배치 / 설정창) / v9.12 (2026-09-22 튜토리얼 구간화·인라인 연습·협곡 낙뢰·미니 보스 예습 섹션 추가) / v1 (v9.11 2026-09-22: 타격감 섹션 - 피격 플래시·찌그러짐·스파크·킬 버스트·기차 피격·버튼·모달·웨이브 띠 스위치 / v9.10.1 2026-09-21: 유저 플레이 소감 섹션 - 웨이브 물량·길이, 정차 조리 제한, 행상인 자동 퇴장, 처치 보상 배율 / v9.9 2026-09-16: 포탑 4모서리 배치 SlotPosition + 견습 운행/브리핑 스위치 섹션)
 /// 게임 전체 밸런스 수치를 한 곳에 모은 설정 파일.
 ///
 /// 여기 값을 바꾸면 Inspector 값과 상관없이 게임에 적용된다
@@ -982,14 +982,14 @@ public static class GameBalance
 
     // ── (v9.13.1 2026-09-24) 3인 테스트 준비 ──
     /// <summary>빌드 표시 - 로비 오른쪽 아래에 찍힌다 (테스터 시트에 어느 빌드였는지 적기 위해). 팩마다 올린다</summary>
-    public const string BuildTag = "v9.14 (2026-09-28)";
+    public const string BuildTag = "v9.15 (2026-09-29)";
 
     // ── (v9.14 2026-09-28) 3인 테스트 반영 1차 - 버그·밸런스·읽기 ──
     // ── 포탑 (테스터 "더블 육포만 올려도 됨 / 전설이 더 약함 / 하나 점사하면 나머지가 빗나감") ──
     /// <summary>기본 요리(T1) 포탑 최대 레벨 - 같은 접시를 더 넣어도 여기서 멈춘다 (전설로 진화시켜야 더 세진다). 0 = 제한 없음(구 동작)</summary>
-    public static int T1MaxLevel = 3;
+    public static int T1MaxLevel = 0;   // v9.15: 3 -> 0 (해제. 유저 09-29 "센 빌드를 벽으로 막지 말 것" - 아래 접시 곡선·레벨 체감으로)
     /// <summary>전설 요리(T2) 포탑 최대 레벨. 0 = 제한 없음</summary>
-    public static int T2MaxLevel = 6;
+    public static int T2MaxLevel = 0;   // v9.15: 6 -> 0 (해제)
     /// <summary>전설 요리 공격력 배율 (레벨 배율과 별도로 곱한다). 1 = 구 동작</summary>
     public static float T2DamageMul = 1.5f;
     /// <summary>진화 조리 결과 레벨 = 재료 둘 중 높은 쪽 (구 동작 false = 평균)</summary>
@@ -1015,4 +1015,73 @@ public static class GameBalance
     // ── 갑판 상자 ──
     /// <summary>갑판 상자 위에 화살표 마커 (창에 가려도 보이게 위로 길게)</summary>
     public static bool DeckLootMarker = true;
+
+    // ── (v9.15 2026-09-29) 2차 피드백 - 벽 대신 곡선 ──
+    // ── 포탑 레벨 (유저 09-29: "특정 빌드를 틀어막는 패치는 안 된다 - 밸런스로 조절") ──
+    /// <summary>레벨당 공격 배율 증가분 (Lv2, Lv3 ... LevelSoftFrom 까지). 구 동작 0.6 고정</summary>
+    public static float LevelGainBase = 0.6f;
+    /// <summary>이 레벨까지는 LevelGainBase 로 오르고, 그 뒤 레벨은 LevelGainAfter 로 오른다 (체감). 0 = 체감 없음(구 동작)</summary>
+    public static int LevelSoftFrom = 3;
+    /// <summary>LevelSoftFrom 을 넘는 레벨의 증가분 (계속 세지긴 한다)</summary>
+    public static float LevelGainAfter = 0.35f;
+    /// <summary>레벨 -> 공격 배율. Lv1 = 1.0 / Lv3 = 2.2 / Lv5 = 2.9 / Lv7 = 3.6 / Lv10 = 4.65 (구: Lv10 = 6.4)</summary>
+    public static float LevelMultOf(int level)
+    {
+        if (level <= 1) return 1f;
+        if (LevelSoftFrom <= 0 || level <= LevelSoftFrom) return 1f + LevelGainBase * (level - 1);
+        return 1f + LevelGainBase * (LevelSoftFrom - 1) + LevelGainAfter * (level - LevelSoftFrom);
+    }
+    /// <summary>접시 곡선: 같은 접시를 넣어 다음 레벨로 가는 데 드는 접시 수. false = 항상 1장(구 동작)</summary>
+    public static bool PlatesCurveOn = true;
+    /// <summary>현재 레벨이 이 값 이상이면 다음 레벨까지 접시 2장 (Lv3 -> Lv4 부터)</summary>
+    public static int PlatesTwoFrom = 3;
+    /// <summary>현재 레벨이 이 값 이상이면 접시 3장 (Lv6 -> Lv7 부터)</summary>
+    public static int PlatesThreeFrom = 6;
+    /// <summary>지금 레벨에서 다음 레벨로 가는 데 드는 접시 수 (Lv7 까지 11장, Lv10 까지 20장. 구: 6장 / 9장)</summary>
+    public static int PlatesToNext(int level)
+    {
+        if (!PlatesCurveOn) return 1;
+        if (PlatesThreeFrom > 0 && level >= PlatesThreeFrom) return 3;
+        if (PlatesTwoFrom > 0 && level >= PlatesTwoFrom) return 2;
+        return 1;
+    }
+    // ── 손님 방어력이 보이게 (하나만 키우면 왜 안 통하는지 화면에서) ──
+    /// <summary>피격 팝업에 "저항" 표시 (방어·저항으로 피해가 이 비율 이하로 깎였을 때). 0 = 끔</summary>
+    public static float ResistShowBelow = 0.6f;
+    // ── 훈련장 ──
+    /// <summary>구간 완료 카드에서 [R] = 같은 구간 바로 다시 (로비 안 거침)</summary>
+    public static bool TrainingRepeatKey = true;
+    /// <summary>자유 연습: 손님이 이 간격(초)마다 소수 온다</summary>
+    public static float SandboxSpawnGap = 6f;
+    /// <summary>자유 연습: 한 번에 오는 손님 수 (랩터 위주, 가끔 프테라)</summary>
+    public static int SandboxSpawnCount = 2;
+    /// <summary>자유 연습: 한 번에 살아 있는 손님 상한 (넘으면 스폰을 쉰다)</summary>
+    public static int SandboxMaxAlive = 6;
+    /// <summary>자유 연습: 재료가 이 개수 밑으로 떨어지면 채운다 (6종 전부)</summary>
+    public static int SandboxMaterialFloor = 6;
+    /// <summary>자유 연습: 기차 HP 가 이 비율 밑이면 즉시 가득 (죽지 않는다)</summary>
+    public static float SandboxTrainHealBelow = 0.3f;
+    // ── 드래그 투입 ──
+    /// <summary>요리 카드를 끌어다 슬롯 마커에 놓으면 투입 (클릭->클릭도 그대로). false = 클릭만</summary>
+    public static bool DragInsertOn = true;
+    /// <summary>드래그 중 마커 위에 커서가 오면 금색 강조 + "여기에 놓기"</summary>
+    public static float DragDropRadius = 70f;   // 마커 중심에서 이 픽셀 안이면 그 슬롯
+    // ── 요리 창 키보드 ──
+    /// <summary>요리 창에서 WASD·방향키로 카드 커서 이동, [E]/[Enter] 로 조리 시작 (마우스와 같이 쓴다)</summary>
+    public static bool KitchenKeyCursor = true;
+    // ── 사고 해결 연출 ──
+    /// <summary>해결 순간: 현장 초록 링 2겹 + "해결!" 도장 + 화면 테두리 초록 한 번 + 배너 초록 전환 뒤 이 시간(초) 뒤 내려감</summary>
+    public static float EventResolveHoldSec = 0.8f;
+    public static bool EventResolveFx = true;
+    // ── 포탑 파손 (유저 09-29 "과열·방해를 오래 두면 영영 못 쓰게 되어도 좋다") ──
+    /// <summary>마비를 이 시간(초) 동안 방치하면 파손. 0 = 끔. 감전(6초)·빙결(4초)은 저절로 풀려 여기 못 미치므로 사실상 과열(식힐 때까지 무기한)용.
+    /// 마비가 풀리면 방치 시간은 0 으로 돌아간다</summary>
+    public static float StunBreakSec = 45f;
+    /// <summary>파손 이 시간(초) 전부터 마커가 붉게 깜빡이고 경고 한 줄</summary>
+    public static float StunBreakWarnSec = 15f;
+    /// <summary>파손된 슬롯을 정비소에서 고치는 값. 0 = 못 고침(이번 운행 내내 봉인 - 기본). 0 보다 크게 쓰려면 WorkshopUI 에 수리 줄을 붙여야 한다 (TurretSlotManager.RepairOne 준비됨, 줄은 아직 없음)</summary>
+    public static int BrokenSlotRepairCost = 0;
+    // ── HUD 재배치 ──
+    /// <summary>좌상단 한 판 = HP · 골드 · 칼/팬, 우상단 = 라운드 · 상태 · 예고 + 알림 로그. false = v9.14 배치</summary>
+    public static bool HudRegroup = true;
 }

@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [TrainingGroundUI.cs] v1 (신규, v9.12 2026-09-22) - 로비 [T] 훈련장: 견습 운행을 구간별로 다시 연습하는 목록 창 (목업 v4.2 (A))
+/// [TrainingGroundUI.cs] v1.1 (v9.15 2026-09-29: 8번째 줄 "자유 연습" - TutorialDirector.SANDBOX. 카드 600 -> 672, [1~8]) / v1 (신규, v9.12 2026-09-22) - 로비 [T] 훈련장: 견습 운행을 구간별로 다시 연습하는 목록 창 (목업 v4.2 (A))
 ///
 /// 처음 실행(구간 기록이 하나도 없음)에는 [T] 가 이 창을 열지 않고 견습 운행 전부(1~7)를 바로 연다 (LobbyUI). 한 번이라도 돌린 뒤엔 이 목록.
 /// 창: 어둡게 + 가운데 카드 680x600 - 명판 "훈련장  -  구간별 연습" / 안내 한 줄 + 오른쪽 "완료 n / 7" / 구간 7줄(번호·배울 행동·한 줄·단계·예상·기록) /
@@ -22,7 +22,8 @@ public class TrainingGroundUI : MonoBehaviour
     public static bool IsOpen { get; private set; }
 
     private const int SORT = 575;
-    private const float PW = 680f, PH = 600f;
+    private const float PW = 680f, PH = 672f;   // v1.1: 자유 연습 줄이 늘어 600 -> 672
+    private const int ROWS = TutorialDirector.SEGMENTS + 1;   // v1.1: 구간 7 + 자유 연습
     private const float ROW_H = 62f, ROW_GAP = 6f;
 
     private static readonly Color GREEN = new Color(0.45f, 0.85f, 0.45f, 1f);
@@ -36,14 +37,14 @@ public class TrainingGroundUI : MonoBehaviour
     private Canvas canvas;
     private GameObject root;
     private Text doneCountText;
-    private readonly RectTransform[] rows = new RectTransform[TutorialDirector.SEGMENTS];
-    private readonly Image[] rowRings = new Image[TutorialDirector.SEGMENTS];
-    private readonly Text[] rowNo = new Text[TutorialDirector.SEGMENTS];
-    private readonly Text[] rowTitle = new Text[TutorialDirector.SEGMENTS];
-    private readonly Text[] rowLine = new Text[TutorialDirector.SEGMENTS];
-    private readonly Image[] rowStateBox = new Image[TutorialDirector.SEGMENTS];   // 바깥 테 (기록 색)
-    private readonly Image[] rowStateBg = new Image[TutorialDirector.SEGMENTS];    // 안쪽 바탕 (완료 = 어두운 초록 등)
-    private readonly Text[] rowState = new Text[TutorialDirector.SEGMENTS];
+    private readonly RectTransform[] rows = new RectTransform[ROWS];
+    private readonly Image[] rowRings = new Image[ROWS];
+    private readonly Text[] rowNo = new Text[ROWS];
+    private readonly Text[] rowTitle = new Text[ROWS];
+    private readonly Text[] rowLine = new Text[ROWS];
+    private readonly Image[] rowStateBox = new Image[ROWS];   // 바깥 테 (기록 색)
+    private readonly Image[] rowStateBg = new Image[ROWS];    // 안쪽 바탕 (완료 = 어두운 초록 등)
+    private readonly Text[] rowState = new Text[ROWS];
     private int selected = 1;
     private float openedAt;
 
@@ -113,7 +114,7 @@ public class TrainingGroundUI : MonoBehaviour
         if (Time.unscaledTime - openedAt < 0.15f) return;   // 연 키가 바로 닫지 않게
 
         if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.T)) { Close(); return; }
-        for (int i = 1; i <= TutorialDirector.SEGMENTS; i++)
+        for (int i = 1; i <= ROWS; i++)   // v1.1: [8] = 자유 연습
             if (Input.GetKeyDown(KeyCode.Alpha0 + i) || Input.GetKeyDown(KeyCode.Keypad0 + i)) { selected = i; Refresh(); }
         if (Input.GetKeyDown(KeyCode.Alpha0) || Input.GetKeyDown(KeyCode.Keypad0)) { StartSegment(0); return; }
         if ((Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
@@ -125,7 +126,7 @@ public class TrainingGroundUI : MonoBehaviour
     private void StartSegment(int seg)
     {
         Close();
-        Debug.Log("[TrainingGround] 시작 - 구간 " + (seg == 0 ? "전부" : seg.ToString()));
+        Debug.Log("[TrainingGround] 시작 - 구간 " + (seg == 0 ? "전부" : seg == TutorialDirector.SANDBOX ? "자유 연습" : seg.ToString()));
         TutorialDirector.Begin(seg);
     }
 
@@ -143,7 +144,7 @@ public class TrainingGroundUI : MonoBehaviour
     private void Refresh()
     {
         if (doneCountText != null) doneCountText.text = "완료 " + TutorialDirector.CompletedCount() + " / " + TutorialDirector.SEGMENTS;
-        for (int i = 0; i < TutorialDirector.SEGMENTS; i++)
+        for (int i = 0; i < ROWS; i++)
         {
             int seg = i + 1;
             bool sel = seg == selected;
@@ -151,6 +152,14 @@ public class TrainingGroundUI : MonoBehaviour
             if (rowNo[i] != null) rowNo[i].color = sel ? UIFactory.GOLD : UIFactory.CREAM;
             if (rowTitle[i] != null) rowTitle[i].color = sel ? UIFactory.GOLD : UIFactory.CREAM;
             if (rowLine[i] != null) rowLine[i].color = sel ? UIFactory.CREAM : UIFactory.DIM;
+            if (seg == TutorialDirector.SANDBOX)
+            {
+                // v1.1: 자유 연습은 기록이 없다 - 상자에 "언제든"
+                if (rowState[i] != null) { rowState[i].text = "언제든"; rowState[i].color = UIFactory.GOLD; }
+                SetRing(rowStateBox[i], UIFactory.GOLD);
+                if (rowStateBg[i] != null) rowStateBg[i].color = new Color(0f, 0f, 0f, 0f);
+                continue;
+            }
 
             int state = TutorialDirector.SegmentState(seg);
             string label = state == 1 ? "완료" : state == 2 ? "건너뜀" : "아직";
@@ -206,15 +215,17 @@ public class TrainingGroundUI : MonoBehaviour
             PlaceTopLeft(t.rectTransform, 26f, -8f, 400f, 26f);
         }
 
-        Text guide = UIFactory.CreateText(panel, "Guide", "연습할 구간을 골라라. 끝나면 로비로 돌아온다.", 15, UIFactory.CREAM, TextAnchor.MiddleLeft);
+        Text guide = UIFactory.CreateText(panel, "Guide", "연습할 구간을 골라라. 끝나면 [R] 한 번 더 / [Enter] 로비.", 15, UIFactory.CREAM, TextAnchor.MiddleLeft);
         PlaceTopLeft(guide.rectTransform, 26f, -38f, 460f, 24f);
         doneCountText = UIFactory.CreateText(panel, "DoneCount", "", 15, UIFactory.GOLD, TextAnchor.MiddleRight);
         PlaceTopLeft(doneCountText.rectTransform, PW - 26f - 160f, -38f, 160f, 24f);
 
         float ry = -78f;
-        for (int i = 0; i < TutorialDirector.SEGMENTS; i++)
+        for (int i = 0; i < ROWS; i++)
         {
-            TutorialDirector.SegmentInfo info = TutorialDirector.SEGMENT_TABLE[i];
+            // v1.1: 8번째 줄 = 자유 연습 (배그 훈련장처럼 - 손님이 계속 오고 재료·기차 걱정 없이, 사고는 [1]~[5]로 직접)
+            TutorialDirector.SegmentInfo info = i < TutorialDirector.SEGMENTS ? TutorialDirector.SEGMENT_TABLE[i]
+                : new TutorialDirector.SegmentInfo(TutorialDirector.SANDBOX, "자유 연습", "손님이 계속 온다. 재료·기차 걱정 없이. 사고는 [1]~[5]로 직접", "끝 없음", "나갈 때까지", 0, 0);
             RectTransform row = UIFactory.CreatePanel(panel, "Row_" + info.no,
                 new Vector2(0f, 1f), new Vector2(0f, 1f),
                 new Vector2(22f, ry - ROW_H), new Vector2(PW - 22f, ry),
@@ -260,7 +271,7 @@ public class TrainingGroundUI : MonoBehaviour
             ry -= ROW_H + ROW_GAP;
         }
 
-        Text keys = UIFactory.CreateText(panel, "Keys", "[1~7] 고르기   [Enter] 시작   [0] 처음부터 전부   [ESC] 닫기", 14, UIFactory.DIM, TextAnchor.MiddleLeft);
+        Text keys = UIFactory.CreateText(panel, "Keys", "[1~8] 고르기   [Enter] 시작   [0] 처음부터 전부   [ESC] 닫기", 14, UIFactory.DIM, TextAnchor.MiddleLeft);
         keys.rectTransform.anchorMin = new Vector2(0f, 0f); keys.rectTransform.anchorMax = new Vector2(0f, 0f);
         keys.rectTransform.pivot = new Vector2(0f, 0f);
         keys.rectTransform.anchoredPosition = new Vector2(26f, 18f); keys.rectTransform.sizeDelta = new Vector2(600f, 22f);

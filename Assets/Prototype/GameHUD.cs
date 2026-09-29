@@ -1,9 +1,10 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 /// <summary>
-/// [GameHUD.cs] v3.5 (v9.11 2026-09-22 타격감: 조리 완료 접시 날아가기 + 카드 튀기 / 요리 카드 ButtonFeel) / v3.4 (v9.10.1 2026-09-21: 재료 이름 MaterialNames 한 곳(전기알·화염꽃·얼음꽃·독샘) - 칸 폭 102 에 세 글자 이름이 안 들어가 이름(11px, 위)·개수(20px, 아래) 두 줄) / v3.3 (v9.9 2026-09-16: 로비에서는 하단 바 숨김 - 로비 버튼이 바 위에 겹쳐 있던 것) / v3.2 (v9.8 재료 아이콘) / v3.1 (교수 피드백 A9 반영 2026-09-14) / v3 - 전투 중 핵심 HUD (전부 코드 생성 - Canvas 세팅 불필요)
+/// [GameHUD.cs] v3.6 (v9.15 2026-09-29 2차 피드백: 요리 카드 드래그 투입(FoodCardDrag - 고스트 카드가 커서를 따라가고 SlotMarkerUI.NearestMarker 로 놓을 슬롯 금색, 놓으면 투입. 클릭->클릭도 그대로) / HUD 재배치 GameBalance.HudRegroup: 칼·팬 명판을 하단 바에서 좌상단 HP 판(UISkin SkinPanel_TL)으로) / v3.5 (v9.11 2026-09-22 타격감: 조리 완료 접시 날아가기 + 카드 튀기 / 요리 카드 ButtonFeel) / v3.4 (v9.10.1 2026-09-21: 재료 이름 MaterialNames 한 곳(전기알·화염꽃·얼음꽃·독샘) - 칸 폭 102 에 세 글자 이름이 안 들어가 이름(11px, 위)·개수(20px, 아래) 두 줄) / v3.3 (v9.9 2026-09-16: 로비에서는 하단 바 숨김 - 로비 버튼이 바 위에 겹쳐 있던 것) / v3.2 (v9.8 재료 아이콘) / v3.1 (교수 피드백 A9 반영 2026-09-14) / v3 - 전투 중 핵심 HUD (전부 코드 생성 - Canvas 세팅 불필요)
 /// - v3.2: 재료 칸의 16px 계열색 판을 ui_mat_*.png 아이콘(32px)으로. 칸 폭 96 -> 102, 간격 100 -> 106 (3열 318 <= 재료 구역 326).
 ///   PNG 가 없으면 v3.1 그대로(계열색 판 + 글자). 이벤트 "재료 흘림" 칩과 같은 그림이라 재료 = 한 그림으로 통일
 /// - 하단 바: 재료 6종 카운트 + 보유 요리 카드 목록 (2줄 그리드, 휠 가로 스크롤)
@@ -51,6 +52,18 @@ public class GameHUD : MonoBehaviour
     private bool chipsVisible = true;
     private const float TOOL_REFRESH_SEC = 0.25f;
     private const float CHIP_W = 92f;            // 칩 명판 폭
+    private bool chipsPendingDock = false;       // v3.6: HUD 재배치 - 좌상단 판이 생기면 그 안에 칩을 만든다
+
+    // ── v3.6: 드래그 투입 ──
+    /// <summary>요리 카드를 끌고 있는 중 (SlotMarkerUI 가 이름표를 "여기에 놓기"로)</summary>
+    public bool DragActive { get; private set; }
+    /// <summary>끌고 있는 요리 id</summary>
+    public string DragRecipeId { get; private set; }
+    private RectTransform dragGhost;
+    private Text dragGhostSub;
+    private int dragHover = -1;
+    private bool rebuildPending = false;         // 드래그 중 목록 갱신 요청이 오면 놓은 뒤에 (끌고 있는 카드를 지우면 uGUI 드래그가 끊긴다)
+    private GameObject toolHintGo;               // 좌상단 칩 안내 줄 (칩과 같이 숨긴다)
 
     private const float BAR_H = 184f;          // v3: 하단 바 높이 (v2 158)
     private const float FRAME = 28f;           // 파이프 테 두께 (ui_pipe 테두리 = 28px @1080p)
@@ -121,7 +134,7 @@ public class GameHUD : MonoBehaviour
         if (skin)
         {
             UISkin.Nameplate(bottomBar, "Mat", "재료", 17, new Vector2(0f, 1f), new Vector2(34f, 4f), 76f);           // 파이프 위에 4px 걸림 (목업과 동일)
-            UISkin.Nameplate(bottomBar, "Food", "요리  (클릭 = 투입,  휠 = 스크롤)", 16, new Vector2(0f, 1f), new Vector2(MAT_W + 56f, 4f));
+            UISkin.Nameplate(bottomBar, "Food", GameBalance.DragInsertOn ? "요리  (끌어다 놓기 / 클릭 = 투입,  휠 = 스크롤)" : "요리  (클릭 = 투입,  휠 = 스크롤)", 16, new Vector2(0f, 1f), new Vector2(MAT_W + 56f, 4f));
         }
         else
         {
@@ -264,7 +277,12 @@ public class GameHUD : MonoBehaviour
         }
 
         // ── v3.1 (A9): 칼/팬 상태 칩 - 바 오른쪽 위 파이프에 걸린 작은 명판 2개 (장식 위, 겹치지 않음) ──
-        if (skin)
+        // v3.6: HUD 재배치(GameBalance.HudRegroup)면 여기 안 만들고 좌상단 HP 판 안에 만든다 (DockChipsTopLeft - 판은 UISkin 이 2프레임 뒤에 만든다)
+        if (GameBalance.HudRegroup)
+        {
+            chipsPendingDock = true;
+        }
+        else if (skin)
         {
             RectTransform panPlate = UISkin.Nameplate(bottomBar, "Pan", "팬 100%", 15,
                 new Vector2(1f, 1f), new Vector2(-34f - CHIP_W, 4f), CHIP_W);
@@ -321,6 +339,7 @@ public class GameHUD : MonoBehaviour
     // ──────────────────────────────────────
     private void UpdateToolChips()
     {
+        if (chipsPendingDock) DockChipsTopLeft();
         if (knifeText == null || panText == null) return;
         if (Time.unscaledTime < toolRefreshAt) return;
         toolRefreshAt = Time.unscaledTime + TOOL_REFRESH_SEC;
@@ -332,6 +351,7 @@ public class GameHUD : MonoBehaviour
             chipsVisible = show;
             if (knifeChipGo != null) knifeChipGo.SetActive(show);
             if (panChipGo != null) panChipGo.SetActive(show);
+            if (toolHintGo != null) toolHintGo.SetActive(show);   // v3.6
         }
         if (!show) return;
 
@@ -352,6 +372,135 @@ public class GameHUD : MonoBehaviour
             panText.text = "팬 " + pan + "%" + (pan <= 30 ? " !" : "");
             panText.color = ChipColor(pan);
         }
+    }
+
+    /// <summary>
+    /// v3.6 (HUD 재배치): 칼/팬 명판을 좌상단 HP 판(UISkin "SkinPanel_TL", 470x176) 2줄 - 골드 오른쪽에 만든다.
+    /// 스킨이 없으면(ui_pipe 없음) HUD 캔버스 좌상단 글자로. 판이 아직 없으면 다음 갱신에 다시 시도
+    /// </summary>
+    private void DockChipsTopLeft()
+    {
+        if (!UISkin.Available)
+        {
+            chipsPendingDock = false;
+            knifeText = UIFactory.CreateText(canvas.transform, "KnifeChip", "칼 100%", 16, UIFactory.GOLD, TextAnchor.UpperLeft);
+            knifeText.rectTransform.anchorMin = new Vector2(0f, 1f); knifeText.rectTransform.anchorMax = new Vector2(0f, 1f);
+            knifeText.rectTransform.pivot = new Vector2(0f, 1f);
+            knifeText.rectTransform.anchoredPosition = new Vector2(16f, -96f); knifeText.rectTransform.sizeDelta = new Vector2(96f, 24f);
+            panText = UIFactory.CreateText(canvas.transform, "PanChip", "팬 100%", 16, UIFactory.GOLD, TextAnchor.UpperLeft);
+            panText.rectTransform.anchorMin = new Vector2(0f, 1f); panText.rectTransform.anchorMax = new Vector2(0f, 1f);
+            panText.rectTransform.pivot = new Vector2(0f, 1f);
+            panText.rectTransform.anchoredPosition = new Vector2(118f, -96f); panText.rectTransform.sizeDelta = new Vector2(96f, 24f);
+            knifeChipGo = knifeText.gameObject; panChipGo = panText.gameObject;
+            return;
+        }
+        GameObject tl = GameObject.Find("SkinPanel_TL");
+        if (tl == null) return;   // UISkin 이 아직 안 만들었다 - 다음 0.25초에
+        chipsPendingDock = false;
+        RectTransform knifePlate = UISkin.Nameplate(tl.transform, "Knife", "칼 100%", 15, new Vector2(0f, 1f), new Vector2(214f, -98f), 96f);
+        RectTransform panPlate = UISkin.Nameplate(tl.transform, "Pan", "팬 100%", 15, new Vector2(0f, 1f), new Vector2(318f, -98f), 96f);
+        knifeChipGo = knifePlate.gameObject; panChipGo = panPlate.gameObject;
+        knifeText = FindLabel(knifePlate); panText = FindLabel(panPlate);
+        Text hint = UIFactory.CreateText(tl.transform, "ToolHint", "칼·팬이 낡으면 조리 판정 칸이 좁아진다", 12, new Color(0.63f, 0.55f, 0.43f), TextAnchor.UpperLeft);
+        hint.rectTransform.anchorMin = new Vector2(0f, 1f); hint.rectTransform.anchorMax = new Vector2(0f, 1f); hint.rectTransform.pivot = new Vector2(0f, 1f);
+        hint.rectTransform.anchoredPosition = new Vector2(26f, -140f); hint.rectTransform.sizeDelta = new Vector2(420f, 20f);
+        hint.raycastTarget = false;
+        toolHintGo = hint.gameObject;
+        lastKnifeShown = -1; lastPanShown = -1;
+        chipsVisible = true;
+    }
+
+    // ──────────────────────────────────────
+    // v3.6: 드래그 투입 - 카드를 끌면 고스트 카드가 커서를 따라가고, 슬롯 위에서 놓으면 투입
+    // ──────────────────────────────────────
+    /// <summary>FoodCardDrag 에서: 끌기 시작</summary>
+    public void BeginDrag(string recipeId, Vector2 screenPos)
+    {
+        if (!GameBalance.DragInsertOn) return;
+        if (FoodStock.Instance == null || FoodStock.Instance.Get(recipeId) <= 0) return;
+        RecipeData r = RecipeDatabase.Get(recipeId);
+        if (r == null) return;
+        EndDrag(false);
+        DragActive = true; DragRecipeId = recipeId; dragHover = -1;
+        // 클릭 투입 모드와 겹치지 않게 - 단 목록은 다시 만들지 않는다 (끌고 있는 카드가 지워지면 uGUI 가 드래그를 끊는다)
+        placingRecipeId = "";
+        Transform banner = canvas.transform.Find("PlacingBanner");
+        if (banner != null) banner.gameObject.SetActive(false);
+
+        // 고스트: 카드와 같은 크기의 평판 + 이름 + 한 줄 안내, 80% 불투명, 클릭 통과
+        GameObject go = new GameObject("DragGhost");
+        dragGhost = go.AddComponent<RectTransform>();
+        dragGhost.SetParent(canvas.transform, false);
+        dragGhost.SetAsLastSibling();
+        dragGhost.pivot = new Vector2(0.5f, 0.5f);
+        dragGhost.sizeDelta = new Vector2(CARD_W, CARD_H);
+        Image border = go.AddComponent<Image>();
+        border.color = new Color(UIFactory.GOLD.r, UIFactory.GOLD.g, UIFactory.GOLD.b, 0.85f);
+        border.raycastTarget = false;
+        if (UISkin.Available) UISkin.Ring(border, border.color);
+        GameObject bg = new GameObject("BG");
+        RectTransform bgRt = bg.AddComponent<RectTransform>();
+        bgRt.SetParent(dragGhost, false);
+        bgRt.anchorMin = Vector2.zero; bgRt.anchorMax = Vector2.one;
+        float pad = UISkin.Available ? 8f : 2f;
+        bgRt.offsetMin = new Vector2(pad, pad); bgRt.offsetMax = new Vector2(-pad, -pad);
+        Image bgImg = bg.AddComponent<Image>();
+        Color tagC = UIFactory.TagColor(r.tag);
+        bgImg.color = new Color(tagC.r * 0.28f, tagC.g * 0.28f, tagC.b * 0.28f, 0.85f);
+        bgImg.raycastTarget = false;
+        if (UISkin.Available) UISkin.Plate(bgImg, new Color(1f, 1f, 1f, 0.85f));
+        Text name = UIFactory.CreateText(bgRt, "Name", r.displayName, 14, UIFactory.CREAM, TextAnchor.UpperCenter);
+        name.rectTransform.offsetMin = new Vector2(2f, 18f); name.rectTransform.offsetMax = new Vector2(-2f, -3f);
+        name.raycastTarget = false;
+        dragGhostSub = UIFactory.CreateText(bgRt, "Sub", "슬롯에 놓아라", 12, UIFactory.GOLD, TextAnchor.LowerCenter);
+        dragGhostSub.rectTransform.offsetMin = new Vector2(2f, 2f); dragGhostSub.rectTransform.offsetMax = new Vector2(-2f, 18f);
+        dragGhostSub.raycastTarget = false;
+        MoveDrag(screenPos);
+        SoundManager.Play("sfx_ui_click");
+    }
+
+    /// <summary>FoodCardDrag 에서: 매 프레임 커서 위치. 놓을 슬롯을 찾아 이름표를 바꾼다</summary>
+    public void MoveDrag(Vector2 screenPos)
+    {
+        if (!DragActive || dragGhost == null) return;
+        dragGhost.position = new Vector3(screenPos.x + 14f, screenPos.y - 10f, 0f);
+        int near = SlotMarkerUI.Instance != null ? SlotMarkerUI.Instance.NearestMarker(screenPos, GameBalance.DragDropRadius) : -1;
+        if (near >= 0 && TurretSlotManager.Instance != null)
+        {
+            TurretSlot slot = TurretSlotManager.Instance.slots[near];
+            // 다른 요리가 든 슬롯은 못 놓는다 (같은 요리 = 접시 추가, 빈 슬롯 = 새 포탑)
+            if (slot == null || (!slot.IsEmpty && slot.recipeId != DragRecipeId)) near = -1;
+        }
+        if (near != dragHover)
+        {
+            dragHover = near;
+            if (SlotMarkerUI.Instance != null) SlotMarkerUI.Instance.SetDragHover(near);
+            if (dragGhostSub != null) dragGhostSub.text = near >= 0 ? "놓으면 투입" : "슬롯에 놓아라";
+        }
+    }
+
+    /// <summary>FoodCardDrag 에서: 놓기. 슬롯 위면 투입, 아니면 취소</summary>
+    public void EndDrag(bool drop)
+    {
+        if (!DragActive) return;
+        int target = drop ? dragHover : -1;
+        string id = DragRecipeId;
+        DragActive = false; DragRecipeId = ""; dragHover = -1;
+        if (SlotMarkerUI.Instance != null) SlotMarkerUI.Instance.SetDragHover(-1);
+        if (dragGhost != null) { Destroy(dragGhost.gameObject); dragGhost = null; dragGhostSub = null; }
+        TurretSlot slot = (target >= 0 && TurretSlotManager.Instance != null) ? TurretSlotManager.Instance.slots[target] : null;
+        if (slot != null)
+        {
+            if (slot.TryInsertFood(id))
+                FoodStock.Instance.TryConsume(id, 1);   // OnChanged -> RebuildFoodList (드래그가 끝났으니 바로)
+            else
+            {
+                SoundManager.Play("sfx_judge_bad");
+                Debug.Log("[GameHUD] 드래그 투입 불가 (잠금·파손 또는 다른 요리)");
+            }
+        }
+        // 드래그 중 미뤄 둔 목록 갱신 (재고가 그 사이 바뀌었을 수 있다 - 갑판 상자 등)
+        if (rebuildPending) { rebuildPending = false; RebuildFoodList(); }
     }
 
     /// <summary>칩 글자색: 30% 이하 빨강(경고와 같은 문턱), 60% 이하 호박색, 그 외 기본(명판 = 먹색 / 단색 = 금색)</summary>
@@ -380,6 +529,9 @@ public class GameHUD : MonoBehaviour
 
     private void RebuildFoodList()
     {
+        // v3.6: 드래그 중엔 미룬다 - 끌고 있는 카드(pointerDrag)를 지우면 uGUI 가 OnDrag/OnEndDrag 를 더 보내지 않는다
+        if (DragActive) { rebuildPending = true; return; }
+
         // 기존 카드 제거
         for (int i = 0; i < foodCards.Count; i++)
             Destroy(foodCards[i]);
@@ -476,6 +628,7 @@ public class GameHUD : MonoBehaviour
         Button btn = cardGo.AddComponent<Button>();
         btn.onClick.AddListener(delegate { OnFoodCardClicked(id); });
         ButtonFeel.Attach(btn);   // v3.5: 호버·프레스 반응
+        if (GameBalance.DragInsertOn) cardGo.AddComponent<FoodCardDrag>().recipeId = id;   // v3.6: 끌어다 놓기
 
         // 내부 배경 (스킨: 무쇠 평판 / 단색: 계열색 어둡게)
         GameObject bg = new GameObject("BG");
@@ -550,5 +703,31 @@ public class GameHUD : MonoBehaviour
         {
             Debug.Log("[GameHUD] 이 슬롯에 투입 불가 (잠금 또는 다른 요리 존재)");
         }
+    }
+}
+
+/// <summary>
+/// v3.6: 요리 카드 드래그 수신기 - 끌기 시작/이동/놓기를 GameHUD 로 보낸다.
+/// 드래그가 시작되면 클릭 자격(eligibleForClick)을 내려 클릭 투입과 충돌하지 않는다 (다른 곳에 놓으면 uGUI 가 스스로 내리고, 같은 카드 위에 놓을 때만 우리가 내려야 한다).
+/// </summary>
+public class FoodCardDrag : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
+{
+    public string recipeId = "";
+
+    public void OnBeginDrag(PointerEventData e)
+    {
+        if (e.button != PointerEventData.InputButton.Left) return;
+        e.eligibleForClick = false;   // 같은 카드 위에서 놓아도 클릭(투입 모드 토글)으로 새지 않게
+        if (GameHUD.Instance != null) GameHUD.Instance.BeginDrag(recipeId, e.position);
+    }
+
+    public void OnDrag(PointerEventData e)
+    {
+        if (GameHUD.Instance != null) GameHUD.Instance.MoveDrag(e.position);
+    }
+
+    public void OnEndDrag(PointerEventData e)
+    {
+        if (GameHUD.Instance != null) { GameHUD.Instance.MoveDrag(e.position); GameHUD.Instance.EndDrag(true); }
     }
 }

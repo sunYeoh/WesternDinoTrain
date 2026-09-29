@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// [TurretSlotManager.cs] v2.1 (v9.9 2026-09-16: 슬롯 4모서리 배치 GameBalance.SlotPosition + 근접 판정 "가까운 벽 쪽 거리") / v2
+/// [TurretSlotManager.cs] v2.4 (v9.15 2026-09-29: 파손 슬롯 - RepairAllBroken(새 운행)·BrokenCount·RepairOne(정비소) / 동종 병합 레벨 배율 표기 GameBalance.LevelMultOf) / v2.3 (v9.14 레벨 상한) / v2.1 (v9.9 2026-09-16: 슬롯 4모서리 배치 GameBalance.SlotPosition + 근접 판정 "가까운 벽 쪽 거리") / v2
 /// 포탑 슬롯 8개를 자동 생성/관리하는 매니저 (싱글톤)
 /// - v2.1: 슬롯 위치는 GameBalance.SlotPosition(i) 한 곳에서 (모서리 4 = 북 2 지붕선 위 / 남 2 섀시 위).
 ///   FindStunnedSlotNear 는 셰프가 걸을 수 있는 띠(TrainWalkMinY~MaxY)로 슬롯 y 를 붙인 점까지의 거리로 잰다 -
@@ -475,6 +475,28 @@ public class TurretSlotManager : MonoBehaviour
     private float lastOverheatTime = -999f;
 
     /// <summary>어느 슬롯이든 마비(감전/빙결/과열) 중인가 - 과열 동시 발생 차단용</summary>
+    // ── v2.4: 파손 슬롯 (TurretSlot.isBroken) ──
+    /// <summary>새 운행 시작 때 전부 수리 (GameManager 첫 웨이브 블록에서). 파손은 "이번 운행" 한정</summary>
+    public void RepairAllBroken()
+    {
+        for (int i = 0; i < slots.Length; i++)
+            if (slots[i] != null && slots[i].isBroken) slots[i].Repair();
+    }
+
+    /// <summary>파손된 슬롯 수 (정비소 수리 줄 표시용)</summary>
+    public int BrokenCount
+    {
+        get { int n = 0; for (int i = 0; i < slots.Length; i++) if (slots[i] != null && slots[i].isBroken) n++; return n; }
+    }
+
+    /// <summary>파손 슬롯 하나 수리 (정비소, GameBalance.BrokenSlotRepairCost > 0 일 때). 고친 게 없으면 false</summary>
+    public bool RepairOne()
+    {
+        for (int i = 0; i < slots.Length; i++)
+            if (slots[i] != null && slots[i].isBroken) { slots[i].Repair(); return true; }
+        return false;
+    }
+
     public bool AnySlotStunned()
     {
         for (int i = 0; i < slots.Length; i++)
@@ -606,9 +628,9 @@ public class TurretSlotManager : MonoBehaviour
             if (slots[i] != null && !slots[i].isLocked && slots[i].recipeId == recipeId)
                 return slots[i].TryInsertFood(recipeId);
 
-        // 2순위: 해금된 빈 슬롯
+        // 2순위: 해금된 빈 슬롯 (v2.4: 파손 슬롯은 건너뛴다)
         for (int i = 0; i < 8; i++)
-            if (slots[i] != null && !slots[i].isLocked && slots[i].IsEmpty)
+            if (slots[i] != null && !slots[i].isLocked && !slots[i].isBroken && slots[i].IsEmpty)
                 return slots[i].TryInsertFood(recipeId);
 
         Debug.Log("[TurretSlotManager] 빈 슬롯 없음! (해금 " + UnlockedSlotCount + "칸 - 증강 '증축된 주방 칸'으로 확장 가능)");

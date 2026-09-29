@@ -5,59 +5,66 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 /// <summary>
-/// [UISkin.cs] v1.2 - "ì‡³ëƒ„ìƒˆ" í”½ì…€ UI ìŠ¤í‚¨ (2026-09-07, HUD ëª©ì—… v3 ì»¨íŒ)
-/// - v1.2 (v9.8): MaterialIcon / AddMaterialIcon ì¶”ê°€ - ì¬ë£Œ ì•„ì´ì½˜(ui_mat_*.png 32px)ì„ HUD ì¬ë£Œ ì¹¸Â·ì£¼ë°©ì°½ ì¬ë£Œ ë°”Â·ì •ë¹„ì†Œ ì¬ë£Œ ì‹œì¥ì´ ê³µìš©ìœ¼ë¡œ ì“´ë‹¤.
-///   PNG ê°€ ì—†ìœ¼ë©´ null ì„ ëŒë ¤ì£¼ê³  í˜¸ì¶œë¶€ëŠ” ì˜ˆì „ ê³„ì—´ìƒ‰ ì¹©/ê¸€ìë¡œ ë‚¨ëŠ”ë‹¤. ê·¸ ì™¸ ë³€ê²½ ì—†ìŒ
-/// - v1.1 (v9.5): Relabel(ëª…íŒ ê¸€ì ë°”ê¾¸ê¸° + í­ ì¬ê³„ì‚°) ì¶”ê°€ - ì¡°ë¦¬ ë¯¸ë‹ˆê²Œì„ ì œëª© ëª…íŒìš©. ê·¸ ì™¸ ë³€ê²½ ì—†ìŒ
+/// [UISkin.cs] v1.3 (v9.15 2026-09-29 HUD Àç¹èÄ¡, GameBalance.HudRegroup - ¸ñ¾÷ v1 ÄÁÆß: ÁÂ»ó´Ü ÆÇ 470x176 = HP °ÔÀÌÁö + °ñµå(Å« ±ÛÀÚ) + Ä®/ÆÒ ¸íÆÇ(GameHUD °¡ ºÙÀÎ´Ù) /
+///   ¿ì»ó´Ü ÆÇ 400x150 = ¿şÀÌºê ¸íÆÇ + »óÅÂ + Á¤º¸ 2ÁÙ(InfoLine1/2 - UIManager °¡ Ã¤¿î´Ù: ¼Õ´Ô ³²À½¡¤º¸½º±îÁö / Áö¿ª¡¤¿¹°í) + ±× ¾Æ·¡ ¾Ë¸² ·Î±×(UIManager). ½ºÀ§Ä¡ false = v1.2 ¹èÄ¡) /
+/// v1.2 - "¼í³¿»õ" ÇÈ¼¿ UI ½ºÅ² (2026-09-07, HUD ¸ñ¾÷ v3 ÄÁÆß)
+/// - v1.2 (v9.8): MaterialIcon / AddMaterialIcon Ãß°¡ - Àç·á ¾ÆÀÌÄÜ(ui_mat_*.png 32px)À» HUD Àç·á Ä­¡¤ÁÖ¹æÃ¢ Àç·á ¹Ù¡¤Á¤ºñ¼Ò Àç·á ½ÃÀåÀÌ °ø¿ëÀ¸·Î ¾´´Ù.
+///   PNG °¡ ¾øÀ¸¸é null À» µ¹·ÁÁÖ°í È£ÃâºÎ´Â ¿¹Àü °è¿­»ö Ä¨/±ÛÀÚ·Î ³²´Â´Ù. ±× ¿Ü º¯°æ ¾øÀ½
+/// - v1.1 (v9.5): Relabel(¸íÆÇ ±ÛÀÚ ¹Ù²Ù±â + Æø Àç°è»ê) Ãß°¡ - Á¶¸® ¹Ì´Ï°ÔÀÓ Á¦¸ñ ¸íÆÇ¿ë. ±× ¿Ü º¯°æ ¾øÀ½
 ///
-/// Resources/Sprites/WDT/ui_*.png (íŒŒì´í”„ í”„ë ˆì„ / ë¬´ì‡  í‰íŒ / í…Œ / ë²„íŠ¼ / í™©ë™ ëª…íŒ / ìœ„í—˜ ìŠ¤íŠ¸ë¼ì´í”„ / ê²Œì´ì§€ / ì¥ì‹)ë¥¼
-/// ì½”ë“œ ìƒì„± UI ì „ë¶€ì— ì…íŒë‹¤. ì„¸ ê°ˆë˜:
-///   1) API  : UIFactory.CreatePanel/CreateButton, GameHUD ê°€ ì§ì ‘ í˜¸ì¶œ (Pipe / Plate / Ring / ButtonSkin / Nameplate / Gauge / Ornament)
-///   2) ìŠ¤ìºë„ˆ: 0.15ì´ˆë§ˆë‹¤ ìº”ë²„ìŠ¤ì˜ Imageë¥¼ í›‘ì–´ ì•„ì§ ìŠ¤í‚¨ì´ ì—†ëŠ” "ë‹¨ìƒ‰ ë°•ìŠ¤"ì— ìë™ ì ìš©
-///             (ì¦ê°•/ìƒì /ì •ë¹„ì†Œ/ì„ ë¡œ ì¹´ë“œ/ì¼ì‹œì •ì§€/ì¼ì§€/ë² íŒ… ë“± KitchenEventManager.MakeBox ê³„ì—´ - íŒŒì¼ ë¬´ìˆ˜ì •)
-///             ê·œì¹™: Button ë‹¬ë¦° ê²ƒ = ë²„íŠ¼ / 320x300 ë˜ëŠ” 600x150 ì´ìƒ = íŒŒì´í”„ í”„ë ˆì„(ì¡°ìƒì— íŒŒì´í”„ ìˆìœ¼ë©´ ì¹´ë“œ) / 100x36 ì´ìƒ = ì¹´ë“œ(í‰íŒ+í…Œ)
-///                   ì œì™¸: ì´ë¦„ì— Dim/Track/Zone/Cursor/Fill/Band/Dot/Edge/Row/Viewport/Scroll/Mask/Bar/Gauge/Icon/Marker/Line/Handle/Good/Perfect/BG/Top,
-///                        ì•ŒíŒŒ 0.5 ë¯¸ë§Œ, í™”ë©´ 90% ì´ìƒ ë®ëŠ” ê²ƒ(ì•”ì „), ìŠ¬ë¼ì´ë” ë¶€í’ˆ, ì´ë¯¸ ìŠ¤í”„ë¼ì´íŠ¸ê°€ ìˆëŠ” ê²ƒ
-///                   ìŠ¤í‚¨ëœ ë¶€ëª¨ë¥¼ ê±°ì˜ ê½‰ ì±„ìš°ëŠ” ìì‹ ë°•ìŠ¤(ì¦ê°• ì¹´ë“œ "Inner" ë“±)ëŠ” ìˆ¨ê¸´ë‹¤ (ë¶€ëª¨ í‰íŒì´ ì†ì§€)
-///   3) ì”¬ HUD ì¬ë°°ì¹˜: [HUD Canvas]ì˜ HPBar/HPText/GoldText/WaveText/StateText/WaveNoticeTextë¥¼
-///             íŒŒì´í”„ íŒ¨ë„(ì¢Œìƒë‹¨ HP ê²Œì´ì§€, ìš°ìƒë‹¨ ì›¨ì´ë¸Œ ëª…íŒÂ·ê³¨ë“œÂ·ìƒíƒœ) ì•ˆìœ¼ë¡œ ì˜®ê¸°ê³ 
-///             ì›¨ì´ë¸Œ ì˜ˆê³ /ì•ˆë‚´ í…ìŠ¤íŠ¸ì—ëŠ” ê¸€ì í¬ê¸°ì— ë§ì¶° ìŠ¤ìŠ¤ë¡œ ì»¤ì§€ëŠ” ì¹´ë“œ ë°°ê²½ì„ ê¹”ì•„ ì¤€ë‹¤ (ê¸€ìê°€ í…Œë‘ë¦¬ì— ë¶™ì§€ ì•ŠëŠ”ë‹¤)
-///             (ì”¬ ì”ì¬ SatietyBar/SatietyTextëŠ” ëˆë‹¤ - í¬ë§Œê° ì‹œìŠ¤í…œì€ v2ì—ì„œ ì œê±°ë¨)
-/// ë„ê¸°: ENABLED = false (ëª¨ë“  UIê°€ ì˜ˆì „ ë‹¨ìƒ‰ ë°•ìŠ¤ë¡œ ëŒì•„ê°„ë‹¤). ui_pipe.png ê°€ ì—†ì–´ë„ ìë™ìœ¼ë¡œ êº¼ì§„ë‹¤
-/// ì‚¬ìš©ë²•: ì—†ìŒ! íŒŒì¼ë§Œ ë„£ìœ¼ë©´ ê²Œì„ ì‹œì‘ ì‹œ ìŠ¤ìŠ¤ë¡œ ìƒì„±ëœë‹¤. (SpriteBank.cs + ui_*.png + UIFactory.cs v4 í•„ìš”)
-/// VS 2017 (C# 7.3) í˜¸í™˜
+/// Resources/Sprites/WDT/ui_*.png (ÆÄÀÌÇÁ ÇÁ·¹ÀÓ / ¹«¼è ÆòÆÇ / Å× / ¹öÆ° / È²µ¿ ¸íÆÇ / À§Çè ½ºÆ®¶óÀÌÇÁ / °ÔÀÌÁö / Àå½Ä)¸¦
+/// ÄÚµå »ı¼º UI ÀüºÎ¿¡ ÀÔÈù´Ù. ¼¼ °¥·¡:
+///   1) API  : UIFactory.CreatePanel/CreateButton, GameHUD °¡ Á÷Á¢ È£Ãâ (Pipe / Plate / Ring / ButtonSkin / Nameplate / Gauge / Ornament)
+///   2) ½ºÄ³³Ê: 0.15ÃÊ¸¶´Ù Äµ¹ö½ºÀÇ Image¸¦ ÈÈ¾î ¾ÆÁ÷ ½ºÅ²ÀÌ ¾ø´Â "´Ü»ö ¹Ú½º"¿¡ ÀÚµ¿ Àû¿ë
+///             (Áõ°­/»óÁ¡/Á¤ºñ¼Ò/¼±·Î Ä«µå/ÀÏ½ÃÁ¤Áö/ÀÏÁö/º£ÆÃ µî KitchenEventManager.MakeBox °è¿­ - ÆÄÀÏ ¹«¼öÁ¤)
+///             ±ÔÄ¢: Button ´Ş¸° °Í = ¹öÆ° / 320x300 ¶Ç´Â 600x150 ÀÌ»ó = ÆÄÀÌÇÁ ÇÁ·¹ÀÓ(Á¶»ó¿¡ ÆÄÀÌÇÁ ÀÖÀ¸¸é Ä«µå) / 100x36 ÀÌ»ó = Ä«µå(ÆòÆÇ+Å×)
+///                   Á¦¿Ü: ÀÌ¸§¿¡ Dim/Track/Zone/Cursor/Fill/Band/Dot/Edge/Row/Viewport/Scroll/Mask/Bar/Gauge/Icon/Marker/Line/Handle/Good/Perfect/BG/Top,
+///                        ¾ËÆÄ 0.5 ¹Ì¸¸, È­¸é 90% ÀÌ»ó µ¤´Â °Í(¾ÏÀü), ½½¶óÀÌ´õ ºÎÇ°, ÀÌ¹Ì ½ºÇÁ¶óÀÌÆ®°¡ ÀÖ´Â °Í
+///                   ½ºÅ²µÈ ºÎ¸ğ¸¦ °ÅÀÇ ²Ë Ã¤¿ì´Â ÀÚ½Ä ¹Ú½º(Áõ°­ Ä«µå "Inner" µî)´Â ¼û±ä´Ù (ºÎ¸ğ ÆòÆÇÀÌ ¼ÓÁö)
+///   3) ¾À HUD Àç¹èÄ¡: [HUD Canvas]ÀÇ HPBar/HPText/GoldText/WaveText/StateText/WaveNoticeText¸¦
+///             ÆÄÀÌÇÁ ÆĞ³Î(ÁÂ»ó´Ü HP °ÔÀÌÁö, ¿ì»ó´Ü ¿şÀÌºê ¸íÆÇ¡¤°ñµå¡¤»óÅÂ) ¾ÈÀ¸·Î ¿Å±â°í
+///             ¿şÀÌºê ¿¹°í/¾È³» ÅØ½ºÆ®¿¡´Â ±ÛÀÚ Å©±â¿¡ ¸ÂÃç ½º½º·Î Ä¿Áö´Â Ä«µå ¹è°æÀ» ±ò¾Æ ÁØ´Ù (±ÛÀÚ°¡ Å×µÎ¸®¿¡ ºÙÁö ¾Ê´Â´Ù)
+///             (¾À ÀÜÀç SatietyBar/SatietyText´Â ²ö´Ù - Æ÷¸¸°¨ ½Ã½ºÅÛÀº v2¿¡¼­ Á¦°ÅµÊ)
+/// ²ô±â: ENABLED = false (¸ğµç UI°¡ ¿¹Àü ´Ü»ö ¹Ú½º·Î µ¹¾Æ°£´Ù). ui_pipe.png °¡ ¾ø¾îµµ ÀÚµ¿À¸·Î ²¨Áø´Ù
+/// »ç¿ë¹ı: ¾øÀ½! ÆÄÀÏ¸¸ ³ÖÀ¸¸é °ÔÀÓ ½ÃÀÛ ½Ã ½º½º·Î »ı¼ºµÈ´Ù. (SpriteBank.cs + ui_*.png + UIFactory.cs v4 ÇÊ¿ä)
+/// VS 2017 (C# 7.3) È£È¯
 /// </summary>
 public class UISkin : MonoBehaviour
 {
-    public static bool ENABLED = true;                    // ìŠ¤í‚¨ ì „ì²´ ìŠ¤ìœ„ì¹˜ (false = v3 ë‹¨ìƒ‰ ë°•ìŠ¤ UI)
+    public static bool ENABLED = true;                    // ½ºÅ² ÀüÃ¼ ½ºÀ§Ä¡ (false = v3 ´Ü»ö ¹Ú½º UI)
     private const float SCAN_INTERVAL = 0.15f;
-    private const float REF_W = 1920f, REF_H = 1080f;    // CanvasScaler ê¸°ì¤€ í•´ìƒë„ (ì „ ìº”ë²„ìŠ¤ ê³µí†µ)
+    private const float REF_W = 1920f, REF_H = 1080f;    // CanvasScaler ±âÁØ ÇØ»óµµ (Àü Äµ¹ö½º °øÅë)
 
-    // íŒ”ë ˆíŠ¸ (ê¸°ì°¨ì™€ ë™ì¼ ê³„ì—´)
-    public static readonly Color IRON = new Color(0.204f, 0.196f, 0.243f, 1f);      // ë¬´ì‡  í‰íŒ
+    // ÆÈ·¹Æ® (±âÂ÷¿Í µ¿ÀÏ °è¿­)
+    public static readonly Color IRON = new Color(0.204f, 0.196f, 0.243f, 1f);      // ¹«¼è ÆòÆÇ
     public static readonly Color IRON_LIGHT = new Color(0.30f, 0.29f, 0.35f, 1f);
-    public static readonly Color BRASS = new Color(0.84f, 0.667f, 0.282f, 1f);      // í™©ë™
-    public static readonly Color BRASS_DIM = new Color(0.55f, 0.47f, 0.32f, 1f);    // íë¦° í™©ë™ (ì¹´ë“œ ê¸°ë³¸ í…Œ)
-    public static readonly Color INK = new Color(0.118f, 0.086f, 0.063f, 1f);       // ëª…íŒ ê¸€ì
+    public static readonly Color BRASS = new Color(0.84f, 0.667f, 0.282f, 1f);      // È²µ¿
+    public static readonly Color BRASS_DIM = new Color(0.55f, 0.47f, 0.32f, 1f);    // Èå¸° È²µ¿ (Ä«µå ±âº» Å×)
+    public static readonly Color INK = new Color(0.118f, 0.086f, 0.063f, 1f);       // ¸íÆÇ ±ÛÀÚ
     public static readonly Color CREAM = new Color(0.969f, 0.910f, 0.776f, 1f);
     public static readonly Color HP_RED = new Color(0.84f, 0.20f, 0.22f, 1f);
     public static readonly Color GAUGE_GOLD = new Color(0.886f, 0.698f, 0.227f, 1f);
 
     private static readonly string[] EXCLUDE = { "Dim", "Track", "Zone", "Cursor", "Fill", "Band", "Dot", "Edge", "Row",
         "Viewport", "Scroll", "Mask", "Bar", "Gauge", "Icon", "Marker", "Line", "Handle", "Skin", "Nameplate", "Ornament",
-        "Good", "Perfect", "BG", "Top" };     // Good/Perfect = íƒ€ì´ë° êµ¬ê°„, BG = ë°” ë°°ê²½, Top = ì¹´ë“œ ë¨¸ë¦¬ë  (Band ì™€ ê°™ì€ ì—­í• )
+        "Good", "Perfect", "BG", "Top" };     // Good/Perfect = Å¸ÀÌ¹Ö ±¸°£, BG = ¹Ù ¹è°æ, Top = Ä«µå ¸Ó¸®¶ì (Band ¿Í °°Àº ¿ªÇÒ)
 
     private static bool loaded, available;
     private static Sprite pipe, plate, ring, btn, nameplate, hazard, gaugeBg, gaugeFill, gaugeRound, valve, vent;
-    private static Sprite pipeV;   // ì„¸ë¡œ íŒŒì´í”„ ì¡°ê° (ui_pipe ì—ì„œ ì˜ë¼ ë§Œë“ ë‹¤ - PipeVertical)
+    private static Sprite pipeV;   // ¼¼·Î ÆÄÀÌÇÁ Á¶°¢ (ui_pipe ¿¡¼­ Àß¶ó ¸¸µç´Ù - PipeVertical)
     private static UISkin instance;
 
-    /// <summary>ìŠ¤í‚¨ ì ìš© ì—¬ë¶€ í‘œì‹œ (kind: 0=ê±´ë„ˆëœ€ 1=íŒŒì´í”„ 2=ì¹´ë“œ 3=ë²„íŠ¼ 4=ì§ì ‘ ì§€ì •)</summary>
+    /// <summary>½ºÅ² Àû¿ë ¿©ºÎ Ç¥½Ã (kind: 0=°Ç³Ê¶Ü 1=ÆÄÀÌÇÁ 2=Ä«µå 3=¹öÆ° 4=Á÷Á¢ ÁöÁ¤)</summary>
     public class Mark : MonoBehaviour { public int kind; }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ë¡œë“œ / ê°€ìš©ì„±
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ·Îµå / °¡¿ë¼º
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    /// <summary>v1.3: ¿ì»ó´Ü Á¤º¸ 2ÁÙ (HudRegroup ÀÏ ¶§ SkinSceneHudLater °¡ ¸¸µç´Ù. UIManager °¡ ±ÛÀÚ¸¦ Ã¤¿î´Ù)</summary>
+    public static Text InfoLine1, InfoLine2;
+    /// <summary>v1.3: HUD Àç¹èÄ¡°¡ ½ÇÁ¦·Î Àû¿ëµÆ³ª (UIManager ·Î±× ½ºÅÃ À§Ä¡ / GameHUD Ä¨ ÀÚ¸®)</summary>
+    public static bool HudRegrouped { get; private set; }
+
     public static bool Available
     {
         get { Load(); return available; }
@@ -74,7 +81,7 @@ public class UISkin : MonoBehaviour
         gaugeBg = SpriteBank.Get("ui_gauge_bg"); gaugeFill = SpriteBank.Get("ui_gauge_fill");
         gaugeRound = SpriteBank.Get("ui_gauge_round"); valve = SpriteBank.Get("ui_valve"); vent = SpriteBank.Get("ui_vent");
         available = pipe != null && plate != null && ring != null && btn != null && nameplate != null;
-        if (!available) Debug.Log("[UISkin] ui_*.png ì—†ìŒ - ë‹¨ìƒ‰ ë°•ìŠ¤ UI ìœ ì§€");
+        if (!available) Debug.Log("[UISkin] ui_*.png ¾øÀ½ - ´Ü»ö ¹Ú½º UI À¯Áö");
     }
 
     public static Sprite Ornament(string name)
@@ -94,24 +101,24 @@ public class UISkin : MonoBehaviour
         GameObject go = new GameObject("UISkin");
         DontDestroyOnLoad(go);
         instance = go.AddComponent<UISkin>();
-        Debug.Log("[UISkin] í”½ì…€ UI ìŠ¤í‚¨ ì¤€ë¹„ (íŒŒì´í”„ í”„ë ˆì„ + ë¬´ì‡  í‰íŒ)");
+        Debug.Log("[UISkin] ÇÈ¼¿ UI ½ºÅ² ÁØºñ (ÆÄÀÌÇÁ ÇÁ·¹ÀÓ + ¹«¼è ÆòÆÇ)");
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ìŠ¤íƒ€ì¼ API (UIFactory / GameHUD ê°€ ì§ì ‘ í˜¸ì¶œ)
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    /// <summary>íŒŒì´í”„ í”„ë ˆì„ (íƒ€ì¼ ë°˜ë³µ: ì»¤í”Œë§Â·ì² íŒì´ í¬ê¸°ì— ë”°ë¼ ëŠ˜ì–´ë‚œë‹¤). ìƒ‰ì€ í°ìƒ‰ ê³ ì •</summary>
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ½ºÅ¸ÀÏ API (UIFactory / GameHUD °¡ Á÷Á¢ È£Ãâ)
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    /// <summary>ÆÄÀÌÇÁ ÇÁ·¹ÀÓ (Å¸ÀÏ ¹İº¹: Ä¿ÇÃ¸µ¡¤Ã¶ÆÇÀÌ Å©±â¿¡ µû¶ó ´Ã¾î³­´Ù). »öÀº Èò»ö °íÁ¤</summary>
     public static void Pipe(Image img)
     {
         img.sprite = pipe; img.type = Image.Type.Tiled; img.color = Color.white; SetMark(img, 1);
     }
 
-    /// <summary>ì„¸ë¡œ íŒŒì´í”„ êµ¬ë¶„ì„  (ui_pipe ì™¼ìª½ í…Œì˜ ì»¤í”Œë§ ì¡°ê° 28x40 ì„ ì„¸ë¡œë¡œ íƒ€ì¼). í­ 28 ë¡œ ì“´ë‹¤</summary>
+    /// <summary>¼¼·Î ÆÄÀÌÇÁ ±¸ºĞ¼± (ui_pipe ¿ŞÂÊ Å×ÀÇ Ä¿ÇÃ¸µ Á¶°¢ 28x40 À» ¼¼·Î·Î Å¸ÀÏ). Æø 28 ·Î ¾´´Ù</summary>
     public static void PipeVertical(Image img)
     {
         if (pipeV == null && pipe != null)
         {
-            Rect r = pipe.rect;   // í…ìŠ¤ì²˜ ì•ˆì˜ ìŠ¤í”„ë¼ì´íŠ¸ ì˜ì—­ (ì•„í‹€ë¼ìŠ¤ì— ë¬¶ì—¬ë„ ì•ˆì „)
+            Rect r = pipe.rect;   // ÅØ½ºÃ³ ¾ÈÀÇ ½ºÇÁ¶óÀÌÆ® ¿µ¿ª (¾ÆÆ²¶ó½º¿¡ ¹­¿©µµ ¾ÈÀü)
             pipeV = Sprite.Create(pipe.texture, new Rect(r.x, r.y + 28f, 28f, r.height - 56f),
                 new Vector2(0.5f, 0.5f), pipe.pixelsPerUnit, 0, SpriteMeshType.FullRect);
             pipeV.name = "ui_pipe_v";
@@ -119,25 +126,25 @@ public class UISkin : MonoBehaviour
         img.sprite = pipeV; img.type = Image.Type.Tiled; img.color = Color.white; SetMark(img, 1);
     }
 
-    /// <summary>ë¬´ì‡  í‰íŒ (í‹´íŠ¸ ê°€ëŠ¥ - Color.white = ê¸°ë³¸ ë¬´ì‡ )</summary>
+    /// <summary>¹«¼è ÆòÆÇ (Æ¾Æ® °¡´É - Color.white = ±âº» ¹«¼è)</summary>
     public static void Plate(Image img, Color tint)
     {
         img.sprite = plate; img.type = Image.Type.Tiled; img.color = tint; SetMark(img, 2);
     }
 
-    /// <summary>í…Œ (ê°€ìš´ë° íˆ¬ëª…, ë¦¬ë²³ 4) - ìƒ‰ ìˆëŠ” ì¹´ë“œ í…Œë‘ë¦¬</summary>
+    /// <summary>Å× (°¡¿îµ¥ Åõ¸í, ¸®ºª 4) - »ö ÀÖ´Â Ä«µå Å×µÎ¸®</summary>
     public static void Ring(Image img, Color tint)
     {
         img.sprite = ring; img.type = Image.Type.Sliced; img.color = tint; SetMark(img, 2);
     }
 
-    /// <summary>ë²„íŠ¼ íŒ (í‹´íŠ¸ = ë²„íŠ¼ ìƒ‰)</summary>
+    /// <summary>¹öÆ° ÆÇ (Æ¾Æ® = ¹öÆ° »ö)</summary>
     public static void ButtonSkin(Image img, Color tint)
     {
         img.sprite = btn; img.type = Image.Type.Sliced; img.color = tint; SetMark(img, 3);
     }
 
-    /// <summary>í˜¸ìŠ¤íŠ¸ ì•ˆì— ê½‰ ì°¬ í…Œ ìì‹ ì¶”ê°€ (ê¸€ì ì•„ë˜ë¡œ ê°€ë„ë¡ ì²« ë²ˆì§¸ ìì‹). inset = ì•ˆìª½ìœ¼ë¡œ ë“¤ì—¬ì“°ê¸° (íŒŒì´í”„ ì•ˆìª½ì´ë©´ 28)</summary>
+    /// <summary>È£½ºÆ® ¾È¿¡ ²Ë Âù Å× ÀÚ½Ä Ãß°¡ (±ÛÀÚ ¾Æ·¡·Î °¡µµ·Ï Ã¹ ¹øÂ° ÀÚ½Ä). inset = ¾ÈÂÊÀ¸·Î µé¿©¾²±â (ÆÄÀÌÇÁ ¾ÈÂÊÀÌ¸é 28)</summary>
     public static Image AddRing(RectTransform host, Color tint, float inset = 0f)
     {
         GameObject go = new GameObject("SkinRing");
@@ -152,7 +159,7 @@ public class UISkin : MonoBehaviour
         return img;
     }
 
-    /// <summary>í™©ë™ ëª…íŒ + ê¸€ì. ì•µì»¤/í”¼ë²—ì€ ì™¼ìª½ ìœ„ ê¸°ì¤€, pos = ì•µì»¤ ê¸°ì¤€ ìœ„ì¹˜. í­ì€ ê¸€ì ìˆ˜ë¡œ ì–´ë¦¼ (í•œê¸€ ê¸°ì¤€)</summary>
+    /// <summary>È²µ¿ ¸íÆÇ + ±ÛÀÚ. ¾ŞÄ¿/ÇÇ¹şÀº ¿ŞÂÊ À§ ±âÁØ, pos = ¾ŞÄ¿ ±âÁØ À§Ä¡. ÆøÀº ±ÛÀÚ ¼ö·Î ¾î¸² (ÇÑ±Û ±âÁØ)</summary>
     public static RectTransform Nameplate(Transform parent, string name, string label, int fontSize, Vector2 anchor, Vector2 pos, float width = 0f)
     {
         GameObject go = new GameObject("Nameplate_" + name);
@@ -170,7 +177,7 @@ public class UISkin : MonoBehaviour
         return rt;
     }
 
-    /// <summary>ëª…íŒ ê¸€ì ë°”ê¾¸ê¸° - í­ë„ ìƒˆ ê¸€ì ìˆ˜ì— ë§ì¶° ë‹¤ì‹œ ì¡ëŠ”ë‹¤ (ì¡°ë¦¬ ë¯¸ë‹ˆê²Œì„ ì œëª©ì²˜ëŸ¼ ë‚´ìš©ì´ ë°”ë€ŒëŠ” ëª…íŒìš©)</summary>
+    /// <summary>¸íÆÇ ±ÛÀÚ ¹Ù²Ù±â - Æøµµ »õ ±ÛÀÚ ¼ö¿¡ ¸ÂÃç ´Ù½Ã Àâ´Â´Ù (Á¶¸® ¹Ì´Ï°ÔÀÓ Á¦¸ñÃ³·³ ³»¿ëÀÌ ¹Ù²î´Â ¸íÆÇ¿ë)</summary>
     public static void Relabel(RectTransform plate, string label, int fontSize)
     {
         if (plate == null) return;
@@ -180,12 +187,12 @@ public class UISkin : MonoBehaviour
         plate.sizeDelta = new Vector2(EstimateWidth(label, fontSize) + 28f, plate.sizeDelta.y);
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // v1.2: ì¬ë£Œ ì•„ì´ì½˜ (ui_mat_meat / armor / elec / fire / ice / poison - 16px ë””ìì¸ì„ 2ë°°ë¡œ êµ¬ìš´ 32px, PPU 100)
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // v1.2: Àç·á ¾ÆÀÌÄÜ (ui_mat_meat / armor / elec / fire / ice / poison - 16px µğÀÚÀÎÀ» 2¹è·Î ±¸¿î 32px, PPU 100)
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     private static readonly string[] MAT_ICON_KEYS = { "meat", "armor", "elec", "fire", "ice", "poison" };
 
-    /// <summary>ì¬ë£Œ ì•„ì´ì½˜ ìŠ¤í”„ë¼ì´íŠ¸. íŒŒì¼ì´ ì—†ìœ¼ë©´ null (í˜¸ì¶œë¶€ê°€ ê³„ì—´ìƒ‰ ì¹©ìœ¼ë¡œ í´ë°±)</summary>
+    /// <summary>Àç·á ¾ÆÀÌÄÜ ½ºÇÁ¶óÀÌÆ®. ÆÄÀÏÀÌ ¾øÀ¸¸é null (È£ÃâºÎ°¡ °è¿­»ö Ä¨À¸·Î Æú¹é)</summary>
     public static Sprite MaterialIcon(MaterialType t)
     {
         int i = (int)t;
@@ -194,8 +201,8 @@ public class UISkin : MonoBehaviour
     }
 
     /// <summary>
-    /// ì¬ë£Œ ì•„ì´ì½˜ Image ë¥¼ ë§Œë“ ë‹¤. anchor ê¸°ì¤€, í”¼ë²—ì€ ì™¼ìª½ ê°€ìš´ë°(pos = ì•„ì´ì½˜ ì™¼ìª½ ê°€ìš´ë° ì ), í•œ ë³€ size.
-    /// PNG ê°€ ì—†ìœ¼ë©´ ì•„ë¬´ê²ƒë„ ë§Œë“¤ì§€ ì•Šê³  null. ìŠ¤ìºë„ˆëŠ” ìŠ¤í”„ë¼ì´íŠ¸ê°€ ìˆëŠ” Image ë¥¼ ê±´ë“œë¦¬ì§€ ì•Šìœ¼ë¯€ë¡œ ë³„ë„ í‘œì‹œ ë¶ˆí•„ìš”
+    /// Àç·á ¾ÆÀÌÄÜ Image ¸¦ ¸¸µç´Ù. anchor ±âÁØ, ÇÇ¹şÀº ¿ŞÂÊ °¡¿îµ¥(pos = ¾ÆÀÌÄÜ ¿ŞÂÊ °¡¿îµ¥ Á¡), ÇÑ º¯ size.
+    /// PNG °¡ ¾øÀ¸¸é ¾Æ¹«°Íµµ ¸¸µéÁö ¾Ê°í null. ½ºÄ³³Ê´Â ½ºÇÁ¶óÀÌÆ®°¡ ÀÖ´Â Image ¸¦ °Çµå¸®Áö ¾ÊÀ¸¹Ç·Î º°µµ Ç¥½Ã ºÒÇÊ¿ä
     /// </summary>
     public static Image AddMaterialIcon(Transform parent, MaterialType t, Vector2 anchor, Vector2 pos, float size)
     {
@@ -212,7 +219,7 @@ public class UISkin : MonoBehaviour
         return img;
     }
 
-    /// <summary>ì¥ì‹ ìŠ¤í”„ë¼ì´íŠ¸ (ê²Œì´ì§€/ë°¸ë¸Œ/ê·¸ë¦´/ìœ„í—˜ ìŠ¤íŠ¸ë¼ì´í”„). ì•µì»¤ ê¸°ì¤€ pos, í¬ê¸°ëŠ” ì›ë³¸ í”½ì…€</summary>
+    /// <summary>Àå½Ä ½ºÇÁ¶óÀÌÆ® (°ÔÀÌÁö/¹ëºê/±×¸±/À§Çè ½ºÆ®¶óÀÌÇÁ). ¾ŞÄ¿ ±âÁØ pos, Å©±â´Â ¿øº» ÇÈ¼¿</summary>
     public static Image AddOrnament(Transform parent, string which, Vector2 anchor, Vector2 pos, Vector2 size)
     {
         Sprite s = Ornament(which);
@@ -228,7 +235,7 @@ public class UISkin : MonoBehaviour
         return img;
     }
 
-    /// <summary>ìŠ¬ë¼ì´ë”ë¥¼ ìœ ë¦¬ê´€ ê²Œì´ì§€ë¡œ (ë°°ê²½ = í™©ë™ ìº¡ íŠœë¸Œ, ì±„ì›€ = í‹´íŠ¸)</summary>
+    /// <summary>½½¶óÀÌ´õ¸¦ À¯¸®°ü °ÔÀÌÁö·Î (¹è°æ = È²µ¿ Ä¸ Æ©ºê, Ã¤¿ò = Æ¾Æ®)</summary>
     public static void Gauge(Slider s, Color fill)
     {
         if (s == null) return;
@@ -279,9 +286,9 @@ public class UISkin : MonoBehaviour
         return w;
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ìŠ¤ìºë„ˆ + ì”¬ HUD ì¬ë°°ì¹˜
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ½ºÄ³³Ê + ¾À HUD Àç¹èÄ¡
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     private float timer;
     private bool hudDone;
 
@@ -323,7 +330,7 @@ public class UISkin : MonoBehaviour
             if (img == null || img.GetComponent<Mark>() != null) continue;
             pending.Add(img); pendingDepth.Add(Depth(img.transform));
         }
-        // ë¶€ëª¨ë¥¼ ë¨¼ì € ë¶„ë¥˜í•´ì•¼ ìì‹ ê·œì¹™(íŒŒì´í”„ ì¡°ìƒ, ê½‰ ì°¬ ì†íŒ)ì´ ê°™ì€ ìŠ¤ìº”ì—ì„œ ë§ê²Œ ëˆë‹¤ - ì–•ì€ ê²ƒë¶€í„° (ì‚½ì… ì •ë ¬, ìˆ˜ì‹­ ê°œ ìˆ˜ì¤€)
+        // ºÎ¸ğ¸¦ ¸ÕÀú ºĞ·ùÇØ¾ß ÀÚ½Ä ±ÔÄ¢(ÆÄÀÌÇÁ Á¶»ó, ²Ë Âù ¼ÓÆÇ)ÀÌ °°Àº ½ºÄµ¿¡¼­ ¸Â°Ô µ·´Ù - ¾èÀº °ÍºÎÅÍ (»ğÀÔ Á¤·Ä, ¼ö½Ê °³ ¼öÁØ)
         for (int i = 1; i < pending.Count; i++)
         {
             Image img = pending[i]; int d = pendingDepth[i]; int j = i - 1;
@@ -343,7 +350,7 @@ public class UISkin : MonoBehaviour
 
     private void Classify(Image img)
     {
-        // ì´ë¯¸ ê·¸ë¦¼ì´ ìˆëŠ” ê²ƒ(ìŠ¤í”„ë¼ì´íŠ¸ ì•„íŠ¸, ìš°ë¦¬ ìŠ¤í‚¨)ì€ ê±´ë“œë¦¬ì§€ ì•ŠëŠ”ë‹¤
+        // ÀÌ¹Ì ±×¸²ÀÌ ÀÖ´Â °Í(½ºÇÁ¶óÀÌÆ® ¾ÆÆ®, ¿ì¸® ½ºÅ²)Àº °Çµå¸®Áö ¾Ê´Â´Ù
         if (img.sprite != null && img.sprite.name != "UISprite" && img.sprite.name != "Background") { SetMark(img, 0); return; }
         if (img.GetComponentInParent<Slider>() != null) { SetMark(img, 0); return; }
         string n = img.gameObject.name;
@@ -352,31 +359,31 @@ public class UISkin : MonoBehaviour
 
         RectTransform rt = img.rectTransform;
         Rect r = rt.rect;
-        if (r.width <= 1f && r.height <= 1f) return;              // ì•„ì§ ë ˆì´ì•„ì›ƒ ì „ - ë‹¤ìŒ ìŠ¤ìº”ì—
+        if (r.width <= 1f && r.height <= 1f) return;              // ¾ÆÁ÷ ·¹ÀÌ¾Æ¿ô Àü - ´ÙÀ½ ½ºÄµ¿¡
         Color c = img.color;
 
-        // ìŠ¤í‚¨ ì…íŒ ë¶€ëª¨ë¥¼ ê±°ì˜ ê½‰ ì±„ìš°ëŠ” ìì‹(ì˜ˆ: ì¦ê°• ì¹´ë“œì˜ "Inner" ì–´ë‘ìš´ ì†íŒ)ì€ ìˆ¨ê¸´ë‹¤ - ë¶€ëª¨ì˜ í‰íŒì´ ê³§ ì†ì§€
+        // ½ºÅ² ÀÔÈù ºÎ¸ğ¸¦ °ÅÀÇ ²Ë Ã¤¿ì´Â ÀÚ½Ä(¿¹: Áõ°­ Ä«µåÀÇ "Inner" ¾îµÎ¿î ¼ÓÆÇ)Àº ¼û±ä´Ù - ºÎ¸ğÀÇ ÆòÆÇÀÌ °ğ ¼ÓÁö
         if (IsNearFullChildOfSkinned(rt)) { img.enabled = false; SetMark(img, 0); return; }
 
         Button b = img.GetComponent<Button>();
         if (b != null)
         {
             Color bc = c; bc.a = 1f;
-            if (bc.r + bc.g + bc.b < 0.45f) bc = IRON_LIGHT;         // ë„ˆë¬´ ì–´ë‘ìš´ ë²„íŠ¼ì€ ë¬´ì‡ ë¡œ
+            if (bc.r + bc.g + bc.b < 0.45f) bc = IRON_LIGHT;         // ³Ê¹« ¾îµÎ¿î ¹öÆ°Àº ¹«¼è·Î
             ButtonSkin(img, bc);
             return;
         }
         if (c.a < 0.5f) { SetMark(img, 0); return; }
-        if (r.width >= REF_W * 0.9f && r.height >= REF_H * 0.9f) { SetMark(img, 0); return; }   // ì•”ì „
+        if (r.width >= REF_W * 0.9f && r.height >= REF_H * 0.9f) { SetMark(img, 0); return; }   // ¾ÏÀü
 
         bool saturated = Mathf.Max(c.r, Mathf.Max(c.g, c.b)) - Mathf.Min(c.r, Mathf.Min(c.g, c.b)) > 0.2f;
         Color ringColor = saturated ? new Color(c.r, c.g, c.b, 1f) : BRASS_DIM;
 
-        bool pipeSize = (r.width >= 320f && r.height >= 300f) || (r.width >= 600f && r.height >= 150f);   // íŒŒì´í”„ í…Œ 28px ê°€ ë‹µë‹µí•˜ì§€ ì•Šì„ í¬ê¸°
+        bool pipeSize = (r.width >= 320f && r.height >= 300f) || (r.width >= 600f && r.height >= 150f);   // ÆÄÀÌÇÁ Å× 28px °¡ ´ä´äÇÏÁö ¾ÊÀ» Å©±â
         if (pipeSize && !HasPipeAncestor(rt))
         {
             Pipe(img);
-            if (saturated) AddRing(rt, ringColor, 28f);               // ë“±ê¸‰ìƒ‰ ë“±ì€ íŒŒì´í”„ ì•ˆìª½ í…Œë¡œ ë‚¨ê¸´ë‹¤
+            if (saturated) AddRing(rt, ringColor, 28f);               // µî±Ş»ö µîÀº ÆÄÀÌÇÁ ¾ÈÂÊ Å×·Î ³²±ä´Ù
             return;
         }
         if (r.width >= 100f && r.height >= 36f)
@@ -388,7 +395,7 @@ public class UISkin : MonoBehaviour
         SetMark(img, 0);
     }
 
-    /// <summary>ë¶€ëª¨ê°€ íŒŒì´í”„/ì¹´ë“œë¡œ ìŠ¤í‚¨ëê³ , ì´ ì‚¬ê°í˜•ì´ ë¶€ëª¨ë³´ë‹¤ ì‚¬ë°© 12px ì´ë‚´ë¡œë§Œ ì‘ì€ê°€</summary>
+    /// <summary>ºÎ¸ğ°¡ ÆÄÀÌÇÁ/Ä«µå·Î ½ºÅ²µÆ°í, ÀÌ »ç°¢ÇüÀÌ ºÎ¸ğº¸´Ù »ç¹æ 12px ÀÌ³»·Î¸¸ ÀÛÀº°¡</summary>
     private static bool IsNearFullChildOfSkinned(RectTransform rt)
     {
         RectTransform p = rt.parent as RectTransform;
@@ -411,12 +418,12 @@ public class UISkin : MonoBehaviour
         return false;
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ì”¬ HUD ([HUD Canvas]) ì¬ë°°ì¹˜: HP/í¬ë§Œê° ê²Œì´ì§€ íŒ¨ë„ + ì›¨ì´ë¸Œ/ê³¨ë“œ íŒ¨ë„ + ì›¨ì´ë¸Œ ì˜ˆê³  ì¹´ë“œ
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ¾À HUD ([HUD Canvas]) Àç¹èÄ¡: HP/Æ÷¸¸°¨ °ÔÀÌÁö ÆĞ³Î + ¿şÀÌºê/°ñµå ÆĞ³Î + ¿şÀÌºê ¿¹°í Ä«µå
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     private IEnumerator SkinSceneHudLater()
     {
-        yield return null;            // TrainDeck ì˜ HPBar ì¡°ì •ë³´ë‹¤ ë’¤ì—
+        yield return null;            // TrainDeck ÀÇ HPBar Á¶Á¤º¸´Ù µÚ¿¡
         yield return null;
         if (hudDone) yield break;
         GameObject hudGo = GameObject.Find("[HUD Canvas]");
@@ -426,28 +433,47 @@ public class UISkin : MonoBehaviour
 
         UIManager um = UIManager.Instance;
 
-        // â”€â”€ ì¢Œìƒë‹¨: HP ê²Œì´ì§€ (íŒŒì´í”„ ì•ˆìª½ 28px ë¥¼ í”¼í•´ ì„¸ë¡œ ê°€ìš´ë°. í¬ë§Œê° ì‹œìŠ¤í…œì€ v2ì—ì„œ ì œê±° - ì”¬ ì”ì¬ëŠ” ëˆë‹¤) â”€â”€
-        RectTransform tl = MakePanel(root, "SkinPanel_TL", new Vector2(0f, 1f), new Vector2(8f, -8f), new Vector2(470f, 112f));
+        bool regroup = GameBalance.HudRegroup;   // v1.3
+        HudRegrouped = regroup;
+
+        // ¦¡¦¡ ÁÂ»ó´Ü: HP °ÔÀÌÁö (ÆÄÀÌÇÁ ¾ÈÂÊ 28px ¸¦ ÇÇÇØ ¼¼·Î °¡¿îµ¥. Æ÷¸¸°¨ ½Ã½ºÅÛÀº v2¿¡¼­ Á¦°Å - ¾À ÀÜÀç´Â ²ö´Ù) ¦¡¦¡
+        //    v1.3 Àç¹èÄ¡: ÆÇÀ» 176 À¸·Î ´Ã·Á 2ÁÙ¿¡ °ñµå(Å« ±ÛÀÚ) + Ä®/ÆÒ ¸íÆÇ(GameHUD.DockChipsTopLeft) - "³» »óÅÂ"´Â ÇÑ °÷¿¡
+        RectTransform tl = MakePanel(root, "SkinPanel_TL", new Vector2(0f, 1f), new Vector2(8f, -8f), new Vector2(470f, regroup ? 176f : 112f));
         Nameplate(tl, "HP", "HP", 16, new Vector2(0f, 1f), new Vector2(22f, -40f), 56f);
         Slider hp = um != null && um.hpSlider != null ? um.hpSlider : FindSlider("HPBar");
         if (hp != null) { Dock(hp.transform as RectTransform, tl, new Vector2(88f, -40f), new Vector2(300f, 32f)); Gauge(hp, HP_RED); }
         if (um != null && um.hpText != null && hp != null) DockTextInto(um.hpText, hp.transform, 15f);
         AddOrnament(tl, "gauge", new Vector2(1f, 1f), new Vector2(-64f, -28f), new Vector2(56f, 56f));
+        if (regroup && um != null) DockTmp(um.goldText, tl, new Vector2(30f, -96f), new Vector2(176f, 34f), 24f, GAUGE_GOLD);
         GameObject satBar = GameObject.Find("SatietyBar"); if (satBar != null) satBar.SetActive(false);
         GameObject satText = GameObject.Find("SatietyText"); if (satText != null) satText.SetActive(false);
 
-        // â”€â”€ ìš°ìƒë‹¨: ì›¨ì´ë¸Œ(íŒŒì´í”„ì— ê±¸ë¦° í™©ë™ ëª…íŒ) / ê³¨ë“œ / ìƒíƒœ â”€â”€
-        RectTransform tr = MakePanel(root, "SkinPanel_TR", new Vector2(1f, 1f), new Vector2(-8f, -8f), new Vector2(330f, 112f));
+        // ¦¡¦¡ ¿ì»ó´Ü: ¿şÀÌºê(ÆÄÀÌÇÁ¿¡ °É¸° È²µ¿ ¸íÆÇ) / °ñµå / »óÅÂ ¦¡¦¡
+        //    v1.3 Àç¹èÄ¡: °ñµå´Â ¿ŞÂÊÀ¸·Î °¬°í, ¿©±â´Â Á¤º¸¸¸ - »óÅÂ + Á¤º¸ 2ÁÙ (¼Õ´Ô ³²À½¡¤º¸½º±îÁö / Áö¿ª¡¤¿¹°í). ¾Ë¸² ·Î±×°¡ ÀÌ ÆÇ ¾Æ·¡¿¡ ºÙ´Â´Ù
+        RectTransform tr = MakePanel(root, "SkinPanel_TR", new Vector2(1f, 1f), new Vector2(-8f, -8f), regroup ? new Vector2(400f, 150f) : new Vector2(330f, 112f));
         if (um != null)
         {
-            RectTransform wavePlate = Nameplate(tr, "Wave", "", 16, new Vector2(0f, 1f), new Vector2(26f, 4f), 170f);   // íŒŒì´í”„ ìœ„ì— 4px ê±¸ë¦¼
+            RectTransform wavePlate = Nameplate(tr, "Wave", "", 16, new Vector2(0f, 1f), new Vector2(26f, 4f), 170f);   // ÆÄÀÌÇÁ À§¿¡ 4px °É¸²
             DockTmpInto(um.waveText, wavePlate, 16f, INK);
-            DockTmp(um.goldText, tr, new Vector2(26f, -34f), new Vector2(220f, 28f), 20f, CREAM);
-            DockTmp(um.stateText, tr, new Vector2(26f, -62f), new Vector2(220f, 22f), 14f, new Color(0.63f, 0.55f, 0.43f, 1f));
+            if (regroup)
+            {
+                DockTmp(um.stateText, tr, new Vector2(26f, -38f), new Vector2(280f, 26f), 19f, CREAM);
+                InfoLine1 = KitchenEventManager.MakeText(tr, "Info1", "", 15, new Color(0.63f, 0.55f, 0.43f, 1f));
+                Dock(InfoLine1.rectTransform, tr, new Vector2(26f, -70f), new Vector2(300f, 22f));
+                InfoLine1.alignment = TextAnchor.MiddleLeft; InfoLine1.raycastTarget = false;
+                InfoLine2 = KitchenEventManager.MakeText(tr, "Info2", "", 15, new Color(0.63f, 0.55f, 0.43f, 1f));
+                Dock(InfoLine2.rectTransform, tr, new Vector2(26f, -94f), new Vector2(300f, 22f));
+                InfoLine2.alignment = TextAnchor.MiddleLeft; InfoLine2.raycastTarget = false;
+            }
+            else
+            {
+                DockTmp(um.goldText, tr, new Vector2(26f, -34f), new Vector2(220f, 28f), 20f, CREAM);
+                DockTmp(um.stateText, tr, new Vector2(26f, -62f), new Vector2(220f, 22f), 14f, new Color(0.63f, 0.55f, 0.43f, 1f));
+            }
         }
-        AddOrnament(tr, "vent", new Vector2(1f, 1f), new Vector2(-92f, -54f), new Vector2(64f, 24f));
+        AddOrnament(tr, "vent", new Vector2(1f, 1f), regroup ? new Vector2(-92f, -96f) : new Vector2(-92f, -54f), new Vector2(64f, 24f));
 
-        // â”€â”€ ì›¨ì´ë¸Œ ì˜ˆê³  / ì•ˆë‚´: ê¸€ì í¬ê¸°ì— ë§ì¶° ì»¤ì§€ëŠ” ì¹´ë“œ (ì¢Œìš° 80Â·ìƒí•˜ 12 ì—¬ë°±, ì•ˆë‚´ ì¹´ë“œëŠ” ì˜ˆê³  ì¹´ë“œ ì•„ë˜ì— ë”°ë¼ë¶™ëŠ”ë‹¤) â”€â”€
+        // ¦¡¦¡ ¿şÀÌºê ¿¹°í / ¾È³»: ±ÛÀÚ Å©±â¿¡ ¸ÂÃç Ä¿Áö´Â Ä«µå (ÁÂ¿ì 80¡¤»óÇÏ 12 ¿©¹é, ¾È³» Ä«µå´Â ¿¹°í Ä«µå ¾Æ·¡¿¡ µû¶óºÙ´Â´Ù) ¦¡¦¡
         if (um != null)
         {
             NoticeFollower notice = WrapNotice(um.waveNoticeText, root, "SkinNotice", new Vector2(0f, -96f),
@@ -456,14 +482,14 @@ public class UISkin : MonoBehaviour
                 new Vector2(700f, 50f), new Vector2(48f, 10f), false);
             if (notice != null && warning != null) { warning.above = notice.transform as RectTransform; warning.gap = 10f; }
         }
-        Debug.Log("[UISkin] ì”¬ HUD ì¬ë°°ì¹˜ ì™„ë£Œ (HP ê²Œì´ì§€, ì›¨ì´ë¸Œ/ê³¨ë“œ íŒ¨ë„, ì˜ˆê³  ì¹´ë“œ)");
+        Debug.Log("[UISkin] ¾À HUD Àç¹èÄ¡ ¿Ï·á (HP °ÔÀÌÁö, ¿şÀÌºê/°ñµå ÆĞ³Î, ¿¹°í Ä«µå)");
     }
 
     private RectTransform MakePanel(Transform root, string name, Vector2 anchor, Vector2 pos, Vector2 size)
     {
         GameObject go = new GameObject(name);
         go.transform.SetParent(root, false);
-        go.transform.SetAsFirstSibling();                 // ë‹¤ë¥¸ HUD ìš”ì†Œë³´ë‹¤ ë’¤(ì•„ë˜)ì—
+        go.transform.SetAsFirstSibling();                 // ´Ù¸¥ HUD ¿ä¼Òº¸´Ù µÚ(¾Æ·¡)¿¡
         RectTransform rt = go.AddComponent<RectTransform>();
         rt.anchorMin = anchor; rt.anchorMax = anchor; rt.pivot = anchor;
         rt.anchoredPosition = pos; rt.sizeDelta = size;
@@ -479,7 +505,7 @@ public class UISkin : MonoBehaviour
         return go != null ? go.GetComponent<Slider>() : null;
     }
 
-    /// <summary>RectTransformì„ íŒ¨ë„ ì•ˆ ì™¼ìª½ ìœ„ ê¸°ì¤€ ì¢Œí‘œë¡œ ì˜®ê¸´ë‹¤</summary>
+    /// <summary>RectTransformÀ» ÆĞ³Î ¾È ¿ŞÂÊ À§ ±âÁØ ÁÂÇ¥·Î ¿Å±ä´Ù</summary>
     private static void Dock(RectTransform rt, RectTransform panel, Vector2 pos, Vector2 size)
     {
         if (rt == null) return;
@@ -489,13 +515,13 @@ public class UISkin : MonoBehaviour
         rt.localScale = Vector3.one;
     }
 
-    /// <summary>ì”¬ TMP í…ìŠ¤íŠ¸(HPText)ë¥¼ ê²Œì´ì§€ ì•ˆ ê°€ìš´ë°ë¡œ</summary>
+    /// <summary>¾À TMP ÅØ½ºÆ®(HPText)¸¦ °ÔÀÌÁö ¾È °¡¿îµ¥·Î</summary>
     private static void DockTextInto(TMPro.TextMeshProUGUI tmp, Transform host, float fontSize)
     {
         DockTmpInto(tmp, host, fontSize, CREAM);
     }
 
-    /// <summary>ì”¬ TMP í…ìŠ¤íŠ¸ë¥¼ í˜¸ìŠ¤íŠ¸(ê²Œì´ì§€/ëª…íŒ) ì•ˆì— ê½‰ ì±„ì›Œ ê°€ìš´ë° ì •ë ¬</summary>
+    /// <summary>¾À TMP ÅØ½ºÆ®¸¦ È£½ºÆ®(°ÔÀÌÁö/¸íÆÇ) ¾È¿¡ ²Ë Ã¤¿ö °¡¿îµ¥ Á¤·Ä</summary>
     private static void DockTmpInto(TMPro.TextMeshProUGUI tmp, Transform host, float fontSize, Color color)
     {
         if (tmp == null || host == null) return;
@@ -515,9 +541,9 @@ public class UISkin : MonoBehaviour
     }
 
     /// <summary>
-    /// ì˜ˆê³  í…ìŠ¤íŠ¸ì— ì¹´ë“œ ë°°ê²½(ë¬´ì‡  í‰íŒ + í™©ë™ í…Œ)ì„ ê¹”ê³ (ë¶€ëª¨ë¡œ) ì—¬ë°±ì„ ì¤€ë‹¤.
-    /// ì¹´ë“œëŠ” ê¸€ì ê¸¸ì´/í¬ê¸°ì— ë§ì¶° ìŠ¤ìŠ¤ë¡œ ì»¤ì§€ê³ (minSize ì´ìƒ, í™”ë©´ í­ ì´í•˜), í…ìŠ¤íŠ¸ì˜ í‘œì‹œ/ì•ŒíŒŒë¥¼ ë”°ë¼ê°„ë‹¤.
-    /// padding = (ì¢Œìš° ì—¬ë°±, ìƒí•˜ ì—¬ë°±). ì¢Œìš° ì—¬ë°± ì•ˆì— ìœ„í—˜ ìŠ¤íŠ¸ë¼ì´í”„(56px)ê°€ ë“¤ì–´ê°„ë‹¤
+    /// ¿¹°í ÅØ½ºÆ®¿¡ Ä«µå ¹è°æ(¹«¼è ÆòÆÇ + È²µ¿ Å×)À» ±ò°í(ºÎ¸ğ·Î) ¿©¹éÀ» ÁØ´Ù.
+    /// Ä«µå´Â ±ÛÀÚ ±æÀÌ/Å©±â¿¡ ¸ÂÃç ½º½º·Î Ä¿Áö°í(minSize ÀÌ»ó, È­¸é Æø ÀÌÇÏ), ÅØ½ºÆ®ÀÇ Ç¥½Ã/¾ËÆÄ¸¦ µû¶ó°£´Ù.
+    /// padding = (ÁÂ¿ì ¿©¹é, »óÇÏ ¿©¹é). ÁÂ¿ì ¿©¹é ¾È¿¡ À§Çè ½ºÆ®¶óÀÌÇÁ(56px)°¡ µé¾î°£´Ù
     /// </summary>
     private static NoticeFollower WrapNotice(TMPro.TextMeshProUGUI tmp, Transform root, string name, Vector2 pos,
         Vector2 minSize, Vector2 padding, bool hazardEnds)
@@ -534,7 +560,7 @@ public class UISkin : MonoBehaviour
         AddRing(rt, BRASS);
         if (hazardEnds)
         {
-            // ì¹´ë“œ ë†’ì´ê°€ ë°”ë€Œì–´ë„ ì„¸ë¡œ ê°€ìš´ë°ë¥¼ ìœ ì§€í•˜ë„ë¡ ì¢Œìš° ê°€ìš´ë° ì•µì»¤ (í”¼ë²—ì´ ì™¼ìª½ ìœ„ë¼ y=+8 ì´ ê°€ìš´ë°)
+            // Ä«µå ³ôÀÌ°¡ ¹Ù²î¾îµµ ¼¼·Î °¡¿îµ¥¸¦ À¯ÁöÇÏµµ·Ï ÁÂ¿ì °¡¿îµ¥ ¾ŞÄ¿ (ÇÇ¹şÀÌ ¿ŞÂÊ À§¶ó y=+8 ÀÌ °¡¿îµ¥)
             AddOrnament(rt, "hazard", new Vector2(0f, 0.5f), new Vector2(14f, 8f), new Vector2(56f, 16f));
             AddOrnament(rt, "hazard", new Vector2(1f, 0.5f), new Vector2(-70f, 8f), new Vector2(56f, 16f));
         }
@@ -551,17 +577,17 @@ public class UISkin : MonoBehaviour
     }
 
     /// <summary>
-    /// ì˜ˆê³  ì¹´ë“œ ë™ì‘: (1) ê¸€ì ê¸¸ì´/í¬ê¸°ì— ë§ì¶° ì¹´ë“œ í¬ê¸° ì¡°ì ˆ (2) í…ìŠ¤íŠ¸ì˜ í™œì„±/ì•ŒíŒŒë¥¼ ë”°ë¼ê° (UIManager ì½”ë£¨í‹´ ë¬´ìˆ˜ì •)
-    /// (3) above ê°€ ìˆìœ¼ë©´ ê·¸ ì¹´ë“œ ë°”ë¡œ ì•„ë˜ì— ë¶™ëŠ”ë‹¤ (ì˜ˆê³ ê°€ ë‘ ì¤„ì´ ë˜ì–´ë„ ì•ˆë‚´ê°€ ê²¹ì¹˜ì§€ ì•ŠëŠ”ë‹¤)
+    /// ¿¹°í Ä«µå µ¿ÀÛ: (1) ±ÛÀÚ ±æÀÌ/Å©±â¿¡ ¸ÂÃç Ä«µå Å©±â Á¶Àı (2) ÅØ½ºÆ®ÀÇ È°¼º/¾ËÆÄ¸¦ µû¶ó°¨ (UIManager ÄÚ·çÆ¾ ¹«¼öÁ¤)
+    /// (3) above °¡ ÀÖÀ¸¸é ±× Ä«µå ¹Ù·Î ¾Æ·¡¿¡ ºÙ´Â´Ù (¿¹°í°¡ µÎ ÁÙÀÌ µÇ¾îµµ ¾È³»°¡ °ãÄ¡Áö ¾Ê´Â´Ù)
     /// </summary>
     public class NoticeFollower : MonoBehaviour
     {
         public TMPro.TextMeshProUGUI target;
-        public Vector2 minSize;                 // ì¹´ë“œ ìµœì†Œ í¬ê¸°
-        public Vector2 padding;                 // ê¸€ì ì£¼ë³€ ì—¬ë°± (ì¢Œìš°, ìƒí•˜)
-        public RectTransform above;             // ì´ ì¹´ë“œ ìœ„ì— ìˆëŠ” ì¹´ë“œ (ìˆìœ¼ë©´ ê·¸ ì•„ë˜ì— ë”°ë¼ë¶™ëŠ”ë‹¤)
+        public Vector2 minSize;                 // Ä«µå ÃÖ¼Ò Å©±â
+        public Vector2 padding;                 // ±ÛÀÚ ÁÖº¯ ¿©¹é (ÁÂ¿ì, »óÇÏ)
+        public RectTransform above;             // ÀÌ Ä«µå À§¿¡ ÀÖ´Â Ä«µå (ÀÖÀ¸¸é ±× ¾Æ·¡¿¡ µû¶óºÙ´Â´Ù)
         public float gap = 10f;
-        private const float MAX_W = 1500f;      // ì¹´ë“œ ìµœëŒ€ í­ (1920 ê¸°ì¤€ í™”ë©´ ì•ˆ)
+        private const float MAX_W = 1500f;      // Ä«µå ÃÖ´ë Æø (1920 ±âÁØ È­¸é ¾È)
         private Image[] parts;
         private string lastText;
         private float lastFontSize = -1f;
@@ -585,7 +611,7 @@ public class UISkin : MonoBehaviour
             }
         }
 
-        /// <summary>ê¸€ìê°€ í•œ ì¤„ë¡œ ë“¤ì–´ê°€ëŠ” í­(ì—¬ë°± í¬í•¨)ìœ¼ë¡œ ë„“íˆê³ , ê·¸ í­ì—ì„œ ì¤„ë°”ê¿ˆëœ ë†’ì´ë§Œí¼ í‚¤ìš´ë‹¤</summary>
+        /// <summary>±ÛÀÚ°¡ ÇÑ ÁÙ·Î µé¾î°¡´Â Æø(¿©¹é Æ÷ÇÔ)À¸·Î ³ĞÈ÷°í, ±× Æø¿¡¼­ ÁÙ¹Ù²ŞµÈ ³ôÀÌ¸¸Å­ Å°¿î´Ù</summary>
         private void Fit()
         {
             lastText = target.text; lastFontSize = target.fontSize;

@@ -3,7 +3,7 @@ using UnityEngine;
 using TMPro;
 
 /// <summary>
-/// [DamagePopup.cs]
+/// [DamagePopup.cs] v1.1 (v9.15 2026-09-29: resisted 팝업 - 회청색 "n 저항" (Enemy.TakeDamage 가 방어·저항으로 크게 깎인 타격에 붙인다))
 /// 적이 피격 시 데미지 숫자가 위로 올라가며 사라지는 팝업입니다.
 /// 
 /// [수정 사항]
@@ -23,7 +23,11 @@ public class DamagePopup : MonoBehaviour
     private static GameObject prefab;
 
     /// <summary>월드 좌표에 데미지 팝업 생성</summary>
-    public static void Create(Vector3 worldPos, float damage, bool isCritical = false)
+    public static void Create(Vector3 worldPos, float damage, bool isCritical) { Create(worldPos, damage, isCritical, false); }
+    public static void Create(Vector3 worldPos, float damage) { Create(worldPos, damage, false, false); }
+
+    /// <summary>v1.1: resisted = 방어·저항으로 크게 깎인 타격 ("저항" 표기)</summary>
+    public static void Create(Vector3 worldPos, float damage, bool isCritical, bool resisted)
     {
         if (prefab == null)
             prefab = Resources.Load<GameObject>("DamagePopup");
@@ -43,26 +47,28 @@ public class DamagePopup : MonoBehaviour
 
             TextMeshPro tmp = obj.AddComponent<TextMeshPro>();
             TMPFontFixer.Apply(tmp);   // 통일 폰트(Neo둥근모 기반) 배정
-            ApplyTextStyle(tmp, damage, isCritical);
+            ApplyTextStyle(tmp, damage, isCritical, resisted);
 
             // sortingLayer 최상단으로 (기차/적에 가려지지 않게)
             tmp.sortingOrder = 100;
 
             DamagePopup popup = obj.AddComponent<DamagePopup>();
-            popup.Setup(damage, isCritical);
+            popup.Setup(damage, isCritical, resisted);
             return;
         }
 
         GameObject popupObj = Instantiate(prefab, spawnPos, Quaternion.identity);
-        popupObj.GetComponent<DamagePopup>()?.Setup(damage, isCritical);
+        popupObj.GetComponent<DamagePopup>()?.Setup(damage, isCritical, resisted);
     }
 
     /// <summary>TextMeshPro에 데미지 숫자 스타일 적용 (재사용)</summary>
-    private static void ApplyTextStyle(TextMeshPro tmp, float damage, bool isCritical)
+    private static void ApplyTextStyle(TextMeshPro tmp, float damage, bool isCritical, bool resisted)
     {
-        tmp.text = isCritical ? "!" + (int)damage : ((int)damage).ToString();
-        tmp.fontSize = isCritical ? 5f : 3.5f;
-        tmp.color = isCritical
+        tmp.text = resisted ? (int)damage + " 저항" : isCritical ? "!" + (int)damage : ((int)damage).ToString();
+        tmp.fontSize = isCritical ? 5f : resisted ? 3f : 3.5f;
+        tmp.color = resisted
+            ? new Color(0.62f, 0.7f, 0.85f)   // v1.1 저항: 회청색 (방어·저항에 막혔다)
+            : isCritical
             ? new Color(1f, 0.3f, 0f)    // 크리티컬: 주황
             : new Color(1f, 1f, 0.3f);   // 일반: 노랑
         tmp.alignment = TextAlignmentOptions.Center;
@@ -80,13 +86,15 @@ public class DamagePopup : MonoBehaviour
     private float elapsed = 0f;
     private Color startColor;
 
-    public void Setup(float damage, bool isCritical)
+    public void Setup(float damage, bool isCritical) { Setup(damage, isCritical, false); }
+
+    public void Setup(float damage, bool isCritical, bool resisted)
     {
         tmp = GetComponent<TextMeshPro>();
         if (tmp == null) tmp = gameObject.AddComponent<TextMeshPro>();
 
         TMPFontFixer.Apply(tmp);   // 통일 폰트(Neo둥근모 기반) 배정
-        ApplyTextStyle(tmp, damage, isCritical);
+        ApplyTextStyle(tmp, damage, isCritical, resisted);
         startColor = tmp.color;
 
         // 좌/우 분산 이동 — 동일 좌표에서 여러 팝업이 떠도 서로 다른 방향으로 흩어짐

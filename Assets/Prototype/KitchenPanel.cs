@@ -4,7 +4,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 /// <summary>
-/// [KitchenPanel.cs] v2.7 (v9.14 2026-09-28: 설명에서 맛 문구 제외) / v2.6 (v9.11.1 2026-09-22 문구: 기본/전설 요리) / v2.5 (v9.11 2026-09-22: 등장 연출 ModalFeel) / v2.4 (v9.10.1 2026-09-21: 재료 이름 MaterialNames 한 곳 / 안내줄에 정차 조리 남은 횟수(CookingBridge.StopCookHint)) / v2.3 (v9.10 2026-09-17 테스터 피드백: [ESC] 로도 닫힘(단축키로 열고 ESC 로 닫기) / 행상인·베팅·선로 창 중 Tab 금지 / 도감 카드 클릭 = 오른쪽 상세(무엇을 하나·어떤 손님에·언제, RecipeText)) / v2.2 (v9.8 재료 아이콘) / v2.1
+/// [KitchenPanel.cs] v2.8 (v9.15 2026-09-29 2차 피드백 "마우스와 WASD 혼용": 조리 탭 카드 격자에 키 커서 - [WASD]/방향키로 고르고 [E]/[Enter] 로 조리 시작. 마우스는 그대로 (GameBalance.KitchenKeyCursor)) / v2.7 (v9.14 2026-09-28: 설명에서 맛 문구 제외) / v2.6 (v9.11.1 2026-09-22 문구: 기본/전설 요리) / v2.5 (v9.11 2026-09-22: 등장 연출 ModalFeel) / v2.4 (v9.10.1 2026-09-21: 재료 이름 MaterialNames 한 곳 / 안내줄에 정차 조리 남은 횟수(CookingBridge.StopCookHint)) / v2.3 (v9.10 2026-09-17 테스터 피드백: [ESC] 로도 닫힘(단축키로 열고 ESC 로 닫기) / 행상인·베팅·선로 창 중 Tab 금지 / 도감 카드 클릭 = 오른쪽 상세(무엇을 하나·어떤 손님에·언제, RecipeText)) / v2.2 (v9.8 재료 아이콘) / v2.1
 /// Tab키 주방 패널 (uGUI 코드 생성) - 조리 / 합성 / 도감 3탭
 /// GameSystems 오브젝트에 부착
 ///
@@ -44,6 +44,10 @@ public class KitchenPanel : MonoBehaviour
 
     // 조리 상태
     private string selectedRecipe = "";
+    // v2.8: 키 커서 - 조리 탭 격자에 보이는 순서대로 (BuildRecipeGrid 가 채운다)
+    private readonly List<string> gridIds = new List<string>();
+    private readonly List<bool> gridAfford = new List<bool>();
+    private const int GRID_COLUMNS = 5;
     // 합성 상태
     private string fuseA = "";
     private string fuseB = "";
@@ -85,7 +89,50 @@ public class KitchenPanel : MonoBehaviour
         {
             CookingMinigame.EscConsumedFrame = Time.frameCount;
             Close();
+            return;
         }
+
+        if (isOpen && tabIndex == 0 && GameBalance.KitchenKeyCursor && !CookingMinigame.IsActive) TickKeyCursor();
+    }
+
+    /// <summary>
+    /// v2.8: 조리 탭 키 조작 - [W/S] 한 줄 위·아래, [A/D] 한 칸 좌·우 (방향키도), [E]/[Enter] 조리 시작.
+    /// 마우스 클릭으로 고른 카드에서 이어서 움직인다 (같은 selectedRecipe). 재료가 모자란 카드도 고를 수는 있다(설명을 읽게) - 시작만 막는다
+    /// </summary>
+    private void TickKeyCursor()
+    {
+        if (gridIds.Count == 0) return;
+        int dx = 0, dy = 0;
+        if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow)) dx = -1;
+        else if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow)) dx = 1;
+        else if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow)) dy = -1;
+        else if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow)) dy = 1;
+
+        if (dx != 0 || dy != 0)
+        {
+            int cur = gridIds.IndexOf(selectedRecipe);
+            int next;
+            if (cur < 0) next = 0;
+            else
+            {
+                next = cur + dx + dy * GRID_COLUMNS;
+                if (next < 0 || next >= gridIds.Count) next = cur;   // 격자 밖으로는 안 나간다
+            }
+            if (next != cur)
+            {
+                selectedRecipe = gridIds[next];
+                Refresh();
+            }
+            return;
+        }
+
+        bool go = Input.GetKeyDown(KeyCode.E) || ((Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter)) && BriefingUI.KeyConsumedFrame != Time.frameCount);
+        if (!go || string.IsNullOrEmpty(selectedRecipe)) return;
+        int idx = gridIds.IndexOf(selectedRecipe);
+        if (idx < 0) return;
+        if (!gridAfford[idx]) { UIManager.Instance?.ShowStatChange("재료가 모자란다 - 다른 요리를 골라라"); return; }
+        RecipeData sel = RecipeDatabase.Get(selectedRecipe);
+        if (sel != null) StartMinigame(MethodOf(sel));
     }
 
     // ─────────────────────────────────────────
@@ -241,7 +288,7 @@ public class KitchenPanel : MonoBehaviour
     // ─────────────────────────────────────────
     private void Refresh()
     {
-        if (hintText != null) hintText.text = CookingBridge.StopCookHint() + "[Tab]/[ESC] 닫기";
+        if (hintText != null) hintText.text = CookingBridge.StopCookHint() + (GameBalance.KitchenKeyCursor && tabIndex == 0 ? "[WASD] 고르기  [E] 조리  " : "") + "[Tab]/[ESC] 닫기";   // v2.8
         // 탭 버튼 강조
         for (int i = 0; i < 3; i++)
         {
@@ -406,8 +453,9 @@ public class KitchenPanel : MonoBehaviour
     private void BuildRecipeGrid(float startY, int tierFilter, bool forCooking)
     {
         int col = 0, row = 0;
-        int columns = 5;
+        int columns = GRID_COLUMNS;
         float cardW = 224f, cardH = 84f, gap = 10f;
+        if (forCooking) { gridIds.Clear(); gridAfford.Clear(); }   // v2.8: 키 커서용 순서
 
         foreach (RecipeData r in RecipeDatabase.All)
         {
@@ -452,6 +500,7 @@ public class KitchenPanel : MonoBehaviour
                 string id = r.recipeId;
                 btn.interactable = canAfford;
                 btn.onClick.AddListener(delegate { selectedRecipe = id; Refresh(); });
+                gridIds.Add(r.recipeId); gridAfford.Add(canAfford);   // v2.8
             }
             AttachDetailHover(card, r);   // v2.3
 

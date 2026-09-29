@@ -1,9 +1,10 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections;
 using System.Collections.Generic;
 
 /// <summary>
-/// [KitchenEventManager.cs] v4.8 (v9.14 2026-09-28 테스터 반영: 사고 현장에 월드 마커(붉은 화살표 + 링) - "직접 가야 한다는 인식 부족" / 흘림 조각이 사고 배너 뒤에 가려지던 것 - 커스텀 층을 배너 위로) / v4.7 (v9.12 2026-09-22: 인라인 연습 중 사고 타이머 정지) / v4.6 (v9.11 2026-09-22: MakeButton 에 ButtonFeel) / v4.5 (v9.10 2026-09-17 테스터 피드백 "사고 중에 증강 선택이 뜨면 사고가 끝난다": 웨이브가 끝나 정차로 넘어가며 사고가 취소될 때 "정차 정비로 사고가 정리됐다 (벌점 없음)" 알림 - 조용히 사라지던 것) / v4.4 (v9.9.2 2026-09-16: 사고 종류별 첫 등장 카드 - StartEvent 에서 BriefingUI.ShowOnce("event_<종류>"), 카드가 뜨면 시간이 멈춰 제한 시간은 그 뒤 흐른다) / v4.3 (v9.9 2026-09-16: 견습 운행 중 F11 무시 - 이벤트 자체는 WaveManager.TutorialGateActive 로 쉰다) / v4.2 (v9.8.1: F11 강제 발생은 GameBalance.CheatsAllowed 일 때만) / v4.1 (2026-09-14: 마모 off 가중치 / 프롤로그 게이트 차단) / v4
+/// [KitchenEventManager.cs] v4.9 (v9.15 2026-09-29 2차 피드백: 사고 해결 연출 - 현장 초록 링 2겹 + "해결!" + 화면 테두리 초록 한 번 + 배너가 초록 "해결 - 기차 HP +n"으로 바뀌고 EventResolveHoldSec 뒤 내려감 / 실패는 붉은 "실패" + "[사고 실패] ... 기차 HP -n" 한 줄 (훈련장에서 결과를 알게) / ForceEvent(kind) - 자유 연습 [2]~[5] / 자유 연습 중 첫 등장 카드는 세션당 1회) / v4.8 (v9.14 2026-09-28 테스터 반영: 사고 현장에 월드 마커(붉은 화살표 + 링) - "직접 가야 한다는 인식 부족" / 흘림 조각이 사고 배너 뒤에 가려지던 것 - 커스텀 층을 배너 위로) / v4.7 (v9.12 2026-09-22: 인라인 연습 중 사고 타이머 정지) / v4.6 (v9.11 2026-09-22: MakeButton 에 ButtonFeel) / v4.5 (v9.10 2026-09-17 테스터 피드백 "사고 중에 증강 선택이 뜨면 사고가 끝난다": 웨이브가 끝나 정차로 넘어가며 사고가 취소될 때 "정차 정비로 사고가 정리됐다 (벌점 없음)" 알림 - 조용히 사라지던 것) / v4.4 (v9.9.2 2026-09-16: 사고 종류별 첫 등장 카드 - StartEvent 에서 BriefingUI.ShowOnce("event_<종류>"), 카드가 뜨면 시간이 멈춰 제한 시간은 그 뒤 흐른다) / v4.3 (v9.9 2026-09-16: 견습 운행 중 F11 무시 - 이벤트 자체는 WaveManager.TutorialGateActive 로 쉰다) / v4.2 (v9.8.1: F11 강제 발생은 GameBalance.CheatsAllowed 일 때만) / v4.1 (2026-09-14: 마모 off 가중치 / 프롤로그 게이트 차단) / v4
 /// 주방 돌발 이벤트 총괄 매니저 (기획 B-4)
 /// - v4 (v9.6, 2026-09-09): "화면 전체 경보" - 기차 안 작은 아이콘은 조리하다 놓친다는 피드백
 ///   * 경보 글로우: 화면 가장자리 붉은(이벤트별 색) 비네트가 0.6초 주기로 맥동 (삐뽀삐뽀). SetAlarm(color, strength)
@@ -130,6 +131,12 @@ public class KitchenEventManager : MonoBehaviour
     private Transform siteArrowTf, siteRingTf;
     private SpriteRenderer siteArrowSr, siteRingSr;
     private static readonly Color SITE_RED = new Color(1f, 0.38f, 0.32f, 1f);
+    private static readonly Color RESOLVE_GREEN = new Color(0.38f, 0.8f, 0.43f, 1f);   // v4.9
+    private static readonly Color FAIL_RED = new Color(0.9f, 0.25f, 0.2f, 1f);
+    private Coroutine resultRoutine;                                     // v4.9: 결과 배너 내려가기
+    private Color resultAlarmRestore = new Color(0.84f, 0.16f, 0.16f, 1f);   // v4.9: 결과 글로우 전의 경보 색 (되돌린다)
+    private Color titleBaseColor = new Color(1f, 0.78f, 0.32f);
+    private readonly HashSet<string> sandboxSeen = new HashSet<string>();   // v4.9: 자유 연습 중 첫 등장 카드 (세션당 1회)
     private const int SITE_ARROW_ORDER = 7;   // 셰프(0+)·포탑 위
     private const int SITE_RING_ORDER = -3;   // 갑판(-6~-4) 위, 조리대 아래
 
@@ -253,7 +260,7 @@ public class KitchenEventManager : MonoBehaviour
         // - 타이머를 firstDelay로 계속 밀어서, 전투 시작 후에도 최소 firstDelay만큼 여유를 준다
         bool inBattle = GameManager.Instance != null
             && GameManager.Instance.currentState == GameManager.GameState.Battle
-            && !WaveManager.TutorialGateActive;   // v4.1: 프롤로그 조리 게이트 중에는 이벤트 없음
+            && (!WaveManager.TutorialGateActive || TutorialDirector.SandboxActive);   // v4.1: 프롤로그 조리 게이트 중에는 이벤트 없음. v4.9: 자유 연습은 키로 일으킨 사고를 돌린다
         if (!inBattle)
         {
             if (currentEvent != null)
@@ -286,6 +293,9 @@ public class KitchenEventManager : MonoBehaviour
             RunCurrentEvent();
             return;
         }
+
+        // v4.9: 자유 연습은 무작위 사고 없음 - [2]~[5] 로만 (ForceEvent)
+        if (TutorialDirector.SandboxActive) return;
 
         // 조리 미니게임 중에는 이벤트를 미룬다 (E / 방향키 입력이 겹치기 때문)
         if (CookingMinigame.IsActive)
@@ -326,6 +336,24 @@ public class KitchenEventManager : MonoBehaviour
     }
 
     /// <summary>전장 상황 기반 가중치로 이벤트 1개를 뽑아 시작 (v3)</summary>
+    /// <summary>v4.9: 종류를 골라 즉시 발생 (자유 연습 [2] 화재 [3] 흘림 [4] 고장 [5] 침입). 진행 중이면 무시</summary>
+    public void ForceEvent(int kind)
+    {
+        if (currentEvent != null) return;
+        IKitchenEvent ev;
+        switch (kind)
+        {
+            case 2: ev = new KitchenFireEvent(); break;
+            case 3: ev = new MaterialSpillEvent(); break;
+            case 4: ev = new EquipmentBreakEvent(); break;
+            default: ev = new MonsterIntrusionEvent(); break;
+        }
+        StartEvent(ev);
+    }
+
+    /// <summary>v4.9: 사고가 진행 중인가 (자유 연습 안내 줄)</summary>
+    public bool EventRunning { get { return currentEvent != null; } }
+
     public void StartRandomEvent()
     {
         // ── 상황 수집 ──
@@ -393,8 +421,16 @@ public class KitchenEventManager : MonoBehaviour
         if (GameBalance.FirstEncounterBriefings)
         {
             string key = ev is MonsterIntrusionEvent ? "intrusion" : ev is EquipmentBreakEvent ? "break" : ev is KitchenFireEvent ? "fire" : "spill";
-            BriefingUI.ShowOnce("event_" + key, BriefingTexts.Event(key));
+            if (TutorialDirector.SandboxActive)
+            {
+                // v4.9: 자유 연습에서는 기록과 무관하게 종류마다 한 번 보여 준다 (실패하면 어떻게 되는지가 카드에 있다)
+                if (sandboxSeen.Add(key)) BriefingUI.Show(BriefingTexts.Event(key));
+            }
+            else BriefingUI.ShowOnce("event_" + key, BriefingTexts.Event(key));
         }
+
+        // v4.9: 결과 배너가 아직 내려가는 중이면 즉시 정리 (글로우 색도 원래대로 - 새 사고의 OnStart 가 SetAlarm 을 안 부를 수도 있다)
+        if (resultRoutine != null) { StopCoroutine(resultRoutine); resultRoutine = null; RestoreBanner(); SetAlarm(resultAlarmRestore, 0f); }
 
         currentEvent = ev;
         firedCount++;
@@ -505,19 +541,96 @@ public class KitchenEventManager : MonoBehaviour
     {
         IKitchenEvent ev = currentEvent;
         currentEvent = null;
+        bool hadAnchor = HasAnchor; float siteX = AnchorX;
         HasAnchor = false; ChefInReach = true;   // B-1: 앵커 정리
         HideSiteMarker();
 
+        if (cachedTrain == null) cachedTrain = Object.FindFirstObjectByType<TrainManager>();
+        float hpBefore = cachedTrain != null ? cachedTrain.currentHP : 0f;
         ev.OnEnd(success);
+        float hpDelta = cachedTrain != null ? cachedTrain.currentHP - hpBefore : 0f;
         ClearCustomRoot();
         ClearOverlay();
         SetAlarm(alarmColor, 0f);
         HidePanel();
 
+        // v4.9: 결과 연출 - 해결(초록) / 실패(붉음). 원인과 결과가 화면에서 이어진다
+        if (GameBalance.EventResolveFx) PlayResult(ev, success, hadAnchor, siteX, hpDelta);
+        else if (!success) UIManager.Instance?.ShowDanger("[사고 실패] " + ev.Title + (hpDelta < 0f ? " - 기차 HP " + Mathf.RoundToInt(hpDelta) : ""));
+
         // 발생 간격 배율 (Phase 2-3: '부채질 장인의 부채'는 아이템으로 이관 - 증강 값은 호환용)
         nextEventTime = Time.time + Random.Range(minInterval, maxInterval)
             * AugmentManager.EventIntervalMul * ItemManager.EventIntervalMul;
         Debug.Log("[주방이벤트] 종료: " + ev.Title + " / 결과 " + (success ? "성공" : "실패"));
+    }
+
+    // ==================================================================
+    //  v4.9: 결과 연출 (해결 / 실패)
+    // ==================================================================
+
+    /// <summary>
+    /// 해결: 현장에 초록 링 2겹 + 불티 + "해결!" 팝, 화면 테두리 초록 한 번(경보 글로우 재사용), 배너가 초록 "해결 - 기차 HP +n" 으로
+    /// 바뀌어 EventResolveHoldSec 뒤 내려간다. 실패: 붉은 "실패" 팝 + 배너 "실패 - 기차 HP -n" + 경고 한 줄
+    /// </summary>
+    private void PlayResult(IKitchenEvent ev, bool success, bool hadAnchor, float siteX, float hpDelta)
+    {
+        Color col = success ? RESOLVE_GREEN : FAIL_RED;
+        string hpStr = hpDelta > 0.5f ? "기차 HP +" + Mathf.RoundToInt(hpDelta) : hpDelta < -0.5f ? "기차 HP " + Mathf.RoundToInt(hpDelta) : "";
+
+        // 현장 (앵커가 있는 사고: 침입·화재·고장. 흘림은 화면 전체라 배너만)
+        if (hadAnchor && GameBalance.GameFeelMaster > 0f)
+        {
+            Vector3 pos = new Vector3(siteX, 0f, 0f);
+            if (success)
+            {
+                WorldFeel.Ring(pos, col, 1.3f, 0.5f);
+                WorldFeel.Ring(pos, col, 0.7f, 0.35f);
+                SparkPool.Emit(pos, new Color(0.7f, 1f, 0.65f), 12, 0.1f, 3f);
+                WorldFeel.TextPop(pos + Vector3.up * 0.9f, "해결!", col, 4.2f);
+            }
+            else
+            {
+                WorldFeel.Ring(pos, col, 0.9f, 0.4f);
+                WorldFeel.TextPop(pos + Vector3.up * 0.9f, "실패", col, 4.2f);
+            }
+        }
+
+        // 화면 테두리 한 번 (경보 글로우를 초록/붉음으로 켰다가 배너와 같이 끈다. 색은 끌 때 원래대로)
+        resultAlarmRestore = alarmColor;
+        if (alarmVignette != null) SetAlarm(col, success ? 0.4f : 0.3f);
+
+        // 배너: 결과 상태로 바꿔 잠깐 보여 준다
+        titleText.text = ev.Title + (success ? " - 해결!" : " - 실패");
+        titleText.color = col;
+        guideText.text = success ? (string.IsNullOrEmpty(hpStr) ? "잘 막았다" : hpStr) : (string.IsNullOrEmpty(hpStr) ? "못 막았다" : hpStr);
+        SetFill(gaugeFill, success ? 1f : 0f);
+        SetFill(timeFill, 0f);
+        if (eventHpText != null && cachedTrain != null)
+            eventHpText.text = "기차 HP  " + Mathf.RoundToInt(cachedTrain.currentHP) + " / " + Mathf.RoundToInt(cachedTrain.currentMaxHP);
+        if (bannerRing != null) bannerRing.color = col;
+        ShowPanel();
+        if (resultRoutine != null) StopCoroutine(resultRoutine);
+        resultRoutine = StartCoroutine(ResultBannerDown());
+
+        SoundManager.Play(success ? "sfx_judge_perfect" : "sfx_judge_bad");
+        if (success) UIManager.Instance?.ShowStatChange("[사고 해결] " + ev.Title + (string.IsNullOrEmpty(hpStr) ? "" : " - " + hpStr));
+        else UIManager.Instance?.ShowDanger("[사고 실패] " + ev.Title + (string.IsNullOrEmpty(hpStr) ? "" : " - " + hpStr));
+    }
+
+    private IEnumerator ResultBannerDown()
+    {
+        yield return new WaitForSecondsRealtime(Mathf.Max(0.2f, GameBalance.EventResolveHoldSec));
+        // 그 사이 새 사고가 시작됐으면 그쪽 배너다 - 건드리지 않는다
+        if (currentEvent == null) { HidePanel(); SetAlarm(resultAlarmRestore, 0f); }
+        RestoreBanner();
+        resultRoutine = null;
+    }
+
+    /// <summary>결과 상태로 바꿨던 배너 색을 원래대로</summary>
+    private void RestoreBanner()
+    {
+        titleText.color = titleBaseColor;
+        if (bannerRing != null) bannerRing.color = UISkin.HP_RED;
     }
 
     // ==================================================================

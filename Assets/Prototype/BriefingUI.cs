@@ -4,7 +4,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 /// <summary>
-/// [BriefingUI.cs] v1.2 (v9.11 2026-09-22: 등장 연출 ModalFeel) / v1.1 (v9.9.2 2026-09-16: 초상 + 키 동시 배치(실루엣 1배 위 + 키 아래) / 초상 틴트(EnemySkin 규칙) / 증강 선택창 위에도 열린다 - 승격 카드 "증강 선택"용)
+/// [BriefingUI.cs] v1.4 (v9.15 2026-09-29: 보조 키 - BriefDef.altKey/altHint/onAlt. 구간 완료 카드의 [R] 한 번 더. 닫힘 안내 줄에 "[R] 한 번 더   [Enter] 로비로") / v1.2 (v9.11 2026-09-22: 등장 연출 ModalFeel) / v1.1 (v9.9.2 2026-09-16: 초상 + 키 동시 배치(실루엣 1배 위 + 키 아래) / 초상 틴트(EnemySkin 규칙) / 증강 선택창 위에도 열린다 - 승격 카드 "증강 선택"용)
 ///   / v1 (신규, v9.9 2026-09-16) - 브리핑 카드: "읽는 동안 세계가 멈추는" 설명 창
 ///
 /// 튜토리얼 계획 v2 §5. 견습 운행(TutorialDirector)의 단계 시작마다, 그리고 정식 런에서 처음 만나는 것
@@ -46,6 +46,9 @@ public class BriefingUI : MonoBehaviour
         public Color portraitTint = Color.white;   // v1.1: 초상 틴트 (EnemySkin.PortraitFor 가 준다 - 게임 안 그림과 같은 색)
         public Color ring = new Color(0.84f, 0.667f, 0.282f, 1f);   // 초상 판 테 색 (기본 황동)
         public System.Action onClose;       // 닫힌 뒤 호출 (null 가능)
+        public KeyCode altKey = KeyCode.None;   // v1.4: 보조 키 (예: R) - 누르면 onAlt 를 부르고 닫는다 (onClose 는 안 부른다)
+        public string altHint = "";             // v1.4: 닫힘 안내 줄 앞에 붙는 글 (예: "[R] 한 번 더")
+        public System.Action onAlt;             // v1.4: 보조 키 콜백
     }
 
     public static BriefingUI Instance { get; private set; }
@@ -198,6 +201,16 @@ public class BriefingUI : MonoBehaviour
 
         if (Time.unscaledTime - openedAt < MIN_OPEN_SEC) return;
 
+        // v1.4: 보조 키 (구간 완료 카드 [R] 한 번 더)
+        if (current != null && current.altKey != KeyCode.None && Input.GetKeyDown(current.altKey))
+        {
+            KeyConsumedFrame = Time.frameCount;
+            System.Action alt = current.onAlt;
+            CloseInternal(false);
+            if (alt != null) alt();
+            return;
+        }
+
         bool enter = Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter);
         bool click = Input.GetMouseButtonDown(0);
         if (enter || click)
@@ -314,7 +327,7 @@ public class BriefingUI : MonoBehaviour
         if (portraitBorderImg != null) portraitBorderImg.color = ring;
 
         pauseNote.text = GameBalance.BriefingPausesTime ? "시간 정지 중" : "";
-        closeHint.text = "[Enter] 알겠다";
+        closeHint.text = (!string.IsNullOrEmpty(def.altHint) ? def.altHint + "     " : "") + "[Enter] 알겠다";   // v1.4
     }
 
     /// <summary>키 카드 배치: 초상과 같이면 아래쪽(글자 40pt, 라벨 y 12) / 키만이면 판 위쪽 절반(54pt, 라벨 y 24)</summary>

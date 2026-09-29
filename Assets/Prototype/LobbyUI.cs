@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [LobbyUI.cs] v1.7 (v9.14 2026-09-28 테스터 반영: 화면 설정 줄(전체화면 / 창 1920·1600·1280, PlayerPrefs WDT_ScreenMode, 시작 때 적용) / 도감은 클릭으로 고정(다시 클릭 = 닫기, 마우스 스침 무시) + 설명 짧게(맛 문구 제외)) / v1.6 (v9.13.1 2026-09-24: 오른쪽 아래 빌드 표시 GameBalance.BuildTag) / v1.5 (v9.12 2026-09-22: [T] = 견습 기록이 없으면 견습 운행 전부, 있으면 훈련장(TrainingGroundUI) 목록 / 처음 실행이면 [출발]·[Enter] 도 견습부터(GameBalance.TutorialForceFirst) / 버튼 글자 "훈련장") / v1.4 (v9.10.1 2026-09-21: 재료 이름 MaterialNames) / [LobbyUI.cs] v1.3 (v9.10 2026-09-17: 요리 도감에 설명 상자 - 이름에 마우스를 올리거나 클릭하면 무엇을 하나·어떤 손님에·언제 (RecipeText)) / v1.2 (v9.9 2026-09-16: [T] 견습 운행 버튼 + 첫 실행 강조) / v1.1 (v9.8: 칭호 표시) / v1 - 로비 개편 (튜토리얼_온보딩_설계 6절 + 화면 검수 "시작 버튼 묻힘")
+/// [LobbyUI.cs] v1.8 (v9.15 2026-09-29: 왼쪽 아래 소리·화면 줄을 [설정] 버튼 하나로 - SettingsUI(화면·소리·언어). 화면 모드 코드는 SettingsUI 로 이동) / v1.7 (v9.14 2026-09-28 테스터 반영: 화면 설정 줄(전체화면 / 창 1920·1600·1280, PlayerPrefs WDT_ScreenMode, 시작 때 적용) / 도감은 클릭으로 고정(다시 클릭 = 닫기, 마우스 스침 무시) + 설명 짧게(맛 문구 제외)) / v1.6 (v9.13.1 2026-09-24: 오른쪽 아래 빌드 표시 GameBalance.BuildTag) / v1.5 (v9.12 2026-09-22: [T] = 견습 기록이 없으면 견습 운행 전부, 있으면 훈련장(TrainingGroundUI) 목록 / 처음 실행이면 [출발]·[Enter] 도 견습부터(GameBalance.TutorialForceFirst) / 버튼 글자 "훈련장") / v1.4 (v9.10.1 2026-09-21: 재료 이름 MaterialNames) / [LobbyUI.cs] v1.3 (v9.10 2026-09-17: 요리 도감에 설명 상자 - 이름에 마우스를 올리거나 클릭하면 무엇을 하나·어떤 손님에·언제 (RecipeText)) / v1.2 (v9.9 2026-09-16: [T] 견습 운행 버튼 + 첫 실행 강조) / v1.1 (v9.8: 칭호 표시) / v1 - 로비 개편 (튜토리얼_온보딩_설계 6절 + 화면 검수 "시작 버튼 묻힘")
 ///
 /// - v1.2: 출발 버튼 아래 [T] 견습 운행 (340x44, y 130). 미완료(TutorialDirector.Done == false)면 목업 v2 (C) 대로
 ///   위에 현장 마커 화살표(tut_arrow 2배)가 까딱이고, 버튼 양끝 경광등(ui_ev_beacon_0/1)이 0.3초마다 교대, 황동 테,
@@ -16,7 +16,7 @@ using UnityEngine.UI;
 /// - 상단: 타이틀 + 부제
 /// - 하단: 큰 [출발한다!] 버튼 (클릭 또는 [Enter])
 /// - 안내줄: [M] 명성 상점 / [J] 선대의 일지 / [H] 차장의 안내 일지
-/// - 좌하단: 소리 설정 (배경음/효과음 [-][+] - SoundManager의 PlayerPrefs 볼륨 연동)
+/// - 좌하단: [설정] 버튼 (v1.8 - SettingsUI: 화면 / 소리 / 언어)
 /// - 우하단: 서체 라이선스 고지 (백로그 "로비 크레딧" 항목)
 /// 명성 상점(중앙 패널)은 그대로 두고 이 화면이 위아래로 감싼다.
 /// 씬의 구 lobbyPanel(어두운 배경에 묻힌 시작 버튼)은 자동 숨김 (HideLegacyLobbyPanel).
@@ -30,8 +30,6 @@ public class LobbyUI : MonoBehaviour
 
     private Canvas canvas;
     private GameObject root;      // 로비에서만 켜는 묶음
-    private Text bgmLabel;
-    private Text sfxLabel;
     private Text titleBadge;      // v1.1: 칭호 줄 (없으면 빈 글자)
     private bool wasLobby = false;
 
@@ -60,48 +58,11 @@ public class LobbyUI : MonoBehaviour
     {
         if (instance != null && instance != this) { Destroy(gameObject); return; }
         instance = this;
-        ApplyScreenMode(PlayerPrefs.GetInt(SCREEN_PREF, 0), false);   // v1.7: 저장된 화면 모드 (0 = 전체화면 = 기본이라 손대지 않음)
+        SettingsUI.ApplySavedScreenMode();   // v1.7: 저장된 화면 모드 (0 = 전체화면 = 기본이라 손대지 않음). v1.8: SettingsUI 로 이동
         BuildUI();
     }
 
-    // ─────────────────────────────────────────────
-    // v1.7: 화면 모드 - 0 전체화면(기본) / 1 창 1920x1080 / 2 창 1600x900 / 3 창 1280x720
-    // ─────────────────────────────────────────────
-    private const string SCREEN_PREF = "WDT_ScreenMode";
-    private static readonly string[] SCREEN_NAMES = { "전체화면", "창 1920x1080", "창 1600x900", "창 1280x720" };
-    private static readonly int[] SCREEN_W = { 0, 1920, 1600, 1280 };
-    private static readonly int[] SCREEN_H = { 0, 1080, 900, 720 };
-    private Text screenLabel;
-
-    private void CycleScreenMode(int dir)
-    {
-        int mode = (PlayerPrefs.GetInt(SCREEN_PREF, 0) + dir + SCREEN_NAMES.Length) % SCREEN_NAMES.Length;
-        ApplyScreenMode(mode, true);
-        SoundManager.Play("sfx_ui_click");
-        RefreshScreenLabel();
-    }
-
-    /// <summary>화면 모드 적용. save = PlayerPrefs 에 기록. 0 은 전체화면 창(기본) - 처음 실행에 강제하지 않는다</summary>
-    private static void ApplyScreenMode(int mode, bool save)
-    {
-        mode = Mathf.Clamp(mode, 0, SCREEN_NAMES.Length - 1);
-        if (mode == 0)
-        {
-            if (save) Screen.SetResolution(Display_W(), Display_H(), FullScreenMode.FullScreenWindow);
-        }
-        else
-            Screen.SetResolution(SCREEN_W[mode], SCREEN_H[mode], FullScreenMode.Windowed);
-        if (save) { PlayerPrefs.SetInt(SCREEN_PREF, mode); PlayerPrefs.Save(); }
-        Debug.Log("[LobbyUI] 화면 모드: " + SCREEN_NAMES[mode]);
-    }
-
-    private static int Display_W() { return Screen.currentResolution.width > 0 ? Screen.currentResolution.width : 1920; }
-    private static int Display_H() { return Screen.currentResolution.height > 0 ? Screen.currentResolution.height : 1080; }
-
-    private void RefreshScreenLabel()
-    {
-        if (screenLabel != null) screenLabel.text = SCREEN_NAMES[Mathf.Clamp(PlayerPrefs.GetInt(SCREEN_PREF, 0), 0, SCREEN_NAMES.Length - 1)];
-    }
+    // v1.8: 화면 모드 코드는 SettingsUI 로 옮겼다 (SettingsUI.ApplySavedScreenMode / Toggle)
 
     private void Update()
     {
@@ -124,7 +85,7 @@ public class LobbyUI : MonoBehaviour
 
         // v1.2: [T] 견습 운행 (일지/일시정지/브리핑이 열려 있으면 양보). v1.5: 훈련장 창이 떠 있으면 그 창이 T 를 닫기로 쓴다
         if (Input.GetKeyDown(KeyCode.T) && !JournalViewerUI.IsOpen && !PauseMenu.IsOpen && !BriefingUI.IsOpen
-            && !AugmentListUI.ReadingOpen && !FameShopUI.IsOpen && !TrainingGroundUI.IsOpen)
+            && !AugmentListUI.ReadingOpen && !FameShopUI.IsOpen && !TrainingGroundUI.IsOpen && !SettingsUI.IsOpen)
             StartTutorial();
 
         // 구 씬 로비 패널 숨김 (Uimanager.ShowOnlyPanel이 다시 켜도 매 프레임 꺼서 유지)
@@ -135,7 +96,7 @@ public class LobbyUI : MonoBehaviour
 
         // [Enter] 출발 (일지/일시정지/훈련장이 열려 있으면 양보)
         if ((Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
-            && !JournalViewerUI.IsOpen && !PauseMenu.IsOpen && !TrainingGroundUI.IsOpen
+            && !JournalViewerUI.IsOpen && !PauseMenu.IsOpen && !TrainingGroundUI.IsOpen && !SettingsUI.IsOpen
             && !BriefingUI.IsOpen && BriefingUI.KeyConsumedFrame != Time.frameCount)   // v1.2: 카드를 닫은 Enter 로 출발하지 않게
             StartRun();
     }
@@ -297,28 +258,10 @@ public class LobbyUI : MonoBehaviour
         guide.rectTransform.offsetMin = new Vector2(0f, 28f);   // v1.2: 52~78 -> 28~50
         guide.rectTransform.offsetMax = new Vector2(0f, 50f);
 
-        // ── 좌하단: 소리 설정 ──
-        Text soundTitle = UIFactory.CreateText(root.transform, "SoundTitle",
-            "- 소리 설정 -", 14, UIFactory.CREAM, TextAnchor.MiddleLeft);
-        SetCorner(soundTitle.rectTransform, true, 16f, 96f, 200f, 22f);
-
-        bgmLabel = MakeVolumeRow(true, 62f);
-        sfxLabel = MakeVolumeRow(false, 28f);
-        RefreshVolumeLabels();
-
-        // ── v1.7: 화면 설정 (소리 위) - 전체화면 / 창 3종. [<] [>] 로 돌린다. Alt+Enter 도 된다 ──
-        Text screenTitle = UIFactory.CreateText(root.transform, "ScreenTitle",
-            "- 화면 -", 14, UIFactory.CREAM, TextAnchor.MiddleLeft);
-        SetCorner(screenTitle.rectTransform, true, 16f, 164f, 200f, 22f);
-        screenLabel = UIFactory.CreateText(root.transform, "ScreenRow_Label", "", 14, UIFactory.CREAM, TextAnchor.MiddleLeft);
-        SetCorner(screenLabel.rectTransform, true, 58f, 130f, 150f, 26f);
-        Button sPrev = UIFactory.CreateButton(root.transform, "ScreenRow_Prev", "<", new Vector2(30f, 26f), UIFactory.PANEL, UIFactory.CREAM, 18);
-        PlaceCornerButton(sPrev, 16f, 130f);
-        sPrev.onClick.AddListener(delegate { CycleScreenMode(-1); });
-        Button sNext = UIFactory.CreateButton(root.transform, "ScreenRow_Next", ">", new Vector2(30f, 26f), UIFactory.PANEL, UIFactory.CREAM, 18);
-        PlaceCornerButton(sNext, 214f, 130f);
-        sNext.onClick.AddListener(delegate { CycleScreenMode(1); });
-        RefreshScreenLabel();
+        // ── 좌하단: [설정] 버튼 - 화면 / 소리 / 언어 (v1.8: 줄 5개 -> 창 하나, SettingsUI) ──
+        Button settingsBtn = UIFactory.CreateButton(root.transform, "SettingsBtn", "설정  (화면 · 소리 · 언어)", new Vector2(230f, 36f), UIFactory.PANEL, UIFactory.CREAM, 16);
+        PlaceCornerButton(settingsBtn, 16f, 28f);
+        settingsBtn.onClick.AddListener(delegate { SettingsUI.Toggle(); });
 
         // ── 우하단: 서체 고지 (크레딧) ──
         Text credit = UIFactory.CreateText(root.transform, "Credit",
@@ -412,28 +355,6 @@ public class LobbyUI : MonoBehaviour
         Image img = go.AddComponent<Image>();
         img.raycastTarget = false;
         return img;
-    }
-
-    /// <summary>볼륨 조절 한 줄: 이름 [-] 수치 [+]</summary>
-    private Text MakeVolumeRow(bool bgm, float y)
-    {
-        string rowName = bgm ? "BgmRow" : "SfxRow";
-
-        Text label = UIFactory.CreateText(root.transform, rowName + "_Label", "", 14,
-            UIFactory.CREAM, TextAnchor.MiddleLeft);
-        SetCorner(label.rectTransform, true, 58f, y, 150f, 26f);
-
-        Button minus = UIFactory.CreateButton(root.transform, rowName + "_Minus", "-",
-            new Vector2(30f, 26f), UIFactory.PANEL, UIFactory.CREAM, 18);
-        PlaceCornerButton(minus, 16f, y);
-        minus.onClick.AddListener(delegate { AdjustVolume(bgm, -0.1f); });
-
-        Button plus = UIFactory.CreateButton(root.transform, rowName + "_Plus", "+",
-            new Vector2(30f, 26f), UIFactory.PANEL, UIFactory.CREAM, 18);
-        PlaceCornerButton(plus, 214f, y);
-        plus.onClick.AddListener(delegate { AdjustVolume(bgm, 0.1f); });
-
-        return label;
     }
 
     // ─────────────────────────────────────────────
@@ -571,25 +492,6 @@ public class LobbyUI : MonoBehaviour
         rt.anchorMax = new Vector2(left ? 0.5f : 1f, 0f);
         rt.offsetMin = new Vector2(left ? 26f : 20f, top - 22f);
         rt.offsetMax = new Vector2(left ? -20f : -26f, top);
-    }
-
-    private void AdjustVolume(bool bgm, float delta)
-    {
-        if (bgm) SoundManager.BgmVolume = SoundManager.BgmVolume + delta;
-        else
-        {
-            SoundManager.SfxVolume = SoundManager.SfxVolume + delta;
-            SoundManager.Play("sfx_ui_click");   // 새 크기 즉시 들려주기
-        }
-        RefreshVolumeLabels();
-    }
-
-    private void RefreshVolumeLabels()
-    {
-        if (bgmLabel != null)
-            bgmLabel.text = "배경음  " + Mathf.RoundToInt(SoundManager.BgmVolume * 100f) + "%";
-        if (sfxLabel != null)
-            sfxLabel.text = "효과음  " + Mathf.RoundToInt(SoundManager.SfxVolume * 100f) + "%";
     }
 
     // ─────────────────────────────────────────────

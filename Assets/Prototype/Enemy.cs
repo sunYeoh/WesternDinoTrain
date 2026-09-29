@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// [Enemy.cs] v3.6 (v9.14 2026-09-28: IncomingDamage - 과잉 집중 방지용 예약 피해) / v3.5 (v9.12 2026-09-22: TutorialDirector.InlineFreeze 동안 정지 / 용어 "지속 피해") / v3.4 (v9.11.1 2026-09-22 문구: 특기 설명 일상어, 강철 = 방어 50) / v3.3 (v9.11 2026-09-22 타격감: 직접 명중 때 HitFeel.OnHit(플래시·찌그러짐·딜 비례 스파크), 죽을 때 HitFeel.OnKill(킬 버스트) - 도트 틱은 제외) / v3.2 (v9.10.1 2026-09-21: 물량 1.6배에 맞춘 처치 보상 배율 - 일반 손님 골드 GameBalance.KillGoldMul, 재료 드랍 확률 KillMaterialChance(보스는 항상). 드랍 이름을 재료 이름표(전기알·화염꽃·독샘)에 맞춤) / v3.1 (2026-09-14: 해빙 문구 / 전갈 마모 대체 스위치) / v3
+/// [Enemy.cs] v3.7 (v9.15 2026-09-29: 방어·저항으로 피해가 GameBalance.ResistShowBelow 이하로 깎이면 팝업에 "저항" - 하나만 키우면 왜 안 통하는지 화면에서) / v3.6 (v9.14 2026-09-28: IncomingDamage - 과잉 집중 방지용 예약 피해) / v3.5 (v9.12 2026-09-22: TutorialDirector.InlineFreeze 동안 정지 / 용어 "지속 피해") / v3.4 (v9.11.1 2026-09-22 문구: 특기 설명 일상어, 강철 = 방어 50) / v3.3 (v9.11 2026-09-22 타격감: 직접 명중 때 HitFeel.OnHit(플래시·찌그러짐·딜 비례 스파크), 죽을 때 HitFeel.OnKill(킬 버스트) - 도트 틱은 제외) / v3.2 (v9.10.1 2026-09-21: 물량 1.6배에 맞춘 처치 보상 배율 - 일반 손님 골드 GameBalance.KillGoldMul, 재료 드랍 확률 KillMaterialChance(보스는 항상). 드랍 이름을 재료 이름표(전기알·화염꽃·독샘)에 맞춤) / v3.1 (2026-09-14: 해빙 문구 / 전갈 마모 대체 스위치) / v3
 /// 모든 적 유닛의 기본 동작 + 전투 스탯(DEF/RES) + 상태이상(도트/방깎/마깎)
 /// - v3 변경점: 행동 패턴 시스템 (이름 기반 자동 배정 - 프리팹 설정 불필요)
 ///   1) 무리 사냥꾼(랩터): 주변 랩터가 많을수록 이동 속도 증가
@@ -794,8 +794,11 @@ public class Enemy : MonoBehaviour
         // v3.4: 파생 클래스 데미지 훅 (보스 '빙하 갑주' 등 - 도트는 이 훅을 안 거친다)
         finalDamage = ModifyIncomingDamage(finalDamage, dtype);
 
+        // v3.7: 방어·저항으로 많이 깎였으면 팝업에 "저항" (기본 0.6 이하 = 방어 34 이상)
+        bool resisted = GameBalance.ResistShowBelow > 0f && damage > 0f && finalDamage / damage <= GameBalance.ResistShowBelow;
+
         if (isAlive) HitFeel.OnHit(this, finalDamage, dtype == DamageType.Magic);   // v3.3: 타격감
-        ApplyRawDamage(finalDamage, dtype == DamageType.Magic);
+        ApplyRawDamage(finalDamage, dtype == DamageType.Magic, resisted);
     }
 
     /// <summary>
@@ -810,13 +813,16 @@ public class Enemy : MonoBehaviour
     }
 
     /// <summary>실제 HP 차감 + 팝업 (계산 완료된 데미지)</summary>
-    private void ApplyRawDamage(float damage, bool isMagic)
+    private void ApplyRawDamage(float damage, bool isMagic) { ApplyRawDamage(damage, isMagic, false); }
+
+    /// <summary>v3.7: resisted = 방어·저항으로 크게 깎인 타격 - 팝업이 회청색 "저항"</summary>
+    private void ApplyRawDamage(float damage, bool isMagic, bool resisted)
     {
         if (!isAlive) return;
         currentHP -= damage;
 
         bool isCritical = damage >= scaledATK * 2f;
-        DamagePopup.Create(transform.position, damage, isCritical);
+        DamagePopup.Create(transform.position, damage, isCritical, resisted);
 
         if (currentHP <= 0f) Die();
     }
