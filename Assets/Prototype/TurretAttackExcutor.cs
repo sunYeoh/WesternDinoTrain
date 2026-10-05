@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 
 /// <summary>
-/// [TurretAttackExecutor.cs] v5.3 (v9.16 2026-09-29 손맛 2차 - 소리: 발사음 = 요리 속성·티어·모양별(SoundKeys.Shot, 포탑 위치에서 PlayAt) / 폭발 착탄 sfx_explosion / 장판 sfx_field / 연쇄 번개 튈 때마다 sfx_chain / 증강 폭발(동상 파편·마지막 서비스)도 폭발음 / HitFeel.NextHit 에 요리 속성을 같이 넘겨 명중음에 속성 겹침이 얹힌다) / v5.2 (v9.14 2026-09-28 테스터 "하나 점사해서 잡으면 나머지가 다 빗나감": 투사체가 도착했을 때 표적이 이미 죽었으면 그 자리 근처의 다른 손님을 맞힌다(ProjectileRetargetRadius) + 날아가는 동안 Enemy.IncomingDamage 예약 - 포탑이 곧 죽을 손님을 건너뛴다) / v5.1 (v9.11 2026-09-22 타격감: DealDamage 가 HitFeel.NextHit(속성색·크리) 를 걸고 때린다) / v5
+/// [TurretAttackExecutor.cs] v5.4 (v9.17 2026-10-06: v9.14 머리말에 적고 본문에 빠져 있던 것을 실제로 넣음 - 투사체가 날아가는 동안 Enemy.IncomingDamage 예약·도착 때 해제 / 도착했을 때 표적이 죽었으면 ProjectileRetargetRadius 안의 다른 손님을 맞힌다. + A5: 물리 단발이 맞으면 HitFeel.Knock(그림만 움찔)) / v5.3 (v9.16 2026-09-29 손맛 2차 - 소리: 발사음 = 요리 속성·티어·모양별(SoundKeys.Shot, 포탑 위치에서 PlayAt) / 폭발 착탄 sfx_explosion / 장판 sfx_field / 연쇄 번개 튈 때마다 sfx_chain / 증강 폭발(동상 파편·마지막 서비스)도 폭발음 / HitFeel.NextHit 에 요리 속성을 같이 넘겨 명중음에 속성 겹침이 얹힌다) / v5.2 (v9.14 2026-09-28 테스터 "하나 점사해서 잡으면 나머지가 다 빗나감": 투사체가 도착했을 때 표적이 이미 죽었으면 그 자리 근처의 다른 손님을 맞힌다(ProjectileRetargetRadius) + 날아가는 동안 Enemy.IncomingDamage 예약 - 포탑이 곧 죽을 손님을 건너뛴다) / v5.1 (v9.11 2026-09-22 타격감: DealDamage 가 HitFeel.NextHit(속성색·크리) 를 걸고 때린다) / v5
 /// 포탑 공격 형태(8종)별 판정 및 이펙트 실행기
 /// - v3: 모든 TakeDamage에 r.damageType 적용 (DEF/RES 계산)
 /// - v4: 증강 시스템(AugmentManager) 연동
@@ -79,11 +79,33 @@ public static class TurretAttackExecutor
                     float projSpeed = r.projectileSpeed > 0f ? r.projectileSpeed * 0.03f : 13f;
                     float projSize = r.explodeRadius > 0f ? 0.5f : 0.32f;
 
+                    // v5.4: 날아가는 동안 이 손님에게 들어갈 피해를 예약 - TurretSlot 이 "곧 죽을 손님"을 건너뛴다 (여러 포탑이 한 마리에 몰려 허공에 쏘던 것)
+                    float reserved = 0f;
+                    if (GameBalance.AvoidOverkillTargeting)
+                    {
+                        reserved = EstimateDamage(r, capturedTarget, damage);
+                        capturedTarget.IncomingDamage += reserved;
+                    }
+
                     vfx.Projectile(origin, targetPos, col, projSpeed, projSize, delegate
                     {
-                        // 도달 시점 판정
-                        if (capturedTarget != null && capturedTarget.IsAlive)
-                            HitSingle(r, capturedTarget, damage);
+                        if (reserved > 0f && capturedTarget != null)
+                            capturedTarget.IncomingDamage = Mathf.Max(0f, capturedTarget.IncomingDamage - reserved);
+
+                        // 도달 시점 판정. v5.4: 표적이 그사이 죽었으면 착탄 자리 근처의 다른 손님을 맞힌다 (탄이 허공에 사라지지 않는다)
+                        Enemy hitTarget = capturedTarget;
+                        //   폭발·장판은 제자리에 터지거나 깔리니 대체 표적을 찾지 않는다 (직격만 3u 옆으로 옮겨 붙으면 어색하다)
+                        //   마지막 식사 장면에선 찾지 않는다 - 물러난 손님을 겨눴던 탄이 식사 중인 보스에게 옮겨 붙는다
+                        if ((hitTarget == null || !hitTarget.IsAlive) && r.shape == AttackShape.Projectile && GameBalance.ProjectileRetargetRadius > 0f
+                            && !BossEnemy.LastSupperServing)
+                            hitTarget = FindNearestAlive(targetPos, GameBalance.ProjectileRetargetRadius);
+                        if (hitTarget != null && hitTarget.IsAlive)
+                        {
+                            HitSingle(r, hitTarget, damage);
+                            // v5.4 (A5): 물리 단발 - 손님 그림이 탄이 날아온 반대쪽으로 움찔한다 (판정 위치는 그대로)
+                            if (r.damageType == DamageType.Phys && r.shape == AttackShape.Projectile)
+                                HitFeel.Knock(hitTarget, targetPos - origin);
+                        }
 
                         if (r.shape == AttackShape.Explode)
                         {
@@ -92,7 +114,7 @@ public static class TurretAttackExecutor
                             SoundManager.PlayAt("sfx_explosion", targetPos);   // v5.3: 착탄음 (큰 소리 - 잦은 소리를 0.3초 덕킹)
                             // P1 게임필: 폭발 미세 럼블 - 쿨타임 채널 방식 (연사돼도 2.5초에 1번만)
                             GameFeel.Shake(GameBalance.ShakeExplosion, "explosion", GameBalance.ShakeExplosionCooldown);
-                            HitExplosionArea(r, targetPos, damage, capturedTarget, radius);
+                            HitExplosionArea(r, targetPos, damage, hitTarget, radius);
 
                             // 프리즘 증강 '메아리치는 폭발': 60% 데미지로 한 번 더 (중심 대상 포함)
                             if (AugmentManager.DoubleExplosion)
@@ -130,6 +152,28 @@ public static class TurretAttackExecutor
                 HitChain(r, target, damage, col, origin);
                 break;
         }
+    }
+
+    /// <summary>v5.4: 예약용 어림 피해 - 전역·증강 공격 배율과 손님 방어/저항만 본다. 치명타·조건부 보너스는 빼서 낮게 잡는다 (낮게 잡으면 덜 건너뛸 뿐, 높게 잡으면 살 손님을 건너뛴다)</summary>
+    private static float EstimateDamage(RecipeData r, Enemy en, float damage)
+    {
+        float stat = r.damageType == DamageType.Magic ? en.resistance : en.defense;
+        return damage * GameBalance.TurretDamageMul * AugmentManager.AtkMul * 50f / (50f + Mathf.Max(0f, stat));
+    }
+
+    /// <summary>v5.4: pos 에서 radius 안의 살아 있는 손님 중 가장 가까운 것 (없으면 null)</summary>
+    private static Enemy FindNearestAlive(Vector3 pos, float radius)
+    {
+        Enemy best = null;
+        float bestDist = radius;
+        Enemy[] all = Object.FindObjectsByType<Enemy>(FindObjectsSortMode.None);
+        for (int i = 0; i < all.Length; i++)
+        {
+            if (!all[i].IsAlive) continue;
+            float d = Vector3.Distance(all[i].transform.position, pos);
+            if (d < bestDist) { bestDist = d; best = all[i]; }
+        }
+        return best;
     }
 
     // ==================================================================

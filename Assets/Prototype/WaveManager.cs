@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// [WaveManager.cs] v6.15 (v9.15.1 2026-09-29 스토리 개정: 최종전 직전 정차엔 베팅 없음(GameBalance.SpinoNoBetAtFinal) / 최종전 시작에 스피노 고백 카드(BriefingTexts.SpinoFinal) / 최종전 긴급 보급 문구 = "스피노가 실어 둔 재료" / 지역 3 첫 웨이브 스피노 한 줄) / v6.14 (v9.13 2026-09-23: 선로 v2 - 정차의 선로 선택이 카드 창 대신 갈림길 + 왼쪽 카드(BranchRouteUI v2, 시간 안 멈춤). 출발 직전 BranchRouteUI.OnDepart 로 세계 밀림·톤 시작 /
+/// [WaveManager.cs] v6.17 (v9.17 2026-10-06 화면 손맛 2차 D5: 패배 연출 중(GameManager.DefeatPending)과 운행이 끝난 뒤(GameOver·Victory)엔 웨이브 클리어 판정을 하지 않는다. 아트 v1 의 v6.16 위에 얹었다) / v6.16 (아트 v1 2026-10-03: 코드 폴백 손님도 새 전용 그림 4종 e_armadillo / e_mammoth / e_pachy / e_cactus 를 쓴다) / v6.15 (v9.15.1 2026-09-29 스토리 개정: 최종전 직전 정차엔 베팅 없음(GameBalance.SpinoNoBetAtFinal) / 최종전 시작에 스피노 고백 카드(BriefingTexts.SpinoFinal) / 최종전 긴급 보급 문구 = "스피노가 실어 둔 재료" / 지역 3 첫 웨이브 스피노 한 줄) / v6.14 (v9.13 2026-09-23: 선로 v2 - 정차의 선로 선택이 카드 창 대신 갈림길 + 왼쪽 카드(BranchRouteUI v2, 시간 안 멈춤). 출발 직전 BranchRouteUI.OnDepart 로 세계 밀림·톤 시작 /
 ///   선로 보상 교체: 골드·재료 -> 끝나면 증강 1회 더(사냥터 은 / 위험 금, AugmentPickUI.OpenExtra) + 유물 확률(위험·안개 50%, 폐역 확정) / 웨이브 끝에 RouteFX.ClearTone / 치트 점프·런 시작에 선택 취소) / v6.13 (v9.12 2026-09-22: 협곡의 낙뢰 - 지역 2 일반 웨이브마다 1회 가동 포탑 감전(GameBalance.AmbientLightning*) + 첫 등장 카드 event_lightning + 인라인 연습 구간 2 훅 / 레버 인라인 연습 구간 4 를 InlineLeverWave 시작에 요청 / TutorialDirector.InlineFreeze 동안 스폰 코루틴·클리어 판정·낙뢰 타이머가 쉰다(WaitGap) / 미니 보스 예습용 SpawnBossForPractice) / v6.12 (v9.11.1 2026-09-22 문구) / v6.11 (v9.10.1 2026-09-21: 웨이브 손님 수 배율 GameBalance.WaveCountMul(프롤로그·견습 제외, ApplyRouteCounts 재사용) / 웨이브 시작에 정차 조리 카운터(CookingBridge.StopCooksUsed) 초기화) / v6.10 (v9.10 2026-09-17 테스터 피드백·개정안 §4·§5·§7: 스폰 간격 배율 + 무리 사이 쉼(WaveLengthMul/WaveGroupSize/GapSec) /
 ///   정차 뒤 자동 출발 대신 [Enter]·출발 버튼 확인(DepartConfirm, WaitingDepart 정적) / 증강 선택은 GameBalance.AugmentPickAt 웨이브만(안 여는 웨이브도 웨이브 효과는 적용) /
 ///   분기 선로 RouteChoiceMinWave·베팅 BetMinWave·행상인 MerchantMinWave 부터 / 웨이브 3 시작에 화염 재료 보장 + 범위 요리 소개 카드) / v6.9 (v9.9.2 2026-09-16: 정식 런 첫 등장 카드 훅 - 지역(지역 첫 웨이브)·새 손님(카운트 > 0 인 종류 처음)은 StartWave 예고 때, 보스는 SpawnBoss 때. BriefingUI.ShowOnce 1회) / v6.8 (v9.9 2026-09-16: 견습 운행 - TutorialDirector 가 진행 중이면 StartWave/B 점프 거부, TutorialGateActive 에 디렉터의 BlockAmbient 포함, SpawnForTutorial) / v6.7 (v9.8.1: B 점프는 GameBalance.CheatsAllowed 일 때만) / v6.6 (v9.8: 위험 적 전용 PNG) / v6.5 (교수 피드백 반영 2026-09-14) / v6.4 (고퀄 PNG 적용 2026-09-03) / v6.3 탑뷰 재스킨
@@ -937,6 +937,10 @@ public class WaveManager : MonoBehaviour
         else if (n.Contains("파라사우")) dedicated = "parasaur";
         else if (n.Contains("카르노")) dedicated = "carno";
         else if (n.Contains("모사")) dedicated = "mosa";
+        else if (n.Contains("아르마딜로") || n.Contains("안킬로")) dedicated = "armadillo";   // v6.16 아트 v1
+        else if (n.Contains("맘모스")) dedicated = "mammoth";
+        else if (n.Contains("파키")) dedicated = "pachy";
+        else if (n.Contains("캑터스")) dedicated = "cactus";
         Sprite sprite = dedicated != null ? SpriteBank.Get("e_" + dedicated) : null;
         float pngMul = sprite != null ? dedicatedMul : 1f;
 
@@ -1220,6 +1224,11 @@ public class WaveManager : MonoBehaviour
             RequestDepart();
 
         if (!isWaveActive) return;
+
+        // v6.17 (v9.17 D5): 기차가 멈추는 중(패배 연출)이거나 운행이 끝났으면 클리어 판정·낙뢰를 하지 않는다 - 멈춘 기차가 웨이브를 깨고 결과 화면 위에 증강 창을 여는 일이 없게
+        if (GameManager.Instance != null && (GameManager.Instance.DefeatPending
+            || GameManager.Instance.currentState == GameManager.GameState.GameOver
+            || GameManager.Instance.currentState == GameManager.GameState.Victory)) return;
 
         // v6.13: 인라인 연습 중 - 클리어 판정·낙뢰 타이머가 쉰다 (손님은 Enemy 가, 스폰은 WaitGap 이 멈춘다)
         if (TutorialDirector.InlineFreeze)

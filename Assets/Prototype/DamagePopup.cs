@@ -1,134 +1,169 @@
-ï»¿using System.Collections;
 using UnityEngine;
 using TMPro;
 
 /// <summary>
-/// [DamagePopup.cs] v1.1 (v9.15 2026-09-29: resisted íŒì—… - íšŒì²­ìƒ‰ "n ì €í•­" (Enemy.TakeDamage ê°€ ë°©ì–´Â·ì €í•­ìœ¼ë¡œ í¬ê²Œ ê¹ì¸ íƒ€ê²©ì— ë¶™ì¸ë‹¤))
-/// ì ì´ í”¼ê²© ì‹œ ë°ë¯¸ì§€ ìˆ«ìê°€ ìœ„ë¡œ ì˜¬ë¼ê°€ë©° ì‚¬ë¼ì§€ëŠ” íŒì—…ì…ë‹ˆë‹¤.
-/// 
-/// [ìˆ˜ì • ì‚¬í•­]
-/// 1) ìŠ¤í° ì˜¤í”„ì…‹ì„ Â±0.3 â†’ Â±0.8ë¡œ í™•ëŒ€ (ë³´ìŠ¤ì²˜ëŸ¼ ê°™ì€ ìœ„ì¹˜ì— ë°ë¯¸ì§€ ëˆ„ì ë  ë•Œ ë¶„ì‚°)
-/// 2) ìœ„ë¡œë§Œ ì˜¬ë¼ê°€ë˜ ì´ë™ì„ ì¢Œ/ìš°ë¡œë„ ë¶„ì‚° (ëŒ€ê°ì„  ì´ë™)
-/// 3) sortingLayer ëª…ì‹œë¡œ ë‹¤ë¥¸ UIì— ê°€ë ¤ì§€ì§€ ì•Šê²Œ í•¨
-/// 
-/// ì‚¬ìš©ë²•:
-/// DamagePopup.Create(position, damage, isCritical);
-/// VS 2017 (C# 7.3) í˜¸í™˜
+/// [DamagePopup.cs] v1.2 (v9.17 2026-10-06 È­¸é ¼Õ¸À 2Â÷ A4: CreateFor(¼Õ´Ô) - ¼ıÀÚ Å©±â = ±âº» x (1 + ÇÇÇØ / ¼Õ´Ô ÃÖ´ë HP), ÃÖ´ë 2¹è /
+///   °°Àº ¼Õ´ÔÀÌ 0.1ÃÊ ¾È¿¡ ¶Ç ¸ÂÀ¸¸é »õ ¼ıÀÚ ´ë½Å ¾Õ ¼ıÀÚ¿¡ ´õÇÑ´Ù / µîÀåÇÒ ¶§ 1.25¹è¿¡¼­ Á¦ÀÚ¸®·Î, Å©¸®´Â ±½°Ô + 1.6¹è¿¡¼­ 0.1ÃÊ ´õ ±æ°Ô + ´õ ³ôÀÌ /
+///   Å©¸® ¿©ºÎ´Â Enemy °¡ ÁøÂ¥ Ä¡¸íÅ¸¸¸ ³Ñ±ä´Ù) / v1.1 (v9.15 2026-09-29: resisted ÆË¾÷ - È¸Ã»»ö "n ÀúÇ×")
+/// ¼Õ´ÔÀÌ ¸ÂÀ¸¸é ÇÇÇØ ¼ıÀÚ°¡ À§·Î ¶°¿À¸£¸ç »ç¶óÁø´Ù.
+///
+/// »ç¿ë¹ı: DamagePopup.CreateFor(enemy, damage, isCritical, resisted);   // ¼Õ´Ô (Å©±â ºñ·Ê¡¤ÇÕ»ê)
+///         DamagePopup.Create(position, damage, isCritical);               // ÀÚ¸®¸¸ ¾Æ´Â °æ¿ì (°íÁ¤ Å©±â)
+/// ½ºÀ§Ä¡: GameBalance.DmgPopupScaleOn / DmgPopupMaxScale / DmgPopupMergeSec
+/// VS 2017 (C# 7.3) È£È¯
 /// </summary>
 public class DamagePopup : MonoBehaviour
 {
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ì •ì  íŒ©í† ë¦¬ â€” í”„ë¦¬íŒ¹ ìƒì„±
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    private static GameObject prefab;
+    private const float FONT_NORMAL = 3.5f, FONT_RESIST = 3f;
+    private const float POP_AMT = 0.25f, POP_SEC = 0.1f;            // ÀÏ¹İ: 1.25¹è -> 1.0
+    private const float POP_AMT_CRIT = 0.6f, POP_SEC_CRIT = 0.2f;   // Å©¸®: 1.6¹è -> 1.0, 0.1ÃÊ ´õ ±æ°Ô
+    private const float LIFE = 0.8f, LIFE_CRIT = 0.9f;
+    private const float RISE = 1.5f, RISE_CRIT = 2.1f;
 
-    /// <summary>ì›”ë“œ ì¢Œí‘œì— ë°ë¯¸ì§€ íŒì—… ìƒì„±</summary>
+    private static GameObject prefab;
+    private static bool prefabLooked = false;
+
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ¸¸µé±â
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    /// <summary>¿ùµå ÁÂÇ¥¿¡ ÇÇÇØ ¼ıÀÚ (°íÁ¤ Å©±â)</summary>
     public static void Create(Vector3 worldPos, float damage, bool isCritical) { Create(worldPos, damage, isCritical, false); }
     public static void Create(Vector3 worldPos, float damage) { Create(worldPos, damage, false, false); }
 
-    /// <summary>v1.1: resisted = ë°©ì–´Â·ì €í•­ìœ¼ë¡œ í¬ê²Œ ê¹ì¸ íƒ€ê²© ("ì €í•­" í‘œê¸°)</summary>
+    /// <summary>v1.1: resisted = ¹æ¾î¡¤ÀúÇ×À¸·Î Å©°Ô ±ğÀÎ Å¸°İ ("ÀúÇ×" Ç¥±â)</summary>
     public static void Create(Vector3 worldPos, float damage, bool isCritical, bool resisted)
     {
-        if (prefab == null)
-            prefab = Resources.Load<GameObject>("DamagePopup");
+        Spawn(worldPos, damage, isCritical, resisted, 0f);
+    }
 
-        // ìŠ¤í° ìœ„ì¹˜ ë¶„ì‚° (ë³´ìŠ¤ ìœ„ì¹˜ì— ë‹¤ìˆ˜ ë°ë¯¸ì§€ íŒì—…ì´ ê²¹ì¹˜ëŠ” ê²ƒì„ ë°©ì§€)
-        Vector3 spawnOffset = new Vector3(
-            Random.Range(-0.8f, 0.8f),    // ê°€ë¡œ ë¶„ì‚° í­ í™•ëŒ€
-            Random.Range(0.2f, 0.7f),     // ì„¸ë¡œ ì•½ê°„ ìœ„
-            0f);
-        Vector3 spawnPos = worldPos + spawnOffset;
-
-        if (prefab == null)
+    /// <summary>
+    /// v1.2: ¼Õ´ÔÀÌ ¸Â¾Ò´Ù. Å©±â´Â ÇÇÇØ / ÃÖ´ë HP ¿¡ ºñ·ÊÇÏ°í, DmgPopupMergeSec ¾È¿¡ °°Àº ¼Õ´ÔÀÌ ¶Ç ¸ÂÀ¸¸é ¾Õ ¼ıÀÚ¿¡ ´õÇÑ´Ù
+    /// (ÇÕ»ê Ã¢Àº Ã¹ ¼ıÀÚ°¡ ¶á ¶§ºÎÅÍ ¼¾´Ù - ¿¬»ç Æ÷Å¾ÀÌ ¼ıÀÚ ÇÏ³ª¸¦ ³¡¾øÀÌ ºÙµéÁö ¾Ê´Â´Ù)
+    /// </summary>
+    public static void CreateFor(Enemy e, float damage, bool isCritical, bool resisted)
+    {
+        if (e == null) return;
+        float maxHP = Mathf.Max(1f, e.scaledMaxHP);
+        if (GameBalance.DmgPopupMergeSec > 0f && e.lastPopup != null && Time.time - e.lastPopupTime <= GameBalance.DmgPopupMergeSec)
         {
-            // í”„ë¦¬íŒ¹ì´ ì—†ìœ¼ë©´ ì½”ë“œë¡œ ì¦‰ì‹œ ìƒì„±
-            GameObject obj = new GameObject("DamagePopup");
-            obj.transform.position = spawnPos;
-
-            TextMeshPro tmp = obj.AddComponent<TextMeshPro>();
-            TMPFontFixer.Apply(tmp);   // í†µì¼ í°íŠ¸(Neoë‘¥ê·¼ëª¨ ê¸°ë°˜) ë°°ì •
-            ApplyTextStyle(tmp, damage, isCritical, resisted);
-
-            // sortingLayer ìµœìƒë‹¨ìœ¼ë¡œ (ê¸°ì°¨/ì ì— ê°€ë ¤ì§€ì§€ ì•Šê²Œ)
-            tmp.sortingOrder = 100;
-
-            DamagePopup popup = obj.AddComponent<DamagePopup>();
-            popup.Setup(damage, isCritical, resisted);
+            e.lastPopup.AddDamage(damage, isCritical, resisted);
             return;
         }
-
-        GameObject popupObj = Instantiate(prefab, spawnPos, Quaternion.identity);
-        popupObj.GetComponent<DamagePopup>()?.Setup(damage, isCritical, resisted);
+        e.lastPopup = Spawn(e.transform.position, damage, isCritical, resisted, maxHP);
+        e.lastPopupTime = Time.time;
     }
 
-    /// <summary>TextMeshProì— ë°ë¯¸ì§€ ìˆ«ì ìŠ¤íƒ€ì¼ ì ìš© (ì¬ì‚¬ìš©)</summary>
-    private static void ApplyTextStyle(TextMeshPro tmp, float damage, bool isCritical, bool resisted)
+    private static DamagePopup Spawn(Vector3 worldPos, float damage, bool isCritical, bool resisted, float maxHP)
     {
-        tmp.text = resisted ? (int)damage + " ì €í•­" : isCritical ? "!" + (int)damage : ((int)damage).ToString();
-        tmp.fontSize = isCritical ? 5f : resisted ? 3f : 3.5f;
-        tmp.color = resisted
-            ? new Color(0.62f, 0.7f, 0.85f)   // v1.1 ì €í•­: íšŒì²­ìƒ‰ (ë°©ì–´Â·ì €í•­ì— ë§‰í˜”ë‹¤)
-            : isCritical
-            ? new Color(1f, 0.3f, 0f)    // í¬ë¦¬í‹°ì»¬: ì£¼í™©
-            : new Color(1f, 1f, 0.3f);   // ì¼ë°˜: ë…¸ë‘
-        tmp.alignment = TextAlignmentOptions.Center;
-        tmp.fontStyle = isCritical ? FontStyles.Bold : FontStyles.Normal;
-        tmp.sortingOrder = 100;
+        if (!prefabLooked) { prefab = Resources.Load<GameObject>("DamagePopup"); prefabLooked = true; }
+
+        // ½ºÆù À§Ä¡ ºĞ»ê (º¸½ºÃ³·³ ÇÑ ÀÚ¸®¿¡ ¼ıÀÚ°¡ ¸ô¸± ¶§ °ãÄ¡Áö ¾Ê°Ô)
+        Vector3 spawnPos = worldPos + new Vector3(Random.Range(-0.8f, 0.8f), Random.Range(0.2f, 0.7f), 0f);
+
+        GameObject obj;
+        if (prefab != null) obj = Instantiate(prefab, spawnPos, Quaternion.identity);
+        else { obj = new GameObject("DamagePopup"); obj.transform.position = spawnPos; }
+
+        DamagePopup popup = obj.GetComponent<DamagePopup>();
+        if (popup == null) popup = obj.AddComponent<DamagePopup>();
+        popup.Setup(damage, isCritical, resisted, maxHP);
+        return popup;
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ì¸ìŠ¤í„´ìŠ¤ ë³€ìˆ˜
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ÀÎ½ºÅÏ½º
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     private TextMeshPro tmp;
-    private float moveSpeedY = 1.5f;       // ìœ„ë¡œ ì˜¬ë¼ê°€ëŠ” ì†ë„
-    private float moveSpeedX = 0f;         // ì¢Œ/ìš° ë¶„ì‚° ì†ë„ (Setupì—ì„œ ê²°ì •)
-    private float lifetime = 0.8f;
+    private float total = 0f;          // ÇÕ»êµÈ ÇÇÇØ
+    private bool crit = false;         // ÇÕ»êµÈ ¸íÁß Áß ÇÏ³ª¶óµµ Ä¡¸íÅ¸
+    private bool resistedAll = false;  // ÇÕ»êµÈ ¸íÁßÀÌ ÀüºÎ ÀúÇ×
+    private float maxHP = 0f;          // 0 = Å©±â °íÁ¤
+    private float moveSpeedX = 0f;
     private float elapsed = 0f;
+    private float popT = 0f;
     private Color startColor;
 
-    public void Setup(float damage, bool isCritical) { Setup(damage, isCritical, false); }
+    public void Setup(float damage, bool isCritical) { Setup(damage, isCritical, false, 0f); }
+    public void Setup(float damage, bool isCritical, bool resisted) { Setup(damage, isCritical, resisted, 0f); }
 
-    public void Setup(float damage, bool isCritical, bool resisted)
+    public void Setup(float damage, bool isCritical, bool resisted, float enemyMaxHP)
     {
         tmp = GetComponent<TextMeshPro>();
         if (tmp == null) tmp = gameObject.AddComponent<TextMeshPro>();
+        TMPFontFixer.Apply(tmp);   // ÅëÀÏ ÆùÆ®
 
-        TMPFontFixer.Apply(tmp);   // í†µì¼ í°íŠ¸(Neoë‘¥ê·¼ëª¨ ê¸°ë°˜) ë°°ì •
-        ApplyTextStyle(tmp, damage, isCritical, resisted);
-        startColor = tmp.color;
-
-        // ì¢Œ/ìš° ë¶„ì‚° ì´ë™ â€” ë™ì¼ ì¢Œí‘œì—ì„œ ì—¬ëŸ¬ íŒì—…ì´ ë– ë„ ì„œë¡œ ë‹¤ë¥¸ ë°©í–¥ìœ¼ë¡œ í©ì–´ì§
-        moveSpeedX = Random.Range(-1.0f, 1.0f);
-
-        // í¬ë¦¬í‹°ì»¬ì€ ë” í¬ê²Œ ì‹œì‘í•´ì„œ ì¤„ì–´ë“œëŠ” ì—°ì¶œ
-        if (isCritical) StartCoroutine(CriticalScaleEffect());
+        total = damage; crit = isCritical; resistedAll = resisted; maxHP = enemyMaxHP;
+        moveSpeedX = Random.Range(-1f, 1f);   // °°Àº ÀÚ¸®¿¡¼­ ¿©·¯ ¼ıÀÚ°¡ ¶°µµ ¼­·Î ´Ù¸¥ ÂÊÀ¸·Î Èğ¾îÁø´Ù
+        elapsed = 0f; popT = 0f;
+        ApplyStyle();
+        transform.localScale = Vector3.one * (1f + PopAmount());
     }
 
-    private IEnumerator CriticalScaleEffect()
+    /// <summary>µîÀå Æ¢±â ¾ç (¿¬Ãâ ÀüÃ¼ ²û GameFeelMaster 0 ÀÌ¸é 0 - ¼ıÀÚ´Â ±×³É ¶á´Ù)</summary>
+    private float PopAmount()
     {
-        transform.localScale = Vector3.one * 1.5f;
-        yield return new WaitForSeconds(0.1f);
-        transform.localScale = Vector3.one;
+        if (GameBalance.GameFeelMaster <= 0f) return 0f;
+        return crit ? POP_AMT_CRIT : POP_AMT;
+    }
+
+    /// <summary>v1.2: °°Àº ¼Õ´ÔÀÇ ´ÙÀ½ ¸íÁßÀ» ÀÌ ¼ıÀÚ¿¡ ´õÇÑ´Ù. ¼ıÀÚ°¡ ´Ù½Ã ÇÑ ¹ø Æ¤´Ù</summary>
+    public void AddDamage(float damage, bool isCritical, bool resisted)
+    {
+        total += damage;
+        if (isCritical) crit = true;
+        if (!resisted) resistedAll = false;
+        ApplyStyle();
+        popT = 0f;
+        elapsed = Mathf.Min(elapsed, 0.1f);   // ¸· ´õÇØÁø ¼ıÀÚ°¡ ¹Ù·Î Èå·ÁÁöÁö ¾Ê°Ô
+    }
+
+    /// <summary>±ÛÀÚ¡¤»ö¡¤±½±â¡¤Å©±â (ÇÕ»êµÉ ¶§¸¶´Ù ´Ù½Ã)</summary>
+    private void ApplyStyle()
+    {
+        if (tmp == null) return;
+        int shown = Mathf.Max(1, Mathf.RoundToInt(total));
+        tmp.text = resistedAll ? shown + " ÀúÇ×" : crit ? "!" + shown : shown.ToString();
+
+        float size = resistedAll ? FONT_RESIST : FONT_NORMAL;
+        if (maxHP > 0f && GameBalance.DmgPopupScaleOn && GameBalance.GameFeelMaster > 0f)
+            size *= Mathf.Clamp(1f + total / maxHP, 1f, Mathf.Max(1f, GameBalance.DmgPopupMaxScale));
+        tmp.fontSize = size;
+
+        startColor = resistedAll ? new Color(0.62f, 0.7f, 0.85f)   // ÀúÇ×: È¸Ã»»ö
+            : crit ? new Color(1f, 0.3f, 0f)                       // Å©¸®: ÁÖÈ²
+            : new Color(1f, 1f, 0.3f);                             // ÀÏ¹İ: ³ë¶û
+        tmp.color = startColor;
+        tmp.alignment = TextAlignmentOptions.Center;
+        tmp.fontStyle = crit ? FontStyles.Bold : FontStyles.Normal;
+        tmp.sortingOrder = 100;   // ±âÂ÷¡¤¼Õ´Ô¿¡ °¡·ÁÁöÁö ¾Ê°Ô
     }
 
     private void Update()
     {
-        elapsed += Time.deltaTime;
+        float dt = Time.deltaTime;
+        elapsed += dt;
 
-        // ëŒ€ê°ì„  ì´ë™ (ìœ„ + ì¢Œ/ìš° ë¶„ì‚°)
-        Vector3 move = new Vector3(moveSpeedX, moveSpeedY, 0f) * Time.deltaTime;
-        transform.position += move;
+        // µîÀå Æ¢±â: (1 + ¾ç) -> 1 (easeOut)
+        float popSec = crit ? POP_SEC_CRIT : POP_SEC;
+        if (popT < popSec)
+        {
+            popT += dt;
+            float k = Mathf.Clamp01(popT / popSec);
+            float w = (1f - k) * (1f - k);
+            transform.localScale = Vector3.one * (1f + PopAmount() * w);
+        }
 
-        // í˜ì´ë“œ ì•„ì›ƒ
-        float alpha = Mathf.Lerp(1f, 0f, elapsed / lifetime);
+        // ´ë°¢¼±À¸·Î ¶°¿À¸¥´Ù (Å©¸®´Â ´õ ³ôÀÌ)
+        transform.position += new Vector3(moveSpeedX, crit ? RISE_CRIT : RISE, 0f) * dt;
+
+        // ÆäÀÌµå ¾Æ¿ô (µÚ Àı¹İ¿¡¼­)
+        float life = crit ? LIFE_CRIT : LIFE;
         if (tmp != null)
         {
             Color c = startColor;
-            c.a = alpha;
+            c.a = Mathf.Clamp01((life - elapsed) / (life * 0.5f));
             tmp.color = c;
         }
-
-        if (elapsed >= lifetime)
-            Destroy(gameObject);
+        if (elapsed >= life) Destroy(gameObject);
     }
 }

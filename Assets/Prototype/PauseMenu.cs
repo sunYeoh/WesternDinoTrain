@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// [PauseMenu.cs] v1.8 (v9.16 2026-09-29 손맛 2차 - 소리: 닫힘 sfx_ui_close. 열림은 ModalFeel) / v1.7 (v9.15 2026-09-29: [설정] 버튼 - SettingsUI(화면·소리·언어). 설정창이 떠 있으면 ESC 양보. 본체 380 -> 460) / v1.6 (v9.12 2026-09-22: 훈련장 창이 떠 있으면 ESC 양보) / v1.5 (v9.11.1 2026-09-22 문구) / v1.4 (v9.11 2026-09-22: 등장 연출 ModalFeel) / v1.3 (v9.10 2026-09-17: 주방 패널(Tab)·정비소(G)가 열려 있으면 ESC 는 그 창을 닫는 용도 - 일시정지 안 열림) / v1.2 (v9.9 2026-09-16: 견습 운행 중엔 "런 포기" 대신 "견습 운행 그만두기", 브리핑 카드 위에선 안 열림) / v1.1 (교수 피드백 A10 반영 2026-09-14) / v1
+/// [PauseMenu.cs] v1.9 (v9.17 2026-10-06 D6: 운행 포기 때 검정 페이드 뒤 씬 리로드) / v1.8 (v9.16 2026-09-29 손맛 2차 - 소리: 닫힘 sfx_ui_close. 열림은 ModalFeel) / v1.7 (v9.15 2026-09-29: [설정] 버튼 - SettingsUI(화면·소리·언어). 설정창이 떠 있으면 ESC 양보. 본체 380 -> 460) / v1.6 (v9.12 2026-09-22: 훈련장 창이 떠 있으면 ESC 양보) / v1.5 (v9.11.1 2026-09-22 문구) / v1.4 (v9.11 2026-09-22: 등장 연출 ModalFeel) / v1.3 (v9.10 2026-09-17: 주방 패널(Tab)·정비소(G)가 열려 있으면 ESC 는 그 창을 닫는 용도 - 일시정지 안 열림) / v1.2 (v9.9 2026-09-16: 견습 운행 중엔 "런 포기" 대신 "견습 운행 그만두기", 브리핑 카드 위에선 안 열림) / v1.1 (교수 피드백 A10 반영 2026-09-14) / v1
 /// ESC 일시정지 메뉴: 계속하기 / 런 포기(재시작) / 게임 종료
 /// - v1.2: TutorialDirector.Active 면 가운데 버튼이 "견습 운행 그만두기" -> TutorialDirector.Quit() (완료 기록 없이 로비)
 /// - v1.1: 열람 패널(증강 목록 [V] / 일지 [J])이 열려 있으면 ESC는 그쪽 닫기에 양보
@@ -102,14 +102,19 @@ public class PauseMenu : MonoBehaviour
             return;
         }
 
-        Time.timeScale = 1f;
+        // v1.9 (D6): 검정 페이드로 덮은 뒤 다시 싣는다 (그동안 창은 그대로, 시간은 멈춘 채. SceneFadeSec 0 = 바로)
+        ScreenFx.Cover(Color.black, GameBalance.SceneFadeSec, GameBalance.SceneFadeSec, delegate
+        {
+            if (GameManager.Instance != null) GameManager.Instance.ReleaseFreeze();   // 패배 화면에서 포기한 경우 - 멈춰 둔 세상을 먼저 푼다
+            Time.timeScale = 1f;
 
-        // DontDestroyOnLoad로 살아남는 구 GameManager 제거
-        // (남겨두면 웨이브/골드가 이전 런 값으로 이어지는 버그)
-        if (GameManager.Instance != null)
-            Destroy(GameManager.Instance.gameObject);
+            // DontDestroyOnLoad로 살아남는 구 GameManager 제거
+            // (남겨두면 웨이브/골드가 이전 런 값으로 이어지는 버그)
+            if (GameManager.Instance != null)
+                Destroy(GameManager.Instance.gameObject);
 
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        });
     }
 
     private void QuitGame()

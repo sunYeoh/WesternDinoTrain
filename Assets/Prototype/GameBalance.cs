@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// [GameBalance.cs] v9.16 (2026-09-29 소리 v2: BuildTag 만 - 소리 표는 SoundManager 에) / v9.15.1 (2026-09-29 스토리 개정 스위치: 최종전 베팅 없음·스피노 고백 카드·마지막 식사 장면 시간) / v9.15 (2026-09-29 2차 피드백: 레벨 상한 해제 -> 접시 곡선·레벨 체감·저항 표시 / 훈련장 반복·자유 연습 / 드래그 투입 / 사고 해결 연출 / 포탑 파손 / HUD 재배치 / 설정창) / v9.12 (2026-09-22 튜토리얼 구간화·인라인 연습·협곡 낙뢰·미니 보스 예습 섹션 추가) / v1 (v9.11 2026-09-22: 타격감 섹션 - 피격 플래시·찌그러짐·스파크·킬 버스트·기차 피격·버튼·모달·웨이브 띠 스위치 / v9.10.1 2026-09-21: 유저 플레이 소감 섹션 - 웨이브 물량·길이, 정차 조리 제한, 행상인 자동 퇴장, 처치 보상 배율 / v9.9 2026-09-16: 포탑 4모서리 배치 SlotPosition + 견습 운행/브리핑 스위치 섹션)
+/// [GameBalance.cs] v9.17 (2026-10-06 화면 손맛 2차: 맨 아래 v9.17 섹션 - 발사 반동·섬광 / 데미지 숫자 크기·합산 / 넉백 / 셰프 찌그러짐 / HUD 수치 / 카드 순차 등장·퇴장 / 보스 등장·처치 / 패배·승리 순서 / 장면 전환 / 알림 중복) / v9.16 (2026-09-29 소리 v2: BuildTag 만 - 소리 표는 SoundManager 에) / v9.15.1 (2026-09-29 스토리 개정 스위치: 최종전 베팅 없음·스피노 고백 카드·마지막 식사 장면 시간) / v9.15 (2026-09-29 2차 피드백: 레벨 상한 해제 -> 접시 곡선·레벨 체감·저항 표시 / 훈련장 반복·자유 연습 / 드래그 투입 / 사고 해결 연출 / 포탑 파손 / HUD 재배치 / 설정창) / v9.12 (2026-09-22 튜토리얼 구간화·인라인 연습·협곡 낙뢰·미니 보스 예습 섹션 추가) / v1 (v9.11 2026-09-22: 타격감 섹션 - 피격 플래시·찌그러짐·스파크·킬 버스트·기차 피격·버튼·모달·웨이브 띠 스위치 / v9.10.1 2026-09-21: 유저 플레이 소감 섹션 - 웨이브 물량·길이, 정차 조리 제한, 행상인 자동 퇴장, 처치 보상 배율 / v9.9 2026-09-16: 포탑 4모서리 배치 SlotPosition + 견습 운행/브리핑 스위치 섹션)
 /// 게임 전체 밸런스 수치를 한 곳에 모은 설정 파일.
 ///
 /// 여기 값을 바꾸면 Inspector 값과 상관없이 게임에 적용된다
@@ -982,7 +982,7 @@ public static class GameBalance
 
     // ── (v9.13.1 2026-09-24) 3인 테스트 준비 ──
     /// <summary>빌드 표시 - 로비 오른쪽 아래에 찍힌다 (테스터 시트에 어느 빌드였는지 적기 위해). 팩마다 올린다</summary>
-    public const string BuildTag = "v9.16 (2026-09-29)";   // v9.16: 소리 v2
+    public const string BuildTag = "v9.17 (2026-10-06)";   // v9.17: 화면 손맛 2차
 
     // ── (v9.14 2026-09-28) 3인 테스트 반영 1차 - 버그·밸런스·읽기 ──
     // ── 포탑 (테스터 "더블 육포만 올려도 됨 / 전설이 더 약함 / 하나 점사하면 나머지가 빗나감") ──
@@ -1096,4 +1096,73 @@ public static class GameBalance
     public static float LastSupperChewSec = 2.6f;
     /// <summary>격파 엔딩: 디 오리지널이 멈추면 기적 한 번 + "철길이 열렸다" (식사 엔딩의 두 번과 구분)</summary>
     public static bool OriginalDefeatWhistle = true;
+
+    // ── (v9.17 2026-10-06) 화면 손맛 2차 - claude/타격감_스펙표_2차_2026-09-29.md §2. 전부 GameFeelMaster 에 묶인다 (0 = 전부 끔) ──
+    // 원칙: 잦은 사건(발사·명중)은 가볍게, 클라이맥스(보스·패배·승리)만 세게. 과하면 항목 하나만 끈다
+    // ── A8 포탑 발사 ──
+    /// <summary>발사 순간: 포신이 표적을 바로 겨누고, 포탑이 (1 + FireKick)배에서 FireKickSec 동안 제자리로, 포신 끝에 속성색 섬광 1장 (전설 요리 = 1.5배 + 작은 링)</summary>
+    public static bool FireFeelOn = true;
+    public static float FireKick = 0.06f;
+    public static float FireKickSec = 0.08f;
+    public static float MuzzleFlashSec = 0.06f;
+    // ── A4 데미지 숫자 ──
+    /// <summary>숫자 크기 = 기본 x (1 + 피해 / 손님 최대 HP), 최대 DmgPopupMaxScale 배. false = 고정 크기(구 동작)</summary>
+    public static bool DmgPopupScaleOn = true;
+    public static float DmgPopupMaxScale = 2f;
+    /// <summary>같은 손님이 이 시간(초) 안에 또 맞으면 새 숫자 대신 앞 숫자에 더한다. 0 = 끔</summary>
+    public static float DmgPopupMergeSec = 0.1f;
+    // ── A5 넉백 ──
+    /// <summary>물리 단발이 맞으면 손님 그림이 탄 반대쪽으로 이만큼(u) 밀렸다 0.12초에 돌아온다. 그림만 - 판정 위치는 안 바뀐다. 보스 제외. 0 = 끔</summary>
+    public static float HitKnockback = 0.08f;
+    // ── B3 셰프 ──
+    /// <summary>셰프 그림: 대시 시작에 가는 방향으로 늘어남 / 달리다 멈추면 납작 / 조리 시작에 한 번 튕김</summary>
+    public static bool ChefSquashOn = true;
+    // ── B6·B7·C5 HUD 수치 ──
+    /// <summary>재료 개수가 늘면 숫자가 1.3배에서 제자리로 / 골드는 GoldCountSec 동안 세어 올라가고 한 번에 GoldFlashMin 이상 벌면 금색으로 반짝 / 운행이 끝나면 명성이 세어 올라간다</summary>
+    public static bool HudCountFeelOn = true;
+    public static float GoldCountSec = 0.4f;
+    public static int GoldFlashMin = 50;
+    public static float FameCountSec = 0.6f;
+    // ── C3·C4 카드 ──
+    /// <summary>증강·선로·베팅 카드가 이 간격(초)으로 하나씩 나타난다. 0 = 한꺼번에(구 동작)</summary>
+    public static float CardStaggerSec = 0.06f;
+    /// <summary>카드를 고르면 그 카드만 CardPickHoldSec 동안 밝게 남고, 창이 0.95배로 줄며 CardExitSec 에 사라진다. false = 즉시 닫힘(구 동작)</summary>
+    public static bool CardExitOn = true;
+    public static float CardPickHoldSec = 0.15f;
+    public static float CardExitSec = 0.1f;
+    // ── D2 보스 등장 ──
+    /// <summary>보스가 나오면(첫 등장 카드가 있으면 닫힌 뒤) 배경이 BossEntranceDimSec 동안 어두워졌다가 흔들림 + 포효와 함께 돌아온다. false = 구 동작(스폰 즉시 포효)</summary>
+    public static bool BossEntranceOn = true;
+    public static float BossEntranceDimSec = 0.5f;
+    public static float BossEntranceDim = 0.45f;     // 어두워지는 정도 (0~1)
+    public static float BossEntranceShake = 0.4f;
+    // ── A11 보스 처치 ──
+    /// <summary>보스 처치: 히트스톱 뒤 BossKillSlowSec 동안 시간 BossKillSlowScale 배 + 줌 BossKillZoom 만큼 당김 -> BossKillRecoverSec 에 걸쳐 복귀. 예습 보스·식사 엔딩은 제외</summary>
+    public static bool BossKillSlowMoOn = true;
+    public static float BossKillSlowScale = 0.3f;
+    public static float BossKillSlowSec = 0.25f;
+    public static float BossKillZoom = 0.08f;
+    public static float BossKillRecoverSec = 0.4f;
+    // ── D5 패배 ──
+    /// <summary>기차 HP 0: DefeatSlowSec 동안 시간 DefeatSlowScale 배 + 붉은 가장자리 -> DefeatFadeSec 동안 화면이 어두워지며 세상이 멈춘다 -> 명성 상점. false = 구 동작(즉시 결과)</summary>
+    public static bool DefeatSequenceOn = true;
+    public static float DefeatSlowScale = 0.3f;
+    public static float DefeatSlowSec = 0.5f;
+    public static float DefeatFadeSec = 1f;
+    public static float DefeatCurtainAlpha = 0.8f;   // 결과 화면 뒤에 남는 어둠 (1 = 완전히 검게)
+    // ── D4 최종 승리 ──
+    /// <summary>최종전 클리어: 엔딩 글이 닫히거나(식사) VictoryHoldSec 뒤(격파) 흰 화면이 VictoryWhiteSec 동안 덮였다 걷히며 명성 상점. false = 구 동작(즉시)</summary>
+    public static bool VictorySequenceOn = true;
+    public static float VictoryHoldSec = 2f;
+    public static float VictoryWhiteSec = 0.8f;
+    /// <summary>운행이 끝나고 명성 상점이 열릴 때 상품 줄이 이 간격(초)으로 위에서부터 나타난다 (재출발 버튼은 바로). 0 = 한꺼번에</summary>
+    public static float ShopRowStaggerSec = 0.1f;
+    // ── D6 장면 전환 ──
+    /// <summary>로비에서 출발 / 재출발 / 운행 포기 때 검정 페이드 (앞뒤 각각 이 시간). 견습 종료는 바로 검정으로 바뀐 뒤 이 시간에 걸쳐 밝아진다. 0 = 끔</summary>
+    public static float SceneFadeSec = 0.3f;
+    // ── 알림 통합 ──
+    /// <summary>같은 문구가 이 시간(초) 안에 또 오면 새 줄 대신 앞 줄 끝에 "x2" 를 올린다 (알림 줄). 가운데 예고는 같은 문구를 무시하고, 앞 문구가 1초는 떠 있게 새 문구를 잠깐 미룬다. 0 = 둘 다 끔</summary>
+    public static float NoticeDedupeSec = 2f;
+    /// <summary>위험 알림(주황)은 이 시간(초) 동안 일반 알림에 밀려 내려가지 않는다. 0 = 끔</summary>
+    public static float DangerPinSec = 2.5f;
 }

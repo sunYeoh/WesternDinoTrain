@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [LobbyUI.cs] v1.8 (v9.15 2026-09-29: 왼쪽 아래 소리·화면 줄을 [설정] 버튼 하나로 - SettingsUI(화면·소리·언어). 화면 모드 코드는 SettingsUI 로 이동) / v1.7 (v9.14 2026-09-28 테스터 반영: 화면 설정 줄(전체화면 / 창 1920·1600·1280, PlayerPrefs WDT_ScreenMode, 시작 때 적용) / 도감은 클릭으로 고정(다시 클릭 = 닫기, 마우스 스침 무시) + 설명 짧게(맛 문구 제외)) / v1.6 (v9.13.1 2026-09-24: 오른쪽 아래 빌드 표시 GameBalance.BuildTag) / v1.5 (v9.12 2026-09-22: [T] = 견습 기록이 없으면 견습 운행 전부, 있으면 훈련장(TrainingGroundUI) 목록 / 처음 실행이면 [출발]·[Enter] 도 견습부터(GameBalance.TutorialForceFirst) / 버튼 글자 "훈련장") / v1.4 (v9.10.1 2026-09-21: 재료 이름 MaterialNames) / [LobbyUI.cs] v1.3 (v9.10 2026-09-17: 요리 도감에 설명 상자 - 이름에 마우스를 올리거나 클릭하면 무엇을 하나·어떤 손님에·언제 (RecipeText)) / v1.2 (v9.9 2026-09-16: [T] 견습 운행 버튼 + 첫 실행 강조) / v1.1 (v9.8: 칭호 표시) / v1 - 로비 개편 (튜토리얼_온보딩_설계 6절 + 화면 검수 "시작 버튼 묻힘")
+/// [LobbyUI.cs] v1.9 (v9.17 2026-10-06 D6: 출발 때 검정 페이드 - 덮인 사이에 로비 -> 운행) / v1.8 (v9.15 2026-09-29: 왼쪽 아래 소리·화면 줄을 [설정] 버튼 하나로 - SettingsUI(화면·소리·언어). 화면 모드 코드는 SettingsUI 로 이동) / v1.7 (v9.14 2026-09-28 테스터 반영: 화면 설정 줄(전체화면 / 창 1920·1600·1280, PlayerPrefs WDT_ScreenMode, 시작 때 적용) / 도감은 클릭으로 고정(다시 클릭 = 닫기, 마우스 스침 무시) + 설명 짧게(맛 문구 제외)) / v1.6 (v9.13.1 2026-09-24: 오른쪽 아래 빌드 표시 GameBalance.BuildTag) / v1.5 (v9.12 2026-09-22: [T] = 견습 기록이 없으면 견습 운행 전부, 있으면 훈련장(TrainingGroundUI) 목록 / 처음 실행이면 [출발]·[Enter] 도 견습부터(GameBalance.TutorialForceFirst) / 버튼 글자 "훈련장") / v1.4 (v9.10.1 2026-09-21: 재료 이름 MaterialNames) / [LobbyUI.cs] v1.3 (v9.10 2026-09-17: 요리 도감에 설명 상자 - 이름에 마우스를 올리거나 클릭하면 무엇을 하나·어떤 손님에·언제 (RecipeText)) / v1.2 (v9.9 2026-09-16: [T] 견습 운행 버튼 + 첫 실행 강조) / v1.1 (v9.8: 칭호 표시) / v1 - 로비 개편 (튜토리얼_온보딩_설계 6절 + 화면 검수 "시작 버튼 묻힘")
 ///
 /// - v1.2: 출발 버튼 아래 [T] 견습 운행 (340x44, y 130). 미완료(TutorialDirector.Done == false)면 목업 v2 (C) 대로
 ///   위에 현장 마커 화살표(tut_arrow 2배)가 까딱이고, 버튼 양끝 경광등(ui_ev_beacon_0/1)이 0.3초마다 교대, 황동 테,
@@ -83,8 +83,12 @@ public class LobbyUI : MonoBehaviour
 
         TickTutorialHighlight();
 
+        // v1.9 (D6): 화면이 덮이는 중엔 로비 키([T]·[Enter])를 받지 않는다 (출발 페이드 0.3초 사이에 [T] 가 먹던 것 방지).
+        //   아래 구 로비 패널 숨김은 덮이는 중에도 돌아야 한다 - 씬을 다시 실은 직후 페이드 사이로 구 패널이 비친다
+        bool keysOk = !ScreenFx.Covering;
+
         // v1.2: [T] 견습 운행 (일지/일시정지/브리핑이 열려 있으면 양보). v1.5: 훈련장 창이 떠 있으면 그 창이 T 를 닫기로 쓴다
-        if (Input.GetKeyDown(KeyCode.T) && !JournalViewerUI.IsOpen && !PauseMenu.IsOpen && !BriefingUI.IsOpen
+        if (keysOk && Input.GetKeyDown(KeyCode.T) && !JournalViewerUI.IsOpen && !PauseMenu.IsOpen && !BriefingUI.IsOpen
             && !AugmentListUI.ReadingOpen && !FameShopUI.IsOpen && !TrainingGroundUI.IsOpen && !SettingsUI.IsOpen)
             StartTutorial();
 
@@ -95,7 +99,7 @@ public class LobbyUI : MonoBehaviour
             UIManager.Instance.lobbyPanel.SetActive(false);
 
         // [Enter] 출발 (일지/일시정지/훈련장이 열려 있으면 양보)
-        if ((Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
+        if (keysOk && (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
             && !JournalViewerUI.IsOpen && !PauseMenu.IsOpen && !TrainingGroundUI.IsOpen && !SettingsUI.IsOpen
             && !BriefingUI.IsOpen && BriefingUI.KeyConsumedFrame != Time.frameCount)   // v1.2: 카드를 닫은 Enter 로 출발하지 않게
             StartRun();
@@ -121,9 +125,14 @@ public class LobbyUI : MonoBehaviour
             TutorialDirector.Begin();
             return;
         }
+        if (ScreenFx.Covering) return;   // v1.9: 이미 넘어가는 중 ([Enter] 연타)
         SoundManager.Play("sfx_train_whistle");   // 출발 기적 (클립 없으면 무시)
-        if (UIManager.Instance != null) UIManager.Instance.OnClickStartGame();
-        else GameManager.Instance?.ChangeState(GameManager.GameState.Battle);
+        // v1.9 (D6): 검정 페이드로 덮인 사이에 로비 -> 운행 (SceneFadeSec 0 = 바로)
+        ScreenFx.Cover(Color.black, GameBalance.SceneFadeSec, GameBalance.SceneFadeSec, delegate
+        {
+            if (UIManager.Instance != null) UIManager.Instance.OnClickStartGame();
+            else GameManager.Instance?.ChangeState(GameManager.GameState.Battle);
+        });
         Debug.Log("[LobbyUI] 출발! 로비 -> 전투");
     }
 

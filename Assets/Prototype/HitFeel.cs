@@ -3,7 +3,7 @@ using UnityEngine;
 using TMPro;
 
 /// <summary>
-/// [HitFeel.cs] v1.1 (v9.16 2026-09-29 손맛 2차 - 소리: 명중음이 여기서 난다 - 손님 재질별(SoundKeys.Hit: 비늘·무쇠·결정·날개·용암) + 요리 속성 겹침(SoundKeys.Accent) + 크리 sfx_hit_crit / 물리가 방어에 크게 깎이면 재질음 대신 sfx_ricochet(튕김) / 처치음은 Enemy.Die 가 재질별로) / v1 (신규, v9.11 2026-09-22) - 타격감 계층: 손님이 맞는다 / 죽는다 / 월드 팝 (스펙 표 A1 A2 A3 A6 + 월드 공용)
+/// [HitFeel.cs] v1.2 (v9.17 2026-10-06 화면 손맛 2차: MuzzlePool(포신 끝 섬광 - 풀 24) / Knock(물리 단발 넉백 - 그림만 밀렸다 돌아온다) / ConsumeCrit(숫자 팝업이 진짜 치명타만 크리로 찍게)) / v1.1 (v9.16 2026-09-29 손맛 2차 - 소리: 명중음이 여기서 난다 - 손님 재질별(SoundKeys.Hit: 비늘·무쇠·결정·날개·용암) + 요리 속성 겹침(SoundKeys.Accent) + 크리 sfx_hit_crit / 물리가 방어에 크게 깎이면 재질음 대신 sfx_ricochet(튕김) / 처치음은 Enemy.Die 가 재질별로) / v1 (신규, v9.11 2026-09-22) - 타격감 계층: 손님이 맞는다 / 죽는다 / 월드 팝 (스펙 표 A1 A2 A3 A6 + 월드 공용)
 ///
 /// 원칙 (타격감 스펙 표): 일반 사건(매초 수십 번인 명중)은 플래시·찌그러짐·작은 스파크·숫자까지만.
 /// 중요 사건(처치·크리·큰 손님)은 킬 버스트 + 채널 쿨타임 흔들림. 흔들림·히트스탑·줌은 여기서 늘리지 않는다.
@@ -15,6 +15,7 @@ using TMPro;
 ///   FlashSprites - 스프라이트의 흰 실루엣 캐시 (셰이더 없이: 텍스처를 복사해 알파만 남기고 흰색)
 ///   SparkPool    - 풀링된 스파크 조각 160개 (코루틴·할당 없음 - 물량전 안전)
 ///   WorldFeel    - 월드 팝 공용: Ring(확산 링) / TextPop("Lv3" 같은 월드 글자) / PlateDrop(접시 낙하)
+///   MuzzlePool   - v1.2: 풀링된 포신 끝 섬광 24개 (TurretSlot.PlayFireFeel 이 발사음과 같은 프레임에 부른다)
 /// 사용법: 파일만 넣으면 된다. 호출부는 Enemy v3.3 / BossEnemy v7.3 / TurretAttackExecutor v5.1 / TurretSlot v6.5 (같은 팩).
 /// VS 2017 (C# 7.3) 호환
 /// </summary>
@@ -53,6 +54,7 @@ public static class HitFeel
         FoodTag tag = hinted && nextHasTag ? nextTag : (isMagic ? FoodTag.Elec : FoodTag.Phys);
         bool hasTag = hinted && nextHasTag;
         nextFrame = -1;
+        lastHitEnemy = e; lastHitFrame = Time.frameCount; lastHitCrit = crit;   // v1.2: 숫자 팝업용 (연출 스위치와 무관)
 
         // v1.1: 명중음 - 손님 재질 + 요리 속성 겹침. 크리는 전용음. 물리가 튕기면 재질음 대신 튕김음 (연출 스위치와 무관하게 난다)
         Vector3 at = e.transform.position;
@@ -73,6 +75,38 @@ public static class HitFeel
         float size = crit ? 0.16f : 0.11f;
         SparkPool.Emit(e.transform.position, col, count, size, crit ? 3.6f : 2.6f);
         if (crit) SparkPool.Emit(e.transform.position, Color.white, 3, 0.13f, 4f);
+    }
+
+    // v1.2: 방금 OnHit 한 명중이 치명타였나 (Enemy.ApplyRawDamage 가 숫자 팝업에 쓴다). 같은 프레임·같은 손님만, 한 번 읽으면 지워진다
+    private static Enemy lastHitEnemy = null;
+    private static int lastHitFrame = -1;
+    private static bool lastHitCrit = false;
+
+    /// <summary>v1.2: 이 손님이 이번 프레임에 맞은 직접 명중이 치명타였으면 true (읽으면 지운다 - 뒤따르는 지속 피해 틱이 크리로 찍히지 않게)</summary>
+    public static bool ConsumeCrit(Enemy e)
+    {
+        bool crit = lastHitFrame == Time.frameCount && lastHitEnemy == e && lastHitCrit;
+        if (lastHitEnemy == e) { lastHitFrame = -1; lastHitCrit = false; }
+        return crit;
+    }
+
+    /// <summary>v1.2: 조용한 퇴장 - 플래시·찌그러짐·링·조각 없이 sec 동안 흐려지기만 한다 (식사 엔딩의 디 오리지널)</summary>
+    public static void OnQuietExit(Enemy e, float sec)
+    {
+        if (e == null) return;
+        HitFeelBody body = HitFeelBody.Of(e);
+        if (body != null) body.FadeOut(sec);
+    }
+
+    /// <summary>v1.2 (A5): 물리 단발 넉백 - 손님 그림이 dir 쪽으로 GameBalance.HitKnockback 만큼 밀렸다 돌아온다. 보스는 안 밀린다</summary>
+    public static void Knock(Enemy e, Vector3 dir)
+    {
+        if (e == null || !e.IsAlive || e is BossEnemy) return;
+        if (GameBalance.GameFeelMaster <= 0f || !GameBalance.HitFeelOn || GameBalance.HitKnockback <= 0f) return;
+        dir.z = 0f;
+        if (dir.sqrMagnitude < 0.0001f) return;
+        HitFeelBody body = HitFeelBody.Of(e);
+        if (body != null) body.Knock(dir.normalized * GameBalance.HitKnockback);
     }
 
     /// <summary>손님이 죽었다 - 죽는 과정 시작. Enemy.Die 에서 (DeathPop 은 그대로 두고 그 위에 얹는다)</summary>
@@ -105,6 +139,10 @@ public class HitFeelBody : MonoBehaviour
     private float dieT = 0f, dieSec = 0.28f;
     private Color[] dieStart = new Color[0];
     private float lastHitTime = -1f;
+    // v1.2 (A5): 넉백 - 그림(squashTf)의 자리만 움직인다
+    private const float KNOCK_SEC = 0.12f;
+    private float knockT = -1f;
+    private Vector3 knockBase = Vector3.zero, knockLocal = Vector3.zero;
 
     public static HitFeelBody Of(Enemy e)
     {
@@ -140,6 +178,7 @@ public class HitFeelBody : MonoBehaviour
             }
             squashTf = bodies[main].transform;
             squashBase = squashTf.localScale;
+            knockBase = squashTf.localPosition;
         }
     }
 
@@ -151,8 +190,25 @@ public class HitFeelBody : MonoBehaviour
             if (bodies[i] == null || !bodies[i].enabled) stale = true;
         if (!stale) return;
         for (int i = 0; i < flashes.Length; i++) if (flashes[i] != null) Destroy(flashes[i].gameObject);
-        if (squashTf != null) squashTf.localScale = squashBase;
+        if (squashTf != null)
+        {
+            squashTf.localScale = squashBase;
+            if (knockT >= 0f) squashTf.localPosition = knockBase;
+        }
+        knockT = -1f;
         Bind();
+    }
+
+    /// <summary>v1.2 (A5): 그림을 worldOffset 만큼 밀어 놓는다 - Update 가 0.12초에 제자리로. 그림이 루트에 붙은 손님은 밀지 않는다 (판정 위치가 같이 움직인다)</summary>
+    public void Knock(Vector3 worldOffset)
+    {
+        if (dying) return;
+        EnsureBound();
+        if (squashTf == null || squashTf == transform) return;
+        Transform parent = squashTf.parent;
+        knockLocal = parent != null ? parent.InverseTransformVector(worldOffset) : worldOffset;
+        knockT = 0f;
+        squashTf.localPosition = knockBase + knockLocal;
     }
 
     /// <summary>명중: 흰 플래시 + 찌그러짐 (딜 비례)</summary>
@@ -175,12 +231,26 @@ public class HitFeelBody : MonoBehaviour
         EnsureBound();
         if (bodies.Length == 0) return;
         dying = true; dieT = 0f; dieSec = sec;
+        if (knockT >= 0f && squashTf != null) { squashTf.localPosition = knockBase; knockT = -1f; }
         dieStart = new Color[bodies.Length];
         for (int i = 0; i < bodies.Length; i++) dieStart[i] = bodies[i] != null ? bodies[i].color : Color.white;
         flashUntil = Time.time + 0.08f;
         SetFlash(true, 1f);
         squashAmt = big ? 0.3f : 0.22f;
         squashT = 0f;
+    }
+
+    /// <summary>v1.2: 흐려지기만 한다 (플래시·찌그러짐 없음)</summary>
+    public void FadeOut(float sec)
+    {
+        EnsureBound();
+        if (bodies.Length == 0) return;
+        dying = true; dieT = 0f; dieSec = Mathf.Max(0.05f, sec);
+        if (knockT >= 0f && squashTf != null) { squashTf.localPosition = knockBase; knockT = -1f; }
+        dieStart = new Color[bodies.Length];
+        for (int i = 0; i < bodies.Length; i++) dieStart[i] = bodies[i] != null ? bodies[i].color : Color.white;
+        squashT = -1f;
+        if (squashTf != null) squashTf.localScale = squashBase;
     }
 
     private void Update()
@@ -207,6 +277,16 @@ public class HitFeelBody : MonoBehaviour
             }
             squashTf.localScale = new Vector3(squashBase.x * sx, squashBase.y * sy, squashBase.z);
             if (k >= 1f && !dying) { squashT = -1f; squashTf.localScale = squashBase; }
+        }
+
+        // v1.2 (A5): 넉백 복귀 (easeOut)
+        if (knockT >= 0f && squashTf != null)
+        {
+            knockT += Time.deltaTime;
+            float k = Mathf.Clamp01(knockT / KNOCK_SEC);
+            float w = (1f - k) * (1f - k);
+            squashTf.localPosition = knockBase + knockLocal * w;
+            if (k >= 1f) knockT = -1f;
         }
 
         // 죽는 과정: 실루엣 페이드
@@ -392,6 +472,94 @@ public class SparkPool : MonoBehaviour
             Color c = col[i]; c.a = 1f - k * k;
             sr[i].color = c;
         }
+    }
+}
+
+/// <summary>
+/// v1.2 (A8): 포신 끝 섬광. Emit 한 줄. 24개를 돌려 쓴다 (코루틴·할당 없음 - 포탑은 초당 수십 발을 쏜다).
+/// 그림 = 가로로 긴 네 갈래 별 (피벗이 왼쪽이라 포신 끝에서 앞으로 뻗는다). 속성색을 흰색 쪽으로 40% 섞어 찍는다
+/// </summary>
+public class MuzzlePool : MonoBehaviour
+{
+    private const int MAX = 24;
+    private const int SORT_ORDER = 9;   // 손님(5)·셰프(6)·HP 바(7) 위, 스파크(58) 아래
+    private static MuzzlePool inst;
+    private static Sprite flashSprite;
+
+    private Transform[] tf = new Transform[MAX];
+    private SpriteRenderer[] sr = new SpriteRenderer[MAX];
+    private float[] life = new float[MAX], age = new float[MAX], size = new float[MAX];
+    private Color[] col = new Color[MAX];
+    private bool[] on = new bool[MAX];
+    private int cursor = 0;
+
+    private static void Ensure()
+    {
+        if (inst != null) return;
+        GameObject go = new GameObject("MuzzlePool");
+        Object.DontDestroyOnLoad(go);
+        inst = go.AddComponent<MuzzlePool>();
+        Sprite sp = GetFlash();
+        for (int i = 0; i < MAX; i++)
+        {
+            GameObject p = new GameObject("Muzzle");
+            p.transform.SetParent(go.transform, false);
+            SpriteRenderer s = p.AddComponent<SpriteRenderer>();
+            s.sprite = sp; s.sortingOrder = SORT_ORDER;
+            p.SetActive(false);
+            inst.tf[i] = p.transform; inst.sr[i] = s;
+        }
+    }
+
+    /// <summary>pos(포신 끝)에서 angleDeg 방향으로 길이 sz(유닛)의 섬광을 sec 동안</summary>
+    public static void Emit(Vector3 pos, float angleDeg, Color c, float sz, float sec)
+    {
+        if (GameBalance.GameFeelMaster <= 0f || !GameBalance.FireFeelOn) return;
+        Ensure();
+        MuzzlePool p = inst;
+        int i = p.cursor; p.cursor = (p.cursor + 1) % MAX;
+        p.life[i] = Mathf.Max(0.02f, sec); p.age[i] = 0f; p.size[i] = sz;
+        p.col[i] = Color.Lerp(c, Color.white, 0.4f); p.on[i] = true;
+        p.tf[i].position = pos;
+        p.tf[i].rotation = Quaternion.Euler(0f, 0f, angleDeg);
+        p.tf[i].localScale = new Vector3(sz, sz, 1f);
+        p.sr[i].color = p.col[i];
+        p.tf[i].gameObject.SetActive(true);
+    }
+
+    private void Update()
+    {
+        float dt = Time.deltaTime;   // 히트스톱 중엔 섬광도 멈춘다
+        for (int i = 0; i < MAX; i++)
+        {
+            if (!on[i]) continue;
+            age[i] += dt;
+            float k = age[i] / life[i];
+            if (k >= 1f) { on[i] = false; tf[i].gameObject.SetActive(false); continue; }
+            float s = size[i] * (1f + 0.35f * k);   // 살짝 커지며 사라진다
+            tf[i].localScale = new Vector3(s, s, 1f);
+            Color c = col[i]; c.a = 1f - k * k;
+            sr[i].color = c;
+        }
+    }
+
+    /// <summary>16x16, 1유닛 폭. 가로 긴 마름모 + 세로 짧은 마름모 = 네 갈래 별. 피벗 (0.25, 0.5)</summary>
+    private static Sprite GetFlash()
+    {
+        if (flashSprite != null) return flashSprite;
+        int s = 16;
+        Texture2D tex = new Texture2D(s, s, TextureFormat.RGBA32, false);
+        for (int y = 0; y < s; y++)
+            for (int x = 0; x < s; x++)
+            {
+                float dx = Mathf.Abs(x - 7.5f), dy = Mathf.Abs(y - 7.5f);
+                bool inside = dx / 8f + dy / 3.2f <= 1f || dx / 3f + dy / 6.5f <= 1f;
+                tex.SetPixel(x, y, inside ? Color.white : new Color(1f, 1f, 1f, 0f));
+            }
+        tex.Apply();
+        tex.filterMode = FilterMode.Point;
+        flashSprite = Sprite.Create(tex, new Rect(0, 0, s, s), new Vector2(0.25f, 0.5f), s);
+        return flashSprite;
     }
 }
 

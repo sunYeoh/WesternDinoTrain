@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [StoryTexts.cs] v2 (v9.15.1 2026-09-29 스토리 개정 - 유저 검토 보고서 "손님이라는 표현과 전체 이야기의 수정 방향": 전투는 기차를 지키는 싸움(구제 주장 삭제), 현재 문제 = 끊긴 보급망과 망가진 기관심장, 출발 목적 = 막힌 종착역을 여는 것, 선대의 연료 희생·셰프 재생 삭제(게임오버 = 운행 실패·비상 복구, 심장은 손맛을 기억), 일지 12장 앞(급식 열차 1호가 뭐였나)·중(보급이 어떻게 무너졌나)·뒤(누가 남고 누가 떠났나), 스피노 = 1호의 기관사, 엔딩 B 첫 줄 = 포탑이 멈춘 장면) / v1.4 (v9.14 2026-09-28: 오프닝 두 줄 - "후자다" 같은 번역투 제거) / v1.3 (2026-09-14: 엔딩 B 도감 완성 추가 장면) / v1.2
+/// [StoryTexts.cs] v2.1 (v9.17 2026-10-06: 운행 실패·승리 문구를 결과 화면에서는 명성 상점 패널 위 띠에 - 가운데에 뜨면 같이 열리는 상점 줄과 겹쳤다) / v2 (v9.15.1 2026-09-29 스토리 개정 - 유저 검토 보고서 "손님이라는 표현과 전체 이야기의 수정 방향": 전투는 기차를 지키는 싸움(구제 주장 삭제), 현재 문제 = 끊긴 보급망과 망가진 기관심장, 출발 목적 = 막힌 종착역을 여는 것, 선대의 연료 희생·셰프 재생 삭제(게임오버 = 운행 실패·비상 복구, 심장은 손맛을 기억), 일지 12장 앞(급식 열차 1호가 뭐였나)·중(보급이 어떻게 무너졌나)·뒤(누가 남고 누가 떠났나), 스피노 = 1호의 기관사, 엔딩 B 첫 줄 = 포탑이 멈춘 장면) / v1.4 (v9.14 2026-09-28: 오프닝 두 줄 - "후자다" 같은 번역투 제거) / v1.3 (2026-09-14: 엔딩 B 도감 완성 추가 장면) / v1.2
 /// 스토리 텍스트 - 오프닝 / 귀환 인사 / 사망 / 부활 / 승리 / 도감 플레이버 / 선대의 일지.
 /// 스토리바이블(2026-08-18) Phase 1 물량.
 ///
@@ -115,9 +115,12 @@ public static class StoryTexts
     }
 
     /// <summary>운행 실패 시 - 심장이 손맛을 기억한다 (다음 운행의 복선. v2: 셰프 재생 설정 삭제)</summary>
-    public static void ShowDeathQuote()
+    public static void ShowDeathQuote() { ShowDeathQuote(false); }
+
+    /// <summary>v2.1: resultBand = 결과 화면(명성 상점이 같이 뜬다) - 패널 위 띠에 찍는다</summary>
+    public static void ShowDeathQuote(bool resultBand)
     {
-        ShowLines(new string[] { DeathLine }, "- 기관심장이 낮게 웅웅거린다", 5.5f, false);
+        ShowLines(new string[] { DeathLine }, "- 기관심장이 낮게 웅웅거린다", 5.5f, false, null, resultBand);
     }
 
     /// <summary>아홉 개의 목숨 부활 연출 문구.</summary>
@@ -127,9 +130,11 @@ public static class StoryTexts
     }
 
     /// <summary>승리 문구.</summary>
-    public static void ShowVictoryQuote()
+    public static void ShowVictoryQuote() { ShowVictoryQuote(false); }
+
+    public static void ShowVictoryQuote(bool resultBand)
     {
-        ShowLines(new string[] { VictoryLine }, "- 도박사 스피노 (그답지 않게 조용했다)", 6f, false);
+        ShowLines(new string[] { VictoryLine }, "- 도박사 스피노 (그답지 않게 조용했다)", 6f, false, null, resultBand);
     }
 
     /// <summary>
@@ -222,8 +227,14 @@ public static class StoryTexts
     /// <param name="secondsPerLine">줄당 유지 시간</param>
     /// <param name="dimBackground">배경을 어둡게 깔지 (오프닝/일지용)</param>
     /// <param name="onDone">연출이 끝나거나 스킵되면 호출 (없으면 null)</param>
+    /// <summary>
+    /// v2.1: 결과 화면(명성 상점 패널이 가운데 -320 ~ +360 을 차지한다)에서 글이 놓일 자리 - 화면 위 끝에서 이만큼 아래 (패널 위 띠).
+    /// 가운데가 아니라 위 끝 기준으로 잡는다 - 화면 비율이 달라져도 글이 화면 밖으로 나가지 않는다
+    /// </summary>
+    private const float RESULT_TOP_Y = -42f;
+
     private static void ShowLines(string[] lines, string speaker, float secondsPerLine, bool dimBackground,
-        System.Action onDone = null)
+        System.Action onDone = null, bool topBand = false)
     {
         GameObject canvasGo = new GameObject("StoryCanvas");
         Canvas canvas = canvasGo.AddComponent<Canvas>();
@@ -259,10 +270,11 @@ public static class StoryTexts
                 new Color(0.95f, 0.9f, 0.78f));
             lineTexts[i].verticalOverflow = VerticalWrapMode.Overflow;   // 줄바꿈 시 잘림 방지
             RectTransform rt = lineTexts[i].rectTransform;
-            rt.anchorMin = new Vector2(0.5f, 0.5f);
-            rt.anchorMax = new Vector2(0.5f, 0.5f);
+            Vector2 lineAnchor = topBand ? new Vector2(0.5f, 1f) : new Vector2(0.5f, 0.5f);
+            rt.anchorMin = lineAnchor;
+            rt.anchorMax = lineAnchor;
             rt.pivot = new Vector2(0.5f, 0.5f);
-            rt.anchoredPosition = new Vector2(0f, startY - i * spacing + (dimBackground ? 40f : 120f));
+            rt.anchoredPosition = new Vector2(0f, topBand ? RESULT_TOP_Y - i * spacing : startY - i * spacing + (dimBackground ? 40f : 120f));
             rt.sizeDelta = new Vector2(1500f, lineHeight);
             SetAlpha(lineTexts[i], 0f);   // 페이드 인 대기
         }
@@ -274,10 +286,11 @@ public static class StoryTexts
             speakerText = KitchenEventManager.MakeText(canvasGo.transform, "Speaker",
                 speaker, 20, new Color(0.7f, 0.62f, 0.45f));
             RectTransform srt = speakerText.rectTransform;
-            srt.anchorMin = new Vector2(0.5f, 0.5f);
-            srt.anchorMax = new Vector2(0.5f, 0.5f);
+            Vector2 speakerAnchor = topBand ? new Vector2(0.5f, 1f) : new Vector2(0.5f, 0.5f);
+            srt.anchorMin = speakerAnchor;
+            srt.anchorMax = speakerAnchor;
             srt.pivot = new Vector2(0.5f, 0.5f);
-            srt.anchoredPosition = new Vector2(0f, startY - count * spacing + 130f);
+            srt.anchoredPosition = new Vector2(0f, topBand ? RESULT_TOP_Y - count * spacing + 10f : startY - count * spacing + 130f);
             srt.sizeDelta = new Vector2(1200f, 34f);
             SetAlpha(speakerText, 0f);
         }

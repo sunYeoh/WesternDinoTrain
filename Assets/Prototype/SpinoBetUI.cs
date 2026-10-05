@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [SpinoBetUI.cs] v1.4 (v9.11.1 2026-09-22 문구: 첫 인사는 프롤로그에서 만난 뒤) / v1.3 (v9.11 2026-09-22: 등장 연출 ModalFeel) / v1.2 (v9.10 2026-09-17: 거절 안내 [ESC] + 카드 뜻 한 줄) / v1.1 (v9.9.2 2026-09-16: 첫 등장 카드 "베팅" 을 창이 뜨기 직전 1회 + 카드가 떠 있는 동안 숫자키 무시 + 창 머리에 스피노 실루엣) / v1 (신규 파일) - Phase 2-1: 도박사 스피노 등장/베팅 UI
+/// [SpinoBetUI.cs] v1.5 (v9.17 2026-10-06 C3·C4: 카드 2장이 0.06초 간격으로 나타난다 / 고른 카드가 튀고 다른 카드는 흐려진다 / 닫힐 때 판이 0.95배로 줄며 사라진다) / v1.4 (v9.11.1 2026-09-22 문구: 첫 인사는 프롤로그에서 만난 뒤) / v1.3 (v9.11 2026-09-22: 등장 연출 ModalFeel) / v1.2 (v9.10 2026-09-17: 거절 안내 [ESC] + 카드 뜻 한 줄) / v1.1 (v9.9.2 2026-09-16: 첫 등장 카드 "베팅" 을 창이 뜨기 직전 1회 + 카드가 떠 있는 동안 숫자키 무시 + 창 머리에 스피노 실루엣) / v1 (신규 파일) - Phase 2-1: 도박사 스피노 등장/베팅 UI
 ///
 /// 세계관: 스피노는 디 오리지널의 마지막 기관사. 우리에게 베팅을 거는 진짜 이유는
 /// "이번 요리사는 끝까지 가는지 판돈을 걸어보는 것" (스토리바이블 3절).
@@ -28,6 +28,8 @@ public class SpinoBetUI : MonoBehaviour
     private GameObject canvasGo;
     private Text speechText;
     private bool closing = false;
+    private RectTransform panelRt;                                     // v1.5: 대화 패널 (퇴장 연출용)
+    private readonly RectTransform[] cardRts = new RectTransform[2];   // v1.5: 카드 [0] 일반 / [1] 도박
 
     // ─────────────────────────────────────────────
     // 등장 (WaveManager.AfterAugmentPick이 보스 직전에 호출)
@@ -85,6 +87,10 @@ public class SpinoBetUI : MonoBehaviour
         SpinoBet.Accept(id);
         speechText.text = "\"좋아. 판은 벌어졌다. 황야가 증인이야.\"";
         SoundManager.Play("sfx_augment_pick");
+        // v1.5 (C4): 고른 카드가 한 번 튀고, 안 고른 카드는 흐려진다
+        int pick = id.Equals(cardA) ? 0 : 1;
+        if (cardRts[pick] != null) UIFeel.Bounce(cardRts[pick], 0.06f, 0.15f);
+        if (cardRts[1 - pick] != null && GameBalance.GameFeelMaster > 0f) CardFeel.Group(cardRts[1 - pick]).alpha = 0.35f;
         Invoke("CloseNow", 1.2f);
     }
 
@@ -100,9 +106,14 @@ public class SpinoBetUI : MonoBehaviour
 
     private void CloseNow()
     {
-        System.Action cb = onClosed;
-        Destroy(gameObject);
-        if (cb != null) cb();
+        // v1.5 (C4): 판이 0.95배로 줄며 사라진 뒤 닫는다 (연출 끔이면 바로)
+        CardFeel.PickExit(panelRt, panelRt, null, null, delegate
+        {
+            System.Action cb = onClosed;
+            if (canvasGo != null) canvasGo.SetActive(false);   // 캔버스는 OnDestroy 에서 지워진다 - 그 전 한 프레임에 판이 다시 비치지 않게 먼저 끈다
+            Destroy(gameObject);
+            if (cb != null) cb();
+        });
     }
 
     // ─────────────────────────────────────────────
@@ -163,6 +174,7 @@ public class SpinoBetUI : MonoBehaviour
         panel.pivot = new Vector2(0.5f, 0f);
         panel.anchoredPosition = new Vector2(0f, 40f);
         panel.sizeDelta = new Vector2(900f, 330f);
+        panelRt = panel;   // v1.5
 
         // 보라 테두리 (스피노 = 도박/황혼의 색)
         RectTransform border = KitchenEventManager.MakeBox(panel, "Border",
@@ -218,6 +230,7 @@ public class SpinoBetUI : MonoBehaviour
         pRt.anchoredPosition = new Vector2(0f, 10f);
         pRt.sizeDelta = new Vector2(0f, 22f);
         ModalFeel.Play(panel);   // v1.3: 판 등장 팝
+        CardFeel.StaggerIn(cardRts, GameBalance.CardStaggerSec);   // v1.5 (C3): 카드는 하나씩
     }
 
     private void BuildCard(RectTransform parent, int index, SpinoBet.BetId id)
@@ -232,6 +245,7 @@ public class SpinoBetUI : MonoBehaviour
         card.pivot = new Vector2(0.5f, 0f);
         card.anchoredPosition = new Vector2(index == 0 ? -218f : 218f, 44f);
         card.sizeDelta = new Vector2(412f, 170f);
+        if (index >= 0 && index < cardRts.Length) cardRts[index] = card;   // v1.5
 
         // 카드 테두리 (상단 띠)
         RectTransform top = KitchenEventManager.MakeBox(card, "Top", frame);

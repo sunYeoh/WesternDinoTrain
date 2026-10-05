@@ -4,7 +4,7 @@ using UnityEngine.UI;
 using TMPro;
 
 /// <summary>
-/// [UIManager.cs] v3.2 (v9.15 2026-09-29 HUD 재배치 GameBalance.HudRegroup: 우상단 정보 2줄(UISkin.InfoLine1/2 - 손님 남음·보스까지 / 지역·예고) 0.25초마다, 알림 로그 스택을 우상단 판 아래(앵커 (1,1))로) / v3.1 (v9.11 2026-09-22 타격감: 기차 HP 바 지연 잔량(빨간 띠가 0.5초 뒤 따라 내려온다, 회복은 즉시) / 웨이브 예고·클리어 문구 위에서 내려오며 팝, 새 문구가 오면 이전 문구 즉시 교체) / v3
+/// [UIManager.cs] v3.3 (v9.17 2026-10-06 화면 손맛 2차 - B7: 골드가 0.4초 동안 세어 올라가고(줄 땐 0.2초) 한 번에 50 이상 벌면 금색 반짝 + 튐 / 알림 통합: 같은 문구가 2초 안에 또 오면 새 줄 대신 "x2" / 위험 알림은 2.5초 동안 일반 알림에 안 밀린다 / 가운데 예고는 같은 문구 2초 무시 + 앞 문구가 1초는 떠 있게) / v3.2 (v9.15 2026-09-29 HUD 재배치 GameBalance.HudRegroup: 우상단 정보 2줄(UISkin.InfoLine1/2 - 손님 남음·보스까지 / 지역·예고) 0.25초마다, 알림 로그 스택을 우상단 판 아래(앵커 (1,1))로) / v3.1 (v9.11 2026-09-22 타격감: 기차 HP 바 지연 잔량(빨간 띠가 0.5초 뒤 따라 내려온다, 회복은 즉시) / 웨이브 예고·클리어 문구 위에서 내려오며 팝, 새 문구가 오면 이전 문구 즉시 교체) / v3
 /// 게임 HUD 전체를 담당하는 UI 관리 스크립트입니다.
 /// - v3 변경점 (P1: 알림 채널 2분리 - 기술감사 처방):
 ///   1) ShowStatChange가 "우측 로그 스택"으로 개조 - 여러 알림이 겹쳐도 씹히지 않고
@@ -120,6 +120,7 @@ public class UIManager : MonoBehaviour
         RefreshHPBar();
         RefreshInfoTexts();
         UpdateLogStack();   // P1: 우측 알림 로그 수명 관리
+        TickPendingNotice();   // v3.3
     }
 
     // ─────────────────────────────────────────────
@@ -207,13 +208,61 @@ public class UIManager : MonoBehaviour
     {
         if (gameManager == null) return;
 
-        if (goldText != null)
-            goldText.text = "G  " + gameManager.playerGold;
+        if (goldText != null) RefreshGold(gameManager.playerGold);
 
         if (waveText != null)
             waveText.text = "Wave  " + gameManager.currentWave;
 
         RefreshInfoLines();   // v3.2
+    }
+
+    // ── v3.3 (B7): 골드 세어 올리기 ──
+    private int goldShown = -1, goldFrom = 0, goldTarget = 0, goldTextShown = -1;
+    private float goldT = 0f, goldDur = 0.4f;
+    private float goldFlashT = -1f;        // 0 이상 = 금색 반짝 진행 (실시간 초)
+    private Color goldBaseColor = Color.white;
+    private const float GOLD_FLASH_SEC = 0.35f;
+
+    /// <summary>
+    /// 골드 표시: 값이 바뀌면 지금 보이는 숫자에서 새 값으로 세어 간다 (늘면 GoldCountSec, 줄면 그 절반 - 실시간).
+    /// 한 번에 GoldFlashMin 이상 늘면 글자가 금빛으로 밝아졌다 돌아오고 한 번 튄다. 글자는 숫자가 바뀔 때만 다시 만든다
+    /// </summary>
+    private void RefreshGold(int gold)
+    {
+        bool feel = GameBalance.HudCountFeelOn && GameBalance.GameFeelMaster > 0f;
+        if (!feel || goldShown < 0)
+        {
+            goldShown = gold; goldFrom = gold; goldTarget = gold;
+        }
+        else if (gold != goldTarget)
+        {
+            int delta = gold - goldTarget;
+            goldFrom = goldShown; goldTarget = gold; goldT = 0f;
+            goldDur = Mathf.Max(0.05f, delta > 0 ? GameBalance.GoldCountSec : GameBalance.GoldCountSec * 0.5f);
+            if (delta >= GameBalance.GoldFlashMin)
+            {
+                if (goldFlashT < 0f) goldBaseColor = goldText.color;
+                goldFlashT = 0f;
+                UIFeel.Bounce(goldText.rectTransform, 0.18f, 0.25f);
+            }
+        }
+
+        if (goldShown != goldTarget)
+        {
+            goldT += Time.unscaledDeltaTime;
+            float k = Mathf.Clamp01(goldT / goldDur);
+            float e = 1f - (1f - k) * (1f - k);
+            goldShown = k >= 1f ? goldTarget : Mathf.RoundToInt(Mathf.Lerp(goldFrom, goldTarget, e));
+        }
+        if (goldShown != goldTextShown) { goldTextShown = goldShown; goldText.text = "G  " + goldShown; }
+
+        if (goldFlashT >= 0f)
+        {
+            goldFlashT += Time.unscaledDeltaTime;
+            float k = Mathf.Clamp01(goldFlashT / GOLD_FLASH_SEC);
+            goldText.color = Color.Lerp(new Color(1f, 0.97f, 0.6f, goldBaseColor.a), goldBaseColor, k);
+            if (k >= 1f) { goldFlashT = -1f; goldText.color = goldBaseColor; }
+        }
     }
 
     // ── v3.2: 우상단 정보 2줄 (HUD 재배치) ──
@@ -268,6 +317,9 @@ public class UIManager : MonoBehaviour
     private Color[] logColors = new Color[LOG_LINES];
     private float[] logAges = new float[LOG_LINES];   // 경과 시간 (수명 지나면 숨김)
     private bool[] logUsed = new bool[LOG_LINES];
+    private bool[] logBold = new bool[LOG_LINES];          // v3.3: 위험 줄 (굵게 + 잠깐 고정)
+    private string[] logBase = new string[LOG_LINES];      // v3.3: "x2" 를 붙이기 전 원래 문구 (중복 비교용)
+    private int[] logCount = new int[LOG_LINES];           // v3.3: 같은 문구가 온 횟수
 
     private static readonly Color LOG_NORMAL = new Color(1f, 0.92f, 0.55f);   // 일반: 크림 노랑
     private static readonly Color LOG_DANGER = new Color(1f, 0.5f, 0.25f);    // 위험: 주황
@@ -294,21 +346,46 @@ public class UIManager : MonoBehaviour
     {
         if (logTexts == null) BuildLogStack();
 
-        // 한 칸씩 아래로 밀기 (맨 아래는 버림)
-        for (int i = LOG_LINES - 1; i >= 1; i--)
+        // v3.3: 같은 문구가 NoticeDedupeSec 안에 또 왔다 - 새 줄을 쌓지 않고 그 줄에 "x2" 를 올리고 수명을 되돌린다
+        //       (포탑 여럿이 한꺼번에 식거나 재료가 연달아 들어올 때 다섯 줄이 같은 말로 차던 것)
+        if (GameBalance.NoticeDedupeSec > 0f)
+        {
+            for (int i = 0; i < LOG_LINES; i++)
+            {
+                if (!logUsed[i] || logBase[i] != message || logBold[i] != bold || logAges[i] > GameBalance.NoticeDedupeSec) continue;
+                logCount[i]++;
+                logMsgs[i] = message + "  x" + logCount[i];
+                logAges[i] = 0f;
+                RenderLog();
+                return;
+            }
+        }
+
+        // v3.3: 위험 줄 고정 - 새 일반 알림은 아직 생생한(DangerPinSec 안) 위험 줄 아래에 끼운다. 위험 알림은 늘 맨 위
+        int at = 0;
+        if (!bold && GameBalance.DangerPinSec > 0f)
+            while (at < LOG_LINES && logUsed[at] && logBold[at] && logAges[at] < GameBalance.DangerPinSec) at++;
+        if (at >= LOG_LINES) return;   // 다섯 줄이 전부 방금 뜬 위험 알림이면 일반 알림은 버린다
+
+        // at 부터 한 칸씩 아래로 밀기 (맨 아래는 버림)
+        for (int i = LOG_LINES - 1; i > at; i--)
         {
             logMsgs[i] = logMsgs[i - 1];
             logColors[i] = logColors[i - 1];
             logAges[i] = logAges[i - 1];
             logUsed[i] = logUsed[i - 1];
-            logTexts[i].fontStyle = logTexts[i - 1].fontStyle;
+            logBold[i] = logBold[i - 1];
+            logBase[i] = logBase[i - 1];
+            logCount[i] = logCount[i - 1];
         }
 
-        logMsgs[0] = message;
-        logColors[0] = col;
-        logAges[0] = 0f;
-        logUsed[0] = true;
-        logTexts[0].fontStyle = bold ? FontStyle.Bold : FontStyle.Normal;
+        logMsgs[at] = message;
+        logColors[at] = col;
+        logAges[at] = 0f;
+        logUsed[at] = true;
+        logBold[at] = bold;
+        logBase[at] = message;
+        logCount[at] = 1;
 
         RenderLog();
     }
@@ -318,15 +395,39 @@ public class UIManager : MonoBehaviour
     {
         if (logTexts == null) return;
 
-        bool any = false;
+        bool any = false, expired = false;
         for (int i = 0; i < LOG_LINES; i++)
         {
             if (!logUsed[i]) continue;
             logAges[i] += Time.unscaledDeltaTime;
-            if (logAges[i] >= LOG_LIFE) logUsed[i] = false;
+            if (logAges[i] >= LOG_LIFE) { logUsed[i] = false; expired = true; }
             else any = true;
         }
-        if (any || logTexts[0].gameObject.activeSelf) RenderLog();
+        // v3.3: 위험 줄 고정·중복 합치기 때문에 줄이 나이순이 아닐 수 있다 - 위 줄이 먼저 끝나면 빈 줄이 남지 않게 당기고, 끝난 줄은 그 프레임에 숨긴다
+        if (expired) CompactLog();
+        if (any || expired || logTexts[0].gameObject.activeSelf) RenderLog();
+    }
+
+    /// <summary>v3.3: 쓰는 줄을 순서 그대로 위로 당긴다 (가운데 빈 줄 없애기)</summary>
+    private void CompactLog()
+    {
+        int w = 0;
+        for (int r = 0; r < LOG_LINES; r++)
+        {
+            if (!logUsed[r]) continue;
+            if (w != r)
+            {
+                logMsgs[w] = logMsgs[r];
+                logColors[w] = logColors[r];
+                logAges[w] = logAges[r];
+                logBold[w] = logBold[r];
+                logBase[w] = logBase[r];
+                logCount[w] = logCount[r];
+                logUsed[w] = true;
+                logUsed[r] = false;
+            }
+            w++;
+        }
     }
 
     private void RenderLog()
@@ -346,6 +447,7 @@ public class UIManager : MonoBehaviour
             alpha *= Mathf.Lerp(1f, 0.55f, i / (float)(LOG_LINES - 1));
 
             logTexts[i].text = logMsgs[i];
+            logTexts[i].fontStyle = logBold[i] ? FontStyle.Bold : FontStyle.Normal;
             Color c = logColors[i];
             c.a = alpha;
             logTexts[i].color = c;
@@ -494,9 +596,54 @@ public class UIManager : MonoBehaviour
     /// <summary>웨이브 시작 시 속성 예고 표시 (3초 후 사라짐)</summary>
     public void ShowWaveNotice(string notice, string warning)
     {
+        float now = Time.unscaledTime;
+        bool showing = waveNoticeRoutine != null;
+
+        // v3.3: 같은 문구가 NoticeDedupeSec 안에 또 오면 무시 (등장 연출이 처음부터 다시 돌던 것)
+        if (showing && GameBalance.NoticeDedupeSec > 0f && notice == lastNotice && warning == lastWarning
+            && now - lastNoticeAt < GameBalance.NoticeDedupeSec)
+            return;
+
+        // v3.3: 앞 문구가 뜬 지 NOTICE_MIN_SHOW 가 안 됐으면 그만큼 채운 뒤 바꾼다 (읽기도 전에 덮어쓰던 것).
+        //       기다리는 문구는 하나만 - 그사이 더 새 것이 오면 그것으로 바뀐다
+        if (showing && GameBalance.NoticeDedupeSec > 0f && now - lastNoticeAt < NOTICE_MIN_SHOW)
+        {
+            pendingNotice = notice; pendingWarning = warning; hasPendingNotice = true;
+            return;
+        }
+        PlayWaveNotice(notice, warning);
+    }
+
+    private const float NOTICE_MIN_SHOW = 1f;
+    private string lastNotice = null, lastWarning = null;
+    private float lastNoticeAt = -10f;
+    private string pendingNotice = null, pendingWarning = null;
+    private bool hasPendingNotice = false;
+
+    private void PlayWaveNotice(string notice, string warning)
+    {
         // v3.1: 이전 문구가 아직 떠 있으면 끊고 새 문구로 (두 코루틴이 서로 알파를 덮어쓰던 것)
         if (waveNoticeRoutine != null) StopCoroutine(waveNoticeRoutine);
+        hasPendingNotice = false;
+        lastNotice = notice; lastWarning = warning; lastNoticeAt = Time.unscaledTime;
         waveNoticeRoutine = StartCoroutine(WaveNoticeCoroutine(notice, warning));
+    }
+
+    /// <summary>v3.3: 가운데 예고를 바로 지운다 (기다리던 것도). 패배 결과 화면용 - 거기선 시간이 멈춰 있어, 떠 있던 예고가 저절로 사라지지 않는다</summary>
+    public void ClearWaveNotice()
+    {
+        hasPendingNotice = false;
+        if (waveNoticeRoutine != null) { StopCoroutine(waveNoticeRoutine); waveNoticeRoutine = null; }
+        if (waveNoticeText != null) waveNoticeText.gameObject.SetActive(false);
+        if (waveWarningText != null) waveWarningText.gameObject.SetActive(false);
+    }
+
+    /// <summary>v3.3: 기다리던 예고를 제때 띄운다 (Update 에서)</summary>
+    private void TickPendingNotice()
+    {
+        if (!hasPendingNotice) return;
+        if (waveNoticeRoutine != null && Time.unscaledTime - lastNoticeAt < NOTICE_MIN_SHOW) return;
+        PlayWaveNotice(pendingNotice, pendingWarning);
     }
 
     private IEnumerator WaveNoticeCoroutine(string notice, string warning)

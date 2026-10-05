@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// [FameShopUI.cs] v1.5 (v9.15.1 2026-09-29 스토리 개정: 재출발 버튼 "다시 굽는다" -> "다시 출발한다 - 비상 복구 끝" (셰프 재생 설정 삭제)) / v1.4 (v9.14 2026-09-28: 명성 사용처 "출발 증강" 줄 추가, 패널 680) / v1.3 (2026-09-14: 런 종료 화면에 이번 런 통계 한 줄) / v1.2 (즉시 재출발 버튼) / v1
+/// [FameShopUI.cs] v1.6 (v9.17 2026-10-06 화면 손맛 2차 - 결과 화면: 운행이 끝나 열리면 머리글이 결과("기차가 멈췄다" / "종착역 도착!")로 바뀌고, 보유 명성이 이번 운행 몫만큼 세어 올라가고(C5), 상품 줄이 위에서부터 하나씩 나타난다(D4). 열릴 때 판 팝. 재출발은 검정 페이드 뒤(D6)) / v1.5 (v9.15.1 2026-09-29 스토리 개정: 재출발 버튼 "다시 굽는다" -> "다시 출발한다 - 비상 복구 끝" (셰프 재생 설정 삭제)) / v1.4 (v9.14 2026-09-28: 명성 사용처 "출발 증강" 줄 추가, 패널 680) / v1.3 (2026-09-14: 런 종료 화면에 이번 런 통계 한 줄) / v1.2 (즉시 재출발 버튼) / v1
 /// 명성 상점 - 런 사이(로비/게임오버)에 명성을 소모해 영구 업그레이드를 사는 UI.
 ///
 /// - v1.3 변경점 (스위치 실험 관찰 시트): 게임오버/승리로 열렸을 때 보유 명성 줄 아래에
@@ -54,6 +54,14 @@ public class FameShopUI : MonoBehaviour
     private GameObject canvasGo;
     private GameObject root;
     private Text fameText;
+    private Text titleText;               // v1.6: 머리글 (운행이 끝나 열리면 결과 문구)
+    private RectTransform[] rows;         // v1.6: 상품 줄 (순차 등장용)
+    // v1.6 (C5): 보유 명성 세어 올리기 - 운행이 끝나고 처음 열릴 때 한 번
+    private bool fameCounted = false;
+    private float fameCountT = -1f;       // 0 이상 = 세는 중 (실시간 초)
+    private int fameFrom = 0, fameTo = 0, fameShown = -1;
+    private bool runEndFeelPending = false;   // v1.6: 운행 끝 연출(줄 순차 등장·명성 세기)이 화면 덮개가 걷히기를 기다리는 중
+    private bool fameCountWanted = false;
     private Text runText;      // v1.3: 이번 런 통계 (게임오버/승리에서만 내용 있음)
     private Text[] levelTexts;
     private Text[] buyLabels;
@@ -136,8 +144,14 @@ public class FameShopUI : MonoBehaviour
         {
             root.SetActive(shouldShow);
             IsOpen = shouldShow;
-            if (shouldShow) Refresh();   // 열릴 때마다 명성/가격 갱신
+            if (shouldShow)
+            {
+                Refresh();   // 열릴 때마다 명성/가격 갱신
+                PlayOpenFeel();   // v1.6
+            }
         }
+        TickRunEndFeel();   // v1.6 (D4)
+        TickFameCount();    // v1.6 (C5)
 
         // v1.2 (감사 3-E): [다시 굽는다] 버튼은 런이 끝났을 때만 (로비에서는 숨김)
         if (restartButtonGo != null && GameManager.Instance != null)
@@ -156,10 +170,95 @@ public class FameShopUI : MonoBehaviour
     /// </summary>
     private void RestartRun()
     {
-        Time.timeScale = 1f;
-        if (GameManager.Instance != null)
-            Destroy(GameManager.Instance.gameObject);
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        // v1.6 (D6): 검정 페이드로 덮은 뒤 다시 싣는다. 덮는 중에 또 눌러도 한 번만 (SceneFadeSec 0 = 바로)
+        ScreenFx.Cover(Color.black, GameBalance.SceneFadeSec, GameBalance.SceneFadeSec, delegate
+        {
+            if (GameManager.Instance != null) GameManager.Instance.ReleaseFreeze();   // 패배 뒤 멈춰 둔 세상을 먼저 푼다
+            Time.timeScale = 1f;
+            if (GameManager.Instance != null)
+                Destroy(GameManager.Instance.gameObject);
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        });
+    }
+
+    // ─────────────────────────────────────────────
+    // v1.6: 열릴 때 연출
+    // ─────────────────────────────────────────────
+    private static bool RunEnded()
+    {
+        return GameManager.Instance != null
+            && (GameManager.Instance.currentState == GameManager.GameState.GameOver
+                || GameManager.Instance.currentState == GameManager.GameState.Victory);
+    }
+
+    /// <summary>
+    /// 판 팝. 운행이 끝나 열린 것이면 (한 번만): 상품 줄을 숨기고 보유 명성을 세기 전 값으로 돌려 둔 뒤, TickRunEndFeel 이 시작한다.
+    /// 바로 시작하지 않는 이유 - 최종 승리 땐 흰 화면이 아직 덮여 있어, 그 밑에서 줄 등장과 세기가 거의 끝나 버린다
+    /// </summary>
+    private void PlayOpenFeel()
+    {
+        ModalFeel.Play(root.transform);
+        if (!RunEnded() || fameCounted) return;
+        fameCounted = true;
+
+        if (rows != null && CardFeel.Active(GameBalance.ShopRowStaggerSec))
+            for (int i = 0; i < rows.Length; i++)
+                if (rows[i] != null) CardFeel.Group(rows[i]).alpha = 0f;
+
+        int gained = MetaProgress.RunFame;
+        fameCountWanted = GameBalance.HudCountFeelOn && GameBalance.GameFeelMaster > 0f && gained > 0 && GameBalance.FameCountSec > 0f;
+        if (fameCountWanted)
+        {
+            fameTo = MetaProgress.Fame;
+            fameFrom = Mathf.Max(0, fameTo - gained);
+            fameShown = fameFrom;
+            SetFameLine(fameFrom);
+        }
+        runEndFeelPending = true;
+    }
+
+    /// <summary>운행 끝 연출 시작: 화면 덮개가 걷힌 뒤 상품 줄이 위에서부터 하나씩(재출발 버튼은 처음부터 보인다) + 보유 명성이 이번 운행 몫만큼 세어 올라간다</summary>
+    private void TickRunEndFeel()
+    {
+        if (!runEndFeelPending || ScreenFx.Covering) return;
+        runEndFeelPending = false;
+
+        if (!root.activeSelf)
+        {
+            // 그사이 접었다 ([M]) - 연출 없이 다음에 열면 그냥 보이게
+            if (rows != null)
+                for (int i = 0; i < rows.Length; i++)
+                    if (rows[i] != null) CardFeel.Group(rows[i]).alpha = 1f;
+            return;
+        }
+        if (rows != null) CardFeel.StaggerIn(rows, GameBalance.ShopRowStaggerSec);
+        if (fameCountWanted && MetaProgress.Fame == fameTo) fameCountT = 0f;
+    }
+
+    /// <summary>보유 명성 세어 올리기 (실시간 - 패배 뒤엔 시간이 멈춰 있다). 그사이 명성을 쓰면(구매) 세기를 끝내고 실제 값으로</summary>
+    private void TickFameCount()
+    {
+        if (fameCountT < 0f) return;
+        if (!root.activeSelf || MetaProgress.Fame != fameTo) { fameCountT = -1f; if (root.activeSelf) SetFameLine(MetaProgress.Fame); return; }
+        fameCountT += Time.unscaledDeltaTime;
+        float k = Mathf.Clamp01(fameCountT / GameBalance.FameCountSec);
+        float e = 1f - (1f - k) * (1f - k);
+        int now = k >= 1f ? fameTo : Mathf.RoundToInt(Mathf.Lerp(fameFrom, fameTo, e));
+        if (now != fameShown) { fameShown = now; SetFameLine(now); }
+        if (k >= 1f)
+        {
+            fameCountT = -1f;
+            UIFeel.Bounce(fameText.rectTransform, 0.12f, 0.2f);   // 다 세면 한 번 튄다
+        }
+    }
+
+    /// <summary>보유 명성 줄. 운행이 끝난 화면이면 이번 운행에서 번 몫을 괄호로</summary>
+    private void SetFameLine(int fame)
+    {
+        string gained = RunEnded() && MetaProgress.RunFame > 0 ? " (+" + MetaProgress.RunFame + ")" : "";
+        fameText.text = "보유 명성: " + fame + gained
+            + "   |   최고 기록: " + MetaProgress.BestWave + "웨이브"
+            + "   |   도감: " + MetaProgress.DiscoveredCount + "종";
     }
 
     // ─────────────────────────────────────────────
@@ -191,6 +290,7 @@ public class FameShopUI : MonoBehaviour
         Text title = KitchenEventManager.MakeText(panel, "Title",
             "명성 상점 - 황야의 전설", 32, new Color(1f, 0.78f, 0.32f));
         SetTopStretch(title.rectTransform, -14f, 40f);
+        titleText = title;   // v1.6
 
         // 보유 명성
         fameText = KitchenEventManager.MakeText(panel, "Fame", "", 24,
@@ -207,6 +307,7 @@ public class FameShopUI : MonoBehaviour
         levelTexts = new Text[count];
         buyLabels = new Text[count];
         buyButtons = new Button[count];
+        rows = new RectTransform[count];   // v1.6
 
         float rowY = 130f;
         for (int i = 0; i < count; i++)
@@ -222,6 +323,7 @@ public class FameShopUI : MonoBehaviour
             row.anchoredPosition = new Vector2(0f, rowY);
             row.sizeDelta = new Vector2(800f, 72f);
             rowY -= 82f;
+            rows[i] = row;
 
             // 이름 (좌측 상단)
             Text nameText = KitchenEventManager.MakeText(row, "Name", items[i].itemName, 23,
@@ -317,14 +419,16 @@ public class FameShopUI : MonoBehaviour
     /// <summary>보유 명성 / 각 상품의 레벨, 가격, 버튼 상태 갱신</summary>
     private void Refresh()
     {
-        fameText.text = "보유 명성: " + MetaProgress.Fame
-            + "   |   최고 기록: " + MetaProgress.BestWave + "웨이브"
-            + "   |   도감: " + MetaProgress.DiscoveredCount + "종";
+        fameCountT = -1f;   // v1.6: 갱신(구매 포함)하면 세던 것을 끝내고 실제 값
+        SetFameLine(MetaProgress.Fame);
 
         // v1.3: 런이 끝난 상태로 열렸을 때만 이번 런 통계 (로비에서는 지난 런 값이 남아 있어도 안 보여 준다)
-        bool runEnded = GameManager.Instance != null
-            && (GameManager.Instance.currentState == GameManager.GameState.GameOver
-                || GameManager.Instance.currentState == GameManager.GameState.Victory);
+        bool runEnded = RunEnded();
+        // v1.6: 머리글 = 결과. 가운데 예고("기차가 멈췄다..." + 요약 3줄)가 이 패널 위에 겹쳐 뜨던 것을 패널 안으로
+        if (titleText != null)
+            titleText.text = !runEnded ? "명성 상점 - 황야의 전설"
+                : GameManager.Instance.currentState == GameManager.GameState.Victory ? "종착역 도착!  -  명성 상점"
+                : "기차가 멈췄다  -  명성 상점";
         if (runText != null)
             runText.text = runEnded ? "이번 운행:  " + MetaProgress.RunStatsLine() : "";
 

@@ -4,7 +4,7 @@ using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// [GameManager.cs] v4.6 (v9.16 2026-09-29 손맛 2차 - 소리: 배경음을 로비부터 / 정차 골드 sfx_gold / 패배 = 기차 정지음 sfx_train_break -> 0.7초 뒤 sfx_game_over, 배경음 덕킹 / 승리 = 기적 -> 0.6초 뒤 sfx_victory) / v4.5 (v9.15 2026-09-29: 운행 시작에 파손 포탑 자리 전부 수리 - 파손은 이번 운행 한정) / v4.4 (v9.14 2026-09-28: 운행 시작에 증강·유물 강제 초기화 + 명성 상점 "출발 증강") / v4.3 (v9.9 2026-09-16: 견습 운행 StartTutorial/EndTutorial - 튜토리얼 런은 웨이브·보급·메타 기록 없이 Battle 상태만 빌린다) / v4.2 (2026-09-14: 포탑 과열 런 통계 초기화 - TurretSlot.ResetRunStats) / v4.1 (런 통계 초기화 / 프롤로그 찬장 고기 고정 / 전투 중 수리 기록) / v4
+/// [GameManager.cs] v4.7 (v9.17 2026-10-06 화면 손맛 2차 - D5 패배 순서: 슬로모션 + 붉은 가장자리 -> 어두워지며 세상이 멈춤 -> 결과 / D4 최종 승리 순서: 엔딩 글 뒤 흰 화면 -> 결과 / D6: 견습 종료 때 검정 페이드 / 승리 기적은 엔딩 쪽에서 울렸으면 생략) / v4.6 (v9.16 2026-09-29 손맛 2차 - 소리: 배경음을 로비부터 / 정차 골드 sfx_gold / 패배 = 기차 정지음 sfx_train_break -> 0.7초 뒤 sfx_game_over, 배경음 덕킹 / 승리 = 기적 -> 0.6초 뒤 sfx_victory) / v4.5 (v9.15 2026-09-29: 운행 시작에 파손 포탑 자리 전부 수리 - 파손은 이번 운행 한정) / v4.4 (v9.14 2026-09-28: 운행 시작에 증강·유물 강제 초기화 + 명성 상점 "출발 증강") / v4.3 (v9.9 2026-09-16: 견습 운행 StartTutorial/EndTutorial - 튜토리얼 런은 웨이브·보급·메타 기록 없이 Battle 상태만 빌린다) / v4.2 (2026-09-14: 포탑 과열 런 통계 초기화 - TurretSlot.ResetRunStats) / v4.1 (런 통계 초기화 / 프롤로그 찬장 고기 고정 / 전투 중 수리 기록) / v4
 /// 게임 전체 상태를 관리하는 최상위 싱글톤 클래스.
 /// Cooking 페이즈 제거 — 게임 시작하면 바로 Battle.
 /// 조리는 전투 중 언제든 가능.
@@ -66,6 +66,13 @@ public class GameManager : MonoBehaviour
 
     private bool starterKitGiven = false;
 
+    // ── v4.7 (v9.17): 운행의 끝 ──
+    /// <summary>기차 HP 0 뒤, 결과 화면이 뜨기 전 (패배 연출 중). WaveManager 가 이 동안 웨이브 클리어 판정을 멈춘다</summary>
+    public bool DefeatPending { get; private set; }
+    /// <summary>최종전을 깬 뒤, 승리 화면이 뜨기 전</summary>
+    public bool VictoryPending { get; private set; }
+    private bool runFrozen = false;   // 패배 연출을 거친 뒤: 세상이 멈춰 있다 (결과 화면 뒤에서 전투가 계속 돌지 않는다)
+
     // ─────────────────────────────────────────────
     // 초기화
     // ─────────────────────────────────────────────
@@ -83,6 +90,26 @@ public class GameManager : MonoBehaviour
         playerGold = GameBalance.StartGold + MetaProgress.StartGoldBonus;
 
         ChangeState(GameState.Lobby);
+    }
+
+    private void Update()
+    {
+        // v4.7 (D5): 패배 뒤에는 세상이 멈춰 있다. 일시정지·증강 목록 같은 창이 닫히며 시간을 1 로 돌려도 다시 멈춘다
+        if (runFrozen && Time.timeScale != 0f) Time.timeScale = 0f;
+    }
+
+    /// <summary>v4.7: 멈춰 둔 세상을 푼다 - 재출발·포기로 씬을 다시 싣기 직전에 부른다 (안 부르면 같은 프레임의 Update 가 시간을 다시 0 으로 돌린다)</summary>
+    public void ReleaseFreeze()
+    {
+        if (!runFrozen) return;
+        runFrozen = false;
+        Time.timeScale = 1f;
+    }
+
+    private void OnDestroy()
+    {
+        // v4.7: 어떤 길로 사라지든 멈춘 시간은 풀고 간다 (다음 씬이 timeScale 0 으로 시작하지 않게)
+        if (runFrozen) { runFrozen = false; Time.timeScale = 1f; }
     }
 
     // ─────────────────────────────────────────────
@@ -269,6 +296,9 @@ public class GameManager : MonoBehaviour
     {
         Time.timeScale = 1f;
         Debug.Log("[GameManager] 견습 운행 종료 - 로비로 (씬 리로드)");
+        // v4.7 (D6): 바로 검정으로 덮고 씬을 다시 실으면 로비가 밝아지며 나타난다.
+        //   앞쪽 페이드는 넣지 않는다 - 그 0.3초 동안 견습이 이미 끝난 상태(TutorialDirector.Active = false)로 게임이 돌아, 정식 운행용 힌트가 "본 것"으로 기록된다
+        ScreenFx.Reveal(Color.black, GameBalance.SceneFadeSec);
         Destroy(gameObject);
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
@@ -309,21 +339,95 @@ public class GameManager : MonoBehaviour
     // ─────────────────────────────────────────────
     // 게임오버 / 승리
     // ─────────────────────────────────────────────
+    /// <summary>
+    /// v4.7 (D5): 패배 순서 (전부 실시간). 마지막 피격 -> DefeatSlowSec 동안 슬로모션 + 붉은 가장자리 + 쇠 긁힘
+    /// -> DefeatFadeSec 동안 화면이 어두워지며 세상이 멈춘다 -> 결과(명성 상점 머리글 "기차가 멈췄다") + 패배 스팅.
+    /// 일시정지 창이 열려 있는 동안은 이 순서도 멈춘다
+    /// </summary>
+    private IEnumerator DefeatSequence()
+    {
+        DefeatPending = true;
+        SoundManager.Play("sfx_train_break");
+        SoundManager.BgmDuck("gameover", true);
+        GameFeel.Shake(GameBalance.ShakeBoss * 0.8f);
+        ScreenFx.Vignette(new Color(0.85f, 0.08f, 0.05f, 0.75f), 0.12f);
+
+        float slowSec = Mathf.Max(0f, GameBalance.DefeatSlowSec);
+        float fadeSec = Mathf.Max(0.05f, GameBalance.DefeatFadeSec);
+        float slow = Mathf.Clamp(GameBalance.DefeatSlowScale, 0.05f, 1f);
+        float t = 0f;
+        bool curtainOn = false;
+        while (t < slowSec + fadeSec)
+        {
+            if (PauseMenu.IsOpen) { yield return null; continue; }
+            t += Time.unscaledDeltaTime;
+            if (t < slowSec) Time.timeScale = slow;
+            else
+            {
+                if (!curtainOn) { curtainOn = true; ScreenFx.Curtain(GameBalance.DefeatCurtainAlpha, fadeSec); }
+                Time.timeScale = Mathf.Lerp(slow, 0f, Mathf.Clamp01((t - slowSec) / fadeSec));
+            }
+            yield return null;
+        }
+
+        ScreenFx.VignetteOff(0.3f);
+        Time.timeScale = 0f;
+        runFrozen = true;
+        DefeatPending = false;
+        ChangeState(GameState.GameOver);
+    }
+
     private void HandleGameOver()
     {
         chefController?.EnableCooking(false);
 
-        // v4.6: 기차가 멈춘다 - 쇠 긁힘 -> 잠깐 뒤 패배 스팅. 배경음은 낮춘 채 (새 운행이 PlayBGM 으로 되돌린다)
-        SoundManager.Play("sfx_train_break");
-        SoundManager.PlayDelayed("sfx_game_over", 0.7f);
-        SoundManager.BgmDuck("gameover", true);
+        if (runFrozen)
+        {
+            // v4.7 (D5): 패배 연출을 거쳐 왔다 - 쇠 긁힘·배경음 낮추기는 이미 나갔다. 결과가 뜨는 순간 패배 스팅.
+            // "기차가 멈췄다" 와 이번 운행 숫자는 명성 상점 머리글·줄이 보여 준다 (가운데 예고와 겹치던 것)
+            SoundManager.Play("sfx_game_over");
+            UIManager.Instance?.ClearWaveNotice();   // 시간이 멈춰 있어, 떠 있던 예고가 결과 화면에 그대로 남는다
+        }
+        else
+        {
+            // v4.6: 기차가 멈춘다 - 쇠 긁힘 -> 잠깐 뒤 패배 스팅. 배경음은 낮춘 채 (새 운행이 PlayBGM 으로 되돌린다)
+            SoundManager.Play("sfx_train_break");
+            SoundManager.PlayDelayed("sfx_game_over", 0.7f);
+            SoundManager.BgmDuck("gameover", true);
 
-        // v4: 런 종료 요약 표시 (명성은 웨이브 클리어마다 이미 저장돼 있음)
-        UIManager.Instance?.ShowWaveNotice("기차가 멈췄다...", MetaProgress.RunSummary());
+            // v4: 런 종료 요약 표시 (명성은 웨이브 클리어마다 이미 저장돼 있음)
+            UIManager.Instance?.ShowWaveNotice("기차가 멈췄다...", MetaProgress.RunSummary());
+        }
 
-        // v4.2: 스피노의 사망 대사 (첫 사망은 고정, 이후 랜덤)
-        StoryTexts.ShowDeathQuote();
+        // v4.2: 스피노의 사망 대사 (첫 사망은 고정, 이후 랜덤). v4.7: 결과 화면이면 상점 패널 위 띠에
+        StoryTexts.ShowDeathQuote(runFrozen);
         Debug.Log("[GameManager] 게임 오버! " + MetaProgress.RunSummary());
+    }
+
+    /// <summary>
+    /// v4.7 (D4): 최종 승리 순서 (실시간). 식사 엔딩은 엔딩 글이 닫히면 바로, 격파 엔딩은 "철길이 열렸다" 를 읽을 VictoryHoldSec 뒤
+    /// -> 흰 화면이 덮였다 걷히며(VictoryWhiteSec) 그 사이에 Victory 로 넘어간다
+    /// </summary>
+    private IEnumerator VictorySequence()
+    {
+        VictoryPending = true;
+        while (StoryTexts.IsBlocking) yield return null;
+        if (!StoryTexts.TrueEndingJustPlayed)
+        {
+            float w = 0f;
+            while (w < GameBalance.VictoryHoldSec)
+            {
+                if (!PauseMenu.IsOpen) w += Time.unscaledDeltaTime;
+                yield return null;
+            }
+        }
+        while (ScreenFx.Covering) yield return null;   // 다른 덮개(장면 전환)가 돌고 있으면 끝난 뒤
+        float half = Mathf.Max(0.05f, GameBalance.VictoryWhiteSec * 0.5f);
+        ScreenFx.Cover(new Color(1f, 0.97f, 0.9f, 0.95f), half, half, delegate
+        {
+            VictoryPending = false;
+            ChangeState(GameState.Victory);
+        });
     }
 
     private void HandleVictory()
@@ -331,18 +435,23 @@ public class GameManager : MonoBehaviour
         chefController?.EnableCooking(false);
 
         // v4.3: 승리의 기적 소리 (일지 7 - "배가 불러서 우는 소리"). v4.6: 기적 뒤에 승리 팡파르
-        SoundManager.Play("sfx_train_whistle");
-        SoundManager.PlayDelayed("sfx_victory", 0.6f);
+        // v4.7: 최종 보스 쪽에서 이미 기적을 울렸으면(격파 = 한 번, 식사 = 두 번) 여기서 또 울리지 않는다 - 두 엔딩의 기적 횟수가 달라야 한다
+        if (!BossEnemy.EndingWhistled) SoundManager.Play("sfx_train_whistle");
+        SoundManager.PlayDelayed("sfx_victory", BossEnemy.EndingWhistled ? 0.1f : 0.6f);
+        BossEnemy.EndingWhistled = false;
 
         // v4: 승리 보너스 명성 + 런 종료 요약 표시
         MetaProgress.AddFame(300);
-        UIManager.Instance?.ShowWaveNotice("종착역 도착!", MetaProgress.RunSummary());
+        // v4.7 (D4): 결과 막을 깔고, "종착역 도착!" 과 이번 운행 숫자는 명성 상점 머리글·줄이 보여 준다. 연출이 꺼져 있으면 예전처럼 가운데 예고
+        bool staged = GameBalance.VictorySequenceOn && GameBalance.GameFeelMaster > 0f;
+        if (staged) ScreenFx.Curtain(0.6f, 0.2f);
+        else UIManager.Instance?.ShowWaveNotice("종착역 도착!", MetaProgress.RunSummary());
 
         // v5 (C-2): 엔딩 B 직후라면 스피노 침묵 문구 생략 (엔딩 연출이 이미 마무리 대사 포함)
         if (StoryTexts.TrueEndingJustPlayed)
             StoryTexts.TrueEndingJustPlayed = false;
         else
-            StoryTexts.ShowVictoryQuote();
+            StoryTexts.ShowVictoryQuote(staged);
 
         Debug.Log("[GameManager] 승리! " + MetaProgress.RunSummary());
     }
@@ -371,6 +480,7 @@ public class GameManager : MonoBehaviour
     // ─────────────────────────────────────────────
     public void OnWaveCleared()
     {
+        if (DefeatPending || runFrozen) return;   // v4.7: 멈춘 기차는 웨이브를 깨지 못한다
         Debug.Log("[GameManager] 웨이브 " + currentWave + " 클리어!");
 
         // v4: 메타 기록 적립 (명성 +10+웨이브, 최고 기록 갱신, 즉시 저장)
@@ -383,7 +493,9 @@ public class GameManager : MonoBehaviour
         // v4.1: 최종전 클리어 -> 승리!
         if (currentWave >= GameBalance.FinalWave)
         {
-            ChangeState(GameState.Victory);
+            // v4.7 (D4): 승리 순서를 거쳐서 (연출 끔이면 바로)
+            if (GameBalance.VictorySequenceOn && GameBalance.GameFeelMaster > 0f) { if (!VictoryPending) StartCoroutine(VictorySequence()); }
+            else ChangeState(GameState.Victory);
             return;
         }
 
@@ -411,6 +523,9 @@ public class GameManager : MonoBehaviour
 
     public void OnTrainDestroyed()
     {
+        // v4.7: 이미 이겼으면(승리 순서 중 포함) 기차 정지로 뒤집지 않는다
+        if (VictoryPending || currentState == GameState.Victory) return;
+
         // v4.3: 견습 운행 중에는 게임오버가 없다 - 기차를 고쳐 놓고 디렉터에게 알린다 (실전 단계는 그 단계만 재시작)
         if (TutorialDirector.Active)
         {
@@ -440,6 +555,8 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        ChangeState(GameState.GameOver);
+        // v4.7 (D5): 패배 순서를 거쳐서 (연출 끔이면 바로 결과)
+        if (GameBalance.DefeatSequenceOn && GameBalance.GameFeelMaster > 0f) { if (!DefeatPending) StartCoroutine(DefeatSequence()); }
+        else ChangeState(GameState.GameOver);
     }
 }

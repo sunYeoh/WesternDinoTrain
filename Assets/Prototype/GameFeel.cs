@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 /// <summary>
-/// [GameFeel.cs] v1 (신규 파일) - P1: 게임필 계층 (기술감사 처방)
+/// [GameFeel.cs] v1.1 (v9.17 2026-10-06 A11: SlowMo(배율, 유지, 복귀, 줌) - 보스 처치 전용 슬로모션 + 줌 당김(ZoomMul, CameraZoom 이 곱한다). 히트스톱이 끝난 뒤 시작하고, 다른 곳이 시간을 잡으면 시간에서 손을 뗀다) / v1 (신규 파일) - P1: 게임필 계층 (기술감사 처방)
 /// 화면 셰이크 / 히트스톱 / 처치 팝을 static 한 줄 호출로 제공하는 연출 엔진.
 ///
 /// 설계 원칙 (사용자 지시: "과하면 피로와 멀미 - 적당한 타협점"):
@@ -18,6 +18,7 @@ using System.Collections.Generic;
 ///  - GameFeel.Shake(강도, 채널, 쿨타임)      : 같은 채널은 쿨타임(초)에 한 번만 - 잦은 피격용
 ///  - GameFeel.Hitstop(초)                    : 짧은 시간 정지 (실시간 기준)
 ///  - GameFeel.DeathPop(위치, 색)             : 처치 순간 조각 팝
+///  - GameFeel.SlowMo(배율, 유지, 복귀, 줌)   : v1.1 슬로모션 + 줌 당김 (실시간 초). 보스 처치처럼 한 판에 몇 번 없는 순간에만
 /// 카메라 반영은 CameraZoom v3가 GameFeel.ShakeOffset을 읽어 처리한다.
 /// VS 2017 (C# 7.3) 호환.
 /// </summary>
@@ -95,6 +96,61 @@ public class GameFeel : MonoBehaviour
             duration * Mathf.Clamp01(GameBalance.GameFeelMaster)));
     }
 
+    // ─────────────────────────────────────────────
+    // v1.1: 슬로모션 + 줌 당김
+    // ─────────────────────────────────────────────
+    /// <summary>카메라 줌 배율 (1 = 그대로, 0.92 = 8% 당김). CameraZoom 이 마지막에 곱한다</summary>
+    public static float ZoomMul { get; private set; } = 1f;
+
+    private static bool slowActive = false;
+    private static float slowScale = 1f;   // 지금 우리가 걸어 둔 시간 배율 (다른 곳이 바꿨는지 비교용)
+
+    /// <summary>
+    /// 시간을 scale 배로 holdSec 동안 늦췄다가 recoverSec 에 걸쳐 1 로 (전부 실시간 초). zoom > 0 이면 그만큼 당겼다가 같이 돌아온다.
+    /// 히트스톱이 돌고 있으면 끝난 뒤 시작. 일시정지·카드 창처럼 다른 곳이 시간을 잡으면 시간은 그쪽에 맡기고 줌만 마저 돌려놓는다
+    /// </summary>
+    public static void SlowMo(float scale, float holdSec, float recoverSec, float zoom)
+    {
+        if (GameBalance.GameFeelMaster <= 0f || slowActive) return;
+        if (holdSec <= 0f && recoverSec <= 0f) return;
+        Ensure();
+        instance.StartCoroutine(instance.SlowMoRoutine(Mathf.Clamp(scale, 0.05f, 1f), holdSec, recoverSec, zoom));
+    }
+
+    private static bool SameScale(float a, float b) { return Mathf.Abs(a - b) < 0.005f; }
+
+    private IEnumerator SlowMoRoutine(float scale, float holdSec, float recoverSec, float zoom)
+    {
+        slowActive = true;
+        while (hitstopActive) yield return null;   // 히트스톱 먼저
+
+        bool ownTime = Time.timeScale == 1f;       // 누가 이미 시간을 잡고 있으면 줌만 한다
+        float zoomTo = 1f - Mathf.Clamp(zoom, 0f, 0.3f);
+        if (ownTime) { slowScale = scale; Time.timeScale = scale; }
+
+        float t = 0f;
+        while (t < holdSec)
+        {
+            if (ownTime && !SameScale(Time.timeScale, slowScale)) ownTime = false;
+            t += Time.unscaledDeltaTime;
+            ZoomMul = Mathf.Lerp(1f, zoomTo, Mathf.Clamp01(t / 0.08f));   // 빠르게 당긴다
+            yield return null;
+        }
+        t = 0f;
+        while (t < recoverSec)
+        {
+            if (ownTime && !SameScale(Time.timeScale, slowScale)) ownTime = false;
+            t += Time.unscaledDeltaTime;
+            float k = Mathf.Clamp01(t / recoverSec);
+            if (ownTime) { slowScale = Mathf.Lerp(scale, 1f, k); Time.timeScale = slowScale; }
+            ZoomMul = Mathf.Lerp(zoomTo, 1f, k * k * (3f - 2f * k));
+            yield return null;
+        }
+        if (ownTime && SameScale(Time.timeScale, slowScale)) Time.timeScale = 1f;
+        ZoomMul = 1f;
+        slowActive = false;
+    }
+
     /// <summary>처치 팝 (기본 크기)</summary>
     public static void DeathPop(Vector3 pos, Color col)
     {
@@ -140,6 +196,13 @@ public class GameFeel : MonoBehaviour
         }
         activePops = 0;
         channelLastShake.Clear();
+        // v1.1: 슬로모션 도중에 씬이 바뀌어도 시간·줌이 남지 않게
+        if (slowActive)
+        {
+            slowActive = false;
+            if (SameScale(Time.timeScale, slowScale)) Time.timeScale = 1f;
+        }
+        ZoomMul = 1f;
         instance = null;
     }
 

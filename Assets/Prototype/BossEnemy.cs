@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 
 /// <summary>
-/// [BossEnemy.cs] v7.6 (v9.16 2026-09-29 손맛 2차 - 소리: 등장 포효 = 종류별(SoundKeys.BossRoar - 녹슨 발톱 무리 울음 / 천둥 둥지 번개 / 동면자 얼음 / 디 오리지널 기본 포효 + 낮은 기적 sfx_whistle_low, 예습 보스는 작게) / 엔딩 B 두 번째 기적 = 낮은 기적 / 공격음은 Enemy.AttackTrain 이 종류별로) / v7.5 (v9.15.1 2026-09-29 스토리 개정: 디 오리지널 = 급식 열차 1호였던 것 - 등장에 낡은 기적 + 안내 문구, 폭식 = 원료 삼키기, 해치 = 기관심장이 드러남 / 마지막 식사 장면 LastSupperRoutine - 포탑 정지(LastSupperServing)·남은 손님 물러남·천천히 씹기(LastSupperChewSec)·두 대의 기적 -> 엔딩 B 글 / 격파 엔딩 = 기적 한 번 + "철길이 열렸다") / v7.4 (v9.12 2026-09-22: practice = 견습 구간 7 "새끼 발톱" - 녹슨 발톱 고정, HP·공격력 배율(GameBalance.BossPractice*), 0.7배 크기, 패턴·무방비·발악 없음(돌진만), 처치해도 재료·베팅·"승리" 없음(ClearBossUI) / TutorialDirector.InlineFreeze 동안 정지) / v7.3 (v9.11.1 2026-09-22 문구: 무방비, 실행 가능한 예고) / v7.2 (v9.10.1 2026-09-21: 재료 이름 전기알) / v7.1 (교수 피드백 C3: 디 오리지널 추가 그로기 / A8: 재가동 문구) / v6 - 보스 패턴 C단계 1차 (보스패턴설계 문서)
+/// [BossEnemy.cs] v7.7 (v9.17 2026-10-06 화면 손맛 2차 - D2 등장: 첫 등장 카드가 닫힌 뒤 배경이 0.5초 어두워졌다가 흔들림 + 포효 + 이름 예고가 같이 나온다 / A11 처치: 히트스톱 뒤 0.25초 슬로모션 + 줌 당김 / 식사 엔딩의 Die 는 히트스톱·흔들림·킬 버스트 없이 조용히 / EndingWhistled - 엔딩 쪽에서 기적을 울렸으면 승리 화면이 또 울리지 않는다) / v7.6 (v9.16 2026-09-29 손맛 2차 - 소리: 등장 포효 = 종류별(SoundKeys.BossRoar - 녹슨 발톱 무리 울음 / 천둥 둥지 번개 / 동면자 얼음 / 디 오리지널 기본 포효 + 낮은 기적 sfx_whistle_low, 예습 보스는 작게) / 엔딩 B 두 번째 기적 = 낮은 기적 / 공격음은 Enemy.AttackTrain 이 종류별로) / v7.5 (v9.15.1 2026-09-29 스토리 개정: 디 오리지널 = 급식 열차 1호였던 것 - 등장에 낡은 기적 + 안내 문구, 폭식 = 원료 삼키기, 해치 = 기관심장이 드러남 / 마지막 식사 장면 LastSupperRoutine - 포탑 정지(LastSupperServing)·남은 손님 물러남·천천히 씹기(LastSupperChewSec)·두 대의 기적 -> 엔딩 B 글 / 격파 엔딩 = 기적 한 번 + "철길이 열렸다") / v7.4 (v9.12 2026-09-22: practice = 견습 구간 7 "새끼 발톱" - 녹슨 발톱 고정, HP·공격력 배율(GameBalance.BossPractice*), 0.7배 크기, 패턴·무방비·발악 없음(돌진만), 처치해도 재료·베팅·"승리" 없음(ClearBossUI) / TutorialDirector.InlineFreeze 동안 정지) / v7.3 (v9.11.1 2026-09-22 문구: 무방비, 실행 가능한 예고) / v7.2 (v9.10.1 2026-09-21: 재료 이름 전기알) / v7.1 (교수 피드백 C3: 디 오리지널 추가 그로기 / A8: 재가동 문구) / v6 - 보스 패턴 C단계 1차 (보스패턴설계 문서)
 /// - v6 변경점:
 ///   1) 미끼 도발 대응: 도발 중엔 미끼를 쫓아가고 물어뜯는다 (기차 무피해)
 ///   2) 디 오리지널 3페이즈:
@@ -243,13 +243,57 @@ public class BossEnemy : Enemy
         patternTimer = GameBalance.BossPatternFirstDelay;
 
         BossGimmickSystem.Instance?.RegisterBoss(this);
-        UIManager.Instance?.ShowWaveNotice("[" + data.enemyName + "]", intro);
-        // v7.6: 등장 포효 - 종류별. 예습 보스(새끼 발톱)는 작게
-        SoundManager.Play(SoundKeys.BossRoar(kind.ToString()), practice ? 0.6f : 1f, -1f);
-        if (kind == BossKind.Original && !practice) SoundManager.PlayDelayed("sfx_whistle_low", 0.8f);   // v7.5: 낡은 기적 - 두 기차의 관계 단서 (v7.6: 1호의 낮은 기적, 포효 뒤에)
+        EndingWhistled = false;
+        // v7.7 (D2): 등장 연출 - 예습 보스와 연출 끔은 예전처럼 바로 포효
+        if (!practice && GameBalance.BossEntranceOn && GameBalance.GameFeelMaster > 0f) StartCoroutine(EntranceRoutine(intro));
+        else AnnounceEntrance(intro);
 
         Debug.Log("[BossEnemy] " + data.enemyName + " 등장! (웨이브 " + wave + ") HP:" + (int)bossMaxHP
             + " ATK:" + (int)scaledATK + " 종류:" + kind);
+    }
+
+    /// <summary>v7.7: 최종전에서 엔딩 쪽이 이미 기적을 울렸다 (격파 = 한 번, 식사 = 두 번). GameManager.HandleVictory 가 보고 또 울리지 않는다</summary>
+    public static bool EndingWhistled = false;
+
+    /// <summary>이름 예고 + 등장 포효 (종류별. 예습 보스는 작게). 디 오리지널은 포효 뒤 1호의 낮은 기적</summary>
+    private void AnnounceEntrance(string intro)
+    {
+        UIManager.Instance?.ShowWaveNotice("[" + data.enemyName + "]", intro);
+        SoundManager.Play(SoundKeys.BossRoar(kind.ToString()), practice ? 0.6f : 1f, -1f);
+        if (kind == BossKind.Original && !practice) SoundManager.PlayDelayed("sfx_whistle_low", 0.8f);   // v7.5: 낡은 기적 - 두 기차의 관계 단서
+    }
+
+    /// <summary>
+    /// v7.7 (D2): 보스 등장 순서 (실시간). 첫 등장 카드·스토리 글·일시정지가 떠 있으면 닫힐 때까지 기다린다 (읽는 동안 포효가 먼저 지나가던 것)
+    /// -> 배경이 BossEntranceDimSec 동안 어두워진다 -> 흔들림 + 포효 + 이름 예고 -> 밝아진다
+    /// </summary>
+    private IEnumerator EntranceRoutine(string intro)
+    {
+        yield return null;   // WaveManager.SpawnBoss 가 같은 프레임에 여는 첫 등장 카드가 열릴 틈
+        // 카드·스토리 글·증강 창·일시정지가 떠 있는 동안은 기다린다 (그동안 게임도 멈춰 있다).
+        // 카드가 아직 못 열리고 줄만 서 있는 경우(조리 중 등 - 게임은 돌고 있다)는 3초까지만 기다린다 - 보스가 한참 싸운 뒤에야 포효하지 않게
+        float queued = 0f;
+        while (true)
+        {
+            bool shown = BriefingUI.IsOpen || StoryTexts.IsBlocking || AugmentPickUI.IsOpen || PauseMenu.IsOpen;
+            bool waitingCard = !shown && BriefingUI.Busy;
+            if (!shown && !waitingCard) break;
+            if (waitingCard)
+            {
+                queued += Time.unscaledDeltaTime;
+                if (queued >= 3f) break;
+            }
+            yield return null;
+        }
+
+        float dimSec = Mathf.Max(0.05f, GameBalance.BossEntranceDimSec);
+        ScreenFx.WorldDim(GameBalance.BossEntranceDim, dimSec, 0.15f, 0.4f);
+        float t = 0f;
+        while (t < dimSec) { t += Time.unscaledDeltaTime; yield return null; }
+
+        if (!IsAlive) yield break;
+        GameFeel.Shake(GameBalance.BossEntranceShake);
+        AnnounceEntrance(intro);
     }
 
     // ─────────────────────────────────────────────
@@ -803,13 +847,14 @@ public class BossEnemy : Enemy
             transform.localScale = baseScale;
 
             // 두 대의 기적 - 네 기차, 그리고 1호 (v7.6: 1호는 낮은 기적)
+            EndingWhistled = true;   // v7.7
             SoundManager.Play("sfx_train_whistle");
             yield return new WaitForSeconds(0.9f);
             SoundManager.Play("sfx_whistle_low", 0.9f, 0f);
             GameFeel.Shake(GameBalance.ShakeBoss * 0.4f);
             yield return new WaitForSeconds(0.7f);
         }
-        else SoundManager.Play("sfx_train_whistle");
+        else { SoundManager.Play("sfx_train_whistle"); EndingWhistled = true; }
 
         // 엔딩 B 연출 -> 닫히면 기록 + 처치 처리 (웨이브 클리어 -> Victory로 이어짐)
         StoryTexts.ShowEndingB(delegate
@@ -845,10 +890,21 @@ public class BossEnemy : Enemy
             return;
         }
 
-        // P1 게임필: 보스 처치 = 가장 긴 히트스톱 + 강한 셰이크 + 금색 대형 팝
-        GameFeel.Hitstop(GameBalance.HitstopBossKill);
-        GameFeel.Shake(GameBalance.ShakeBoss);
-        GameFeel.DeathPop(transform.position, new Color(1f, 0.85f, 0.4f), 3f);
+        if (isServing)
+        {
+            // v7.7: 식사 엔딩 - 대접받은 손님이 폭발하듯 죽지 않는다. 히트스톱·흔들림·처치음·킬 버스트 없이 흐려진다 (보상과 웨이브 클리어 체인은 그대로)
+            quietDeath = true;
+        }
+        else
+        {
+            // P1 게임필: 보스 처치 = 가장 긴 히트스톱 + 강한 셰이크 + 금색 대형 팝
+            GameFeel.Hitstop(GameBalance.HitstopBossKill);
+            GameFeel.Shake(GameBalance.ShakeBoss);
+            GameFeel.DeathPop(transform.position, new Color(1f, 0.85f, 0.4f), 3f);
+            // v7.7 (A11): 히트스톱 뒤 짧은 슬로모션 + 줌 당김 - 마지막 일격의 여운 (보스만)
+            if (GameBalance.BossKillSlowMoOn)
+                GameFeel.SlowMo(GameBalance.BossKillSlowScale, GameBalance.BossKillSlowSec, GameBalance.BossKillRecoverSec, GameBalance.BossKillZoom);
+        }
 
         // 보스는 전 재료 2개씩 지급 (base.Die()가 심장 매핑 1개도 추가로 줌)
         if (MaterialInventory.Instance != null)
@@ -870,6 +926,7 @@ public class BossEnemy : Enemy
         if (kind == BossKind.Original && !isServing && GameBalance.OriginalDefeatWhistle)
         {
             SoundManager.Play("sfx_train_whistle");
+            EndingWhistled = true;   // v7.7
             UIManager.Instance?.ShowWaveNotice("[디 오리지널] 멈췄다 - 철길이 열렸다", "종착역까지 남은 열차는 네 것뿐이다");
         }
 

@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// [ChefVisual.cs] v2.3 (v9.10 2026-09-17 테스터 피드백: "가다가 뒤도는 버그" - 바라보는 방향을 실제 위치 변화가 아니라 ChefController.CurrentVel(가려는 속도)로 정한다.
+/// [ChefVisual.cs] v2.4 (v9.17 2026-10-06 B3: 찌그러짐 - 대시 시작에 가는 방향으로 늘어남(0.08초) / 달리다 멈추면 납작(0.1초) / 조리 시작에 한 번 튕김(0.12초). 그림(spriteTf) 크기만 바꾼다) / v2.3 (v9.10 2026-09-17 테스터 피드백: "가다가 뒤도는 버그" - 바라보는 방향을 실제 위치 변화가 아니라 ChefController.CurrentVel(가려는 속도)로 정한다.
 ///   통로·벽에서 ResolveWalk 가 한 프레임 되밀 때 위치 변화 부호가 뒤집혀 뒤돌던 것. 걷는지/대시인지는 종전대로 위치 변화로 / GameBalance.ChefVisualScale 로 그림 배율 - "셰프가 너무 작다")
 /// v2.2 - 셰프 스프라이트 애니메이션 (2026-09-07, 유저 제작 도트 8장 대응)
 ///
@@ -58,6 +58,10 @@ public class ChefVisual : MonoBehaviour
     private float animTime = 0f;
     private bool wasMoving = false;
     private float ghostTimer = 0f;
+    // v2.4 (B3): 찌그러짐 - (sqX, sqY) 에서 sqSec 동안 (1, 1) 로 돌아온다
+    private float sqT = -1f, sqSec = 0.1f, sqX = 1f, sqY = 1f;
+    private bool wasDashing = false, wasCooking = false;
+    private float recentSpeed = 0f;   // 최근 속도 (천천히 식는다 - 달리다 멈춘 순간을 가려낸다)
     private readonly Dictionary<string, string[]> cycles = new Dictionary<string, string[]>();   // 방향 -> 달리기 프레임 이름 순환
     private readonly List<Ghost> ghosts = new List<Ghost>();
     private static Sprite shadowSprite;
@@ -183,7 +187,25 @@ public class ChefVisual : MonoBehaviour
         }
 
         // 조리 중엔 조리대(남쪽 = 화면 아래)를 보고 선다
-        if (CookingMinigame.IsActive) { moving = false; dashing = false; dir = "s"; }
+        bool cooking = CookingMinigame.IsActive;
+        if (cooking) { moving = false; dashing = false; dir = "s"; }
+
+        // v2.4 (B3): 찌그러짐 계기
+        if (GameBalance.ChefSquashOn && GameBalance.GameFeelMaster > 0f)
+        {
+            if (cooking && !wasCooking) StartSquash(0.88f, 1.14f, 0.12f);                       // 조리 시작 - 한 번 튕김
+            else if (dashing && !wasDashing)                                                     // 대시 시작 - 가는 방향으로 늘어남
+            {
+                bool horiz = Mathf.Abs(delta.x) >= Mathf.Abs(delta.y);
+                if (horiz) StartSquash(1.2f, 0.82f, 0.08f); else StartSquash(0.82f, 1.2f, 0.08f);
+            }
+            else if (!moving && wasMoving && !cooking && recentSpeed > GameBalance.ChefMoveSpeed * 0.7f)
+                StartSquash(1.15f, 0.9f, 0.1f);                                                  // 달리다 멈춤 - 납작
+        }
+        // 약 0.25초는 "방금까지 달렸다" 로 남는다. 대시 속도(12)는 달리기의 1.5배까지만 기억 - 대시 뒤 한참 지나 멈춰도 납작해지지 않게
+        recentSpeed = Mathf.Min(GameBalance.ChefMoveSpeed * 1.5f, Mathf.Max(speed, recentSpeed - GameBalance.ChefMoveSpeed * 1.2f * dt));
+        wasDashing = dashing; wasCooking = cooking;
+        TickSquash(dt);
 
         string spriteDir = dir == "w" ? "e" : dir;
         string name;
@@ -213,6 +235,22 @@ public class ChefVisual : MonoBehaviour
             if (ghostTimer >= GHOST_INTERVAL) { ghostTimer = 0f; SpawnGhost(); }
         }
         else ghostTimer = GHOST_INTERVAL;   // 대시 시작 즉시 첫 잔상
+    }
+
+    // ── v2.4 (B3) ──
+    private void StartSquash(float x, float y, float sec) { sqX = x; sqY = y; sqSec = sec; sqT = 0f; }
+
+    /// <summary>그림 크기 = 기본 배율 x 찌그러짐 (easeOut 으로 1 로)</summary>
+    private void TickSquash(float dt)
+    {
+        if (sqT < 0f || spriteTf == null) return;
+        sqT += dt;
+        float k = Mathf.Clamp01(sqT / Mathf.Max(0.01f, sqSec));
+        float w = (1f - k) * (1f - k);
+        float sx = 1f + (sqX - 1f) * w, sy = 1f + (sqY - 1f) * w;
+        float b = GameBalance.ChefVisualScale;
+        spriteTf.localScale = new Vector3(b * sx, b * sy, 1f);
+        if (k >= 1f) { sqT = -1f; spriteTf.localScale = new Vector3(b, b, 1f); }
     }
 
     /// <summary>현재 스프라이트를 제자리에 복사해 두고 서서히 지운다</summary>

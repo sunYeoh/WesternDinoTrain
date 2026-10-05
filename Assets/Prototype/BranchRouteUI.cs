@@ -23,7 +23,7 @@ public class RouteData
 }
 
 /// <summary>
-/// [BranchRouteUI.cs] v2 (v9.13 2026-09-23: 선로 v2 - 목업 v2 그대로) / v1.1 숫자키 / v1 (Phase 2: 분기 선로)
+/// [BranchRouteUI.cs] v2.1 (v9.17 2026-10-06 C3·C4: 선로 카드가 위에서부터 0.06초 간격으로 나타난다 / 고른 카드가 한 번 튄다) / v2 (v9.13 2026-09-23: 선로 v2 - 목업 v2 그대로) / v1.1 숫자키 / v1 (Phase 2: 분기 선로)
 ///
 /// v2: 어두운 카드 창(시간 정지) 삭제. 정차 때 두상 앞에 갈림길이 놓이고(ParallaxBackground.PlaceFork), 카메라가 앞을 비추며 줌아웃(CameraZoom.SetRouteFraming),
 ///     화면 왼쪽에 팻말 카드 226x84 가 가지 수만큼 세로로 - 각 가지가 화면 왼쪽 끝을 지나는 높이에, 짧은 이음선으로 그 선로를 가리킨다.
@@ -241,6 +241,10 @@ public class BranchRouteUI : MonoBehaviour
 
         BuildCanvas();
         LayoutCards();
+        // v2.1 (C3): 위 가지 -> 곧은 길 -> 아래 가지 순으로 하나씩
+        List<RectTransform> shown = new List<RectTransform>();
+        for (int i = 0; i < cards.Count; i++) shown.Add(cards[i].root);
+        CardFeel.StaggerIn(shown, GameBalance.CardStaggerSec);
         UIManager.Instance?.ShowWaveNotice("[분기 선로]  다음 길을 골라라",
             "[1~" + shownRoutes.Count + "] 또는 왼쪽 카드 클릭  -  고른 뒤 [Enter] 출발");
         Debug.Log("[분기선로] 후보 " + shownRoutes.Count + " (갈림길 " + (fork ? "놓음" : "없음") + ", 웨이브 " + nextWave + ")");
@@ -376,6 +380,7 @@ public class BranchRouteUI : MonoBehaviour
             v.reward.color = me ? UIFactory.GOLD : GREY;
             if (v.leaderImg != null) v.leaderImg.color = ring;
             if (v.dotImg != null) v.dotImg.color = ring;
+            if (me) UIFeel.Bounce(v.root, 0.08f, 0.15f);   // v2.1 (C4): 고른 카드가 한 번 튄다
         }
         ParallaxBackground.SetHighlight(route.sign);
 

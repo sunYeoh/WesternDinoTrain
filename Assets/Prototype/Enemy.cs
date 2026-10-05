@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// [Enemy.cs] v3.8 (v9.16 2026-09-29 손맛 2차 - 소리: 공격음 = 손님 종류별(SoundKeys.Attack, 제자리에서 PlayAt) / 처치음 = 재질별(SoundKeys.Die) - 큰 손님은 sfx_kill_big / 명중음은 HitFeel.OnHit 이 재질별로 내고, 방어에 크게 깎인 물리는 튕김음(resisted 전달)) / v3.7 (v9.15 2026-09-29: 방어·저항으로 피해가 GameBalance.ResistShowBelow 이하로 깎이면 팝업에 "저항" - 하나만 키우면 왜 안 통하는지 화면에서) / v3.6 (v9.14 2026-09-28: IncomingDamage - 과잉 집중 방지용 예약 피해) / v3.5 (v9.12 2026-09-22: TutorialDirector.InlineFreeze 동안 정지 / 용어 "지속 피해") / v3.4 (v9.11.1 2026-09-22 문구: 특기 설명 일상어, 강철 = 방어 50) / v3.3 (v9.11 2026-09-22 타격감: 직접 명중 때 HitFeel.OnHit(플래시·찌그러짐·딜 비례 스파크), 죽을 때 HitFeel.OnKill(킬 버스트) - 도트 틱은 제외) / v3.2 (v9.10.1 2026-09-21: 물량 1.6배에 맞춘 처치 보상 배율 - 일반 손님 골드 GameBalance.KillGoldMul, 재료 드랍 확률 KillMaterialChance(보스는 항상). 드랍 이름을 재료 이름표(전기알·화염꽃·독샘)에 맞춤) / v3.1 (2026-09-14: 해빙 문구 / 전갈 마모 대체 스위치) / v3
+/// [Enemy.cs] v3.9 (v9.17 2026-10-06 화면 손맛 2차: quietDeath - 식사 엔딩의 보스는 처치음·킬 버스트 없이 흐려진다 / A4: 숫자 팝업을 DamagePopup.CreateFor(크기 비례·0.1초 합산)로, 크리 표시는 진짜 치명타만(HitFeel.ConsumeCrit) - 예전엔 피해가 손님 공격력의 2배 이상이면 크리로 찍혀 치명타 증강이 없어도 "!" 가 떴다) / v3.8 (v9.16 2026-09-29 손맛 2차 - 소리: 공격음 = 손님 종류별(SoundKeys.Attack, 제자리에서 PlayAt) / 처치음 = 재질별(SoundKeys.Die) - 큰 손님은 sfx_kill_big / 명중음은 HitFeel.OnHit 이 재질별로 내고, 방어에 크게 깎인 물리는 튕김음(resisted 전달)) / v3.7 (v9.15 2026-09-29: 방어·저항으로 피해가 GameBalance.ResistShowBelow 이하로 깎이면 팝업에 "저항" - 하나만 키우면 왜 안 통하는지 화면에서) / v3.6 (v9.14 2026-09-28: IncomingDamage - 과잉 집중 방지용 예약 피해) / v3.5 (v9.12 2026-09-22: TutorialDirector.InlineFreeze 동안 정지 / 용어 "지속 피해") / v3.4 (v9.11.1 2026-09-22 문구: 특기 설명 일상어, 강철 = 방어 50) / v3.3 (v9.11 2026-09-22 타격감: 직접 명중 때 HitFeel.OnHit(플래시·찌그러짐·딜 비례 스파크), 죽을 때 HitFeel.OnKill(킬 버스트) - 도트 틱은 제외) / v3.2 (v9.10.1 2026-09-21: 물량 1.6배에 맞춘 처치 보상 배율 - 일반 손님 골드 GameBalance.KillGoldMul, 재료 드랍 확률 KillMaterialChance(보스는 항상). 드랍 이름을 재료 이름표(전기알·화염꽃·독샘)에 맞춤) / v3.1 (2026-09-14: 해빙 문구 / 전갈 마모 대체 스위치) / v3
 /// 모든 적 유닛의 기본 동작 + 전투 스탯(DEF/RES) + 상태이상(도트/방깎/마깎)
 /// - v3 변경점: 행동 패턴 시스템 (이름 기반 자동 배정 - 프리팹 설정 불필요)
 ///   1) 무리 사냥꾼(랩터): 주변 랩터가 많을수록 이동 속도 증가
@@ -347,6 +347,9 @@ public class Enemy : MonoBehaviour
     public float currentHP;
     /// <summary>v3.6 (v9.14): 이미 이쪽으로 날아가는 탄의 피해 합 - 포탑이 표적을 고를 때 "곧 죽을 손님"을 건너뛴다 (TurretAttackExecutor 가 더하고 뺀다)</summary>
     [HideInInspector] public float IncomingDamage = 0f;
+    /// <summary>v3.9 (v9.17 A4): 마지막으로 띄운 피해 숫자와 그 시각 - 같은 손님이 0.1초 안에 또 맞으면 그 숫자에 더한다 (DamagePopup.CreateFor)</summary>
+    [System.NonSerialized] public DamagePopup lastPopup = null;
+    [System.NonSerialized] public float lastPopupTime = -10f;
     public float scaledMaxHP;      // v3: 힐러 회복 상한용
     public float scaledATK;
     public float scaledSPD;
@@ -828,8 +831,9 @@ public class Enemy : MonoBehaviour
         if (!isAlive) return;
         currentHP -= damage;
 
-        bool isCritical = damage >= scaledATK * 2f;
-        DamagePopup.Create(transform.position, damage, isCritical, resisted);
+        // v3.9: 크리 = 진짜 치명타만 (직접 명중의 HitFeel.OnHit 이 남긴 값. 지속 피해 틱은 항상 false)
+        bool isCritical = HitFeel.ConsumeCrit(this);
+        DamagePopup.CreateFor(this, damage, isCritical, resisted);
 
         if (currentHP <= 0f) Die();
     }
@@ -894,17 +898,27 @@ public class Enemy : MonoBehaviour
     // ─────────────────────────────────────────────
     // 사망 처리
     // ─────────────────────────────────────────────
+    /// <summary>v3.9: true 면 Die 가 처치음·처치 팝·킬 버스트 없이 흐려지기만 한다 (식사 엔딩의 디 오리지널 - BossEnemy 가 켠다). 보상·정리는 그대로</summary>
+    protected bool quietDeath = false;
+
     protected virtual void Die()
     {
         isAlive = false;
-        // v3.8: 처치음 - 재질별 (비늘·무쇠·결정·날개·용암). 큰 손님·보스는 큰 처치음 (잦은 소리를 0.3초 덕킹)
-        bool bigKill = this is BossEnemy || scaledMaxHP >= GameBalance.KillBurstBigHP;
-        SoundManager.PlayAt(bigKill ? "sfx_kill_big" : SoundKeys.Die(data.enemyName), transform.position);
+        if (quietDeath)
+        {
+            HitFeel.OnQuietExit(this, 0.45f);
+        }
+        else
+        {
+            // v3.8: 처치음 - 재질별 (비늘·무쇠·결정·날개·용암). 큰 손님·보스는 큰 처치음 (잦은 소리를 0.3초 덕킹)
+            bool bigKill = this is BossEnemy || scaledMaxHP >= GameBalance.KillBurstBigHP;
+            SoundManager.PlayAt(bigKill ? "sfx_kill_big" : SoundKeys.Die(data.enemyName), transform.position);
 
-        // P1 게임필: 처치 팝 (드랍 재료 색과 통일 - 조각 흡수 연출과 이어져 보이게)
-        GameFeel.DeathPop(transform.position, PickupFX.ColorOf(GetDropMaterialType()));
-        // v3.3: 죽는 과정 (플래시 -> 납작 -> 링·조각 -> 페이드). 보스는 크게
-        HitFeel.OnKill(this, PickupFX.ColorOf(GetDropMaterialType()), this is BossEnemy);
+            // P1 게임필: 처치 팝 (드랍 재료 색과 통일 - 조각 흡수 연출과 이어져 보이게)
+            GameFeel.DeathPop(transform.position, PickupFX.ColorOf(GetDropMaterialType()));
+            // v3.3: 죽는 과정 (플래시 -> 납작 -> 링·조각 -> 페이드). 보스는 크게
+            HitFeel.OnKill(this, PickupFX.ColorOf(GetDropMaterialType()), this is BossEnemy);
+        }
 
         // 밸런스 1차 (B-3 레버 리턴): 전속 주행 중 처치 골드 +25%
         // - 스폰 압박/판정 페널티를 감수한 값. 회전율이 곧 매출이다

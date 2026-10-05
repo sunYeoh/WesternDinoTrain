@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 
 /// <summary>
-/// [CameraZoom.cs] v5 (v9.13 2026-09-23: 선로 v2 - 정차 프레이밍 SetRouteFraming: 선로를 고르는 동안 x RouteStopCamX(-3.6)·줌 x RouteStopZoomMul(1.18) 로 0.6초에 옮겨 두상 앞 갈림길이 다 보이게, 출발하면 되돌린다 /
+/// [CameraZoom.cs] v5.1 (v9.17 2026-10-06 A11: GameFeel.ZoomMul(보스 처치 때 잠깐 당김)을 부드러운 줌 값에 마지막으로 곱한다 - 줌 상태(smoothZoom)와 화면 값을 분리) / v5 (v9.13 2026-09-23: 선로 v2 - 정차 프레이밍 SetRouteFraming: 선로를 고르는 동안 x RouteStopCamX(-3.6)·줌 x RouteStopZoomMul(1.18) 로 0.6초에 옮겨 두상 앞 갈림길이 다 보이게, 출발하면 되돌린다 /
 ///   가지로 들어가는 동안 ParallaxBackground.RouteRollDeg 만큼 화면 기울임(Dutch angle) - 기차 데크를 돌리면 셰프 활동 범위·포탑 자리가 어긋나서 카메라를 돌린다)
 /// v4.1 (v9.10 2026-09-17: 최대 줌아웃을 GameBalance.CamMaxZoom(14)으로 - "화면 축소하면 셰프가 점") / v4 (B-2: 셰프 소프트 팔로우 - 방향결정 2026-08-31)
 /// 마우스 휠로 카메라 줌인/줌아웃합니다.
@@ -41,6 +41,7 @@ public class CameraZoom : MonoBehaviour
     // ─────────────────────────────────────────────
     private Camera cam;
     private float targetZoom;
+    private float smoothZoom;   // v5.1: 부드럽게 따라가는 줌 값 (여기에 GameFeel.ZoomMul 을 곱해 화면에 넣는다)
 
     // v3: 셰이크를 제외한 '진짜' 카메라 위치 (셰이크가 추적 Lerp에 섞여 들어가는 것 방지)
     private Vector3 basePos;
@@ -76,6 +77,7 @@ public class CameraZoom : MonoBehaviour
         basePos = transform.position;   // v3: 셰이크 없는 기준 위치 초기화
         routeFrameOn = false; routeFrameT = 0f; rollNow = 0f;   // v5: 씬 전환 뒤 정차 프레이밍·기울임 잔존 방지
 
+        smoothZoom = defaultZoom;
         if (cam != null)
             cam.orthographicSize = defaultZoom;
 
@@ -160,11 +162,8 @@ public class CameraZoom : MonoBehaviour
     {
         if (cam == null) return;
         float mul = Mathf.Lerp(1f, GameBalance.RouteStopZoomMul, RouteFrameEase());
-        cam.orthographicSize = Mathf.Lerp(
-            cam.orthographicSize,
-            targetZoom * mul,
-            Time.deltaTime * smoothSpeed
-        );
+        smoothZoom = Mathf.Lerp(smoothZoom, targetZoom * mul, Time.deltaTime * smoothSpeed);
+        cam.orthographicSize = smoothZoom * GameFeel.ZoomMul;   // v5.1: 보스 처치 줌 당김 (평소 1)
     }
 
     // ─────────────────────────────────────────────

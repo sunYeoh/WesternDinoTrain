@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// [TurretSlot.cs] v6.11 (v9.16 2026-09-29 손맛 2차 - 소리: 마비 소리는 StunSlot 이 종류별로 낸다(감전 sfx_stun / 빙결 sfx_freeze / 과열 sfx_overheat - 호출부의 과열음 제거) / 저절로 식으면 sfx_cool / 투입 sfx_insert(접시 쌓기는 작게)·레벨업 sfx_levelup / 파손 sfx_break) / v6.10 (v9.15.1 2026-09-29: 마지막 식사 장면 동안 사격 정지 BossEnemy.LastSupperServing) / v6.9 (v9.15 2026-09-29 2차 피드백: 레벨 상한 해제 - 접시 곡선(platesIn / GameBalance.PlatesToNext)·레벨 체감(GameBalance.LevelMultOf) / 마비 방치 파손(StunBreakSec - 경고 뒤 요리 소실 + 슬롯 봉인, isBroken / BreakWarning / Repair)) / v6.8 (v9.14 2026-09-28 테스터 반영: 레벨 상한 T1 3 / T2 6 (MaxLevelOf·AtMaxLevel), 전설 요리 공격력 x T2DamageMul, 표적 고르기에서 곧 죽을 손님 건너뜀(IncomingDamage)) / v6.7 (v9.12 2026-09-22: TutorialDirector.InlineFreeze 동안 사격 정지) / v6.6 (v9.11.1 2026-09-22 문구: 과열 복구법) / v6.5 (v9.11 2026-09-22 타격감: 투입·레벨업 때 접시 낙하 + 링 + "배치!/Lv N" 팝 + 포탑 1.25배 튀기 - GameBalance.CookFeelOn) / v6.4 (v9.9.2 2026-09-16: 마비 FX - 감전·빙결 = 스파크 3점(ui_ev_spark_0/1 교대, 빙결은 얼음색), 과열 = 연기(ui_ev_smoke_0/1). GameBalance.TurretStunFx) / v6.3 (v9.9 2026-09-16: 남쪽 슬롯 포신 기본 방향 -90 = 남쪽 - 4모서리 배치) / v6.2 (런 통계: 과열 횟수·정지 시간 2026-09-14) / v6.1 (교수 피드백 반영 2026-09-14) / v6 (고퀄 PNG 적용 2026-09-03)
+/// [TurretSlot.cs] v6.12 (v9.17 2026-10-06 화면 손맛 2차 A8: 발사 순간 PlayFireFeel - 포신이 표적을 바로 겨누고 포탑이 1.06배에서 제자리로 + 포신 끝 섬광(MuzzlePool), 전설은 크게 + 작은 링 / 투입 튀기가 끝나면 1.0 이 아니라 레벨 배율로 돌아온다 - 레벨이 올라도 포탑이 안 커지던 것) / v6.11 (v9.16 2026-09-29 손맛 2차 - 소리: 마비 소리는 StunSlot 이 종류별로 낸다(감전 sfx_stun / 빙결 sfx_freeze / 과열 sfx_overheat - 호출부의 과열음 제거) / 저절로 식으면 sfx_cool / 투입 sfx_insert(접시 쌓기는 작게)·레벨업 sfx_levelup / 파손 sfx_break) / v6.10 (v9.15.1 2026-09-29: 마지막 식사 장면 동안 사격 정지 BossEnemy.LastSupperServing) / v6.9 (v9.15 2026-09-29 2차 피드백: 레벨 상한 해제 - 접시 곡선(platesIn / GameBalance.PlatesToNext)·레벨 체감(GameBalance.LevelMultOf) / 마비 방치 파손(StunBreakSec - 경고 뒤 요리 소실 + 슬롯 봉인, isBroken / BreakWarning / Repair)) / v6.8 (v9.14 2026-09-28 테스터 반영: 레벨 상한 T1 3 / T2 6 (MaxLevelOf·AtMaxLevel), 전설 요리 공격력 x T2DamageMul, 표적 고르기에서 곧 죽을 손님 건너뜀(IncomingDamage)) / v6.7 (v9.12 2026-09-22: TutorialDirector.InlineFreeze 동안 사격 정지) / v6.6 (v9.11.1 2026-09-22 문구: 과열 복구법) / v6.5 (v9.11 2026-09-22 타격감: 투입·레벨업 때 접시 낙하 + 링 + "배치!/Lv N" 팝 + 포탑 1.25배 튀기 - GameBalance.CookFeelOn) / v6.4 (v9.9.2 2026-09-16: 마비 FX - 감전·빙결 = 스파크 3점(ui_ev_spark_0/1 교대, 빙결은 얼음색), 과열 = 연기(ui_ev_smoke_0/1). GameBalance.TurretStunFx) / v6.3 (v9.9 2026-09-16: 남쪽 슬롯 포신 기본 방향 -90 = 남쪽 - 4모서리 배치) / v6.2 (런 통계: 과열 횟수·정지 시간 2026-09-14) / v6.1 (교수 피드백 반영 2026-09-14) / v6 (고퀄 PNG 적용 2026-09-03)
 /// 포탑 슬롯 1개. 요리를 투입하면 포탑으로 가동한다.
 /// - v6.2 변경점 (스위치 실험 지표 - 반영계획 §5 관찰 시트):
 ///   OverheatsThisRun / OverheatStunSecThisRun: 이번 런에 과열이 몇 번 났고, 과열로 포탑이 전투 중 몇 초 멈춰 있었는지.
@@ -268,6 +268,32 @@ public class TurretSlot : MonoBehaviour
     // ── v6.5: 투입 연출 ──
     private float popT = -1f;   // 포탑 그림 튀기 (RebuildVisual 뒤 0.2초)
 
+    // ── v6.12 (A8): 발사 연출 ──
+    private float fireKickT = -1f;        // 발사 반동 진행 (0 -> FireKickSec)
+    private float visualGrow = 1f;        // RebuildVisual 이 정한 레벨 배율. 튀기·반동이 끝나면 이 크기로 돌아온다
+    private const float MUZZLE_DIST = 0.74f;   // 포탑 중심 -> 포신 끝 (포신 도트 24px / 32)
+
+    /// <summary>발사 순간: 포신이 표적을 바로 겨누고, 포탑이 살짝 부풀었다 돌아오고, 포신 끝에 속성색 섬광 1장. 전설 요리는 섬광 1.5배 + 작은 링</summary>
+    private void PlayFireFeel(RecipeData r, Enemy target)
+    {
+        if (!GameBalance.FireFeelOn || GameBalance.GameFeelMaster <= 0f || r == null || target == null) return;
+        Vector3 from = visualRoot != null ? visualRoot.position : transform.position;
+        Vector3 d = target.transform.position - from; d.z = 0f;
+        if (d.sqrMagnitude < 0.0001f) return;
+
+        // 포신은 초당 420도로 따라 도는데, 표적이 바뀐 발사에선 늦다 - 쏘는 순간엔 바로 맞춘다 (섬광과 탄이 포신 방향과 어긋나지 않게)
+        float ang = Mathf.Atan2(d.y, d.x) * Mathf.Rad2Deg;
+        barrelAngle = ang;
+        if (barrelPivot != null) barrelPivot.localEulerAngles = new Vector3(0f, 0f, barrelAngle);
+
+        fireKickT = 0f;
+        bool legend = r.tier >= 2;
+        Vector3 muzzle = from + d.normalized * (MUZZLE_DIST * visualGrow);
+        Color c = TurretAttackExecutor.TagColor(r.tag);
+        MuzzlePool.Emit(muzzle, ang, c, legend ? 0.75f : 0.5f, GameBalance.MuzzleFlashSec);
+        if (legend) WorldFeel.Ring(muzzle, c, 0.3f, 0.12f);
+    }
+
     /// <summary>투입·레벨업 연출: 접시 낙하 -> 링 -> "배치!" 또는 "Lv N" 팝 -> 포탑 1.25배에서 제자리</summary>
     private void PlayInsertFeel(RecipeData r, bool wasEmpty)
     {
@@ -462,6 +488,7 @@ public class TurretSlot : MonoBehaviour
         Vector3 origin = firePoint != null ? firePoint.position : transform.position;
         TurretAttackExecutor.Execute(r, origin, target, finalDamage);
         lastTarget = target;   // v5: 포신이 이쪽을 향한다
+        PlayFireFeel(r, target);   // v6.12 (A8): 발사음과 같은 프레임에 반동 + 포신 끝 섬광
 
         // ── B-2 과열: 쉬지 않고 불을 뿜으면 쇳물도 지친다 ──
         // 임계는 포탑마다 랜덤 + 레벨 높을수록 빨리 (캐리 포탑일수록 손이 간다)
@@ -602,13 +629,27 @@ public class TurretSlot : MonoBehaviour
             RebuildVisual();
 
         // v6.5: 투입 직후 포탑 그림이 1.25배에서 0.2초에 제자리로 (되튀김)
-        if (popT >= 0f && visualRoot != null)
+        // v6.12: 발사 반동과 곱해 한 번에 넣는다. 끝나면 1.0 이 아니라 레벨 배율(visualGrow)로 - 예전엔 튀기가 끝나며 레벨 성장 크기를 지웠다
+        if ((popT >= 0f || fireKickT >= 0f) && visualRoot != null)
         {
-            popT += Time.deltaTime;
-            float k = Mathf.Clamp01(popT / 0.2f);
-            float e = 1f - (1f - k) * (1f - k);
-            visualRoot.localScale = Vector3.one * (1f + 0.25f * (1f - e));
-            if (k >= 1f) { popT = -1f; visualRoot.localScale = Vector3.one; }
+            float mul = 1f;
+            if (popT >= 0f)
+            {
+                popT += Time.deltaTime;
+                float k = Mathf.Clamp01(popT / 0.2f);
+                float e = 1f - (1f - k) * (1f - k);
+                mul *= 1f + 0.25f * (1f - e);
+                if (k >= 1f) popT = -1f;
+            }
+            if (fireKickT >= 0f)
+            {
+                fireKickT += Time.deltaTime;
+                float k = Mathf.Clamp01(fireKickT / Mathf.Max(0.01f, GameBalance.FireKickSec));
+                mul *= 1f + GameBalance.FireKick * (1f - k) * (1f - k);
+                if (k >= 1f) fireKickT = -1f;
+            }
+            float sc = visualGrow * mul;
+            visualRoot.localScale = new Vector3(sc, sc, 1f);
         }
 
         // 마비 틴트: 과열=달아오름 / 빙결=서리 / 마비=스파크색 (해제되면 구리로 복귀)
@@ -716,6 +757,7 @@ public class TurretSlot : MonoBehaviour
         if (visualRoot != null) Destroy(visualRoot.gameObject);
         bodySr = null;
         barrelPivot = null;
+        visualGrow = 1f;   // v6.12: 빈·잠금·파손 슬롯은 1.0
         if (!GameBalance.TurretVisuals) return;
 
         GameObject rootGo = new GameObject("TurretVisual");
@@ -763,6 +805,7 @@ public class TurretSlot : MonoBehaviour
 
         // 레벨이 오를수록 조금씩 커진다 (C 1.0 ~ S급 언저리 1.27)
         float grow = Mathf.Min(1.27f, 1f + 0.09f * (level - 1));
+        visualGrow = grow;   // v6.12
         visualRoot.localScale = new Vector3(grow, grow, 1f);
 
         // 포신 (회전 피벗) - 2티어는 2연장
