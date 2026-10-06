@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// [FameShopUI.cs] v1.6 (v9.17 2026-10-06 화면 손맛 2차 - 결과 화면: 운행이 끝나 열리면 머리글이 결과("기차가 멈췄다" / "종착역 도착!")로 바뀌고, 보유 명성이 이번 운행 몫만큼 세어 올라가고(C5), 상품 줄이 위에서부터 하나씩 나타난다(D4). 열릴 때 판 팝. 재출발은 검정 페이드 뒤(D6)) / v1.5 (v9.15.1 2026-09-29 스토리 개정: 재출발 버튼 "다시 굽는다" -> "다시 출발한다 - 비상 복구 끝" (셰프 재생 설정 삭제)) / v1.4 (v9.14 2026-09-28: 명성 사용처 "출발 증강" 줄 추가, 패널 680) / v1.3 (2026-09-14: 런 종료 화면에 이번 런 통계 한 줄) / v1.2 (즉시 재출발 버튼) / v1
+/// [FameShopUI.cs] v1.7 (v9.18 2026-10-06: UI 배율 1.2 에서 결과 화면의 대사 띠와 패널 윗부분이 겹치던 것 - 패널·재출발 버튼을 모자란 여백만큼 내린다) / v1.6 (v9.17 2026-10-06 화면 손맛 2차 - 결과 화면: 운행이 끝나 열리면 머리글이 결과("기차가 멈췄다" / "종착역 도착!")로 바뀌고, 보유 명성이 이번 운행 몫만큼 세어 올라가고(C5), 상품 줄이 위에서부터 하나씩 나타난다(D4). 열릴 때 판 팝. 재출발은 검정 페이드 뒤(D6)) / v1.5 (v9.15.1 2026-09-29 스토리 개정: 재출발 버튼 "다시 굽는다" -> "다시 출발한다 - 비상 복구 끝" (셰프 재생 설정 삭제)) / v1.4 (v9.14 2026-09-28: 명성 사용처 "출발 증강" 줄 추가, 패널 680) / v1.3 (2026-09-14: 런 종료 화면에 이번 런 통계 한 줄) / v1.2 (즉시 재출발 버튼) / v1
 /// 명성 상점 - 런 사이(로비/게임오버)에 명성을 소모해 영구 업그레이드를 사는 UI.
 ///
 /// - v1.3 변경점 (스위치 실험 관찰 시트): 게임오버/승리로 열렸을 때 보유 명성 줄 아래에
@@ -282,7 +282,11 @@ public class FameShopUI : MonoBehaviour
         panel.anchorMin = new Vector2(0.5f, 0.5f);
         panel.anchorMax = new Vector2(0.5f, 0.5f);
         panel.pivot = new Vector2(0.5f, 0.5f);
-        panel.anchoredPosition = new Vector2(0f, 20f);
+        // v1.7: 패널 위에는 결과 화면의 대사 띠(화면 위 끝에서 42 ~ 112)가 들어갈 여백 122 가 있어야 한다.
+        //   UI 배율이 커지면 화면 반높이가 줄어 여백이 모자란다 (1.12 = 122 / 1.2 = 90) - 모자란 만큼 패널과 재출발 버튼을 같이 내린다 (1.2 = 32).
+        //   1.2 를 넘기면 재출발 버튼이 화면 아래로 나가기 시작한다 - 그땐 패널 높이를 줄여야 한다
+        float topLift = Mathf.Max(0f, 122f - (UIFactory.RefResolution.y * 0.5f - 360f));
+        panel.anchoredPosition = new Vector2(0f, 20f - topLift);
         panel.sizeDelta = new Vector2(860f, 680f);   // v1.4: 6번째 줄 (구 600)
         root = panel.gameObject;
 
@@ -372,7 +376,7 @@ public class FameShopUI : MonoBehaviour
         rRt.anchorMin = new Vector2(0.5f, 0.5f);
         rRt.anchorMax = new Vector2(0.5f, 0.5f);
         rRt.pivot = new Vector2(0.5f, 0.5f);
-        rRt.anchoredPosition = new Vector2(0f, -372f);   // 상점 패널 바로 아래 (v1.4: 패널 680)
+        rRt.anchoredPosition = new Vector2(0f, -372f - topLift);   // 상점 패널 바로 아래 (v1.4: 패널 680, v1.7: 패널과 같이 내려간다)
         restartBtn.onClick.AddListener(RestartRun);
         restartButtonGo = restartBtn.gameObject;
         restartButtonGo.SetActive(false);

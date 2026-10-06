@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 /// <summary>
-/// [TutorialDirector.cs] v2.1 (v9.15 2026-09-29 2차 피드백 "훈련장 무한 반복·맨땅 연습": 구간 완료 카드 [R] 한 번 더(PendingSegment - 씬 리로드 뒤 자동 시작) / 자유 연습 Begin(SANDBOX=8) - 손님이 계속 오고(SandboxSpawn*) 재료가 안 떨어지고 기차가 안 죽는다, [1] 낙뢰 [2] 화재 [3] 흘림 [4] 고장 [5] 침입 을 직접 일으킨다, 나가기 = [ESC] 메뉴 그만두기. SandboxActive 동안 포탑 파손도 진짜로 일어난다) / v2 (v9.12 2026-09-22: 견습 운행 구간화 - 7구간(S1 이동과 첫 포탑 1~6 / S2 감전된 포탑 복구 7 / S3 작살로 재료 얻기 8 / S4 전속 주행 켜고 끄기 9 /
+/// [TutorialDirector.cs] v2.2 (v9.18 2026-10-06: 목표 카드의 아래 끝·왼쪽 끝을 밖에서 읽게(CardBottomY·CardLeftFromRight - 알림 줄과 예고 카드가 카드를 피한다) / [Enter] 건너뛰기 오작동 - 요리 창·카드가 닫히는 그 프레임의 Enter 가 단계 건너뛰기로 새던 것(직전 프레임에 창이 떠 있었으면 무시) / 4단계 고기: 손님이 재료를 반드시 떨어뜨리고(Enemy), 그래도 모자라면 10초 뒤 채운다(구 30초)) / v2.1 (v9.15 2026-09-29 2차 피드백 "훈련장 무한 반복·맨땅 연습": 구간 완료 카드 [R] 한 번 더(PendingSegment - 씬 리로드 뒤 자동 시작) / 자유 연습 Begin(SANDBOX=8) - 손님이 계속 오고(SandboxSpawn*) 재료가 안 떨어지고 기차가 안 죽는다, [1] 낙뢰 [2] 화재 [3] 흘림 [4] 고장 [5] 침입 을 직접 일으킨다, 나가기 = [ESC] 메뉴 그만두기. SandboxActive 동안 포탑 파손도 진짜로 일어난다) / v2 (v9.12 2026-09-22: 견습 운행 구간화 - 7구간(S1 이동과 첫 포탑 1~6 / S2 감전된 포탑 복구 7 / S3 작살로 재료 얻기 8 / S4 전속 주행 켜고 끄기 9 /
 ///   S5 요리하며 기차 지키기 10 / S6 증강 선택과 정비 11 / S7 미끼로 첫 보스 상대하기 12(신규)) + 마지막 앞길 카드 13. Begin(segment) 로 한 구간만 (훈련장 TrainingGroundUI),
 ///   구간마다 PlayerPrefs WDT_Tut_S1..S7 = 1 완료 / 2 건너뜀. 정식 운행 인라인 연습 PlayInline(seg) - 새 기믹 첫 등장 순간(협곡 낙뢰 / 첫 바위 / 레버 웨이브) 손님·스폰·사고·포탑을 멈추고(InlineFreeze)
 ///   셰프만 움직여 그 행동을 해낸다. 30초 = 힌트 추가(자동 통과 없음), [Enter] = 건너뛰기(기록 2). 큰 카드 540x250 = 연습·예습, 목표 카드 330x156 은 그대로 (목업 v4.2).
@@ -189,6 +189,7 @@ public class TutorialDirector : MonoBehaviour
     private int retries10 = 0;                   // 실전 단계 재시작 횟수 (로그)
     private int retries12 = 0;                   // 예습 재시작 횟수
     private bool skipRequested = false;
+    private bool windowOpenLastFrame = false;   // v2.2: 직전 프레임에 다른 창이 떠 있었나 ([Enter] 건너뛰기 가드)
     private bool godMode = false;
     private bool trainStoppedFlag = false;
     private Coroutine runRoutine;
@@ -366,11 +367,14 @@ public class TutorialDirector : MonoBehaviour
         if (!Active && !InlineActive) return;
 
         // [Enter] = 단계(연습) 건너뛰기. 브리핑 카드가 같은 프레임에 Enter 를 먹었으면 무시
+        // v2.2: 다른 창이 "직전 프레임까지" 떠 있었어도 무시한다. 요리 창에서 [Enter] 로 조리를 시작하면 그 프레임에 창이 닫히는데,
+        //   창 쪽 Update 가 먼저 돌면 여기서는 이미 닫힌 걸로 보여 같은 Enter 가 단계 건너뛰기가 됐다 (안 했는데 단계가 넘어가던 것)
+        bool windowOpen = BriefingUI.IsOpen || PauseMenu.IsOpen || CookingMinigame.IsActive || AugmentListUI.ReadingOpen
+            || WorkshopUI.IsOpen || AugmentPickUI.IsOpen || KitchenPanel.IsOpenStatic;   // 다른 창이 시간을 잡고 있을 때는 안 넘어간다
         if ((Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
-            && !BriefingUI.IsOpen && BriefingUI.KeyConsumedFrame != Time.frameCount
-            && !PauseMenu.IsOpen && !CookingMinigame.IsActive && !AugmentListUI.ReadingOpen
-            && !WorkshopUI.IsOpen && !AugmentPickUI.IsOpen && !KitchenPanel.IsOpenStatic)   // 다른 창이 시간을 잡고 있을 때는 안 넘어간다
+            && !windowOpen && !windowOpenLastFrame && BriefingUI.KeyConsumedFrame != Time.frameCount)
             skipRequested = true;
+        windowOpenLastFrame = windowOpen;
 
         TickMarker();
         if (InlineFreeze) TickFreezePlates();
@@ -568,7 +572,7 @@ public class TutorialDirector : MonoBehaviour
     {
         BeginStep(4, "재료가 날아온다 - 하단 바를 봐라", "쓰러진 손님의 재료가\n기차로 빨려 온다", "고기", MeatCount(), 2);
 
-        float fallbackAt = Time.time + 30f;
+        float fallbackAt = Time.time + 10f;   // v2.2: 30 -> 10초 (손님은 이제 재료를 반드시 떨어뜨린다 - 날아오는 시간만 기다리면 된다)
         while (!skipRequested)
         {
             SetProgress(MeatCount(), 2);
@@ -1460,6 +1464,36 @@ public class TutorialDirector : MonoBehaviour
     private const float CARD_H = 156f;
     private const float BIG_W = 540f;
     private const float BIG_H = 250f;
+    /// <summary>카드 위 끝 (화면 위에서). 우상단 판(8 ~ 158)의 빈 아래 여백에 30 걸친다 - 더 내리면 큰 카드(250)의 아래 끝이 포탑 칸 B 지붕을 덮는다</summary>
+    private const float CARD_TOP = 128f;
+
+    /// <summary>
+    /// v2.2: 목표 카드가 떠 있으면 그 아래 끝 (화면 위에서, 캔버스 단위), 없으면 0.
+    /// UIManager 의 알림 줄이 읽는다 - 카드가 알림 줄 자리(우상단 판 아래)를 덮어 알림이 카드 뒤에 가려지던 것
+    /// </summary>
+    public static float CardBottomY
+    {
+        get
+        {
+            TutorialDirector d = Instance;
+            if (d == null || d.cardRoot == null || !d.cardRoot.activeInHierarchy) return 0f;
+            return CARD_TOP + (d.cardBig ? BIG_H : CARD_H);
+        }
+    }
+
+    /// <summary>
+    /// v2.2: 목표 카드가 떠 있으면 카드 왼쪽 끝이 화면 오른쪽 끝에서 얼마나 안쪽인가 (캔버스 단위), 없으면 0.
+    /// 가운데 예고 카드(UISkin.NoticeFollower)가 읽는다 - 큰 카드(540)는 가운데 띠까지 들어와 예고 카드와 겹친다
+    /// </summary>
+    public static float CardLeftFromRight
+    {
+        get
+        {
+            TutorialDirector d = Instance;
+            if (d == null || d.cardRoot == null || !d.cardRoot.activeInHierarchy) return 0f;
+            return 8f + (d.cardBig ? BIG_W : CARD_W);
+        }
+    }
 
     private void BuildCard()
     {
@@ -1469,7 +1503,7 @@ public class TutorialDirector : MonoBehaviour
 
         RectTransform card = UIFactory.CreatePanel(cardCanvas.transform, "GoalCard",
             new Vector2(1f, 1f), new Vector2(1f, 1f),
-            new Vector2(-8f - CARD_W, -128f - CARD_H), new Vector2(-8f, -128f),
+            new Vector2(-8f - CARD_W, -CARD_TOP - CARD_H), new Vector2(-8f, -CARD_TOP),
             UIFactory.PANEL, UIFactory.GOLD, 2f);
         cardRoot = card.gameObject;
         cardRect = card;
@@ -1523,8 +1557,8 @@ public class TutorialDirector : MonoBehaviour
         cardBig = big;
         if (cardRect == null) return;
         float w = big ? BIG_W : CARD_W, h = big ? BIG_H : CARD_H;
-        cardRect.offsetMin = new Vector2(-8f - w, -128f - h);
-        cardRect.offsetMax = new Vector2(-8f, -128f);
+        cardRect.offsetMin = new Vector2(-8f - w, -CARD_TOP - h);
+        cardRect.offsetMax = new Vector2(-8f, -CARD_TOP);
         titleText.fontSize = big ? 22 : 18;
         PlaceTopLeft(titleText.rectTransform, 26f, big ? -30f : -24f, w - 52f, big ? 30f : 26f);
         linesText.fontSize = big ? 17 : 15;

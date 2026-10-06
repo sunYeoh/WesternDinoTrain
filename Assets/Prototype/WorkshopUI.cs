@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 
 /// <summary>
-/// [WorkshopUI.cs] v2.8 (v9.14 2026-09-28: 정비 가격 지역 할증 GameBalance.WorkshopPriceRegionMul(지역 2 = 1.5배, 3 = 2배), 재료값 GameBalance 로) / v2.7 (v9.11.1 2026-09-22 문구: 구매 불가 이유, 이번 운행) / v2.6 (v9.11 2026-09-22: 등장 연출 ModalFeel) / v2.5 (v9.10.1 2026-09-21: 재료 이름 MaterialNames) / [WorkshopUI.cs] v2.4 (v9.10 2026-09-17 테스터 피드백·개정안 §3: 기차 수리·장갑 보강은 정차(Town)에서만(ShopRepairInBattle), 수리 정차당 1회(ShopRepairPerStop), 장갑 지역당 1회·최종전 앞 없음(ShopArmorPerRegion),
+/// [WorkshopUI.cs] v2.9 (v9.18 2026-10-06: 창(720x880)이 기준 화면보다 크면 화면 안으로 줄인다 - UIFactory.FitScale) / v2.8 (v9.14 2026-09-28: 정비 가격 지역 할증 GameBalance.WorkshopPriceRegionMul(지역 2 = 1.5배, 3 = 2배), 재료값 GameBalance 로) / v2.7 (v9.11.1 2026-09-22 문구: 구매 불가 이유, 이번 운행) / v2.6 (v9.11 2026-09-22: 등장 연출 ModalFeel) / v2.5 (v9.10.1 2026-09-21: 재료 이름 MaterialNames) / [WorkshopUI.cs] v2.4 (v9.10 2026-09-17 테스터 피드백·개정안 §3: 기차 수리·장갑 보강은 정차(Town)에서만(ShopRepairInBattle), 수리 정차당 1회(ShopRepairPerStop), 장갑 지역당 1회·최종전 앞 없음(ShopArmorPerRegion),
 ///   장갑은 현재 HP 를 안 채운다(ShopArmorHealsCurrent) / [ESC] 로도 닫기 / 상태 줄에 "정차 후 이용"·"이번 정차 구매 끝"·"이 지역 구매 끝") / v2.3 (v9.9.2 2026-09-16: 제목 "안킬로의 정비소" + 본체 왼쪽에 안킬로 실루엣 - 정비소 주인 = 등짐장수 안킬로로 통일) / v2.2 (v9.8: 재료 시장 행에 재료 아이콘) / v2.1 (2026-09-14: 전투 중 수리 기록) / v2
 /// 정비소 - 골드를 소모해 도구/기차를 정비하고 재료를 구매하는 상점
 ///
@@ -403,6 +403,8 @@ public class WorkshopUI : MonoBehaviour
         body.anchorMax = new Vector2(0.5f, 0.5f);
         body.anchoredPosition = Vector2.zero;
         body.sizeDelta = new Vector2(720f, 880f);
+        float fit = UIFactory.FitScale(720f, 880f);   // v9.18: 기준 화면(UI 배율)보다 크면 화면 안으로
+        body.localScale = new Vector3(fit, fit, 1f);
 
         // 상단 띠 + 제목
         RectTransform band = KitchenEventManager.MakeBox(body, "Band", new Color(0.80f, 0.55f, 0.25f, 1f));

@@ -4,7 +4,7 @@ using UnityEngine.UI;
 using TMPro;
 
 /// <summary>
-/// [UIManager.cs] v3.3 (v9.17 2026-10-06 화면 손맛 2차 - B7: 골드가 0.4초 동안 세어 올라가고(줄 땐 0.2초) 한 번에 50 이상 벌면 금색 반짝 + 튐 / 알림 통합: 같은 문구가 2초 안에 또 오면 새 줄 대신 "x2" / 위험 알림은 2.5초 동안 일반 알림에 안 밀린다 / 가운데 예고는 같은 문구 2초 무시 + 앞 문구가 1초는 떠 있게) / v3.2 (v9.15 2026-09-29 HUD 재배치 GameBalance.HudRegroup: 우상단 정보 2줄(UISkin.InfoLine1/2 - 손님 남음·보스까지 / 지역·예고) 0.25초마다, 알림 로그 스택을 우상단 판 아래(앵커 (1,1))로) / v3.1 (v9.11 2026-09-22 타격감: 기차 HP 바 지연 잔량(빨간 띠가 0.5초 뒤 따라 내려온다, 회복은 즉시) / 웨이브 예고·클리어 문구 위에서 내려오며 팝, 새 문구가 오면 이전 문구 즉시 교체) / v3
+/// [UIManager.cs] v3.4 (v9.18 2026-10-06: 견습 목표 카드가 떠 있으면 알림 줄을 카드 아래로(카드 뒤에 가려지던 것) / 씬 HUD 손질(FixSceneHud) - 씬 캔버스 [HUD Canvas] 도 UI 배율(GameBalance.UIScale)을 따른다(HP·골드·라운드·예고 글자가 코드로 만든 창보다 작던 것) + 씬에 "New Text" 로 남아 있는 글자를 비우고 포만감 잔재를 끈다 / 골드 글자가 다른 값으로 바뀌어 있으면 바로 다시 쓴다) / v3.3 (v9.17 2026-10-06 화면 손맛 2차 - B7: 골드가 0.4초 동안 세어 올라가고(줄 땐 0.2초) 한 번에 50 이상 벌면 금색 반짝 + 튐 / 알림 통합: 같은 문구가 2초 안에 또 오면 새 줄 대신 "x2" / 위험 알림은 2.5초 동안 일반 알림에 안 밀린다 / 가운데 예고는 같은 문구 2초 무시 + 앞 문구가 1초는 떠 있게) / v3.2 (v9.15 2026-09-29 HUD 재배치 GameBalance.HudRegroup: 우상단 정보 2줄(UISkin.InfoLine1/2 - 손님 남음·보스까지 / 지역·예고) 0.25초마다, 알림 로그 스택을 우상단 판 아래(앵커 (1,1))로) / v3.1 (v9.11 2026-09-22 타격감: 기차 HP 바 지연 잔량(빨간 띠가 0.5초 뒤 따라 내려온다, 회복은 즉시) / 웨이브 예고·클리어 문구 위에서 내려오며 팝, 새 문구가 오면 이전 문구 즉시 교체) / v3
 /// 게임 HUD 전체를 담당하는 UI 관리 스크립트입니다.
 /// - v3 변경점 (P1: 알림 채널 2분리 - 기술감사 처방):
 ///   1) ShowStatChange가 "우측 로그 스택"으로 개조 - 여러 알림이 겹쳐도 씹히지 않고
@@ -92,11 +92,44 @@ public class UIManager : MonoBehaviour
             gameManager.OnGameStateChanged.AddListener(OnGameStateChanged);
 
         SetupSliders();
+        FixSceneHud();   // v3.4
         ShowOnlyPanel(lobbyPanel);
 
         if (statChangeText != null) statChangeText.gameObject.SetActive(false);
 
         Debug.Log("[UIManager] HUD 초기화 완료 (v2 - 포만감/다음웨이브 버튼 제거)");
+    }
+
+    // ─────────────────────────────────────────────
+    // v3.4: 씬 HUD 손질 (씬 파일은 그대로 두고 시작할 때 고친다)
+    // ─────────────────────────────────────────────
+    private void FixSceneHud()
+    {
+        // 씬 HUD 캔버스 = battlePanel 의 맨 위 부모 (없으면 이름으로)
+        Transform root = null;
+        if (battlePanel != null) { root = battlePanel.transform; while (root.parent != null) root = root.parent; }
+        else { GameObject hud = GameObject.Find("[HUD Canvas]"); if (hud != null) root = hud.transform; }
+        if (root == null) return;
+
+        // 1) UI 배율: 코드로 만드는 캔버스는 v9.14 부터 1920x1080 / UIScale 을 기준으로 잡는데 씬 캔버스만 1920x1080 그대로였다.
+        //    그래서 HP·골드·라운드·가운데 예고만 다른 창보다 작았다. 같은 기준으로 맞춘다 (판·글자가 같은 비율로 커진다)
+        CanvasScaler scaler = root.GetComponent<CanvasScaler>();
+        if (scaler != null && scaler.uiScaleMode == CanvasScaler.ScaleMode.ScaleWithScreenSize)
+            scaler.referenceResolution = UIFactory.RefResolution;
+
+        // 2) 씬에 기본 글자 "New Text" 로 남아 있는 TMP 를 비운다 (꺼진 것 포함). 코드가 값을 써 넣는 글자는 곧 덮어쓰이고,
+        //    아무도 안 쓰는 잔재(포만감 글자 등)는 화면에 보여도 빈 글자가 된다
+        TextMeshProUGUI[] texts = root.GetComponentsInChildren<TextMeshProUGUI>(true);
+        int cleared = 0;
+        for (int i = 0; i < texts.Length; i++)
+            if (texts[i] != null && texts[i].text == "New Text") { texts[i].text = ""; cleared++; }
+
+        // 3) 포만감 시스템 잔재 (v2 에서 없앤 기능의 바·글자) - UISkin 이 없을 때도 꺼지게 여기서도 끈다
+        Transform[] all = root.GetComponentsInChildren<Transform>(true);
+        for (int i = 0; i < all.Length; i++)
+            if (all[i] != null && (all[i].name == "SatietyBar" || all[i].name == "SatietyText")) all[i].gameObject.SetActive(false);
+
+        if (cleared > 0) Debug.Log("[UIManager] 씬 HUD 손질: 기본 글자 \"New Text\" " + cleared + "개 비움");
     }
 
     // ─────────────────────────────────────────────
@@ -218,6 +251,7 @@ public class UIManager : MonoBehaviour
 
     // ── v3.3 (B7): 골드 세어 올리기 ──
     private int goldShown = -1, goldFrom = 0, goldTarget = 0, goldTextShown = -1;
+    private string goldTextStr = null;     // v3.4: 마지막으로 써 넣은 골드 글자
     private float goldT = 0f, goldDur = 0.4f;
     private float goldFlashT = -1f;        // 0 이상 = 금색 반짝 진행 (실시간 초)
     private Color goldBaseColor = Color.white;
@@ -254,7 +288,13 @@ public class UIManager : MonoBehaviour
             float e = 1f - (1f - k) * (1f - k);
             goldShown = k >= 1f ? goldTarget : Mathf.RoundToInt(Mathf.Lerp(goldFrom, goldTarget, e));
         }
-        if (goldShown != goldTextShown) { goldTextShown = goldShown; goldText.text = "G  " + goldShown; }
+        // v3.4: 숫자가 바뀌었거나, 글자가 다른 값으로 바뀌어 있으면(씬 기본 글자 등) 다시 쓴다
+        if (goldShown != goldTextShown || goldTextStr == null || goldText.text != goldTextStr)
+        {
+            goldTextShown = goldShown;
+            goldTextStr = "G  " + goldShown;
+            goldText.text = goldTextStr;
+        }
 
         if (goldFlashT >= 0f)
         {
@@ -309,6 +349,8 @@ public class UIManager : MonoBehaviour
     // ─────────────────────────────────────────────
 
     private const int LOG_LINES = 5;       // 동시 표시 줄 수
+    private const float LOG_TOP = 172f;    // 첫 줄 위 끝 (화면 위에서) = 우상단 판(8 ~ 158) 아래
+    private float logTopShown = LOG_TOP;   // v3.4: 지금 놓인 자리 (견습 목표 카드가 뜨면 카드 아래로 내린다)
     private const float LOG_LIFE = 3.5f;   // 줄 수명(초)
     private const float LOG_FADE = 0.6f;   // 수명 끝 페이드 구간
 
@@ -395,6 +437,19 @@ public class UIManager : MonoBehaviour
     {
         if (logTexts == null) return;
 
+        // v3.4: 견습 목표 카드(우상단 판 아래, 불투명)가 떠 있으면 알림 줄을 카드 아래로 옮긴다 - 같은 자리라 알림이 카드 뒤에 가려졌다
+        if (GameBalance.HudRegroup)
+        {
+            float cardBottom = TutorialDirector.CardBottomY;
+            float top = cardBottom > 0f ? Mathf.Max(LOG_TOP, cardBottom + 10f) : LOG_TOP;
+            if (!Mathf.Approximately(top, logTopShown))
+            {
+                logTopShown = top;
+                for (int i = 0; i < LOG_LINES; i++)
+                    logTexts[i].rectTransform.anchoredPosition = new Vector2(-16f, -top - i * 28f);
+            }
+        }
+
         bool any = false, expired = false;
         for (int i = 0; i < LOG_LINES; i++)
         {
@@ -478,7 +533,7 @@ public class UIManager : MonoBehaviour
                 rt.anchorMin = new Vector2(1f, 1f);
                 rt.anchorMax = new Vector2(1f, 1f);
                 rt.pivot = new Vector2(1f, 1f);
-                rt.anchoredPosition = new Vector2(-16f, -172f - i * 28f);
+                rt.anchoredPosition = new Vector2(-16f, -LOG_TOP - i * 28f);
             }
             else
             {

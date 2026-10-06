@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.Events;
 
 /// <summary>
-/// [TrainManager.cs] v3.2 (v9.11 2026-09-22: 피격 때 TrainFeel.Hit() - 맞은 칸 플래시) / v3.1 (교수 피드백 A4: AddMaxHP 회복 분리)
+/// [TrainManager.cs] v3.3 (v9.18 2026-10-06: TakeDamageIgnoringDef - 주방 사고 실패 피해용. 방어력 차감과 연속 피격 완충을 건너뛴다) / v3.2 (v9.11 2026-09-22: 피격 때 TrainFeel.Hit() - 맞은 칸 플래시) / v3.1 (교수 피드백 A4: AddMaxHP 회복 분리)
 /// 메카 티렉스 열차의 핵심 스탯을 관리합니다.
 /// - v3 변경점 (구시스템 정리):
 ///   1) 허기/포만감 시스템 완전 제거 (감소/등급/절전모드/스탯 페널티 전부 삭제)
@@ -189,7 +189,15 @@ public class TrainManager : MonoBehaviour
                   " (현재 " + currentHP.ToString("F0") + "/" + currentMaxHP.ToString("F0") + ")");
     }
 
-    public void TakeDamage(float rawDamage)
+    public void TakeDamage(float rawDamage) { ApplyDamage(rawDamage, false); }
+
+    /// <summary>
+    /// v3.3: 방어력을 건너뛰는 피해 (주방 사고 실패 - KitchenEventManager.DamageTrain).
+    /// 방어력 차감과 연속 피격 완충(무리 러시용)만 빼고 나머지는 TakeDamage 와 같다: 정차 성역 / 받는 피해 감소(%) / 증기 보호막 / 피격 연출
+    /// </summary>
+    public void TakeDamageIgnoringDef(float damage) { ApplyDamage(damage, true); }
+
+    private void ApplyDamage(float rawDamage, bool ignoreDef)
     {
         if (!isAlive) return;
 
@@ -223,7 +231,7 @@ public class TrainManager : MonoBehaviour
             }
         }
 
-        float finalDamage = Mathf.Max(1f, rawDamage - currentDEF);
+        float finalDamage = ignoreDef ? Mathf.Max(0f, rawDamage) : Mathf.Max(1f, rawDamage - currentDEF);
 
         // 피해 감소 합산: 슬롯 패시브(수정 방패 연회) + 증강(나노 수복 장갑 등)
         float totalReduction = AugmentManager.DamageReductionAdd;
@@ -243,9 +251,12 @@ public class TrainManager : MonoBehaviour
             burstWindowEnd = Time.time + GameBalance.BurstHitWindow;
             burstHitCount = 0;
         }
-        burstHitCount++;
-        if (burstHitCount > GameBalance.BurstFreeHits)
-            finalDamage *= GameBalance.BurstExtraHitMul;
+        if (!ignoreDef)
+        {
+            burstHitCount++;
+            if (burstHitCount > GameBalance.BurstFreeHits)
+                finalDamage *= GameBalance.BurstExtraHitMul;
+        }
 
         // Phase 2-3 증강 '넘치는 솥': 증기 보호막이 피해를 먼저 받는다
         if (steamShield > 0f)

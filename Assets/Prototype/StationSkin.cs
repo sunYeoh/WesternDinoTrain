@@ -1,42 +1,42 @@
 using UnityEngine;
 
 /// <summary>
-/// [StationSkin.cs] v1 (ì‹ ê·œ íŒŒì¼) - ì”¬ ì¡°ë¦¬ëŒ€ 3ëŒ€ì— í”½ì…€ PNG ì…íˆê¸° (2026-09-09, v9.5 ì¡°ë¦¬ ëª©ì—… v1 ì»¨íŒ)
+/// [StationSkin.cs] v1.1 (v9.18 2026-10-06: Á¶¸®´ë ±×¸²ÀÌ ÁÖ¹æ Ä­ÀÇ ´úÄÈÀÓÀ» µû¶ó°£´Ù - TrainDeck.CarOffsetAt) / v1 (½Å±Ô ÆÄÀÏ) - ¾À Á¶¸®´ë 3´ë¿¡ ÇÈ¼¿ PNG ÀÔÈ÷±â (2026-09-09, v9.5 Á¶¸® ¸ñ¾÷ v1 ÄÁÆß)
 ///
-/// ì”¬ì˜ CookingStation ì˜¤ë¸Œì íŠ¸(ê·¸ë¦´/ë³¶ìŒíŒ¬/ëƒ„ë¹„)ëŠ” ì•„ì§ placeholder ê·¸ë¦¼ì´ë‹¤. ì´ íŒŒì¼ì€ EnemySkin ê³¼ ê°™ì€ ë°©ì‹ìœ¼ë¡œ
-/// ê²Œì„ ì‹œì‘ ë’¤ 0.25ì´ˆë§ˆë‹¤ CookingStation ì„ í›‘ì–´ ì•„ì§ ìŠ¤í‚¨ì´ ì—†ëŠ” ì¡°ë¦¬ëŒ€ì— PNG ìì‹("Skin")ì„ ë¶™ì´ê³  ê¸°ì¡´ ë Œë”ëŸ¬ëŠ” ëˆë‹¤.
-///   Grilling -> st_grill.png (ë¬´ì‡  ê·¸ë¦´ + ìˆ¯ë¶ˆ + ê³ ê¸° 2ì , 28x24)
-///   Saute    -> st_pan.png   (í™”êµ¬ + ê²€ì€ ë³¶ìŒíŒ¬ + ë…¸ë€ ë³¶ìŒ, 30x22)
-///   Boiling  -> st_pot.png   (í™”êµ¬ + êµ¬ë¦¬ ì†¥ + í™©ë™ ëšœê»‘, 24x26)
-/// ê·¸ë¦¼ í”¼ë²—ì€ ë°”ë‹¥ ê°€ìš´ë°(ì„í¬í„° í‘œ) - ì¡°ë¦¬ëŒ€ ìœ„ì¹˜(GameBalance.StationXs / StationY)ê°€ ê·¸ë¦¼ì˜ ë°œë°‘ì´ ëœë‹¤.
-/// í¬ê¸°: í™”ë©´ì—ì„œ 1ìœ ë‹› = 32px ë„íŠ¸ ê·¸ëŒ€ë¡œ (ê¸°ì°¨/ì…°í”„ì™€ ê°™ì€ ë°€ë„). TrainDeck ì´ ì¡°ë¦¬ëŒ€ ë£¨íŠ¸ë¥¼ StationScale(0.55)ë¡œ ì¤„ì´ë¯€ë¡œ
-///       ìì‹ ìŠ¤ì¼€ì¼ë¡œ ë˜ëŒë¦°ë‹¤ (ë£¨íŠ¸ ìŠ¤ì¼€ì¼ì´ ë‚˜ì¤‘ì— ë°”ë€Œì–´ë„ ë§¤ í”„ë ˆì„ ë”°ë¼ê°„ë‹¤). ë°œë°‘ ê·¸ë¦¼ì íƒ€ì› í¬í•¨.
-/// ì •ë ¬ 1 (ë°í¬ -6~-4 ìœ„, ì  5 / ì…°í”„ 6 ì•„ë˜). CookingStation ë¡œì§Â·ìƒí˜¸ì‘ìš© ë²”ìœ„Â·[E] í”„ë¡¬í”„íŠ¸ëŠ” ê±´ë“œë¦¬ì§€ ì•ŠëŠ”ë‹¤.
+/// ¾ÀÀÇ CookingStation ¿ÀºêÁ§Æ®(±×¸±/ººÀ½ÆÒ/³¿ºñ)´Â ¾ÆÁ÷ placeholder ±×¸²ÀÌ´Ù. ÀÌ ÆÄÀÏÀº EnemySkin °ú °°Àº ¹æ½ÄÀ¸·Î
+/// °ÔÀÓ ½ÃÀÛ µÚ 0.25ÃÊ¸¶´Ù CookingStation À» ÈÈ¾î ¾ÆÁ÷ ½ºÅ²ÀÌ ¾ø´Â Á¶¸®´ë¿¡ PNG ÀÚ½Ä("Skin")À» ºÙÀÌ°í ±âÁ¸ ·»´õ·¯´Â ²ö´Ù.
+///   Grilling -> st_grill.png (¹«¼è ±×¸± + ½¡ºÒ + °í±â 2Á¡, 28x24)
+///   Saute    -> st_pan.png   (È­±¸ + °ËÀº ººÀ½ÆÒ + ³ë¶õ ººÀ½, 30x22)
+///   Boiling  -> st_pot.png   (È­±¸ + ±¸¸® ¼Ü + È²µ¿ ¶Ñ²±, 24x26)
+/// ±×¸² ÇÇ¹şÀº ¹Ù´Ú °¡¿îµ¥(ÀÓÆ÷ÅÍ Ç¥) - Á¶¸®´ë À§Ä¡(GameBalance.StationXs / StationY)°¡ ±×¸²ÀÇ ¹ß¹ØÀÌ µÈ´Ù.
+/// Å©±â: È­¸é¿¡¼­ 1À¯´Ö = 32px µµÆ® ±×´ë·Î (±âÂ÷/¼ÎÇÁ¿Í °°Àº ¹Ğµµ). TrainDeck ÀÌ Á¶¸®´ë ·çÆ®¸¦ StationScale(0.55)·Î ÁÙÀÌ¹Ç·Î
+///       ÀÚ½Ä ½ºÄÉÀÏ·Î µÇµ¹¸°´Ù (·çÆ® ½ºÄÉÀÏÀÌ ³ªÁß¿¡ ¹Ù²î¾îµµ ¸Å ÇÁ·¹ÀÓ µû¶ó°£´Ù). ¹ß¹Ø ±×¸²ÀÚ Å¸¿ø Æ÷ÇÔ.
+/// Á¤·Ä 1 (µ¥Å© -6~-4 À§, Àû 5 / ¼ÎÇÁ 6 ¾Æ·¡). CookingStation ·ÎÁ÷¡¤»óÈ£ÀÛ¿ë ¹üÀ§¡¤[E] ÇÁ·ÒÇÁÆ®´Â °Çµå¸®Áö ¾Ê´Â´Ù.
 ///
-/// ì‚¬ìš©ë²•: ì—†ìŒ! íŒŒì¼ë§Œ ë„£ìœ¼ë©´ ê²Œì„ ì‹œì‘ ì‹œ ìŠ¤ìŠ¤ë¡œ ìƒì„±ëœë‹¤. (SpriteBank.cs + st_*.png + ì„í¬í„° v4.1 í‘œ í•„ìš”)
-/// ë„ê¸°: ENABLED = false
-/// VS 2017 (C# 7.3) í˜¸í™˜
+/// »ç¿ë¹ı: ¾øÀ½! ÆÄÀÏ¸¸ ³ÖÀ¸¸é °ÔÀÓ ½ÃÀÛ ½Ã ½º½º·Î »ı¼ºµÈ´Ù. (SpriteBank.cs + st_*.png + ÀÓÆ÷ÅÍ v4.1 Ç¥ ÇÊ¿ä)
+/// ²ô±â: ENABLED = false
+/// VS 2017 (C# 7.3) È£È¯
 /// </summary>
 public class StationSkin : MonoBehaviour
 {
     public static bool ENABLED = true;
 
-    private const int SORT_ORDER = 1;               // ë°í¬(-6~-4) ìœ„, ì (5)/ì…°í”„(6) ì•„ë˜
+    private const int SORT_ORDER = 1;               // µ¥Å©(-6~-4) À§, Àû(5)/¼ÎÇÁ(6) ¾Æ·¡
     private const float SHADOW_ALPHA = 0.35f;
-    private const float SHADOW_WIDEN = 1.15f;       // ê·¸ë¦¼ì í­ = ê·¸ë¦¼ í­ x 1.15
+    private const float SHADOW_WIDEN = 1.15f;       // ±×¸²ÀÚ Æø = ±×¸² Æø x 1.15
 
-    /// <summary>ì´ ì¡°ë¦¬ëŒ€ì— ì…íŒ ìŠ¤í”„ë¼ì´íŠ¸ (ë‹¤ë¥¸ ì½”ë“œê°€ ê°•ì¡°/ê¹œë¹¡ì„ì— ì“°ê³  ì‹¶ì„ ë•Œ)</summary>
+    /// <summary>ÀÌ Á¶¸®´ë¿¡ ÀÔÈù ½ºÇÁ¶óÀÌÆ® (´Ù¸¥ ÄÚµå°¡ °­Á¶/±ôºıÀÓ¿¡ ¾²°í ½ÍÀ» ¶§)</summary>
     public SpriteRenderer skin;
 
-    private Transform skinRoot;                     // ìŠ¤ì¼€ì¼ ë³´ì • ìì‹ ("Skin")
+    private Transform skinRoot;                     // ½ºÄÉÀÏ º¸Á¤ ÀÚ½Ä ("Skin")
     private float lastRootScale = -1f;
 
     private static Sprite shadowSprite;
     private static Scanner scanner;
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ìŠ¤ìºë„ˆ (ì‹±ê¸€í„´) - ìŠ¤í‚¨ ì—†ëŠ” ì¡°ë¦¬ëŒ€ë¥¼ ì°¾ì•„ ì…íŒë‹¤
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ½ºÄ³³Ê (½Ì±ÛÅÏ) - ½ºÅ² ¾ø´Â Á¶¸®´ë¸¦ Ã£¾Æ ÀÔÈù´Ù
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     private class Scanner : MonoBehaviour
     {
         private const float SCAN_INTERVAL = 0.25f;
@@ -56,7 +56,7 @@ public class StationSkin : MonoBehaviour
                 if (!Apply(s) && !loggedMissing)
                 {
                     loggedMissing = true;
-                    Debug.LogWarning("[StationSkin] st_*.png ë¥¼ ì°¾ì§€ ëª»í–ˆë‹¤ - ì¡°ë¦¬ëŒ€ ê¸°ì¡´ ê·¸ë¦¼ ìœ ì§€ (Resources/Sprites/WDT/st_grill.png ë“± í™•ì¸)");
+                    Debug.LogWarning("[StationSkin] st_*.png ¸¦ Ã£Áö ¸øÇß´Ù - Á¶¸®´ë ±âÁ¸ ±×¸² À¯Áö (Resources/Sprites/WDT/st_grill.png µî È®ÀÎ)");
                 }
             }
         }
@@ -66,11 +66,11 @@ public class StationSkin : MonoBehaviour
     private static void Bootstrap()
     {
         if (scanner != null || !ENABLED) return;
-        if (!SpriteBank.Has("st_grill")) { Debug.Log("[StationSkin] st_grill.png ì—†ìŒ - ì¡°ë¦¬ëŒ€ ìŠ¤í‚¨ ìƒëµ"); return; }
+        if (!SpriteBank.Has("st_grill")) { Debug.Log("[StationSkin] st_grill.png ¾øÀ½ - Á¶¸®´ë ½ºÅ² »ı·«"); return; }
         GameObject go = new GameObject("StationSkinScanner");
         DontDestroyOnLoad(go);
         scanner = go.AddComponent<Scanner>();
-        Debug.Log("[StationSkin] ì¡°ë¦¬ëŒ€ PNG ìŠ¤í‚¨ ìŠ¤ìºë„ˆ ì¤€ë¹„");
+        Debug.Log("[StationSkin] Á¶¸®´ë PNG ½ºÅ² ½ºÄ³³Ê ÁØºñ");
     }
 
     private static string PngFor(CookingStation.StationType type)
@@ -80,13 +80,13 @@ public class StationSkin : MonoBehaviour
         return "st_grill";
     }
 
-    /// <summary>ì¡°ë¦¬ëŒ€ í•˜ë‚˜ì— PNG ìŠ¤í‚¨ ì ìš©. ê·¸ë¦¼ì´ ì—†ìœ¼ë©´ false</summary>
+    /// <summary>Á¶¸®´ë ÇÏ³ª¿¡ PNG ½ºÅ² Àû¿ë. ±×¸²ÀÌ ¾øÀ¸¸é false</summary>
     private static bool Apply(CookingStation station)
     {
         Sprite sprite = SpriteBank.Get(PngFor(station.stationType));
         if (sprite == null) return false;
 
-        // placeholder ë Œë”ëŸ¬ ë„ê¸° - [E] í”„ë¡¬í”„íŠ¸ ì•„ë˜ ê²ƒì€ ë‚¨ê¸´ë‹¤ (í”„ë¡¬í”„íŠ¸ê°€ ìŠ¤í”„ë¼ì´íŠ¸ë¡œ ë§Œë“¤ì–´ì¡Œì„ ìˆ˜ë„ ìˆìœ¼ë¯€ë¡œ)
+        // placeholder ·»´õ·¯ ²ô±â - [E] ÇÁ·ÒÇÁÆ® ¾Æ·¡ °ÍÀº ³²±ä´Ù (ÇÁ·ÒÇÁÆ®°¡ ½ºÇÁ¶óÀÌÆ®·Î ¸¸µé¾îÁ³À» ¼öµµ ÀÖÀ¸¹Ç·Î)
         SpriteRenderer[] old = station.GetComponentsInChildren<SpriteRenderer>(true);
         int hidden = 0;
         for (int i = 0; i < old.Length; i++)
@@ -100,7 +100,7 @@ public class StationSkin : MonoBehaviour
         root.transform.localPosition = Vector3.zero;
         root.transform.localRotation = Quaternion.identity;
 
-        // ë°œë°‘ ê·¸ë¦¼ì (ê·¸ë¦¼ í­ì— ë§ì¶˜ íƒ€ì›, ì‚´ì§ ìœ„ë¡œ ì˜¬ë ¤ ë°”ë‹¥ì„ ì— ê±¸ì¹œë‹¤)
+        // ¹ß¹Ø ±×¸²ÀÚ (±×¸² Æø¿¡ ¸ÂÃá Å¸¿ø, »ìÂ¦ À§·Î ¿Ã·Á ¹Ù´Ú¼±¿¡ °ÉÄ£´Ù)
         float widthUnits = sprite.rect.width / sprite.pixelsPerUnit;
         GameObject sh = new GameObject("StationShadow");
         sh.transform.SetParent(root.transform, false);
@@ -121,11 +121,11 @@ public class StationSkin : MonoBehaviour
         marker.skin = sr;
         marker.skinRoot = root.transform;
         marker.FitScale();
-        Debug.Log("[StationSkin] " + station.stationType + " -> " + sprite.name + " (ê¸°ì¡´ ë Œë”ëŸ¬ " + hidden + "ê°œ ìˆ¨ê¹€)");
+        Debug.Log("[StationSkin] " + station.stationType + " -> " + sprite.name + " (±âÁ¸ ·»´õ·¯ " + hidden + "°³ ¼û±è)");
         return true;
     }
 
-    /// <summary>ë£¨íŠ¸ ìŠ¤ì¼€ì¼(StationScale)ì„ ìƒì‡„í•´ ê·¸ë¦¼ì„ í•­ìƒ 1ìœ ë‹› = 32px ë¡œ ë³´ì´ê²Œ í•œë‹¤</summary>
+    /// <summary>·çÆ® ½ºÄÉÀÏ(StationScale)À» »ó¼âÇØ ±×¸²À» Ç×»ó 1À¯´Ö = 32px ·Î º¸ÀÌ°Ô ÇÑ´Ù</summary>
     private void FitScale()
     {
         float rootScale = Mathf.Abs(transform.localScale.x);
@@ -137,11 +137,20 @@ public class StationSkin : MonoBehaviour
 
     private void LateUpdate()
     {
-        // TrainDeck ì´ Start ì—ì„œ ì¡°ë¦¬ëŒ€ ìŠ¤ì¼€ì¼ì„ ë°”ê¾¸ë¯€ë¡œ (ìŠ¤ìºë„ˆë³´ë‹¤ ëŠ¦ì„ ìˆ˜ ìˆë‹¤) ë§¤ í”„ë ˆì„ í™•ì¸
+        // TrainDeck ÀÌ Start ¿¡¼­ Á¶¸®´ë ½ºÄÉÀÏÀ» ¹Ù²Ù¹Ç·Î (½ºÄ³³Êº¸´Ù ´ÊÀ» ¼ö ÀÖ´Ù) ¸Å ÇÁ·¹ÀÓ È®ÀÎ
         FitScale();
+
+        // v1.1: Ä­ ´úÄÈÀÓ - ±×¸²¸¸ ¿Å±ä´Ù (Á¶¸®´ë À§Ä¡¡¤[E] °Å¸®´Â ±×´ë·Î). ·çÆ® ½ºÄÉÀÏ¸¸Å­ ³ª´² ¿ùµå Å©±â·Î ¸ÂÃá´Ù
+        if (skinRoot != null)
+        {
+            Vector2 r = TrainDeck.CarOffsetAt(transform.position.x);
+            float rootScale = Mathf.Abs(transform.localScale.x);
+            if (rootScale < 0.01f) rootScale = 1f;
+            skinRoot.localPosition = new Vector3(r.x / rootScale, r.y / rootScale, 0f);
+        }
     }
 
-    /// <summary>ë°œë°‘ ê·¸ë¦¼ì: 24x8 íƒ€ì› í…ìŠ¤ì²˜ë¥¼ ì½”ë“œë¡œ ë§Œë“ ë‹¤ (32px/ìœ ë‹› = 0.75 x 0.25 ìœ ë‹›)</summary>
+    /// <summary>¹ß¹Ø ±×¸²ÀÚ: 24x8 Å¸¿ø ÅØ½ºÃ³¸¦ ÄÚµå·Î ¸¸µç´Ù (32px/À¯´Ö = 0.75 x 0.25 À¯´Ö)</summary>
     private static Sprite GetShadowSprite()
     {
         if (shadowSprite != null) return shadowSprite;

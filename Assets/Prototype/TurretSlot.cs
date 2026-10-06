@@ -1,7 +1,8 @@
 using UnityEngine;
 
 /// <summary>
-/// [TurretSlot.cs] v6.12 (v9.17 2026-10-06 화면 손맛 2차 A8: 발사 순간 PlayFireFeel - 포신이 표적을 바로 겨누고 포탑이 1.06배에서 제자리로 + 포신 끝 섬광(MuzzlePool), 전설은 크게 + 작은 링 / 투입 튀기가 끝나면 1.0 이 아니라 레벨 배율로 돌아온다 - 레벨이 올라도 포탑이 안 커지던 것) / v6.11 (v9.16 2026-09-29 손맛 2차 - 소리: 마비 소리는 StunSlot 이 종류별로 낸다(감전 sfx_stun / 빙결 sfx_freeze / 과열 sfx_overheat - 호출부의 과열음 제거) / 저절로 식으면 sfx_cool / 투입 sfx_insert(접시 쌓기는 작게)·레벨업 sfx_levelup / 파손 sfx_break) / v6.10 (v9.15.1 2026-09-29: 마지막 식사 장면 동안 사격 정지 BossEnemy.LastSupperServing) / v6.9 (v9.15 2026-09-29 2차 피드백: 레벨 상한 해제 - 접시 곡선(platesIn / GameBalance.PlatesToNext)·레벨 체감(GameBalance.LevelMultOf) / 마비 방치 파손(StunBreakSec - 경고 뒤 요리 소실 + 슬롯 봉인, isBroken / BreakWarning / Repair)) / v6.8 (v9.14 2026-09-28 테스터 반영: 레벨 상한 T1 3 / T2 6 (MaxLevelOf·AtMaxLevel), 전설 요리 공격력 x T2DamageMul, 표적 고르기에서 곧 죽을 손님 건너뜀(IncomingDamage)) / v6.7 (v9.12 2026-09-22: TutorialDirector.InlineFreeze 동안 사격 정지) / v6.6 (v9.11.1 2026-09-22 문구: 과열 복구법) / v6.5 (v9.11 2026-09-22 타격감: 투입·레벨업 때 접시 낙하 + 링 + "배치!/Lv N" 팝 + 포탑 1.25배 튀기 - GameBalance.CookFeelOn) / v6.4 (v9.9.2 2026-09-16: 마비 FX - 감전·빙결 = 스파크 3점(ui_ev_spark_0/1 교대, 빙결은 얼음색), 과열 = 연기(ui_ev_smoke_0/1). GameBalance.TurretStunFx) / v6.3 (v9.9 2026-09-16: 남쪽 슬롯 포신 기본 방향 -90 = 남쪽 - 4모서리 배치) / v6.2 (런 통계: 과열 횟수·정지 시간 2026-09-14) / v6.1 (교수 피드백 반영 2026-09-14) / v6 (고퀄 PNG 적용 2026-09-03)
+/// [TurretSlot.cs] v6.13 (v9.18 2026-10-06: 들어간 접시 수(platesTotal) -> 폐기 환급 ScrapRefund = 접시 x 0.5 (무한 제작 루프 차단) / 과열은 조건이 된 포탑 중 무작위(TurretSlotManager 가 고른다 - OverheatReady·TriggerOverheat) / 포탑 그림 높이 TurretVisualDY + 칸 덜컹임 따라가기 / 피해 출처 표시(TurretAttackExecutor.CurrentSource) / 견습 운행에선 숙련 시작 레벨 특전 없음) /
+/// v6.12 (v9.17 2026-10-06 화면 손맛 2차 A8: 발사 순간 PlayFireFeel - 포신이 표적을 바로 겨누고 포탑이 1.06배에서 제자리로 + 포신 끝 섬광(MuzzlePool), 전설은 크게 + 작은 링 / 투입 튀기가 끝나면 1.0 이 아니라 레벨 배율로 돌아온다 - 레벨이 올라도 포탑이 안 커지던 것) / v6.11 (v9.16 2026-09-29 손맛 2차 - 소리: 마비 소리는 StunSlot 이 종류별로 낸다(감전 sfx_stun / 빙결 sfx_freeze / 과열 sfx_overheat - 호출부의 과열음 제거) / 저절로 식으면 sfx_cool / 투입 sfx_insert(접시 쌓기는 작게)·레벨업 sfx_levelup / 파손 sfx_break) / v6.10 (v9.15.1 2026-09-29: 마지막 식사 장면 동안 사격 정지 BossEnemy.LastSupperServing) / v6.9 (v9.15 2026-09-29 2차 피드백: 레벨 상한 해제 - 접시 곡선(platesIn / GameBalance.PlatesToNext)·레벨 체감(GameBalance.LevelMultOf) / 마비 방치 파손(StunBreakSec - 경고 뒤 요리 소실 + 슬롯 봉인, isBroken / BreakWarning / Repair)) / v6.8 (v9.14 2026-09-28 테스터 반영: 레벨 상한 T1 3 / T2 6 (MaxLevelOf·AtMaxLevel), 전설 요리 공격력 x T2DamageMul, 표적 고르기에서 곧 죽을 손님 건너뜀(IncomingDamage)) / v6.7 (v9.12 2026-09-22: TutorialDirector.InlineFreeze 동안 사격 정지) / v6.6 (v9.11.1 2026-09-22 문구: 과열 복구법) / v6.5 (v9.11 2026-09-22 타격감: 투입·레벨업 때 접시 낙하 + 링 + "배치!/Lv N" 팝 + 포탑 1.25배 튀기 - GameBalance.CookFeelOn) / v6.4 (v9.9.2 2026-09-16: 마비 FX - 감전·빙결 = 스파크 3점(ui_ev_spark_0/1 교대, 빙결은 얼음색), 과열 = 연기(ui_ev_smoke_0/1). GameBalance.TurretStunFx) / v6.3 (v9.9 2026-09-16: 남쪽 슬롯 포신 기본 방향 -90 = 남쪽 - 4모서리 배치) / v6.2 (런 통계: 과열 횟수·정지 시간 2026-09-14) / v6.1 (교수 피드백 반영 2026-09-14) / v6 (고퀄 PNG 적용 2026-09-03)
 /// 포탑 슬롯 1개. 요리를 투입하면 포탑으로 가동한다.
 /// - v6.2 변경점 (스위치 실험 지표 - 반영계획 §5 관찰 시트):
 ///   OverheatsThisRun / OverheatStunSecThisRun: 이번 런에 과열이 몇 번 났고, 과열로 포탑이 전투 중 몇 초 멈춰 있었는지.
@@ -38,6 +39,13 @@ public class TurretSlot : MonoBehaviour
     public bool isLocked = false;  // 잠금 슬롯 (증강 '증축된 주방 칸'으로 해금)
     /// <summary>v6.9: 다음 레벨을 향해 넣은 접시 수 (접시 곡선 - Lv3 부터 2장, Lv6 부터 3장). 이름표 "(1/2)"</summary>
     public int platesIn = 0;
+    /// <summary>v6.13: 이 포탑에 지금까지 들어간 접시 수 (레벨업 투입·합체로 넘겨받은 것 포함). 폐기 환급 계산에만 쓴다</summary>
+    public int platesTotal = 0;
+    /// <summary>v6.13: 지금 폐기하면 돌려받는 재료 수 = 들어간 접시 x GameBalance.ScrapRefundPerPlate (내림). 접시 1장짜리는 0</summary>
+    public int ScrapRefund
+    {
+        get { return IsEmpty ? 0 : Mathf.Max(0, Mathf.FloorToInt(platesTotal * GameBalance.ScrapRefundPerPlate + 0.0001f)); }
+    }
     /// <summary>v6.9: 파손 - 마비를 오래 방치해 망가진 슬롯. 요리는 사라지고 이번 운행 동안 투입 불가 (GameBalance.BrokenSlotRepairCost 로 수리 가능)</summary>
     public bool isBroken = false;
     private float stunNeglect = 0f;      // v6.9: 지금 마비를 방치한 누적 초 (마비가 풀리면 0)
@@ -163,7 +171,11 @@ public class TurretSlot : MonoBehaviour
     public static int MaxLevelOf(RecipeData r)
     {
         if (r == null) return 0;
-        return r.tier >= 2 ? GameBalance.T2MaxLevel : GameBalance.T1MaxLevel;
+        if (r.tier >= 2) return GameBalance.T2MaxLevel;
+        // v6.13: 증강 '선대의 기본기'(전설 진화 봉인)를 골랐으면 기본 요리가 더 높이 오른다 - 진화 길이 막힌 채 Lv3 에서 멈추면 고를 이유가 없다
+        if (GameBalance.T1MaxLevel > 0 && AugmentManager.BasicsDoctrine)
+            return Mathf.Max(GameBalance.T1MaxLevel, GameBalance.BasicsT1MaxLevel);
+        return GameBalance.T1MaxLevel;
     }
 
     /// <summary>v6.8: 상한에 닿았나 (이름표 "Lv3 (최대)" 표시용)</summary>
@@ -213,7 +225,11 @@ public class TurretSlot : MonoBehaviour
         int cap = MaxLevelOf(r);
         if (!wasEmpty && cap > 0 && level >= cap)
         {
-            UIManager.Instance?.ShowStatChange(r.displayName + " Lv" + level + " - 여기가 끝. 더 세지려면 다른 요리와 합체해 전설로 진화시켜라");
+            // v6.13: 다음에 할 일을 사실대로 - 전설은 더 못 오르고, '선대의 기본기' 는 진화가 막혀 있다
+            string next = r.tier >= 2 ? " - 전설 요리 최대 레벨"
+                : AugmentManager.BasicsDoctrine ? " - 기본 요리 최대 레벨 (선대의 기본기)"
+                : " - 여기가 끝. 더 세지려면 같은 레벨의 다른 기본 요리와 합쳐 전설로 진화시켜라";
+            UIManager.Instance?.ShowStatChange(r.displayName + " Lv" + level + next);
             Debug.Log("[TurretSlot] " + r.displayName + " 레벨 상한 " + cap + " - 투입 거부");
             return false;
         }
@@ -223,6 +239,7 @@ public class TurretSlot : MonoBehaviour
         {
             int need = GameBalance.PlatesToNext(level);
             platesIn += 1;
+            platesTotal += 1;   // v6.13
             if (platesIn < need)
             {
                 LastInsertTime = Time.time;
@@ -237,13 +254,15 @@ public class TurretSlot : MonoBehaviour
             }
             platesIn = 0;
         }
-        else platesIn = 0;
+        else { platesIn = 0; platesTotal = 1; }   // v6.13: 새 포탑 = 접시 1장
 
         recipeId = id;
         level += 1;
 
         // P1+: 요리 숙련 '장인의 감각'(50회) - 빈 슬롯에 새로 배치할 때 시작 레벨 +1
-        if (wasEmpty && MetaProgress.GetMasteryTier(id) >= GameBalance.MasteryStartLevelTier)
+        // v6.13: 견습 운행에서는 끈다 - 안내는 "Lv1 에 한 접시 더 = Lv2" 인데 넣기도 전에 Lv2 로 서 있었다 (자유 연습은 그대로)
+        bool tutorialPlain = GameBalance.TutorialFixedRules && TutorialDirector.Active && !TutorialDirector.SandboxActive;
+        if (wasEmpty && !tutorialPlain && MetaProgress.GetMasteryTier(id) >= GameBalance.MasteryStartLevelTier)
         {
             level += 1;
             Debug.Log("[TurretSlot] 장인의 감각 - " + r.displayName + " 시작 Lv" + level);
@@ -316,6 +335,7 @@ public class TurretSlot : MonoBehaviour
         recipeId = "";
         level = 0;
         platesIn = 0;
+        platesTotal = 0;
         cooldownTimer = 0f;
         ResetStunState();
     }
@@ -427,16 +447,17 @@ public class TurretSlot : MonoBehaviour
         Debug.Log("[TurretSlot] 합체 결과: " + r.displayName + " " + GradeName + "등급 Lv" + level);
     }
 
-    /// <summary>슬롯 비우기 (폐기). 반환값: 환급 재료 수</summary>
+    /// <summary>슬롯 비우기 (폐기). 반환값: 환급 재료 수 (v6.13: 들어간 접시의 절반 - ScrapRefund. 구: 레벨만큼, 최소 1 - 폐기와 조리를 되풀이하면 재료가 불어났다)</summary>
     public int Scrap()
     {
         if (IsEmpty) return 0;
-        int refund = Mathf.Max(1, level);
-        Debug.Log("[TurretSlot] " + Recipe.displayName + " 폐기, 재료 " + refund + "개 환급");
+        int refund = ScrapRefund;
+        Debug.Log("[TurretSlot] " + Recipe.displayName + " 폐기 (접시 " + platesTotal + "장), 재료 " + refund + "개 환급");
         RemoveMaxHPPassive();   // v6.1: 최대HP 패시브 회수
         recipeId = "";
         level = 0;
         platesIn = 0;
+        platesTotal = 0;
         cooldownTimer = 0f;
         ResetStunState();
         return refund;
@@ -486,7 +507,10 @@ public class TurretSlot : MonoBehaviour
         if (r.tier >= 2) finalDamage *= GameBalance.T2DamageMul;   // v6.8 (v9.14): 전설 요리 배율 (테스터 "전설이 더 약함")
 
         Vector3 origin = firePoint != null ? firePoint.position : transform.position;
+        TurretAttackExecutor.CurrentSource = sourceId;   // v6.13: 이 발사로 생기는 피해는 이 포탑 것 (데미지 숫자 합산을 포탑별로)
         TurretAttackExecutor.Execute(r, origin, target, finalDamage);
+        TurretAttackExecutor.CurrentSource = 0;
+        lastShotTime = Time.time;   // v6.13: 과열 후보 = 방금까지 쏘던 포탑
         lastTarget = target;   // v5: 포신이 이쪽을 향한다
         PlayFireFeel(r, target);   // v6.12 (A8): 발사음과 같은 프레임에 반동 + 포신 끝 섬광
 
@@ -506,25 +530,45 @@ public class TurretSlot : MonoBehaviour
             }
 
             shotsSinceCool++;
-            if (shotsSinceCool >= overheatThreshold
-                && Time.time >= overheatImmuneUntil
+            // v6.13: 무작위 고르기가 켜져 있으면 여기서 바로 과열하지 않는다 - 매니저가 조건이 된 포탑(OverheatReady) 가운데 하나를 뽑는다
+            //   (구: 간격이 열린 뒤 먼저 쏜 포탑이 걸렸다. 레벨이 높을수록 임계가 낮아 주력 포탑 = 시작 포탑(왼쪽 위)이 거의 매번 걸렸다)
+            if (!GameBalance.OverheatRandomPick && OverheatReady
                 && TurretSlotManager.Instance != null
                 && TurretSlotManager.Instance.CanOverheatNow())
-            {
-                TurretSlotManager.Instance.NoteOverheat();
-                overheatActive = true;
-                OverheatsThisRun++;   // v6.2: 런 통계
-                // v6.1 (B1 실험): 자동 복구 시간이 설정돼 있으면 그 시간 뒤 스스로 식는다 ([E] 냉각은 즉시)
-                float dur = GameBalance.OverheatAutoRecoverSec > 0f ? GameBalance.OverheatAutoRecoverSec : 9999f;
-                StunSlot(dur, "과열");   // v6.11: 과열음은 StunSlot 이 낸다
-                if (GameBalance.OverheatAutoRecoverSec > 0f)
-                    UIManager.Instance?.ShowDanger("포탑 과열! 곁에서 [E] 를 누른 채 마우스를 움직여 식혀라 (" + Mathf.RoundToInt(GameBalance.OverheatAutoRecoverSec) + "초 지나면 저절로 식는다)");
-                else
-                    UIManager.Instance?.ShowDanger("포탑 과열! 달려가서 [E] 를 누른 채 마우스를 움직여 식혀라!");
-                Debug.Log("[TurretSlot] " + (Recipe != null ? Recipe.displayName : "?")
-                    + " 과열 (사격 " + shotsSinceCool + "발)");
-            }
+                TriggerOverheat();
         }
+    }
+
+    private float lastShotTime = -99f;              // v6.13: 마지막으로 쏜 시각
+    private const float OVERHEAT_RECENT_SEC = 2f;   // 이 시간 안에 쏜 포탑만 과열 후보
+
+    /// <summary>v6.13: 과열 조건이 됐나 - 임계만큼 쐈고, 냉각 면역이 끝났고, 지금 멀쩡히 가동 중이고, 방금까지 쏘고 있었다</summary>
+    public bool OverheatReady
+    {
+        get
+        {
+            return !IsEmpty && !isLocked && !isBroken && !IsStunned
+                && overheatThreshold > 0 && shotsSinceCool >= overheatThreshold
+                && Time.time >= overheatImmuneUntil
+                && Time.time - lastShotTime <= OVERHEAT_RECENT_SEC;   // 쏘고 있는 포탑만 달아오른다 (표적이 없어 쉬는 포탑이 뒤늦게 과열하지 않게)
+        }
+    }
+
+    /// <summary>v6.13: 과열 발생 (TickFire 또는 TurretSlotManager 가 부른다). 전체 간격 타이머도 여기서 다시 돈다</summary>
+    public void TriggerOverheat()
+    {
+        if (TurretSlotManager.Instance != null) TurretSlotManager.Instance.NoteOverheat();
+        overheatActive = true;
+        OverheatsThisRun++;   // v6.2: 런 통계
+        // v6.1 (B1 실험): 자동 복구 시간이 설정돼 있으면 그 시간 뒤 스스로 식는다 ([E] 냉각은 즉시)
+        float dur = GameBalance.OverheatAutoRecoverSec > 0f ? GameBalance.OverheatAutoRecoverSec : 9999f;
+        StunSlot(dur, "과열");   // v6.11: 과열음은 StunSlot 이 낸다
+        if (GameBalance.OverheatAutoRecoverSec > 0f)
+            UIManager.Instance?.ShowDanger("포탑 과열! 곁에서 [E] 를 누른 채 마우스를 움직여 식혀라 (" + Mathf.RoundToInt(GameBalance.OverheatAutoRecoverSec) + "초 지나면 저절로 식는다)");
+        else
+            UIManager.Instance?.ShowDanger("포탑 과열! 달려가서 [E] 를 누른 채 마우스를 움직여 식혀라!");
+        Debug.Log("[TurretSlot] " + (Recipe != null ? Recipe.displayName : "?")
+            + " 과열 (사격 " + shotsSinceCool + "발)");
     }
 
     private Enemy FindNearestEnemy()
@@ -606,8 +650,13 @@ public class TurretSlot : MonoBehaviour
     private float barrelAngle = 90f;       // 현재 포신 각도 (0=동, 90=북)
     private float idlePhase;               // 슬롯마다 다른 흔들림 위상
 
+    // v6.13: 피해 출처 번호 (슬롯마다 다른 양수. 0 = 출처 모름)
+    private static int nextSourceId = 1;
+    private int sourceId = 0;
+
     private void Awake()
     {
+        sourceId = nextSourceId++;
         idlePhase = Random.Range(0f, 6.28f);
         // v6.3: 섀시(남쪽) 슬롯은 포신이 기본으로 남쪽을 본다 (표적이 없을 때 지붕 쪽을 겨누지 않게)
         if (transform.position.y < 0f) { idleBase = -90f; barrelAngle = -90f; }
@@ -627,6 +676,13 @@ public class TurretSlot : MonoBehaviour
         // 상태(요리/레벨/잠금)가 바뀐 프레임에만 다시 그린다
         if (recipeId != vRecipeId || level != vLevel || isLocked != vLocked || isBroken != vBroken)
             RebuildVisual();
+
+        // v6.13: 칸 덜컹임 - 포탑 그림이 자기가 실린 칸과 같이 흔들린다 (슬롯 위치·판정은 그대로)
+        if (visualRoot != null)
+        {
+            Vector2 rattle = TrainDeck.CarOffsetAt(transform.position.x);
+            visualRoot.localPosition = new Vector3(rattle.x, GameBalance.TurretVisualDY + rattle.y, 0f);
+        }
 
         // v6.5: 투입 직후 포탑 그림이 1.25배에서 0.2초에 제자리로 (되튀김)
         // v6.12: 발사 반동과 곱해 한 번에 넣는다. 끝나면 1.0 이 아니라 레벨 배율(visualGrow)로 - 예전엔 튀기가 끝나며 레벨 성장 크기를 지웠다
@@ -763,7 +819,7 @@ public class TurretSlot : MonoBehaviour
         GameObject rootGo = new GameObject("TurretVisual");
         visualRoot = rootGo.transform;
         visualRoot.SetParent(transform, false);   // 슬롯(지붕 자리)을 따라다닌다
-        visualRoot.localPosition = new Vector3(0f, -0.07f, 0f);
+        visualRoot.localPosition = new Vector3(0f, GameBalance.TurretVisualDY, 0f);   // v6.13: -0.07 고정 -> GameBalance (새 그림은 받침 링 중심 = 슬롯 자리)
 
         // 베이스 링은 어느 상태에서나 (잠금은 어둡게)
         SpriteRenderer baseSr = SpriteBank.Attach(visualRoot, "Base", "t_base", GetBaseSprite(), Vector3.zero, SORT_BASE);

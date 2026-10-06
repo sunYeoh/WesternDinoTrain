@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// [GameBalance.cs] v9.17 (2026-10-06 화면 손맛 2차: 맨 아래 v9.17 섹션 - 발사 반동·섬광 / 데미지 숫자 크기·합산 / 넉백 / 셰프 찌그러짐 / HUD 수치 / 카드 순차 등장·퇴장 / 보스 등장·처치 / 패배·승리 순서 / 장면 전환 / 알림 중복) / v9.16 (2026-09-29 소리 v2: BuildTag 만 - 소리 표는 SoundManager 에) / v9.15.1 (2026-09-29 스토리 개정 스위치: 최종전 베팅 없음·스피노 고백 카드·마지막 식사 장면 시간) / v9.15 (2026-09-29 2차 피드백: 레벨 상한 해제 -> 접시 곡선·레벨 체감·저항 표시 / 훈련장 반복·자유 연습 / 드래그 투입 / 사고 해결 연출 / 포탑 파손 / HUD 재배치 / 설정창) / v9.12 (2026-09-22 튜토리얼 구간화·인라인 연습·협곡 낙뢰·미니 보스 예습 섹션 추가) / v1 (v9.11 2026-09-22: 타격감 섹션 - 피격 플래시·찌그러짐·스파크·킬 버스트·기차 피격·버튼·모달·웨이브 띠 스위치 / v9.10.1 2026-09-21: 유저 플레이 소감 섹션 - 웨이브 물량·길이, 정차 조리 제한, 행상인 자동 퇴장, 처치 보상 배율 / v9.9 2026-09-16: 포탑 4모서리 배치 SlotPosition + 견습 운행/브리핑 스위치 섹션)
+/// [GameBalance.cs] v9.18 (2026-10-06 테스터 피드백 3 - 버그·밸런스·새 기차 그림: 맨 아래 v9.18 섹션 - 보행 바닥 표 / 슬롯·꼬리 좌표 / 레벨 상한 복구 / 같은 레벨끼리만 진화 / 폐기 환급 / 사고 실패 피해 / 과열 무작위 / 칸 덜컹임 / 보스 그림·HP 바·등장 띠 / UI 배율) / v9.17 (2026-10-06 화면 손맛 2차: 맨 아래 v9.17 섹션 - 발사 반동·섬광 / 데미지 숫자 크기·합산 / 넉백 / 셰프 찌그러짐 / HUD 수치 / 카드 순차 등장·퇴장 / 보스 등장·처치 / 패배·승리 순서 / 장면 전환 / 알림 중복) / v9.16 (2026-09-29 소리 v2: BuildTag 만 - 소리 표는 SoundManager 에) / v9.15.1 (2026-09-29 스토리 개정 스위치: 최종전 베팅 없음·스피노 고백 카드·마지막 식사 장면 시간) / v9.15 (2026-09-29 2차 피드백: 레벨 상한 해제 -> 접시 곡선·레벨 체감·저항 표시 / 훈련장 반복·자유 연습 / 드래그 투입 / 사고 해결 연출 / 포탑 파손 / HUD 재배치 / 설정창) / v9.12 (2026-09-22 튜토리얼 구간화·인라인 연습·협곡 낙뢰·미니 보스 예습 섹션 추가) / v1 (v9.11 2026-09-22: 타격감 섹션 - 피격 플래시·찌그러짐·스파크·킬 버스트·기차 피격·버튼·모달·웨이브 띠 스위치 / v9.10.1 2026-09-21: 유저 플레이 소감 섹션 - 웨이브 물량·길이, 정차 조리 제한, 행상인 자동 퇴장, 처치 보상 배율 / v9.9 2026-09-16: 포탑 4모서리 배치 SlotPosition + 견습 운행/브리핑 스위치 섹션)
 /// 게임 전체 밸런스 수치를 한 곳에 모은 설정 파일.
 ///
 /// 여기 값을 바꾸면 Inspector 값과 상관없이 게임에 적용된다
@@ -415,11 +415,12 @@ public static class GameBalance
     public static float ChefDashTime = 0.16f;
     public static float ChefDashCooldown = 1.2f;
 
-    /// <summary>셰프 활동 범위 (B-2: 트레일러 4칸으로 확장됨)</summary>
-    public static float TrainWalkMinX = -6.3f;
-    public static float TrainWalkMaxX = 11.3f;
-    public static float TrainWalkMinY = -1.5f;
-    public static float TrainWalkMaxY = 1.5f;
+    /// <summary>셰프 활동 범위의 둘레 상자 (셰프 위치 기준). v9.18 부터 실제 판정은 맨 아래 WalkFloors 표(TrainDeck.ResolveWalk)가 하고,
+    /// 이 네 값은 "기차 어딘가" 를 무작위로 고르는 곳(길가 유물 상자 등)만 쓴다. 구 값 -6.3 / 11.3 / -1.5 / 1.5</summary>
+    public static float TrainWalkMinX = -4.5f;
+    public static float TrainWalkMaxX = 10.53f;
+    public static float TrainWalkMinY = -1.025f;
+    public static float TrainWalkMaxY = 1.025f;
 
     /// <summary>위기 대응 근접 전환 스위치 (false = 빙결/감전 해제가 클릭으로 복귀)</summary>
     public static bool ProximityInteract = true;
@@ -431,8 +432,8 @@ public static class GameBalance
     public static float EventReachX = 1.8f;
 
     /// <summary>이벤트 발생 지점 범위 (B-2: 기차 전체 칸에서 터진다)</summary>
-    public static float EventAnchorMinX = -6.0f;
-    public static float EventAnchorMaxX = 11.0f;
+    public static float EventAnchorMinX = -4.5f;   // v9.18: -6.0 -> -4.5 (새 그림에서 셰프가 설 수 있는 왼쪽 끝 = 운전석 바닥. 구 값은 기관차 앞머리라 현장 표시 위에 설 수 없었다)
+    public static float EventAnchorMaxX = 10.5f;   // v9.18: 11.0 -> 10.5 (포탑 칸 B 복도 오른쪽 끝)
 
     /// <summary>위치형 이벤트 제한시간 보정 (+초, 달려가는 시간만큼 여유)</summary>
     // 밸런스 1차: 2.5 -> 4.0. 최악 대각(포탑B 끝 -> 기관차, 17유닛 = 걷기 4초)
@@ -461,7 +462,7 @@ public static class GameBalance
     public static float SlotGapX = 1.1f;       // 슬롯 간격
     // B-2.2: 0.9(칸 몸통 속) -> 1.95(지붕 위). 포탑 받침이 지붕선(1.8)에 딱 앉는다 (원안 복원).
     // 근접 판정은 가로 거리만 보므로(FindStunnedSlotNear) 셰프는 여전히 발밑에서 정비 가능
-    public static float SlotY = 1.95f;
+    public static float SlotY = 0.925f;   // v9.18: 1.95 -> 0.925 (10-05 그림: 포탑 받침 링이 칸 바닥 네 모서리에 그려져 있다)
 
     // ── v9.9 (유저 결정 2026-09-16 "포탑끼리 한 라인에 붙어 있어 선택이 불편 - 모서리에 하나씩") ──
     //  칸당 4모서리: 북쪽 2개 = 지붕선 위(SlotY 그대로), 남쪽 2개 = 섀시 위(SlotSouthY). 칸 양끝에서 SlotCornerInsetX 만큼 안쪽.
@@ -469,9 +470,11 @@ public static class GameBalance
     //  마커 칩은 북쪽 슬롯은 머리 위(+SlotMarkerYOffset), 남쪽 슬롯은 발 아래(-SlotMarkerYOffset). 마운트 링 그림(car2.png)도 같은 자리
     //  false 로 두면 종전 북쪽 1열 배치 (그림은 car2.png 의 링 4개가 북쪽 1열인 v9.8 판을 써야 맞는다)
     public static bool SlotCornerLayout = true;
-    public static float SlotCornerInsetX = 0.95f;   // 칸 끝(CarEdgesX ± 0.12 여백)에서 안쪽으로
-    public static float SlotSouthY = -1.45f;        // 남쪽 슬롯 y (섀시 위 마운트 링 중심)
-    public static float SlotMarkerWidth = 120f;     // 마커 칩 폭 (종전 96 - 모서리 배치는 최소 간격 2.2u = 141px 라 여유)
+    public static float SlotCornerInsetX = 0.95f;   // 칸 끝(CarEdgesX ± 0.12 여백)에서 안쪽으로 - v9.18 부터는 SlotRingDX 가 비어 있을 때만
+    public static float SlotSouthY = -1.0f;         // 남쪽 슬롯 y (받침 링 중심). v9.18: -1.45 -> -1.0
+    /// <summary>v9.18: 받침 링의 x - 칸 가운데에서 왼쪽 링 / 오른쪽 링까지 (car2.png 실측: 68px 폭 가운데에서 -38px / +39px). 비우면(null) SlotCornerInsetX 방식</summary>
+    public static float[] SlotRingDX = { -1.1875f, 1.219f };
+    public static float SlotMarkerWidth = 108f;     // 마커 칩 폭. v9.18: 120 -> 108 - UI 배율 1.2 에서 1u = 52.9 단위라, 칸 사이 이웃 슬롯(2.09u = 110.6)의 칩끼리 9 겹쳤다. 요리 이름은 15px 로 99 가 가장 길다
 
     /// <summary>슬롯 i 의 월드 위치 (배치 방식에 따라). TurretSlotManager 가 생성 시 1회 읽는다</summary>
     public static Vector2 SlotPosition(int i)
@@ -484,6 +487,8 @@ public static class GameBalance
         float left = CarEdgesX[2 + car] + 0.12f;          // 칸 몸체 왼쪽 끝 (칸 여백 0.12)
         float right = CarEdgesX[3 + car] - 0.12f;         // 칸 몸체 오른쪽 끝
         float x = (idx % 2 == 0) ? left + SlotCornerInsetX : right - SlotCornerInsetX;
+        if (SlotRingDX != null && SlotRingDX.Length >= 2)   // v9.18: 그림의 받침 링 자리
+            x = (left + right) * 0.5f + SlotRingDX[idx % 2];
         float y = (idx < 2) ? SlotY : SlotSouthY;         // 0·1 = 북쪽, 2·3 = 남쪽
         return new Vector2(x, y);
     }
@@ -537,7 +542,8 @@ public static class GameBalance
 
     /// <summary>갑판 전리품 상자 (아이템 획득이 상자로 떨어짐 - 밟아서 회수. false=즉시 지급)</summary>
     public static bool DeckLootEnabled = true;
-    public static float DeckLootY = -1.25f;        // 상자가 놓이는 갑판 높이
+    public static float DeckLootY = 0.15f;         // 상자가 놓이는 높이 - 포탑 칸 가운데 복도. v9.18: -1.25 -> 0.15 (남쪽 포탑 줄 위에 놓이던 것)
+    public static float DeckLootKitchenY = 0.45f;  // v9.18: 주방 칸에서는 조리대 위쪽 빈 바닥에
     public static float DeckLootPickupRange = 0.9f;
 
     // ==================================================================
@@ -547,7 +553,7 @@ public static class GameBalance
     /// <summary>작살포 (기관차 앞): 지나가는 자원 바위를 [E]로 낚는다 (false=끔)</summary>
     public static bool HarpoonEnabled = true;
     public static float HarpoonX = -5.8f;          // 거치대 위치
-    public static float HarpoonReach = 1.2f;       // 조작 근접 반경
+    public static float HarpoonReach = 1.9f;       // 조작 근접 반경 (가로 거리). v9.18: 1.2 -> 1.9 - 운전석 바닥 왼쪽 끝(x -4.5)에서 닿게
     public static float HarpoonRange = 14f;        // 작살 사거리 (바위 탐색)
     public static float HarpoonCooldown = 12f;
     // 밸런스 1차: 3~5 -> 2~4. 희소 재료(전기/화염/얼음/독)를 골라 낚는 게 작살의 가치라
@@ -568,7 +574,7 @@ public static class GameBalance
     /// <summary>기관차 레버: 순항 <-> 전속 토글 (false=끔)</summary>
     public static bool LeverEnabled = true;
     public static float LeverX = -3.2f;            // 레버 위치 (기관차 뒤쪽 = 운전석)
-    public static float LeverReach = 1.2f;
+    public static float LeverReach = 0.65f;        // v9.18: 1.2 -> 0.65 - 작살포 범위와 안 겹치게 (운전석 오른쪽 + 통로 입구)
     public static float LeverSpawnMul = 0.65f;     // 전속: 적 스폰 간격 배율 (-35%)
     public static float LeverJudgePenalty = 0.10f; // 전속: 조리 판정 존 -10%
     public static float LeverParallaxMul = 1.8f;   // 전속: 주행 연출 가속
@@ -982,14 +988,14 @@ public static class GameBalance
 
     // ── (v9.13.1 2026-09-24) 3인 테스트 준비 ──
     /// <summary>빌드 표시 - 로비 오른쪽 아래에 찍힌다 (테스터 시트에 어느 빌드였는지 적기 위해). 팩마다 올린다</summary>
-    public const string BuildTag = "v9.17 (2026-10-06)";   // v9.17: 화면 손맛 2차
+    public const string BuildTag = "v9.18 (2026-10-06)";   // v9.18: 테스터 피드백 3 (버그·밸런스·새 그림)
 
     // ── (v9.14 2026-09-28) 3인 테스트 반영 1차 - 버그·밸런스·읽기 ──
     // ── 포탑 (테스터 "더블 육포만 올려도 됨 / 전설이 더 약함 / 하나 점사하면 나머지가 빗나감") ──
     /// <summary>기본 요리(T1) 포탑 최대 레벨 - 같은 접시를 더 넣어도 여기서 멈춘다 (전설로 진화시켜야 더 세진다). 0 = 제한 없음(구 동작)</summary>
-    public static int T1MaxLevel = 0;   // v9.15: 3 -> 0 (해제. 유저 09-29 "센 빌드를 벽으로 막지 말 것" - 아래 접시 곡선·레벨 체감으로)
+    public static int T1MaxLevel = 3;   // v9.18: 0 -> 3 (유저 10-06 "그냥 레벨 상한을 두는 게 낫겠다" - 포탑 하나로 다 깨져서 합성·시너지를 쓸 이유가 없었다). v9.15 에서 0(해제)
     /// <summary>전설 요리(T2) 포탑 최대 레벨. 0 = 제한 없음</summary>
-    public static int T2MaxLevel = 0;   // v9.15: 6 -> 0 (해제)
+    public static int T2MaxLevel = 6;   // v9.18: 0 -> 6 (위와 같은 결정)
     /// <summary>전설 요리 공격력 배율 (레벨 배율과 별도로 곱한다). 1 = 구 동작</summary>
     public static float T2DamageMul = 1.5f;
     /// <summary>진화 조리 결과 레벨 = 재료 둘 중 높은 쪽 (구 동작 false = 평균)</summary>
@@ -1000,7 +1006,7 @@ public static class GameBalance
     public static bool AvoidOverkillTargeting = true;
     // ── 화면 ──
     /// <summary>UI 전체 배율 (테스터 "글자 크게"). 1 = 구 동작. 모든 캔버스의 기준 해상도를 1920x1080 / 이 값으로 잡는다</summary>
-    public static float UIScale = 1.12f;
+    public static float UIScale = 1.2f;   // v9.18: 1.12 -> 1.2 (유저 "여전히 글자가 작다"). 씬 HUD 캔버스([HUD Canvas])도 이제 이 값을 따른다 (UIManager) **1.2 가 지금 창 배치의 한계다**: 기준 화면 1600x900 에 요리 창(높이 900)·명성 상점(패널 680 + 대사 띠 122 + 재출발 버튼)이 꽉 찬다. 1.25 부터 결과 화면의 재출발 버튼이 화면 아래로 나간다
     /// <summary>조리대 [E] 안내 글자 배율 (씬의 interactPrompt)</summary>
     public static float InteractPromptScale = 1.4f;
     // ── 정비소·골드 사용처 ──
@@ -1165,4 +1171,107 @@ public static class GameBalance
     public static float NoticeDedupeSec = 2f;
     /// <summary>위험 알림(주황)은 이 시간(초) 동안 일반 알림에 밀려 내려가지 않는다. 0 = 끔</summary>
     public static float DangerPinSec = 2.5f;
+
+    // ── (v9.18 2026-10-06) 테스터 피드백 3 - claude/테스터피드백3_2026-10-06.md. 버그·밸런스·새 기차 그림 ──
+    // ── 셰프가 걷는 바닥 (버그: 바퀴까지 내려감 / 벽에 닿으면 아래로 순간이동) ──
+    /// <summary>
+    /// 걸을 수 있는 바닥 = 사각형 묶음 { xMin, yMin, xMax, yMax } (월드 좌표, **발 기준**). 10-05 기차 그림의 바닥에 맞춘 값.
+    /// 앞의 4줄 = 칸 바닥(기관차 운전석 / 주방 / 포탑 A / 포탑 B), 뒤의 3줄 = 칸 사이 통로 발판. 사각형끼리 맞닿거나 겹친 곳으로만 건너간다.
+    /// 포탑 칸은 네 모서리가 포탑 자리라 가운데 복도만 걷는다. 그림을 바꾸면 이 표만 고치면 된다 (TrainDeck.ResolveWalk 가 읽는다)
+    /// </summary>
+    public static float[][] WalkFloors =
+    {
+        new float[] { -4.5f, 0.0f, -3.3f, 0.85f },     // 기관차 운전석 (작살포·레버)
+        new float[] { -1.64f, -1.2f, 1.64f, 0.85f },   // 주방
+        new float[] { 3.53f, -0.5f, 6.03f, 0.45f },    // 포탑 A 복도
+        new float[] { 8.03f, -0.5f, 10.53f, 0.45f },   // 포탑 B 복도
+        new float[] { -3.3f, -0.3f, -1.64f, 0.35f },   // 통로: 기관차 - 주방
+        new float[] { 1.64f, -0.3f, 3.53f, 0.35f },    // 통로: 주방 - 포탑 A
+        new float[] { 6.03f, -0.3f, 8.03f, 0.35f },    // 통로: 포탑 A - 포탑 B
+    };
+    /// <summary>셰프 위치(트랜스폼)에서 발까지의 세로 거리. 씬의 Chef 스케일 y 0.5 x ChefVisual 의 그림 내림 -0.35 = -0.175</summary>
+    public static float ChefFootDY = -0.175f;
+    /// <summary>문 도움: 벽에 막힌 채 좌우 키만 누르고 있을 때, 통로 입구가 세로로 이 거리(u) 안이면 그쪽으로 미끄러진다. 0 = 끔</summary>
+    public static float WalkDoorAssist = 0.35f;
+    /// <summary>문 도움이 걸리기까지 벽을 밀고 있어야 하는 시간(초). 벽에 닿자마자 통로로 미끄러지지 않게</summary>
+    public static float WalkDoorAssistDelay = 0.2f;
+    /// <summary>셰프 그림 비율 바로잡기: 씬의 Chef 스케일이 (0.3, 0.5) 라 그림이 가로로 60% 눌려 그려지고 있었다. true = 그린 그대로(1:1). false = 구 동작(눌린 채)</summary>
+    public static bool ChefAspectFix = true;
+
+    // ── 새 기차 그림 (10-05 팩) 좌표 ──
+    /// <summary>꼬리 그림 x = 마지막 칸 경계 + 이 값. 구 -0.1 (새 꼬리는 칸 뒤 연결부까지 그려져 있어 0.3 더 당긴다)</summary>
+    public static float TailDX = -0.4f;
+    /// <summary>포탑 그림을 슬롯 자리에서 세로로 옮기는 값. 구 -0.07 (지붕선에 맞추던 값. 새 그림은 받침 링 중심 = 슬롯 자리)</summary>
+    public static float TurretVisualDY = 0f;
+
+    // ── 칸 덜컹임 (유저 "기차 가는 모션이 심심 - 칸별로 조금씩 덜컹덜컹") ──
+    /// <summary>달리는 동안 레일 이음매를 지날 때마다 칸이 앞에서부터 차례로 두 번 덜컹인다 (그림만 - 판정 위치는 그대로). 정차하면 멎는다. false = 끔</summary>
+    public static bool CarRattleOn = true;
+    /// <summary>덜컹 한 번의 크기 (u). 0.05 = 그림 1.6px</summary>
+    public static float CarRattleAmp = 0.05f;
+    /// <summary>이음매 간격 (u). 순항 속도 3.2u/s 에서 1초에 한 번, 전속이면 1.8배 잦다</summary>
+    public static float CarRattleJoint = 3.2f;
+    /// <summary>칸 사이 시차 - 앞 칸이 덜컹인 뒤 다음 칸까지 (이음매 간격에 대한 비율)</summary>
+    public static float CarRattleStagger = 0.14f;
+
+    // ── 포탑 (유저 결정: 레벨 상한 복구는 위 T1MaxLevel·T2MaxLevel) ──
+    /// <summary>증강 '선대의 기본기'(전설 진화 봉인)를 고른 운행의 기본 요리 최대 레벨. 진화가 막힌 대신 기본 요리가 전설만큼 오른다 (T1MaxLevel 이 0 이면 상한 없음 그대로)</summary>
+    public static int BasicsT1MaxLevel = 6;
+    /// <summary>진화 조리(서로 다른 기본 요리 둘 -> 전설)는 레벨이 같은 포탑끼리만 (유저 "80레벨 + 1레벨 = 81레벨 전설은 말이 안 된다"). false = 구 동작(아무 레벨)</summary>
+    public static bool FusionSameLevelOnly = true;
+    /// <summary>폐기 환급 = 그 포탑에 들어간 접시 수 x 이 비율 (내림) 만큼의 재료. 접시 1장짜리는 0개 (유저 "폐기하고 환급받아 무한 제작"). 구 동작 = 레벨만큼 (최소 1)</summary>
+    public static float ScrapRefundPerPlate = 0.5f;
+    /// <summary>과열이 날 포탑을 조건이 된 포탑들 가운데 무작위로 고른다 (구: 슬롯 번호가 빠른 쪽 = 왼쪽 위가 늘 먼저 걸렸다). false = 구 동작</summary>
+    public static bool OverheatRandomPick = true;
+    /// <summary>데미지 숫자 합산은 같은 포탑이 낸 것끼리만 (구: 한 손님에게 0.1초 안에 들어온 건 포탑이 달라도 한 숫자로 - 약한 포탑의 숫자가 센 포탑 것과 합쳐져 보였다). false = 구 동작</summary>
+    public static bool DmgPopupMergePerSource = true;
+
+    // ── 방해 사고 ──
+    /// <summary>실패 피해를 기차 최대 HP 에 맞춰 키운다: 표의 값(HP 500 기준) x 최대 HP / EventFailRefHP. 방어력으로 깎이지 않는다 (유저 "HP 2800 에 19 닳으면 막을 이유가 없다"). false = 구 동작(고정값, 방어력 적용)</summary>
+    public static bool EventFailScaleOn = true;
+    public static float EventFailRefHP = 500f;
+    /// <summary>웨이브가 끝났을 때 사고가 진행 중이면 사고가 끝난 뒤에 다음 선택(증강·선로·정비)이 열린다. 이 시간(초)을 넘기면 기다리지 않는다 (안전장치). 0 = 안 기다림(구 동작)</summary>
+    public static float WaitEventBeforeChoiceSec = 25f;
+
+    // ── 견습 운행 ──
+    /// <summary>견습 운행 중에는 쓰러진 손님이 재료를 반드시 떨어뜨린다 (구: 60% - "고기 2개" 단계에서 1개만 나오던 것) + 숙련 특전(시작 레벨 +1·PERFECT 접시 +1)을 끈다 (안 넣었는데 Lv2 로 시작하던 것)</summary>
+    public static bool TutorialFixedRules = true;
+
+    // ── 보스 ──
+    /// <summary>보스 그림: Resources/Sprites/WDT/boss_rust · boss_thunder · boss_hibernator · boss_original (.png). 없으면 구 동작(프리팹의 색 사각형).
+    /// 상태 그림은 있으면 자동으로 쓴다: _groggy(무방비) · _rage(발악) · _p2 · _p3(디 오리지널 페이즈). boss_original_groggy 는 해치 개방(P3)에도 쓴다</summary>
+    public static bool BossSkinOn = true;
+    /// <summary>보스 그림 배율 (32px = 1u 기준. 녹슨 발톱 / 천둥 둥지 / 동면자 / 디 오리지널). 0.85 = 길이 4.5 ~ 6.4u</summary>
+    public static float[] BossSkinScale = { 0.85f, 0.85f, 0.85f, 0.85f };
+    /// <summary>보스가 한 번 무는 양의 배율. v9.18 에서 공격 거리 버그를 고치면서 보스가 어느 쪽에서 오든 2.5초마다 물게 됐다
+    /// (구: 기차 중심에서 5u 안으로 들어온 경우만 = 4번에 1번꼴, 나머지는 기차 위에 올라앉아 안 물었다). 한꺼번에 4배가 되지 않게 0.6 으로 시작. 1 = 표의 공격력 그대로</summary>
+    public static float BossMeleeMul = 0.6f;
+    /// <summary>예습 보스(견습 구간 7 새끼 발톱)가 한 번 무는 양의 배율. 같은 버그로 지금까지는 사실상 안 물었다 - 견습 난이도가 갑자기 오르지 않게 작게 (물리는 소리·번쩍임은 난다)</summary>
+    public static float BossPracticeMeleeMul = 0.2f;
+    /// <summary>보스는 기차 북쪽(화면 위쪽)에서만 온다. 남쪽에 서면 몸 아래쪽이 하단 HUD(화면 아래 20%) 뒤에 가려진다. false = 위·아래 무작위</summary>
+    public static bool BossSpawnNorthOnly = true;
+    /// <summary>보스는 다가오다가 기차 옆에 이르면 나란히(머리가 기차가 달리는 쪽 = 왼쪽) 돌아서서 선다.
+    /// 머리부터 들이받는 자세로 서면 긴 몸(4.5 ~ 6.4u)의 뒤쪽 1/3 이 화면 위 HP 바 뒤로 들어간다 (지붕 1.8 ~ HP 바 6.1 사이는 4.3u 뿐).
+    /// false = 구 동작 (기차를 정면으로 보고 프리팹의 공격 거리 5 / 천둥 둥지 6.5 에 선다)</summary>
+    public static bool BossFaceAlongTrain = true;
+    /// <summary>나란히 설 때 기차 가운데 줄에서 보스 중심까지의 거리 (u. 녹슨 발톱 / 천둥 둥지 / 동면자 / 디 오리지널).
+    /// 몸 옆면이 칸 지붕(1.8)에서 0.3 ~ 0.5 떨어지고, 윗면이 HP 바 밑 무방비 띠(기본 줌 8.5 에서 4.76) 아래에 오는 값 - 천둥 둥지만 날개 끝이 띠에 1u 걸린다.
+    /// 그림 배율(BossSkinScale)·기본 줌·HP 바 높이를 바꾸면 같이 볼 것 (px/screen_layout_preview.py 로 그려 볼 수 있다)</summary>
+    public static float[] BossStandOff = { 3.2f, 3.6f, 3.4f, 3.4f };
+    /// <summary>돌아서기 시작하는 거리 = 서는 거리 + 이 값 (u). 긴 몸의 절반(3.2)만큼 일찍 돌아야 머리가 지붕 위로 안 들어온다</summary>
+    public static float BossTurnZone = 3.2f;
+    /// <summary>돌아서는 빠르기 (도/초). 90 = 정면에서 옆으로 1초</summary>
+    public static float BossTurnDegPerSec = 90f;
+    /// <summary>보스 HP 바: 화면 맨 위 가운데, 크게. 깎인 만큼 밝은 띠가 남았다 줄어들고(BossBarTrailSec), 무방비 눈금이 찍힌다. false = 구 동작(위에서 150 아래, 700x64)</summary>
+    public static bool BossBarBig = true;
+    public static float BossBarWidth = 620f;   // 좌상단 판(478)과 우상단 판 사이에 들어가는 폭 (UIScale 1.2 = 기준 폭 1600 에서)
+    public static float BossBarTrailSec = 0.6f;
+    /// <summary>등장 띠: 포효와 같이 화면 가운데를 가로지르는 경고 띠 + 큰 이름. 이 시간(초, 실시간) 떠 있다 - 게임은 멈추지 않는다. 0 = 끔</summary>
+    public static float BossIntroBandSec = 1.6f;
+    /// <summary>발악(HP 50% 이하) 신호: 붉은 가장자리 한 번 + 흔들림 + "발악" 띠 + HP 바 색·딱지 + 보스 몸에 붉은 맥동. false = 구 동작(알림 한 줄)</summary>
+    public static bool BossEnrageSignal = true;
+
+    // ── 화면 글자 ──
+    /// <summary>코드로 만드는 글자의 최소 크기 (이보다 작게 적힌 건 이 크기로 - 11·12px 로 적힌 안내·꼬리말이 해당). 0 = 끔</summary>
+    public static int UIFontFloor = 13;
 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// [Enemy.cs] v3.9 (v9.17 2026-10-06 화면 손맛 2차: quietDeath - 식사 엔딩의 보스는 처치음·킬 버스트 없이 흐려진다 / A4: 숫자 팝업을 DamagePopup.CreateFor(크기 비례·0.1초 합산)로, 크리 표시는 진짜 치명타만(HitFeel.ConsumeCrit) - 예전엔 피해가 손님 공격력의 2배 이상이면 크리로 찍혀 치명타 증강이 없어도 "!" 가 떴다) / v3.8 (v9.16 2026-09-29 손맛 2차 - 소리: 공격음 = 손님 종류별(SoundKeys.Attack, 제자리에서 PlayAt) / 처치음 = 재질별(SoundKeys.Die) - 큰 손님은 sfx_kill_big / 명중음은 HitFeel.OnHit 이 재질별로 내고, 방어에 크게 깎인 물리는 튕김음(resisted 전달)) / v3.7 (v9.15 2026-09-29: 방어·저항으로 피해가 GameBalance.ResistShowBelow 이하로 깎이면 팝업에 "저항" - 하나만 키우면 왜 안 통하는지 화면에서) / v3.6 (v9.14 2026-09-28: IncomingDamage - 과잉 집중 방지용 예약 피해) / v3.5 (v9.12 2026-09-22: TutorialDirector.InlineFreeze 동안 정지 / 용어 "지속 피해") / v3.4 (v9.11.1 2026-09-22 문구: 특기 설명 일상어, 강철 = 방어 50) / v3.3 (v9.11 2026-09-22 타격감: 직접 명중 때 HitFeel.OnHit(플래시·찌그러짐·딜 비례 스파크), 죽을 때 HitFeel.OnKill(킬 버스트) - 도트 틱은 제외) / v3.2 (v9.10.1 2026-09-21: 물량 1.6배에 맞춘 처치 보상 배율 - 일반 손님 골드 GameBalance.KillGoldMul, 재료 드랍 확률 KillMaterialChance(보스는 항상). 드랍 이름을 재료 이름표(전기알·화염꽃·독샘)에 맞춤) / v3.1 (2026-09-14: 해빙 문구 / 전갈 마모 대체 스위치) / v3
+/// [Enemy.cs] v3.10 (v9.18 2026-10-06: 숫자 팝업에 쏜 포탑을 같이 넘긴다(포탑별 합산) / 견습 운행 중에는 쓰러지면 재료를 반드시 떨어뜨린다 - "고기 2개" 단계에서 1개만 나오던 것) / v3.9 (v9.17 2026-10-06 화면 손맛 2차: quietDeath - 식사 엔딩의 보스는 처치음·킬 버스트 없이 흐려진다 / A4: 숫자 팝업을 DamagePopup.CreateFor(크기 비례·0.1초 합산)로, 크리 표시는 진짜 치명타만(HitFeel.ConsumeCrit) - 예전엔 피해가 손님 공격력의 2배 이상이면 크리로 찍혀 치명타 증강이 없어도 "!" 가 떴다) / v3.8 (v9.16 2026-09-29 손맛 2차 - 소리: 공격음 = 손님 종류별(SoundKeys.Attack, 제자리에서 PlayAt) / 처치음 = 재질별(SoundKeys.Die) - 큰 손님은 sfx_kill_big / 명중음은 HitFeel.OnHit 이 재질별로 내고, 방어에 크게 깎인 물리는 튕김음(resisted 전달)) / v3.7 (v9.15 2026-09-29: 방어·저항으로 피해가 GameBalance.ResistShowBelow 이하로 깎이면 팝업에 "저항" - 하나만 키우면 왜 안 통하는지 화면에서) / v3.6 (v9.14 2026-09-28: IncomingDamage - 과잉 집중 방지용 예약 피해) / v3.5 (v9.12 2026-09-22: TutorialDirector.InlineFreeze 동안 정지 / 용어 "지속 피해") / v3.4 (v9.11.1 2026-09-22 문구: 특기 설명 일상어, 강철 = 방어 50) / v3.3 (v9.11 2026-09-22 타격감: 직접 명중 때 HitFeel.OnHit(플래시·찌그러짐·딜 비례 스파크), 죽을 때 HitFeel.OnKill(킬 버스트) - 도트 틱은 제외) / v3.2 (v9.10.1 2026-09-21: 물량 1.6배에 맞춘 처치 보상 배율 - 일반 손님 골드 GameBalance.KillGoldMul, 재료 드랍 확률 KillMaterialChance(보스는 항상). 드랍 이름을 재료 이름표(전기알·화염꽃·독샘)에 맞춤) / v3.1 (2026-09-14: 해빙 문구 / 전갈 마모 대체 스위치) / v3
 /// 모든 적 유닛의 기본 동작 + 전투 스탯(DEF/RES) + 상태이상(도트/방깎/마깎)
 /// - v3 변경점: 행동 패턴 시스템 (이름 기반 자동 배정 - 프리팹 설정 불필요)
 ///   1) 무리 사냥꾼(랩터): 주변 랩터가 많을수록 이동 속도 증가
@@ -350,6 +350,8 @@ public class Enemy : MonoBehaviour
     /// <summary>v3.9 (v9.17 A4): 마지막으로 띄운 피해 숫자와 그 시각 - 같은 손님이 0.1초 안에 또 맞으면 그 숫자에 더한다 (DamagePopup.CreateFor)</summary>
     [System.NonSerialized] public DamagePopup lastPopup = null;
     [System.NonSerialized] public float lastPopupTime = -10f;
+    /// <summary>v3.10: 그 숫자를 낸 포탑 (TurretSlot 출처 번호, 0 = 모름)</summary>
+    [System.NonSerialized] public int lastPopupSource = 0;
     public float scaledMaxHP;      // v3: 힐러 회복 상한용
     public float scaledATK;
     public float scaledSPD;
@@ -832,8 +834,9 @@ public class Enemy : MonoBehaviour
         currentHP -= damage;
 
         // v3.9: 크리 = 진짜 치명타만 (직접 명중의 HitFeel.OnHit 이 남긴 값. 지속 피해 틱은 항상 false)
-        bool isCritical = HitFeel.ConsumeCrit(this);
-        DamagePopup.CreateFor(this, damage, isCritical, resisted);
+        int hitSource;
+        bool isCritical = HitFeel.ConsumeHit(this, out hitSource);
+        DamagePopup.CreateFor(this, damage, isCritical, resisted, hitSource);
 
         if (currentHP <= 0f) Die();
     }
@@ -940,7 +943,9 @@ public class Enemy : MonoBehaviour
         // v3 재료 시스템 드롭 (증강 '자석 흡입기 개조' 반영)
         // v3.1: 즉시 지급 대신 흡수 연출 - 조각이 기차에 도착하면 지급 (PickupFX)
         // v3.2: 일반 손님은 KillMaterialChance 확률로만 재료를 떨어뜨린다 (물량 1.6배 상쇄). 보스는 항상
-        if (MaterialInventory.Instance != null && (isBoss || Random.value < GameBalance.KillMaterialChance))
+        // v3.10: 견습 운행(자유 연습 제외)에서는 반드시 떨어뜨린다 - 단계 목표가 "고기 2개" 인데 60% 라 1개만 나오곤 했다
+        bool sureDrop = isBoss || (GameBalance.TutorialFixedRules && TutorialDirector.Active && !TutorialDirector.SandboxActive);
+        if (MaterialInventory.Instance != null && (sureDrop || Random.value < GameBalance.KillMaterialChance))
         {
             MaterialType matType = GetDropMaterialType();
             int amount = 1;

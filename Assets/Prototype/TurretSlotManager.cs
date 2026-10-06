@@ -1,7 +1,8 @@
 using UnityEngine;
 
 /// <summary>
-/// [TurretSlotManager.cs] v2.5 (v9.16 2026-09-29 손맛 2차 - 소리: 진화 완료 sfx_fusion, 완벽 판정이면 판정음이 뒤따른다 / 오라 화염 틱은 Enemy.TakeTickDamage - 명중음 없이) / v2.4 (v9.15 2026-09-29: 파손 슬롯 - RepairAllBroken(새 운행)·BrokenCount·RepairOne(정비소) / 동종 병합 레벨 배율 표기 GameBalance.LevelMultOf) / v2.3 (v9.14 레벨 상한) / v2.1 (v9.9 2026-09-16: 슬롯 4모서리 배치 GameBalance.SlotPosition + 근접 판정 "가까운 벽 쪽 거리") / v2
+/// [TurretSlotManager.cs] v2.6 (v9.18 2026-10-06: 진화 조리는 같은 레벨끼리만(FusionSameLevelOnly) + 결과 레벨도 상한까지 / 합체·진화 때 들어간 접시 수를 넘겨받는다(폐기 환급) / 과열은 조건이 된 포탑 중 무작위 / 정비 거리 = 슬롯 앞 바닥(TrainDeck.NearestWalkPoint)까지 / 속성 줄에 마우스를 올리면 공명·옆자리 효과 설명) /
+/// v2.5 (v9.16 2026-09-29 손맛 2차 - 소리: 진화 완료 sfx_fusion, 완벽 판정이면 판정음이 뒤따른다 / 오라 화염 틱은 Enemy.TakeTickDamage - 명중음 없이) / v2.4 (v9.15 2026-09-29: 파손 슬롯 - RepairAllBroken(새 운행)·BrokenCount·RepairOne(정비소) / 동종 병합 레벨 배율 표기 GameBalance.LevelMultOf) / v2.3 (v9.14 레벨 상한) / v2.1 (v9.9 2026-09-16: 슬롯 4모서리 배치 GameBalance.SlotPosition + 근접 판정 "가까운 벽 쪽 거리") / v2
 /// 포탑 슬롯 8개를 자동 생성/관리하는 매니저 (싱글톤)
 /// - v2.1: 슬롯 위치는 GameBalance.SlotPosition(i) 한 곳에서 (모서리 4 = 북 2 지붕선 위 / 남 2 섀시 위).
 ///   FindStunnedSlotNear 는 셰프가 걸을 수 있는 띠(TrainWalkMinY~MaxY)로 슬롯 y 를 붙인 점까지의 거리로 잰다 -
@@ -100,14 +101,123 @@ public class TurretSlotManager : MonoBehaviour
         rt.anchorMin = new Vector2(1f, 0f);
         rt.anchorMax = new Vector2(1f, 0f);
         rt.pivot = new Vector2(1f, 0f);
-        rt.anchoredPosition = new Vector2(-16f, 195f);   // 하단 HUD(176px) 위
+        rt.anchoredPosition = new Vector2(-16f, 192f);   // 하단 HUD(위 끝 190) 바로 위. v2.6: 195 -> 192 (사고 배너 아래 끝 216 과 글자가 안 겹치게)
         rt.sizeDelta = new Vector2(420f, 30f);
         resonanceText.alignment = TextAnchor.LowerRight;
         resonanceText.supportRichText = true;
+
+        // v2.6: 속성 줄 설명 상자 (마우스를 올리면 뜬다 - 유저 "시너지가 어떤 버프인지 뜨게")
+        resonanceTip = KitchenEventManager.MakeBox(canvasGo.transform, "ResonanceTip", new Color(0.08f, 0.06f, 0.05f, 0.95f));
+        resonanceTip.anchorMin = new Vector2(1f, 0f);
+        resonanceTip.anchorMax = new Vector2(1f, 0f);
+        resonanceTip.pivot = new Vector2(1f, 0f);
+        resonanceTip.anchoredPosition = new Vector2(-16f, 229f);   // 속성 줄 바로 위
+        resonanceTip.sizeDelta = new Vector2(560f, 60f);
+        UnityEngine.UI.Image tipImg = resonanceTip.GetComponent<UnityEngine.UI.Image>();
+        tipImg.raycastTarget = false;
+        if (UISkin.Available)
+        {
+            // 다른 창과 같은 무쇠 평판 + 황동 테 (직접 지정 - 스킨 스캐너가 크기를 보고 파이프 테를 씌우지 않게)
+            UISkin.Plate(tipImg, Color.white);
+            UISkin.AddRing(resonanceTip, UISkin.BRASS_DIM);
+        }
+        else
+        {
+            UnityEngine.UI.Outline tipEdge = resonanceTip.gameObject.AddComponent<UnityEngine.UI.Outline>();
+            tipEdge.effectColor = new Color(0.72f, 0.44f, 0.2f, 0.9f);
+            tipEdge.effectDistance = new Vector2(2f, -2f);
+        }
+        resonanceTipText = KitchenEventManager.MakeText(resonanceTip, "Text", "", 17, new Color(0.95f, 0.9f, 0.78f));
+        RectTransform tt = resonanceTipText.rectTransform;
+        tt.anchorMin = Vector2.zero; tt.anchorMax = Vector2.one;
+        tt.offsetMin = new Vector2(14f, 10f); tt.offsetMax = new Vector2(-14f, -10f);
+        resonanceTipText.alignment = TextAnchor.UpperLeft;
+        resonanceTipText.supportRichText = true;
+        resonanceTipText.lineSpacing = 1.1f;
+        resonanceTip.gameObject.SetActive(false);
+    }
+
+    // v2.6: 속성 줄 설명
+    private RectTransform resonanceTip;
+    private UnityEngine.UI.Text resonanceTipText;
+    private string resonanceLineShown = null;   // 마지막으로 찍은 속성 줄 (바뀔 때만 폭을 다시 잰다)
+    private const float TIP_LINE_H = 24f;
+
+    /// <summary>공명에 필요한 포탑 수. 증강 '공명 폭주'는 공격 속성만 줄인다 (방어 공명은 GetDamageReduction 이 기본 개수를 쓴다)</summary>
+    private int NeedFor(FoodTag tag)
+    {
+        if (tag != FoodTag.Def && AugmentManager.ResonanceNeedOverride > 0) return AugmentManager.ResonanceNeedOverride;
+        return GameBalance.ResonanceCount;
+    }
+
+    /// <summary>슬롯 번호 -> "포탑 A 왼쪽 위" (설명 상자용)</summary>
+    private static string SlotPlaceName(int i)
+    {
+        string car = i < 4 ? "포탑 A" : "포탑 B";
+        if (!GameBalance.SlotCornerLayout) return car + " " + (i % 4 + 1) + "번";
+        int k = i % 4;
+        return car + " " + (k % 2 == 0 ? "왼쪽" : "오른쪽") + (k < 2 ? " 위" : " 아래");
+    }
+
+    /// <summary>속성 줄에 마우스가 올라와 있으면 지금 걸린 효과와 다음 조건을 풀어 쓴 상자를 띄운다</summary>
+    private void TickResonanceTip()
+    {
+        if (resonanceTip == null || resonanceText == null) return;
+        bool over = !string.IsNullOrEmpty(resonanceText.text)
+            && RectTransformUtility.RectangleContainsScreenPoint(resonanceText.rectTransform, Input.mousePosition, null);
+        if (!over)
+        {
+            if (resonanceTip.gameObject.activeSelf) resonanceTip.gameObject.SetActive(false);
+            return;
+        }
+
+        System.Text.StringBuilder sb = new System.Text.StringBuilder();
+        int lines = 0;
+        int bonusPct = Mathf.RoundToInt((GameBalance.ResonanceBonus + AugmentManager.ResonanceBonusAdd) * 100f);
+        sb.Append("<color=#FFD24D>속성 공명</color>  같은 속성 포탑을 모으면 켜진다\n"); lines++;
+        foreach (FoodTag tag in System.Enum.GetValues(typeof(FoodTag)))
+        {
+            int c = tagCounts[(int)tag];
+            if (c <= 0) continue;
+            int need = NeedFor(tag);
+            string effect = tag == FoodTag.Def ? "기차가 받는 피해 -10%" : TagKor(tag) + " 포탑 데미지 +" + bonusPct + "%";
+            if (c >= need) sb.Append("<color=#FFD24D>" + TagKor(tag) + " " + c + "/" + need + " 켜짐</color>  " + effect + "\n");
+            else sb.Append(TagKor(tag) + " " + c + "/" + need + "  " + (need - c) + "문 더 놓으면 " + effect + "\n");
+            lines++;
+        }
+
+        bool anyBuff = false;
+        for (int i = 0; i < 8; i++)
+        {
+            TurretSlot s = slots[i];
+            if (s == null || s.IsEmpty || s.isLocked) continue;
+            RecipeData r = s.Recipe;
+            if (r == null || string.IsNullOrEmpty(r.buffType)) continue;
+            if (!anyBuff)
+            {
+                sb.Append("<color=#FFD24D>이웃 강화</color>  같은 칸의 가로·세로 옆 포탑에만 닿는다\n"); lines++;
+                anyBuff = true;
+            }
+            float v = r.buffValue * s.LevelMult * AugmentManager.AdjacentBuffMul * GameBalance.AdjBuffScale;
+            string what = r.buffType == "as" ? "발사 속도" : r.buffType == "pd" ? "물리 공격력" : "속성 공격력";   // RecipeText 와 같은 낱말
+            sb.Append(r.displayName + " (" + SlotPlaceName(i) + ")  옆 포탑 " + what + " +" + Mathf.RoundToInt(v * 100f) + "%\n");
+            lines++;
+        }
+
+        string tip = sb.ToString().TrimEnd('\n');
+        if (!resonanceTip.gameObject.activeSelf) resonanceTip.gameObject.SetActive(true);
+        if (tip != resonanceTipText.text)
+        {
+            resonanceTipText.text = tip;
+            // 상자 크기 = 가장 긴 줄 + 여백 (줄 수는 위에서 센 값 - 줄바꿈 없이 쓴다)
+            float w = Mathf.Clamp(resonanceTipText.preferredWidth + 32f, 320f, 900f);
+            resonanceTip.sizeDelta = new Vector2(w, 22f + lines * TIP_LINE_H);
+        }
     }
 
     void Update()
     {
+        TickResonanceTip();   // v2.6: 정차 중·기차가 멈춘 뒤에도 설명은 읽을 수 있게 맨 앞에서
         if (train == null || !train.IsAlive) return;
         if (train.IsPowerSaveMode) return; // (구시스템 호환 - 항상 false)
 
@@ -159,6 +269,26 @@ public class TurretSlotManager : MonoBehaviour
             dmgBuff += GetResonanceBonus(r.tag);
 
             s.TickFire(dt, buffAS, dmgBuff);
+        }
+
+        // v2.6: 과열 - 전체 간격이 열렸을 때 조건이 된 포탑(임계만큼 쏜 것) 가운데 하나를 무작위로
+        //   포탑이 못 쏘는 장면(인라인 연습으로 손님이 멈춤 / 마지막 식사 / 웨이브가 끝나 사고 수습을 기다리는 중)에는 뽑지 않는다 - TickFire 와 같은 문
+        if (GameBalance.OverheatEnabled && GameBalance.OverheatRandomPick && CanOverheatNow()
+            && !TutorialDirector.InlineFreeze && !BossEnemy.LastSupperServing && !WaveManager.PostWaveHold)
+        {
+            int ready = 0;
+            for (int i = 0; i < 8; i++)
+                if (slots[i] != null && slots[i].OverheatReady) ready++;
+            if (ready > 0)
+            {
+                int pick = Random.Range(0, ready);
+                for (int i = 0; i < 8; i++)
+                {
+                    if (slots[i] == null || !slots[i].OverheatReady) continue;
+                    if (pick == 0) { slots[i].TriggerOverheat(); break; }
+                    pick--;
+                }
+            }
         }
 
         // 패시브: 재생 (해독 스튜 / 정화의 성찬 / 오메가 리페어)
@@ -266,7 +396,7 @@ public class TurretSlotManager : MonoBehaviour
         // 발동/해제 감지 (발동 순간에만 알림)
         foreach (FoodTag tag in System.Enum.GetValues(typeof(FoodTag)))
         {
-            bool active = tagCounts[(int)tag] >= GameBalance.ResonanceCount;
+            bool active = tagCounts[(int)tag] >= NeedFor(tag);   // v2.6: 증강 '공명 폭주'(3 -> 2)가 알림·HUD 에도 반영된다
             if (active && !resonanceActive.Contains(tag))
             {
                 resonanceActive.Add(tag);
@@ -292,12 +422,20 @@ public class TurretSlotManager : MonoBehaviour
                 if (c <= 0) continue;
                 if (line.Length > 0) line += "   ";
 
-                if (c >= GameBalance.ResonanceCount)
-                    line += "<color=#FFD24D>" + TagKor(tag) + " " + c + "/" + GameBalance.ResonanceCount + " 공명!</color>";
+                int need = NeedFor(tag);
+                if (c >= need)
+                    line += "<color=#FFD24D>" + TagKor(tag) + " " + c + "/" + need + " 공명!</color>";
                 else
-                    line += TagKor(tag) + " " + c + "/" + GameBalance.ResonanceCount;
+                    line += TagKor(tag) + " " + c + "/" + need;
             }
-            resonanceText.text = line.Length > 0 ? "속성:  " + line : "";
+            string shown = line.Length > 0 ? "속성:  " + line + "   <color=#8C8068>[마우스를 올리면 설명]</color>" : "";
+            if (shown != resonanceLineShown)
+            {
+                resonanceLineShown = shown;
+                resonanceText.text = shown;
+                // 글자 길이에 맞춰 줄의 폭을 잡는다 (마우스 판정 범위 = 보이는 글자 범위)
+                resonanceText.rectTransform.sizeDelta = new Vector2(Mathf.Max(200f, resonanceText.preferredWidth + 12f), 30f);
+            }
         }
     }
 
@@ -422,10 +560,18 @@ public class TurretSlotManager : MonoBehaviour
             int cap = TurretSlot.MaxLevelOf(rb);   // v2.3 (v9.14): 레벨 상한
             if (cap > 0 && merged > cap)
             {
-                if (b.level >= cap) { resultMsg = rb.displayName + " Lv" + b.level + " - 이미 최대. 다른 요리와 합체해 전설로"; return false; }
+                if (b.level >= cap)
+                {
+                    // v2.6: 전설·'선대의 기본기' 에는 진화 안내를 붙이지 않는다 (못 하는 걸 하라고 하지 않는다)
+                    resultMsg = rb.displayName + " Lv" + b.level + " - 이미 최대"
+                        + (rb.tier >= 2 || AugmentManager.BasicsDoctrine ? "" : ". 같은 레벨의 다른 기본 요리와 합쳐 전설로");
+                    return false;
+                }
                 merged = cap;
             }
+            int plates = a.platesTotal + b.platesTotal;   // v2.6: 폐기 환급용 - 두 포탑에 들어간 접시를 합친다
             b.SetTurret(b.recipeId, merged);
+            b.platesTotal = plates;
             a.ClearSlot();
             resultMsg = rb.displayName + " 합체! " + b.GradeName + "등급 Lv" + merged;
             Debug.Log("[합체] 동종 병합: " + resultMsg);
@@ -448,6 +594,13 @@ public class TurretSlotManager : MonoBehaviour
             if (fusion == null)
             {
                 resultMsg = "이 조합의 진화 레시피 없음";
+                return false;
+            }
+
+            // v2.6 (유저 10-06): 레벨이 같은 포탑끼리만 진화 - "80레벨 + 1레벨 = 81레벨 전설" 차단
+            if (GameBalance.FusionSameLevelOnly && a.level != b.level)
+            {
+                resultMsg = "레벨이 같아야 진화한다 (" + ra.displayName + " Lv" + a.level + " / " + rb.displayName + " Lv" + b.level + ") - 낮은 쪽을 먼저 올려라";
                 return false;
             }
 
@@ -548,9 +701,10 @@ public class TurretSlotManager : MonoBehaviour
     {
         if (!GameBalance.SlotCornerLayout)
             return Mathf.Abs(chefPos.x - slotPos.x);
-        float wallY = Mathf.Clamp(slotPos.y, GameBalance.TrainWalkMinY, GameBalance.TrainWalkMaxY);
-        float dx = chefPos.x - slotPos.x;
-        float dy = chefPos.y - wallY;
+        // v2.6: 슬롯에서 가장 가까운 "설 수 있는 바닥"(포탑 바로 앞 복도)까지의 거리 - 포탑이 바닥 밖 모서리에 있어도 그 앞에 서면 닿는다
+        Vector2 stand = TrainDeck.NearestWalkPoint(new Vector2(slotPos.x, slotPos.y));
+        float dx = chefPos.x - stand.x;
+        float dy = chefPos.y - stand.y;
         return Mathf.Sqrt(dx * dx + dy * dy);
     }
 
@@ -595,12 +749,21 @@ public class TurretSlotManager : MonoBehaviour
         // 레벨은 완료 시점의 실제 레벨로 계산 (미니게임 중 동종 병합으로 올랐다면 반영)
         // v2.3 (v9.14): 기본 = 둘 중 높은 레벨 (구 동작 평균 - 테스터 "전설이 더 약함": Lv3+Lv3 이 Lv3 이 돼 두 칸 화력보다 약했다)
         int newLevel = (GameBalance.FusionLevelMax ? Mathf.Max(a.level, b.level) : Mathf.Max(1, (a.level + b.level) / 2)) + bonusLevel;
+        // v2.6: 같은 레벨끼리만 규칙 - 미니게임 도중 한쪽만 올랐으면 낮은 쪽을 기준으로 (시작할 때만 맞춰 놓고 한쪽을 키우는 우회 차단)
+        if (GameBalance.FusionSameLevelOnly && a.level != b.level)
+            newLevel = Mathf.Min(a.level, b.level) + bonusLevel;
 
         // P1+: 요리 숙련 '장인의 감각'(50회) - 숙련된 T2 레시피는 탄생 레벨 +1
         if (MetaProgress.GetMasteryTier(fusion.recipeId) >= GameBalance.MasteryStartLevelTier)
             newLevel += 1;
 
+        // v2.6: 전설 상한 (보너스가 겹쳐도 넘지 않는다) + 폐기 환급용 접시 수 넘겨받기
+        int fusionCap = TurretSlot.MaxLevelOf(fusion);
+        if (fusionCap > 0) newLevel = Mathf.Min(newLevel, fusionCap);
+        int plates = a.platesTotal + b.platesTotal;
+
         b.SetTurret(fusion.recipeId, newLevel);
+        b.platesTotal = plates;
         a.ClearSlot();
 
         // 도감 발견 처리 (수량 0으로 등록 - FoodStock.Add는 0이어도 발견 처리)
@@ -626,7 +789,7 @@ public class TurretSlotManager : MonoBehaviour
     {
         // 1순위: 같은 요리가 이미 있는 슬롯 (레벨업)
         for (int i = 0; i < 8; i++)
-            if (slots[i] != null && !slots[i].isLocked && slots[i].recipeId == recipeId)
+            if (slots[i] != null && !slots[i].isLocked && slots[i].recipeId == recipeId && !slots[i].AtMaxLevel)   // v2.6: 상한에 닿은 포탑은 건너뛴다 (다음 같은 요리·빈 슬롯으로)
                 return slots[i].TryInsertFood(recipeId);
 
         // 2순위: 해금된 빈 슬롯 (v2.4: 파손 슬롯은 건너뛴다)

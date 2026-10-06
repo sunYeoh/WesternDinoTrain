@@ -4,7 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 /// <summary>
-/// [KitchenEventManager.cs] v4.10 (v9.16 2026-09-29 손맛 2차 - 소리: 사고 시작 = 경보 + 종류별 소리(SoundKeys.Event: 침입 발소리 / 고장 쇠 삐걱 / 화재 불붙음 / 흘림 쏟아짐) + 배경음 덕킹 / 끝나면 덕킹 해제 / 결과 sfx_event_resolve·sfx_event_fail) / v4.9 (v9.15 2026-09-29 2차 피드백: 사고 해결 연출 - 현장 초록 링 2겹 + "해결!" + 화면 테두리 초록 한 번 + 배너가 초록 "해결 - 기차 HP +n"으로 바뀌고 EventResolveHoldSec 뒤 내려감 / 실패는 붉은 "실패" + "[사고 실패] ... 기차 HP -n" 한 줄 (훈련장에서 결과를 알게) / ForceEvent(kind) - 자유 연습 [2]~[5] / 자유 연습 중 첫 등장 카드는 세션당 1회) / v4.8 (v9.14 2026-09-28 테스터 반영: 사고 현장에 월드 마커(붉은 화살표 + 링) - "직접 가야 한다는 인식 부족" / 흘림 조각이 사고 배너 뒤에 가려지던 것 - 커스텀 층을 배너 위로) / v4.7 (v9.12 2026-09-22: 인라인 연습 중 사고 타이머 정지) / v4.6 (v9.11 2026-09-22: MakeButton 에 ButtonFeel) / v4.5 (v9.10 2026-09-17 테스터 피드백 "사고 중에 증강 선택이 뜨면 사고가 끝난다": 웨이브가 끝나 정차로 넘어가며 사고가 취소될 때 "정차 정비로 사고가 정리됐다 (벌점 없음)" 알림 - 조용히 사라지던 것) / v4.4 (v9.9.2 2026-09-16: 사고 종류별 첫 등장 카드 - StartEvent 에서 BriefingUI.ShowOnce("event_<종류>"), 카드가 뜨면 시간이 멈춰 제한 시간은 그 뒤 흐른다) / v4.3 (v9.9 2026-09-16: 견습 운행 중 F11 무시 - 이벤트 자체는 WaveManager.TutorialGateActive 로 쉰다) / v4.2 (v9.8.1: F11 강제 발생은 GameBalance.CheatsAllowed 일 때만) / v4.1 (2026-09-14: 마모 off 가중치 / 프롤로그 게이트 차단) / v4
+/// [KitchenEventManager.cs] v4.11 (v9.18 2026-10-06: 경광등 2개를 기차 상황판 양옆으로(구 자리는 커진 좌우 판 위) / 실패 피해를 기차 최대 HP 에 맞춰 키우고 방어력으로 깎지 않는다(EventFailScaleOn - "HP 2800 에 19 닳던 것") / 웨이브가 끝나 사고 수습을 기다리는 동안(WaveManager.PostWaveHold) 새 사고를 시작하지 않는다 / MakeText 최소 글자 크기 / AnchorCanvasX 를 캔버스 실제 폭으로 - 1920 고정이라 현장 그림이 바깥으로 밀려 있었다) / v4.10 (v9.16 2026-09-29 손맛 2차 - 소리: 사고 시작 = 경보 + 종류별 소리(SoundKeys.Event: 침입 발소리 / 고장 쇠 삐걱 / 화재 불붙음 / 흘림 쏟아짐) + 배경음 덕킹 / 끝나면 덕킹 해제 / 결과 sfx_event_resolve·sfx_event_fail) / v4.9 (v9.15 2026-09-29 2차 피드백: 사고 해결 연출 - 현장 초록 링 2겹 + "해결!" + 화면 테두리 초록 한 번 + 배너가 초록 "해결 - 기차 HP +n"으로 바뀌고 EventResolveHoldSec 뒤 내려감 / 실패는 붉은 "실패" + "[사고 실패] ... 기차 HP -n" 한 줄 (훈련장에서 결과를 알게) / ForceEvent(kind) - 자유 연습 [2]~[5] / 자유 연습 중 첫 등장 카드는 세션당 1회) / v4.8 (v9.14 2026-09-28 테스터 반영: 사고 현장에 월드 마커(붉은 화살표 + 링) - "직접 가야 한다는 인식 부족" / 흘림 조각이 사고 배너 뒤에 가려지던 것 - 커스텀 층을 배너 위로) / v4.7 (v9.12 2026-09-22: 인라인 연습 중 사고 타이머 정지) / v4.6 (v9.11 2026-09-22: MakeButton 에 ButtonFeel) / v4.5 (v9.10 2026-09-17 테스터 피드백 "사고 중에 증강 선택이 뜨면 사고가 끝난다": 웨이브가 끝나 정차로 넘어가며 사고가 취소될 때 "정차 정비로 사고가 정리됐다 (벌점 없음)" 알림 - 조용히 사라지던 것) / v4.4 (v9.9.2 2026-09-16: 사고 종류별 첫 등장 카드 - StartEvent 에서 BriefingUI.ShowOnce("event_<종류>"), 카드가 뜨면 시간이 멈춰 제한 시간은 그 뒤 흐른다) / v4.3 (v9.9 2026-09-16: 견습 운행 중 F11 무시 - 이벤트 자체는 WaveManager.TutorialGateActive 로 쉰다) / v4.2 (v9.8.1: F11 강제 발생은 GameBalance.CheatsAllowed 일 때만) / v4.1 (2026-09-14: 마모 off 가중치 / 프롤로그 게이트 차단) / v4
 /// 주방 돌발 이벤트 총괄 매니저 (기획 B-4)
 /// - v4 (v9.6, 2026-09-09): "화면 전체 경보" - 기차 안 작은 아이콘은 조리하다 놓친다는 피드백
 ///   * 경보 글로우: 화면 가장자리 붉은(이벤트별 색) 비네트가 0.6초 주기로 맥동 (삐뽀삐뽀). SetAlarm(color, strength)
@@ -78,7 +78,13 @@ public class KitchenEventManager : MonoBehaviour
     private float alarmTime = 0f;
     private const float ALARM_PERIOD = 0.6f;  // 삐뽀삐뽀 주기 (초)
     private const float BEACON_BLINK = 0.3f;  // 경광등 교대 주기 (초)
-    private const float BANNER_Y = 288f;      // 배너 아래 기준 위치 (HUD 184 + 불의 벽 96 + 8)
+    private const float BANNER_H = 144f;      // 배너 높이
+    /// <summary>
+    /// 배너 아래 끝 (화면 아래에서, 캔버스 단위). 배너 위 끝이 화면 높이의 40% = 기본 줌에서 기차 바닥 선 바로 아래에 오게 잡는다.
+    /// 구: 288 고정 (UI 배율 1.0 에서 맞춘 값 = HUD 184 + 불의 벽 96 + 8) - UI 배율을 올릴수록 배너가 기차 남쪽 절반(남쪽 포탑·조리대) 위로 올라왔다.
+    /// UI 배율 1.0 = 288 (그대로) / 1.12 = 242 / 1.2 = 216. 하단 HUD(184) 아래로는 안 내려간다
+    /// </summary>
+    private static float BannerY { get { return Mathf.Max(184f + 8f, UIFactory.RefResolution.y * 0.4f - BANNER_H); } }
 
     private static bool skinChecked, skinReady;
 
@@ -140,13 +146,18 @@ public class KitchenEventManager : MonoBehaviour
     private const int SITE_ARROW_ORDER = 7;   // 셰프(0+)·포탑 위
     private const int SITE_RING_ORDER = -3;   // 갑판(-6~-4) 위, 조리대 아래
 
-    /// <summary>앵커의 캔버스 X 좌표 (이벤트 아이콘 배치용, 1920 기준. 앵커 없으면 0)</summary>
+    /// <summary>앵커의 캔버스 X 좌표 (이벤트 아이콘 배치용. 앵커 없으면 0)</summary>
     public float AnchorCanvasX()
     {
         if (!HasAnchor || Camera.main == null) return 0f;
         float screenX = Camera.main.WorldToScreenPoint(new Vector3(AnchorX, 0f, 0f)).x;
-        float canvasX = (screenX / Mathf.Max(1f, Screen.width) - 0.5f) * 1920f;
-        return Mathf.Clamp(canvasX, -700f, 700f);
+        // v4.11: 캔버스의 실제 폭으로 바꾼다. 구: 1920 고정 - UI 배율(v9.14)을 넣은 뒤로 캔버스 폭은 1920 / UIScale 이라
+        //   현장 그림(불길·발톱·고장 카드)이 화면 가운데에서 멀수록 실제 자리보다 바깥으로 밀려 있었다
+        RectTransform crt = canvas != null ? canvas.transform as RectTransform : null;
+        float canvasW = crt != null && crt.rect.width > 1f ? crt.rect.width : UIFactory.RefResolution.x;
+        float canvasX = (screenX / Mathf.Max(1f, Screen.width) - 0.5f) * canvasW;
+        float limit = Mathf.Max(100f, canvasW * 0.5f - 260f);
+        return Mathf.Clamp(canvasX, -limit, limit);
     }
 
     /// <summary>매 프레임 셰프-앵커 근접 갱신 (RunCurrentEvent에서 호출)</summary>
@@ -307,6 +318,13 @@ public class KitchenEventManager : MonoBehaviour
         // v3.4: 보스전 중에는 새 이벤트 시작 금지 (보스 패턴이 방해 역할을 대신 - 인지 과부하 방지)
         // 진행 중이던 이벤트는 위에서 정상 처리된다
         if (BossGimmickSystem.Instance != null && BossGimmickSystem.Instance.HasActiveBoss)
+        {
+            nextEventTime = Mathf.Max(nextEventTime, Time.time + 5f);
+            return;
+        }
+
+        // v4.11: 웨이브가 끝나 진행 중인 사고의 수습을 기다리는 동안에는 새 사고 없음
+        if (WaveManager.PostWaveHold)
         {
             nextEventTime = Mathf.Max(nextEventTime, Time.time + 5f);
             return;
@@ -648,9 +666,29 @@ public class KitchenEventManager : MonoBehaviour
         amount *= AugmentManager.EventPenaltyMul * ItemManager.EventPenaltyMul;
         TrainManager tm = Object.FindFirstObjectByType<TrainManager>();
         if (tm == null) return;
-        tm.TakeDamage(amount);
-        // 만약 TakeDamage가 공격자 인자를 필수로 요구해서 에러가 나면 위 줄을 아래로 교체
-        // tm.TakeDamage(amount, null);
+
+        // v4.11 (유저 10-06 "HP 2800 인데 실패해도 19 닳는다"): 사고 표의 값은 기차 HP 500 기준이다.
+        //   구 동작은 그 고정값에서 방어력을 빼서(TakeDamage) 정비소로 HP·방어를 올릴수록 사고가 공짜가 됐다.
+        //   지금은 최대 HP 비율로 키우고 방어력을 건너뛴다 (예: 침입 실패 60 = 최대 HP 의 12%). 받는 피해 감소(%)와 증기 보호막은 그대로 먹는다
+        if (GameBalance.EventFailScaleOn)
+        {
+            float scale = Mathf.Max(1f, tm.currentMaxHP / Mathf.Max(1f, GameBalance.EventFailRefHP));
+            tm.TakeDamageIgnoringDef(amount * scale);
+        }
+        else tm.TakeDamage(amount);
+    }
+
+    /// <summary>
+    /// v4.11: 사고가 진행되는 동안 조금씩 들어오는 피해 (화재가 타는 동안의 틱). 표의 값 그대로 - 최대 HP 비례는 "실패 한 방"(DamageTrain)에만 건다.
+    /// 방어력은 건너뛴다: 틱은 값이 작아(2.5 ~ 5) 방어력을 빼면 언제나 1 이 됐다
+    /// </summary>
+    public void DamageTrainTick(float amount)
+    {
+        amount *= AugmentManager.EventPenaltyMul * ItemManager.EventPenaltyMul;
+        TrainManager tm = Object.FindFirstObjectByType<TrainManager>();
+        if (tm == null) return;
+        if (GameBalance.EventFailScaleOn) tm.TakeDamageIgnoringDef(amount);
+        else tm.TakeDamage(amount);
     }
 
     /// <summary>이벤트 성공 보상 - 기차 회복 (아이템 '부채질 장인의 부채'가 배율을 올린다)</summary>
@@ -713,8 +751,8 @@ public class KitchenEventManager : MonoBehaviour
         panelRoot.anchorMin = new Vector2(0.5f, 0f);
         panelRoot.anchorMax = new Vector2(0.5f, 0f);
         panelRoot.pivot = new Vector2(0.5f, 0f);
-        panelRoot.anchoredPosition = new Vector2(0f, BANNER_Y);   // v4: 하단 HUD(184px) + 불의 벽(96px) 위
-        panelRoot.sizeDelta = new Vector2(760f, 144f);
+        panelRoot.anchoredPosition = new Vector2(0f, BannerY);   // v4.11: 기차 바닥 선 바로 아래 (UI 배율을 따라 내려간다)
+        panelRoot.sizeDelta = new Vector2(760f, BANNER_H);
         Image panelImg = panelRoot.GetComponent<Image>();
         panelImg.raycastTarget = false;
         customRoot.SetAsLastSibling();   // v4.8: 흘림 조각·이벤트 부품이 배너 뒤에 가려지지 않게 (테스터 "떨어진 재료가 창에 가려 안 보임")
@@ -769,7 +807,8 @@ public class KitchenEventManager : MonoBehaviour
             {
                 RectTransform brt = MakeBox(canvasGo.transform, "Beacon_" + i, Color.white);
                 brt.anchorMin = new Vector2(0.5f, 1f); brt.anchorMax = new Vector2(0.5f, 1f);
-                brt.anchoredPosition = new Vector2(i == 0 ? -444f : 444f, -44f);
+                // v4.11: 기차 상황판(폭 460, 위에서 8 ~ 42) 양옆. 구 (±444, -44) 는 씬 HUD 가 UI 배율을 따르면서 커진 좌상단·우상단 판 위에 올라탔다
+                brt.anchoredPosition = new Vector2(i == 0 ? -270f : 270f, -26f);
                 brt.sizeDelta = new Vector2(32f, 32f);
                 beacons[i] = brt.GetComponent<Image>();
                 beacons[i].sprite = SpriteBank.Get("ui_ev_beacon_0");
@@ -901,7 +940,7 @@ public class KitchenEventManager : MonoBehaviour
         Text txt = go.AddComponent<Text>();
         txt.text = content;
         txt.font = GetFont();
-        txt.fontSize = size;
+        txt.fontSize = GameBalance.UIFontFloor > 0 ? Mathf.Max(size, GameBalance.UIFontFloor) : size;   // v4.11: 최소 글자 크기
         txt.color = color;
         txt.alignment = TextAnchor.MiddleCenter;
         txt.horizontalOverflow = HorizontalWrapMode.Overflow;

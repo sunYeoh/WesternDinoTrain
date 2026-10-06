@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 
 /// <summary>
-/// [BossEnemy.cs] v7.7 (v9.17 2026-10-06 화면 손맛 2차 - D2 등장: 첫 등장 카드가 닫힌 뒤 배경이 0.5초 어두워졌다가 흔들림 + 포효 + 이름 예고가 같이 나온다 / A11 처치: 히트스톱 뒤 0.25초 슬로모션 + 줌 당김 / 식사 엔딩의 Die 는 히트스톱·흔들림·킬 버스트 없이 조용히 / EndingWhistled - 엔딩 쪽에서 기적을 울렸으면 승리 화면이 또 울리지 않는다) / v7.6 (v9.16 2026-09-29 손맛 2차 - 소리: 등장 포효 = 종류별(SoundKeys.BossRoar - 녹슨 발톱 무리 울음 / 천둥 둥지 번개 / 동면자 얼음 / 디 오리지널 기본 포효 + 낮은 기적 sfx_whistle_low, 예습 보스는 작게) / 엔딩 B 두 번째 기적 = 낮은 기적 / 공격음은 Enemy.AttackTrain 이 종류별로) / v7.5 (v9.15.1 2026-09-29 스토리 개정: 디 오리지널 = 급식 열차 1호였던 것 - 등장에 낡은 기적 + 안내 문구, 폭식 = 원료 삼키기, 해치 = 기관심장이 드러남 / 마지막 식사 장면 LastSupperRoutine - 포탑 정지(LastSupperServing)·남은 손님 물러남·천천히 씹기(LastSupperChewSec)·두 대의 기적 -> 엔딩 B 글 / 격파 엔딩 = 기적 한 번 + "철길이 열렸다") / v7.4 (v9.12 2026-09-22: practice = 견습 구간 7 "새끼 발톱" - 녹슨 발톱 고정, HP·공격력 배율(GameBalance.BossPractice*), 0.7배 크기, 패턴·무방비·발악 없음(돌진만), 처치해도 재료·베팅·"승리" 없음(ClearBossUI) / TutorialDirector.InlineFreeze 동안 정지) / v7.3 (v9.11.1 2026-09-22 문구: 무방비, 실행 가능한 예고) / v7.2 (v9.10.1 2026-09-21: 재료 이름 전기알) / v7.1 (교수 피드백 C3: 디 오리지널 추가 그로기 / A8: 재가동 문구) / v6 - 보스 패턴 C단계 1차 (보스패턴설계 문서)
+/// [BossEnemy.cs] v7.8 (v9.18 2026-10-06 - 서는 자세: 기차 옆에 이르면 나란히(머리가 기차 진행 방향) 돌아서서 선다 - 몸 전체가 지붕과 HP 바 사이에 보이게(GameBalance.BossFaceAlongTrain·BossStandOff·BossTurnZone, MoveTowardsTrain 재정의 + HoldStance) / 그림: boss_<종류>.png 를 입힌다(없으면 프리팹의 색 사각형 그대로), 상태 그림 _groggy·_rage·_p2·_p3 는 있으면 자동, 상태 발광 = 그림 위 흰 실루엣(예고 흰빛 / 무방비 금빛 / 발악 붉은 맥동) / 등장: 포효와 함께 경고 띠(WarningFX.BossIntro) + HP 바가 차오른다, 대응법 안내는 띠가 걷힌 뒤 / 발악 신호: 붉은 경고 + 흔들림 + 포효 / 버그: 공격 거리를 기차 "중심"에서 재서 옆에서 온 보스는 기차 위에 올라앉아 물지도 않았다 -> 가장 가까운 몸통에서 잰다, 돌진 방향도. 무는 양은 BossMeleeMul) / v7.7 (v9.17 2026-10-06 화면 손맛 2차 - D2 등장: 첫 등장 카드가 닫힌 뒤 배경이 0.5초 어두워졌다가 흔들림 + 포효 + 이름 예고가 같이 나온다 / A11 처치: 히트스톱 뒤 0.25초 슬로모션 + 줌 당김 / 식사 엔딩의 Die 는 히트스톱·흔들림·킬 버스트 없이 조용히 / EndingWhistled - 엔딩 쪽에서 기적을 울렸으면 승리 화면이 또 울리지 않는다) / v7.6 (v9.16 2026-09-29 손맛 2차 - 소리: 등장 포효 = 종류별(SoundKeys.BossRoar - 녹슨 발톱 무리 울음 / 천둥 둥지 번개 / 동면자 얼음 / 디 오리지널 기본 포효 + 낮은 기적 sfx_whistle_low, 예습 보스는 작게) / 엔딩 B 두 번째 기적 = 낮은 기적 / 공격음은 Enemy.AttackTrain 이 종류별로) / v7.5 (v9.15.1 2026-09-29 스토리 개정: 디 오리지널 = 급식 열차 1호였던 것 - 등장에 낡은 기적 + 안내 문구, 폭식 = 원료 삼키기, 해치 = 기관심장이 드러남 / 마지막 식사 장면 LastSupperRoutine - 포탑 정지(LastSupperServing)·남은 손님 물러남·천천히 씹기(LastSupperChewSec)·두 대의 기적 -> 엔딩 B 글 / 격파 엔딩 = 기적 한 번 + "철길이 열렸다") / v7.4 (v9.12 2026-09-22: practice = 견습 구간 7 "새끼 발톱" - 녹슨 발톱 고정, HP·공격력 배율(GameBalance.BossPractice*), 0.7배 크기, 패턴·무방비·발악 없음(돌진만), 처치해도 재료·베팅·"승리" 없음(ClearBossUI) / TutorialDirector.InlineFreeze 동안 정지) / v7.3 (v9.11.1 2026-09-22 문구: 무방비, 실행 가능한 예고) / v7.2 (v9.10.1 2026-09-21: 재료 이름 전기알) / v7.1 (교수 피드백 C3: 디 오리지널 추가 그로기 / A8: 재가동 문구) / v6 - 보스 패턴 C단계 1차 (보스패턴설계 문서)
 /// - v6 변경점:
 ///   1) 미끼 도발 대응: 도발 중엔 미끼를 쫓아가고 물어뜯는다 (기차 무피해)
 ///   2) 디 오리지널 3페이즈:
@@ -134,6 +134,20 @@ public class BossEnemy : Enemy
     private Color baseTint = Color.white;
     private WaveManager waveManagerRef;
 
+    // ── v7.8: 그림 (boss_*.png) ──
+    private static readonly string[] SKIN_KEYS = { "rust", "thunder", "hibernator", "original" };   // BossKind 순서
+    private const int SKIN_SORT = 6;        // 일반 손님(5) 위
+    private SpriteRenderer skin;            // 보스 그림 (PNG 가 없으면 null)
+    private SpriteRenderer glow;            // 그림 위에 겹친 흰 실루엣 - 상태 발광
+    private string skinBase = "";           // "boss_rust" 등
+    private string skinShown = "";          // 지금 보이는 그림 이름
+    private bool telegraphing = false;      // 패턴 예고 중 (흰빛)
+
+    /// <summary>v7.8: 발악 중인가 (보스 HP 바의 색·딱지)</summary>
+    public bool IsEnraged { get { return enraged; } }
+    /// <summary>v7.8: 디 오리지널 해치 개방 중인가 (보스 HP 바 딱지)</summary>
+    public bool HatchOpen { get { return hatchOpen; } }
+
     private void Awake()
     {
         // 보스 데이터 초기화 (이름/수치는 Start에서 지역 기반으로 채움)
@@ -224,6 +238,12 @@ public class BossEnemy : Enemy
         baseResistanceValue = resistance;
 
         attackRange = bossAttackRange;
+        // v7.8: 나란히 서는 자세(BossFaceAlongTrain)면 서는 거리는 GameBalance.BossStandOff (보스 종류별 - 몸 옆면이 지붕 바로 밖에 오는 값).
+        //   프리팹 값(5 / 6.5)은 머리부터 들이받는 자세의 거리라, 나란히 설 때 쓰면 기차에서 너무 멀다
+        float[] standOff = GameBalance.BossStandOff;
+        int standIdx = (int)kind;
+        if (GameBalance.BossFaceAlongTrain && standOff != null && standIdx >= 0 && standIdx < standOff.Length && standOff[standIdx] > 0.1f)
+            attackRange = standOff[standIdx];
         attackCooldown = bossAttackCooldown;
 
         GameObject trainObj = GameObject.FindGameObjectWithTag("Train");
@@ -231,8 +251,9 @@ public class BossEnemy : Enemy
         trainManager = FindFirstObjectByType<TrainManager>();
         waveManagerRef = FindFirstObjectByType<WaveManager>();
 
-        // 색 입히기 (자식 스프라이트 전부)
-        sprites = GetComponentsInChildren<SpriteRenderer>();
+        // 색 입히기 (자식 스프라이트 전부). v7.8: 보스 그림이 있으면 그걸 입히고 프리팹의 색 사각형은 끈다 (그림엔 자기 색이 있으니 틴트는 흰색)
+        if (SetupSkin()) { sprites = new SpriteRenderer[] { skin }; baseTint = Color.white; }
+        else sprites = GetComponentsInChildren<SpriteRenderer>();
         ApplyTint(baseTint);
 
         // 동면자: 개전 시 빙하 갑주 전개
@@ -245,7 +266,11 @@ public class BossEnemy : Enemy
         BossGimmickSystem.Instance?.RegisterBoss(this);
         EndingWhistled = false;
         // v7.7 (D2): 등장 연출 - 예습 보스와 연출 끔은 예전처럼 바로 포효
-        if (!practice && GameBalance.BossEntranceOn && GameBalance.GameFeelMaster > 0f) StartCoroutine(EntranceRoutine(intro));
+        if (!practice && GameBalance.BossEntranceOn && GameBalance.GameFeelMaster > 0f)
+        {
+            BossGimmickSystem.Instance?.HoldBarForIntro();   // v7.8: HP 바는 포효 순간에 내려와 차오른다
+            StartCoroutine(EntranceRoutine(intro));
+        }
         else AnnounceEntrance(intro);
 
         Debug.Log("[BossEnemy] " + data.enemyName + " 등장! (웨이브 " + wave + ") HP:" + (int)bossMaxHP
@@ -258,9 +283,141 @@ public class BossEnemy : Enemy
     /// <summary>이름 예고 + 등장 포효 (종류별. 예습 보스는 작게). 디 오리지널은 포효 뒤 1호의 낮은 기적</summary>
     private void AnnounceEntrance(string intro)
     {
-        UIManager.Instance?.ShowWaveNotice("[" + data.enemyName + "]", intro);
+        // v7.8: 경고 띠(이름) -> 띠가 걷힌 뒤 대응법 안내. 같은 순간에 이름을 두 군데서 말하지 않는다. 예습 보스·연출 끔은 예전처럼 안내만
+        float band = (!practice && GameBalance.GameFeelMaster > 0f) ? GameBalance.BossIntroBandSec : 0f;
+        if (band > 0f)
+        {
+            WarningFX.BossIntro(data.enemyName, Epithet(), band);
+            StartCoroutine(NoticeAfter(Mathf.Max(0f, band - 0.2f), "[" + data.enemyName + "]", intro));
+        }
+        else UIManager.Instance?.ShowWaveNotice("[" + data.enemyName + "]", intro);
+        if (!practice) BossGimmickSystem.Instance?.PlayBarIntro();
         SoundManager.Play(SoundKeys.BossRoar(kind.ToString()), practice ? 0.6f : 1f, -1f);
         if (kind == BossKind.Original && !practice) SoundManager.PlayDelayed("sfx_whistle_low", 0.8f);   // v7.5: 낡은 기적 - 두 기차의 관계 단서
+    }
+
+    /// <summary>v7.8: 경고 띠에 이름 아래 한 줄 (보스가 무엇인지 - 기존 카드·안내에 쓰던 말)</summary>
+    private string Epithet()
+    {
+        switch (kind)
+        {
+            case BossKind.RustClaw: return "무리의 왕";
+            case BossKind.ThunderNest: return "프테라 여왕";
+            case BossKind.Hibernator: return "고대 모사";
+            default: return "급식 열차 1호였던 것";
+        }
+    }
+
+    /// <summary>v7.8: sec 초(실시간) 뒤 가운데 예고. 그사이 쓰러졌으면 안 띄운다</summary>
+    private IEnumerator NoticeAfter(float sec, string title, string body)
+    {
+        float t = 0f;
+        while (t < sec) { t += Time.unscaledDeltaTime; yield return null; }
+        if (IsAlive) UIManager.Instance?.ShowWaveNotice(title, body);
+    }
+
+    // ─────────────────────────────────────────────
+    // v7.8: 그림
+    // ─────────────────────────────────────────────
+    /// <summary>boss_<종류>.png 를 자식 "Skin" 으로 붙인다. PNG 가 없거나 스위치가 꺼져 있으면 false (프리팹 그림 유지)</summary>
+    private bool SetupSkin()
+    {
+        if (!GameBalance.BossSkinOn) return false;
+        int k = Mathf.Clamp((int)kind, 0, SKIN_KEYS.Length - 1);
+        skinBase = "boss_" + SKIN_KEYS[k];
+        Sprite s = SpriteBank.Get(skinBase);
+        if (s == null) return false;
+
+        // 프리팹의 색 사각형 끄기 (로직·태그는 그대로)
+        SpriteRenderer[] old = GetComponentsInChildren<SpriteRenderer>(true);
+        for (int i = 0; i < old.Length; i++) old[i].enabled = false;
+
+        // 크기: 그림 배율 / 루트 스케일. 예습 보스는 루트가 이미 BossPracticeScale 만큼 줄어 있어 그림도 같이 줄어든다
+        float rootScale = Mathf.Abs(transform.localScale.x);
+        if (practice && GameBalance.BossPracticeScale > 0.01f) rootScale /= GameBalance.BossPracticeScale;
+        if (rootScale < 0.01f) rootScale = 1f;
+        float want = (GameBalance.BossSkinScale != null && k < GameBalance.BossSkinScale.Length) ? GameBalance.BossSkinScale[k] : 0.85f;
+        float local = want / rootScale;
+
+        GameObject go = new GameObject("Skin");
+        go.transform.SetParent(transform, false);
+        go.transform.localPosition = Vector3.zero;
+        go.transform.localRotation = Quaternion.identity;
+        go.transform.localScale = new Vector3(local, local, 1f);
+        skin = go.AddComponent<SpriteRenderer>();
+        skin.sprite = s;
+        skin.sortingOrder = SKIN_SORT;
+        skinShown = skinBase;
+
+        // 상태 발광용 흰 실루엣 (이름이 Flash_ 로 시작하면 HitFeelBody 가 몸으로 세지 않는다)
+        Sprite white = FlashSprites.Get(s);
+        if (white != null)
+        {
+            GameObject g = new GameObject("Flash_BossGlow");
+            g.transform.SetParent(go.transform, false);
+            glow = g.AddComponent<SpriteRenderer>();
+            glow.sprite = white;
+            glow.sortingOrder = SKIN_SORT + 1;
+            glow.color = new Color(1f, 1f, 1f, 0f);
+            glow.enabled = false;
+        }
+        Debug.Log("[BossEnemy] 그림 " + skinBase + " 적용 (배율 " + want + ")");
+        return true;
+    }
+
+    /// <summary>지금 상태에 맞는 그림 이름. 상태 그림(_groggy / _rage / _p2 / _p3)은 파일이 있을 때만 쓴다</summary>
+    private string WantedSkin()
+    {
+        if (isGroggy && SpriteBank.Has(skinBase + "_groggy")) return skinBase + "_groggy";
+        if (kind == BossKind.Original)
+        {
+            if (originalPhase >= 3)
+            {
+                if (SpriteBank.Has(skinBase + "_p3")) return skinBase + "_p3";
+                if (SpriteBank.Has(skinBase + "_groggy")) return skinBase + "_groggy";   // 해치가 열린 그림 = 기관심장이 드러난 P3
+            }
+            else if (originalPhase == 2 && SpriteBank.Has(skinBase + "_p2")) return skinBase + "_p2";
+        }
+        if (enraged && SpriteBank.Has(skinBase + "_rage")) return skinBase + "_rage";
+        return skinBase;
+    }
+
+    /// <summary>매 프레임: 상태 그림 바꾸기 + 상태 발광 (예고 = 흰빛 깜빡 / 무방비 = 금빛 / 발악 = 붉은 맥동). 그림이 없으면 아무것도 안 한다</summary>
+    private void TickSkin()
+    {
+        if (skin == null) return;
+
+        string want = WantedSkin();
+        if (want != skinShown)
+        {
+            Sprite s = SpriteBank.Get(want);
+            if (s != null)
+            {
+                skin.sprite = s;
+                if (glow != null) { Sprite w = FlashSprites.Get(s); if (w != null) glow.sprite = w; }
+            }
+            skinShown = want;
+        }
+
+        if (glow == null) return;
+        Color c = Color.clear;
+        float t = Time.time;
+        if (isServing) c = Color.clear;
+        else if (isGroggy) c = new Color(1f, 0.85f, 0.35f, 0.22f + 0.1f * Mathf.Sin(t * 5f));
+        else if (telegraphing) c = new Color(1f, 1f, 1f, 0.3f + 0.25f * Mathf.Sin(t * 14f));
+        else if (enraged && GameBalance.BossEnrageSignal) c = new Color(1f, 0.15f, 0.08f, 0.16f + 0.12f * Mathf.Sin(t * 7f));
+        c.a *= Mathf.Clamp01(GameBalance.GameFeelMaster);
+        if (c.a <= 0.01f) { if (glow.enabled) glow.enabled = false; }
+        else { glow.color = c; if (!glow.enabled) glow.enabled = true; }
+    }
+
+    /// <summary>v7.8: 무는 양 배율 - 정식 보스 GameBalance.BossMeleeMul / 예습 보스 BossPracticeMeleeMul (공격력 자체의 BossPracticeAtkMul 과 별개)</summary>
+    protected override void AttackTrain()
+    {
+        float keep = scaledATK;
+        scaledATK = keep * (practice ? GameBalance.BossPracticeMeleeMul : GameBalance.BossMeleeMul);
+        base.AttackTrain();
+        scaledATK = keep;
     }
 
     /// <summary>
@@ -306,6 +463,7 @@ public class BossEnemy : Enemy
 
         // 도트/방깎 타이머 (v3에서 수정된 보스 도트 버그 유지)
         TickStatusEffects();
+        TickSkin();   // v7.8: 상태 그림·발광
 
         // 빙하 갑주 파괴 판정 (화상 스택 누적 감시)
         if (armorActive && TotalBurnApplied - burnBaseline >= GameBalance.GlacierBreakBurnStacks)
@@ -316,6 +474,13 @@ public class BossEnemy : Enemy
         {
             enraged = true;
             UIManager.Instance?.ShowStatChange("[" + data.enemyName + "] 발악! 패턴이 빨라진다!");
+            // v7.8: 알림 한 줄로는 지나쳤다 - 붉은 경고 + 흔들림 + 포효 한 번. 그 뒤로 몸에 붉은 맥동(TickSkin), HP 바에 "발악" 딱지
+            if (GameBalance.BossEnrageSignal && GameBalance.GameFeelMaster > 0f)
+            {
+                WarningFX.Flash("[" + data.enemyName + "] 발악!", 1.4f);
+                GameFeel.Shake(GameBalance.ShakeBoss * 0.7f);
+                SoundManager.Play(SoundKeys.BossRoar(kind.ToString()), 0.8f, -1f);
+            }
             Debug.Log("[BossEnemy] 발악 페이즈 진입!");
         }
 
@@ -350,15 +515,56 @@ public class BossEnemy : Enemy
 
         // 통상 이동/공격 (v6: 도발 중이면 미끼를 추적)
         attackTimer += Time.deltaTime;
-        float distanceToTrain = Vector3.Distance(transform.position, CurrentTarget.position);
+        // v7.8: 가장 가까운 기차 몸통까지의 거리 (Enemy 와 같은 기준). 구: 기차 "중심"(0,0)까지 - 기차가 4칸으로 길어진 뒤로
+        //   중심에서 5u 밖으로 다가온 보스(옆에서 온 경우 대부분)는 영영 사거리에 못 들고 기차 위에 올라앉아 물지도 않았다
+        float distanceToTrain = Vector3.Distance(transform.position, CurrentTargetPos);
 
         if (distanceToTrain > attackRange)
             MoveTowardsTrain();
-        else if (attackTimer >= attackCooldown)
+        else
         {
-            attackTimer = 0f;
-            StartCoroutine(AttackLunge());
+            HoldStance();   // v7.8: 기차와 나란히
+            if (attackTimer >= attackCooldown)
+            {
+                attackTimer = 0f;
+                StartCoroutine(AttackLunge());
+            }
         }
+    }
+
+    // ─────────────────────────────────────────────
+    // v7.8: 서는 자세 - 기차와 나란히 (GameBalance.BossFaceAlongTrain)
+    //   그림은 오른쪽을 보고 그려져 있고, 손님은 가는 쪽으로 몸을 돌린다 (Enemy.MoveTowardsTrain).
+    //   보스가 그대로 서면 머리가 기차를 향하고 긴 몸이 세로로 놓여, 뒤쪽이 화면 위 HP 바 뒤로 들어간다.
+    //   그래서 기차 옆에 이르면 기차가 달리는 쪽(왼쪽, 180도)으로 돌아 나란히 선다 - 몸 전체가 지붕과 HP 바 사이에 보인다
+    // ─────────────────────────────────────────────
+    private float faceAngle = float.NaN;   // 지금 몸이 보는 각도 (도). NaN = 아직 안 정함
+
+    /// <summary>나란히 서는 자세를 쓸 때인가 (미끼에 끌려갈 때는 미끼를 본다)</summary>
+    private bool StanceOn { get { return GameBalance.BossFaceAlongTrain && !IsTaunted; } }
+
+    /// <summary>몸을 want 각도로 돌린다 (BossTurnDegPerSec 로 부드럽게)</summary>
+    private void TurnBody(float want)
+    {
+        if (float.IsNaN(faceAngle)) faceAngle = want;
+        faceAngle = Mathf.MoveTowardsAngle(faceAngle, want, GameBalance.BossTurnDegPerSec * Time.deltaTime);
+        transform.rotation = Quaternion.AngleAxis(faceAngle, Vector3.forward);
+    }
+
+    /// <summary>사거리 안에 서 있는 동안: 기차가 달리는 쪽(왼쪽)을 본다</summary>
+    private void HoldStance()
+    {
+        if (StanceOn && !isLunging) TurnBody(180f);
+    }
+
+    /// <summary>다가오는 동안: 멀리서는 기차를 보고 오다가, 서는 거리 + BossTurnZone 안에 들어오면 미리 옆으로 돈다</summary>
+    protected override void MoveTowardsTrain()
+    {
+        base.MoveTowardsTrain();   // 이동 + 표적 쪽으로 몸 돌리기
+        Vector3 toTarget = CurrentTargetPos - transform.position;
+        float faceTarget = Mathf.Atan2(toTarget.y, toTarget.x) * Mathf.Rad2Deg;
+        if (!StanceOn) { faceAngle = faceTarget; return; }   // 구 동작 그대로 (각도만 기억해 둔다)
+        TurnBody(toTarget.magnitude <= attackRange + GameBalance.BossTurnZone ? 180f : faceTarget);
     }
 
     // ─────────────────────────────────────────────
@@ -446,6 +652,7 @@ public class BossEnemy : Enemy
     {
         BossGimmickSystem.Instance?.ShowPatternTelegraph(text, GameBalance.BossTelegraphSec);
         ApplyTint(Color.Lerp(baseTint, Color.white, 0.6f));   // 예고 중 발광
+        telegraphing = true;   // v7.8: 그림이 있으면 흰 실루엣이 깜빡인다 (TickSkin)
 
         float t = 0f;
         while (t < GameBalance.BossTelegraphSec)
@@ -455,6 +662,7 @@ public class BossEnemy : Enemy
             yield return null;
         }
 
+        telegraphing = false;
         ApplyTint(armorActive ? ArmorTint() : baseTint);
     }
 
@@ -490,6 +698,7 @@ public class BossEnemy : Enemy
         BossGimmickSystem.Instance?.ShowPatternTelegraph(
             "낙뢰 폭격! 게이지 끝자락에서 [Space] 패링 - 번개를 병에 담아라!", teleSec);
         ApplyTint(Color.Lerp(baseTint, Color.white, 0.6f));
+        telegraphing = true;   // v7.8
 
         bool parried = false;
         bool attempted = false;
@@ -498,7 +707,7 @@ public class BossEnemy : Enemy
         while (t < teleSec)
         {
             t += Time.deltaTime;
-            if (isGroggy || !IsAlive) { ApplyTint(baseTint); yield break; }
+            if (isGroggy || !IsAlive) { telegraphing = false; ApplyTint(baseTint); yield break; }
 
             bool inWindow = (teleSec - t) <= GameBalance.ParryWindowSec;
 
@@ -527,6 +736,7 @@ public class BossEnemy : Enemy
             yield return null;
         }
 
+        telegraphing = false;
         ApplyTint(armorActive ? ArmorTint() : baseTint);
         if (isGroggy || !IsAlive) yield break;
 
@@ -692,7 +902,7 @@ public class BossEnemy : Enemy
         isLunging = true;
 
         Vector3 startPos = transform.position;
-        Vector3 dir = (CurrentTarget.position - startPos).normalized;
+        Vector3 dir = (CurrentTargetPos - startPos).normalized;   // v7.8: 중심이 아니라 눈앞의 몸통으로
         Vector3 peakPos = startPos + dir * 1.2f;
 
         float t = 0f;
@@ -880,6 +1090,7 @@ public class BossEnemy : Enemy
     // ─────────────────────────────────────────────
     protected override void Die()
     {
+        if (glow != null) glow.enabled = false;   // v7.8: 상태 발광은 여기까지 (죽는 과정은 HitFeelBody 가 그림을 흐린다)
         // v7.4: 예습 보스 - 연출만, 보상·베팅·"승리" 체인 없음 (디렉터가 완료를 판정한다)
         if (practice)
         {

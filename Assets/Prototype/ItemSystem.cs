@@ -1,8 +1,10 @@
 using UnityEngine;
+using UnityEngine.UI;
+using System.Collections;
 using System.Collections.Generic;
 
 /// <summary>
-/// [ItemSystem.cs] v1.3 (v9.16 2026-09-29 손맛 2차 - 소리: 유물 획득 sfx_relic) / v1.2 (v9.14 2026-09-28: 유물 15종 설명을 일상어로 - 테스터 "황금 조리 기구가 뭔지 모르겠음": "판정 구간" -> "맞춰야 하는 구간이 넓어진다") / v1.1 (2026-09-14: IsItemUsable 스위치 연동) / v1 (신규 파일) - Phase 2-3: 아이템(유물) 시스템
+/// [ItemSystem.cs] v1.4 (v9.18 2026-10-06: 유물 획득 알림 카드 RelicToast - 이름·효과·"[V] 로 다시 본다" 를 4.5초 띄운다. 상자로 주운 유물은 알림 줄에 이름만 나와 무슨 효과인지 알 수 없었다) / v1.3 (v9.16 2026-09-29 손맛 2차 - 소리: 유물 획득 sfx_relic) / v1.2 (v9.14 2026-09-28: 유물 15종 설명을 일상어로 - 테스터 "황금 조리 기구가 뭔지 모르겠음": "판정 구간" -> "맞춰야 하는 구간이 넓어진다") / v1.1 (2026-09-14: IsItemUsable 스위치 연동) / v1 (신규 파일) - Phase 2-3: 아이템(유물) 시스템
 ///
 /// 설계 (사용자 결정 - 증강/아이템 이원화):
 ///  - 증강 = 포탑 강화 + 기차 유틸 (전투 출력에 관여)
@@ -149,7 +151,8 @@ public static class ItemManager
         if (string.IsNullOrEmpty(sourceLabel))
             UIManager.Instance?.ShowStatChange("[유물] " + item.name + " - " + item.desc);
         else
-            UIManager.Instance?.ShowStatChange("[전리품] " + sourceLabel + " - " + item.name + "!");
+            UIManager.Instance?.ShowStatChange("[전리품] " + sourceLabel + " - " + item.name + "!  ([V] 로 효과 보기)");
+        RelicToast.Show(item);   // v1.4: 무엇을 얻었고 뭐가 좋아지는지 - 왼쪽 위 HP 판 아래 카드
 
         SoundManager.Play("sfx_relic");   // v1.3: 유물 전용 획득음
         Debug.Log("[아이템] 획득: " + item.name + " (" + item.RarityName() + ")"
@@ -375,5 +378,163 @@ public static class ItemDatabase
             }));
 
         Debug.Log("[아이템] 데이터베이스 로드 완료 - 총 " + all.Count + "종");
+    }
+}
+
+
+/// <summary>
+/// v1.4: 유물 획득 알림 카드. 화면 왼쪽 위, HP·골드 판 바로 아래에 "유물 획득 / 이름 / 효과 / [V] 다시 보기" 를 잠깐 띄운다
+/// (아래 가운데는 사고 배너·미끼·해동포 창 자리라 피했다. "내 상태" 는 왼쪽 위에 모은다).
+/// 유물은 한 운행에 몇 번 안 나오는 사건이라 알림 줄 한 줄보다 크게 알린다. 게임은 멈추지 않고, 여러 개를 연달아 얻으면 차례로 보여 준다.
+/// 다른 창(증강 선택·상점 등)이 떠 있으면 그 뒤에 가려진다 (정렬 458) - 창을 닫으면 남은 시간만큼 보인다.
+/// 사용법: RelicToast.Show(item) - ItemManager.Acquire 가 부른다. 씬 세팅 없음
+/// </summary>
+public class RelicToast : MonoBehaviour
+{
+    private static RelicToast instance;
+
+    private const float WIDTH = 470f;         // 좌상단 판과 같은 폭
+    private const float SHOW_SEC = 4.5f;      // 떠 있는 시간 (실시간)
+    private const float IN_SEC = 0.15f, OUT_SEC = 0.3f;
+
+    private RectTransform root;
+    private CanvasGroup group;
+    private Image rarityBar;
+    private Image ring;                       // 스킨이 있을 때의 테 (희귀도 색)
+    private Text captionText, nameText, descText, footText;
+    private readonly Queue<ItemData> queue = new Queue<ItemData>();
+    private Coroutine showCo;
+
+    /// <summary>획득 카드를 띄운다 (이미 떠 있으면 줄을 선다)</summary>
+    public static void Show(ItemData item)
+    {
+        if (item == null) return;
+        if (instance == null)
+        {
+            GameObject go = new GameObject("RelicToast");
+            DontDestroyOnLoad(go);
+            instance = go.AddComponent<RelicToast>();
+            instance.Build();
+            // 장면이 다시 불리면(운행 포기·재출발) 줄 서 있던 카드를 비운다 - 지난 운행의 유물 카드가 다음 판 위에 뜨지 않게
+            UnityEngine.SceneManagement.SceneManager.sceneLoaded += delegate { if (instance != null) instance.ClearAll(); };
+        }
+        instance.queue.Enqueue(item);
+        if (instance.showCo == null) instance.showCo = instance.StartCoroutine(instance.Run());
+    }
+
+    private void Build()
+    {
+        Canvas canvas = UIFactory.CreateCanvas("RelicToastCanvas", 458);   // 알림 로그(455) 위, 속성 줄(470) 아래
+        canvas.transform.SetParent(transform, false);
+        GraphicRaycaster ray = canvas.GetComponent<GraphicRaycaster>();
+        if (ray != null) ray.enabled = false;   // 클릭을 가로채지 않는다
+
+        root = KitchenEventManager.MakeBox(canvas.transform, "Card", new Color(0.08f, 0.06f, 0.05f, 0.95f));
+        root.anchorMin = new Vector2(0f, 1f);
+        root.anchorMax = new Vector2(0f, 1f);
+        root.pivot = new Vector2(0f, 1f);
+        root.anchoredPosition = new Vector2(8f, -196f);   // 좌상단 판(위에서 8 ~ 184) 바로 아래
+        root.sizeDelta = new Vector2(WIDTH, 120f);
+        Image rootImg = root.GetComponent<Image>();
+        rootImg.raycastTarget = false;
+        if (UISkin.Available)
+        {
+            // 다른 창과 같은 무쇠 평판 + 테 (테 색 = 희귀도, Run 에서 바꾼다). 직접 지정해 두면 스킨 스캐너가 다시 건드리지 않는다
+            UISkin.Plate(rootImg, Color.white);
+            ring = UISkin.AddRing(root, UISkin.BRASS_DIM);
+        }
+        else
+        {
+            Outline edge = root.gameObject.AddComponent<Outline>();
+            edge.effectColor = new Color(0.72f, 0.44f, 0.2f, 0.95f);
+            edge.effectDistance = new Vector2(2f, -2f);
+        }
+        group = root.gameObject.AddComponent<CanvasGroup>();
+        group.blocksRaycasts = false;
+        group.interactable = false;
+
+        // 왼쪽 희귀도 색 띠
+        RectTransform bar = KitchenEventManager.MakeBox(root, "Rarity", Color.white);
+        bar.anchorMin = new Vector2(0f, 0f);
+        bar.anchorMax = new Vector2(0f, 1f);
+        bar.pivot = new Vector2(0f, 0.5f);
+        bar.anchoredPosition = Vector2.zero;
+        bar.sizeDelta = new Vector2(8f, 0f);
+        rarityBar = bar.GetComponent<Image>();
+        rarityBar.raycastTarget = false;
+
+        captionText = MakeLine("Caption", 16, new Vector2(24f, -8f), 22f, TextAnchor.MiddleLeft);
+        nameText = MakeLine("Name", 26, new Vector2(24f, -30f), 34f, TextAnchor.MiddleLeft);
+        nameText.fontStyle = FontStyle.Bold;
+        descText = MakeLine("Desc", 19, new Vector2(24f, -68f), 26f, TextAnchor.UpperLeft);
+        descText.horizontalOverflow = HorizontalWrapMode.Wrap;
+        descText.lineSpacing = 1.1f;
+        footText = MakeLine("Foot", 15, new Vector2(24f, 0f), 22f, TextAnchor.MiddleRight);
+        footText.rectTransform.anchorMin = new Vector2(0f, 0f);
+        footText.rectTransform.anchorMax = new Vector2(1f, 0f);
+        footText.rectTransform.pivot = new Vector2(0.5f, 0f);
+        footText.rectTransform.anchoredPosition = new Vector2(0f, 6f);
+        footText.rectTransform.sizeDelta = new Vector2(-36f, 22f);
+        footText.color = new Color(0.63f, 0.55f, 0.43f, 1f);
+        footText.text = "[V] 가진 증강·유물 다시 보기";
+
+        root.gameObject.SetActive(false);
+    }
+
+    private void ClearAll()
+    {
+        queue.Clear();
+        if (showCo != null) { StopCoroutine(showCo); showCo = null; }
+        if (root != null) root.gameObject.SetActive(false);
+    }
+
+    /// <summary>카드 안 글자 한 줄 (왼쪽 위 기준 자리, 폭은 카드 안쪽 전체)</summary>
+    private Text MakeLine(string name, int size, Vector2 pos, float height, TextAnchor align)
+    {
+        Text t = KitchenEventManager.MakeText(root, name, "", size, new Color(0.97f, 0.91f, 0.78f, 1f));
+        RectTransform rt = t.rectTransform;
+        rt.anchorMin = new Vector2(0f, 1f);
+        rt.anchorMax = new Vector2(1f, 1f);
+        rt.pivot = new Vector2(0f, 1f);
+        rt.anchoredPosition = pos;
+        rt.sizeDelta = new Vector2(-(pos.x + 18f), height);
+        t.alignment = align;
+        return t;
+    }
+
+    private IEnumerator Run()
+    {
+        while (queue.Count > 0)
+        {
+            ItemData item = queue.Dequeue();
+            Color rc = item.RarityColor();
+            rarityBar.color = rc;
+            if (ring != null) ring.color = rc;
+            captionText.text = "유물 획득  ·  " + item.RarityName();
+            captionText.color = rc;
+            nameText.text = item.name;
+            descText.text = item.desc;
+
+            // 설명 줄 수에 맞춰 카드 높이 (위 68 + 설명 + 아래 34)
+            root.gameObject.SetActive(true);
+            float descH = Mathf.Max(26f, descText.preferredHeight);
+            descText.rectTransform.sizeDelta = new Vector2(descText.rectTransform.sizeDelta.x, descH);
+            root.sizeDelta = new Vector2(WIDTH, 68f + descH + 34f);
+
+            float t = 0f;
+            while (t < SHOW_SEC)
+            {
+                t += Time.unscaledDeltaTime;
+                float kin = Mathf.Clamp01(t / IN_SEC);
+                float ein = 1f - (1f - kin) * (1f - kin);
+                float kout = Mathf.Clamp01((t - (SHOW_SEC - OUT_SEC)) / OUT_SEC);
+                group.alpha = ein * (1f - kout);
+                float sc = Mathf.Lerp(0.92f, 1f, ein);
+                root.localScale = new Vector3(sc, sc, 1f);
+                yield return null;
+            }
+            root.gameObject.SetActive(false);
+        }
+        showCo = null;
     }
 }

@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 
 /// <summary>
-/// [KitchenEvents.cs] v2.1 (v9.14 2026-09-28: 흘림 조각 자리가 사고 배너와 겹치지 않게) / v2 / v9.10.1 2026-09-21: 재료 이름 MaterialNames
+/// [KitchenEvents.cs] v2.2 (v9.18 2026-10-06: 화재가 타는 동안의 틱은 DamageTrainTick - 표의 값 그대로, 방어력 무시. 실패 한 방(DamageTrain)만 최대 HP 에 비례한다) / v2.1 (v9.14 2026-09-28: 흘림 조각 자리가 사고 배너와 겹치지 않게) / v2 / v9.10.1 2026-09-21: 재료 이름 MaterialNames
 /// 주방 돌발 이벤트 인터페이스 + 4종 구현체 (기획 B-4)
 ///
 /// 새 조작키를 만들지 않고 기존 조작만 재활용한다
@@ -615,7 +615,7 @@ public class KitchenFireEvent : IKitchenEvent
         if (burnTickTimer >= 0.5f)
         {
             burnTickTimer -= 0.5f;
-            manager.DamageTrain(burnDamagePerSec * 0.5f);
+            manager.DamageTrainTick(burnDamagePerSec * 0.5f);   // v2.2: 타는 동안의 틱 - 표의 값 그대로 (최대 HP 비례는 실패 한 방만)
         }
 
         // B-1: 불길 곁에서만 진압 가능 - 떨어져 있으면 불은 계속 번진다

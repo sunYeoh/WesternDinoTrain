@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 /// <summary>
-/// [UISkin.cs] v1.3 (v9.15 2026-09-29 HUD 재배치, GameBalance.HudRegroup - 목업 v1 컨펌: 좌상단 판 470x176 = HP 게이지 + 골드(큰 글자) + 칼/팬 명판(GameHUD 가 붙인다) /
+/// [UISkin.cs] v1.4 (v9.18 2026-10-06: 가운데 예고 카드는 좌우 판 사이 띠(TopBandWidth, UI 배율 1.2 = 620) 안에만 - 넘는 글은 줄바꿈, 견습 큰 카드가 떠 있으면 그 왼쪽으로 비킨다(NoticeFollower.Band) / 포만감 바·글자를 꺼진 패널 안에서도 찾아 끈다 - 왼쪽 위에 "New Text" 가 한 번씩 뜨던 것(로비에서 시작한 판만) / 가운데 예고 카드를 NoticeShiftY 만큼 내린다(보스 HP 바가 떠 있을 때) / 예고 카드 최대 폭을 화면 기준 폭에 맞춤) / v1.3 (v9.15 2026-09-29 HUD 재배치, GameBalance.HudRegroup - 목업 v1 컨펌: 좌상단 판 470x176 = HP 게이지 + 골드(큰 글자) + 칼/팬 명판(GameHUD 가 붙인다) /
 ///   우상단 판 400x150 = 웨이브 명판 + 상태 + 정보 2줄(InfoLine1/2 - UIManager 가 채운다: 손님 남음·보스까지 / 지역·예고) + 그 아래 알림 로그(UIManager). 스위치 false = v1.2 배치) /
 /// v1.2 - "쇳냄새" 픽셀 UI 스킨 (2026-09-07, HUD 목업 v3 컨펌)
 /// - v1.2 (v9.8): MaterialIcon / AddMaterialIcon 추가 - 재료 아이콘(ui_mat_*.png 32px)을 HUD 재료 칸·주방창 재료 바·정비소 재료 시장이 공용으로 쓴다.
@@ -33,7 +33,6 @@ public class UISkin : MonoBehaviour
 {
     public static bool ENABLED = true;                    // 스킨 전체 스위치 (false = v3 단색 박스 UI)
     private const float SCAN_INTERVAL = 0.15f;
-    private const float REF_W = 1920f, REF_H = 1080f;    // CanvasScaler 기준 해상도 (전 캔버스 공통)
 
     // 팔레트 (기차와 동일 계열)
     public static readonly Color IRON = new Color(0.204f, 0.196f, 0.243f, 1f);      // 무쇠 평판
@@ -374,7 +373,9 @@ public class UISkin : MonoBehaviour
             return;
         }
         if (c.a < 0.5f) { SetMark(img, 0); return; }
-        if (r.width >= REF_W * 0.9f && r.height >= REF_H * 0.9f) { SetMark(img, 0); return; }   // 암전
+        // v1.4: 기준 화면은 1920x1080 고정이 아니라 UIFactory.RefResolution (UI 배율만큼 작다) - 고정값으로 재면 화면을 덮는 어둠이 "큰 창" 으로 분류된다
+        Vector2 refRes = UIFactory.RefResolution;
+        if (r.width >= refRes.x * 0.9f && r.height >= refRes.y * 0.9f) { SetMark(img, 0); return; }   // 암전
 
         bool saturated = Mathf.Max(c.r, Mathf.Max(c.g, c.b)) - Mathf.Min(c.r, Mathf.Min(c.g, c.b)) > 0.2f;
         Color ringColor = saturated ? new Color(c.r, c.g, c.b, 1f) : BRASS_DIM;
@@ -445,8 +446,10 @@ public class UISkin : MonoBehaviour
         if (um != null && um.hpText != null && hp != null) DockTextInto(um.hpText, hp.transform, 15f);
         AddOrnament(tl, "gauge", new Vector2(1f, 1f), new Vector2(-64f, -28f), new Vector2(56f, 56f));
         if (regroup && um != null) DockTmp(um.goldText, tl, new Vector2(30f, -96f), new Vector2(176f, 34f), 24f, GAUGE_GOLD);
-        GameObject satBar = GameObject.Find("SatietyBar"); if (satBar != null) satBar.SetActive(false);
-        GameObject satText = GameObject.Find("SatietyText"); if (satText != null) satText.SetActive(false);
+        // v1.4: GameObject.Find 는 꺼진 오브젝트를 못 찾는다 - 로비에서는 BattlePanel 이 꺼져 있어 이 둘이 안 꺼졌고,
+        //   전투가 시작되면 씬에 적힌 기본 글자 "New Text" 가 HP 옆에 그대로 보였다 (재출발한 판은 패널이 켜진 채라 꺼졌다 = "한 번씩")
+        HideSceneLeftover(root, "SatietyBar");
+        HideSceneLeftover(root, "SatietyText");
 
         // ── 우상단: 웨이브(파이프에 걸린 황동 명판) / 골드 / 상태 ──
         //    v1.3 재배치: 골드는 왼쪽으로 갔고, 여기는 정보만 - 상태 + 정보 2줄 (손님 남음·보스까지 / 지역·예고). 알림 로그가 이 판 아래에 붙는다
@@ -483,6 +486,27 @@ public class UISkin : MonoBehaviour
             if (notice != null && warning != null) { warning.above = notice.transform as RectTransform; warning.gap = 10f; }
         }
         Debug.Log("[UISkin] 씬 HUD 재배치 완료 (HP 게이지, 웨이브/골드 패널, 예고 카드)");
+    }
+
+    /// <summary>v1.4: root 아래(꺼진 것 포함)에서 이름이 같은 오브젝트를 전부 끈다</summary>
+    private static void HideSceneLeftover(Transform root, string name)
+    {
+        Transform[] all = root.GetComponentsInChildren<Transform>(true);
+        for (int i = 0; i < all.Length; i++)
+            if (all[i] != null && all[i].name == name) all[i].gameObject.SetActive(false);
+    }
+
+    /// <summary>v1.4: 가운데 예고 카드(위에서 96)를 이만큼 아래로 내린다 (캔버스 단위). BossGimmickSystem 이 큰 HP 바가 떠 있는 동안 건다</summary>
+    public static float NoticeShiftY = 0f;
+
+    /// <summary>
+    /// v1.4: 화면 위 가운데에 놓는 것(예고 카드·보스 HP 바)이 쓸 수 있는 폭 = 좌상단 판(왼쪽에서 8 ~ 478)과 그 대칭 자리 사이, 양쪽 12 여백.
+    /// 씬 HUD 캔버스가 UI 배율을 따르면서(v9.18) 좌우 판이 커져 가운데 자리가 줄었다: UI 배율 1.2 = 620 / 1.12 = 734 / 1.0 = 940.
+    /// 이 폭을 넘는 예고 문구는 카드를 넓히는 대신 줄을 바꾼다 (넓히면 HP·골드 판 위로 올라탄다)
+    /// </summary>
+    public static float TopBandWidth
+    {
+        get { return Mathf.Max(400f, UIFactory.RefResolution.x - 2f * (8f + 470f + 12f)); }
     }
 
     private RectTransform MakePanel(Transform root, string name, Vector2 anchor, Vector2 pos, Vector2 size)
@@ -573,6 +597,7 @@ public class UISkin : MonoBehaviour
         tmp.alignment = TMPro.TextAlignmentOptions.Center;
         NoticeFollower f = go.AddComponent<NoticeFollower>();
         f.target = tmp; f.minSize = minSize; f.padding = padding;
+        f.baseY = pos.y;
         return f;
     }
 
@@ -587,20 +612,47 @@ public class UISkin : MonoBehaviour
         public Vector2 padding;                 // 글자 주변 여백 (좌우, 상하)
         public RectTransform above;             // 이 카드 위에 있는 카드 (있으면 그 아래에 따라붙는다)
         public float gap = 10f;
-        private const float MAX_W = 1500f;      // 카드 최대 폭 (1920 기준 화면 안)
+        public float baseY;                     // v1.4: 만들 때의 세로 자리 (맨 위 카드만 쓴다)
+        private float shiftShown = 0f;          // v1.4: 지금 적용된 내림 (NoticeShiftY 로 부드럽게 따라간다)
+        private float bandW = 620f;             // v1.4: 지금 쓸 수 있는 폭 (Band 가 매 프레임 잰다). 카드 최대 폭 - 넘는 글은 줄바꿈
+        private float fitW = -1f;               // 마지막으로 크기를 맞출 때의 폭 (폭이 바뀌면 글이 같아도 다시 맞춘다)
         private Image[] parts;
         private string lastText;
         private float lastFontSize = -1f;
+
+        /// <summary>
+        /// v1.4: 카드가 놓일 가로 자리 (화면 가운데 기준 x, 쓸 수 있는 폭). 평소 = 좌우 판 사이 띠의 가운데 (UISkin.TopBandWidth).
+        /// 견습 목표 카드가 화면 오른쪽 위에 떠 있고 띠까지 들어와 있으면(큰 카드 540) 그 왼쪽까지로 줄이고, 줄어든 자리의 가운데로 옮긴다
+        /// </summary>
+        private static void Band(out float centerX, out float width)
+        {
+            float half = TopBandWidth * 0.5f;
+            float left = -half, right = half;
+            float cardLeft = TutorialDirector.CardLeftFromRight;
+            if (cardLeft > 0f) right = Mathf.Min(right, UIFactory.RefResolution.x * 0.5f - cardLeft - 12f);
+            if (right - left < 360f) right = left + 360f;   // 너무 좁아지면 겹치더라도 읽히는 쪽을 택한다
+            centerX = (left + right) * 0.5f;
+            width = Mathf.Min(1500f, right - left);
+        }
 
         private void LateUpdate()
         {
             if (target == null) { gameObject.SetActive(false); return; }
             bool on = target.gameObject.activeSelf && !string.IsNullOrEmpty(target.text);
-            if (on && (target.text != lastText || target.fontSize != lastFontSize)) Fit();
+            float centerX, width;
+            Band(out centerX, out width);
+            bandW = width;
+            if (on && (target.text != lastText || target.fontSize != lastFontSize || !Mathf.Approximately(fitW, bandW))) Fit();
 
             RectTransform rt = transform as RectTransform;
             if (above != null)
-                rt.anchoredPosition = new Vector2(rt.anchoredPosition.x, above.anchoredPosition.y - above.sizeDelta.y - gap);
+                rt.anchoredPosition = new Vector2(centerX, above.anchoredPosition.y - above.sizeDelta.y - gap);
+            else
+            {
+                // v1.4: 맨 위 카드 - 보스 HP 바가 떠 있으면 그 아래로 (0.1초쯤에 걸쳐 옮긴다)
+                shiftShown = Mathf.MoveTowards(shiftShown, NoticeShiftY, 400f * Time.unscaledDeltaTime);
+                rt.anchoredPosition = new Vector2(centerX, baseY - shiftShown);
+            }
 
             if (parts == null) parts = GetComponentsInChildren<Image>(true);
             float a = on ? target.color.a : 0f;
@@ -614,8 +666,8 @@ public class UISkin : MonoBehaviour
         /// <summary>글자가 한 줄로 들어가는 폭(여백 포함)으로 넓히고, 그 폭에서 줄바꿈된 높이만큼 키운다</summary>
         private void Fit()
         {
-            lastText = target.text; lastFontSize = target.fontSize;
-            float w = Mathf.Clamp(target.preferredWidth + padding.x * 2f, minSize.x, MAX_W);
+            lastText = target.text; lastFontSize = target.fontSize; fitW = bandW;
+            float w = Mathf.Clamp(target.preferredWidth + padding.x * 2f, Mathf.Min(minSize.x, bandW), bandW);
             float innerW = w - padding.x * 2f;
             float textH = target.GetPreferredValues(target.text, innerW, 0f).y;
             float h = Mathf.Max(minSize.y, textH + padding.y * 2f);

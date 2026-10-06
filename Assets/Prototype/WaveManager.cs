@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// [WaveManager.cs] v6.17 (v9.17 2026-10-06 화면 손맛 2차 D5: 패배 연출 중(GameManager.DefeatPending)과 운행이 끝난 뒤(GameOver·Victory)엔 웨이브 클리어 판정을 하지 않는다. 아트 v1 의 v6.16 위에 얹었다) / v6.16 (아트 v1 2026-10-03: 코드 폴백 손님도 새 전용 그림 4종 e_armadillo / e_mammoth / e_pachy / e_cactus 를 쓴다) / v6.15 (v9.15.1 2026-09-29 스토리 개정: 최종전 직전 정차엔 베팅 없음(GameBalance.SpinoNoBetAtFinal) / 최종전 시작에 스피노 고백 카드(BriefingTexts.SpinoFinal) / 최종전 긴급 보급 문구 = "스피노가 실어 둔 재료" / 지역 3 첫 웨이브 스피노 한 줄) / v6.14 (v9.13 2026-09-23: 선로 v2 - 정차의 선로 선택이 카드 창 대신 갈림길 + 왼쪽 카드(BranchRouteUI v2, 시간 안 멈춤). 출발 직전 BranchRouteUI.OnDepart 로 세계 밀림·톤 시작 /
+/// [WaveManager.cs] v6.18 (v9.18 2026-10-06: 보스는 기차 북쪽(화면 위)에서만 온다(GameBalance.BossSpawnNorthOnly - 남쪽은 하단 HUD 에 가려진다), 예습 보스는 포탑 칸 B 위에서 / 웨이브가 끝났을 때 사고가 진행 중이면 사고가 끝난 뒤에 증강·선로 선택을 연다(PostWaveHold, WaitEventBeforeChoiceSec) / 코드 폴백 손님의 그림 고르기를 EnemySkin.SpriteFor 한 곳으로) /
+/// v6.17 (v9.17 2026-10-06 화면 손맛 2차 D5: 패배 연출 중(GameManager.DefeatPending)과 운행이 끝난 뒤(GameOver·Victory)엔 웨이브 클리어 판정을 하지 않는다. 아트 v1 의 v6.16 위에 얹었다) / v6.16 (아트 v1 2026-10-03: 코드 폴백 손님도 새 전용 그림 4종 e_armadillo / e_mammoth / e_pachy / e_cactus 를 쓴다) / v6.15 (v9.15.1 2026-09-29 스토리 개정: 최종전 직전 정차엔 베팅 없음(GameBalance.SpinoNoBetAtFinal) / 최종전 시작에 스피노 고백 카드(BriefingTexts.SpinoFinal) / 최종전 긴급 보급 문구 = "스피노가 실어 둔 재료" / 지역 3 첫 웨이브 스피노 한 줄) / v6.14 (v9.13 2026-09-23: 선로 v2 - 정차의 선로 선택이 카드 창 대신 갈림길 + 왼쪽 카드(BranchRouteUI v2, 시간 안 멈춤). 출발 직전 BranchRouteUI.OnDepart 로 세계 밀림·톤 시작 /
 ///   선로 보상 교체: 골드·재료 -> 끝나면 증강 1회 더(사냥터 은 / 위험 금, AugmentPickUI.OpenExtra) + 유물 확률(위험·안개 50%, 폐역 확정) / 웨이브 끝에 RouteFX.ClearTone / 치트 점프·런 시작에 선택 취소) / v6.13 (v9.12 2026-09-22: 협곡의 낙뢰 - 지역 2 일반 웨이브마다 1회 가동 포탑 감전(GameBalance.AmbientLightning*) + 첫 등장 카드 event_lightning + 인라인 연습 구간 2 훅 / 레버 인라인 연습 구간 4 를 InlineLeverWave 시작에 요청 / TutorialDirector.InlineFreeze 동안 스폰 코루틴·클리어 판정·낙뢰 타이머가 쉰다(WaitGap) / 미니 보스 예습용 SpawnBossForPractice) / v6.12 (v9.11.1 2026-09-22 문구) / v6.11 (v9.10.1 2026-09-21: 웨이브 손님 수 배율 GameBalance.WaveCountMul(프롤로그·견습 제외, ApplyRouteCounts 재사용) / 웨이브 시작에 정차 조리 카운터(CookingBridge.StopCooksUsed) 초기화) / v6.10 (v9.10 2026-09-17 테스터 피드백·개정안 §4·§5·§7: 스폰 간격 배율 + 무리 사이 쉼(WaveLengthMul/WaveGroupSize/GapSec) /
 ///   정차 뒤 자동 출발 대신 [Enter]·출발 버튼 확인(DepartConfirm, WaitingDepart 정적) / 증강 선택은 GameBalance.AugmentPickAt 웨이브만(안 여는 웨이브도 웨이브 효과는 적용) /
 ///   분기 선로 RouteChoiceMinWave·베팅 BetMinWave·행상인 MerchantMinWave 부터 / 웨이브 3 시작에 화염 재료 보장 + 범위 요리 소개 카드) / v6.9 (v9.9.2 2026-09-16: 정식 런 첫 등장 카드 훅 - 지역(지역 첫 웨이브)·새 손님(카운트 > 0 인 종류 처음)은 StartWave 예고 때, 보스는 SpawnBoss 때. BriefingUI.ShowOnce 1회) / v6.8 (v9.9 2026-09-16: 견습 운행 - TutorialDirector 가 진행 중이면 StartWave/B 점프 거부, TutorialGateActive 에 디렉터의 BlockAmbient 포함, SpawnForTutorial) / v6.7 (v9.8.1: B 점프는 GameBalance.CheatsAllowed 일 때만) / v6.6 (v9.8: 위험 적 전용 PNG) / v6.5 (교수 피드백 반영 2026-09-14) / v6.4 (고퀄 PNG 적용 2026-09-03) / v6.3 탑뷰 재스킨
@@ -180,6 +181,7 @@ public class WaveManager : MonoBehaviour
         Instance = this;
         cookGateStatic = false;       // v6.5: 게이트 도중 런 포기(씬 리로드) 시 정적 플래그가 남지 않게
         WaitingDepart = false; departRequested = false;   // v6.10: 정차 대기 중 런 포기 시 잔존 방지
+        PostWaveHold = false;                             // v6.18
         RouteFX.ClearTone();   // v6.14: 선로 톤은 런을 넘기지 않는다
     }
 
@@ -226,6 +228,7 @@ public class WaveManager : MonoBehaviour
 
         currentWaveNumber = waveNumber;
         isWaveActive = true;
+        PostWaveHold = false;   // v6.18
         aliveEnemyCount = 0;
         spawnDone = false;
 
@@ -922,6 +925,7 @@ public class WaveManager : MonoBehaviour
         float bulk = Mathf.Clamp(0.85f + data.baseHP / 500f, 0.85f, 1.4f);
         string n = data.enemyName;
 
+        // 코드 도트용 종 구분 (PNG 가 하나도 없을 때만 쓰인다)
         string kind;
         if (n.Contains("전갈")) kind = "scorpion";
         else if (n.Contains("거북")) kind = "tortoise";
@@ -930,22 +934,10 @@ public class WaveManager : MonoBehaviour
         else if (n.Contains("네크로")) kind = "necro";
         else kind = "raptor";   // 알 수 없는 종: 기본 랩터 실루엣
 
-        // v6.6: 전용 그림이 있는 종은 그것부터 (EnemySkin 규칙과 동일 - PNG 없으면 위 매핑으로)
-        string dedicated = null;
-        float dedicatedMul = 1f;
-        if (n.Contains("플라이")) { dedicated = "fly"; dedicatedMul = 1.2f; }
-        else if (n.Contains("파라사우")) dedicated = "parasaur";
-        else if (n.Contains("카르노")) dedicated = "carno";
-        else if (n.Contains("모사")) dedicated = "mosa";
-        else if (n.Contains("아르마딜로") || n.Contains("안킬로")) dedicated = "armadillo";   // v6.16 아트 v1
-        else if (n.Contains("맘모스")) dedicated = "mammoth";
-        else if (n.Contains("파키")) dedicated = "pachy";
-        else if (n.Contains("캑터스")) dedicated = "cactus";
-        Sprite sprite = dedicated != null ? SpriteBank.Get("e_" + dedicated) : null;
-        float pngMul = sprite != null ? dedicatedMul : 1f;
-
-        // v6.4: PNG 우선 (e_raptor 등), 없으면 코드 도트 캐시
-        if (sprite == null) sprite = SpriteBank.Get("e_" + kind);
+        // v6.18: PNG 는 EnemySkin 의 규칙 표 한 곳에서 고른다 (이름 -> 그림·틴트·배율). 예전엔 같은 규칙을 여기에 또 적어 두 표가 어긋났다
+        //   (볼트 테라노돈·독침 프테라가 여기선 랩터 그림이 됐다). PNG 가 없으면 코드 도트 캐시
+        Color pngTint; float pngMul;
+        Sprite sprite = EnemySkin.SpriteFor(n, out pngTint, out pngMul);
         bool png = sprite != null;
         if (!png && !fallbackSpriteCache.TryGetValue(kind, out sprite))
         {
@@ -955,7 +947,7 @@ public class WaveManager : MonoBehaviour
 
         SpriteRenderer sr = PixelPainter.Attach(go.transform, "Body", sprite, Vector3.zero, 5);
         sr.sortingOrder = 5;   // 데크(-6~-4)/포탑(-3~-1) 위, 처치 팝(58+) 아래
-        if (png) sr.transform.localScale = Vector3.one * (EnemyPngScale * pngMul);
+        if (png) { sr.transform.localScale = Vector3.one * (EnemyPngScale * pngMul); sr.color = pngTint; }
 
         go.transform.localScale = new Vector3(bulk, bulk, 1f);
         go.AddComponent<Enemy>();
@@ -1175,7 +1167,11 @@ public class WaveManager : MonoBehaviour
             if (trainObj != null) trainTransform = trainObj.transform;
         }
         Vector3 center = trainTransform != null ? trainTransform.position : Vector3.zero;
-        Vector3 pos = center + new Vector3(distance, Random.Range(-0.6f, 0.6f), 0f);
+        // v6.18: 포탑 칸 B 위쪽(화면 위 바로 밖)에서 내려온다. 구: 꼬리 오른쪽 distance 만큼 - 보스가 이제 몸통에서 사거리만큼 떨어져 서므로
+        //   꼬리 쪽에서 오면 화면 오른쪽 끝에 걸쳐 섰다 (무리 랩터는 그대로 꼬리 오른쪽에서 온다)
+        float[] edges = GameBalance.CarEdgesX;
+        float topY = (Camera.main != null ? Camera.main.orthographicSize : GameBalance.CamDefaultZoom) + 1.5f;
+        Vector3 pos = new Vector3(edges[edges.Length - 1] - 2.5f + Random.Range(-0.6f, 0.6f), center.y + topY, 0f);
         GameObject go = Instantiate(bossPrefab, pos, Quaternion.identity);
         BossEnemy boss = go.GetComponent<BossEnemy>();
         if (boss != null) boss.practice = true;   // Start 전에 (Instantiate 직후는 Awake 만 돈 상태)
@@ -1191,7 +1187,13 @@ public class WaveManager : MonoBehaviour
             return;
         }
 
-        Vector3 spawnPos = GetRandomSpawnPosition();
+        // v6.18: 보스는 기차의 긴 옆면 쪽에서만 온다 - 앞뒤 끝에서 오면 멈춰 서는 자리가 화면 가장자리라 싸움이 안 보였다
+        Vector3 center = trainTransform != null ? trainTransform.position : Vector3.zero;
+        // 북쪽(위)에서만: 남쪽에 서면 몸 아래쪽이 하단 HUD 뒤에 가려진다 (GameBalance.BossSpawnNorthOnly)
+        float bossSide = (GameBalance.BossSpawnNorthOnly || Random.value < 0.5f) ? 1f : -1f;
+        float bossAngle = Random.Range(55f, 125f) * bossSide * Mathf.Deg2Rad;
+        float bossDist = Random.Range(spawnDistanceMin, spawnDistanceMax);
+        Vector3 spawnPos = new Vector3(center.x + Mathf.Cos(bossAngle) * bossDist, center.y + Mathf.Sin(bossAngle) * bossDist, 0f);
         Instantiate(bossPrefab, spawnPos, Quaternion.identity);
         aliveEnemyCount++;
         Debug.Log("[WaveManager] 보스 메카 티렉스 등장!");
@@ -1381,6 +1383,7 @@ public class WaveManager : MonoBehaviour
             Destroy(all[i].gameObject);
 
         isWaveActive = false;
+        PostWaveHold = false;     // v6.18: 위 StopAllCoroutines 가 사고 대기를 끊었을 수 있다
         aliveEnemyCount = 0;
         spawnDone = false;
         cookGateActive = false;
@@ -1429,6 +1432,46 @@ public class WaveManager : MonoBehaviour
 
         SoundManager.Play("sfx_wave_clear");
         Debug.Log("[WaveManager] 웨이브 " + currentWaveNumber + " 모든 적 처치 완료!");
+
+        // v6.18 (유저 10-06 "방해 이벤트가 끝나야 다음 선택지가 나오게"): 사고가 진행 중이면 수습(해결·실패)이 끝난 뒤에 이어 간다.
+        //   구: 증강 창이 사고 위에 바로 열리고, 정차로 넘어가면서 사고가 벌점 없이 사라졌다. 최종전은 기다리지 않는다 (승리 연출이 먼저)
+        if (GameBalance.WaitEventBeforeChoiceSec > 0f && KitchenEventManager.IsActive && currentWaveNumber < GameBalance.FinalWave)
+        {
+            StartCoroutine(WaitEventThenFinish());
+            return;
+        }
+        FinishWaveClear();
+    }
+
+    /// <summary>v6.18: 웨이브는 끝났고 사고 수습을 기다리는 중 (그동안 새 사고는 시작하지 않는다 - KitchenEventManager 가 본다)</summary>
+    public static bool PostWaveHold { get; private set; }
+
+    private IEnumerator WaitEventThenFinish()
+    {
+        PostWaveHold = true;
+        int wave = currentWaveNumber;
+        UIManager.Instance?.ShowStatChange("손님은 다 보냈다 - 사고를 수습하면 다음으로 넘어간다");
+        float waited = 0f;
+        while (KitchenEventManager.IsActive && waited < GameBalance.WaitEventBeforeChoiceSec)
+        {
+            waited += Time.deltaTime;   // 일시정지 중에는 세지 않는다
+            yield return null;
+        }
+        // 결과 배너(해결·실패)가 읽힐 틈
+        if (!KitchenEventManager.IsActive)
+            yield return new WaitForSeconds(Mathf.Max(0.2f, GameBalance.EventResolveHoldSec));
+        PostWaveHold = false;
+
+        // 그 사이 기차가 멈췄거나(사고 실패 피해) 다른 경로로 흐름이 넘어갔으면 여기서 끝
+        GameManager gm = GameManager.Instance;
+        if (gm == null || gm.currentState != GameManager.GameState.Battle || isWaveActive || wave != currentWaveNumber) yield break;
+        if (TrainManager.Instance != null && !TrainManager.Instance.IsAlive) yield break;
+        FinishWaveClear();
+    }
+
+    /// <summary>웨이브 클리어의 뒷부분: 선로 보상 정산 -> (최종전이면 승리) -> 재료 보장 -> 일지 -> 증강 선택</summary>
+    private void FinishWaveClear()
+    {
 
         // v6.2: 분기 선로 클리어 보상 정산. v6.14 (선로 v2): 골드·재료 대신 "증강 1회 더"(증강 선택 뒤에 이어서) + 유물 확률 (갑판 상자)
         int journalNo = -1;

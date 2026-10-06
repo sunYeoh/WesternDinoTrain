@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 /// <summary>
-/// [BossGimmickSystem.cs] v9.16 (2026-09-29 손맛 2차 - 소리: 보스전 동안 배경음 덕킹 - 등록에 켜고 처치·정리에 끈다) / v9.12 (2026-09-22: ClearBossUI - 예습 보스용) / v4.1
+/// [BossGimmickSystem.cs] v9.18 (2026-10-06 테스터 피드백 3: 패턴 예고·무방비 띠를 HP 바 바로 밑에 붙였다(폭도 바와 같게, 긴 안내는 글자를 줄여 한 줄 - 구 자리는 보스가 서는 높이라 몸을 가렸다) + 띠가 떠 있으면 가운데 예고 카드를 그 아래로 / 보스 HP 바를 화면 위 가운데(기차 상황판 바로 아래)로 올리고 키웠다 - 이름 28 / 수치 20 / 바 30, 깎인 만큼 밝은 띠가 남았다 줄어든다, 무방비 눈금, 상태 딱지(무방비·빙하 갑주·해치 개방·폭식·발악·번개 병), 발악하면 바 색이 달아오른다 / 등장: HoldBarForIntro -> PlayBarIntro 로 위에서 내려와 차오른다 / 바가 떠 있는 동안 가운데 예고 카드를 그 아래로 민다(UISkin.NoticeShiftY). GameBalance.BossBarBig = false 면 구 배치) / v9.16 (2026-09-29 손맛 2차 - 소리: 보스전 동안 배경음 덕킹 - 등록에 켜고 처치·정리에 끈다) / v9.12 (2026-09-22: ClearBossUI - 예습 보스용) / v4.1
 /// 보스전 전용 기믹 + 보스 UI를 관리합니다.
 ///
 /// - v4.1 (교수 피드백 A6, 2026-09-14): 씬에 이 컴포넌트가 없으면 자동 생성한다.
@@ -81,6 +81,26 @@ public class BossGimmickSystem : MonoBehaviour
     private RectTransform groggyTimeFill;
     private Image groggyTimeFillImg;
 
+    // ── v9.18: 큰 HP 바 (GameBalance.BossBarBig) ──
+    private const float BIG_BAR_Y = -46f;       // 기차 상황판(위에서 8 ~ 42) 바로 아래
+    private const float BIG_BAR_H = 82f;
+    private const float GROGGY_H = 66f;         // 무방비 띠 높이 (안내 한 줄 + 남은 시간 게이지)
+    private const float GROGGY_GAP = 4f;        // HP 바와 무방비 띠 사이
+    private RectTransform hpBarArea;            // 채움·잔상·눈금·수치가 들어가는 바 영역
+    private RectTransform hpTrail;              // 깎인 만큼 남았다 줄어드는 밝은 띠
+    private Image hpFillImg;
+    private Text bossTagText;                   // 상태 딱지 (이름 줄 오른쪽)
+    private readonly List<GameObject> hpTicks = new List<GameObject>();   // 무방비 눈금
+    private float trailRatio = 1f;
+    private float lastRatio = 1f;
+    private float trailHoldUntil = 0f;
+    private bool barHeld = false;               // 등장 연출이 내려줄 때까지 숨김
+    private float barHeldSince = 0f;
+    private float introFill = 1f;               // 등장 중 차오르는 비율 (1 = 다 참)
+    private Coroutine barIntroCo;
+    private static readonly Color HP_RED = new Color(0.85f, 0.2f, 0.15f);
+    private static readonly Color HP_RAGE = new Color(1f, 0.38f, 0.1f);
+
     private void Awake()
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
@@ -123,6 +143,14 @@ public class BossGimmickSystem : MonoBehaviour
         bossRoot.gameObject.SetActive(true);
         // v5: 보스 4종 개성화 - 등록된 보스의 실제 이름 표시
         if (bossNameText != null) bossNameText.text = boss.data.enemyName;
+        // v9.18: 새 보스 - 잔상·등장 상태 초기화 + 무방비 눈금
+        if (barIntroCo != null) { StopCoroutine(barIntroCo); barIntroCo = null; }
+        barHeld = false; introFill = 1f; trailRatio = 1f; lastRatio = 1f; trailHoldUntil = 0f;
+        if (GameBalance.BossBarBig)
+        {
+            bossRoot.anchoredPosition = new Vector2(0f, BIG_BAR_Y);
+            BuildTicks(boss);
+        }
 
         // v5.1: 동면자 보스전이면 해동포 UI 자동 생성 (씬 세팅 불필요)
         if (boss.kind == BossEnemy.BossKind.Hibernator)
@@ -196,8 +224,25 @@ public class BossGimmickSystem : MonoBehaviour
         {
             if (bossRoot.gameObject.activeSelf) bossRoot.gameObject.SetActive(false);
             if (groggyRoot.gameObject.activeSelf) groggyRoot.gameObject.SetActive(false);
+            UISkin.NoticeShiftY = 0f;   // v9.18
             return;
         }
+
+        // v9.18: 등장 연출이 내려줄 때까지는 숨겨 둔다 (8초 넘게 안 불리면 그냥 띄운다)
+        if (barHeld)
+        {
+            // 첫 등장 카드·스토리 글·증강 창·일시정지가 떠 있는 동안은 세지 않는다 (등장 연출도 그동안 기다린다 - BossEnemy.EntranceRoutine)
+            if (BriefingUI.IsOpen || StoryTexts.IsBlocking || AugmentPickUI.IsOpen || PauseMenu.IsOpen) barHeldSince = Time.unscaledTime;
+            else if (Time.unscaledTime - barHeldSince > 8f) { barHeld = false; bossRoot.gameObject.SetActive(true); }
+        }
+        // 큰 바가 떠 있는 동안 가운데 예고 카드(위에서 96)는 바 아래로 내린다. 무방비 띠까지 떠 있으면 그 아래로
+        float noticeShift = 0f;
+        if (GameBalance.BossBarBig && bossRoot.gameObject.activeSelf)
+        {
+            noticeShift = -BIG_BAR_Y + BIG_BAR_H + 6f - 96f;
+            if (groggyRoot.gameObject.activeSelf) noticeShift += GROGGY_GAP + GROGGY_H;
+        }
+        UISkin.NoticeShiftY = noticeShift;
 
         UpdateBossHPBar();
 
@@ -211,15 +256,136 @@ public class BossGimmickSystem : MonoBehaviour
     private void UpdateBossHPBar()
     {
         float ratio = Mathf.Clamp01(currentBoss.currentHP / Mathf.Max(1f, currentBoss.bossMaxHP));
-        SetFill(hpFill, ratio);
+
+        if (!GameBalance.BossBarBig)
+        {
+            // 구 배치 (v9.17 까지)
+            SetFill(hpFill, ratio);
+            if (bossHPText != null)
+                bossHPText.text = (int)currentBoss.currentHP + " / " + (int)currentBoss.bossMaxHP;
+            // v5.1: 천둥 둥지 - 번개 병 충전 수 표시
+            if (bossNameText != null && currentBoss.kind == BossEnemy.BossKind.ThunderNest)
+                bossNameText.text = currentBoss.data.enemyName + "   [번개 병 "
+                    + currentBoss.ParryCharges + "/" + GameBalance.ParryChargesForCounter + "]";
+            return;
+        }
+
+        // ── v9.18 큰 바 ──
+        // 잔상: 맞으면 0.25초 머물렀다가 실제 HP 로 줄어든다 (큰 한 방일수록 띠가 넓게 남는다). 회복(폭식)은 바로 따라간다
+        if (ratio < lastRatio - 0.0001f) trailHoldUntil = Time.time + 0.25f;
+        lastRatio = ratio;
+        if (trailRatio < ratio) trailRatio = ratio;
+        else if (Time.time >= trailHoldUntil)
+        {
+            float speed = Mathf.Max(0.12f, (trailRatio - ratio) / Mathf.Max(0.05f, GameBalance.BossBarTrailSec));
+            trailRatio = Mathf.MoveTowards(trailRatio, ratio, speed * Time.deltaTime);
+        }
+        SetFill(hpFill, ratio * introFill);
+        SetFill(hpTrail, trailRatio * introFill);
 
         if (bossHPText != null)
-            bossHPText.text = (int)currentBoss.currentHP + " / " + (int)currentBoss.bossMaxHP;
+            bossHPText.text = Mathf.CeilToInt(currentBoss.currentHP).ToString("#,0") + " / " + Mathf.RoundToInt(currentBoss.bossMaxHP).ToString("#,0");
 
-        // v5.1: 천둥 둥지 - 번개 병 충전 수 표시
-        if (bossNameText != null && currentBoss.kind == BossEnemy.BossKind.ThunderNest)
-            bossNameText.text = currentBoss.data.enemyName + "   [번개 병 "
-                + currentBoss.ParryCharges + "/" + GameBalance.ParryChargesForCounter + "]";
+        // 바 색: 발악하면 달아오른 주황으로 맥동
+        if (hpFillImg != null)
+        {
+            if (currentBoss.IsEnraged && GameBalance.BossEnrageSignal)
+                hpFillImg.color = Color.Lerp(HP_RED, HP_RAGE, 0.5f + 0.5f * Mathf.Sin(Time.unscaledTime * 7f));
+            else hpFillImg.color = HP_RED;
+        }
+
+        // 상태 딱지: 지금 보스가 어떤 상태인지 한 줄 (무방비 > 빙하 갑주 > 해치 개방 > 폭식, 발악·번개 병은 덧붙인다)
+        if (bossTagText != null)
+        {
+            string tag = "";
+            Color tagCol = new Color(1f, 0.82f, 0.4f);
+            if (currentBoss.IsGroggy) tag = "무방비";
+            else if (currentBoss.ArmorActive) { tag = "빙하 갑주"; tagCol = new Color(0.55f, 0.9f, 1f); }
+            else if (currentBoss.HatchOpen) { tag = "해치 개방"; tagCol = new Color(1f, 0.9f, 0.7f); }
+            else if (currentBoss.kind == BossEnemy.BossKind.Original && currentBoss.OriginalPhaseNow == 2) { tag = "폭식"; tagCol = new Color(1f, 0.6f, 0.3f); }
+            if (currentBoss.IsEnraged)
+            {
+                if (tag == "") tagCol = new Color(1f, 0.4f, 0.25f);
+                tag = tag == "" ? "발악" : tag + " · 발악";
+            }
+            if (currentBoss.kind == BossEnemy.BossKind.ThunderNest)
+                tag = "번개 병 " + currentBoss.ParryCharges + "/" + GameBalance.ParryChargesForCounter + (tag == "" ? "" : " · " + tag);
+            bossTagText.text = tag;
+            bossTagText.color = tagCol;
+        }
+    }
+
+    // ─────────────────────────────────────────────
+    // v9.18: 등장 연출 연동 (BossEnemy 가 부른다)
+    // ─────────────────────────────────────────────
+    /// <summary>등장 연출이 있는 보스: 포효 순간(PlayBarIntro)까지 HP 바를 숨겨 둔다. 8초 안에 안 불리면 그냥 띄운다 (안전장치)</summary>
+    public void HoldBarForIntro()
+    {
+        if (!GameBalance.BossBarBig || bossRoot == null) return;
+        barHeld = true;
+        barHeldSince = Time.unscaledTime;
+        bossRoot.gameObject.SetActive(false);
+    }
+
+    /// <summary>HP 바가 위에서 내려와(0.22초) 0 에서 지금 HP 까지 차오른다(0.7초). 실시간</summary>
+    public void PlayBarIntro()
+    {
+        if (!GameBalance.BossBarBig || bossRoot == null || currentBoss == null) return;
+        barHeld = false;
+        bossRoot.gameObject.SetActive(true);
+        if (GameBalance.GameFeelMaster <= 0f) { introFill = 1f; return; }
+        if (barIntroCo != null) StopCoroutine(barIntroCo);
+        barIntroCo = StartCoroutine(BarIntroRoutine());
+    }
+
+    private IEnumerator BarIntroRoutine()
+    {
+        introFill = 0f;
+        Vector2 home = new Vector2(0f, BIG_BAR_Y);
+        Vector2 from = home + new Vector2(0f, BIG_BAR_H + 60f);   // 화면 위 밖
+        float t = 0f;
+        while (t < 0.22f)
+        {
+            t += Time.unscaledDeltaTime;
+            float k = Mathf.Clamp01(t / 0.22f);
+            float e = 1f - (1f - k) * (1f - k);
+            bossRoot.anchoredPosition = Vector2.Lerp(from, home, e);
+            yield return null;
+        }
+        bossRoot.anchoredPosition = home;
+        t = 0f;
+        while (t < 0.7f)
+        {
+            t += Time.unscaledDeltaTime;
+            float k = Mathf.Clamp01(t / 0.7f);
+            introFill = 1f - (1f - k) * (1f - k);
+            yield return null;
+        }
+        introFill = 1f;
+        barIntroCo = null;
+    }
+
+    /// <summary>무방비 눈금: 이 HP 에 닿으면 보스가 무방비가 된다 (75 / 50 / 25%, 디 오리지널은 한 번 더). 예습 보스는 없음</summary>
+    private void BuildTicks(BossEnemy boss)
+    {
+        for (int i = 0; i < hpTicks.Count; i++) if (hpTicks[i] != null) Destroy(hpTicks[i]);
+        hpTicks.Clear();
+        if (hpBarArea == null || boss == null || boss.practice) return;
+
+        List<float> marks = new List<float> { 0.75f, 0.5f, 0.25f };
+        if (boss.kind == BossEnemy.BossKind.Original && GameBalance.OriginalExtraGroggyRatio > 0f) marks.Add(GameBalance.OriginalExtraGroggyRatio);
+        for (int i = 0; i < marks.Count; i++)
+        {
+            RectTransform tick = KitchenEventManager.MakeBox(hpBarArea, "TickLine" + i, new Color(0.04f, 0.02f, 0.02f, 0.85f));
+            tick.anchorMin = new Vector2(marks[i], 0f);
+            tick.anchorMax = new Vector2(marks[i], 1f);
+            tick.pivot = new Vector2(0.5f, 0.5f);
+            tick.sizeDelta = new Vector2(3f, 0f);
+            tick.anchoredPosition = Vector2.zero;
+            tick.GetComponent<Image>().raycastTarget = false;
+            hpTicks.Add(tick.gameObject);
+        }
+        if (bossHPText != null) bossHPText.transform.SetAsLastSibling();   // 수치는 눈금 위에
     }
 
     // ─────────────────────────────────────────────
@@ -385,6 +551,8 @@ public class BossGimmickSystem : MonoBehaviour
         currentBoss = null;
         SoundManager.BgmDuck("boss", false);   // v9.16
         isGroggyPhase = false;
+        barHeld = false;
+        UISkin.NoticeShiftY = 0f;
         if (bossRoot != null) bossRoot.gameObject.SetActive(false);
         if (groggyRoot != null) groggyRoot.gameObject.SetActive(false);
     }
@@ -394,6 +562,8 @@ public class BossGimmickSystem : MonoBehaviour
         currentBoss = null;
         SoundManager.BgmDuck("boss", false);   // v9.16
         isGroggyPhase = false;
+        barHeld = false;
+        UISkin.NoticeShiftY = 0f;
         bossRoot.gameObject.SetActive(false);
         groggyRoot.gameObject.SetActive(false);
 
@@ -417,11 +587,64 @@ public class BossGimmickSystem : MonoBehaviour
         CanvasScaler scaler = canvasGo.AddComponent<CanvasScaler>();
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
         scaler.referenceResolution = UIFactory.RefResolution;   // v9.14: UI 전체 배율 (GameBalance.UIScale)
-        scaler.matchWidthOrHeight = 0.5f;
+        scaler.matchWidthOrHeight = GameBalance.BossBarBig ? 0f : 0.5f;   // v9.18: 큰 바는 폭 기준 (기차 상황판·씬 HUD 와 같은 기준이라야 자리가 맞는다)
         canvasGo.AddComponent<GraphicRaycaster>();
 
-        // ---------- 보스 HP 바 (상단 중앙) ----------
-        bossRoot = KitchenEventManager.MakeBox(canvasGo.transform, "BossBar", new Color(0.08f, 0.06f, 0.05f, 0.88f));
+        // ---------- 보스 HP 바 ----------
+        if (GameBalance.BossBarBig) BuildBigBar(canvasGo.transform);
+        else BuildOldBar(canvasGo.transform);
+
+        // ---------- 그로기 배너 (보스 바 아래) ----------
+        groggyRoot = KitchenEventManager.MakeBox(canvasGo.transform, "GroggyBanner", new Color(0.25f, 0.08f, 0.05f, 0.92f));
+        groggyRoot.anchorMin = new Vector2(0.5f, 1f);
+        groggyRoot.anchorMax = new Vector2(0.5f, 1f);
+        groggyRoot.pivot = new Vector2(0.5f, 1f);
+        // v9.18: 큰 HP 바를 쓰면 바 바로 밑에 붙이고 폭도 바와 같게 (보스 묶음 한 덩어리). 구 자리(-222)는 이제 보스가 서는 높이라 몸을 가렸다
+        groggyRoot.anchoredPosition = GameBalance.BossBarBig ? new Vector2(0f, BIG_BAR_Y - BIG_BAR_H - GROGGY_GAP) : new Vector2(0f, -222f);
+        groggyRoot.sizeDelta = new Vector2(GameBalance.BossBarBig ? bossRoot.sizeDelta.x : 700f, GROGGY_H);
+        groggyRoot.GetComponent<Image>().raycastTarget = false;
+
+        // 안내 문구 (한 줄, 겹침 없음)
+        groggyGuideText = KitchenEventManager.MakeText(groggyRoot, "Guide", "", 22, new Color(1f, 0.85f, 0.4f));
+        if (GameBalance.BossBarBig)
+        {
+            // 띠가 700 -> HP 바 폭으로 좁아졌다 - 긴 안내는 띠 밖으로 삐져나가지 않게 글자를 줄여 한 줄에 맞춘다 (22 -> 최소 15)
+            groggyGuideText.horizontalOverflow = HorizontalWrapMode.Wrap;
+            groggyGuideText.verticalOverflow = VerticalWrapMode.Truncate;
+            groggyGuideText.resizeTextForBestFit = true;
+            groggyGuideText.resizeTextMinSize = 15;
+            groggyGuideText.resizeTextMaxSize = 22;
+        }
+        RectTransform gRt = groggyGuideText.rectTransform;
+        gRt.anchorMin = new Vector2(0f, 1f);
+        gRt.anchorMax = new Vector2(1f, 1f);
+        gRt.pivot = new Vector2(0.5f, 1f);
+        gRt.anchoredPosition = new Vector2(0f, -6f);
+        gRt.sizeDelta = new Vector2(-20f, 32f);
+
+        // 남은 시간 게이지 (하단)
+        RectTransform tBg = KitchenEventManager.MakeBox(groggyRoot, "TimeBG", new Color(0f, 0f, 0f, 0.55f));
+        tBg.anchorMin = new Vector2(0f, 0f);
+        tBg.anchorMax = new Vector2(1f, 0f);
+        tBg.pivot = new Vector2(0.5f, 0f);
+        tBg.offsetMin = new Vector2(14f, 8f);
+        tBg.offsetMax = new Vector2(-14f, 8f);
+        tBg.sizeDelta = new Vector2(tBg.sizeDelta.x, 12f);
+        tBg.GetComponent<Image>().raycastTarget = false;
+
+        groggyTimeFill = KitchenEventManager.MakeBox(tBg, "TimeFill", new Color(1f, 0.55f, 0.15f));
+        groggyTimeFill.anchorMin = new Vector2(0f, 0f);
+        groggyTimeFill.anchorMax = new Vector2(1f, 1f);
+        groggyTimeFill.offsetMin = Vector2.zero;
+        groggyTimeFill.offsetMax = Vector2.zero;
+        groggyTimeFillImg = groggyTimeFill.GetComponent<Image>();
+        groggyTimeFillImg.raycastTarget = false;
+    }
+
+    /// <summary>v9.17 까지의 배치 (위에서 150 아래, 700x64). GameBalance.BossBarBig = false 일 때</summary>
+    private void BuildOldBar(Transform parent)
+    {
+        bossRoot = KitchenEventManager.MakeBox(parent, "BossBar", new Color(0.08f, 0.06f, 0.05f, 0.88f));
         bossRoot.anchorMin = new Vector2(0.5f, 1f);
         bossRoot.anchorMax = new Vector2(0.5f, 1f);
         bossRoot.pivot = new Vector2(0.5f, 1f);
@@ -464,42 +687,89 @@ public class BossGimmickSystem : MonoBehaviour
         hRt.anchorMax = Vector2.one;
         hRt.offsetMin = Vector2.zero;
         hRt.offsetMax = Vector2.zero;
+    }
 
-        // ---------- 그로기 배너 (보스 바 아래) ----------
-        groggyRoot = KitchenEventManager.MakeBox(canvasGo.transform, "GroggyBanner", new Color(0.25f, 0.08f, 0.05f, 0.92f));
-        groggyRoot.anchorMin = new Vector2(0.5f, 1f);
-        groggyRoot.anchorMax = new Vector2(0.5f, 1f);
-        groggyRoot.pivot = new Vector2(0.5f, 1f);
-        groggyRoot.anchoredPosition = new Vector2(0f, -222f);
-        groggyRoot.sizeDelta = new Vector2(700f, 66f);
-        groggyRoot.GetComponent<Image>().raycastTarget = false;
+    /// <summary>
+    /// v9.18 큰 바: 화면 위 가운데, 기차 상황판 바로 아래 (위에서 46 ~ 128). 폭 = GameBalance.BossBarWidth (좌상단·우상단 판 사이에 들어가는 620).
+    /// 윗줄 = 이름(왼쪽, 28) + 상태 딱지(오른쪽, 20) / 아랫줄 = HP 바 30 (잔상 띠 -> 채움 -> 무방비 눈금 -> 수치 20)
+    /// </summary>
+    private void BuildBigBar(Transform parent)
+    {
+        float width = Mathf.Max(360f, Mathf.Min(GameBalance.BossBarWidth, UISkin.TopBandWidth));   // 좌우 판 사이 띠를 넘지 않게
+        bossRoot = KitchenEventManager.MakeBox(parent, "BossBar", new Color(0.07f, 0.05f, 0.05f, 0.93f));
+        bossRoot.anchorMin = new Vector2(0.5f, 1f);
+        bossRoot.anchorMax = new Vector2(0.5f, 1f);
+        bossRoot.pivot = new Vector2(0.5f, 1f);
+        bossRoot.anchoredPosition = new Vector2(0f, BIG_BAR_Y);
+        bossRoot.sizeDelta = new Vector2(width, BIG_BAR_H);
+        bossRoot.GetComponent<Image>().raycastTarget = false;
+        Outline frame = bossRoot.gameObject.AddComponent<Outline>();   // 황동 테
+        frame.effectColor = new Color(0.72f, 0.44f, 0.2f, 0.95f);
+        frame.effectDistance = new Vector2(2f, -2f);
 
-        // 안내 문구 (한 줄, 겹침 없음)
-        groggyGuideText = KitchenEventManager.MakeText(groggyRoot, "Guide", "", 22, new Color(1f, 0.85f, 0.4f));
-        RectTransform gRt = groggyGuideText.rectTransform;
-        gRt.anchorMin = new Vector2(0f, 1f);
-        gRt.anchorMax = new Vector2(1f, 1f);
-        gRt.pivot = new Vector2(0.5f, 1f);
-        gRt.anchoredPosition = new Vector2(0f, -6f);
-        gRt.sizeDelta = new Vector2(-20f, 32f);
+        // 이름 (왼쪽 위)
+        bossNameText = KitchenEventManager.MakeText(bossRoot, "Name", "", 28, new Color(1f, 0.5f, 0.38f));
+        bossNameText.fontStyle = FontStyle.Bold;
+        bossNameText.alignment = TextAnchor.MiddleLeft;
+        RectTransform nRt = bossNameText.rectTransform;
+        nRt.anchorMin = new Vector2(0f, 1f);
+        nRt.anchorMax = new Vector2(0.6f, 1f);
+        nRt.pivot = new Vector2(0f, 1f);
+        nRt.anchoredPosition = new Vector2(16f, -5f);
+        nRt.sizeDelta = new Vector2(0f, 34f);
+        Outline nameEdge = bossNameText.gameObject.AddComponent<Outline>();
+        nameEdge.effectColor = new Color(0f, 0f, 0f, 0.8f);
+        nameEdge.effectDistance = new Vector2(1.5f, -1.5f);
 
-        // 남은 시간 게이지 (하단)
-        RectTransform tBg = KitchenEventManager.MakeBox(groggyRoot, "TimeBG", new Color(0f, 0f, 0f, 0.55f));
-        tBg.anchorMin = new Vector2(0f, 0f);
-        tBg.anchorMax = new Vector2(1f, 0f);
-        tBg.pivot = new Vector2(0.5f, 0f);
-        tBg.offsetMin = new Vector2(14f, 8f);
-        tBg.offsetMax = new Vector2(-14f, 8f);
-        tBg.sizeDelta = new Vector2(tBg.sizeDelta.x, 12f);
-        tBg.GetComponent<Image>().raycastTarget = false;
+        // 상태 딱지 (오른쪽 위)
+        bossTagText = KitchenEventManager.MakeText(bossRoot, "Tag", "", 20, new Color(1f, 0.82f, 0.4f));
+        bossTagText.fontStyle = FontStyle.Bold;
+        bossTagText.alignment = TextAnchor.MiddleRight;
+        RectTransform tRt = bossTagText.rectTransform;
+        tRt.anchorMin = new Vector2(0.4f, 1f);
+        tRt.anchorMax = new Vector2(1f, 1f);
+        tRt.pivot = new Vector2(1f, 1f);
+        tRt.anchoredPosition = new Vector2(-16f, -7f);
+        tRt.sizeDelta = new Vector2(0f, 30f);
 
-        groggyTimeFill = KitchenEventManager.MakeBox(tBg, "TimeFill", new Color(1f, 0.55f, 0.15f));
-        groggyTimeFill.anchorMin = new Vector2(0f, 0f);
-        groggyTimeFill.anchorMax = new Vector2(1f, 1f);
-        groggyTimeFill.offsetMin = Vector2.zero;
-        groggyTimeFill.offsetMax = Vector2.zero;
-        groggyTimeFillImg = groggyTimeFill.GetComponent<Image>();
-        groggyTimeFillImg.raycastTarget = false;
+        // HP 바 영역 (아래)
+        hpBarArea = KitchenEventManager.MakeBox(bossRoot, "HPBG", new Color(0f, 0f, 0f, 0.7f));
+        hpBarArea.anchorMin = new Vector2(0f, 0f);
+        hpBarArea.anchorMax = new Vector2(1f, 0f);
+        hpBarArea.pivot = new Vector2(0.5f, 0f);
+        hpBarArea.offsetMin = new Vector2(14f, 10f);
+        hpBarArea.offsetMax = new Vector2(-14f, 10f);
+        hpBarArea.sizeDelta = new Vector2(hpBarArea.sizeDelta.x, 30f);
+        hpBarArea.GetComponent<Image>().raycastTarget = false;
+
+        // 잔상 띠 (채움 뒤)
+        hpTrail = KitchenEventManager.MakeBox(hpBarArea, "HPTrailFill", new Color(1f, 0.93f, 0.72f, 0.92f));   // 이름에 Fill·Line·Bar 가 들어가면 스킨 스캐너가 건드리지 않는다
+        hpTrail.anchorMin = new Vector2(0f, 0f);
+        hpTrail.anchorMax = new Vector2(1f, 1f);
+        hpTrail.offsetMin = Vector2.zero;
+        hpTrail.offsetMax = Vector2.zero;
+        hpTrail.GetComponent<Image>().raycastTarget = false;
+
+        // 채움
+        hpFill = KitchenEventManager.MakeBox(hpBarArea, "HPFill", HP_RED);
+        hpFill.anchorMin = new Vector2(0f, 0f);
+        hpFill.anchorMax = new Vector2(1f, 1f);
+        hpFill.offsetMin = Vector2.zero;
+        hpFill.offsetMax = Vector2.zero;
+        hpFillImg = hpFill.GetComponent<Image>();
+        hpFillImg.raycastTarget = false;
+
+        // 수치 (바 가운데)
+        bossHPText = KitchenEventManager.MakeText(hpBarArea, "HPText", "", 20, Color.white);
+        bossHPText.fontStyle = FontStyle.Bold;
+        RectTransform hRt = bossHPText.rectTransform;
+        hRt.anchorMin = Vector2.zero;
+        hRt.anchorMax = Vector2.one;
+        hRt.offsetMin = Vector2.zero;
+        hRt.offsetMax = Vector2.zero;
+        Outline hpEdge = bossHPText.gameObject.AddComponent<Outline>();
+        hpEdge.effectColor = new Color(0f, 0f, 0f, 0.85f);
+        hpEdge.effectDistance = new Vector2(1.5f, -1.5f);
     }
 
     /// <summary>게이지 채움 비율 (0~1)</summary>

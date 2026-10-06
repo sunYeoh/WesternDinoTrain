@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 
 /// <summary>
-/// [TurretAttackExecutor.cs] v5.4 (v9.17 2026-10-06: v9.14 머리말에 적고 본문에 빠져 있던 것을 실제로 넣음 - 투사체가 날아가는 동안 Enemy.IncomingDamage 예약·도착 때 해제 / 도착했을 때 표적이 죽었으면 ProjectileRetargetRadius 안의 다른 손님을 맞힌다. + A5: 물리 단발이 맞으면 HitFeel.Knock(그림만 움찔)) / v5.3 (v9.16 2026-09-29 손맛 2차 - 소리: 발사음 = 요리 속성·티어·모양별(SoundKeys.Shot, 포탑 위치에서 PlayAt) / 폭발 착탄 sfx_explosion / 장판 sfx_field / 연쇄 번개 튈 때마다 sfx_chain / 증강 폭발(동상 파편·마지막 서비스)도 폭발음 / HitFeel.NextHit 에 요리 속성을 같이 넘겨 명중음에 속성 겹침이 얹힌다) / v5.2 (v9.14 2026-09-28 테스터 "하나 점사해서 잡으면 나머지가 다 빗나감": 투사체가 도착했을 때 표적이 이미 죽었으면 그 자리 근처의 다른 손님을 맞힌다(ProjectileRetargetRadius) + 날아가는 동안 Enemy.IncomingDamage 예약 - 포탑이 곧 죽을 손님을 건너뛴다) / v5.1 (v9.11 2026-09-22 타격감: DealDamage 가 HitFeel.NextHit(속성색·크리) 를 걸고 때린다) / v5
+/// [TurretAttackExecutor.cs] v5.5 (v9.18 2026-10-06: 피해 출처(CurrentSource = 쏜 포탑) - 데미지 숫자를 포탑별로 합산하게 HitFeel 에 같이 넘긴다. 날아가는 탄은 도착할 때 출처를 다시 건다) / v5.4 (v9.17 2026-10-06: v9.14 머리말에 적고 본문에 빠져 있던 것을 실제로 넣음 - 투사체가 날아가는 동안 Enemy.IncomingDamage 예약·도착 때 해제 / 도착했을 때 표적이 죽었으면 ProjectileRetargetRadius 안의 다른 손님을 맞힌다. + A5: 물리 단발이 맞으면 HitFeel.Knock(그림만 움찔)) / v5.3 (v9.16 2026-09-29 손맛 2차 - 소리: 발사음 = 요리 속성·티어·모양별(SoundKeys.Shot, 포탑 위치에서 PlayAt) / 폭발 착탄 sfx_explosion / 장판 sfx_field / 연쇄 번개 튈 때마다 sfx_chain / 증강 폭발(동상 파편·마지막 서비스)도 폭발음 / HitFeel.NextHit 에 요리 속성을 같이 넘겨 명중음에 속성 겹침이 얹힌다) / v5.2 (v9.14 2026-09-28 테스터 "하나 점사해서 잡으면 나머지가 다 빗나감": 투사체가 도착했을 때 표적이 이미 죽었으면 그 자리 근처의 다른 손님을 맞힌다(ProjectileRetargetRadius) + 날아가는 동안 Enemy.IncomingDamage 예약 - 포탑이 곧 죽을 손님을 건너뛴다) / v5.1 (v9.11 2026-09-22 타격감: DealDamage 가 HitFeel.NextHit(속성색·크리) 를 걸고 때린다) / v5
 /// 포탑 공격 형태(8종)별 판정 및 이펙트 실행기
 /// - v3: 모든 TakeDamage에 r.damageType 적용 (DEF/RES 계산)
 /// - v4: 증강 시스템(AugmentManager) 연동
@@ -28,6 +28,13 @@ public static class TurretAttackExecutor
 
     // 기차 참조 캐시 (흡혈용, 매 타격 Find 방지)
     private static TrainManager cachedTrain;
+
+    /// <summary>
+    /// v5.5: 지금 처리 중인 발사를 쏜 포탑 (TurretSlot 의 출처 번호, 0 = 모름).
+    /// TurretSlot.TickFire 가 Execute 앞뒤로 걸고 푼다. 날아가는 탄은 Execute 때 값을 잡아 뒀다가 도착 판정 동안 다시 건다.
+    /// 쓰는 곳: 데미지 숫자 합산 (같은 포탑이 낸 것끼리만 한 숫자로 - GameBalance.DmgPopupMergePerSource)
+    /// </summary>
+    public static int CurrentSource = 0;
 
     /// <summary>요리 속성 태그별 이펙트 색상</summary>
     public static Color TagColor(FoodTag tag)
@@ -87,8 +94,11 @@ public static class TurretAttackExecutor
                         capturedTarget.IncomingDamage += reserved;
                     }
 
+                    int shotSource = CurrentSource;   // v5.5: 이 탄을 쏜 포탑 (도착할 때는 TickFire 가 이미 끝나 있다)
                     vfx.Projectile(origin, targetPos, col, projSpeed, projSize, delegate
                     {
+                        int outerSource = CurrentSource;
+                        CurrentSource = shotSource;
                         if (reserved > 0f && capturedTarget != null)
                             capturedTarget.IncomingDamage = Mathf.Max(0f, capturedTarget.IncomingDamage - reserved);
 
@@ -131,6 +141,7 @@ public static class TurretAttackExecutor
                             SoundManager.PlayAt("sfx_field", targetPos);   // v5.3: 장판 깔림
                             HitFieldArea(r, targetPos, radius);
                         }
+                        CurrentSource = outerSource;
                     });
                 }
                 else
@@ -274,7 +285,7 @@ public static class TurretAttackExecutor
 
         float hpBefore = en.currentHP;   // Phase 2-3: 초과 데미지(옆 테이블 계산서) 판정용
 
-        HitFeel.NextHit(TagColor(r.tag), critHit, r.tag);   // v5.1: 이번 명중의 스파크 색 = 요리 속성색 / v5.3: 속성 -> 명중음 겹침
+        HitFeel.NextHit(TagColor(r.tag), critHit, r.tag, CurrentSource);   // v5.1: 이번 명중의 스파크 색 = 요리 속성색 / v5.3: 속성 -> 명중음 겹침 / v5.5: 쏜 포탑
         en.TakeDamage(finalDamage, r.damageType);
 
         // ── Phase 2-3: 처치 시 효과 (주방장 누적 / 마지막 서비스 / 옆 테이블 계산서) ──

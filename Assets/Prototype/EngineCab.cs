@@ -4,7 +4,7 @@ using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 
 /// <summary>
-/// [EngineCab.cs] v4.1 (v9.12 2026-09-22: 첫 바위 때 작살 인라인 연습 훅 / ForceCruise / 인라인 연습 중 작살 어그로 없음) / v4 (v9.9.2 2026-09-16: 견습 운행 8·9단계용 - HarpoonRetrievals/LeverPulls 카운터, RockCount, SpawnRockNow(x), TutorialDirector.EngineCabUnlocked 면 게이트 무시,
+/// [EngineCab.cs] v4.2 (v9.18 2026-10-06, 10-05 그림 팩: 새 작살포 그림은 왼쪽을 보고 누워 있다 - 쏠 때 바위 쪽으로 돌았다가 0.6초에 제자리로, 빔은 촉 끝에서 / 작살포·레버 그림이 기관차 칸의 덜컹임을 따라간다) / v4.1 (v9.12 2026-09-22: 첫 바위 때 작살 인라인 연습 훅 / ForceCruise / 인라인 연습 중 작살 어그로 없음) / v4 (v9.9.2 2026-09-16: 견습 운행 8·9단계용 - HarpoonRetrievals/LeverPulls 카운터, RockCount, SpawnRockNow(x), TutorialDirector.EngineCabUnlocked 면 게이트 무시,
 ///   견습 중엔 작살 어그로 없음, 작살·레버 기둥 z -0.02 (튜토리얼 발밑 링이 그 밑에 깔리게)) / v3.1 (교수 피드백 A10: 열람 패널 중 레버/작살 입력 차단 2026-09-14) / v3 - B-3: 기관차 칸 = 기관사 페르소나 (방향결정 2026-08-31)
 ///
 /// - v3 (고퀄 PNG 적용 2026-09-03): 작살포/레버/바위가 Resources/Sprites/WDT/ 의 harpoon / leverpost / leverhandle /
@@ -76,6 +76,12 @@ public class EngineCab : MonoBehaviour
 
     // 비주얼/힌트
     private Transform leverHandle;
+    // v4.2: 덜컹임을 따라갈 그림들 (자리 = 만든 자리 + 기관차 칸의 덜컹임)
+    private Transform harpoonTf, leverPostTf;
+    private Vector3 harpoonBase, leverPostBase, leverHandleBase;
+    private bool harpoonPng = false;         // 새 그림(왼쪽을 보는 PNG)인가 - 코드 도트 작살포는 북동을 보고 안 돈다
+    private float harpoonAimDeg = 0f;        // 쉬는 자세에서 돌아간 각도 (쏠 때 바위 쪽, 그 뒤 0 으로)
+    private const float HARPOON_TIP = 0.88f; // 회전 중심 -> 촉 끝 (harpoon.png 실측 28px)
     private Canvas hintCanvas;
     private Text harpoonHint;
     private Text leverHint;
@@ -129,16 +135,35 @@ public class EngineCab : MonoBehaviour
     private void BuildVisuals()
     {
         // 작살포: 기관차 지붕 북쪽 가장자리 거치 (두상 눈썹 장갑 위쪽) - 삼각대 링 + 북동 조준 포신 + 미늘촉
-        SpriteBank.Attach(transform, "Harpoon", "harpoon", PaintHarpoon(),
+        harpoonPng = SpriteBank.Has("harpoon");
+        SpriteRenderer harpoon = SpriteBank.Attach(transform, "Harpoon", "harpoon", PaintHarpoon(),
             new Vector3(GameBalance.HarpoonX, 1.7f, -0.02f), -4);   // v4: z -0.02 = 같은 정렬(-4)의 튜토리얼 링(z -0.01)보다 앞
+        harpoonTf = harpoon.transform; harpoonBase = harpoonTf.localPosition;
 
         // 레버: 운전석 바닥 (B-2.1: 지붕 위에 떠 있던 것을 칸 안으로 내림) - 슬롯 판 + 손잡이(뿌리 피벗 회전)
-        SpriteBank.Attach(transform, "LeverPost", "leverpost", PaintLeverPost(),
+        SpriteRenderer post = SpriteBank.Attach(transform, "LeverPost", "leverpost", PaintLeverPost(),
             new Vector3(GameBalance.LeverX, 0.35f, -0.02f), -4);   // v4: z -0.02 (위와 같은 이유)
+        leverPostTf = post.transform; leverPostBase = leverPostTf.localPosition;
         SpriteRenderer handle = SpriteBank.Attach(transform, "LeverHandle", "leverhandle", PaintLeverHandle(),
             new Vector3(GameBalance.LeverX, 0.55f, 0f), -3);
         handle.transform.localEulerAngles = new Vector3(0f, 0f, 25f);
-        leverHandle = handle.transform;
+        leverHandle = handle.transform; leverHandleBase = leverHandle.localPosition;
+    }
+
+    /// <summary>v4.2: 작살포·레버 그림을 기관차 칸의 덜컹임만큼 옮기고, 쏘고 난 작살포를 제자리 각도로 돌린다</summary>
+    private void TickVisuals()
+    {
+        Vector2 r = TrainDeck.CarOffsetAt(GameBalance.LeverX);
+        Vector3 off = new Vector3(r.x, r.y, 0f);
+        if (harpoonTf != null) harpoonTf.localPosition = harpoonBase + off;
+        if (leverPostTf != null) leverPostTf.localPosition = leverPostBase + off;
+        if (leverHandle != null) leverHandle.localPosition = leverHandleBase + off;
+
+        if (harpoonPng && harpoonTf != null && Mathf.Abs(harpoonAimDeg) > 0.01f)
+        {
+            harpoonAimDeg = Mathf.MoveTowards(harpoonAimDeg, 0f, Mathf.Max(60f, Mathf.Abs(harpoonAimDeg) / 0.6f * 1.5f) * Time.deltaTime);
+            harpoonTf.localEulerAngles = new Vector3(0f, 0f, harpoonAimDeg);
+        }
     }
 
     /// <summary>작살포 (캔버스 40x40, 피벗 = 삼각대 링 중심 (14,26)). 목업 v2 좌표 이식</summary>
@@ -201,6 +226,7 @@ public class EngineCab : MonoBehaviour
         TickInteract();
         TickLeverHold();   // 픽스 2차: 레버 [E] 홀드 진행
         TickHints();
+        TickVisuals();     // v4.2
     }
 
     private bool InBattle()
@@ -375,6 +401,19 @@ public class EngineCab : MonoBehaviour
 
         // 발사 연출: 거치대 -> 바위로 빔 + 명중 팝
         Vector3 muzzle = new Vector3(GameBalance.HarpoonX + 0.85f, 2.8f, 0f);   // v2: 포신 끝 (북동)
+        if (harpoonPng && harpoonTf != null)
+        {
+            // v4.2: 새 그림은 왼쪽(180도)을 보고 누워 있다 - 바위 쪽으로 돌려 놓고(쉬는 자세에서 aim - 180도) 촉 끝에서 쏜다. TickVisuals 가 0.6초에 되돌린다
+            Vector3 pivot = harpoonTf.position;
+            Vector3 dir = target.transform.position - pivot; dir.z = 0f;
+            if (dir.sqrMagnitude > 0.0001f)
+            {
+                dir.Normalize();
+                harpoonAimDeg = Mathf.DeltaAngle(180f, Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg);
+                harpoonTf.localEulerAngles = new Vector3(0f, 0f, harpoonAimDeg);
+                muzzle = new Vector3(pivot.x + dir.x * HARPOON_TIP, pivot.y + dir.y * HARPOON_TIP, 0f);
+            }
+        }
         Color rockColor = PickupFX.ColorOf(target.materialType);
         if (AttackVFX.Instance != null)
             AttackVFX.Instance.Beam(muzzle, target.transform.position, rockColor, 0.12f);

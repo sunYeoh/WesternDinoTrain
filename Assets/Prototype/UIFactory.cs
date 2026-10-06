@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [UIFactory.cs] v4.2 (v9.14 2026-09-28: RefResolution - 모든 캔버스 기준 해상도를 GameBalance.UIScale 로 나눈다, 글자·창 전체 확대) / v4.1 (v9.11 2026-09-22: CreateButton 에 ButtonFeel - 호버·프레스 반응) / v4 - uGUI 요소를 코드로 생성하는 헬퍼 (에디터 Canvas 세팅 불필요)
+/// [UIFactory.cs] v4.3 (v9.18 2026-10-06: CreateText 최소 글자 크기(GameBalance.UIFontFloor) / FitScale - 기준 화면보다 큰 창을 화면 안으로 줄이는 배율 (UI 배율을 올려도 큰 창이 잘리지 않게)) / v4.2 (v9.14 2026-09-28: RefResolution - 모든 캔버스 기준 해상도를 GameBalance.UIScale 로 나눈다, 글자·창 전체 확대) / v4.1 (v9.11 2026-09-22: CreateButton 에 ButtonFeel - 호버·프레스 반응) / v4 - uGUI 요소를 코드로 생성하는 헬퍼 (에디터 Canvas 세팅 불필요)
 ///
 /// v4 (2026-09-07, "쇳냄새" 픽셀 스킨): UISkin(ui_*.png)이 있으면
 ///   - CreatePanel: borderWidth 3 이상 + 큰 창(600x150 이상) = 구리 파이프 프레임(무쇠 평판 내장, 색 인자 무시)
@@ -80,6 +80,19 @@ public static class UIFactory
     public static Vector2 RefResolution
     {
         get { float k = Mathf.Max(0.5f, GameBalance.UIScale); return new Vector2(1920f / k, 1080f / k); }
+    }
+
+    /// <summary>
+    /// v4.3: 폭 w, 높이 h 인 창이 기준 화면(RefResolution)의 97% 안에 들어가게 하는 배율 (1 이하). 창의 localScale 에 곱해 쓴다.
+    /// UI 배율(GameBalance.UIScale)을 올리면 기준 화면이 작아져 큰 창(요리 창 1240x900 등)이 화면 밖으로 나간다 - 그런 창만 이걸로 줄인다
+    /// </summary>
+    public static float FitScale(float w, float h)
+    {
+        Vector2 r = RefResolution;
+        float k = 1f;
+        if (w > 1f) k = Mathf.Min(k, r.x * 0.97f / w);
+        if (h > 1f) k = Mathf.Min(k, r.y * 0.97f / h);
+        return k;
     }
 
     public static Canvas CreateCanvas(string name, int sortOrder)
@@ -197,7 +210,7 @@ public static class UIFactory
         Text t = go.AddComponent<Text>();
         t.font = GetFont();
         t.text = content;
-        t.fontSize = size;
+        t.fontSize = GameBalance.UIFontFloor > 0 ? Mathf.Max(size, GameBalance.UIFontFloor) : size;   // v4.3: 최소 글자 크기
         t.color = color;
         t.alignment = align;
         t.horizontalOverflow = HorizontalWrapMode.Overflow;

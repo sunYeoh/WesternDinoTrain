@@ -4,8 +4,12 @@ using UnityEditor;
 using UnityEngine;
 
 /// <summary>
-/// [WDTSpriteImporter.cs] v4.4 (Editor 전용) - 스프라이트 PNG 자동 임포트 설정 (2026-09-07, v9 픽셀 팩 + UI 스킨)
+/// [WDTSpriteImporter.cs] v4.8 (Editor 전용) - 스프라이트 PNG 자동 임포트 설정 (2026-09-07, v9 픽셀 팩 + UI 스킨)
 ///
+/// v4.8 (v9.18 2026-10-06, 10-05 그림 팩): 작살포 피벗 = 회전 중심 (0.5965, 0.5781 - 새 그림은 왼쪽을 보고 누워 있다) / 레버 손잡이 피벗 = 아래 둥근 뿌리 (0.5714, 0.1207) /
+///   새 그림은 캔버스를 꽉 채워 그려서 e_ptera·e_tortoise 피벗을 가운데로 / e_venom·e_volt 2줄 / boss_*·e_* 는 표에 없어도 32ppu 가운데 피벗(경고 없음) /
+///   표 버전(TABLE_VERSION)이 바뀌면 에디터가 스크립트를 다시 읽은 뒤 Sprites/WDT 를 스스로 한 번 재임포트한다 - 메뉴를 누르지 않아도 새 피벗이 잡힌다
+/// v4.7 (아트 v1 2026-10-03): 새 전용 그림 4종 e_armadillo / e_mammoth / e_pachy / e_cactus (32ppu, 가운데 피벗) 표 4줄
 /// v4.6 (v9.14): 셰프 HERO_PPU 32 -> 27 (화면에서 18% 크게). 적용하려면 메뉴 WDT > 스프라이트 재임포트 (hero_*.png 만 다시 잡힌다)
 /// v4.5 (v9.13): 선로 v2 갈림길 rails_fork / rails_fork_up / rails_fork_hi_up·down·straight (516x421, 32ppu, 피벗 = 위 가지 분기점 (515/516, 211/421)) 5줄
 /// v4.4 (v9.9.2): tut_ring_l(72x26, 중앙) 1줄. ui_npc_spino / ui_npc_ankylo 는 ui_ 규칙 그대로 (PPU 100, 단순 그림)
@@ -68,18 +72,24 @@ public class WDTSpriteImporter : AssetPostprocessor
             { "e_carno", new Info(32f, 0.5000f, 0.5000f) },
             { "e_fly", new Info(32f, 0.5000f, 0.5000f) },
             { "e_mosa", new Info(32f, 0.5000f, 0.5000f) },
+            { "e_armadillo", new Info(32f, 0.5000f, 0.5000f) },
+            { "e_mammoth", new Info(32f, 0.5000f, 0.5000f) },
+            { "e_pachy", new Info(32f, 0.5000f, 0.5000f) },
+            { "e_cactus", new Info(32f, 0.5000f, 0.5000f) },
             { "e_necro", new Info(32f, 0.5000f, 0.5000f) },
             { "e_parasaur", new Info(32f, 0.5000f, 0.5000f) },
-            { "e_ptera", new Info(32f, 0.5200f, 0.5000f) },
+            { "e_ptera", new Info(32f, 0.5000f, 0.5000f) },      // v4.8: 0.52 -> 0.5 (10-05 그림은 캔버스 가운데)
+            { "e_venom", new Info(32f, 0.5000f, 0.5000f) },      // v4.8: 독침 프테라
+            { "e_volt", new Info(32f, 0.5000f, 0.5000f) },       // v4.8: 볼트 테라노돈
             { "e_raptor", new Info(32f, 0.5000f, 0.5000f) },
             { "e_scorpion", new Info(32f, 0.5000f, 0.5000f) },
             { "e_steel", new Info(32f, 0.5000f, 0.5000f) },
-            { "e_tortoise", new Info(32f, 0.4800f, 0.5000f) },
+            { "e_tortoise", new Info(32f, 0.5000f, 0.5000f) },   // v4.8: 0.48 -> 0.5
             { "gangway", new Info(32f, 0.5053f, 0.4947f) },
             { "ground_ae", new Info(32f, 0.5000f, 0.5000f) },
-            { "harpoon", new Info(32f, 0.3500f, 0.3375f) },
+            { "harpoon", new Info(32f, 0.5965f, 0.5781f) },      // v4.8: 10-05 그림 - 회전 받침 중심 (38.175 / 64, 아래에서 37 / 64). 구 0.35, 0.3375
             { "head", new Info(32f, 0.3200f, 0.6290f) },
-            { "leverhandle", new Info(32f, 0.4571f, 0.0621f) },
+            { "leverhandle", new Info(32f, 0.5714f, 0.1207f) },  // v4.8: 10-05 그림 - 아래 둥근 뿌리 (8 / 14, 아래에서 3.5 / 29). 구 0.4571, 0.0621
             { "leverpost", new Info(32f, 0.5053f, 0.4947f) },
             { "rails_ae", new Info(32f, 0.5000f, 0.5000f) },
             { "rails_fork", new Info(32f, 0.9981f, 0.5012f) },        // v4.5 (v9.13): 갈림길 516x421 - 피벗 = 위 가지 분기점 (오른쪽 끝 px 515, 본선 중심 행 = 아래에서 211)
@@ -110,6 +120,28 @@ public class WDTSpriteImporter : AssetPostprocessor
             { "tut_ring", new Info(32f, 0.5000f, 0.5000f) },
             { "tut_ring_l", new Info(32f, 0.5000f, 0.5000f) },     // v4.4 (v9.9.2): 큰 발밑 링 72x26 (포탑·작살 밑)    // v4.3: 튜토리얼 발밑 링 - 중앙
     };
+
+    /// <summary>v4.8: 표(피벗·배율)를 고칠 때마다 올린다. 값이 달라지면 에디터가 스크립트를 다시 읽은 직후 Sprites/WDT 를 한 번 재임포트한다</summary>
+    private const string TABLE_VERSION = "4.8";
+
+    /// <summary>
+    /// v4.8: 표가 바뀐 팩을 넣으면 PNG 는 그대로인데 피벗만 옛 값으로 남는다 (PNG 가 먼저 임포트되고 이 스크립트가 나중에 컴파일되므로).
+    /// 그래서 표 버전을 이 컴퓨터의 에디터 설정에 적어 두고, 다르면 한 번 스스로 재임포트한다. 프로젝트 폴더마다 따로 적는다
+    /// </summary>
+    [InitializeOnLoadMethod]
+    private static void ReimportWhenTableChanged()
+    {
+        string key = "WDT_SpriteTable_" + Application.dataPath.Replace('/', '_').Replace('\\', '_').Replace(':', '_');
+        if (EditorPrefs.GetString(key, "") == TABLE_VERSION) return;
+        EditorApplication.delayCall += delegate
+        {
+            if (EditorPrefs.GetString(key, "") == TABLE_VERSION) return;
+            EditorPrefs.SetString(key, TABLE_VERSION);
+            if (!AssetDatabase.IsValidFolder("Assets/Resources/Sprites/WDT")) return;
+            ReimportAll();
+            Debug.Log("[WDTSpriteImporter] 피벗 표 v" + TABLE_VERSION + " - Sprites/WDT 를 자동으로 다시 임포트했다 (새 피벗 적용)");
+        };
+    }
 
     /// <summary>메뉴 WDT > 스프라이트 재임포트: PNG를 스크립트보다 먼저 넣었을 때 한 번 눌러주면 설정이 다시 잡힌다</summary>
     [MenuItem("WDT/스프라이트 재임포트 (Sprites/WDT)")]
@@ -158,6 +190,12 @@ public class WDTSpriteImporter : AssetPostprocessor
         }
         else if (TABLE.TryGetValue(name, out info))
         {
+            ApplyPivot(ti, info);
+        }
+        else if (name.StartsWith("boss_") || name.StartsWith("e_"))
+        {
+            // v4.8: 보스(boss_rust, boss_original_groggy, 나중에 넣을 _rage·_p2·_p3 ...)와 표에 없는 손님 그림: 32px/유닛, 가운데 피벗
+            info = new Info(32f, 0.5f, 0.5f);
             ApplyPivot(ti, info);
         }
         else

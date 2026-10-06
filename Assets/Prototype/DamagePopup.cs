@@ -2,7 +2,8 @@ using UnityEngine;
 using TMPro;
 
 /// <summary>
-/// [DamagePopup.cs] v1.2 (v9.17 2026-10-06 화면 손맛 2차 A4: CreateFor(손님) - 숫자 크기 = 기본 x (1 + 피해 / 손님 최대 HP), 최대 2배 /
+/// [DamagePopup.cs] v1.3 (v9.18 2026-10-06: 합산은 같은 포탑이 낸 것끼리만 - CreateFor(..., source). 구: 포탑이 달라도 한 손님에게 0.1초 안에 들어오면 한 숫자 -> 약한 포탑의 숫자가 센 포탑 것과 합쳐져 보였다) /
+/// v1.2 (v9.17 2026-10-06 화면 손맛 2차 A4: CreateFor(손님) - 숫자 크기 = 기본 x (1 + 피해 / 손님 최대 HP), 최대 2배 /
 ///   같은 손님이 0.1초 안에 또 맞으면 새 숫자 대신 앞 숫자에 더한다 / 등장할 때 1.25배에서 제자리로, 크리는 굵게 + 1.6배에서 0.1초 더 길게 + 더 높이 /
 ///   크리 여부는 Enemy 가 진짜 치명타만 넘긴다) / v1.1 (v9.15 2026-09-29: resisted 팝업 - 회청색 "n 저항")
 /// 손님이 맞으면 피해 숫자가 위로 떠오르며 사라진다.
@@ -40,17 +41,22 @@ public class DamagePopup : MonoBehaviour
     /// v1.2: 손님이 맞았다. 크기는 피해 / 최대 HP 에 비례하고, DmgPopupMergeSec 안에 같은 손님이 또 맞으면 앞 숫자에 더한다
     /// (합산 창은 첫 숫자가 뜬 때부터 센다 - 연사 포탑이 숫자 하나를 끝없이 붙들지 않는다)
     /// </summary>
-    public static void CreateFor(Enemy e, float damage, bool isCritical, bool resisted)
+    public static void CreateFor(Enemy e, float damage, bool isCritical, bool resisted) { CreateFor(e, damage, isCritical, resisted, 0); }
+
+    /// <summary>v1.3: source = 쏜 포탑 (TurretSlot 출처 번호, 0 = 모름). 앞 숫자와 출처가 같을 때만 더한다 (GameBalance.DmgPopupMergePerSource)</summary>
+    public static void CreateFor(Enemy e, float damage, bool isCritical, bool resisted, int source)
     {
         if (e == null) return;
         float maxHP = Mathf.Max(1f, e.scaledMaxHP);
-        if (GameBalance.DmgPopupMergeSec > 0f && e.lastPopup != null && Time.time - e.lastPopupTime <= GameBalance.DmgPopupMergeSec)
+        bool sameSource = !GameBalance.DmgPopupMergePerSource || e.lastPopupSource == source;
+        if (GameBalance.DmgPopupMergeSec > 0f && sameSource && e.lastPopup != null && Time.time - e.lastPopupTime <= GameBalance.DmgPopupMergeSec)
         {
             e.lastPopup.AddDamage(damage, isCritical, resisted);
             return;
         }
         e.lastPopup = Spawn(e.transform.position, damage, isCritical, resisted, maxHP);
         e.lastPopupTime = Time.time;
+        e.lastPopupSource = source;
     }
 
     private static DamagePopup Spawn(Vector3 worldPos, float damage, bool isCritical, bool resisted, float maxHP)

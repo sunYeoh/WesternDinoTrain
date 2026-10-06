@@ -3,7 +3,8 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// [ChefVisual.cs] v2.4 (v9.17 2026-10-06 B3: 찌그러짐 - 대시 시작에 가는 방향으로 늘어남(0.08초) / 달리다 멈추면 납작(0.1초) / 조리 시작에 한 번 튕김(0.12초). 그림(spriteTf) 크기만 바꾼다) / v2.3 (v9.10 2026-09-17 테스터 피드백: "가다가 뒤도는 버그" - 바라보는 방향을 실제 위치 변화가 아니라 ChefController.CurrentVel(가려는 속도)로 정한다.
+/// [ChefVisual.cs] v2.5 (v9.18 2026-10-06: 그림 비율 바로잡기 - 씬의 Chef 스케일이 (0.3, 0.5) 라 그림이 가로로 60% 눌려 그려지고 있었다. 가로 배율에 (세로/가로)를 곱해 그린 그대로 보이게 (GameBalance.ChefAspectFix, 키는 그대로) /
+/// v2.4 (v9.17 2026-10-06 B3: 찌그러짐 - 대시 시작에 가는 방향으로 늘어남(0.08초) / 달리다 멈추면 납작(0.1초) / 조리 시작에 한 번 튕김(0.12초). 그림(spriteTf) 크기만 바꾼다) / v2.3 (v9.10 2026-09-17 테스터 피드백: "가다가 뒤도는 버그" - 바라보는 방향을 실제 위치 변화가 아니라 ChefController.CurrentVel(가려는 속도)로 정한다.
 ///   통로·벽에서 ResolveWalk 가 한 프레임 되밀 때 위치 변화 부호가 뒤집혀 뒤돌던 것. 걷는지/대시인지는 종전대로 위치 변화로 / GameBalance.ChefVisualScale 로 그림 배율 - "셰프가 너무 작다")
 /// v2.2 - 셰프 스프라이트 애니메이션 (2026-09-07, 유저 제작 도트 8장 대응)
 ///
@@ -117,7 +118,7 @@ public class ChefVisual : MonoBehaviour
             GameObject sh = new GameObject("ChefShadow");
             sh.transform.SetParent(transform, false);
             sh.transform.localPosition = new Vector3(0f, SPRITE_Y_OFFSET + 0.02f, 0f);
-            sh.transform.localScale = new Vector3(GameBalance.ChefVisualScale, GameBalance.ChefVisualScale, 1f);   // v2.3
+            sh.transform.localScale = new Vector3(BaseScaleX(), GameBalance.ChefVisualScale, 1f);   // v2.3, v2.5: 비율 보정
             SpriteRenderer ssr = sh.AddComponent<SpriteRenderer>();
             ssr.sprite = GetShadowSprite();
             ssr.color = new Color(0f, 0f, 0f, 0.35f);
@@ -127,7 +128,7 @@ public class ChefVisual : MonoBehaviour
         GameObject go = new GameObject("ChefSprite");
         go.transform.SetParent(transform, false);
         go.transform.localPosition = new Vector3(0f, SPRITE_Y_OFFSET, 0f);
-        go.transform.localScale = new Vector3(GameBalance.ChefVisualScale, GameBalance.ChefVisualScale, 1f);   // v2.3
+        go.transform.localScale = new Vector3(BaseScaleX(), GameBalance.ChefVisualScale, 1f);   // v2.3, v2.5: 비율 보정
         spriteTf = go.transform;
         controller = GetComponent<ChefController>();
         sr = go.AddComponent<SpriteRenderer>();
@@ -249,8 +250,23 @@ public class ChefVisual : MonoBehaviour
         float w = (1f - k) * (1f - k);
         float sx = 1f + (sqX - 1f) * w, sy = 1f + (sqY - 1f) * w;
         float b = GameBalance.ChefVisualScale;
-        spriteTf.localScale = new Vector3(b * sx, b * sy, 1f);
-        if (k >= 1f) { sqT = -1f; spriteTf.localScale = new Vector3(b, b, 1f); }
+        float bx = BaseScaleX();
+        spriteTf.localScale = new Vector3(bx * sx, b * sy, 1f);
+        if (k >= 1f) { sqT = -1f; spriteTf.localScale = new Vector3(bx, b, 1f); }
+    }
+
+    /// <summary>
+    /// v2.5: 그림의 가로 배율. 씬의 Chef 오브젝트 스케일이 (0.3, 0.5) 처럼 가로·세로가 다르면 자식 그림도 그 비율로 눌린다 -
+    /// 세로/가로 비를 곱해 화면에서 1:1 이 되게 한다 (세로 크기 = 지금까지 보던 키 그대로). 씬 스케일을 (0.5, 0.5) 로 고치면 보정값은 저절로 1 이 된다
+    /// </summary>
+    private float BaseScaleX()
+    {
+        float b = GameBalance.ChefVisualScale;
+        if (!GameBalance.ChefAspectFix) return b;
+        Vector3 root = transform.localScale;
+        float rx = Mathf.Abs(root.x), ry = Mathf.Abs(root.y);
+        if (rx < 0.001f || ry < 0.001f) return b;
+        return b * (ry / rx);
     }
 
     /// <summary>현재 스프라이트를 제자리에 복사해 두고 서서히 지운다</summary>

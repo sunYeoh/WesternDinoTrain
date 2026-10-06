@@ -4,7 +4,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 /// <summary>
-/// [GameHUD.cs] v3.7 (v9.17 2026-10-06 B6: 재료 개수가 늘면 그 숫자가 1.3배에서 제자리로 튄다 - 숫자 왼쪽 아래를 축으로) / v3.6 (v9.15 2026-09-29 2차 피드백: 요리 카드 드래그 투입(FoodCardDrag - 고스트 카드가 커서를 따라가고 SlotMarkerUI.NearestMarker 로 놓을 슬롯 금색, 놓으면 투입. 클릭->클릭도 그대로) / HUD 재배치 GameBalance.HudRegroup: 칼·팬 명판을 하단 바에서 좌상단 HP 판(UISkin SkinPanel_TL)으로) / v3.5 (v9.11 2026-09-22 타격감: 조리 완료 접시 날아가기 + 카드 튀기 / 요리 카드 ButtonFeel) / v3.4 (v9.10.1 2026-09-21: 재료 이름 MaterialNames 한 곳(전기알·화염꽃·얼음꽃·독샘) - 칸 폭 102 에 세 글자 이름이 안 들어가 이름(11px, 위)·개수(20px, 아래) 두 줄) / v3.3 (v9.9 2026-09-16: 로비에서는 하단 바 숨김 - 로비 버튼이 바 위에 겹쳐 있던 것) / v3.2 (v9.8 재료 아이콘) / v3.1 (교수 피드백 A9 반영 2026-09-14) / v3 - 전투 중 핵심 HUD (전부 코드 생성 - Canvas 세팅 불필요)
+/// [GameHUD.cs] v3.8 (v9.18 2026-10-06: 재료 칸 이름 글자 11 -> 13 (최소 글자 크기), 칸 높이 34 -> 36 으로 이름과 개수가 안 겹치게) / v3.7 (v9.17 2026-10-06 B6: 재료 개수가 늘면 그 숫자가 1.3배에서 제자리로 튄다 - 숫자 왼쪽 아래를 축으로) / v3.6 (v9.15 2026-09-29 2차 피드백: 요리 카드 드래그 투입(FoodCardDrag - 고스트 카드가 커서를 따라가고 SlotMarkerUI.NearestMarker 로 놓을 슬롯 금색, 놓으면 투입. 클릭->클릭도 그대로) / HUD 재배치 GameBalance.HudRegroup: 칼·팬 명판을 하단 바에서 좌상단 HP 판(UISkin SkinPanel_TL)으로) / v3.5 (v9.11 2026-09-22 타격감: 조리 완료 접시 날아가기 + 카드 튀기 / 요리 카드 ButtonFeel) / v3.4 (v9.10.1 2026-09-21: 재료 이름 MaterialNames 한 곳(전기알·화염꽃·얼음꽃·독샘) - 칸 폭 102 에 세 글자 이름이 안 들어가 이름(11px, 위)·개수(20px, 아래) 두 줄) / v3.3 (v9.9 2026-09-16: 로비에서는 하단 바 숨김 - 로비 버튼이 바 위에 겹쳐 있던 것) / v3.2 (v9.8 재료 아이콘) / v3.1 (교수 피드백 A9 반영 2026-09-14) / v3 - 전투 중 핵심 HUD (전부 코드 생성 - Canvas 세팅 불필요)
 /// - v3.2: 재료 칸의 16px 계열색 판을 ui_mat_*.png 아이콘(32px)으로. 칸 폭 96 -> 102, 간격 100 -> 106 (3열 318 <= 재료 구역 326).
 ///   PNG 가 없으면 v3.1 그대로(계열색 판 + 글자). 이벤트 "재료 흘림" 칩과 같은 그림이라 재료 = 한 그림으로 통일
 /// - 하단 바: 재료 6종 카운트 + 보유 요리 카드 목록 (2줄 그리드, 휠 가로 스크롤)
@@ -174,7 +174,7 @@ public class GameHUD : MonoBehaviour
             crt.anchorMax = new Vector2(0f, 1f);
             crt.pivot = new Vector2(0f, 1f);
             crt.anchoredPosition = new Vector2(4f + col * cellGap, -12f - row * 50f);
-            crt.sizeDelta = new Vector2(cellW, 34f);
+            crt.sizeDelta = new Vector2(cellW, 36f);   // v3.8: 34 -> 36 (이름 글자가 13px 로 커진 만큼)
 
             float labelX;
             if (matIcons)
@@ -200,8 +200,8 @@ public class GameHUD : MonoBehaviour
                 labelX = 26f;
             }
 
-            // v3.4: 위 = 이름 11px (흐리게), 아래 = 개수 20px. 칸 높이 34 안에 두 줄
-            Text nameLabel = UIFactory.CreateText(crt, "Name", MaterialNames.KOR[i], 11, UIFactory.DIM, TextAnchor.UpperLeft);
+            // v3.4: 위 = 이름 (흐리게), 아래 = 개수 20px. v3.8: 이름 11 -> 13px, 칸 높이 36 안에 두 줄
+            Text nameLabel = UIFactory.CreateText(crt, "Name", MaterialNames.KOR[i], 13, UIFactory.DIM, TextAnchor.UpperLeft);
             nameLabel.rectTransform.offsetMin = new Vector2(labelX, 16f);
             nameLabel.rectTransform.offsetMax = new Vector2(0f, 0f);
             matNameTexts[i] = nameLabel;
@@ -209,7 +209,7 @@ public class GameHUD : MonoBehaviour
             Text label = UIFactory.CreateText(crt, "Label", "0", 20, UIFactory.CREAM, TextAnchor.LowerLeft);
             label.rectTransform.pivot = new Vector2(0f, 0f);   // v3.7: 튈 때 숫자(왼쪽 아래 정렬)가 제자리에서 커지게
             label.rectTransform.offsetMin = new Vector2(labelX, -2f);
-            label.rectTransform.offsetMax = new Vector2(0f, -14f);
+            label.rectTransform.offsetMax = new Vector2(0f, -15f);   // v3.8: -14 -> -15
             matTexts[i] = label;
         }
 

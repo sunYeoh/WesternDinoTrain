@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// [EnemySkin.cs] v1.2 (v9.9.2 2026-09-16: PortraitFor - 브리핑 카드 초상용 스프라이트·틴트 조회, 규칙 표 공용) / v1.1 (v9.8: 위험 적 전용 스프라이트 규칙) / v1 (신규 파일) - 프리팹 적에게 PNG 스프라이트 입히기 (2026-09-07)
+/// [EnemySkin.cs] v1.4 (v9.18 2026-10-06, 10-05 그림 팩: 익룡 3종 전용 그림 - 볼트 테라노돈 e_volt / 독침 프테라 e_venom / 화염 익룡 e_ptera(그림이 주황으로 바뀌어 틴트를 뺐다) + 새 익룡 그림은 캔버스를 꽉 채워 0.75배 / SpriteFor - 이름 -> 그림·틴트·배율을 한 곳에서. WaveManager 의 코드 폴백 손님도 이 표를 쓴다(같은 규칙이 두 군데 있던 것)) / v1.3 (아트 v1 2026-10-03: 새 전용 그림 4종 - 아르마딜로·맘모스·파키·캑터스 규칙) / v1.2 (v9.9.2 2026-09-16: PortraitFor - 브리핑 카드 초상용 스프라이트·틴트 조회, 규칙 표 공용) / v1.1 (v9.8: 위험 적 전용 스프라이트 규칙) / v1 (신규 파일) - 프리팹 적에게 PNG 스프라이트 입히기 (2026-09-07)
 ///
 /// - v1.1: 규칙 표 맨 앞에 전용 그림 4종(플라이 e_fly / 파라사우 e_parasaur / 카르노 e_carno / 모사 e_mosa)을 추가.
 ///   PNG 가 없으면 그 규칙은 건너뛰고 다음 맞는 규칙(예전 틴트 대체)으로 내려간다 -> PNG 만 넣으면 바뀌고, 빼면 원래대로
@@ -38,6 +38,15 @@ public class EnemySkin : MonoBehaviour
     // 먼저 맞는 항목이 이긴다 (강철 랩터가 "랩터"보다 앞에 있어야 함)
     private static readonly Rule[] RULES =
     {
+        // v1.4 (10-05 팩): 익룡 전용 그림 2종. 새 익룡 그림은 날개가 캔버스(100px)를 꽉 채워 0.75배로 (예전 그림의 날개 폭 67px 와 비슷하게)
+        new Rule("테라노돈", "volt", Color.white, 0.75f),
+        new Rule("프테라", "venom", Color.white, 0.75f),
+        // v1.3 (아트 v1): 새 전용 그림 4종 (지금까지는 거북·네크로 그림에 색만 곱해 쓰던 종). PNG 없으면 아래 대체 규칙으로
+        new Rule("아르마딜로", "armadillo", Color.white, 1f),
+        new Rule("안킬로", "armadillo", Color.white, 1f),
+        new Rule("맘모스", "mammoth", Color.white, 1f),
+        new Rule("파키", "pachy", Color.white, 1f),
+        new Rule("캑터스", "cactus", Color.white, 1f),
         // v1.1: 전용 그림 (교수 피드백 "위험한 적 구별" - 자폭/서포터/화염/결빙). PNG 없으면 아래 대체 규칙으로
         new Rule("플라이", "fly", Color.white, 1.2f),
         new Rule("파라사우", "parasaur", Color.white, 1f),
@@ -48,11 +57,12 @@ public class EnemySkin : MonoBehaviour
         new Rule("거북", "tortoise", Color.white, 1f),
         new Rule("네크로", "necro", Color.white, 1f),
         new Rule("스피노", "necro", Color.white, 1f),
-        new Rule("테라노돈", "ptera", new Color(1f, 0.95f, 0.6f), 1f),
-        new Rule("프테라", "ptera", new Color(0.8f, 0.62f, 1f), 1f),
-        new Rule("플라이", "ptera", new Color(0.75f, 0.9f, 1f), 0.7f),
-        new Rule("익룡", "ptera", new Color(1f, 0.62f, 0.4f), 1f),
-        new Rule("프테로", "ptera", new Color(1f, 0.62f, 0.4f), 1f),
+        // v1.4: e_ptera 그림이 주황(화염 익룡)으로 바뀌었다 - 익룡·프테로는 틴트 없이, 나머지는 전용 그림이 없을 때의 대체
+        new Rule("테라노돈", "ptera", new Color(1f, 0.95f, 0.6f), 0.75f),
+        new Rule("프테라", "ptera", new Color(0.8f, 0.62f, 1f), 0.75f),
+        new Rule("플라이", "ptera", new Color(0.75f, 0.9f, 1f), 0.55f),
+        new Rule("익룡", "ptera", Color.white, 0.75f),
+        new Rule("프테로", "ptera", Color.white, 0.75f),
         new Rule("아르마딜로", "tortoise", new Color(0.75f, 0.85f, 0.7f), 0.85f),
         new Rule("안킬로", "tortoise", new Color(0.75f, 0.85f, 0.7f), 0.85f),
         new Rule("캑터스", "necro", new Color(0.55f, 1f, 0.55f), 0.8f),
@@ -127,17 +137,9 @@ public class EnemySkin : MonoBehaviour
             }
         }
 
-        // v1.1: 이름에 맞는 규칙을 앞에서부터 보되, 그 PNG 가 없으면 다음 맞는 규칙으로 (전용 그림 -> 틴트 대체 -> 랩터)
-        Rule rule = RULES[RULES.Length - 1];   // 기본 = 마지막(랩터)
-        Sprite sprite = null;
-        for (int i = 0; i < RULES.Length; i++)
-        {
-            if (!n.Contains(RULES[i].key)) continue;
-            Sprite s = SpriteBank.Get("e_" + RULES[i].png);
-            if (s == null) continue;
-            rule = RULES[i]; sprite = s; break;
-        }
-        if (sprite == null) sprite = SpriteBank.Get("e_" + rule.png);
+        // v1.1: 이름에 맞는 규칙을 앞에서부터 보되, 그 PNG 가 없으면 다음 맞는 규칙으로 (전용 그림 -> 틴트 대체 -> 랩터). v1.4: SpriteFor 한 곳에서
+        Color ruleTint; float ruleScale;
+        Sprite sprite = SpriteFor(n, out ruleTint, out ruleScale);
         if (sprite == null) return false;
 
         // 프리팹 placeholder 렌더러 끄기 (로직/충돌/태그는 그대로)
@@ -148,7 +150,7 @@ public class EnemySkin : MonoBehaviour
         float bulk = Mathf.Clamp(0.85f + e.data.baseHP / 500f, 0.85f, 1.4f);
         float rootScale = Mathf.Abs(e.transform.localScale.x);
         if (rootScale < 0.01f) rootScale = 1f;
-        float k = PNG_SCALE * bulk * rule.scale / rootScale;
+        float k = PNG_SCALE * bulk * ruleScale / rootScale;
 
         GameObject go = new GameObject("Skin");
         go.transform.SetParent(e.transform, false);
@@ -157,12 +159,32 @@ public class EnemySkin : MonoBehaviour
         go.transform.localScale = new Vector3(k, k, 1f);
         SpriteRenderer sr = go.AddComponent<SpriteRenderer>();
         sr.sprite = sprite;
-        sr.color = rule.tint;
+        sr.color = ruleTint;
         sr.sortingOrder = SORT_ORDER;
 
         EnemySkin marker = e.gameObject.AddComponent<EnemySkin>();
         marker.skin = sr;
         return true;
+    }
+
+    /// <summary>
+    /// v1.4: 손님 이름 -> 그림·틴트·배율. 규칙 표를 앞에서부터 보고 PNG 가 있는 첫 규칙을 쓴다 (전용 그림 -> 틴트 대체).
+    /// 맞는 규칙이 없으면 랩터 그림. 그것도 없으면 null (호출부가 코드 도트·프리팹 그림으로 남는다).
+    /// 게임 안 스킨(Apply) · WaveManager 의 코드 폴백 손님이 같이 쓴다
+    /// </summary>
+    public static Sprite SpriteFor(string enemyName, out Color tint, out float scale)
+    {
+        tint = Color.white; scale = 1f;
+        string n = enemyName ?? "";
+        for (int i = 0; i < RULES.Length; i++)
+        {
+            if (!n.Contains(RULES[i].key)) continue;
+            Sprite s = SpriteBank.Get("e_" + RULES[i].png);
+            if (s == null) continue;
+            tint = RULES[i].tint; scale = RULES[i].scale;
+            return s;
+        }
+        return SpriteBank.Get("e_raptor");
     }
 
     /// <summary>

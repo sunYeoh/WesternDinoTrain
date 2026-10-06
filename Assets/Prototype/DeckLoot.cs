@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// [DeckLoot.cs] v1.2 (v9.14 2026-09-28: 상자 위 노란 화살표 + 상자 조금 크게 - 테스터 "줍는 게 창에 가려 안 보임") / v1.1 (v9.9.2 2026-09-16: 4모서리 배치의 남쪽 포탑 자리를 피해 떨어진다 - 상자가 포탑 위에 그려지던 것) / v1 (신규 파일) - B-2: 갑판 전리품 상자 (방향결정 2026-08-31)
+/// [DeckLoot.cs] v1.3 (v9.18 2026-10-06: 상자 자리 = TrainDeck.LootSpot - 셰프가 걸을 수 있는 바닥 위(포탑 칸은 가운데 복도, 주방은 조리대 위쪽). 예전 높이 -1.25 는 새 그림에서 남쪽 포탑 줄·바퀴 위였다) / v1.2 (v9.14 2026-09-28: 상자 위 노란 화살표 + 상자 조금 크게 - 테스터 "줍는 게 창에 가려 안 보임") / v1.1 (v9.9.2 2026-09-16: 4모서리 배치의 남쪽 포탑 자리를 피해 떨어진다 - 상자가 포탑 위에 그려지던 것) / v1 (신규 파일) - B-2: 갑판 전리품 상자 (방향결정 2026-08-31)
 ///
 /// 아이템(유물) 획득이 즉시 지급 대신 "갑판에 떨어진 상자"가 된다.
 /// 셰프가 걸어가서 밟으면 회수 - 걷는 것 자체가 보상 행위가 되게.
@@ -19,6 +19,7 @@ public class DeckLoot : MonoBehaviour
     private string sourceLabel = "";   // 회수 시 알림에 쓸 출처 문구
     private Transform chefTransform;
     private float bobPhase;
+    private float baseY;               // v1.3: 놓인 높이 (칸마다 다르다)
 
     /// <summary>
     /// 아이템 상자 생성. nearX 근처의 갑판 위에 떨어진다 (활동 범위로 클램프).
@@ -32,42 +33,20 @@ public class DeckLoot : MonoBehaviour
             return;
         }
 
-        float x = Mathf.Clamp(nearX, GameBalance.TrainWalkMinX + 0.5f, GameBalance.TrainWalkMaxX - 0.5f);
-        x = AvoidSouthSlots(x);   // v1.1
+        // v1.3: 가장 가까운 칸 바닥 위 (포탑 자리·조리대를 피한 높이까지 TrainDeck 이 정한다)
+        Vector2 spot = TrainDeck.LootSpot(nearX);
+        float x = spot.x;
 
         GameObject go = new GameObject("DeckLoot");
-        go.transform.position = new Vector3(x, GameBalance.DeckLootY, 0f);
+        go.transform.position = new Vector3(spot.x, spot.y, 0f);
         DeckLoot loot = go.AddComponent<DeckLoot>();
         loot.sourceLabel = sourceLabel;
+        loot.baseY = spot.y;
         loot.BuildVisual();
 
         UIManager.Instance?.ShowStatChange("[전리품] 갑판에 상자가 떨어졌다 - 밟아서 회수하라!");
         SoundManager.Play("sfx_pickup");
         Debug.Log("[DeckLoot] 상자 생성 (x " + x.ToString("F1") + ") / 출처: " + sourceLabel);
-    }
-
-    /// <summary>v1.1: 남쪽 포탑 자리(x ±0.9) 를 피해 가장 가까운 x 로 (0.7u 씩 좌우로 번갈아 벌려 본다). 1열 배치면 그대로</summary>
-    private static float AvoidSouthSlots(float x)
-    {
-        if (!GameBalance.SlotCornerLayout) return x;
-        float minX = GameBalance.TrainWalkMinX + 0.5f, maxX = GameBalance.TrainWalkMaxX - 0.5f;
-        for (int attempt = 0; attempt < 12; attempt++)
-        {
-            float cand = attempt == 0 ? x : x + ((attempt % 2 == 1) ? 1f : -1f) * 0.7f * ((attempt + 1) / 2);
-            cand = Mathf.Clamp(cand, minX, maxX);
-            if (ClearOfSouthSlots(cand)) return cand;
-        }
-        return x;
-    }
-
-    private static bool ClearOfSouthSlots(float x)
-    {
-        for (int i = 0; i < 8; i++)
-        {
-            if (!GameBalance.IsSouthSlot(i)) continue;
-            if (Mathf.Abs(GameBalance.SlotPosition(i).x - x) < 0.9f) return false;
-        }
-        return true;
     }
 
     // ─────────────────────────────────────────────
@@ -121,7 +100,7 @@ public class DeckLoot : MonoBehaviour
         // 들썩임 (여기 있어! 하는 존재감)
         bobPhase += Time.deltaTime * 3f;
         Vector3 p = transform.position;
-        p.y = GameBalance.DeckLootY + Mathf.Abs(Mathf.Sin(bobPhase)) * 0.12f;
+        p.y = baseY + Mathf.Abs(Mathf.Sin(bobPhase)) * 0.12f;
         transform.position = p;
         // v1.2: 화살표는 상자 위 1.0u 에서 까딱 (0.5초 주기)
         if (markerSr != null)

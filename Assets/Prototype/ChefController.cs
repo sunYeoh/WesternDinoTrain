@@ -4,7 +4,8 @@ using UnityEngine;
 using UnityEngine.Events;
 
 /// <summary>
-/// [ChefController.cs] v5.2 (v9.10 2026-09-17 테스터 피드백: 벽에 막힌 대시는 소리·먼지 없이 바로 취소(쿨타임 환급) - 대시 연출은 실제로 움직인 첫 프레임에 /
+/// [ChefController.cs] v5.3 (v9.18 2026-10-06: 세로 한계를 따로 자르지 않는다 - 바닥 판정은 전부 TrainDeck.ResolveWalk(바닥 사각형 표) / 문 도움: 벽에 막힌 채 좌우 키만 누르면 가까운 통로 입구 높이로 미끄러진다 / 기즈모 = 바닥 표) /
+/// v5.2 (v9.10 2026-09-17 테스터 피드백: 벽에 막힌 대시는 소리·먼지 없이 바로 취소(쿨타임 환급) - 대시 연출은 실제로 움직인 첫 프레임에 /
 ///   ChefVisual 이 바라보는 방향을 실제 위치 변화가 아니라 '가려는 속도'(CurrentVel)로 정하게 공개 - 벽·통로에서 밀려날 때 뒤도는 것 제거) /
 /// v5.1 (교수 피드백 2026-09-14: 도구 경고 화면 표시 / 마모 스위치 / 전갈 대체 효과) / v5 (통로 보행 2026-09-08) / v4 (B-1: 셰프의 몸 - 방향결정 2026-08-31)
 /// 셰프 이동 + 도구 내구도 + 전투 연동(피격 연출/조리 디버프)을 담당합니다.
@@ -74,6 +75,7 @@ public class ChefController : MonoBehaviour
 
     // ── B-1: 이동감 상태 ──
     private Vector2 currentVel = Vector2.zero;   // 가감속용 현재 속도
+    private float wallPushTime = 0f;             // v5.3: 좌우 키만 누른 채 벽을 밀고 있는 시간 (문 도움 지연)
     private float dashTimer = 0f;                // 대시 지속 잔여
     private bool dashFxPending = false;          // v5.2: 대시 연출(소리·먼지)은 실제로 움직인 첫 프레임에
 
@@ -122,13 +124,13 @@ public class ChefController : MonoBehaviour
     {
         // B-1: 이동 수치/활동 범위는 GameBalance가 단일 소스 (조정은 GameBalance.cs에서)
         moveSpeed = GameBalance.ChefMoveSpeed;
-        kitchenMinX = GameBalance.TrainWalkMinX;
+        kitchenMinX = GameBalance.TrainWalkMinX;   // v5.3: 이 네 값은 표시용 (실제 판정은 GameBalance.WalkFloors -> TrainDeck.ResolveWalk)
         kitchenMaxX = GameBalance.TrainWalkMaxX;
         kitchenMinY = GameBalance.TrainWalkMinY;
         kitchenMaxY = GameBalance.TrainWalkMaxY;
 
-        Debug.Log("[ChefController] 초기화 완료 (v5 - 속도 " + moveSpeed
-            + ", 범위 X " + kitchenMinX + "~" + kitchenMaxX + ", 칸 사이는 통로(|y| <= " + TrainDeck.GANGWAY_HALF_Y + ")로만)");
+        Debug.Log("[ChefController] 초기화 완료 (v5.3 - 속도 " + moveSpeed
+            + ", 바닥 사각형 " + (GameBalance.WalkFloors != null ? GameBalance.WalkFloors.Length : 0) + "개)");
     }
 
     // ─────────────────────────────────────────────
@@ -184,16 +186,31 @@ public class ChefController : MonoBehaviour
             currentVel = Vector2.MoveTowards(currentVel, targetVel, rate * dt);
         }
 
-        // v5: 칸 바닥 + 통로 발판 안으로 잘라낸다 (벽에 닿으면 미끄러짐). 세로 한계는 예전 값 그대로
+        // v5.3: 바닥 사각형 표 안으로 잘라낸다 (벽에 닿으면 미끄러짐). 가로·세로 한계 전부 TrainDeck 이 정한다
         Vector2 before = transform.position;
         Vector2 wanted = (Vector2)transform.position + currentVel * dt;
-        wanted.y = Mathf.Clamp(wanted.y, kitchenMinY, kitchenMaxY);
         Vector2 resolved = TrainDeck.ResolveWalk(transform.position, wanted);
-        transform.position = new Vector3(resolved.x, resolved.y, transform.position.z);
 
         // 벽에 막힌 축은 관성도 끊는다 (벽에 붙어 미는 동안 속도가 쌓여 있다가 튀어나가는 것 방지)
-        if (Mathf.Abs(resolved.x - wanted.x) > 0.0001f) currentVel.x = 0f;
+        bool blockedX = Mathf.Abs(resolved.x - wanted.x) > 0.0001f;
+        if (blockedX) currentVel.x = 0f;
         if (Mathf.Abs(resolved.y - wanted.y) > 0.0001f) currentVel.y = 0f;
+
+        // v5.3 문 도움: 좌우 키만 누른 채 벽에 막혔고 통로 입구가 가까우면, 그 높이로 걷는 속도만큼 미끄러진다 (입구 모서리에 걸려 멈추지 않게)
+        //   벽을 WalkDoorAssistDelay 초 넘게 밀고 있을 때만 - 조리대(주방 양 끝 벽 바로 앞)로 걸어가다 벽에 닿는 순간 통로로 빨려 나가지 않게
+        bool pushingWall = blockedX && Mathf.Abs(h) > 0.5f && Mathf.Abs(v) < 0.5f && dashTimer <= 0f;
+        wallPushTime = pushingWall ? wallPushTime + dt : 0f;
+        if (pushingWall && wallPushTime >= GameBalance.WalkDoorAssistDelay && GameBalance.WalkDoorAssist > 0f)
+        {
+            float doorY;
+            if (TrainDeck.FindDoorY(resolved, h, GameBalance.WalkDoorAssist, out doorY))
+            {
+                float inside = doorY + (doorY < resolved.y ? -0.03f : 0.03f);   // 입구 안쪽으로 조금 더
+                float slideY = Mathf.MoveTowards(resolved.y, inside, moveSpeed * dt);
+                resolved = TrainDeck.ResolveWalk(resolved, new Vector2(resolved.x, slideY));
+            }
+        }
+        transform.position = new Vector3(resolved.x, resolved.y, transform.position.z);
 
         // v5.2: 대시 연출은 실제로 움직인 첫 프레임에. 첫 프레임부터 벽에 막혔으면(제자리) 대시 취소 + 쿨타임 환급 - "벽에 부딪힐 때 대시 이펙트" 제거
         if (dashFxPending)
@@ -383,22 +400,16 @@ public class ChefController : MonoBehaviour
         }
     }
 
-    /// <summary>에디터 기즈모: 칸 바닥(노랑) + 칸 사이 통로 발판(초록)</summary>
+    /// <summary>에디터 기즈모: 셰프가 설 수 있는 바닥 (GameBalance.WalkFloors - 발 기준). 앞 4줄 = 칸 바닥(노랑), 나머지 = 통로(초록)</summary>
     private void OnDrawGizmosSelected()
     {
-        float[] e = GameBalance.CarEdgesX;
-        float minY = GameBalance.TrainWalkMinY, maxY = GameBalance.TrainWalkMaxY;
-        for (int car = 0; car < e.Length - 1; car++)
+        float[][] floors = GameBalance.WalkFloors;
+        if (floors == null) return;
+        for (int i = 0; i < floors.Length; i++)
         {
-            float l = e[car] + TrainDeck.FLOOR_INSET_X, r = e[car + 1] - TrainDeck.FLOOR_INSET_X;
-            Gizmos.color = Color.yellow;
-            Gizmos.DrawWireCube(new Vector3((l + r) * 0.5f, (minY + maxY) * 0.5f, 0f), new Vector3(r - l, maxY - minY, 0f));
-            if (car < e.Length - 2)
-            {
-                Gizmos.color = Color.green;
-                Gizmos.DrawWireCube(new Vector3(e[car + 1], 0f, 0f),
-                    new Vector3(TrainDeck.FLOOR_INSET_X * 2f, TrainDeck.GANGWAY_HALF_Y * 2f, 0f));
-            }
+            float[] f = floors[i];
+            Gizmos.color = i < 4 ? Color.yellow : Color.green;
+            Gizmos.DrawWireCube(new Vector3((f[0] + f[2]) * 0.5f, (f[1] + f[3]) * 0.5f, 0f), new Vector3(f[2] - f[0], f[3] - f[1], 0f));
         }
     }
 }

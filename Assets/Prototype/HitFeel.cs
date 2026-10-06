@@ -3,7 +3,7 @@ using UnityEngine;
 using TMPro;
 
 /// <summary>
-/// [HitFeel.cs] v1.2 (v9.17 2026-10-06 화면 손맛 2차: MuzzlePool(포신 끝 섬광 - 풀 24) / Knock(물리 단발 넉백 - 그림만 밀렸다 돌아온다) / ConsumeCrit(숫자 팝업이 진짜 치명타만 크리로 찍게)) / v1.1 (v9.16 2026-09-29 손맛 2차 - 소리: 명중음이 여기서 난다 - 손님 재질별(SoundKeys.Hit: 비늘·무쇠·결정·날개·용암) + 요리 속성 겹침(SoundKeys.Accent) + 크리 sfx_hit_crit / 물리가 방어에 크게 깎이면 재질음 대신 sfx_ricochet(튕김) / 처치음은 Enemy.Die 가 재질별로) / v1 (신규, v9.11 2026-09-22) - 타격감 계층: 손님이 맞는다 / 죽는다 / 월드 팝 (스펙 표 A1 A2 A3 A6 + 월드 공용)
+/// [HitFeel.cs] v1.3 (v9.18 2026-10-06: NextHit 에 쏜 포탑(source) - ConsumeHit 이 치명타 여부와 같이 돌려준다, 데미지 숫자를 포탑별로 합산하는 데 쓴다) / v1.2 (v9.17 2026-10-06 화면 손맛 2차: MuzzlePool(포신 끝 섬광 - 풀 24) / Knock(물리 단발 넉백 - 그림만 밀렸다 돌아온다) / ConsumeCrit(숫자 팝업이 진짜 치명타만 크리로 찍게)) / v1.1 (v9.16 2026-09-29 손맛 2차 - 소리: 명중음이 여기서 난다 - 손님 재질별(SoundKeys.Hit: 비늘·무쇠·결정·날개·용암) + 요리 속성 겹침(SoundKeys.Accent) + 크리 sfx_hit_crit / 물리가 방어에 크게 깎이면 재질음 대신 sfx_ricochet(튕김) / 처치음은 Enemy.Die 가 재질별로) / v1 (신규, v9.11 2026-09-22) - 타격감 계층: 손님이 맞는다 / 죽는다 / 월드 팝 (스펙 표 A1 A2 A3 A6 + 월드 공용)
 ///
 /// 원칙 (타격감 스펙 표): 일반 사건(매초 수십 번인 명중)은 플래시·찌그러짐·작은 스파크·숫자까지만.
 /// 중요 사건(처치·크리·큰 손님)은 킬 버스트 + 채널 쿨타임 흔들림. 흔들림·히트스탑·줌은 여기서 늘리지 않는다.
@@ -27,17 +27,24 @@ public static class HitFeel
     private static int nextFrame = -1;
     private static FoodTag nextTag = FoodTag.Phys;   // v1.1: 명중음 속성 겹침용
     private static bool nextHasTag = false;
+    private static int nextSource = 0;               // v1.3: 쏜 포탑 (TurretSlot 출처 번호, 0 = 모름)
 
     /// <summary>다음 한 번의 명중에 쓸 색(요리 속성색)·크리 여부. 같은 프레임 안에서만 유효</summary>
     public static void NextHit(Color col, bool crit)
     {
-        nextColor = col; nextCrit = crit; nextFrame = Time.frameCount; nextHasTag = false;
+        nextColor = col; nextCrit = crit; nextFrame = Time.frameCount; nextHasTag = false; nextSource = 0;
     }
 
     /// <summary>v1.1: 요리 속성까지 (명중음에 화염·전기·냉기·독 겹침이 얹힌다)</summary>
     public static void NextHit(Color col, bool crit, FoodTag tag)
     {
-        nextColor = col; nextCrit = crit; nextFrame = Time.frameCount; nextTag = tag; nextHasTag = true;
+        nextColor = col; nextCrit = crit; nextFrame = Time.frameCount; nextTag = tag; nextHasTag = true; nextSource = 0;
+    }
+
+    /// <summary>v1.3: 쏜 포탑까지 (데미지 숫자를 포탑별로 합산)</summary>
+    public static void NextHit(Color col, bool crit, FoodTag tag, int source)
+    {
+        nextColor = col; nextCrit = crit; nextFrame = Time.frameCount; nextTag = tag; nextHasTag = true; nextSource = source;
     }
 
     /// <summary>손님이 직접 명중을 맞았다 (도트 틱은 부르지 않는다). Enemy.TakeDamage 에서</summary>
@@ -55,6 +62,7 @@ public static class HitFeel
         bool hasTag = hinted && nextHasTag;
         nextFrame = -1;
         lastHitEnemy = e; lastHitFrame = Time.frameCount; lastHitCrit = crit;   // v1.2: 숫자 팝업용 (연출 스위치와 무관)
+        lastHitSource = hinted ? nextSource : 0;                                // v1.3
 
         // v1.1: 명중음 - 손님 재질 + 요리 속성 겹침. 크리는 전용음. 물리가 튕기면 재질음 대신 튕김음 (연출 스위치와 무관하게 난다)
         Vector3 at = e.transform.position;
@@ -81,6 +89,14 @@ public static class HitFeel
     private static Enemy lastHitEnemy = null;
     private static int lastHitFrame = -1;
     private static bool lastHitCrit = false;
+    private static int lastHitSource = 0;   // v1.3: 그 명중을 쏜 포탑 (0 = 모름 - 지속 피해·반격·증강 부가 타격)
+
+    /// <summary>v1.3: ConsumeCrit + 쏜 포탑. 같은 프레임·같은 손님의 직접 명중이 아니면 source = 0</summary>
+    public static bool ConsumeHit(Enemy e, out int source)
+    {
+        source = (lastHitFrame == Time.frameCount && lastHitEnemy == e) ? lastHitSource : 0;
+        return ConsumeCrit(e);
+    }
 
     /// <summary>v1.2: 이 손님이 이번 프레임에 맞은 직접 명중이 치명타였으면 true (읽으면 지운다 - 뒤따르는 지속 피해 틱이 크리로 찍히지 않게)</summary>
     public static bool ConsumeCrit(Enemy e)
