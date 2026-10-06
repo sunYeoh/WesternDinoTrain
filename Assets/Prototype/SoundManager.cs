@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// [SoundManager.cs] v2 (v9.16 2026-09-29 손맛 2차 - 소리 한 번에. 유저: 8비트 말고 서부 증기기관·쇠와 화약, 포탑 종류별·손님 종류별로 소리가 달라야)
+/// [SoundManager.cs] v2.1 (v9.19 2026-10-06 웨이브 편성: 예고음 2개 sfx_cue_approach / sfx_cue_ambush 의 키 표 한 줄 - px/sfx5.py 가 만든다) / v2 (v9.16 2026-09-29 손맛 2차 - 소리 한 번에. 유저: 8비트 말고 서부 증기기관·쇠와 화약, 포탑 종류별·손님 종류별로 소리가 달라야)
 /// 전역 사운드 매니저 - 씬 세팅 불필요 (첫 호출 시 스스로 생성).
 ///
 /// - v2 변경점:
@@ -25,6 +25,7 @@ using UnityEngine;
 ///  손님: HitFeel.OnHit 명중 = 재질(Hit) + 속성 겹침(Accent), 크리 hit_crit, 물리 튕김 ricochet / Enemy.Die 처치 = 재질(Die), 큰 손님 kill_big / Enemy.AttackTrain 공격 = 종류(Attack) / BossEnemy.Setup 포효(BossRoar), 디 오리지널 whistle_low
 ///  주방: CookingMinigame.StartGame 조리법(Cook) / KitchenEventManager 사고 alarm + 종류(Event) + 배경음 덕킹, 결과 event_resolve/fail / ItemManager.Acquire relic / GameManager 정차 gold
 ///  진행: GameManager 패배 train_break→game_over, 승리 whistle→victory, 배경음 로비부터 / BossGimmickSystem 보스전 덕킹 / UI: ModalFeel.Play ui_open, 닫힘 ui_close, 증강 augment_pick
+///  편성 (v9.19): WaveManager 조각 예고 = cue_approach (화살표와 같이, 조각당 한 번) / 매복 바닥 고리 = cue_ambush
 /// VS 2017 (C# 7.3) 호환.
 /// </summary>
 public class SoundManager : MonoBehaviour
@@ -90,6 +91,7 @@ public class SoundManager : MonoBehaviour
         Def("sfx_ev", 0.9f, 0.03f, 0.5f, false, false);
         Def("sfx_event_", 1f, 0.03f, 0.3f, false, false);   // 결과음(resolve/fail)은 현장음(sfx_ev_) 표와 별개
         Def("sfx_alarm", 0.8f, 0f, 0.3f, false, false);
+        Def("sfx_cue", 1f, 0.05f, 0.3f, false, false);      // v2.1: 편성 예고 - 두 조각의 예고가 겹쳐도 0.3초 안에는 한 번만
     }
 
     private static KeyDef DefOf(string key)

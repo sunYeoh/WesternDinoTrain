@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// [Enemy.cs] v3.10 (v9.18 2026-10-06: 숫자 팝업에 쏜 포탑을 같이 넘긴다(포탑별 합산) / 견습 운행 중에는 쓰러지면 재료를 반드시 떨어뜨린다 - "고기 2개" 단계에서 1개만 나오던 것) / v3.9 (v9.17 2026-10-06 화면 손맛 2차: quietDeath - 식사 엔딩의 보스는 처치음·킬 버스트 없이 흐려진다 / A4: 숫자 팝업을 DamagePopup.CreateFor(크기 비례·0.1초 합산)로, 크리 표시는 진짜 치명타만(HitFeel.ConsumeCrit) - 예전엔 피해가 손님 공격력의 2배 이상이면 크리로 찍혀 치명타 증강이 없어도 "!" 가 떴다) / v3.8 (v9.16 2026-09-29 손맛 2차 - 소리: 공격음 = 손님 종류별(SoundKeys.Attack, 제자리에서 PlayAt) / 처치음 = 재질별(SoundKeys.Die) - 큰 손님은 sfx_kill_big / 명중음은 HitFeel.OnHit 이 재질별로 내고, 방어에 크게 깎인 물리는 튕김음(resisted 전달)) / v3.7 (v9.15 2026-09-29: 방어·저항으로 피해가 GameBalance.ResistShowBelow 이하로 깎이면 팝업에 "저항" - 하나만 키우면 왜 안 통하는지 화면에서) / v3.6 (v9.14 2026-09-28: IncomingDamage - 과잉 집중 방지용 예약 피해) / v3.5 (v9.12 2026-09-22: TutorialDirector.InlineFreeze 동안 정지 / 용어 "지속 피해") / v3.4 (v9.11.1 2026-09-22 문구: 특기 설명 일상어, 강철 = 방어 50) / v3.3 (v9.11 2026-09-22 타격감: 직접 명중 때 HitFeel.OnHit(플래시·찌그러짐·딜 비례 스파크), 죽을 때 HitFeel.OnKill(킬 버스트) - 도트 틱은 제외) / v3.2 (v9.10.1 2026-09-21: 물량 1.6배에 맞춘 처치 보상 배율 - 일반 손님 골드 GameBalance.KillGoldMul, 재료 드랍 확률 KillMaterialChance(보스는 항상). 드랍 이름을 재료 이름표(전기알·화염꽃·독샘)에 맞춤) / v3.1 (2026-09-14: 해빙 문구 / 전갈 마모 대체 스위치) / v3
+/// [Enemy.cs] v3.11 (v9.19 2026-10-06 웨이브 편성: PaceMul - 호위 행렬의 작은 손님이 큰 손님 걸음에 맞출 때 WaveManager 가 거는 걸음 배율. 둔화·기절(scaledSPD)과 따로 곱해진다 / RewardMul - 머릿수를 늘린 작은 손님의 처치 보상(골드·재료 확률·상자 확률)을 그만큼 나눈다) / v3.10 (v9.18 2026-10-06: 숫자 팝업에 쏜 포탑을 같이 넘긴다(포탑별 합산) / 견습 운행 중에는 쓰러지면 재료를 반드시 떨어뜨린다 - "고기 2개" 단계에서 1개만 나오던 것) / v3.9 (v9.17 2026-10-06 화면 손맛 2차: quietDeath - 식사 엔딩의 보스는 처치음·킬 버스트 없이 흐려진다 / A4: 숫자 팝업을 DamagePopup.CreateFor(크기 비례·0.1초 합산)로, 크리 표시는 진짜 치명타만(HitFeel.ConsumeCrit) - 예전엔 피해가 손님 공격력의 2배 이상이면 크리로 찍혀 치명타 증강이 없어도 "!" 가 떴다) / v3.8 (v9.16 2026-09-29 손맛 2차 - 소리: 공격음 = 손님 종류별(SoundKeys.Attack, 제자리에서 PlayAt) / 처치음 = 재질별(SoundKeys.Die) - 큰 손님은 sfx_kill_big / 명중음은 HitFeel.OnHit 이 재질별로 내고, 방어에 크게 깎인 물리는 튕김음(resisted 전달)) / v3.7 (v9.15 2026-09-29: 방어·저항으로 피해가 GameBalance.ResistShowBelow 이하로 깎이면 팝업에 "저항" - 하나만 키우면 왜 안 통하는지 화면에서) / v3.6 (v9.14 2026-09-28: IncomingDamage - 과잉 집중 방지용 예약 피해) / v3.5 (v9.12 2026-09-22: TutorialDirector.InlineFreeze 동안 정지 / 용어 "지속 피해") / v3.4 (v9.11.1 2026-09-22 문구: 특기 설명 일상어, 강철 = 방어 50) / v3.3 (v9.11 2026-09-22 타격감: 직접 명중 때 HitFeel.OnHit(플래시·찌그러짐·딜 비례 스파크), 죽을 때 HitFeel.OnKill(킬 버스트) - 도트 틱은 제외) / v3.2 (v9.10.1 2026-09-21: 물량 1.6배에 맞춘 처치 보상 배율 - 일반 손님 골드 GameBalance.KillGoldMul, 재료 드랍 확률 KillMaterialChance(보스는 항상). 드랍 이름을 재료 이름표(전기알·화염꽃·독샘)에 맞춤) / v3.1 (2026-09-14: 해빙 문구 / 전갈 마모 대체 스위치) / v3
 /// 모든 적 유닛의 기본 동작 + 전투 스탯(DEF/RES) + 상태이상(도트/방깎/마깎)
 /// - v3 변경점: 행동 패턴 시스템 (이름 기반 자동 배정 - 프리팹 설정 불필요)
 ///   1) 무리 사냥꾼(랩터): 주변 랩터가 많을수록 이동 속도 증가
@@ -355,6 +355,10 @@ public class Enemy : MonoBehaviour
     public float scaledMaxHP;      // v3: 힐러 회복 상한용
     public float scaledATK;
     public float scaledSPD;
+    /// <summary>v3.11: 걸음 맞춤 배율 (1 = 평소). 호위 행렬에서 WaveManager.EscortLeash 가 건다 - scaledSPD 를 직접 바꾸면 둔화·기절이 끝날 때 되돌리는 값과 엉킨다</summary>
+    [System.NonSerialized] public float PaceMul = 1f;
+    /// <summary>v3.11: 처치 보상 배율 (1 = 평소). 편성에서 머릿수를 늘린 작은 손님은 1 / SwarmCountMul - 웨이브 한 판의 골드·재료 총량이 그대로다 (v3.2 의 KillGoldMul·KillMaterialChance 와 같은 원칙)</summary>
+    [System.NonSerialized] public float RewardMul = 1f;
 
     [Header("─ 전투 스탯 (v3 기획: 물리/마법 카운터) ─")]
     public float defense = 0f;      // 물리 방어력
@@ -586,7 +590,7 @@ public class Enemy : MonoBehaviour
     /// <summary>버프 반영 이동 배율</summary>
     private float SpeedMul()
     {
-        float mul = IsBuffed ? 1.3f : 1f;
+        float mul = (IsBuffed ? 1.3f : 1f) * PaceMul;
 
         // 무리 사냥꾼: 주변 5칸 내 같은 랩터 1마리당 +8% (최대 +40%)
         // v3.6 (기술감사): 매 프레임 전체 스캔이 O(n^2)라서 0.5초 캐시로 완화
@@ -930,13 +934,13 @@ public class Enemy : MonoBehaviour
             gold = Mathf.RoundToInt(gold * GameBalance.LeverGoldMul);
         // v3.2: 웨이브 물량이 늘어난 만큼 일반 손님 골드는 줄인다 (웨이브당 총량 유지). 보스는 그대로
         bool isBoss = this is BossEnemy;
-        if (!isBoss) gold = Mathf.Max(1, Mathf.RoundToInt(gold * GameBalance.KillGoldMul));
+        if (!isBoss) gold = Mathf.Max(1, Mathf.RoundToInt(gold * GameBalance.KillGoldMul * RewardMul));
         GameManager.Instance?.AddGold(gold);
 
         // Phase 2-3: 아주 낮은 확률로 아이템(유물) 드랍 - 보스는 확률 대폭 상향
         // B-2: 즉시 지급 대신 갑판 상자로 떨어진다 (죽은 자리 방향의 갑판 - 밟아서 회수)
         float itemChance = (this is BossEnemy)
-            ? GameBalance.ItemDropChanceBoss : GameBalance.ItemDropChance;
+            ? GameBalance.ItemDropChanceBoss : GameBalance.ItemDropChance * RewardMul;
         if (Random.value < itemChance)
             DeckLoot.SpawnItemCrate(transform.position.x, data.enemyName + " 잔해에서 발견");
         // (감사 3-B: XP 시스템 절단 - AddXP 호출 제거)
@@ -945,7 +949,7 @@ public class Enemy : MonoBehaviour
         // v3.2: 일반 손님은 KillMaterialChance 확률로만 재료를 떨어뜨린다 (물량 1.6배 상쇄). 보스는 항상
         // v3.10: 견습 운행(자유 연습 제외)에서는 반드시 떨어뜨린다 - 단계 목표가 "고기 2개" 인데 60% 라 1개만 나오곤 했다
         bool sureDrop = isBoss || (GameBalance.TutorialFixedRules && TutorialDirector.Active && !TutorialDirector.SandboxActive);
-        if (MaterialInventory.Instance != null && (sureDrop || Random.value < GameBalance.KillMaterialChance))
+        if (MaterialInventory.Instance != null && (sureDrop || Random.value < GameBalance.KillMaterialChance * RewardMul))
         {
             MaterialType matType = GetDropMaterialType();
             int amount = 1;

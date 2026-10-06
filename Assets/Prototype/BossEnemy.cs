@@ -2,7 +2,8 @@ using System.Collections;
 using UnityEngine;
 
 /// <summary>
-/// [BossEnemy.cs] v7.8 (v9.18 2026-10-06 - 서는 자세: 기차 옆에 이르면 나란히(머리가 기차 진행 방향) 돌아서서 선다 - 몸 전체가 지붕과 HP 바 사이에 보이게(GameBalance.BossFaceAlongTrain·BossStandOff·BossTurnZone, MoveTowardsTrain 재정의 + HoldStance) / 그림: boss_<종류>.png 를 입힌다(없으면 프리팹의 색 사각형 그대로), 상태 그림 _groggy·_rage·_p2·_p3 는 있으면 자동, 상태 발광 = 그림 위 흰 실루엣(예고 흰빛 / 무방비 금빛 / 발악 붉은 맥동) / 등장: 포효와 함께 경고 띠(WarningFX.BossIntro) + HP 바가 차오른다, 대응법 안내는 띠가 걷힌 뒤 / 발악 신호: 붉은 경고 + 흔들림 + 포효 / 버그: 공격 거리를 기차 "중심"에서 재서 옆에서 온 보스는 기차 위에 올라앉아 물지도 않았다 -> 가장 가까운 몸통에서 잰다, 돌진 방향도. 무는 양은 BossMeleeMul) / v7.7 (v9.17 2026-10-06 화면 손맛 2차 - D2 등장: 첫 등장 카드가 닫힌 뒤 배경이 0.5초 어두워졌다가 흔들림 + 포효 + 이름 예고가 같이 나온다 / A11 처치: 히트스톱 뒤 0.25초 슬로모션 + 줌 당김 / 식사 엔딩의 Die 는 히트스톱·흔들림·킬 버스트 없이 조용히 / EndingWhistled - 엔딩 쪽에서 기적을 울렸으면 승리 화면이 또 울리지 않는다) / v7.6 (v9.16 2026-09-29 손맛 2차 - 소리: 등장 포효 = 종류별(SoundKeys.BossRoar - 녹슨 발톱 무리 울음 / 천둥 둥지 번개 / 동면자 얼음 / 디 오리지널 기본 포효 + 낮은 기적 sfx_whistle_low, 예습 보스는 작게) / 엔딩 B 두 번째 기적 = 낮은 기적 / 공격음은 Enemy.AttackTrain 이 종류별로) / v7.5 (v9.15.1 2026-09-29 스토리 개정: 디 오리지널 = 급식 열차 1호였던 것 - 등장에 낡은 기적 + 안내 문구, 폭식 = 원료 삼키기, 해치 = 기관심장이 드러남 / 마지막 식사 장면 LastSupperRoutine - 포탑 정지(LastSupperServing)·남은 손님 물러남·천천히 씹기(LastSupperChewSec)·두 대의 기적 -> 엔딩 B 글 / 격파 엔딩 = 기적 한 번 + "철길이 열렸다") / v7.4 (v9.12 2026-09-22: practice = 견습 구간 7 "새끼 발톱" - 녹슨 발톱 고정, HP·공격력 배율(GameBalance.BossPractice*), 0.7배 크기, 패턴·무방비·발악 없음(돌진만), 처치해도 재료·베팅·"승리" 없음(ClearBossUI) / TutorialDirector.InlineFreeze 동안 정지) / v7.3 (v9.11.1 2026-09-22 문구: 무방비, 실행 가능한 예고) / v7.2 (v9.10.1 2026-09-21: 재료 이름 전기알) / v7.1 (교수 피드백 C3: 디 오리지널 추가 그로기 / A8: 재가동 문구) / v6 - 보스 패턴 C단계 1차 (보스패턴설계 문서)
+/// [BossEnemy.cs] v7.9 (v9.19 2026-10-06 보스 페이즈 모습 - A1 상태 그림: _rage_groggy(발악 중 무방비)·_p2_groggy 추가, 디 오리지널은 페이즈 그림이 먼저(WantedSkin, GameBalance.BossStateSkins) / A2 전환 순간(PhaseShift): 히트스톱 -> 흰 번쩍 아래에서 그림 교체 -> 장갑 파편·링·폭음 -> 몸이 커졌다 제자리. 지역 보스 발악과 디 오리지널 P2·P3 / A3 상태 유지: 발악 = 김·불티, 무방비 = 불똥·연기 + 몸이 기울어 흔들린다(SkinPivot) / A4 알림 자리: 보스 쪽 알림은 HP 바 밑 띠로(BossNotice), 발악의 화면 가운데 큰 글자는 가장자리 맥동으로) /
+/// v7.8 (v9.18 2026-10-06 - 서는 자세: 기차 옆에 이르면 나란히(머리가 기차 진행 방향) 돌아서서 선다 - 몸 전체가 지붕과 HP 바 사이에 보이게(GameBalance.BossFaceAlongTrain·BossStandOff·BossTurnZone, MoveTowardsTrain 재정의 + HoldStance) / 그림: boss_<종류>.png 를 입힌다(없으면 프리팹의 색 사각형 그대로), 상태 그림 _groggy·_rage·_p2·_p3 는 있으면 자동, 상태 발광 = 그림 위 흰 실루엣(예고 흰빛 / 무방비 금빛 / 발악 붉은 맥동) / 등장: 포효와 함께 경고 띠(WarningFX.BossIntro) + HP 바가 차오른다, 대응법 안내는 띠가 걷힌 뒤 / 발악 신호: 붉은 경고 + 흔들림 + 포효 / 버그: 공격 거리를 기차 "중심"에서 재서 옆에서 온 보스는 기차 위에 올라앉아 물지도 않았다 -> 가장 가까운 몸통에서 잰다, 돌진 방향도. 무는 양은 BossMeleeMul) / v7.7 (v9.17 2026-10-06 화면 손맛 2차 - D2 등장: 첫 등장 카드가 닫힌 뒤 배경이 0.5초 어두워졌다가 흔들림 + 포효 + 이름 예고가 같이 나온다 / A11 처치: 히트스톱 뒤 0.25초 슬로모션 + 줌 당김 / 식사 엔딩의 Die 는 히트스톱·흔들림·킬 버스트 없이 조용히 / EndingWhistled - 엔딩 쪽에서 기적을 울렸으면 승리 화면이 또 울리지 않는다) / v7.6 (v9.16 2026-09-29 손맛 2차 - 소리: 등장 포효 = 종류별(SoundKeys.BossRoar - 녹슨 발톱 무리 울음 / 천둥 둥지 번개 / 동면자 얼음 / 디 오리지널 기본 포효 + 낮은 기적 sfx_whistle_low, 예습 보스는 작게) / 엔딩 B 두 번째 기적 = 낮은 기적 / 공격음은 Enemy.AttackTrain 이 종류별로) / v7.5 (v9.15.1 2026-09-29 스토리 개정: 디 오리지널 = 급식 열차 1호였던 것 - 등장에 낡은 기적 + 안내 문구, 폭식 = 원료 삼키기, 해치 = 기관심장이 드러남 / 마지막 식사 장면 LastSupperRoutine - 포탑 정지(LastSupperServing)·남은 손님 물러남·천천히 씹기(LastSupperChewSec)·두 대의 기적 -> 엔딩 B 글 / 격파 엔딩 = 기적 한 번 + "철길이 열렸다") / v7.4 (v9.12 2026-09-22: practice = 견습 구간 7 "새끼 발톱" - 녹슨 발톱 고정, HP·공격력 배율(GameBalance.BossPractice*), 0.7배 크기, 패턴·무방비·발악 없음(돌진만), 처치해도 재료·베팅·"승리" 없음(ClearBossUI) / TutorialDirector.InlineFreeze 동안 정지) / v7.3 (v9.11.1 2026-09-22 문구: 무방비, 실행 가능한 예고) / v7.2 (v9.10.1 2026-09-21: 재료 이름 전기알) / v7.1 (교수 피드백 C3: 디 오리지널 추가 그로기 / A8: 재가동 문구) / v6 - 보스 패턴 C단계 1차 (보스패턴설계 문서)
 /// - v6 변경점:
 ///   1) 미끼 도발 대응: 도발 중엔 미끼를 쫓아가고 물어뜯는다 (기차 무피해)
 ///   2) 디 오리지널 3페이즈:
@@ -142,6 +143,22 @@ public class BossEnemy : Enemy
     private string skinBase = "";           // "boss_rust" 등
     private string skinShown = "";          // 지금 보이는 그림 이름
     private bool telegraphing = false;      // 패턴 예고 중 (흰빛)
+
+    // ── v7.9: 페이즈 전환 순간·상태 유지 효과 ──
+    private Transform skinPivot;            // 그림을 감싼 축 - 전환 순간의 몸 크기와 무방비의 기울어짐은 여기에 건다 (그림 자체는 HitFeelBody 가 쓴다)
+    private float shiftAge = -1f;           // 전환 연출이 시작된 뒤 흐른 실시간 (음수 = 없음)
+    private float tiltNow = 0f;             // 지금 기울어진 각도
+    private float stateFxTimer = 0f;        // 다음 김·불티까지
+    private StatePuffs statePuffs;          // 김·연기 조각 풀 (처음 쓸 때 만든다)
+    private const float SHIFT_FLASH_FADE = 0.22f;
+    private const float SHIFT_PUNCH_SEC = 0.25f;
+    // 종류별 색 (녹슨 발톱 / 천둥 둥지 / 동면자 / 디 오리지널): 파편(장갑·속) / 김 / 불티
+    private static readonly Color[] SHARD_A = { new Color(0.62f, 0.25f, 0.12f), new Color(0.50f, 0.25f, 0.85f), new Color(0.86f, 0.95f, 1f), new Color(0.80f, 0.15f, 0.12f) };
+    private static readonly Color[] SHARD_B = { new Color(0.46f, 0.46f, 0.50f), new Color(0.95f, 0.75f, 0.20f), new Color(0.20f, 0.60f, 0.75f), new Color(0.30f, 0.30f, 0.33f) };
+    private static readonly Color[] STEAM = { new Color(0.92f, 0.90f, 0.86f, 0.55f), new Color(0.75f, 0.92f, 1f, 0.5f), new Color(0.82f, 0.95f, 1f, 0.55f), new Color(0.95f, 0.80f, 0.60f, 0.55f) };
+    private static readonly Color[] EMBER = { new Color(1f, 0.6f, 0.2f), new Color(0.6f, 0.95f, 1f), new Color(0.7f, 0.95f, 1f), new Color(1f, 0.7f, 0.25f) };
+    private static readonly Color SMOKE = new Color(0.2f, 0.19f, 0.2f, 0.6f);
+    private static readonly Color SPARK = new Color(1f, 0.95f, 0.7f);
 
     /// <summary>v7.8: 발악 중인가 (보스 HP 바의 색·딱지)</summary>
     public bool IsEnraged { get { return enraged; } }
@@ -290,7 +307,7 @@ public class BossEnemy : Enemy
             WarningFX.BossIntro(data.enemyName, Epithet(), band);
             StartCoroutine(NoticeAfter(Mathf.Max(0f, band - 0.2f), "[" + data.enemyName + "]", intro));
         }
-        else UIManager.Instance?.ShowWaveNotice("[" + data.enemyName + "]", intro);
+        else BossNotice("[" + data.enemyName + "]", intro);   // v7.9: HP 바 밑 띠로
         if (!practice) BossGimmickSystem.Instance?.PlayBarIntro();
         SoundManager.Play(SoundKeys.BossRoar(kind.ToString()), practice ? 0.6f : 1f, -1f);
         if (kind == BossKind.Original && !practice) SoundManager.PlayDelayed("sfx_whistle_low", 0.8f);   // v7.5: 낡은 기적 - 두 기차의 관계 단서
@@ -313,7 +330,7 @@ public class BossEnemy : Enemy
     {
         float t = 0f;
         while (t < sec) { t += Time.unscaledDeltaTime; yield return null; }
-        if (IsAlive) UIManager.Instance?.ShowWaveNotice(title, body);
+        if (IsAlive) BossNotice(title, body);   // v7.9: HP 바 밑 띠로 (가운데 카드는 보스 몸을 가렸다)
     }
 
     // ─────────────────────────────────────────────
@@ -339,8 +356,13 @@ public class BossEnemy : Enemy
         float want = (GameBalance.BossSkinScale != null && k < GameBalance.BossSkinScale.Length) ? GameBalance.BossSkinScale[k] : 0.85f;
         float local = want / rootScale;
 
+        // v7.9: 그림을 축(SkinPivot)으로 감싼다 - 전환 순간의 몸 크기·무방비의 기울어짐은 축에, 맞을 때의 찌그러짐은 그림에 (서로 덮어쓰지 않게)
+        GameObject pivotGo = new GameObject("SkinPivot");
+        pivotGo.transform.SetParent(transform, false);
+        skinPivot = pivotGo.transform;
+
         GameObject go = new GameObject("Skin");
-        go.transform.SetParent(transform, false);
+        go.transform.SetParent(skinPivot, false);
         go.transform.localPosition = Vector3.zero;
         go.transform.localRotation = Quaternion.identity;
         go.transform.localScale = new Vector3(local, local, 1f);
@@ -365,26 +387,52 @@ public class BossEnemy : Enemy
         return true;
     }
 
-    /// <summary>지금 상태에 맞는 그림 이름. 상태 그림(_groggy / _rage / _p2 / _p3)은 파일이 있을 때만 쓴다</summary>
+    private bool HasSkin(string suffix) { return SpriteBank.Has(skinBase + suffix); }
+
+    /// <summary>
+    /// 지금 상태에 맞는 그림 이름. 상태 그림은 파일이 있을 때만 쓴다 (없으면 그 앞 단계 그림).
+    ///   지역 보스: 무방비 = _groggy (발악 중이면 _rage_groggy 먼저) / 발악 = _rage
+    ///   디 오리지널: P3 = _p3 (없으면 해치가 열린 _groggy) / P2 = _p2, P2 무방비 = _p2_groggy / P1 무방비 = _groggy
+    /// GameBalance.BossStateSkins 를 끄면 v9.18 에 있던 그림만 쓴다 (디 오리지널의 해치 개방 boss_original_groggy)
+    /// </summary>
     private string WantedSkin()
     {
-        if (isGroggy && SpriteBank.Has(skinBase + "_groggy")) return skinBase + "_groggy";
+        if (!GameBalance.BossStateSkins)
+        {
+            if (kind == BossKind.Original && (isGroggy || originalPhase >= 3) && HasSkin("_groggy")) return skinBase + "_groggy";
+            return skinBase;
+        }
         if (kind == BossKind.Original)
         {
             if (originalPhase >= 3)
             {
-                if (SpriteBank.Has(skinBase + "_p3")) return skinBase + "_p3";
-                if (SpriteBank.Has(skinBase + "_groggy")) return skinBase + "_groggy";   // 해치가 열린 그림 = 기관심장이 드러난 P3
+                if (HasSkin("_p3")) return skinBase + "_p3";
+                if (HasSkin("_groggy")) return skinBase + "_groggy";   // 해치가 열린 그림 = 기관심장이 드러난 P3
             }
-            else if (originalPhase == 2 && SpriteBank.Has(skinBase + "_p2")) return skinBase + "_p2";
+            else if (originalPhase == 2)
+            {
+                if (isGroggy && HasSkin("_p2_groggy")) return skinBase + "_p2_groggy";
+                if (!isGroggy && HasSkin("_p2")) return skinBase + "_p2";
+            }
+            if (isGroggy && HasSkin("_groggy")) return skinBase + "_groggy";
+            return skinBase;
         }
-        if (enraged && SpriteBank.Has(skinBase + "_rage")) return skinBase + "_rage";
+        if (isGroggy)
+        {
+            if (enraged && HasSkin("_rage_groggy")) return skinBase + "_rage_groggy";
+            if (HasSkin("_groggy")) return skinBase + "_groggy";
+        }
+        if (enraged && HasSkin("_rage")) return skinBase + "_rage";
         return skinBase;
     }
 
-    /// <summary>매 프레임: 상태 그림 바꾸기 + 상태 발광 (예고 = 흰빛 깜빡 / 무방비 = 금빛 / 발악 = 붉은 맥동). 그림이 없으면 아무것도 안 한다</summary>
+    /// <summary>
+    /// 매 프레임: 상태 그림 바꾸기 + 상태 발광 (예고 = 흰빛 깜빡 / 무방비 = 금빛 / 발악 = 붉은 맥동)
+    /// + v7.9: 전환 순간의 흰 번쩍·몸 크기 / 무방비의 기울어짐 / 상태 유지 효과(김·불티·불똥·연기). 그림이 없으면 상태 유지 효과만
+    /// </summary>
     private void TickSkin()
     {
+        TickStateFx();
         if (skin == null) return;
 
         string want = WantedSkin();
@@ -399,16 +447,252 @@ public class BossEnemy : Enemy
             skinShown = want;
         }
 
+        // v7.9 (A2): 전환 순간 - 흰 번쩍(히트스톱 동안 가득, 그 뒤 SHIFT_FLASH_FADE 에 걷힌다) + 몸이 커졌다가 SHIFT_PUNCH_SEC 에 제자리.
+        // 그림은 위에서 이미 바뀌었다 - 흰 실루엣 한 장 아래에서 바뀐 셈이라 "번쩍하고 달라졌다"로 보인다
+        float flash = 0f, punch = 0f;
+        if (shiftAge >= 0f)
+        {
+            shiftAge += Time.unscaledDeltaTime;
+            float after = shiftAge - Mathf.Max(0f, GameBalance.BossPhaseShiftHitstop);
+            flash = after <= 0f ? 1f : Mathf.Clamp01(1f - after / SHIFT_FLASH_FADE);
+            punch = after <= 0f ? 1f : Mathf.Clamp01(1f - after / SHIFT_PUNCH_SEC);
+            punch *= punch;
+            if (after >= Mathf.Max(SHIFT_FLASH_FADE, SHIFT_PUNCH_SEC)) shiftAge = -1f;
+        }
+
+        // v7.9 (A3): 무방비 = 몸이 기울어 느리게 흔들린다 (주저앉은 모습). 그림을 감싼 SkinPivot 을 돌린다 - 그림 자체는 HitFeelBody 가 찌그러뜨린다
+        if (skinPivot != null)
+        {
+            float tiltMax = Mathf.Max(0f, GameBalance.BossGroggyTiltDeg);
+            float tiltWant = (isGroggy && !isServing && GameBalance.BossStateFx) ? tiltMax : 0f;
+            tiltNow = Mathf.MoveTowards(tiltNow, tiltWant, 40f * Time.deltaTime);
+            float sway = tiltMax > 0.01f ? Mathf.Sin(Time.time * 1.8f) * 1.5f * (tiltNow / tiltMax) : 0f;
+            float sc = 1f + GameBalance.BossPhaseShiftPunch * punch;
+            skinPivot.localScale = new Vector3(sc, sc, 1f);
+            skinPivot.localRotation = Quaternion.Euler(0f, 0f, tiltNow + sway);
+        }
+
         if (glow == null) return;
         Color c = Color.clear;
         float t = Time.time;
-        if (isServing) c = Color.clear;
+        if (flash > 0f) c = new Color(1f, 1f, 1f, flash);
+        else if (isServing) c = Color.clear;
         else if (isGroggy) c = new Color(1f, 0.85f, 0.35f, 0.22f + 0.1f * Mathf.Sin(t * 5f));
         else if (telegraphing) c = new Color(1f, 1f, 1f, 0.3f + 0.25f * Mathf.Sin(t * 14f));
         else if (enraged && GameBalance.BossEnrageSignal) c = new Color(1f, 0.15f, 0.08f, 0.16f + 0.12f * Mathf.Sin(t * 7f));
         c.a *= Mathf.Clamp01(GameBalance.GameFeelMaster);
         if (c.a <= 0.01f) { if (glow.enabled) glow.enabled = false; }
         else { glow.color = c; if (!glow.enabled) glow.enabled = true; }
+    }
+
+    // ─────────────────────────────────────────────
+    // v7.9: 페이즈 전환 순간 (A2) / 상태 유지 효과 (A3) / 알림 자리 (A4)
+    // ─────────────────────────────────────────────
+    /// <summary>
+    /// A2: 페이즈가 바뀌는 순간 - 히트스톱 -> 흰 번쩍 한 장 아래에서 그림이 바뀐다 -> 장갑 파편 + 링 + 폭음 -> 몸이 커졌다가 제자리.
+    /// 지역 보스의 발악과 디 오리지널의 P2·P3 에만 쓴다 (무방비는 자기 연출이 따로 있다). 그림이 없는 보스는 파편·링·소리만
+    /// </summary>
+    private void PhaseShift()
+    {
+        if (practice || !GameBalance.BossPhaseShiftFx || GameBalance.GameFeelMaster <= 0f) return;
+        shiftAge = 0f;                                       // 다음 TickSkin 부터 흰 번쩍·몸 크기가 돈다
+        GameFeel.Hitstop(GameBalance.BossPhaseShiftHitstop);
+        StartCoroutine(PhaseShiftBurst());
+    }
+
+    private IEnumerator PhaseShiftBurst()
+    {
+        // 파편은 히트스톱이 풀리는 순간에 터진다 (멈춘 화면에서 터지면 안 보인다)
+        float wait = Mathf.Max(0f, GameBalance.BossPhaseShiftHitstop), t = 0f;
+        while (t < wait) { t += Time.unscaledDeltaTime; yield return null; }
+        if (!IsAlive) yield break;
+        int k = Mathf.Clamp((int)kind, 0, SHARD_A.Length - 1);
+        ArmorShard.Burst(transform.position, SHARD_A[k], SHARD_B[k], GameBalance.BossPhaseShiftShards);
+        WorldFeel.Ring(transform.position, Color.Lerp(EMBER[k], Color.white, 0.3f), 3.4f, 0.35f);
+        SoundManager.Play("sfx_explosion", 0.6f, 0.03f);
+    }
+
+    /// <summary>
+    /// A3: 상태가 이어지는 동안 몸에서 새는 것 - 발악(디 오리지널은 P2 부터) = 김 + 불티 / 무방비 = 불똥 + 검은 연기.
+    /// 정지 화면에서도 상태가 읽히게. 계속 나오는 효과라 작고 드물게 (0.15 ~ 0.3초에 조각 하나꼴)
+    /// </summary>
+    private void TickStateFx()
+    {
+        if (practice || isServing || !GameBalance.BossStateFx || GameBalance.GameFeelMaster <= 0f) return;
+        bool hot = enraged || (kind == BossKind.Original && originalPhase >= 2);
+        if (!isGroggy && !hot) return;
+
+        stateFxTimer -= Time.deltaTime;
+        if (stateFxTimer > 0f) return;
+        int k = Mathf.Clamp((int)kind, 0, STEAM.Length - 1);
+        Vector3 p = RandomBodyPoint();
+        // 김·연기는 지면이 흐르는 쪽(오른쪽)으로 밀리며 화면 위로 뜬다
+        Vector3 drift = new Vector3(ParallaxBackground.CurrentSpeed * 0.35f, 0.55f, 0f);
+        if (statePuffs == null) statePuffs = StatePuffs.Create(this);
+        if (isGroggy)
+        {
+            stateFxTimer = Random.Range(0.18f, 0.3f);
+            if (Random.value < 0.45f) SparkPool.Emit(p, SPARK, 3, 0.07f, 3.5f);
+            statePuffs.Emit(p, SMOKE, Random.Range(0.6f, 0.9f), 0.8f, drift);
+        }
+        else
+        {
+            stateFxTimer = Random.Range(0.15f, 0.26f);
+            if (Random.value < 0.6f) SparkPool.Emit(p, EMBER[k], 1, 0.08f, 2.2f);
+            if (Random.value < 0.7f) statePuffs.Emit(p, STEAM[k], Random.Range(0.5f, 0.8f), 0.6f, drift);
+        }
+    }
+
+    /// <summary>몸 위의 아무 자리 (그림의 가운데 70% 안). 그림이 없으면 중심에서 1.5u 안</summary>
+    private Vector3 RandomBodyPoint()
+    {
+        if (skin != null && skin.sprite != null)
+        {
+            Vector3 ext = skin.sprite.bounds.extents;
+            Vector3 local = new Vector3(Random.Range(-ext.x, ext.x) * 0.7f, Random.Range(-ext.y, ext.y) * 0.7f, 0f);
+            return skin.transform.TransformPoint(local);
+        }
+        return transform.position + new Vector3(Random.Range(-1.5f, 1.5f), Random.Range(-0.8f, 0.8f), 0f);
+    }
+
+    /// <summary>A4: 보스 쪽 알림을 HP 바 밑 띠에 (true). 띠에 못 띄우면 false - 부른 쪽이 예전 방식으로. maxWait = 띠가 비기를 기다리는 한도(초)</summary>
+    private bool BossLine(string title, string body, float maxWait)
+    {
+        BossGimmickSystem sys = BossGimmickSystem.Instance;
+        return sys != null && sys.ShowBossLine(title, body, GameBalance.BossLineSec, maxWait);
+    }
+
+    /// <summary>
+    /// A4: 보스 쪽 알림(대응법이 들어 있는 것) - 띠에 띄우고, 안 되면 가운데 예고 카드 (가운데 카드는 보스가 서는 높이라 몸을 가린다).
+    /// 무방비 중이면 띠가 7초까지 안 빈다 - 그동안 놓치지 않게 알림 줄(로그)에도 바로 한 줄 남긴다 (띠는 무방비가 끝난 뒤에 뜬다)
+    /// </summary>
+    private void BossNotice(string title, string body)
+    {
+        if (!BossLine(title, body, 12f)) { UIManager.Instance?.ShowWaveNotice(title, body); return; }
+        if (isGroggy) UIManager.Instance?.ShowStatChange(string.IsNullOrEmpty(body) ? title : title + " - " + body);
+    }
+
+    /// <summary>A4: 무방비와 같은 순간에 나는 알림 - 띠는 무방비 안내가 쓰므로 알림 줄(로그)로. 스위치가 꺼져 있으면 예전처럼 가운데 카드</summary>
+    private void BossNoticeAtGroggy(string title, string body)
+    {
+        if (GameBalance.BossNoticeInBar && GameBalance.BossBarBig) UIManager.Instance?.ShowStatChange(title + " " + body);
+        else UIManager.Instance?.ShowWaveNotice(title, body);
+    }
+
+    /// <summary>A2 의 장갑 파편 한 조각: 튀어나와 금방 느려지며 돌다가 흐려진다. 스스로 사라진다 (보스가 먼저 사라져도 남지 않는다)</summary>
+    private class ArmorShard : MonoBehaviour
+    {
+        private Vector3 vel;
+        private float spin, age, life;
+        private SpriteRenderer sr;
+
+        public static void Burst(Vector3 pos, Color armor, Color inner, int count)
+        {
+            Sprite square = TrainDeck.GetWhiteSprite();
+            if (square == null || count <= 0) return;
+            for (int i = 0; i < count; i++)
+            {
+                float ang = (i + Random.value) / count * Mathf.PI * 2f;      // 사방으로 고르게
+                Vector3 dir = new Vector3(Mathf.Cos(ang), Mathf.Sin(ang), 0f);
+                GameObject go = new GameObject("ArmorShard");
+                go.transform.position = pos + dir * Random.Range(0.4f, 1.1f);
+                go.transform.rotation = Quaternion.Euler(0f, 0f, Random.Range(0f, 360f));
+                go.transform.localScale = new Vector3(Random.Range(0.18f, 0.36f), Random.Range(0.12f, 0.24f), 1f);
+                ArmorShard sh = go.AddComponent<ArmorShard>();
+                sh.sr = go.AddComponent<SpriteRenderer>();
+                sh.sr.sprite = square;
+                sh.sr.sortingOrder = 58;                                     // 손님·보스 위 (불똥과 같은 층)
+                sh.sr.color = (i % 3 == 0) ? inner : armor;
+                sh.vel = dir * Random.Range(4.5f, 8f);
+                sh.spin = Random.Range(-540f, 540f);
+                sh.life = Random.Range(0.5f, 0.7f);
+            }
+        }
+
+        private void Update()
+        {
+            float dt = Time.deltaTime;                                       // 히트스톱·일시정지 동안은 같이 멈춘다
+            age += dt;
+            if (age >= life) { Destroy(gameObject); return; }
+            vel *= Mathf.Pow(0.03f, dt);                                     // 0.5초 뒤 속도 17%
+            transform.position += vel * dt;
+            transform.Rotate(0f, 0f, spin * dt);
+            float k = age / life;
+            Color c = sr.color; c.a = k < 0.6f ? 1f : 1f - (k - 0.6f) / 0.4f; sr.color = c;
+        }
+    }
+
+    /// <summary>
+    /// A3 의 김·연기 조각 풀 (보스마다 하나). 보스의 자식이 아니다 - 보스가 돌아도 연기는 제 갈 길로 흐른다.
+    /// 보스가 사라지면 남은 조각이 다 꺼진 뒤 스스로 없어진다
+    /// </summary>
+    private class StatePuffs : MonoBehaviour
+    {
+        private const int MAX = 12;
+        private readonly SpriteRenderer[] sr = new SpriteRenderer[MAX];
+        private readonly Vector3[] vel = new Vector3[MAX];
+        private readonly float[] age = new float[MAX], life = new float[MAX], size = new float[MAX];
+        private readonly Color[] col = new Color[MAX];
+        private readonly bool[] on = new bool[MAX];
+        private Sprite[] frames;                                             // 먼지 4프레임 (작고 진함 -> 크고 옅음). 없으면 흰 사각형
+        private int cursor;
+        private BossEnemy owner;
+
+        public static StatePuffs Create(BossEnemy owner)
+        {
+            GameObject go = new GameObject("BossStatePuffs");
+            StatePuffs p = go.AddComponent<StatePuffs>();
+            p.owner = owner;
+            Sprite d0 = SpriteBank.Get("dust_0");
+            if (d0 != null)
+            {
+                p.frames = new Sprite[4];
+                for (int i = 0; i < 4; i++) p.frames[i] = SpriteBank.Get("dust_" + i) ?? d0;
+            }
+            else p.frames = new Sprite[] { TrainDeck.GetWhiteSprite() };
+            for (int i = 0; i < MAX; i++)
+            {
+                GameObject c = new GameObject("Puff");
+                c.transform.SetParent(go.transform, false);
+                p.sr[i] = c.AddComponent<SpriteRenderer>();
+                p.sr[i].sortingOrder = SKIN_SORT + 2;                        // 보스 그림(6)·발광(7) 위
+                c.SetActive(false);
+            }
+            return p;
+        }
+
+        /// <summary>조각 하나: pos 에서 v 로 흐르며 sec 동안 커지며 흐려진다. sz = 배율 (1 = 먼지 그림 0.75u)</summary>
+        public void Emit(Vector3 pos, Color c, float sz, float sec, Vector3 v)
+        {
+            int i = cursor; cursor = (cursor + 1) % MAX;
+            on[i] = true; age[i] = 0f; life[i] = Mathf.Max(0.1f, sec); size[i] = sz; col[i] = c;
+            vel[i] = v + new Vector3(Random.Range(-0.3f, 0.3f), Random.Range(-0.15f, 0.25f), 0f);
+            sr[i].transform.position = pos;
+            sr[i].transform.localScale = new Vector3(sz, sz, 1f);
+            sr[i].sprite = frames[0];
+            sr[i].color = c;
+            sr[i].gameObject.SetActive(true);
+        }
+
+        private void Update()
+        {
+            float dt = Time.deltaTime;
+            bool any = false;
+            for (int i = 0; i < MAX; i++)
+            {
+                if (!on[i]) continue;
+                age[i] += dt;
+                float k = age[i] / life[i];
+                if (k >= 1f) { on[i] = false; sr[i].gameObject.SetActive(false); continue; }
+                any = true;
+                sr[i].transform.position += vel[i] * dt;
+                float s = size[i] * (1f + 0.7f * k);
+                sr[i].transform.localScale = new Vector3(s, s, 1f);
+                sr[i].sprite = frames[Mathf.Min(frames.Length - 1, Mathf.FloorToInt(k * frames.Length))];
+                Color c = col[i]; c.a = col[i].a * (1f - k * k); sr[i].color = c;
+            }
+            if (owner == null && !any) Destroy(gameObject);
+        }
     }
 
     /// <summary>v7.8: 무는 양 배율 - 정식 보스 GameBalance.BossMeleeMul / 예습 보스 BossPracticeMeleeMul (공격력 자체의 BossPracticeAtkMul 과 별개)</summary>
@@ -477,10 +761,15 @@ public class BossEnemy : Enemy
             // v7.8: 알림 한 줄로는 지나쳤다 - 붉은 경고 + 흔들림 + 포효 한 번. 그 뒤로 몸에 붉은 맥동(TickSkin), HP 바에 "발악" 딱지
             if (GameBalance.BossEnrageSignal && GameBalance.GameFeelMaster > 0f)
             {
-                WarningFX.Flash("[" + data.enemyName + "] 발악!", 1.4f);
+                // v7.9 (A4): 화면 가운데 큰 글자는 바뀌는 보스 몸을 가렸다 - 가장자리 맥동 + HP 바 밑 한 줄로. 띠에 못 띄우면 예전처럼.
+                // 발악(HP 50%)은 무방비 임계(50%)와 같은 프레임에 걸리곤 한다 - 그때는 띠를 무방비 안내가 쓰므로 2.5초만 기다리고 버린다
+                // (위의 알림 줄 한 줄과 HP 바의 "발악" 딱지가 남는다. 7초 뒤에 뒤늦게 뜨지 않게)
+                if (BossLine("[" + data.enemyName + "] 발악", "패턴이 빨라진다", 2.5f)) WarningFX.FlashEdges(1.4f, new Color(1f, 0.15f, 0.1f));
+                else WarningFX.Flash("[" + data.enemyName + "] 발악!", 1.4f);
                 GameFeel.Shake(GameBalance.ShakeBoss * 0.7f);
                 SoundManager.Play(SoundKeys.BossRoar(kind.ToString()), 0.8f, -1f);
             }
+            if (kind != BossKind.Original) PhaseShift();   // v7.9 (A2): 그림이 바뀌는 순간 (디 오리지널은 P2·P3 에서)
             Debug.Log("[BossEnemy] 발악 페이즈 진입!");
         }
 
@@ -579,8 +868,10 @@ public class BossEnemy : Enemy
         {
             originalPhase = 2;
             PickupFX.FeedingBoss = this;
-            UIManager.Instance?.ShowWaveNotice("[디 오리지널] 폭식!",
+            BossNotice("[디 오리지널] 폭식!",
                 "원료 조각을 닥치는 대로 삼킨다 - 곁에 두면 회복하고 세진다. 식사가 아니라 연료다");   // v7.5: 원료 섭취와 식사의 구분
+            PhaseShift();                                                                            // v7.9 (A2): 장갑이 벗겨지는 순간
+            SoundManager.Play(SoundKeys.BossRoar(kind.ToString()), 0.8f, -1f);
             Debug.Log("[BossEnemy] P2 폭식 페이즈 - 조각 쟁탈전 시작");
         }
 
@@ -591,9 +882,11 @@ public class BossEnemy : Enemy
             PickupFX.FeedingBoss = null;
             hatchOpen = true;
             ApplyTint(Color.Lerp(baseTint, Color.white, 0.35f));   // 해치의 빛
-            UIManager.Instance?.ShowWaveNotice("[디 오리지널] 가슴 해치 개방 - 기관심장이 드러났다",
+            BossNotice("[디 오리지널] 가슴 해치 개방 - 기관심장이 드러났다",
                 "받는 피해 +" + Mathf.RoundToInt((GameBalance.HatchDamageTakenMul - 1f) * 100f)
                 + "%. 무방비 때 [F] 격파, 또는 [R] 마지막 식사");   // v7.5: 왜 지금 식사가 가능한지
+            PhaseShift();                                           // v7.9 (A2): 기관심장이 드러나는 순간
+            SoundManager.Play(SoundKeys.BossRoar(kind.ToString()), 1f, -1f);
             Debug.Log("[BossEnemy] P3 해치 개방 - 받는 피해 증가");
         }
     }
@@ -746,7 +1039,7 @@ public class BossEnemy : Enemy
             if (ParryCharges >= GameBalance.ParryChargesForCounter)
             {
                 ParryCharges = 0;
-                UIManager.Instance?.ShowWaveNotice("되쏘기!", "병에 담은 번개가 여왕을 꿰뚫는다 - 무방비!");
+                BossNoticeAtGroggy("되쏘기!", "병에 담은 번개가 여왕을 꿰뚫는다 - 무방비!");   // v7.9: 띠는 무방비 안내가 쓴다
                 Debug.Log("[BossEnemy] 번개 되쏘기 - 강제 그로기!");
                 ForceGroggy(GameBalance.ParryCounterGroggySec);
             }
@@ -961,7 +1254,7 @@ public class BossEnemy : Enemy
             && hpRatio <= GameBalance.OriginalExtraGroggyRatio)
         {
             extraGroggyTriggered = true;
-            UIManager.Instance?.ShowWaveNotice("[디 오리지널] 마지막 틈", "손님이 다시 식탁 앞에 무릎을 꿇었다 - 마지막 기회");
+            BossNoticeAtGroggy("[디 오리지널] 마지막 틈", "손님이 다시 식탁 앞에 무릎을 꿇었다 - 마지막 기회");   // v7.9
             StartCoroutine(EnterGroggyState(groggyDuration));
         }
     }
@@ -1039,7 +1332,7 @@ public class BossEnemy : Enemy
             for (int i = 0; i < all.Length; i++)
                 if (all[i] != null && all[i] != this && all[i].IsAlive && !(all[i] is BossEnemy)) Destroy(all[i].gameObject);
 
-            UIManager.Instance?.ShowWaveNotice("[디 오리지널] 포탑이 멈췄다. 접시가 건너간다.", "");
+            BossNotice("[디 오리지널] 포탑이 멈췄다. 접시가 건너간다.", "");   // v7.9: 씹는 모습을 가리지 않게 띠로
             SoundManager.Play("sfx_pickup");
             WorldFeel.Ring(transform.position, new Color(1f, 0.85f, 0.5f), 1.6f, 0.6f);
             ApplyTint(Color.Lerp(baseTint, new Color(1f, 0.9f, 0.7f), 0.7f));   // 핏빛이 가라앉는다

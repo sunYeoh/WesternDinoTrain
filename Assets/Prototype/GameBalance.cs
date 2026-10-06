@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// [GameBalance.cs] v9.18 (2026-10-06 테스터 피드백 3 - 버그·밸런스·새 기차 그림: 맨 아래 v9.18 섹션 - 보행 바닥 표 / 슬롯·꼬리 좌표 / 레벨 상한 복구 / 같은 레벨끼리만 진화 / 폐기 환급 / 사고 실패 피해 / 과열 무작위 / 칸 덜컹임 / 보스 그림·HP 바·등장 띠 / UI 배율) / v9.17 (2026-10-06 화면 손맛 2차: 맨 아래 v9.17 섹션 - 발사 반동·섬광 / 데미지 숫자 크기·합산 / 넉백 / 셰프 찌그러짐 / HUD 수치 / 카드 순차 등장·퇴장 / 보스 등장·처치 / 패배·승리 순서 / 장면 전환 / 알림 중복) / v9.16 (2026-09-29 소리 v2: BuildTag 만 - 소리 표는 SoundManager 에) / v9.15.1 (2026-09-29 스토리 개정 스위치: 최종전 베팅 없음·스피노 고백 카드·마지막 식사 장면 시간) / v9.15 (2026-09-29 2차 피드백: 레벨 상한 해제 -> 접시 곡선·레벨 체감·저항 표시 / 훈련장 반복·자유 연습 / 드래그 투입 / 사고 해결 연출 / 포탑 파손 / HUD 재배치 / 설정창) / v9.12 (2026-09-22 튜토리얼 구간화·인라인 연습·협곡 낙뢰·미니 보스 예습 섹션 추가) / v1 (v9.11 2026-09-22: 타격감 섹션 - 피격 플래시·찌그러짐·스파크·킬 버스트·기차 피격·버튼·모달·웨이브 띠 스위치 / v9.10.1 2026-09-21: 유저 플레이 소감 섹션 - 웨이브 물량·길이, 정차 조리 제한, 행상인 자동 퇴장, 처치 보상 배율 / v9.9 2026-09-16: 포탑 4모서리 배치 SlotPosition + 견습 운행/브리핑 스위치 섹션)
+/// [GameBalance.cs] v9.19 (2026-10-06 웨이브 편성·보스 페이즈 모습: 맨 아래 v9.19 섹션 - 편성 스위치·풀리는 웨이브·예고 시간·조각 사이 쉼·스폰 테두리·작은 손님 머릿수·호위 행렬 / 보스 상태 그림·전환 순간·상태 유지 효과·알림 자리) / v9.18 (2026-10-06 테스터 피드백 3 - 버그·밸런스·새 기차 그림: 맨 아래 v9.18 섹션 - 보행 바닥 표 / 슬롯·꼬리 좌표 / 레벨 상한 복구 / 같은 레벨끼리만 진화 / 폐기 환급 / 사고 실패 피해 / 과열 무작위 / 칸 덜컹임 / 보스 그림·HP 바·등장 띠 / UI 배율) / v9.17 (2026-10-06 화면 손맛 2차: 맨 아래 v9.17 섹션 - 발사 반동·섬광 / 데미지 숫자 크기·합산 / 넉백 / 셰프 찌그러짐 / HUD 수치 / 카드 순차 등장·퇴장 / 보스 등장·처치 / 패배·승리 순서 / 장면 전환 / 알림 중복) / v9.16 (2026-09-29 소리 v2: BuildTag 만 - 소리 표는 SoundManager 에) / v9.15.1 (2026-09-29 스토리 개정 스위치: 최종전 베팅 없음·스피노 고백 카드·마지막 식사 장면 시간) / v9.15 (2026-09-29 2차 피드백: 레벨 상한 해제 -> 접시 곡선·레벨 체감·저항 표시 / 훈련장 반복·자유 연습 / 드래그 투입 / 사고 해결 연출 / 포탑 파손 / HUD 재배치 / 설정창) / v9.12 (2026-09-22 튜토리얼 구간화·인라인 연습·협곡 낙뢰·미니 보스 예습 섹션 추가) / v1 (v9.11 2026-09-22: 타격감 섹션 - 피격 플래시·찌그러짐·스파크·킬 버스트·기차 피격·버튼·모달·웨이브 띠 스위치 / v9.10.1 2026-09-21: 유저 플레이 소감 섹션 - 웨이브 물량·길이, 정차 조리 제한, 행상인 자동 퇴장, 처치 보상 배율 / v9.9 2026-09-16: 포탑 4모서리 배치 SlotPosition + 견습 운행/브리핑 스위치 섹션)
 /// 게임 전체 밸런스 수치를 한 곳에 모은 설정 파일.
 ///
 /// 여기 값을 바꾸면 Inspector 값과 상관없이 게임에 적용된다
@@ -988,7 +988,7 @@ public static class GameBalance
 
     // ── (v9.13.1 2026-09-24) 3인 테스트 준비 ──
     /// <summary>빌드 표시 - 로비 오른쪽 아래에 찍힌다 (테스터 시트에 어느 빌드였는지 적기 위해). 팩마다 올린다</summary>
-    public const string BuildTag = "v9.18 (2026-10-06)";   // v9.18: 테스터 피드백 3 (버그·밸런스·새 그림)
+    public const string BuildTag = "v9.19 (2026-10-06)";   // v9.19: 웨이브 편성 + 보스 페이즈 모습
 
     // ── (v9.14 2026-09-28) 3인 테스트 반영 1차 - 버그·밸런스·읽기 ──
     // ── 포탑 (테스터 "더블 육포만 올려도 됨 / 전설이 더 약함 / 하나 점사하면 나머지가 빗나감") ──
@@ -1274,4 +1274,65 @@ public static class GameBalance
     // ── 화면 글자 ──
     /// <summary>코드로 만드는 글자의 최소 크기 (이보다 작게 적힌 건 이 크기로 - 11·12px 로 적힌 안내·꼬리말이 해당). 0 = 끔</summary>
     public static int UIFontFloor = 13;
+
+    // ── (v9.19 2026-10-06) 웨이브 편성 + 보스 페이즈 모습 - claude/테스터피드백3_2026-10-06.md 의 v9.19 스펙 표 C·A ──
+    // ── 웨이브 편성 (C) ──
+    /// <summary>웨이브를 편성 조각으로 내보낸다 (추격·파상·매복·호위 행렬·양동·포위·공중 편대, 남는 손님은 산개). 손님 종류와 무리 전체의 HP 는 구성표 그대로.
+    /// false = 구 동작 (종류 순서대로 한 마리씩, 각도 무작위)</summary>
+    public static bool WaveFormationsOn = true;
+    /// <summary>이 웨이브부터 편성을 쓴다 (그 앞은 구 동작 - 웨이브 1 은 첫 판 안내 무대라 그대로 둔다)</summary>
+    public static int WaveFormationFromWave = 2;
+    /// <summary>편성이 풀리는 웨이브: 추격 / 파상 / 매복 / 호위 행렬 / 양동 / 포위 / 공중 편대 순 (공중 편대는 비행 손님이 나오는 테슬라 협곡부터)</summary>
+    public static int[] FormationUnlockWave = { 2, 2, 3, 4, 5, 6, 9 };
+    /// <summary>편성 이름 한 줄("[추격] 꼬리 쪽에서 따라붙는다")은 편성마다 한 운행에 이 횟수까지만 알림 줄에 뜬다 (그 뒤로는 화살표와 소리만). 0 = 안 띄운다</summary>
+    public static int FormationLineShows = 2;
+    /// <summary>조각이 나오기 전, 오는 쪽 화면 가장자리에 화살표가 떠 있는 시간 (초). 0 = 예고 없음</summary>
+    public static float SpawnCueSec = 1.0f;
+    /// <summary>매복: 바닥 고리가 뜨고 손님이 튀어나오기까지 (초)</summary>
+    public static float AmbushCueSec = 1.2f;
+    /// <summary>매복 자리: 기차 가운데 줄에서 북쪽 / 남쪽으로 이만큼 (u). 바닥 고리가 HUD 에 가려지지 않는 높이여야 한다 - 기본 줌에서 북쪽은 좌상단 판(5.0)·가운데 안내 카드(4.3)·
+    /// 오른쪽 알림 줄 둘째 줄(4.2) 밑, 남쪽은 하단 HUD(4.9) 위. 스펙 표의 6 ~ 8u 는 화면 배치 그림으로 재 보니 HUD 판 뒤였다. 지붕(1.8)에서 2u - 예고 1.2초가 반응 시간이다</summary>
+    public static float AmbushDistNorth = 3.8f;
+    public static float AmbushDistSouth = 3.8f;
+    /// <summary>파상: 줄과 줄 사이 (초)</summary>
+    public static float LinesRowGapSec = 2.5f;
+    /// <summary>조각 사이 쉼 = WaveBeatMinGapSec + 그 조각의 무게 x WaveBeatSecPerUnit (최대 WaveBeatMaxGapSec). 무게 = 손님 한 마리 1 (머릿수를 늘린 작은 손님은 제 몫 0.8 안팎 / 큰 손님 2.2 / 힐러·지원형 2.5 / 원거리 1.2).
+    /// 구 방식(한 마리씩 + 4마리마다 5초 쉼)과 웨이브 길이가 비슷하게 맞춘 값이다 (모의 계산 px/sim_wave_beats.py, 스폰이 끝날 때까지: 웨이브 7 = 구 77초 -> 약 91초 / 웨이브 16 = 68 -> 75 / 웨이브 24 = 90 -> 75. 나오는 족족 다 잡으면 63 / 48 / 49초).
+    /// 쉼에는 WaveLengthMul(2.0 = 기준)과 레버 전속 배율이 그대로 걸린다 (최소 쉼은 지킨다). 산개 조각 뒤는 최소 쉼만</summary>
+    public static float WaveBeatMinGapSec = 3.5f;
+    public static float WaveBeatSecPerUnit = 1.1f;
+    public static float WaveBeatMaxGapSec = 16f;
+    /// <summary>화면의 손님이 WaveBeatAdvanceAlive 이하로 줄면 남은 쉼이 WaveBeatClearedTimeMul 배로 빨리 간다 - 다 잡고 기다리는 시간을 줄인다 (조리할 틈은 남게 최소 쉼은 지킨다). 배수 1 = 안 줄인다</summary>
+    public static int WaveBeatAdvanceAlive = 2;
+    public static float WaveBeatClearedTimeMul = 2f;
+    /// <summary>스폰 테두리: 손님이 생기는 사각형 (기차 기준 가운데 x / 반 폭 / 반 높이, u). 기본 줌 8.5 의 화면(반 폭 15.1 x 반 높이 8.5, 카메라 x -2.5 ~ 4.5) 바로 밖이다.
+    /// 구 방식(반경 12 ~ 16 의 원)은 좌우로는 화면 안이라 손님이 허공에서 생겼다. 휠로 화면을 넓히면(최대 14) 테두리가 화면 안에 들어온다 - 그때는 예고 화살표가 손님이 생길 자리에 뜬다</summary>
+    public static float SpawnEdgeCenterX = 1.0f;
+    public static float SpawnEdgeHalfW = 20f;
+    public static float SpawnEdgeHalfH = 10.5f;
+    /// <summary>작은 손님(스팀 랩터·사막 전갈·과부하 플라이)의 머릿수 배율. 늘어난 만큼 한 마리의 HP·공격력·처치 보상(골드·재료 확률·상자 확률)이 줄어
+    /// 무리 전체는 구성표 그대로다 (8마리 -> 10마리면 한 마리는 0.8배. 반올림으로 안 늘어난 무리는 그대로). 편성을 쓰는 웨이브에만 걸린다. 1 = 끔</summary>
+    public static float SwarmCountMul = 1.25f;
+    /// <summary>호위 행렬: 작은 손님들이 큰 손님 둘레(이 반경, u)에서 걸음을 맞춰 온다. 큰 손님이 쓰러지거나 기차에 닿으면 풀려서 제 속도로 달려든다. EscortMaxHoldSec 초가 지나도 풀린다 (안전장치)</summary>
+    public static float EscortRingRadius = 1.7f;
+    public static float EscortMaxHoldSec = 40f;
+
+    // ── 보스 페이즈 모습 (A) ──
+    /// <summary>A1: 상태 그림을 쓴다 (boss_<종류>_rage · _groggy · _rage_groggy / boss_original_p2 · _p2_groggy · _p3 - 파일이 있는 것만).
+    /// v9.19 의 12장은 유저 원본에서 뽑은 변형 시안이다 - 고쳐 그리면 같은 이름으로 덮어쓰면 되고, 마음에 안 드는 그림은 파일만 지우면 그 앞 단계 그림이 나온다.
+    /// false = v9.18 에 있던 그림만 (기본 그림 + 디 오리지널의 해치 개방 boss_original_groggy)</summary>
+    public static bool BossStateSkins = true;
+    /// <summary>A2: 페이즈가 바뀌는 순간의 연출 (히트스톱 -> 흰 번쩍 아래에서 그림 교체 -> 장갑 파편·링·폭음 -> 몸이 커졌다 제자리).
+    /// 지역 보스의 발악(HP 50%)과 디 오리지널의 P2(70%)·P3(35%) 에만 - 보스전 한 판에 한두 번. false = 끔</summary>
+    public static bool BossPhaseShiftFx = true;
+    public static float BossPhaseShiftHitstop = 0.08f;   // 멈추는 시간 (실시간 초)
+    public static float BossPhaseShiftPunch = 0.12f;     // 몸이 이만큼 커졌다가 0.25초에 제자리 (0.12 = 1.12배)
+    public static int BossPhaseShiftShards = 12;         // 튀는 장갑 파편 수
+    /// <summary>A3: 상태가 이어지는 동안 몸에서 새는 효과 (발악 = 김·불티 / 무방비 = 불똥·검은 연기 + 몸이 BossGroggyTiltDeg 도 기울어 흔들린다). false = 끔</summary>
+    public static bool BossStateFx = true;
+    public static float BossGroggyTiltDeg = 6f;
+    /// <summary>A4: 보스 쪽 알림(페이즈 전환·발악·대응법)을 가운데 예고 카드 대신 HP 바 밑 띠에 띄우고, 패턴 예고·무방비·발악의 화면 가운데 큰 글자를 뺀다
+    /// (띠와 같은 말이 보스 몸 위에 한 번 더 떴다 - 가장자리 맥동과 띠 등장 강조는 남는다). 큰 HP 바(BossBarBig)일 때만. false = 구 동작</summary>
+    public static bool BossNoticeInBar = true;
+    public static float BossLineSec = 4f;                // 알림 한 줄이 떠 있는 시간 (초)
 }

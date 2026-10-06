@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// [WaveManager.cs] v6.18 (v9.18 2026-10-06: 보스는 기차 북쪽(화면 위)에서만 온다(GameBalance.BossSpawnNorthOnly - 남쪽은 하단 HUD 에 가려진다), 예습 보스는 포탑 칸 B 위에서 / 웨이브가 끝났을 때 사고가 진행 중이면 사고가 끝난 뒤에 증강·선로 선택을 연다(PostWaveHold, WaitEventBeforeChoiceSec) / 코드 폴백 손님의 그림 고르기를 EnemySkin.SpriteFor 한 곳으로) /
+/// [WaveManager.cs] v6.19 (v9.19 2026-10-06 웨이브 편성: 웨이브 2 부터 손님을 편성 조각으로 내보낸다(RunFormations - 추격·파상·매복·호위 행렬·양동·포위·공중 편대 + 산개, GameBalance.WaveFormationsOn). 조각마다 오는 쪽 예고(WarningFX.SpawnCue)가 먼저, 조각 사이엔 쉼(BeatGap). 손님은 화면 바로 밖 테두리(EdgePoint)에서 생긴다. 구 방식 본문은 SpawnWaveClassic 으로 / 웨이브 예고 카드의 "주의" 문구는 알림 줄로) /
+/// v6.18 (v9.18 2026-10-06: 보스는 기차 북쪽(화면 위)에서만 온다(GameBalance.BossSpawnNorthOnly - 남쪽은 하단 HUD 에 가려진다), 예습 보스는 포탑 칸 B 위에서 / 웨이브가 끝났을 때 사고가 진행 중이면 사고가 끝난 뒤에 증강·선로 선택을 연다(PostWaveHold, WaitEventBeforeChoiceSec) / 코드 폴백 손님의 그림 고르기를 EnemySkin.SpriteFor 한 곳으로) /
 /// v6.17 (v9.17 2026-10-06 화면 손맛 2차 D5: 패배 연출 중(GameManager.DefeatPending)과 운행이 끝난 뒤(GameOver·Victory)엔 웨이브 클리어 판정을 하지 않는다. 아트 v1 의 v6.16 위에 얹었다) / v6.16 (아트 v1 2026-10-03: 코드 폴백 손님도 새 전용 그림 4종 e_armadillo / e_mammoth / e_pachy / e_cactus 를 쓴다) / v6.15 (v9.15.1 2026-09-29 스토리 개정: 최종전 직전 정차엔 베팅 없음(GameBalance.SpinoNoBetAtFinal) / 최종전 시작에 스피노 고백 카드(BriefingTexts.SpinoFinal) / 최종전 긴급 보급 문구 = "스피노가 실어 둔 재료" / 지역 3 첫 웨이브 스피노 한 줄) / v6.14 (v9.13 2026-09-23: 선로 v2 - 정차의 선로 선택이 카드 창 대신 갈림길 + 왼쪽 카드(BranchRouteUI v2, 시간 안 멈춤). 출발 직전 BranchRouteUI.OnDepart 로 세계 밀림·톤 시작 /
 ///   선로 보상 교체: 골드·재료 -> 끝나면 증강 1회 더(사냥터 은 / 위험 금, AugmentPickUI.OpenExtra) + 유물 확률(위험·안개 50%, 폐역 확정) / 웨이브 끝에 RouteFX.ClearTone / 치트 점프·런 시작에 선택 취소) / v6.13 (v9.12 2026-09-22: 협곡의 낙뢰 - 지역 2 일반 웨이브마다 1회 가동 포탑 감전(GameBalance.AmbientLightning*) + 첫 등장 카드 event_lightning + 인라인 연습 구간 2 훅 / 레버 인라인 연습 구간 4 를 InlineLeverWave 시작에 요청 / TutorialDirector.InlineFreeze 동안 스폰 코루틴·클리어 판정·낙뢰 타이머가 쉰다(WaitGap) / 미니 보스 예습용 SpawnBossForPractice) / v6.12 (v9.11.1 2026-09-22 문구) / v6.11 (v9.10.1 2026-09-21: 웨이브 손님 수 배율 GameBalance.WaveCountMul(프롤로그·견습 제외, ApplyRouteCounts 재사용) / 웨이브 시작에 정차 조리 카운터(CookingBridge.StopCooksUsed) 초기화) / v6.10 (v9.10 2026-09-17 테스터 피드백·개정안 §4·§5·§7: 스폰 간격 배율 + 무리 사이 쉼(WaveLengthMul/WaveGroupSize/GapSec) /
 ///   정차 뒤 자동 출발 대신 [Enter]·출발 버튼 확인(DepartConfirm, WaitingDepart 정적) / 증강 선택은 GameBalance.AugmentPickAt 웨이브만(안 여는 웨이브도 웨이브 효과는 적용) /
@@ -231,6 +232,7 @@ public class WaveManager : MonoBehaviour
         PostWaveHold = false;   // v6.18
         aliveEnemyCount = 0;
         spawnDone = false;
+        if (waveNumber <= 1) System.Array.Clear(formationLineShown, 0, formationLineShown.Length);   // v6.19: 새 운행 - 편성 이름 한 줄을 다시 보여 준다
 
         // 증강 '개전 포격' 참조용: 웨이브 시작 시각 기록
         AugmentManager.WaveStartTime = Time.time;
@@ -487,19 +489,22 @@ public class WaveManager : MonoBehaviour
         return true;
     }
 
-    /// <summary>웨이브 등장 적 속성 + 드롭 재료 예고 (v6: 지역 기반)</summary>
+    /// <summary>
+    /// 웨이브 등장 적 속성 + 드롭 재료 예고 (v6: 지역 기반).
+    /// v6.19: 예고 카드에는 웨이브 번호·속성·드롭만 싣고, 주의할 손님은 알림 줄로 보낸다 - 가운데 띠(폭 620)에서 제목이 서너 줄로 접히던 것
+    /// </summary>
     private void ShowWaveAttributeNotice(WaveConfig config)
     {
         int region = GameBalance.RegionOf(config.waveNumber);
         string notice = "Wave " + config.waveNumber;
         string warning = "";
+        List<string> cautions = new List<string>();
 
         if (region == 1)
         {
             notice += " - 물리 속성";
             warning = "질긴 고기류 드롭!";
-            if (config.scorpionCount > 0)
-                notice += "  전갈 주의(도구 부식)!";
+            if (config.scorpionCount > 0) cautions.Add("전갈 주의(도구 부식)!");
         }
         else if (region == 2)
         {
@@ -508,10 +513,8 @@ public class WaveManager : MonoBehaviour
                 notice += " - 전기 속성!";
                 warning += "전기알 드롭 - 전격 요리 준비!";
             }
-            if (config.poisonPteraCount > 0)
-                notice += "  독침 프테라 주의!";
-            if (config.magnetParasaurCount > 0)
-                notice += "  자석 파라사우 주의!";
+            if (config.poisonPteraCount > 0) cautions.Add("독침 프테라 주의!");
+            if (config.magnetParasaurCount > 0) cautions.Add("자석 파라사우 주의!");
         }
         else
         {
@@ -525,14 +528,13 @@ public class WaveManager : MonoBehaviour
                 notice += "  화염 속성!";
                 warning += " 화염꽃 드롭 - 얼음꽃 요리로 대응!";
             }
-            if (config.crystalPachyCount > 0)
-                notice += "  반사 장갑 주의!";
-            if (config.necroSpinoCount > 0)
-                notice += "  힐러(네크로 스피노)가 무리를 회복시킨다 - 무리째 맞는 요리로!";
+            if (config.crystalPachyCount > 0) cautions.Add("반사 장갑 주의!");
+            if (config.necroSpinoCount > 0) cautions.Add("힐러(네크로 스피노)가 무리를 회복시킨다 - 무리째 맞는 요리로!");
         }
 
         Debug.Log("[WaveManager] " + notice + " | " + warning);
         UIManager.Instance?.ShowWaveNotice(notice, warning);
+        for (int i = 0; i < cautions.Count; i++) UIManager.Instance?.ShowDanger(cautions[i]);
     }
 
     // ─────────────────────────────────────────────
@@ -551,6 +553,27 @@ public class WaveManager : MonoBehaviour
         int playerLevel = GameManager.Instance != null ? GameManager.Instance.playerLevel : 1;
         float diffL = config.difficultyL > 0f ? config.difficultyL : GameBalance.EnemyDifficultyL;
 
+        // v6.19: 편성 조각으로 내보낸다. 웨이브 1(첫 판 안내 무대)과 스위치를 끈 경우는 구 방식 그대로
+        if (GameBalance.WaveFormationsOn && config.waveNumber >= GameBalance.WaveFormationFromWave)
+            yield return RunFormations(config, playerLevel, diffL);
+        else
+            yield return SpawnWaveClassic(config, playerLevel, diffL);
+
+        // ── 보스 스폰 ──
+        if (config.hasBoss)
+        {
+            yield return WaitGap(3f);
+            SpawnBoss();
+        }
+
+        // v6.5: 이 시점부터 "화면의 적 0 = 클리어" 판정이 유효하다
+        spawnDone = true;
+        activeSpawnRoutine = null;
+    }
+
+    /// <summary>구 방식 스폰 (v6.18 까지의 본문 그대로): 종류 순서대로 한 마리씩, 각도 무작위. 랩터가 6마리 이상이면 절반이 한 방향에서 몰려온다</summary>
+    private IEnumerator SpawnWaveClassic(WaveConfig config, int playerLevel, float diffL)
+    {
         // ── 무리 러시 이벤트 (v4): 랩터가 6마리 이상이면 절반이 같은 방향에서 떼로 몰려온다 ──
         int rushCount = 0;
         if (config.steamRaptorCount >= 6)
@@ -667,24 +690,817 @@ public class WaveManager : MonoBehaviour
             SpawnEnemy(necroSpinoPrefab, Enemy.NecroSpino, config.waveNumber, playerLevel, diffL);
             yield return WaitGap(SpawnGap(config) * 3f);
         }
+    }
 
-        // ── 보스 스폰 ──
-        if (config.hasBoss)
+    // ─────────────────────────────────────────────
+    // v6.19: 편성 (GameBalance.WaveFormationsOn) - 웨이브를 "조각"으로 나눠, 조각마다 다른 방식으로 내보낸다
+    //   추격 = 꼬리 쪽에서 한 줄로 / 파상 = 같은 쪽에서 가로 줄이 차례로 / 매복 = 기차 가까이에서 튀어나온다 /
+    //   호위 행렬 = 큰 손님 둘레에서 작은 손님들이 걸음을 맞춰 온다 / 양동 = 반대편 두 무리 /
+    //   포위 = 사방에서 같은 때 닿게 / 공중 편대 = 비행 손님이 V 자로 / 산개 = 남은 손님이 한 마리씩 (구 방식과 같은 모양)
+    //   파상·양동·포위는 달리는 손님 무리나 비행 손님 무리 어느 쪽으로도 짠다 (테슬라 협곡이 공중 편대만 되풀이하지 않게)
+    //   손님 종류와 무리 전체의 스탯은 웨이브 구성표 그대로다 (작은 손님만 머릿수를 늘리고 그만큼 한 마리를 약하게 - GameBalance.SwarmCountMul).
+    //   조각이 나오기 전에 오는 쪽 화면 가장자리에 예고(WarningFX.SpawnCue)가 먼저 뜬다 - "어디서 오나"가 등장보다 먼저 보이게.
+    //   조각 사이에는 쉼(BeatGap)이 있다 - 예고를 보고 조리할 틈
+    // ─────────────────────────────────────────────
+    private enum UnitClass { Runner, Heavy, Flyer, Other }
+    private enum Formation { Chase, Lines, Ambush, Escort, Pincer, Encircle, VFlight, Scatter }   // 앞의 7개 = GameBalance.FormationUnlockWave 의 순서
+
+    /// <summary>내보낼 손님 한 마리 (프리팹·종류 표·편성 분류)</summary>
+    private struct SpawnUnit
+    {
+        public GameObject prefab;
+        public Enemy.EnemyData data;
+        public UnitClass cls;
+        public float share;     // 한 마리의 몫 (1 = 구성표 그대로). 머릿수를 늘린 작은 손님은 원래 수 / 늘린 수 - HP·공격력·처치 보상에 곱한다
+        public bool vip;        // 힐러·지원형 - 호위 행렬의 가운데에 설 수 있다
+    }
+
+    /// <summary>편성 조각 하나</summary>
+    private class Beat
+    {
+        public Formation formation;
+        public List<SpawnUnit> units = new List<SpawnUnit>();
+    }
+
+    /// <summary>편성 이름 한 줄을 이번 운행에 몇 번 띄웠나 (GameBalance.FormationLineShows 번까지만)</summary>
+    private int[] formationLineShown = new int[8];
+
+    private static readonly string[] FORMATION_NAMES = { "추격", "파상", "매복", "호위 행렬", "양동", "포위", "공중 편대", "산개" };   // Formation 순서
+    private static readonly string[] FORMATION_HINTS = {
+        "꼬리 쪽에서 따라붙는다", "한 줄씩 밀려온다", "기차 옆에서 튀어나온다",
+        "큰 손님을 무리가 둘러싸고 온다 - 큰 손님이 쓰러지면 무리가 달려든다",
+        "양쪽에서 온다", "사방에서 온다", "비행 손님이 한꺼번에 날아온다" };
+
+    private static string FormationName(Formation f) { return FORMATION_NAMES[(int)f]; }
+
+    /// <summary>알림 줄에 띄울 한 줄 ("[추격] 꼬리 쪽에서 따라붙는다"). 산개는 없음</summary>
+    private static string FormationLine(Formation f)
+    {
+        int idx = (int)f;
+        return idx < FORMATION_HINTS.Length ? "[" + FORMATION_NAMES[idx] + "] " + FORMATION_HINTS[idx] : null;
+    }
+
+    private void ShowFormationLine(Formation f)
+    {
+        string line = FormationLine(f);
+        int idx = (int)f;
+        if (line == null || idx >= formationLineShown.Length) return;
+        if (formationLineShown[idx] >= GameBalance.FormationLineShows) return;
+        formationLineShown[idx]++;
+        UIManager.Instance?.ShowDanger(line);
+    }
+
+    private static bool Unlocked(Formation f, int wave)
+    {
+        int[] table = GameBalance.FormationUnlockWave;
+        int idx = (int)f;
+        return table == null || idx >= table.Length || wave >= table[idx];
+    }
+
+    // ── 1. 구성표를 손님 목록으로 펼친다 ──
+    private List<SpawnUnit> BuildRoster(WaveConfig c)
+    {
+        List<SpawnUnit> r = new List<SpawnUnit>();
+        // 달리는 손님 (작고 빠르다)
+        AddUnits(r, steamRaptorPrefab, Enemy.SteamRaptor, c.steamRaptorCount, UnitClass.Runner, true, false);
+        AddUnits(r, scorpionPrefab, Enemy.DesertScorpion, c.scorpionCount, UnitClass.Runner, true, false);
+        AddUnits(r, steelRaptorPrefab, Enemy.SteelRaptor, c.steelRaptorCount, UnitClass.Runner, false, false);
+        // 큰 손님 (느리고 단단하다)
+        AddUnits(r, springAnkyloPrefab, Enemy.SpringAnkylo, c.springAnkyloCount, UnitClass.Heavy, false, false);
+        AddUnits(r, tortoisePrefab, Enemy.CopperTortoise, c.tortoiseCount, UnitClass.Heavy, false, false);
+        AddUnits(r, iceMosaPrefab, Enemy.IceMosa, c.iceMosaCount, UnitClass.Heavy, false, false);
+        AddUnits(r, crystalPachyPrefab, Enemy.CrystalPachy, c.crystalPachyCount, UnitClass.Heavy, false, false);
+        AddUnits(r, magmaCarnoPrefab, Enemy.MagmaCarno, c.magmaCarnoCount, UnitClass.Heavy, false, false);
+        AddUnits(r, frostMammothPrefab, Enemy.FrostMammoth, c.frostMammothCount, UnitClass.Heavy, false, false);
+        // 비행 손님
+        AddUnits(r, boltTeranodonPrefab, Enemy.BoltTeranodon, c.boltTeranodonCount, UnitClass.Flyer, false, false);
+        AddUnits(r, poisonPteraPrefab, Enemy.PoisonPtera, c.poisonPteraCount, UnitClass.Flyer, false, false);
+        AddUnits(r, flamePteroPrefab, Enemy.FlamePterosaur, c.flamePteroCount, UnitClass.Flyer, false, false);
+        AddUnits(r, overloadFlyPrefab, Enemy.OverloadFly, c.overloadFlyCount, UnitClass.Flyer, true, false);
+        // 그 밖: 원거리(선인장)는 따로 걸어오고, 지원형·힐러는 호위 행렬의 가운데에 서기도 한다
+        AddUnits(r, oilCactusPrefab, Enemy.OilCactus, c.oilCactusCount, UnitClass.Other, false, false);
+        AddUnits(r, magnetParasaurPrefab, Enemy.MagnetParasaur, c.magnetParasaurCount, UnitClass.Other, false, true);
+        AddUnits(r, necroSpinoPrefab, Enemy.NecroSpino, c.necroSpinoCount, UnitClass.Other, false, true);
+        return r;
+    }
+
+    private void AddUnits(List<SpawnUnit> list, GameObject prefab, Enemy.EnemyData data, int count, UnitClass cls, bool swarm, bool vip)
+    {
+        if (count <= 0) return;
+        // 작은 손님: 머릿수를 늘리고, 실제로 늘어난 비율만큼 한 마리의 몫을 줄인다 (무리 전체의 HP·공격력·보상은 구성표 그대로).
+        // 반올림으로 안 늘어난 무리(1마리 x 1.25 = 1마리)는 몫도 1 이다
+        float share = 1f;
+        if (swarm && GameBalance.SwarmCountMul > 1.001f)
         {
-            yield return WaitGap(3f);
-            SpawnBoss();
+            int more = Mathf.Max(count, Mathf.FloorToInt(count * GameBalance.SwarmCountMul + 0.5f));
+            share = count / (float)more;
+            count = more;
+        }
+        for (int i = 0; i < count; i++)
+        {
+            SpawnUnit u = new SpawnUnit();
+            u.prefab = prefab; u.data = data; u.cls = cls; u.share = share; u.vip = vip;
+            list.Add(u);
+        }
+    }
+
+    private static void Shuffle<T>(List<T> list)
+    {
+        for (int i = list.Count - 1; i > 0; i--)
+        {
+            int j = Random.Range(0, i + 1);
+            T t = list[i]; list[i] = list[j]; list[j] = t;
+        }
+    }
+
+    /// <summary>from 의 앞에서 n 마리를 to 로 옮긴다 (모자라면 있는 만큼)</summary>
+    private static void Take(List<SpawnUnit> from, List<SpawnUnit> to, int n)
+    {
+        n = Mathf.Min(n, from.Count);
+        for (int i = 0; i < n; i++) { to.Add(from[0]); from.RemoveAt(0); }
+    }
+
+    /// <summary>힐러·지원형 한 마리를 to 로 옮긴다 (없으면 false)</summary>
+    private static bool TakeVip(List<SpawnUnit> from, List<SpawnUnit> to)
+    {
+        for (int i = 0; i < from.Count; i++)
+        {
+            if (!from[i].vip) continue;
+            to.Add(from[i]); from.RemoveAt(i);
+            return true;
+        }
+        return false;
+    }
+
+    private static int CountVip(List<SpawnUnit> list)
+    {
+        int n = 0;
+        for (int i = 0; i < list.Count; i++) if (list[i].vip) n++;
+        return n;
+    }
+
+    /// <summary>이 조각을 비행 손님으로 짤까? 땅 무리와 비행 무리가 둘 다 되면 남은 머릿수에 비례해 고른다</summary>
+    private static bool UseFlyers(bool groundOk, bool airOk, int groundCount, int airCount)
+    {
+        if (!airOk) return false;
+        if (!groundOk) return true;
+        return Random.value < airCount / (float)(airCount + groundCount);
+    }
+
+    /// <summary>빠른 손님이 앞에 서게 (같은 줄·같은 열 안에서 뒤엉키지 않는다)</summary>
+    private static void SortFastFirst(List<SpawnUnit> list)
+    {
+        list.Sort(delegate (SpawnUnit a, SpawnUnit b) { return b.data.baseSPD.CompareTo(a.data.baseSPD); });
+    }
+
+    // ── 2. 손님 목록을 조각으로 나눈다 ──
+    private List<Beat> PlanBeats(List<SpawnUnit> roster, int waveNumber)
+    {
+        List<SpawnUnit> runners = new List<SpawnUnit>(), heavies = new List<SpawnUnit>();
+        List<SpawnUnit> flyers = new List<SpawnUnit>(), others = new List<SpawnUnit>();
+        for (int i = 0; i < roster.Count; i++)
+        {
+            if (roster[i].cls == UnitClass.Runner) runners.Add(roster[i]);
+            else if (roster[i].cls == UnitClass.Heavy) heavies.Add(roster[i]);
+            else if (roster[i].cls == UnitClass.Flyer) flyers.Add(roster[i]);
+            else others.Add(roster[i]);
+        }
+        Shuffle(runners); Shuffle(heavies); Shuffle(flyers); Shuffle(others);
+
+        int region = GameBalance.RegionOf(waveNumber);
+        List<Beat> beats = new List<Beat>();
+        Formation last = Formation.Scatter;
+        int[] used = new int[8];                    // 이 웨이브에서 편성마다 몇 번 골랐나 (많이 고른 편성은 덜 고른다)
+        int guard = 0;
+        while (runners.Count + heavies.Count + flyers.Count + others.Count > 0 && guard++ < 120)
+        {
+            int vips = CountVip(others);
+            Formation f = PickFormation(region, waveNumber, runners.Count, heavies.Count, flyers.Count, others.Count, vips, last, used);
+            Beat beat = new Beat();
+            beat.formation = f;
+            switch (f)
+            {
+                case Formation.Chase:
+                    Take(runners, beat.units, Random.Range(4, 7));
+                    SortFastFirst(beat.units);
+                    break;
+                case Formation.Lines:       // 달리는 손님 8 ~ 12 나 비행 손님 6 ~ 9 (두세 줄), 둘 다 모자라면 큰 손님 3 ~ 4 가 한 줄로
+                    if (UseFlyers(runners.Count >= 6, flyers.Count >= 6, runners.Count, flyers.Count)) Take(flyers, beat.units, Random.Range(6, 10));
+                    else if (runners.Count >= 6) Take(runners, beat.units, Random.Range(8, 13));
+                    else Take(heavies, beat.units, Random.Range(3, 5));
+                    SortFastFirst(beat.units);
+                    break;
+                case Formation.Ambush:
+                    Take(runners, beat.units, Random.Range(3, 5));
+                    break;
+                case Formation.Escort:      // 맨 앞(units[0]) = 가운데 설 손님. 힐러·지원형이 있으면 절반은 그쪽 - 호위 속의 힐러부터 잡아야 하는 그림
+                    if (vips > 0 && (heavies.Count == 0 || Random.value < 0.5f)) TakeVip(others, beat.units);
+                    else Take(heavies, beat.units, 1);
+                    // 호위 4 ~ 6. 달리는 손님이 적게 남았으면 3 ~ 4 (코발트 광산은 달리는 손님이 적다 - 행렬이 두 번은 나오게)
+                    Take(runners, beat.units, runners.Count >= 8 ? Random.Range(4, 7) : Random.Range(3, 5));
+                    break;
+                case Formation.Pincer:
+                    if (UseFlyers(runners.Count + heavies.Count >= 4, flyers.Count >= 4, runners.Count + heavies.Count, flyers.Count))
+                        Take(flyers, beat.units, Random.Range(4, 9));
+                    else
+                    {
+                        Take(runners, beat.units, Random.Range(4, 9));
+                        if (beat.units.Count < 4) Take(heavies, beat.units, 4 - beat.units.Count);
+                    }
+                    break;
+                case Formation.Encircle:
+                    if (UseFlyers(runners.Count + heavies.Count >= 6, flyers.Count >= 6, runners.Count + heavies.Count, flyers.Count))
+                        Take(flyers, beat.units, Random.Range(6, 11));
+                    else
+                    {
+                        Take(runners, beat.units, Random.Range(6, 11));
+                        if (beat.units.Count < 6) Take(heavies, beat.units, 6 - beat.units.Count);
+                    }
+                    break;
+                case Formation.VFlight:
+                    Take(flyers, beat.units, Random.Range(3, 8));
+                    SortFastFirst(beat.units);
+                    break;
+                default:                    // 산개: 원거리·지원형과 자투리를 4마리까지
+                    Take(others, beat.units, 2);
+                    Take(heavies, beat.units, 4 - beat.units.Count);
+                    Take(flyers, beat.units, 4 - beat.units.Count);
+                    Take(runners, beat.units, 4 - beat.units.Count);
+                    break;
+            }
+            if (beat.units.Count == 0) continue;   // (안전장치) 빈 조각은 버린다 - guard 가 무한 반복을 막는다
+            beats.Add(beat);
+            used[(int)f]++;
+            last = f;
         }
 
-        // v6.5: 이 시점부터 "화면의 적 0 = 클리어" 판정이 유효하다
-        spawnDone = true;
-        activeSpawnRoutine = null;
+        // (안전장치) 반복 한도에 걸려 남은 손님이 있으면 마지막 산개 조각으로 - 구성표의 손님이 조용히 빠지지 않게
+        if (runners.Count + heavies.Count + flyers.Count + others.Count > 0)
+        {
+            Beat rest = new Beat();
+            rest.formation = Formation.Scatter;
+            rest.units.AddRange(others); rest.units.AddRange(heavies); rest.units.AddRange(flyers); rest.units.AddRange(runners);
+            beats.Add(rest);
+        }
+
+        ArrangeBeats(beats);
+        return beats;
+    }
+
+    /// <summary>
+    /// 조각의 순서: 섞은 뒤 같은 편성이 붙어 나오지 않게 풀고, 가장 큰 조각을 맨 뒤로 (웨이브가 고비로 끝난다).
+    /// 첫 조각은 매복이 아니게 - 웨이브가 시작하자마자 옆에서 튀어나오지 않는다
+    /// </summary>
+    private static void ArrangeBeats(List<Beat> beats)
+    {
+        if (beats.Count < 2) return;
+        Shuffle(beats);
+
+        int biggest = 0;
+        for (int i = 1; i < beats.Count; i++)
+            if (beats[i].units.Count > beats[biggest].units.Count) biggest = i;
+        Beat peak = beats[biggest];
+        beats.RemoveAt(biggest);
+
+        for (int i = 1; i < beats.Count; i++)
+        {
+            if (beats[i].formation != beats[i - 1].formation) continue;
+            for (int j = i + 1; j < beats.Count; j++)
+            {
+                if (beats[j].formation == beats[i].formation) continue;
+                Beat t = beats[i]; beats[i] = beats[j]; beats[j] = t;
+                break;
+            }
+        }
+        beats.Add(peak);
+        if (beats[0].formation == Formation.Ambush)
+        {
+            for (int j = 1; j < beats.Count; j++)
+            {
+                if (beats[j].formation == Formation.Ambush) continue;
+                Beat t = beats[0]; beats[0] = beats[j]; beats[j] = t;
+                break;
+            }
+        }
+    }
+
+    /// <summary>
+    /// 다음 조각의 편성을 고른다. 조건 = 그 편성이 풀린 웨이브인가 + 맞는 손님이 남아 있는가. 지역마다 잘 나오는 편성이 다르다
+    /// (구리 사막 = 파상·추격·매복 / 테슬라 협곡 = 공중 편대·양동 / 코발트 광산 = 호위 행렬·포위).
+    /// 바로 앞에 고른 편성은 1/4 로, 이 웨이브에서 이미 n 번 고른 편성은 1/(1+n) 로 덜 고른다 (한 웨이브가 매복만 네 번 나오지 않게)
+    /// </summary>
+    private Formation PickFormation(int region, int wave, int runners, int heavies, int flyers, int others, int vips, Formation last, int[] used)
+    {
+        float[] w = new float[7];
+        if (Unlocked(Formation.Chase, wave) && runners >= 4) w[(int)Formation.Chase] = region == 1 ? 3f : 2f;
+        if (Unlocked(Formation.Lines, wave) && (runners >= 6 || heavies >= 3 || flyers >= 6)) w[(int)Formation.Lines] = region == 1 ? 4f : 2f;
+        if (Unlocked(Formation.Ambush, wave) && runners >= 3) w[(int)Formation.Ambush] = region == 1 ? 3f : 2f;
+        if (Unlocked(Formation.Escort, wave) && (heavies >= 1 || vips >= 1) && runners >= 3) w[(int)Formation.Escort] = region == 3 ? 8f : 3f;
+        if (Unlocked(Formation.Pincer, wave) && (runners + heavies >= 4 || flyers >= 4)) w[(int)Formation.Pincer] = region == 2 ? 4f : 2f;
+        if (Unlocked(Formation.Encircle, wave) && (runners + heavies >= 6 || flyers >= 6)) w[(int)Formation.Encircle] = region == 3 ? 4f : 2f;
+        if (Unlocked(Formation.VFlight, wave) && flyers >= 3) w[(int)Formation.VFlight] = region == 2 ? 5f : 3f;
+
+        float total = 0f;
+        for (int i = 0; i < w.Length; i++)
+        {
+            if ((int)last == i) w[i] *= 0.25f;
+            w[i] /= 1f + used[i];
+            total += w[i];
+        }
+        // 산개: 편성에 못 들어가는 손님(원거리·지원형)이 남아 있거나, 맞는 편성이 하나도 없을 때
+        float scatter = total <= 0f ? 1f : (others > 0 ? 2f : 0f);
+        float r = Random.value * (total + scatter);
+        for (int i = 0; i < w.Length; i++)
+        {
+            if (r < w[i]) return (Formation)i;
+            r -= w[i];
+        }
+        return Formation.Scatter;
+    }
+
+    // ── 3. 조각을 차례로 내보낸다 ──
+    private IEnumerator RunFormations(WaveConfig config, int playerLevel, float diffL)
+    {
+        List<Beat> beats = PlanBeats(BuildRoster(config), config.waveNumber);
+        string plan = "";
+        for (int i = 0; i < beats.Count; i++) plan += (i > 0 ? " -> " : "") + FormationName(beats[i].formation) + " " + beats[i].units.Count;
+        Debug.Log("[WaveManager] 웨이브 " + config.waveNumber + " 편성: " + plan);
+
+        for (int b = 0; b < beats.Count; b++)
+        {
+            Beat beat = beats[b];
+            ShowFormationLine(beat.formation);
+
+            switch (beat.formation)
+            {
+                case Formation.Chase: yield return BeatChase(beat, config, playerLevel, diffL); break;
+                case Formation.Lines: yield return BeatLines(beat, config, playerLevel, diffL); break;
+                case Formation.Ambush: yield return BeatAmbush(beat, config, playerLevel, diffL); break;
+                case Formation.Escort: yield return BeatEscort(beat, config, playerLevel, diffL); break;
+                case Formation.Pincer: yield return BeatPincer(beat, config, playerLevel, diffL); break;
+                case Formation.Encircle: yield return BeatEncircle(beat, config, playerLevel, diffL); break;
+                case Formation.VFlight: yield return BeatVFlight(beat, config, playerLevel, diffL); break;
+                default: yield return BeatScatter(beat, config, playerLevel, diffL); break;
+            }
+            // 조각 사이 쉼. 마지막 조각 뒤에는 보스가 올 때만 쉰다 (보스가 마지막 조각과 겹쳐 들어오지 않게)
+            if (b < beats.Count - 1 || config.hasBoss) yield return BeatGap(beat);
+        }
+    }
+
+    /// <summary>쉼을 잴 때 손님 한 마리의 무게 (구 방식의 스폰 간격 배율과 같은 뜻): 머릿수를 늘린 작은 손님 = 제 몫(0.8 안팎) / 큰 손님 2.2 / 힐러·지원형 2.5 / 원거리 1.2 / 그 밖 1</summary>
+    private static float BeatWeight(SpawnUnit u)
+    {
+        if (u.share < 0.999f) return u.share;      // 머릿수를 늘린 작은 손님 = 그 몫만큼
+        if (u.vip) return 2.5f;
+        if (u.cls == UnitClass.Heavy) return 2.2f;
+        if (u.cls == UnitClass.Other) return 1.2f;
+        return 1f;
+    }
+
+    /// <summary>
+    /// 조각 사이 쉼 = 최소 + 그 조각의 무게 x WaveBeatSecPerUnit (최대 WaveBeatMaxGapSec). 산개 조각 뒤는 최소 쉼만 (한 마리씩 나오는 동안 이미 쉬었다).
+    /// 화면의 손님이 WaveBeatAdvanceAlive 이하로 줄면 남은 쉼이 WaveBeatClearedTimeMul 배로 빨리 간다 -
+    /// 다 잡고 멍하니 기다리는 시간은 줄이고, 조리할 틈(최소 쉼)은 남긴다. 레버 전속(EngineCab.SpawnIntervalMul)과 WaveLengthMul 이 그대로 걸린다
+    /// </summary>
+    private IEnumerator BeatGap(Beat beat)
+    {
+        float minGap = Mathf.Max(0.5f, GameBalance.WaveBeatMinGapSec);
+        float weight = 0f;
+        if (beat.formation != Formation.Scatter)
+            for (int i = 0; i < beat.units.Count; i++) weight += BeatWeight(beat.units[i]);
+        float fullGap = Mathf.Clamp(minGap + weight * GameBalance.WaveBeatSecPerUnit, minGap, Mathf.Max(minGap, GameBalance.WaveBeatMaxGapSec));
+        float real = 0f, progress = 0f, scanAt = 0f;
+        bool cleared = false;
+        while (true)
+        {
+            // 레버를 중간에 당겨도 바로 반영되게 매 프레임 다시 잰다 (WaveLengthMul 2.0 = 기준)
+            float limit = Mathf.Max(minGap, fullGap * EngineCab.SpawnIntervalMul * Mathf.Max(0.1f, GameBalance.WaveLengthMul) * 0.5f);
+            if (real >= minGap && progress >= limit) break;
+            if (!TutorialDirector.InlineFreeze)
+            {
+                if (Time.time >= scanAt)
+                {
+                    scanAt = Time.time + 0.25f;
+                    cleared = CountAliveEnemies() <= GameBalance.WaveBeatAdvanceAlive;
+                }
+                real += Time.deltaTime;
+                progress += Time.deltaTime * (cleared ? Mathf.Max(1f, GameBalance.WaveBeatClearedTimeMul) : 1f);
+            }
+            yield return null;
+        }
+    }
+
+    private int CountAliveEnemies()
+    {
+        Enemy[] all = FindObjectsByType<Enemy>(FindObjectsSortMode.None);
+        int n = 0;
+        for (int i = 0; i < all.Length; i++)
+            if (all[i] != null && all[i].IsAlive) n++;
+        return n;
+    }
+
+    /// <summary>편성용 스폰: 정해진 자리에 한 마리. 웨이브가 끝났거나 연습으로 멈춘 동안은 내보내지 않는다 (SpawnEnemy 와 같은 안전장치)</summary>
+    private Enemy SpawnUnitAt(SpawnUnit u, Vector3 pos, WaveConfig config, int playerLevel, float diffL)
+    {
+        if (!isWaveActive) return null;
+        if (TutorialGateActive || TutorialDirector.InlineFreeze) return null;
+        if (u.prefab == null && !GameBalance.EnemyFallbackVisuals)
+        {
+            Debug.LogWarning("[WaveManager] '" + u.data.enemyName + "' 프리팹 미할당 - 스킵");
+            return null;
+        }
+
+        GameObject enemyObj = u.prefab != null
+            ? Instantiate(u.prefab, pos, Quaternion.identity)
+            : BuildFallbackEnemy(u.data, pos);
+        Enemy enemy = enemyObj.GetComponent<Enemy>();
+        if (enemy != null)
+        {
+            enemy.data = u.data;
+            enemy.InitializeWithWaveScaling(config.waveNumber, playerLevel, diffL);
+            ApplyRouteStats(enemy);
+            if (u.share < 0.999f)
+            {
+                // 머릿수를 늘린 작은 손님: 한 마리는 그만큼 약하고 보상도 적다 (무리 전체의 HP·공격력·골드·재료는 그대로)
+                enemy.currentHP *= u.share;
+                enemy.scaledMaxHP = enemy.currentHP;
+                enemy.scaledATK *= u.share;
+                enemy.RewardMul = u.share;
+            }
+        }
+        aliveEnemyCount++;
+        return enemy;
+    }
+
+    // ── 자리 계산 ──
+    /// <summary>
+    /// 스폰 테두리 위의 점: 기차 가운데에서 angleDeg 방향(0 = 꼬리 쪽, 90 = 위, 180 = 머리 쪽, 270 = 아래)으로 뻗은 선이
+    /// 테두리(기본 줌에서 화면 바로 밖의 사각형 - GameBalance.SpawnEdge*)와 만나는 곳
+    /// </summary>
+    private Vector3 EdgePoint(float angleDeg)
+    {
+        float rad = angleDeg * Mathf.Deg2Rad;
+        float dx = Mathf.Cos(rad), dy = Mathf.Sin(rad);
+        float tx = Mathf.Abs(dx) > 0.0001f ? GameBalance.SpawnEdgeHalfW / Mathf.Abs(dx) : float.MaxValue;
+        float ty = Mathf.Abs(dy) > 0.0001f ? GameBalance.SpawnEdgeHalfH / Mathf.Abs(dy) : float.MaxValue;
+        float t = Mathf.Min(tx, ty);
+        Vector3 c = trainTransform != null ? trainTransform.position : Vector3.zero;
+        return new Vector3(c.x + GameBalance.SpawnEdgeCenterX + dx * t, c.y + dy * t, 0f);
+    }
+
+    /// <summary>그 자리의 손님이 노리는 기차 몸통 지점 (Enemy.CurrentTargetPos 와 같은 기준 - 칸 끝에서 0.8 안쪽으로 붙인 가운데 줄)</summary>
+    private Vector3 HullTarget(Vector3 from)
+    {
+        float[] e = GameBalance.CarEdgesX;
+        float tx = Mathf.Clamp(from.x, e[0] + 0.8f, e[e.Length - 1] - 0.8f);
+        float ty = trainTransform != null ? trainTransform.position.y : 0f;
+        return new Vector3(tx, ty, 0f);
+    }
+
+    /// <summary>그 자리에서 기차로 가는 방향</summary>
+    private Vector3 ApproachDir(Vector3 from)
+    {
+        Vector3 d = HullTarget(from) - from;
+        return d.sqrMagnitude > 0.0001f ? d.normalized : Vector3.down;
+    }
+
+    /// <summary>가는 방향의 옆 (줄을 세울 때 쓴다)</summary>
+    private static Vector3 Lateral(Vector3 dir) { return new Vector3(-dir.y, dir.x, 0f); }
+
+    /// <summary>그 자리에서 기차에 닿기까지 걸리는 시간 (초)</summary>
+    private float TravelSec(Vector3 from, float speed)
+    {
+        float dist = Mathf.Max(0f, Vector3.Distance(from, HullTarget(from)) - 2f);   // 2 = 손님이 멈춰 서는 거리
+        return dist / Mathf.Max(0.3f, speed);
+    }
+
+    /// <summary>오는 쪽을 가중치로 고른다 (도). 위·아래는 폭이 넓어 좌우로 28도까지, 꼬리·머리 쪽은 14도까지 흔든다</summary>
+    private float PickSideAngle(float north, float south, float rear, float front)
+    {
+        float r = Random.value * (north + south + rear + front);
+        if (r < north) return 90f + Random.Range(-28f, 28f);
+        r -= north;
+        if (r < south) return 270f + Random.Range(-28f, 28f);
+        r -= south;
+        if (r < rear) return Random.Range(-14f, 14f);
+        return 180f + Random.Range(-14f, 14f);
+    }
+
+    /// <summary>예고 화살표 하나 (그 자리 쪽 화면 가장자리에, 기차 쪽을 가리킨다)</summary>
+    private void CueArrow(Vector3 pos, float sec)
+    {
+        if (sec > 0.01f) WarningFX.SpawnCue(pos, ApproachDir(pos), sec);
+    }
+
+    /// <summary>예고: 화살표 + 접근음 한 번, 그리고 예고 시간만큼 기다린다</summary>
+    private IEnumerator CueAt(Vector3 pos)
+    {
+        float sec = GameBalance.SpawnCueSec;
+        if (sec > 0.01f)
+        {
+            CueArrow(pos, sec);
+            SoundManager.Play("sfx_cue_approach", 0.7f, 0.05f);
+            yield return WaitGap(sec);
+        }
+    }
+
+    // ── 편성별 ──
+    /// <summary>추격: 꼬리 쪽에서 한 줄로 달려든다 (머리 쪽에서 오는 것은 양동·포위가 맡는다 - 이름과 안내 문구가 방향을 말한다)</summary>
+    private IEnumerator BeatChase(Beat beat, WaveConfig config, int playerLevel, float diffL)
+    {
+        Vector3 p = EdgePoint(PickSideAngle(0f, 0f, 1f, 0f));
+        yield return CueAt(p);
+        Vector3 lat = Lateral(ApproachDir(p));
+        for (int i = 0; i < beat.units.Count; i++)
+        {
+            SpawnUnitAt(beat.units[i], p + lat * Random.Range(-0.6f, 0.6f), config, playerLevel, diffL);
+            yield return WaitGap(0.28f);
+        }
+    }
+
+    /// <summary>파상: 위나 아래의 같은 자리에서 가로 한 줄씩, LinesRowGapSec 간격으로 두세 번</summary>
+    private IEnumerator BeatLines(Beat beat, WaveConfig config, int playerLevel, float diffL)
+    {
+        int n = beat.units.Count;
+        int rows = n >= 9 ? 3 : (n >= 6 ? 2 : 1);     // 달리는 손님 8 ~ 12 = 두세 줄 / 큰 손님 3 ~ 4 = 한 줄
+        int perRow = Mathf.CeilToInt(n / (float)rows);
+        Vector3 p = EdgePoint(PickSideAngle(3f, 2f, 0f, 0f));
+        Vector3 lat = Lateral(ApproachDir(p));
+        int idx = 0;
+        for (int row = 0; row < rows && idx < n; row++)
+        {
+            if (row == 0) yield return CueAt(p);
+            else
+            {
+                // 둘째 줄부터는 예고를 짧게, 소리 없이 (같은 자리라 한 번 본 것)
+                float cue = Mathf.Min(0.5f, GameBalance.SpawnCueSec);
+                yield return WaitGap(Mathf.Max(0.2f, GameBalance.LinesRowGapSec - cue));
+                CueArrow(p, cue);
+                if (cue > 0.01f) yield return WaitGap(cue);
+            }
+            int count = Mathf.Min(perRow, n - idx);
+            for (int j = 0; j < count; j++, idx++)
+                SpawnUnitAt(beat.units[idx], p + lat * ((j - (count - 1) * 0.5f) * 1.7f), config, playerLevel, diffL);
+        }
+    }
+
+    /// <summary>매복: 기차 가까이(북쪽이 잦다)에 바닥 고리가 먼저 뜨고, AmbushCueSec 뒤에 그 자리에서 튀어나온다</summary>
+    private IEnumerator BeatAmbush(Beat beat, WaveConfig config, int playerLevel, float diffL)
+    {
+        int n = beat.units.Count;
+        // 북쪽이 잦다. 주방 사고 배너(화면 아래쪽 가운데)가 떠 있는 동안은 북쪽만 - 남쪽 고리는 배너에 가려 안 보인다
+        bool north = Random.value < 0.7f || KitchenEventManager.IsActive;
+        float trainY = trainTransform != null ? trainTransform.position.y : 0f;
+        float y = trainY + (north ? GameBalance.AmbushDistNorth : -GameBalance.AmbushDistSouth);
+        float[] e = GameBalance.CarEdgesX;
+        float span = (n - 1) * 1.5f;
+        float cx = Random.Range(e[1] + span * 0.5f, e[e.Length - 1] - 1.5f - span * 0.5f);   // 주방 ~ 포탑 칸 B 옆
+        Vector3[] pts = new Vector3[n];
+        for (int i = 0; i < n; i++) pts[i] = new Vector3(cx + (i - (n - 1) * 0.5f) * 1.5f, y, 0f);
+
+        float cue = GameBalance.AmbushCueSec;
+        if (cue > 0.01f)
+        {
+            for (int i = 0; i < n; i++) SpawnMarker.Create(pts[i], cue);
+            SoundManager.Play("sfx_cue_ambush", 0.8f, 0.04f);
+            yield return WaitGap(cue);
+        }
+        for (int i = 0; i < n; i++)
+        {
+            if (SpawnUnitAt(beat.units[i], pts[i], config, playerLevel, diffL) != null)
+            {
+                DustFX.Puff(pts[i], 1.8f);
+                DustFX.Puff(pts[i] + new Vector3(0.3f, 0.15f, 0f), 1.3f);
+            }
+            yield return WaitGap(0.08f);
+        }
+    }
+
+    /// <summary>
+    /// 호위 행렬: 위나 아래에서 가운데 손님(units[0] - 큰 손님이나 힐러·지원형) 둘레에 작은 손님들이 둘러서서 같이 걸어온다.
+    /// 작은 손님은 EscortLeash 가 걸음을 가운데 손님에 맞춘다. 가운데 손님이 쓰러지거나 기차에 닿으면 풀려서 제 속도로 달려든다
+    /// </summary>
+    private IEnumerator BeatEscort(Beat beat, WaveConfig config, int playerLevel, float diffL)
+    {
+        float ringR = Mathf.Max(0.8f, GameBalance.EscortRingRadius);
+        Vector3 edge = EdgePoint(PickSideAngle(3f, 2f, 0f, 0f));
+        Vector3 dir = ApproachDir(edge);
+        Vector3 lat = Lateral(dir);
+        Vector3 center = edge - dir * ringR;        // 둘레의 앞줄도 테두리 밖에서 생기게 반경만큼 물린다
+        yield return CueAt(edge);
+
+        Enemy leader = SpawnUnitAt(beat.units[0], center, config, playerLevel, diffL);
+        int escorts = beat.units.Count - 1;
+        for (int i = 0; i < escorts; i++)
+        {
+            // 둘레에 고르게 (옆으로 조금 넓은 타원 - 위·아래에서 올 때 가로로 퍼져 보인다)
+            float a = (i + 0.5f) / escorts * Mathf.PI * 2f;
+            float along = Mathf.Sin(a) * ringR;
+            float side = Mathf.Cos(a) * ringR * 1.25f;
+            Enemy e = SpawnUnitAt(beat.units[i + 1], center + dir * along + lat * side, config, playerLevel, diffL);
+            if (e != null && leader != null) EscortLeash.Attach(e, leader, dir, along, GameBalance.EscortMaxHoldSec);
+        }
+    }
+
+    /// <summary>양동: 반대편 두 자리(위·아래가 잦고, 가끔 머리·꼬리)에서 번갈아 나온다</summary>
+    private IEnumerator BeatPincer(Beat beat, WaveConfig config, int playerLevel, float diffL)
+    {
+        float a = Random.value < 0.65f ? 90f + Random.Range(-20f, 20f) : Random.Range(-12f, 12f);
+        Vector3 p1 = EdgePoint(a), p2 = EdgePoint(a + 180f);
+        float sec = GameBalance.SpawnCueSec;
+        if (sec > 0.01f)
+        {
+            CueArrow(p1, sec);
+            CueArrow(p2, sec);
+            SoundManager.Play("sfx_cue_approach", 0.7f, 0.05f);
+            yield return WaitGap(sec);
+        }
+        Vector3 lat1 = Lateral(ApproachDir(p1)), lat2 = Lateral(ApproachDir(p2));
+        for (int i = 0; i < beat.units.Count; i++)
+        {
+            bool first = (i % 2 == 0);
+            int k = i / 2;                                   // 그쪽 무리에서 몇 번째인가
+            float off = ((k % 2 == 0) ? 1f : -1f) * (0.5f + 0.9f * (k / 2));
+            SpawnUnitAt(beat.units[i], (first ? p1 : p2) + (first ? lat1 : lat2) * off, config, playerLevel, diffL);
+            yield return WaitGap(0.15f);
+        }
+    }
+
+    /// <summary>포위: 사방 고른 각도에서. 먼 자리(좌우 끝)·느린 손님부터 내보내 기차에는 같은 때 닿는다 (늦추는 시간은 길어도 4초)</summary>
+    private IEnumerator BeatEncircle(Beat beat, WaveConfig config, int playerLevel, float diffL)
+    {
+        int n = beat.units.Count;
+        float a0 = Random.Range(0f, 360f);
+        Vector3[] pts = new Vector3[n];
+        float[] delay = new float[n];
+        float longest = 0f;
+        for (int i = 0; i < n; i++)
+        {
+            pts[i] = EdgePoint(a0 + i * 360f / n + Random.Range(-5f, 5f));
+            delay[i] = TravelSec(pts[i], beat.units[i].data.baseSPD);
+            longest = Mathf.Max(longest, delay[i]);
+        }
+        for (int i = 0; i < n; i++) delay[i] = Mathf.Min(4f, longest - delay[i]);
+
+        float sec = GameBalance.SpawnCueSec;
+        if (sec > 0.01f)
+        {
+            for (int i = 0; i < n; i++) CueArrow(pts[i], sec + delay[i]);   // 화살표는 그 손님이 나올 때까지 떠 있다
+            SoundManager.Play("sfx_cue_approach", 0.9f, 0.05f);
+            yield return WaitGap(sec);
+        }
+
+        bool[] sent = new bool[n];
+        int left = n;
+        float t = 0f;
+        while (left > 0)
+        {
+            if (TutorialDirector.InlineFreeze) { yield return null; continue; }   // 연습으로 멈춘 동안은 내보내지 않는다 (내보내면 빠진다)
+            for (int i = 0; i < n; i++)
+            {
+                if (sent[i] || t < delay[i]) continue;
+                sent[i] = true; left--;
+                SpawnUnitAt(beat.units[i], pts[i], config, playerLevel, diffL);
+            }
+            if (left <= 0) break;
+            yield return null;
+            t += Time.deltaTime;
+        }
+    }
+
+    /// <summary>공중 편대: 화면 모서리 쪽에서 V 자로 (맨 앞 하나, 뒤로 좌우 번갈아)</summary>
+    private IEnumerator BeatVFlight(Beat beat, WaveConfig config, int playerLevel, float diffL)
+    {
+        float[] corners = { 40f, 140f, 220f, 320f };
+        Vector3 p = EdgePoint(corners[Random.Range(0, corners.Length)] + Random.Range(-8f, 8f));
+        Vector3 dir = ApproachDir(p);
+        Vector3 lat = Lateral(dir);
+        yield return CueAt(p);
+        for (int i = 0; i < beat.units.Count; i++)
+        {
+            int rank = (i + 1) / 2;                          // 0, 1, 1, 2, 2 ...
+            float side = (i % 2 == 1) ? 1f : -1f;
+            SpawnUnitAt(beat.units[i], p - dir * (rank * 1.3f) + lat * (side * rank * 1.1f), config, playerLevel, diffL);
+        }
+    }
+
+    /// <summary>산개: 한 마리씩 따로 (구 방식과 같은 모양). 느린 손님은 위·아래에서만 - 좌우 끝에서 오면 20u 를 걸어야 한다</summary>
+    private IEnumerator BeatScatter(Beat beat, WaveConfig config, int playerLevel, float diffL)
+    {
+        for (int i = 0; i < beat.units.Count; i++)
+        {
+            bool slow = beat.units[i].data.baseSPD < 2.2f;
+            Vector3 p = EdgePoint(slow ? PickSideAngle(3f, 2f, 0f, 0f) : Random.Range(0f, 360f));
+            float cue = Mathf.Min(0.6f, GameBalance.SpawnCueSec);
+            CueArrow(p, cue);
+            if (cue > 0.01f) yield return WaitGap(cue);
+            SpawnUnitAt(beat.units[i], p, config, playerLevel, diffL);
+            if (i < beat.units.Count - 1) yield return WaitGap(0.9f);
+        }
+    }
+
+    /// <summary>매복 예고: 튀어나올 자리의 바닥 고리. life 초 동안 맥동하며 먼지가 일고, 끝나면 스스로 사라진다 (스폰 코루틴이 중간에 끊겨도 남지 않는다)</summary>
+    private class SpawnMarker : MonoBehaviour
+    {
+        private float age, life, nextDust;
+        private SpriteRenderer ring;
+        private float baseScale = 1f;
+
+        public static void Create(Vector3 pos, float lifeSec)
+        {
+            GameObject go = new GameObject("AmbushMarker");
+            go.transform.position = new Vector3(pos.x, pos.y, 0f);
+            SpawnMarker m = go.AddComponent<SpawnMarker>();
+            m.life = Mathf.Max(0.2f, lifeSec);
+            Sprite s = SpriteBank.Get("tut_ring");            // 36x14 (1.1u) - 손님 한 마리 자리
+            if (s == null) { s = SpriteBank.Get("tut_ring_l"); m.baseScale = 0.5f; }
+            if (s != null)
+            {
+                m.ring = go.AddComponent<SpriteRenderer>();
+                m.ring.sprite = s;
+                m.ring.sortingOrder = -3;                    // 바닥 표시 (먼지 -5 위, 손님 5 아래)
+                m.ring.color = new Color(1f, 0.45f, 0.15f, 0.9f);
+            }
+        }
+
+        private void Update()
+        {
+            if (TutorialDirector.InlineFreeze) return;       // 연습으로 멈춘 동안은 스폰도 멈춘다 - 고리도 같이
+            age += Time.deltaTime;
+            float t = age / life;
+            if (t >= 1f) { Destroy(gameObject); return; }
+            float pulse = 0.5f + 0.5f * Mathf.Sin(age * 18f);
+            float k = baseScale * (1f + 0.5f * t + 0.12f * pulse);   // 때가 가까울수록 커진다
+            transform.localScale = new Vector3(k, k, 1f);
+            if (ring != null) { Color c = ring.color; c.a = 0.55f + 0.4f * pulse; ring.color = c; }
+            if (age >= nextDust)
+            {
+                nextDust = age + 0.3f;
+                DustFX.Puff(transform.position + new Vector3(Random.Range(-0.4f, 0.4f), Random.Range(-0.2f, 0.2f), 0f), 0.7f + 0.6f * t);
+            }
+        }
+    }
+
+    /// <summary>
+    /// 호위 행렬의 작은 손님에게 붙는다: 가운데 손님(leader)을 기준으로 자기 자리(가는 방향으로 slotAlong)를 지키게 Enemy.PaceMul 을 조절한다.
+    /// 자리보다 앞서면 거의 서고, 뒤처지면 제 속도로 따라붙고, 그 사이에선 가운데 손님 걸음에 맞춘다.
+    /// 풀리는 때 = 가운데 손님이 쓰러졌다 / 기차에 닿았다 / 시간 초과 - PaceMul 을 1 로 돌리고 스스로 떨어진다
+    /// </summary>
+    private class EscortLeash : MonoBehaviour
+    {
+        private Enemy self, leader;
+        private Vector3 dir;
+        private float slotAlong, heldSec, maxSec;
+
+        public static void Attach(Enemy escort, Enemy leader, Vector3 dir, float slotAlong, float maxSec)
+        {
+            EscortLeash leash = escort.gameObject.AddComponent<EscortLeash>();
+            leash.self = escort; leash.leader = leader; leash.dir = dir; leash.slotAlong = slotAlong;
+            leash.maxSec = Mathf.Max(1f, maxSec);
+        }
+
+        private void Update()
+        {
+            if (self == null) { Destroy(this); return; }
+            if (TutorialDirector.InlineFreeze) return;
+            heldSec += Time.deltaTime;
+
+            bool free = leader == null || !leader.IsAlive || !self.IsAlive || heldSec >= maxSec;
+            if (!free)
+            {
+                // 가운데 손님이 공격 거리 안에 들어왔나 (Enemy.CurrentTargetPos 와 같은 기준)
+                Vector3 lp = leader.transform.position;
+                float[] e = GameBalance.CarEdgesX;
+                float tx = Mathf.Clamp(lp.x, e[0] + 0.8f, e[e.Length - 1] - 0.8f);
+                float ty = leader.trainTarget != null ? leader.trainTarget.position.y : 0f;
+                free = Vector2.Distance(new Vector2(lp.x, lp.y), new Vector2(tx, ty)) <= leader.attackRange + 0.4f;
+            }
+            if (free)
+            {
+                bool leaderDown = leader == null || !leader.IsAlive;
+                if (leaderDown && self.IsAlive) DustFX.Puff(self.transform.position, 1.2f);   // 박차고 나가는 순간
+                self.PaceMul = 1f;
+                Destroy(this);
+                return;
+            }
+
+            float ahead = Vector3.Dot(self.transform.position - leader.transform.position, dir) - slotAlong;
+            float match = Mathf.Clamp(leader.scaledSPD / Mathf.Max(0.1f, self.scaledSPD), 0.05f, 1f);
+            self.PaceMul = ahead > 0.25f ? match * 0.3f : (ahead < -0.35f ? 1f : match);
+        }
+
+        private void OnDestroy()
+        {
+            if (self != null) self.PaceMul = 1f;
+        }
     }
 
     /// <summary>v6.13: 스폰 사이 대기 - 인라인 연습(TutorialDirector.InlineFreeze) 동안은 시간이 안 간다 (WaitForSeconds 대체)</summary>
     private IEnumerator WaitGap(float seconds)
     {
         float t = 0f;
-        while (t < seconds)
+        // v6.19: 시간이 다 찼어도 연습으로 멈춰 있으면 풀릴 때까지 기다린다 - 멈춘 프레임에 돌아가면 그 직후의 스폰이 통째로 빠진다 (스폰은 멈춘 동안 아무것도 내보내지 않는다)
+        while (t < seconds || TutorialDirector.InlineFreeze)
         {
             if (!TutorialDirector.InlineFreeze) t += Time.deltaTime;
             yield return null;

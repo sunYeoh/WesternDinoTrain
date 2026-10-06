@@ -5,7 +5,8 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 /// <summary>
-/// [BossGimmickSystem.cs] v9.18 (2026-10-06 테스터 피드백 3: 패턴 예고·무방비 띠를 HP 바 바로 밑에 붙였다(폭도 바와 같게, 긴 안내는 글자를 줄여 한 줄 - 구 자리는 보스가 서는 높이라 몸을 가렸다) + 띠가 떠 있으면 가운데 예고 카드를 그 아래로 / 보스 HP 바를 화면 위 가운데(기차 상황판 바로 아래)로 올리고 키웠다 - 이름 28 / 수치 20 / 바 30, 깎인 만큼 밝은 띠가 남았다 줄어든다, 무방비 눈금, 상태 딱지(무방비·빙하 갑주·해치 개방·폭식·발악·번개 병), 발악하면 바 색이 달아오른다 / 등장: HoldBarForIntro -> PlayBarIntro 로 위에서 내려와 차오른다 / 바가 떠 있는 동안 가운데 예고 카드를 그 아래로 민다(UISkin.NoticeShiftY). GameBalance.BossBarBig = false 면 구 배치) / v9.16 (2026-09-29 손맛 2차 - 소리: 보스전 동안 배경음 덕킹 - 등록에 켜고 처치·정리에 끈다) / v9.12 (2026-09-22: ClearBossUI - 예습 보스용) / v4.1
+/// [BossGimmickSystem.cs] v9.19 (2026-10-06 보스 페이즈 모습 A4: 보스 쪽 알림 한 줄(ShowBossLine - 페이즈 전환·발악·대응법)을 가운데 예고 카드 대신 HP 바 밑 띠에 띄운다. 띠는 무방비 > 패턴 예고 > 알림 순으로 쓴다 / 패턴 예고·무방비 시작의 화면 가운데 큰 글자를 뺐다(띠와 같은 말이 보스 몸 위에 한 번 더 떴다) - 가장자리 맥동과 띠 등장 강조만. GameBalance.BossNoticeInBar) /
+/// v9.18 (2026-10-06 테스터 피드백 3: 패턴 예고·무방비 띠를 HP 바 바로 밑에 붙였다(폭도 바와 같게, 긴 안내는 글자를 줄여 한 줄 - 구 자리는 보스가 서는 높이라 몸을 가렸다) + 띠가 떠 있으면 가운데 예고 카드를 그 아래로 / 보스 HP 바를 화면 위 가운데(기차 상황판 바로 아래)로 올리고 키웠다 - 이름 28 / 수치 20 / 바 30, 깎인 만큼 밝은 띠가 남았다 줄어든다, 무방비 눈금, 상태 딱지(무방비·빙하 갑주·해치 개방·폭식·발악·번개 병), 발악하면 바 색이 달아오른다 / 등장: HoldBarForIntro -> PlayBarIntro 로 위에서 내려와 차오른다 / 바가 떠 있는 동안 가운데 예고 카드를 그 아래로 민다(UISkin.NoticeShiftY). GameBalance.BossBarBig = false 면 구 배치) / v9.16 (2026-09-29 손맛 2차 - 소리: 보스전 동안 배경음 덕킹 - 등록에 켜고 처치·정리에 끈다) / v9.12 (2026-09-22: ClearBossUI - 예습 보스용) / v4.1
 /// 보스전 전용 기믹 + 보스 UI를 관리합니다.
 ///
 /// - v4.1 (교수 피드백 A6, 2026-09-14): 씬에 이 컴포넌트가 없으면 자동 생성한다.
@@ -101,6 +102,17 @@ public class BossGimmickSystem : MonoBehaviour
     private static readonly Color HP_RED = new Color(0.85f, 0.2f, 0.15f);
     private static readonly Color HP_RAGE = new Color(1f, 0.38f, 0.1f);
 
+    // ── v9.19 (A4): 보스 알림 한 줄 - 띠의 세 번째 쓰임 (무방비 > 패턴 예고 > 알림) ──
+    private Text lineBodyText;                  // 띠 아랫줄 (알림의 본문). 예고·무방비일 때는 그 자리에 남은 시간 게이지가 있다
+    private GameObject timeBarGo;               // 남은 시간 게이지
+    private string lineTitle = "", lineBody = "";
+    private float lineLeft = 0f;                // 알림을 더 보여 줄 시간 (실시간 초). 0 이하 = 없음
+    private float lineWaited = 0f;              // 띠가 비기를 기다린 시간
+    private float lineMaxWait = 12f;            // 이만큼 기다려도 띠가 안 비면 알림을 버린다 (알림마다 다르다 - ShowBossLine)
+    private bool lineShowing = false;           // 지금 띠가 알림을 보여 주는 중
+    private float bannerPunchT = -1f;           // 띠 등장 강조 (1.1배에서 제자리로 0.18초). 음수 = 없음
+    private const float LINE_MIN_RESUME = 2.5f; // 예고에 밀렸다가 다시 뜰 때 최소 이만큼은 보여 준다
+
     private void Awake()
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
@@ -186,6 +198,7 @@ public class BossGimmickSystem : MonoBehaviour
     {
         if (isGroggyPhase) return;   // 그로기 안내가 우선
 
+        TakeBannerFromLine();   // v9.19: 알림 한 줄이 떠 있었으면 내린다 (예고가 먼저)
         groggyRoot.gameObject.SetActive(true);
         if (groggyGuideText != null) groggyGuideText.text = text;
         if (groggyTimeFillImg != null) groggyTimeFillImg.color = new Color(0.8f, 0.3f, 0.9f); // 보라 = 패턴 예고
@@ -193,7 +206,9 @@ public class BossGimmickSystem : MonoBehaviour
         SoundManager.Play("sfx_boss_warning");   // 예고 경보음
 
         // v5.2 (감사 2-D): 화면 가장자리 붉은 플래시 + 대형 경고 - 예고가 눈에 확 들어오게
-        WarningFX.Flash(text, seconds);
+        // v9.19: 띠가 HP 바 밑으로 올라온 뒤로 큰 글자는 띠와 같은 말을 보스 몸 위에 한 번 더 띄웠다 - 가장자리 맥동과 띠 강조만 남긴다
+        if (BarNotices) { WarningFX.FlashEdges(seconds, new Color(1f, 0.15f, 0.1f)); bannerPunchT = 0f; }
+        else WarningFX.Flash(text, seconds);
 
         if (telegraphCo != null) StopCoroutine(telegraphCo);
         telegraphCo = StartCoroutine(TelegraphCountdown(seconds));
@@ -225,6 +240,7 @@ public class BossGimmickSystem : MonoBehaviour
             if (bossRoot.gameObject.activeSelf) bossRoot.gameObject.SetActive(false);
             if (groggyRoot.gameObject.activeSelf) groggyRoot.gameObject.SetActive(false);
             UISkin.NoticeShiftY = 0f;   // v9.18
+            if (lineLeft > 0f || lineShowing) ResetBossLine();   // v9.19
             return;
         }
 
@@ -251,6 +267,106 @@ public class BossGimmickSystem : MonoBehaviour
 
         if (isGroggyPhase)
             UpdateGroggyPhase();
+
+        TickBossLine();
+        TickBannerPunch();
+    }
+
+    // ─────────────────────────────────────────────
+    // v9.19 (A4): 보스 알림 한 줄
+    // ─────────────────────────────────────────────
+    /// <summary>보스 쪽 알림을 띠에 띄우는 설정인가 (큰 HP 바 + 스위치)</summary>
+    private static bool BarNotices { get { return GameBalance.BossBarBig && GameBalance.BossNoticeInBar; } }
+
+    /// <summary>
+    /// 보스 쪽 알림(페이즈 전환·발악·대응법)을 HP 바 밑 띠에 띄운다. 띠를 패턴 예고·무방비가 쓰는 중이면 비는 대로 뜬다.
+    /// maxWait = 띠가 비기를 기다리는 한도(초) - 넘으면 버린다. 그 순간에만 뜻이 있는 알림(발악)은 짧게, 대응법 안내는 무방비(7초)가 끝날 때까지 기다리게 길게.
+    /// false = 띠에 못 띄운다 (HP 바가 없거나 스위치가 꺼졌다) - 부른 쪽이 가운데 예고 카드로 띄운다
+    /// </summary>
+    public bool ShowBossLine(string title, string body, float seconds, float maxWait)
+    {
+        if (!BarNotices || lineBodyText == null) return false;
+        if (currentBoss == null || !currentBoss.IsAlive) return false;
+        lineTitle = title ?? "";
+        lineBody = body ?? "";
+        lineLeft = Mathf.Max(1f, seconds);
+        lineWaited = 0f;
+        lineMaxWait = Mathf.Max(0.5f, maxWait);
+        if (lineShowing) ApplyLineText();   // 떠 있던 알림을 새 것으로 바꾼다
+        return true;
+    }
+
+    private void ApplyLineText()
+    {
+        if (groggyGuideText != null) groggyGuideText.text = lineTitle;
+        lineBodyText.text = lineBody;
+        bannerPunchT = 0f;
+    }
+
+    /// <summary>띠를 알림 모양(제목 + 본문)과 예고 모양(안내 + 남은 시간 게이지) 사이에서 바꾼다</summary>
+    private void SetBannerLineMode(bool line)
+    {
+        if (timeBarGo != null) timeBarGo.SetActive(!line);
+        if (lineBodyText != null) lineBodyText.gameObject.SetActive(line);
+        if (groggyGuideText != null)
+        {
+            // 알림일 때는 제목 줄을 조금 올려 본문 두 줄(아래 30)과 안 닿게 한다
+            RectTransform rt = groggyGuideText.rectTransform;
+            rt.anchoredPosition = new Vector2(0f, line ? -3f : -6f);
+            rt.sizeDelta = new Vector2(-20f, line ? 28f : 32f);
+        }
+    }
+
+    /// <summary>패턴 예고·무방비가 띠를 가져간다. 알림이 거의 다 보였으면 버리고, 아니면 띠가 빈 뒤에 다시 띄운다</summary>
+    private void TakeBannerFromLine()
+    {
+        if (lineShowing)
+        {
+            lineShowing = false;
+            lineLeft = lineLeft < 1.2f ? 0f : Mathf.Max(lineLeft, LINE_MIN_RESUME);
+            lineWaited = 0f;
+        }
+        SetBannerLineMode(false);
+    }
+
+    private void TickBossLine()
+    {
+        if (lineBodyText == null) return;
+        bool busy = isGroggyPhase || telegraphCo != null;      // 예고·무방비가 띠를 쓰는 중
+        if (lineShowing)
+        {
+            if (busy) { TakeBannerFromLine(); return; }
+            lineLeft -= Time.unscaledDeltaTime;
+            if (lineLeft <= 0f)
+            {
+                lineShowing = false;
+                SetBannerLineMode(false);
+                groggyRoot.gameObject.SetActive(false);
+            }
+            return;
+        }
+        if (lineLeft <= 0f) return;
+        if (busy || !bossRoot.gameObject.activeSelf)
+        {
+            lineWaited += Time.unscaledDeltaTime;
+            if (lineWaited > lineMaxWait) lineLeft = 0f;
+            return;
+        }
+        lineShowing = true;
+        SetBannerLineMode(true);
+        ApplyLineText();
+        groggyRoot.gameObject.SetActive(true);
+    }
+
+    /// <summary>띠가 새 내용으로 뜨는 순간: 1.1배에서 제자리로 0.18초 (큰 글자를 뺀 대신 띠 자체가 눈에 들어오게)</summary>
+    private void TickBannerPunch()
+    {
+        if (bannerPunchT < 0f) return;
+        bannerPunchT += Time.unscaledDeltaTime;
+        float k = Mathf.Clamp01(bannerPunchT / 0.18f);
+        float s = 1f + 0.1f * (1f - k) * (1f - k) * Mathf.Clamp01(GameBalance.GameFeelMaster);
+        groggyRoot.localScale = new Vector3(s, s, 1f);
+        if (k >= 1f) { bannerPunchT = -1f; groggyRoot.localScale = Vector3.one; }
     }
 
     private void UpdateBossHPBar()
@@ -405,12 +521,14 @@ public class BossGimmickSystem : MonoBehaviour
         if (currentBoss != null && currentBoss.CurrentGroggyDuration > 0f)
             groggyDuration = currentBoss.CurrentGroggyDuration;
 
+        TakeBannerFromLine();   // v9.19
         groggyRoot.gameObject.SetActive(true);
         if (groggyTimeFillImg != null) groggyTimeFillImg.color = new Color(1f, 0.55f, 0.15f);
         SoundManager.Play("sfx_boss_groggy");
 
-        // v5.2: 그로기는 기회의 순간 - 금색 플래시로 구분
-        WarningFX.Flash("보스 무방비! [F] 독샘 요리 투척!", 1.6f, new Color(1f, 0.8f, 0.2f));
+        // v5.2: 그로기는 기회의 순간 - 금색 플래시로 구분. v9.19: 큰 글자는 띠의 안내와 같은 말 - 금빛 가장자리와 띠 강조만
+        if (BarNotices) { WarningFX.FlashEdges(1.6f, new Color(1f, 0.8f, 0.2f)); bannerPunchT = 0f; }
+        else WarningFX.Flash("보스 무방비! [F] 독샘 요리 투척!", 1.6f, new Color(1f, 0.8f, 0.2f));
         RefreshGuideText();
 
         Debug.Log("[BossGimmickSystem] 보스 그로기 발동! 10초 안에 디버프 요리 투척!");
@@ -549,6 +667,7 @@ public class BossGimmickSystem : MonoBehaviour
     public void ClearBossUI()
     {
         currentBoss = null;
+        ResetBossLine();
         SoundManager.BgmDuck("boss", false);   // v9.16
         isGroggyPhase = false;
         barHeld = false;
@@ -557,9 +676,18 @@ public class BossGimmickSystem : MonoBehaviour
         if (groggyRoot != null) groggyRoot.gameObject.SetActive(false);
     }
 
+    /// <summary>v9.19: 알림 한 줄과 띠 강조를 지운다 (보스가 사라질 때)</summary>
+    private void ResetBossLine()
+    {
+        lineLeft = 0f; lineShowing = false; bannerPunchT = -1f;
+        SetBannerLineMode(false);
+        if (groggyRoot != null) groggyRoot.localScale = Vector3.one;
+    }
+
     public void OnBossDefeated()
     {
         currentBoss = null;
+        ResetBossLine();
         SoundManager.BgmDuck("boss", false);   // v9.16
         isGroggyPhase = false;
         barHeld = false;
@@ -631,6 +759,23 @@ public class BossGimmickSystem : MonoBehaviour
         tBg.offsetMax = new Vector2(-14f, 8f);
         tBg.sizeDelta = new Vector2(tBg.sizeDelta.x, 12f);
         tBg.GetComponent<Image>().raycastTarget = false;
+        timeBarGo = tBg.gameObject;
+
+        // v9.19 (A4): 알림 한 줄의 본문 - 게이지 자리에 (알림일 때만 보인다). 길면 두 줄까지, 글자를 13 까지 줄인다
+        lineBodyText = KitchenEventManager.MakeText(groggyRoot, "LineBody", "", 16, new Color(0.95f, 0.9f, 0.82f));
+        lineBodyText.horizontalOverflow = HorizontalWrapMode.Wrap;
+        lineBodyText.verticalOverflow = VerticalWrapMode.Truncate;
+        lineBodyText.resizeTextForBestFit = true;
+        lineBodyText.resizeTextMinSize = 13;
+        lineBodyText.resizeTextMaxSize = 16;
+        lineBodyText.alignment = TextAnchor.MiddleCenter;
+        RectTransform lbRt = lineBodyText.rectTransform;
+        lbRt.anchorMin = new Vector2(0f, 0f);
+        lbRt.anchorMax = new Vector2(1f, 0f);
+        lbRt.pivot = new Vector2(0.5f, 0f);
+        lbRt.anchoredPosition = new Vector2(0f, 3f);
+        lbRt.sizeDelta = new Vector2(-20f, 30f);
+        lineBodyText.gameObject.SetActive(false);
 
         groggyTimeFill = KitchenEventManager.MakeBox(tBg, "TimeFill", new Color(1f, 0.55f, 0.15f));
         groggyTimeFill.anchorMin = new Vector2(0f, 0f);
