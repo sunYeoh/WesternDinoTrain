@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 
 /// <summary>
-/// [RecipeText.cs] v1.3 (v9.14 2026-09-28: 설명 짧게 - 재료 줄 제외, "잘 박힌다" 줄 간결 / RecipeHoverRelay.onClick) / v1.2 (v9.12 2026-09-22: 용어 "지속 피해") / v1.1 (v9.11.1 2026-09-22: 재료·조리대 줄(Source) 추가, 무방비 표현) / v1 (신규, v9.10 2026-09-17) - 요리(포탑) 설명을 일상어로 만드는 한 곳
+/// [RecipeText.cs] v1.4 (v9.19.4 2026-10-07: 낱말 요약 Brief·ShapeWord·PassiveScales - 운행 중 포탑 정보창용. 유저 "포탑 설명이 너무 길다, 겜하면서 필요한 내용도 아니다") / v1.3 (v9.14 2026-09-28: 설명 짧게 - 재료 줄 제외, "잘 박힌다" 줄 간결 / RecipeHoverRelay.onClick) / v1.2 (v9.12 2026-09-22: 용어 "지속 피해") / v1.1 (v9.11.1 2026-09-22: 재료·조리대 줄(Source) 추가, 무방비 표현) / v1 (신규, v9.10 2026-09-17) - 요리(포탑) 설명을 일상어로 만드는 한 곳
 ///
 /// 테스터 피드백: "도감에 요리를 눌렀을 때 뭔 요린지 모르니까 만들지 말지도 모르겠음", "포탑 효과를 읽을 시간이 없음",
 /// "모르겠는 말(공명·인퓨징·DPS) 쓰지 말기". RecipeData 의 수치 필드(형태·속성·도트·감속·폭발·체인·회복·버프·패시브)를 그대로 읽어
@@ -14,7 +14,8 @@ using UnityEngine.EventSystems;
 ///   RecipeText.When(r)   - "작은 손님이 무리로 올 때" (한 줄)
 ///   RecipeText.Numbers(r, levelMult) - "공격 26  1.0초마다  (초당 26)" (한 줄, 패시브면 "")
 ///   RecipeText.Full(r, levelMult)    - 위 넷을 줄바꿈으로 (툴팁·도감 상세용)
-///   RecipeText.RoleWord(r) - "단일 화력 / 범위 / 제어 / 지원 / 약화 / 기차 강화" (짧은 역할 낱말 - 카드 한 줄용)
+///   RecipeText.RoleWord(r) - "단일 화력 / 범위 / 제어 / 지원 / 약화 / 기차 강화 / 이웃 강화" (짧은 역할 낱말 - 카드 한 줄용)
+///   RecipeText.Brief(r)  - "단일 · 물리" / "폭발 · 속성 · 화상" (낱말 요약 한 줄 - 운행 중 포탑 정보창용. 문장은 Full, 멈춰서 읽는 도감·조리 창에만)
 /// VS 2017 (C# 7.3) 호환
 /// </summary>
 public static class RecipeText
@@ -24,13 +25,66 @@ public static class RecipeText
     {
         if (r == null) return "";
         if (r.shape == AttackShape.Passive) return "기차 강화";
-        if (!string.IsNullOrEmpty(r.buffType)) return "곁 포탑 강화";
+        if (!string.IsNullOrEmpty(r.buffType)) return "이웃 강화";   // v1.4: "곁 포탑 강화" -> 속성 줄 설명·문구원칙의 용어와 같게
         if (r.role == TurretRole.CC || r.slowLevel > 0 || r.stunSec > 0f) return "제어";
         if (r.role == TurretRole.Debuffer || r.shredDef > 0 || r.shredRes > 0) return "약화";
         if (r.role == TurretRole.Support || r.healOnHit > 0f) return "지원";
         if (r.shape == AttackShape.Explode || r.shape == AttackShape.Cone || r.shape == AttackShape.Field
             || r.shape == AttackShape.Chain || r.shape == AttackShape.Pierce || r.shape == AttackShape.Aura) return "범위";
         return "단일 화력";
+    }
+
+    /// <summary>v1.4: 공격 형태 낱말 (Brief 와 합체 미리보기가 같이 쓴다 - 용어는 문구원칙의 표: 직선 관통 · 연쇄 번개)</summary>
+    public static string ShapeWord(RecipeData r)
+    {
+        if (r == null) return "";
+        switch (r.shape)
+        {
+            case AttackShape.Pierce: return "직선 관통";
+            case AttackShape.Cone: return "부채꼴";
+            case AttackShape.Explode: return "폭발";
+            case AttackShape.Chain: return "연쇄 번개 " + Mathf.Max(1, r.chainCount);
+            case AttackShape.Field: return r.fieldBig ? "넓은 장판" : "장판";
+            case AttackShape.Aura: return "기차 주변";
+            case AttackShape.Passive: return "쏘지 않는다";
+            default: return "단일";
+        }
+    }
+
+    /// <summary>
+    /// v1.4: 낱말 요약 한 줄 (운행 중 포탑 정보창용) - 문장이 아니라 "형태 · 물리/속성 · 덤 효과".
+    /// 예: "단일 · 물리" / "폭발 · 속성 · 화상" / "연쇄 번개 3 · 속성 · 감속 50%".
+    /// 쏘지 않는 요리(기차 강화 · 이웃 강화)는 레시피에 적힌 한 줄을 그대로 쓴다 ("[상시] 기차 HP 초당 +2").
+    /// </summary>
+    public static string Brief(RecipeData r)
+    {
+        if (r == null) return "";
+        if (r.shape == AttackShape.Passive || !string.IsNullOrEmpty(r.buffType))
+            return string.IsNullOrEmpty(r.description) ? RoleWord(r) : r.description;
+
+        string s = ShapeWord(r);
+        if (r.damage > 0f) s += " · " + (r.damageType == DamageType.Magic ? "속성" : "물리");
+        if (r.burnStack > 0) s += " · 화상";
+        if (r.poisonStack > 0 || r.fieldPoison) s += " · 독";
+        if (r.slowLevel > 0) s += " · 감속 " + (r.slowLevel >= 2 ? "70%" : "50%");
+        if (r.stunSec > 0f) s += " · 마비 " + r.stunSec.ToString("F1") + "초";
+        if (r.shredDef > 0) s += " · 방어 감소";
+        if (r.shredRes > 0) s += " · 저항 감소";
+        if (r.healOnHit > 0f) s += " · 맞출 때마다 기차 HP +" + r.healOnHit.ToString("F0");
+        return s;
+    }
+
+    /// <summary>
+    /// v1.4: 쏘지 않는 요리의 효과가 포탑 레벨을 따라 커지는가.
+    /// 커지는 것 = 이웃 강화 / 회복(regen·omega 의 회복) / 받는 피해 감소(dr) / 되받기(thorns) / 불 오라(auraBurn).
+    /// 안 커지는 것 = 최대 HP(maxhp - TurretSlot.ApplyMaxHPPassive "레벨 무관") / 감속 오라 · 방어 감소 오라 (TurretSlotManager.TickAuras 의 고정 값)
+    /// </summary>
+    public static bool PassiveScales(RecipeData r)
+    {
+        if (r == null) return false;
+        if (!string.IsNullOrEmpty(r.buffType)) return true;
+        string p = r.passiveType ?? "";
+        return p == "regen" || p == "omega" || p == "dr" || p == "thorns" || p == "auraBurn";
     }
 
     /// <summary>무엇을 하나 - 형태 + 부가 효과</summary>

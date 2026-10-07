@@ -3,7 +3,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 /// <summary>
-/// [SlotMarkerUI.cs] v5.9 (v9.18 2026-10-06: 폐기 환급 = 들어간 접시의 절반(TurretSlot.ScrapRefund) - 예고·결과·설명 문구 / 진화 미리보기에 "레벨이 같아야 한다" / 선택 안내 줄에 같은 조건) / v5.8 (v9.16 2026-09-29 손맛 2차 - 소리: 냉각 완료 sfx_cool / 얼음 깨기 연타 = 결정 두드림(sfx_hit_crystal) -> 깨짐(sfx_die_crystal) / 감전 털기 = 레버 철컥(sfx_lever). 버튼 클릭음을 빌려 쓰던 것 교체) / v5.7 (v9.15 2026-09-29: 접시 곡선 표기 "(1/2)" / 파손 칩 "파손" + 파손 경고 깜빡임(BreakWarning) / 드래그 투입 - GameHUD 가 NearestMarker·SetDragHover 로 놓을 슬롯을 물어 금색 "여기에 놓기" / 강화 미리보기 GameBalance.LevelMultOf) / v5.6 (v9.14 2026-09-28: 레벨 상한 표시 "최대" + 강화 미리보기 상한, 진화 레벨 = 높은 쪽) / v5.5 (v9.12 2026-09-22: 체인 = "연쇄 번개") / v5.4 (v9.11.1 2026-09-22 문구: 마비 종류별 안내, 전설·진화 조리 용어, 역할 낱말) / v5.3 (v9.10 2026-09-17 테스터 피드백: 포탑 정보창이 마우스를 따라다니며 커서 밑에 겹쳐 깜빡이고 클릭을 가로채던 것 ->
+/// [SlotMarkerUI.cs] v6.0 (v9.19.4 2026-10-07 유저 "포탑 설명이 너무 길다, 겜하면서 필요한 내용도 아니다 - 필요한 것만 남기고 폰트를 키워라": 정보창을 네 줄로(이름·레벨 / 숫자 / 낱말 요약 / 다음에 할 일 + 조작 한 줄) · 글자 15 -> 20(이름 23) · 창 높이가 글을 따라간다(ShowTip) · 같은 창에 뜨는 합체 미리보기도 같은 크기로 줄임 + 진화 미리보기의 공명 수가 같은 속성 둘일 때 틀리던 것) / v5.9 (v9.18 2026-10-06: 폐기 환급 = 들어간 접시의 절반(TurretSlot.ScrapRefund) - 예고·결과·설명 문구 / 진화 미리보기에 "레벨이 같아야 한다" / 선택 안내 줄에 같은 조건) / v5.8 (v9.16 2026-09-29 손맛 2차 - 소리: 냉각 완료 sfx_cool / 얼음 깨기 연타 = 결정 두드림(sfx_hit_crystal) -> 깨짐(sfx_die_crystal) / 감전 털기 = 레버 철컥(sfx_lever). 버튼 클릭음을 빌려 쓰던 것 교체) / v5.7 (v9.15 2026-09-29: 접시 곡선 표기 "(1/2)" / 파손 칩 "파손" + 파손 경고 깜빡임(BreakWarning) / 드래그 투입 - GameHUD 가 NearestMarker·SetDragHover 로 놓을 슬롯을 물어 금색 "여기에 놓기" / 강화 미리보기 GameBalance.LevelMultOf) / v5.6 (v9.14 2026-09-28: 레벨 상한 표시 "최대" + 강화 미리보기 상한, 진화 레벨 = 높은 쪽) / v5.5 (v9.12 2026-09-22: 체인 = "연쇄 번개") / v5.4 (v9.11.1 2026-09-22 문구: 마비 종류별 안내, 전설·진화 조리 용어, 역할 낱말) / v5.3 (v9.10 2026-09-17 테스터 피드백: 포탑 정보창이 마우스를 따라다니며 커서 밑에 겹쳐 깜빡이고 클릭을 가로채던 것 ->
 ///   화면 한 자리(왼쪽 아래, 하단 바 위) 고정 + 클릭 통과(raycastTarget off) + 합체 선택 중엔 고정 유지 / 포탑 실물 클릭·호버도 이름표와 같이 /
 ///   설명은 RecipeText 일상어 ("무엇을 하나 / 어떤 손님에 / 언제")) /
 /// v5.2 (v9.9.2 2026-09-16: 마비 칩 = "감전!/빙결!/과열!" + 할 일 한 줄, 빨간 테, 칩 위 모서리 경광등 0.3초 교대 (GameBalance.StunChipBeacons) - 목업 v3 (E), 정식 런 공용) / v5.1 (v9.9 2026-09-16: 4모서리 배치 - 남쪽 슬롯 마커는 발 아래, 폭 96->120(GameBalance.SlotMarkerWidth), 로비에서 숨김) / v5 (교수 피드백 A5/A12 반영 2026-09-14) / v4 (B-1: 근접 위기 대응 - 방향결정 2026-08-31)
@@ -60,7 +60,10 @@ public class SlotMarkerUI : MonoBehaviour
     /// <summary>합체 선택 중인지 (PauseMenu가 ESC 용도 판별에 사용)</summary>
     public static bool MergeSelecting { get; private set; }
 
-    private const float TIP_W = 400f, TIP_H = 200f;   // v5.3 고정 정보창 크기
+    // v5.3 고정 정보창: 왼쪽 아래(하단 바 184 위 12px). v6.0: 폭은 400 그대로(오른쪽 x 420 부터 사고 배너), 높이는 글에 맞춰 자란다
+    private const float TIP_W = 400f, TIP_X = 12f, TIP_Y = 196f;
+    private const float TIP_PAD_X = 12f, TIP_PAD_Y = 9f, TIP_MIN_H = 60f, TIP_MAX_H = 330f;
+    private float tipHeight = 200f;                    // v6.0: 지금 창 높이 (ShowTip 이 잰다)
     private int worldHoverIndex = -1;                  // v5.3: 포탑 실물 위 호버 (UI 이름표가 아닌 월드)
 
     private static readonly Color BG_NORMAL = new Color(0.12f, 0.075f, 0.05f, 0.9f);
@@ -106,15 +109,17 @@ public class SlotMarkerUI : MonoBehaviour
         for (int i = 0; i < 8; i++)
             CreateMarker(i);
 
-        // 툴팁 (맨 위 표시). v5.3: 왼쪽 아래 고정(하단 바 184 위 12px) 400x200, 마우스를 안 따라간다, 클릭을 안 막는다
+        // 툴팁 (맨 위 표시). v5.3: 왼쪽 아래 고정(하단 바 184 위 12px), 마우스를 안 따라간다, 클릭을 안 막는다. v6.0: 글자 크게 + 줄바꿈 + 높이는 ShowTip 이 글에 맞춘다
         RectTransform tipPanel = UIFactory.CreatePanel(canvas.transform, "Tooltip",
             new Vector2(0f, 0f), new Vector2(0f, 0f),
-            new Vector2(12f, 196f), new Vector2(12f + TIP_W, 196f + TIP_H),
+            new Vector2(TIP_X, TIP_Y), new Vector2(TIP_X + TIP_W, TIP_Y + tipHeight),
             new Color(0.09f, 0.05f, 0.03f, 0.96f), UIFactory.GOLD, 2f);
-        tooltipText = UIFactory.CreateText(tipPanel, "Text", "", 15, UIFactory.CREAM, TextAnchor.UpperLeft);
-        tooltipText.rectTransform.offsetMin = new Vector2(12f, 8f);
-        tooltipText.rectTransform.offsetMax = new Vector2(-12f, -8f);
+        tooltipText = UIFactory.CreateText(tipPanel, "Text", "", GameBalance.SlotInfoFontSize, UIFactory.CREAM, TextAnchor.UpperLeft);
+        tooltipText.rectTransform.offsetMin = new Vector2(TIP_PAD_X, TIP_PAD_Y);
+        tooltipText.rectTransform.offsetMax = new Vector2(-TIP_PAD_X, -TIP_PAD_Y);
         tooltipText.lineSpacing = 1.1f;
+        tooltipText.horizontalOverflow = HorizontalWrapMode.Wrap;   // v6.0: 긴 줄은 창 폭에서 접는다 (높이는 ShowTip 이 맞춘다)
+        tooltipText.supportRichText = true;                         // 이름 줄 크게 · 조작 줄 흐리게
         tooltipText.raycastTarget = false;
         Image[] tipImgs = tipPanel.GetComponentsInChildren<Image>(true);
         for (int i = 0; i < tipImgs.Length; i++) tipImgs[i].raycastTarget = false;
@@ -471,7 +476,7 @@ public class SlotMarkerUI : MonoBehaviour
         {
             Vector2 pos = (Vector2)Input.mousePosition + new Vector2(20f, -20f);
             if (pos.x + TIP_W > Screen.width) pos.x = Screen.width - TIP_W - 10f;
-            if (pos.y - TIP_H < 0f) pos.y = TIP_H + 10f;
+            if (pos.y - tipHeight < 0f) pos.y = tipHeight + 10f;
             tooltip.position = pos;
         }
 
@@ -632,60 +637,81 @@ public class SlotMarkerUI : MonoBehaviour
         // v5 (교수 피드백 A12): 합체 선택 중 다른 포탑 위 = 결과 미리보기
         if (mergeSelectIndex >= 0 && mergeSelectIndex != index)
         {
-            tooltipText.text = BuildMergePreview(mergeSelectIndex, index);
-            tooltip.gameObject.SetActive(true);
+            ShowTip(BuildMergePreview(mergeSelectIndex, index));
             return;
         }
 
         ShowSlotInfo(index);
     }
 
-    /// <summary>v5.3: 슬롯 하나의 설명을 고정 정보창에 (호버·선택 공용)</summary>
+    // ─────────────────────────────────────────────
+    // v6.0: 정보창 글 꾸밈 (리치 텍스트) - 이름 줄은 크게·황동색 / 조작 줄은 작게·흐리게 / 잃는 것은 주황
+    // ─────────────────────────────────────────────
+    private static string TipTitle(string s) { return "<size=" + GameBalance.SlotInfoTitleSize + "><color=#E2B23A>" + s + "</color></size>"; }
+    private static string TipHint(string s) { return "<size=" + GameBalance.SlotInfoHintSize + "><color=#A08C6E>" + s + "</color></size>"; }
+    private static string TipWarn(string s) { return "<color=#FF9A6B>" + s + "</color>"; }
+
+    /// <summary>
+    /// v6.0: 정보창에 글을 넣고 창 높이를 글에 맞춘다 (아래 끝은 하단 바 위 그대로, 위로 자란다).
+    /// 예전엔 400x200 고정이라 글이 길면 TextFitGuard 가 글자를 줄였다 - 이제 창이 글을 따라간다
+    /// </summary>
+    private void ShowTip(string text)
+    {
+        tooltip.gameObject.SetActive(true);   // 켠 뒤에 잰다 (글 칸의 폭이 잡혀 있어야 줄바꿈 높이가 맞다)
+        tooltipText.fontSize = GameBalance.SlotInfoFontSize;   // TextFitGuard 가 앞 글에서 줄여 놨을 수 있다 - 제 크기로 돌려놓고 잰다
+        tooltipText.text = text;
+        tipHeight = Mathf.Clamp(tooltipText.preferredHeight + TIP_PAD_Y * 2f + 2f, TIP_MIN_H, TIP_MAX_H);
+        tooltip.offsetMin = new Vector2(TIP_X, TIP_Y);
+        tooltip.offsetMax = new Vector2(TIP_X + TIP_W, TIP_Y + tipHeight);
+    }
+
+    /// <summary>
+    /// v5.3: 슬롯 하나의 설명을 고정 정보창에 (호버·선택 공용).
+    /// v6.0 (유저 10-07 "말이 너무 길다, 겜하면서 필요한 내용도 아니다 - 필요한 것만 남기고 폰트를 키워라"): 아홉 줄 -> 네 줄 + 조작 한 줄
+    ///   1) 이름 · 레벨   2) 숫자 (실제로 쏘는 값)   3) 낱말 요약   4) 다음에 할 일   5) 조작 (작게 - GameBalance.SlotInfoShowControls)
+    ///   뺀 것: 역할 낱말 · 배율 표기 · "어떤 손님에 잘 박히나" · "쓰는 때" · 조리 횟수와 칭호 · 환급 개수 (환급은 폐기 예고 알림이 말해 준다)
+    ///   긴 설명(RecipeText.Full)은 멈춰서 읽는 도감·조리 창에 그대로 있다
+    /// </summary>
     private void ShowSlotInfo(int index)
     {
         TurretSlot slot = TurretSlotManager.Instance != null ? TurretSlotManager.Instance.slots[index] : null;
         if (slot == null || slot.IsEmpty || slot.isLocked) { tooltip.gameObject.SetActive(false); return; }
         RecipeData r = slot.Recipe;
 
-        // v5.3: 일상어 설명 (RecipeText) - 역할 낱말 / 무엇을 하나 / 어떤 손님에 / 언제 / 숫자
-        string info = r.displayName + (r.tier == 2 ? "  [전설]" : "") + "   " + RecipeText.RoleWord(r) + "  Lv" + slot.level + (slot.AtMaxLevel ? " (최대)" : "") + " (x" + slot.LevelMult.ToString("F1") + (r.tier >= 2 && GameBalance.T2DamageMul != 1f ? " · 전설 x" + GameBalance.T2DamageMul.ToString("F1") : "") + ")\n";
-        info += RecipeText.Full(r, slot.LevelMult) + "\n";
-        if (!slot.AtMaxLevel && GameBalance.PlatesCurveOn) info += "다음 레벨까지 같은 접시 " + slot.PlatesLeft + "장 (Lv" + (slot.level + 1) + " = x" + GameBalance.LevelMultOf(slot.level + 1).ToString("F1") + ")\n";   // v5.7
+        // 1) 이름 · 레벨
+        string info = TipTitle(r.displayName + (r.tier == 2 ? " [전설]" : "") + "  Lv" + slot.level + (slot.AtMaxLevel ? " (최대)" : ""));
 
-        // P1+: 요리 숙련 표시 (평생 조리 횟수 + 칭호) - 일상어
-        int cookCount = MetaProgress.GetCookCount(r.recipeId);
-        if (cookCount > 0)
-        {
-            int mTier = GameBalance.MasteryTier(cookCount);
-            info += "이 요리를 " + cookCount + "번 만들었다" + (mTier >= 0 ? " - 손에 익어 더 세다 (" + GameBalance.MasteryTitles[mTier] + ")" : "") + "\n";
-        }
+        // 2) 숫자: 이 포탑이 실제로 쏘는 값 = 기본 x 레벨 배율 x 전설 배율 (TurretSlot.TickFire 와 같은 식. 이웃 강화·증강은 뺀 제 값)
+        float mult = slot.LevelMult * (r.tier >= 2 ? GameBalance.T2DamageMul : 1f);
+        string numbers = RecipeText.Numbers(r, mult);
+        if (numbers.Length > 0) info += "\n" + numbers;
 
-        // v5.9: 상한에 닿은 포탑은 "또 넣으면 레벨업" 대신 다음에 할 일을 적는다 / 환급 = 들어간 접시의 절반
-        string scrapWord = slot.ScrapRefund > 0 ? "폐기(재료 " + slot.ScrapRefund + "개 환급)" : "폐기(환급 없음)";
-        if (slot.AtMaxLevel)
-            info += (r.tier >= 2 ? "전설 요리 최대 레벨"
-                : AugmentManager.BasicsDoctrine ? "기본 요리 최대 레벨 (선대의 기본기 - 전설 진화는 막혀 있다)"
-                : "기본 요리 최대 레벨 - 같은 레벨의 다른 기본 요리와 합치면 전설로 진화") + " / 좌클릭 = 합체 선택 / 우클릭 2번 = " + scrapWord;
-        else
-            info += "같은 요리를 또 넣으면 레벨업 / 좌클릭 = 합체 선택 / 우클릭 2번 = " + scrapWord;
+        // 3) 낱말 요약 (형태 · 물리/속성 · 덤 효과). 쏘지 않는 요리는 효과 한 줄 + 레벨을 따라 커지는 효과면 지금 배율
+        string brief = RecipeText.Brief(r);
+        if (numbers.Length == 0 && slot.level > 1 && RecipeText.PassiveScales(r))
+            brief += "  (Lv" + slot.level + " = x" + slot.LevelMult.ToString("F1") + (r.passiveType == "omega" ? ", 회복만" : "") + ")";
+        if (brief.Length > 0) info += "\n" + brief;
 
-        tooltipText.text = info;
-        tooltip.gameObject.SetActive(true);
-    }
+        // 4) 다음에 할 일 - 한 줄 (더 올릴 수 있으면 남은 접시, 기본 요리가 상한이면 진화 조건, 전설 상한이면 없음)
+        string next = "";
+        if (!slot.AtMaxLevel)
+            next = GameBalance.PlatesCurveOn ? "같은 요리 " + slot.PlatesLeft + "접시 더 넣으면 Lv" + (slot.level + 1) : "같은 요리를 또 넣으면 레벨업";
+        else if (r.tier < 2 && !AugmentManager.BasicsDoctrine)
+            next = "다른 기본 요리(같은 레벨)와 합치면 전설";
+        if (next.Length > 0) info += "\n" + next;
 
-    /// <summary>등급명 (레벨에서 파생, TurretSlot.GradeName과 같은 규칙)</summary>
-    private static string GradeOf(int level)
-    {
-        if (level >= 5) return "S";
-        if (level >= 3) return "A";
-        if (level >= 2) return "B";
-        return "C";
+        // 5) 조작 (작고 흐리게)
+        if (GameBalance.SlotInfoShowControls) info += "\n" + TipHint("좌클릭 = 합체 선택 / 우클릭 2번 = 폐기");
+
+        ShowTip(info);
     }
 
     /// <summary>
     /// v5 (A12): 합체 결과 미리보기 텍스트.
-    /// 강화(같은 요리)와 진화(다른 T1)를 구분하고, 결과 레벨·비는 슬롯·공명 변화·역할 변화를 확정 전에 보여준다.
+    /// 강화(같은 요리)와 진화(다른 T1)를 구분하고, 결과 레벨·비는 슬롯·공명 변화를 확정 전에 보여준다.
     /// 미발견 T2는 이름 대신 역할/공격 형태만. 실전 DPS 같은 불확실한 숫자는 적지 않는다.
+    /// v6.0: 정보창과 같은 글자 크기에 맞게 줄였다 - 등급·배율·"공격원 2 -> 1" 을 빼고, 공명은 풀리거나 생길 때만 알린다 (속성별 수는 속성 줄에 늘 보인다).
+    ///       진화 미리보기의 공명 계산을 속성별로 다시 셌다 (재료 둘이 같은 속성이면 예전 식은 하나만 뺐다)
     /// </summary>
     private string BuildMergePreview(int idxA, int idxB)
     {
@@ -694,6 +720,7 @@ public class SlotMarkerUI : MonoBehaviour
         TurretSlot b = mgr.slots[idxB];
         if (a == null || b == null || a.IsEmpty || b.IsEmpty) return "미리보기 불가";
         RecipeData ra = a.Recipe, rb = b.Recipe;
+        int resonance = GameBalance.ResonanceCount;
 
         // 1) 강화: 같은 요리
         if (a.recipeId == b.recipeId)
@@ -704,14 +731,11 @@ public class SlotMarkerUI : MonoBehaviour
                 + (ra.tier >= 2 || AugmentManager.BasicsDoctrine ? "" : "\n같은 레벨의 다른 기본 요리와 합쳐 전설로 진화시켜라");   // v5.9: 전설·선대의 기본기에는 진화 안내를 붙이지 않는다
             if (cap > 0 && merged > cap) merged = cap;
             int cnt = mgr.GetTagCount(ra.tag);
-            string s = "[강화] " + ra.displayName + "\n";
-            s += "Lv" + a.level + " + Lv" + b.level + " -> Lv" + merged + (cap > 0 && merged >= cap ? " (최대)" : "") + " (" + GradeOf(merged) + "등급, x"
-                + GameBalance.LevelMultOf(merged).ToString("F1") + "배)\n";   // v5.7: 체감 곡선
-            s += "슬롯 1개 비움 / 공격원 2 -> 1\n";
-            s += "공명 " + mgr.TagName(ra.tag) + " " + cnt + " -> " + (cnt - 1)
-                + (cnt >= GameBalance.ResonanceCount && cnt - 1 < GameBalance.ResonanceCount ? "  (공명 해제!)" : "") + "\n";
-            s += "(클릭 = 확정)";
-            return s;
+            string s = TipTitle("[강화] " + ra.displayName) + "\n";
+            s += "Lv" + a.level + " + Lv" + b.level + " -> Lv" + merged + (cap > 0 && merged >= cap ? " (최대)" : "") + "\n";
+            s += "포탑 칸 하나가 빈다";
+            if (cnt >= resonance && cnt - 1 < resonance) s += "\n" + TipWarn("공명이 풀린다: " + mgr.TagName(ra.tag));
+            return s + "\n" + TipHint("클릭 = 확정");
         }
 
         // 2) 진화: 다른 T1 두 개
@@ -728,28 +752,32 @@ public class SlotMarkerUI : MonoBehaviour
             bool masteryUp = MetaProgress.GetMasteryTier(fusion.recipeId) >= GameBalance.MasteryStartLevelTier;
             bool known = FoodStock.Instance != null && FoodStock.Instance.IsDiscovered(fusion.recipeId);
 
-            string s = "[진화] " + ra.displayName + " + " + rb.displayName + "\n";
-            s += "-> " + (known ? fusion.displayName + " [전설]" : "미발견 전설 요리") + "\n";
-            s += "역할: " + RoleName(fusion.role) + " / " + ShapeName(fusion.shape) + "\n";
-            int fusionCap = TurretSlot.MaxLevelOf(fusion);
-            s += "레벨: Lv" + (baseLevel + (masteryUp ? 1 : 0)) + " (+진화 조리 판정 보너스 최대 +1" + (fusionCap > 0 ? ", 전설 최대 Lv" + fusionCap : "") + ")\n";
-            s += "슬롯 1개 비움 / 진화 조리(미니게임) 진행\n";
+            string s = TipTitle("[진화] " + ra.displayName + " + " + rb.displayName) + "\n";
+            s += "-> " + (known ? fusion.displayName + " [전설]" : "미발견 전설 요리")   // 화살표 글리프(U+2192)는 게임 글꼴에 없다 - "->" 로 쓴다
+                + "  Lv" + (baseLevel + (masteryUp ? 1 : 0)) + "\n";
+            // 미발견이면 역할과 공격 형태까지만 (이름·덤 효과는 만들어 봐야 안다)
+            s += (known ? RecipeText.Brief(fusion) : RecipeText.RoleWord(fusion) + " · " + RecipeText.ShapeWord(fusion)) + "\n";
+            s += "진화 조리를 한다 (판정에 따라 Lv +1까지)\n";
+            s += "포탑 칸 하나가 빈다";
 
-            // 공명 변화: 두 T1 태그 -1씩, T2 태그 +1
-            int ca = mgr.GetTagCount(ra.tag), cb = mgr.GetTagCount(rb.tag);
-            int na = ca - 1, nb = (ra.tag == rb.tag) ? na - 1 : cb - 1;
-            if (fusion.tag == ra.tag) na += 1; else if (fusion.tag == rb.tag) nb += 1;
-            string res = "공명 " + mgr.TagName(ra.tag) + " " + ca + " -> " + na;
-            if (ca >= GameBalance.ResonanceCount && na < GameBalance.ResonanceCount) res += " (해제!)";
-            if (rb.tag != ra.tag)
+            // 공명: 진화 뒤 속성별 포탑 수가 공명 기준을 넘나드는 것만 알린다 (재료 둘의 속성은 하나씩 빠지고, 전설 요리의 속성은 하나 는다)
+            FoodTag[] tags = { ra.tag, rb.tag, fusion.tag };
+            string lost = "", gained = "";
+            for (int i = 0; i < tags.Length; i++)
             {
-                res += " / " + mgr.TagName(rb.tag) + " " + cb + " -> " + nb;
-                if (cb >= GameBalance.ResonanceCount && nb < GameBalance.ResonanceCount) res += " (해제!)";
+                FoodTag t = tags[i];
+                bool counted = false;
+                for (int k = 0; k < i; k++) if (tags[k] == t) counted = true;
+                if (counted) continue;   // 같은 속성은 한 번만 센다
+
+                int before = mgr.GetTagCount(t);
+                int after = before - (ra.tag == t ? 1 : 0) - (rb.tag == t ? 1 : 0) + (fusion.tag == t ? 1 : 0);
+                if (before >= resonance && after < resonance) lost += (lost.Length > 0 ? ", " : "") + mgr.TagName(t);
+                else if (before < resonance && after >= resonance) gained += (gained.Length > 0 ? ", " : "") + mgr.TagName(t);
             }
-            if (fusion.tag != ra.tag && fusion.tag != rb.tag)
-                res += " / " + mgr.TagName(fusion.tag) + " +1";
-            s += res + "\n(클릭 = 확정)";
-            return s;
+            if (lost.Length > 0) s += "\n" + TipWarn("공명이 풀린다: " + lost);
+            if (gained.Length > 0) s += "\n공명이 생긴다: " + gained;
+            return s + "\n" + TipHint("클릭 = 확정");
         }
 
         return "[합체 불가] 전설 포탑은 같은 요리끼리만 합칠 수 있다";
@@ -766,34 +794,6 @@ public class SlotMarkerUI : MonoBehaviour
         // v5.3: 포탑을 선택(합체 선택)해 뒀으면 정보창은 그 포탑 것으로 남는다 - "클릭한 포탑의 설명이 남아 있어야 한다"
         if (mergeSelectIndex >= 0 && GameBalance.SlotInfoFixed) { ShowSlotInfo(mergeSelectIndex); return; }
         tooltip.gameObject.SetActive(false);
-    }
-
-    private string RoleName(TurretRole role)
-    {
-        switch (role)
-        {
-            case TurretRole.PhysDealer: return "물리 화력";
-            case TurretRole.MagicDealer: return "속성 화력";
-            case TurretRole.Debuffer: return "약화";
-            case TurretRole.Buffer: return "이웃 강화";
-            case TurretRole.CC: return "제어";
-            default: return "지원";
-        }
-    }
-
-    private string ShapeName(AttackShape shape)
-    {
-        switch (shape)
-        {
-            case AttackShape.Projectile: return "단일 투사체";
-            case AttackShape.Pierce: return "직선 관통";
-            case AttackShape.Cone: return "부채꼴 방사";
-            case AttackShape.Explode: return "착탄 폭발";
-            case AttackShape.Chain: return "연쇄 번개";
-            case AttackShape.Field: return "장판";
-            case AttackShape.Aura: return "오라";
-            default: return "상시";
-        }
     }
 }
 
