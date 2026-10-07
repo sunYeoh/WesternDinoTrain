@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 
 /// <summary>
-/// [BossEnemy.cs] v7.9 (v9.19 2026-10-06 보스 페이즈 모습 - A1 상태 그림: _rage_groggy(발악 중 무방비)·_p2_groggy 추가, 디 오리지널은 페이즈 그림이 먼저(WantedSkin, GameBalance.BossStateSkins) / A2 전환 순간(PhaseShift): 히트스톱 -> 흰 번쩍 아래에서 그림 교체 -> 장갑 파편·링·폭음 -> 몸이 커졌다 제자리. 지역 보스 발악과 디 오리지널 P2·P3 / A3 상태 유지: 발악 = 김·불티, 무방비 = 불똥·연기 + 몸이 기울어 흔들린다(SkinPivot) / A4 알림 자리: 보스 쪽 알림은 HP 바 밑 띠로(BossNotice), 발악의 화면 가운데 큰 글자는 가장자리 맥동으로) /
+/// [BossEnemy.cs] v7.10 (v9.19.2 2026-10-07: 보스 HP 에 종류별 배율 GameBalance.BossHPKindMul (예습 보스 제외) - 뒤 지역 보스가 제 웨이브의 큰 손님 한 마리보다 약했다. 폭식 회복·해동포 피해도 같은 배율 hpScale 을 따라간다) / v7.9 (v9.19 2026-10-06 보스 페이즈 모습 - A1 상태 그림: _rage_groggy(발악 중 무방비)·_p2_groggy 추가, 디 오리지널은 페이즈 그림이 먼저(WantedSkin, GameBalance.BossStateSkins) / A2 전환 순간(PhaseShift): 히트스톱 -> 흰 번쩍 아래에서 그림 교체 -> 장갑 파편·링·폭음 -> 몸이 커졌다 제자리. 지역 보스 발악과 디 오리지널 P2·P3 / A3 상태 유지: 발악 = 김·불티, 무방비 = 불똥·연기 + 몸이 기울어 흔들린다(SkinPivot) / A4 알림 자리: 보스 쪽 알림은 HP 바 밑 띠로(BossNotice), 발악의 화면 가운데 큰 글자는 가장자리 맥동으로) /
 /// v7.8 (v9.18 2026-10-06 - 서는 자세: 기차 옆에 이르면 나란히(머리가 기차 진행 방향) 돌아서서 선다 - 몸 전체가 지붕과 HP 바 사이에 보이게(GameBalance.BossFaceAlongTrain·BossStandOff·BossTurnZone, MoveTowardsTrain 재정의 + HoldStance) / 그림: boss_<종류>.png 를 입힌다(없으면 프리팹의 색 사각형 그대로), 상태 그림 _groggy·_rage·_p2·_p3 는 있으면 자동, 상태 발광 = 그림 위 흰 실루엣(예고 흰빛 / 무방비 금빛 / 발악 붉은 맥동) / 등장: 포효와 함께 경고 띠(WarningFX.BossIntro) + HP 바가 차오른다, 대응법 안내는 띠가 걷힌 뒤 / 발악 신호: 붉은 경고 + 흔들림 + 포효 / 버그: 공격 거리를 기차 "중심"에서 재서 옆에서 온 보스는 기차 위에 올라앉아 물지도 않았다 -> 가장 가까운 몸통에서 잰다, 돌진 방향도. 무는 양은 BossMeleeMul) / v7.7 (v9.17 2026-10-06 화면 손맛 2차 - D2 등장: 첫 등장 카드가 닫힌 뒤 배경이 0.5초 어두워졌다가 흔들림 + 포효 + 이름 예고가 같이 나온다 / A11 처치: 히트스톱 뒤 0.25초 슬로모션 + 줌 당김 / 식사 엔딩의 Die 는 히트스톱·흔들림·킬 버스트 없이 조용히 / EndingWhistled - 엔딩 쪽에서 기적을 울렸으면 승리 화면이 또 울리지 않는다) / v7.6 (v9.16 2026-09-29 손맛 2차 - 소리: 등장 포효 = 종류별(SoundKeys.BossRoar - 녹슨 발톱 무리 울음 / 천둥 둥지 번개 / 동면자 얼음 / 디 오리지널 기본 포효 + 낮은 기적 sfx_whistle_low, 예습 보스는 작게) / 엔딩 B 두 번째 기적 = 낮은 기적 / 공격음은 Enemy.AttackTrain 이 종류별로) / v7.5 (v9.15.1 2026-09-29 스토리 개정: 디 오리지널 = 급식 열차 1호였던 것 - 등장에 낡은 기적 + 안내 문구, 폭식 = 원료 삼키기, 해치 = 기관심장이 드러남 / 마지막 식사 장면 LastSupperRoutine - 포탑 정지(LastSupperServing)·남은 손님 물러남·천천히 씹기(LastSupperChewSec)·두 대의 기적 -> 엔딩 B 글 / 격파 엔딩 = 기적 한 번 + "철길이 열렸다") / v7.4 (v9.12 2026-09-22: practice = 견습 구간 7 "새끼 발톱" - 녹슨 발톱 고정, HP·공격력 배율(GameBalance.BossPractice*), 0.7배 크기, 패턴·무방비·발악 없음(돌진만), 처치해도 재료·베팅·"승리" 없음(ClearBossUI) / TutorialDirector.InlineFreeze 동안 정지) / v7.3 (v9.11.1 2026-09-22 문구: 무방비, 실행 가능한 예고) / v7.2 (v9.10.1 2026-09-21: 재료 이름 전기알) / v7.1 (교수 피드백 C3: 디 오리지널 추가 그로기 / A8: 재가동 문구) / v6 - 보스 패턴 C단계 1차 (보스패턴설계 문서)
 /// - v6 변경점:
 ///   1) 미끼 도발 대응: 도발 중엔 미끼를 쫓아가고 물어뜯는다 (기차 무피해)
@@ -56,6 +56,8 @@ public class BossEnemy : Enemy
 
     [Header("─ 보스 전용 (런타임 계산 - GameBalance에서 조정) ─")]
     public float bossMaxHP = 1000f;
+    /// <summary>v7.10: 이 보스에 걸린 HP 배율 (GameBalance.BossHPKindMul, 예습 보스는 1). HP 에 고정값으로 맞춰 둔 것(폭식 회복·해동포 피해)에 같이 곱한다</summary>
+    private float hpScale = 1f;
     public BossKind kind = BossKind.RustClaw;   // Start에서 지역 기반으로 덮어씀
 
     [Header("─ 보스 이동/공격 ─")]
@@ -228,6 +230,16 @@ public class BossEnemy : Enemy
             bossMaxHP *= 1.2f; bossATK *= 1.1f; spd = 1.4f;
             baseTint = new Color(1f, 0.5f, 0.45f);
             intro = "낡은 기적이 울린다 - 급식 열차 1호였던 것이 식탁에 앉았다.";   // v7.5: 기차였다는 흔적 (일지 3 의 기적)
+        }
+
+        // v7.10: 종류별 HP 배율 (정식 보스만). 공식(BossHPBase + 웨이브 x BossHPPerWave)만으로는 뒤 지역 보스가 큰 손님 한 마리보다 약했다
+        hpScale = 1f;
+        if (!practice)
+        {
+            float[] kindMul = GameBalance.BossHPKindMul;
+            int kindIdx = (int)kind;
+            if (kindMul != null && kindIdx >= 0 && kindIdx < kindMul.Length && kindMul[kindIdx] > 0f) hpScale = kindMul[kindIdx];
+            bossMaxHP *= hpScale;
         }
 
         // v7.4: 예습 보스 - 작고 약한 새끼. 이름·안내·보상 없음
@@ -900,7 +912,7 @@ public class BossEnemy : Enemy
         float cap = bossMaxHP * GameBalance.FeedHealCapRatio;
         if (feedHealAccum < cap)
         {
-            float heal = Mathf.Min(GameBalance.FeedHealPerFragment, cap - feedHealAccum);
+            float heal = Mathf.Min(GameBalance.FeedHealPerFragment * hpScale, cap - feedHealAccum);   // v7.10: 조각당 회복도 HP 배율만큼
             feedHealAccum += heal;
             currentHP = Mathf.Min(currentHP + heal, bossMaxHP);
         }
@@ -1164,7 +1176,7 @@ public class BossEnemy : Enemy
         {
             // 정중앙: 갑주 즉시 전파괴(보너스 그로기 포함) + 대미지
             if (armorActive) BreakArmor();
-            TakeDamage(GameBalance.ThawPerfectDamage, DamageType.Magic);
+            TakeDamage(GameBalance.ThawPerfectDamage * hpScale, DamageType.Magic);
             UIManager.Instance?.ShowStatChange("해동포 직격! 갑주가 산산조각났다!");
         }
         else if (quality == 1)
@@ -1175,12 +1187,12 @@ public class BossEnemy : Enemy
                 armorDR *= 0.5f;
                 UIManager.Instance?.ShowStatChange("해동포 명중! 갑주 감쇄율 절반!");
             }
-            TakeDamage(GameBalance.ThawGoodDamage, DamageType.Magic);
+            TakeDamage(GameBalance.ThawGoodDamage * hpScale, DamageType.Magic);
         }
         else
         {
             // 빗맞음: 대미지만
-            TakeDamage(GameBalance.ThawMissDamage, DamageType.Magic);
+            TakeDamage(GameBalance.ThawMissDamage * hpScale, DamageType.Magic);
             UIManager.Instance?.ShowStatChange("해동포 빗맞음...");
         }
 

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// [Enemy.cs] v3.12 (v9.19.1 2026-10-07: Share - 머릿수를 늘린 손님 한 마리의 몫 (v3.11 의 RewardMul 을 대신한다). 처치 보상에 더해, 기차를 물 때 방어력·연속 피격 완충을 몫만큼만 쓰게 TrainManager 에 넘기고 전갈의 도구 부식·모사 빙결 확률·힐러 회복에도 곱한다) / v3.11 (v9.19 2026-10-06 웨이브 편성: PaceMul - 호위 행렬의 작은 손님이 큰 손님 걸음에 맞출 때 WaveManager 가 거는 걸음 배율. 둔화·기절(scaledSPD)과 따로 곱해진다 / RewardMul - 머릿수를 늘린 작은 손님의 처치 보상(골드·재료 확률·상자 확률)을 그만큼 나눈다) / v3.10 (v9.18 2026-10-06: 숫자 팝업에 쏜 포탑을 같이 넘긴다(포탑별 합산) / 견습 운행 중에는 쓰러지면 재료를 반드시 떨어뜨린다 - "고기 2개" 단계에서 1개만 나오던 것) / v3.9 (v9.17 2026-10-06 화면 손맛 2차: quietDeath - 식사 엔딩의 보스는 처치음·킬 버스트 없이 흐려진다 / A4: 숫자 팝업을 DamagePopup.CreateFor(크기 비례·0.1초 합산)로, 크리 표시는 진짜 치명타만(HitFeel.ConsumeCrit) - 예전엔 피해가 손님 공격력의 2배 이상이면 크리로 찍혀 치명타 증강이 없어도 "!" 가 떴다) / v3.8 (v9.16 2026-09-29 손맛 2차 - 소리: 공격음 = 손님 종류별(SoundKeys.Attack, 제자리에서 PlayAt) / 처치음 = 재질별(SoundKeys.Die) - 큰 손님은 sfx_kill_big / 명중음은 HitFeel.OnHit 이 재질별로 내고, 방어에 크게 깎인 물리는 튕김음(resisted 전달)) / v3.7 (v9.15 2026-09-29: 방어·저항으로 피해가 GameBalance.ResistShowBelow 이하로 깎이면 팝업에 "저항" - 하나만 키우면 왜 안 통하는지 화면에서) / v3.6 (v9.14 2026-09-28: IncomingDamage - 과잉 집중 방지용 예약 피해) / v3.5 (v9.12 2026-09-22: TutorialDirector.InlineFreeze 동안 정지 / 용어 "지속 피해") / v3.4 (v9.11.1 2026-09-22 문구: 특기 설명 일상어, 강철 = 방어 50) / v3.3 (v9.11 2026-09-22 타격감: 직접 명중 때 HitFeel.OnHit(플래시·찌그러짐·딜 비례 스파크), 죽을 때 HitFeel.OnKill(킬 버스트) - 도트 틱은 제외) / v3.2 (v9.10.1 2026-09-21: 물량 1.6배에 맞춘 처치 보상 배율 - 일반 손님 골드 GameBalance.KillGoldMul, 재료 드랍 확률 KillMaterialChance(보스는 항상). 드랍 이름을 재료 이름표(전기알·화염꽃·독샘)에 맞춤) / v3.1 (2026-09-14: 해빙 문구 / 전갈 마모 대체 스위치) / v3
+/// [Enemy.cs] v3.13 (v9.19.2 2026-10-07 유저 확인 뒤: 머릿수를 늘린 손님이 제 힘으로 온다 - 기차를 물 때 몫을 안 넘기고(TrainManager 가 예전 식 + 방어력 바닥), 받는 회복도 그대로. Share 는 보상·도구 부식·빙결 확률·힐러가 주는 회복에만 / 전체 강화: 방어·저항 x EnemyDefMul, 견습 운행은 TutorialEnemy* 로 예전 값) / v3.12 (v9.19.1 2026-10-07: Share - 머릿수를 늘린 손님 한 마리의 몫 (v3.11 의 RewardMul 을 대신한다). 처치 보상에 더해, 기차를 물 때 방어력·연속 피격 완충을 몫만큼만 쓰게 TrainManager 에 넘기고 전갈의 도구 부식·모사 빙결 확률·힐러 회복에도 곱한다) / v3.11 (v9.19 2026-10-06 웨이브 편성: PaceMul - 호위 행렬의 작은 손님이 큰 손님 걸음에 맞출 때 WaveManager 가 거는 걸음 배율. 둔화·기절(scaledSPD)과 따로 곱해진다 / RewardMul - 머릿수를 늘린 작은 손님의 처치 보상(골드·재료 확률·상자 확률)을 그만큼 나눈다) / v3.10 (v9.18 2026-10-06: 숫자 팝업에 쏜 포탑을 같이 넘긴다(포탑별 합산) / 견습 운행 중에는 쓰러지면 재료를 반드시 떨어뜨린다 - "고기 2개" 단계에서 1개만 나오던 것) / v3.9 (v9.17 2026-10-06 화면 손맛 2차: quietDeath - 식사 엔딩의 보스는 처치음·킬 버스트 없이 흐려진다 / A4: 숫자 팝업을 DamagePopup.CreateFor(크기 비례·0.1초 합산)로, 크리 표시는 진짜 치명타만(HitFeel.ConsumeCrit) - 예전엔 피해가 손님 공격력의 2배 이상이면 크리로 찍혀 치명타 증강이 없어도 "!" 가 떴다) / v3.8 (v9.16 2026-09-29 손맛 2차 - 소리: 공격음 = 손님 종류별(SoundKeys.Attack, 제자리에서 PlayAt) / 처치음 = 재질별(SoundKeys.Die) - 큰 손님은 sfx_kill_big / 명중음은 HitFeel.OnHit 이 재질별로 내고, 방어에 크게 깎인 물리는 튕김음(resisted 전달)) / v3.7 (v9.15 2026-09-29: 방어·저항으로 피해가 GameBalance.ResistShowBelow 이하로 깎이면 팝업에 "저항" - 하나만 키우면 왜 안 통하는지 화면에서) / v3.6 (v9.14 2026-09-28: IncomingDamage - 과잉 집중 방지용 예약 피해) / v3.5 (v9.12 2026-09-22: TutorialDirector.InlineFreeze 동안 정지 / 용어 "지속 피해") / v3.4 (v9.11.1 2026-09-22 문구: 특기 설명 일상어, 강철 = 방어 50) / v3.3 (v9.11 2026-09-22 타격감: 직접 명중 때 HitFeel.OnHit(플래시·찌그러짐·딜 비례 스파크), 죽을 때 HitFeel.OnKill(킬 버스트) - 도트 틱은 제외) / v3.2 (v9.10.1 2026-09-21: 물량 1.6배에 맞춘 처치 보상 배율 - 일반 손님 골드 GameBalance.KillGoldMul, 재료 드랍 확률 KillMaterialChance(보스는 항상). 드랍 이름을 재료 이름표(전기알·화염꽃·독샘)에 맞춤) / v3.1 (2026-09-14: 해빙 문구 / 전갈 마모 대체 스위치) / v3
 /// 모든 적 유닛의 기본 동작 + 전투 스탯(DEF/RES) + 상태이상(도트/방깎/마깎)
 /// - v3 변경점: 행동 패턴 시스템 (이름 기반 자동 배정 - 프리팹 설정 불필요)
 ///   1) 무리 사냥꾼(랩터): 주변 랩터가 많을수록 이동 속도 증가
@@ -358,11 +358,10 @@ public class Enemy : MonoBehaviour
     /// <summary>v3.11: 걸음 맞춤 배율 (1 = 평소). 호위 행렬에서 WaveManager.EscortLeash 가 건다 - scaledSPD 를 직접 바꾸면 둔화·기절이 끝날 때 되돌리는 값과 엉킨다</summary>
     [System.NonSerialized] public float PaceMul = 1f;
     /// <summary>
-    /// v3.12: 한 마리의 몫 (1 = 평소). 편성에서 머릿수를 늘린 손님은 무리 세기 / 머릿수 배율 (작은 손님 0.43 / 중간 0.5 / 큰 손님 0.72) - WaveManager.SpawnUnitAt 이 건다.
-    /// HP·공격력은 스폰 때 이미 이 값이 곱해져 있다. 여기서는 "한 번에 얼마"로 정해진 것들에 곱한다 - 머릿수가 늘어도 무리 전체가 하는 일의 합이 구성표 x 무리 세기가 되게:
-    ///   처치 보상(골드·재료 확률·상자 확률) / 기차를 물 때의 방어력·최소 피해·연속 피격 완충 (TrainManager.TakeDamage(피해, 몫)) /
-    ///   전갈의 도구 부식 / 모사의 빙결 확률 / 힐러가 주는 회복과 받는 회복 / 포탑 증강의 타격당 회복 (TurretAttackExecutor)
-    /// 기차 방어력은 타격마다 빼는 값이라, 이 몫을 안 넘기면 약한 타격 여러 번이 방어력에 다 지워진다 (v3.11 의 RewardMul 을 이 필드가 대신한다)
+    /// v3.12 / v3.13: "한 번에 얼마"의 몫 (1 = 평소). 편성에서 머릿수를 늘린 손님은 SwarmRewardMul x 원래 수 / 늘린 수 (작은 손님 0.43 안팎) - WaveManager.SpawnUnitAt 이 건다.
+    /// 손님은 제 힘(HP·공격력)으로 온다. 이 몫은 머릿수만큼 불어나면 안 되는 것에만 곱한다 - 그 합이 구성표 x SwarmRewardMul 이 되게:
+    ///   처치 보상(골드·재료 확률·상자 확률) / 전갈의 도구 부식 / 모사의 빙결 확률 / 힐러가 주는 회복
+    /// (v3.12 에서는 HP·공격력도 이 몫으로 나눠 약하게 했고 기차 방어력도 몫만큼만 썼다 - v3.13 에서 걷어냈다. 유저 "마릿수가 늘어난다고 약하게 만들 필요 없다")
     /// </summary>
     [System.NonSerialized] public float Share = 1f;
 
@@ -418,8 +417,20 @@ public class Enemy : MonoBehaviour
     /// </summary>
     private void AssignCombatStats()
     {
-        if (defense > 0f || resistance > 0f) return; // Inspector 수동 설정 존중
+        // Inspector 수동 설정 존중: 프리팹에 방어·저항이 적혀 있으면 이름 표는 건너뛴다 (v3.13: 전체 강화 배율은 그 값에도 곱한다)
+        if (!(defense > 0f || resistance > 0f)) AssignStatsByName();
 
+        // v3.13: 전체 강화 - 방어·저항 배율 (견습 운행은 예전 값 그대로)
+        if (!TutorialRules())
+        {
+            defense *= GameBalance.EnemyDefMul;
+            resistance *= GameBalance.EnemyDefMul;
+        }
+    }
+
+    /// <summary>이름별 방어·저항 표 (AssignCombatStats 가 부른다)</summary>
+    private void AssignStatsByName()
+    {
         string n = data.enemyName;
         if (n.Contains("아르마딜로") || n.Contains("안킬로")) { defense = 35f; resistance = 5f; }
         else if (n.Contains("거북")) { defense = 45f; resistance = 5f; }
@@ -433,6 +444,12 @@ public class Enemy : MonoBehaviour
         else if (n.Contains("맘모스")) { defense = 50f; resistance = 35f; }
         else if (n.Contains("스피노")) { defense = 30f; resistance = 30f; }
         // 랩터/캑터스/플라이 등은 0/0 (아무거나 잘 박힘)
+    }
+
+    /// <summary>v3.13: 견습 운행(고정 규칙 - 자유 연습 제외)인가. 견습의 손님은 전체 강화(EnemyHPMul·EnemyATKMul·EnemyDefMul)를 받지 않는다 - 단계마다 "몇 방에 쓰러지나"가 예전 값에 맞춰져 있다</summary>
+    private static bool TutorialRules()
+    {
+        return GameBalance.TutorialFixedRules && TutorialDirector.Active && !TutorialDirector.SandboxActive;
     }
 
     /// <summary>적 이름으로 행동 패턴 자동 배정 (Inspector 수동 설정 존중)</summary>
@@ -453,10 +470,11 @@ public class Enemy : MonoBehaviour
     public void InitializeWithWaveScaling(int waveNumber, int playerLevel, float difficultyL = 2.0f)
     {
         float multiplier = 1f + (waveNumber * 0.15f) / difficultyL;
-        // 전역 밸런스 배율 (GameBalance에서 조정)
-        currentHP = data.baseHP * multiplier * GameBalance.EnemyHPMul;
+        // 전역 밸런스 배율 (GameBalance에서 조정). v3.13: 견습 운행은 예전 배율 (TutorialEnemy*)
+        bool tutorial = TutorialRules();
+        currentHP = data.baseHP * multiplier * (tutorial ? GameBalance.TutorialEnemyHPMul : GameBalance.EnemyHPMul);
         scaledMaxHP = currentHP;
-        scaledATK = data.baseATK * multiplier * GameBalance.EnemyATKMul;
+        scaledATK = data.baseATK * multiplier * (tutorial ? GameBalance.TutorialEnemyATKMul : GameBalance.EnemyATKMul);
         scaledSPD = data.baseSPD;
     }
 
@@ -574,7 +592,7 @@ public class Enemy : MonoBehaviour
             else
             {
                 // 재생 오라: 초당 회복 (최대 HP까지)
-                all[i].ReceiveHeal(6f * Share);   // v3.12: 힐러 자신의 몫 (힐러도 머릿수가 는다 - 주는 합이 그대로가 되게)
+                all[i].ReceiveHeal(6f * Share);   // v3.12: 힐러 자신의 몫 (힐러도 머릿수가 는다 - 주는 합이 구성표 x SwarmRewardMul)
             }
         }
     }
@@ -590,7 +608,7 @@ public class Enemy : MonoBehaviour
     public void ReceiveHeal(float amount)
     {
         if (!isAlive) return;
-        currentHP = Mathf.Min(currentHP + amount * Share, scaledMaxHP);   // v3.12: 회복량은 고정값이라 머릿수를 늘린 손님은 몫만큼만 받는다 (HP 도 몫만큼이라 비율은 그대로)
+        currentHP = Mathf.Min(currentHP + amount, scaledMaxHP);
     }
 
     /// <summary>버프 반영 이동 배율</summary>
@@ -725,7 +743,7 @@ public class Enemy : MonoBehaviour
         float damage = scaledATK * (IsBuffed ? 1.25f : 1f);
         TrainFeel.NextHitX = transform.position.x;   // v3.3: 물린 칸만 번쩍이게
         SoundManager.PlayAt(SoundKeys.Attack(data.enemyName), transform.position);   // v3.8: 종류별 공격음 (기차 피격음은 TrainManager 가 낸다)
-        trainManager?.TakeDamage(damage, Share);   // v3.12: 머릿수를 늘린 손님은 방어력·완충을 몫만큼만
+        trainManager?.TakeDamage(damage);
 
         if (data.enemyName == "독침 프테라")
         {
@@ -746,7 +764,7 @@ public class Enemy : MonoBehaviour
             {
                 if (GameBalance.ToolWearEnabled)
                 {
-                    float corrode = 3f * ItemManager.ToolWearMul * Share;   // v3.12: 전갈 머릿수가 늘어도 무리가 깎는 합은 구성표 x 무리 세기
+                    float corrode = 3f * ItemManager.ToolWearMul * Share;   // v3.12: 전갈 머릿수가 늘어도 무리가 깎는 합은 구성표 x SwarmRewardMul
                     chef.knifeSharpness = Mathf.Max(0f, chef.knifeSharpness - corrode);
                     chef.panCondition = Mathf.Max(0f, chef.panCondition - corrode);
                     Debug.Log("[사막 전갈] 독 공격 - 조리 도구 부식! (칼/팬 -" + corrode + ")");

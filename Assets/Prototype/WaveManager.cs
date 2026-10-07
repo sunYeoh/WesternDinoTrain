@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// [WaveManager.cs] v6.20 (v9.19.1 2026-10-07 유저 소감: 손님이 생기는 테두리가 "지금 보이는 화면"을 따라간다(SpawnBounds - 휠로 넓게 보면 화면 가운데에서 생기던 것. 구 방식 스폰·보스 증원·보스 등장도 같은 테두리) / 머릿수 대폭 증가: 손님 크기별 배율 CountMulSmall·Mid·Big + 무리 세기 GroupPower*, 조각 크기 FormationSizeMul. 손님에게 한 마리의 몫(Enemy.Share)을 건다 - 보상·기차 방어력·연속 피격 완충·고정량 효과가 몫만큼만 먹게) /
+/// [WaveManager.cs] v6.21 (v9.19.2 2026-10-07 유저 확인 뒤: 머릿수를 늘린 손님이 제 힘으로 온다 - AddUnits 가 한 마리를 나눠 약하게 하지 않고 크기별 HP 배율(TierHpMul*)과 초반 배율(EarlyBodyStart)만 건다. Enemy.Share 는 보상·도구 부식 같은 "한 번에 얼마"에만 / 편성 이름 줄과 방향 예고 화살표는 GameBalance 값으로 꺼졌다(FormationLineShows 0·SpawnCueSec 0 - 코드는 그대로)) / v6.20 (v9.19.1 2026-10-07 유저 소감: 손님이 생기는 테두리가 "지금 보이는 화면"을 따라간다(SpawnBounds - 휠로 넓게 보면 화면 가운데에서 생기던 것. 구 방식 스폰·보스 증원·보스 등장도 같은 테두리) / 머릿수 대폭 증가: 손님 크기별 배율 CountMulSmall·Mid·Big + 무리 세기 GroupPower*, 조각 크기 FormationSizeMul. 손님에게 한 마리의 몫(Enemy.Share)을 건다 - 보상·기차 방어력·연속 피격 완충·고정량 효과가 몫만큼만 먹게) /
 /// v6.19 (v9.19 2026-10-06 웨이브 편성: 웨이브 2 부터 손님을 편성 조각으로 내보낸다(RunFormations - 추격·파상·매복·호위 행렬·양동·포위·공중 편대 + 산개, GameBalance.WaveFormationsOn). 조각마다 오는 쪽 예고(WarningFX.SpawnCue)가 먼저, 조각 사이엔 쉼(BeatGap). 손님은 화면 바로 밖 테두리(EdgePoint)에서 생긴다. 구 방식 본문은 SpawnWaveClassic 으로 / 웨이브 예고 카드의 "주의" 문구는 알림 줄로) /
 /// v6.18 (v9.18 2026-10-06: 보스는 기차 북쪽(화면 위)에서만 온다(GameBalance.BossSpawnNorthOnly - 남쪽은 하단 HUD 에 가려진다), 예습 보스는 포탑 칸 B 위에서 / 웨이브가 끝났을 때 사고가 진행 중이면 사고가 끝난 뒤에 증강·선로 선택을 연다(PostWaveHold, WaitEventBeforeChoiceSec) / 코드 폴백 손님의 그림 고르기를 EnemySkin.SpriteFor 한 곳으로) /
 /// v6.17 (v9.17 2026-10-06 화면 손맛 2차 D5: 패배 연출 중(GameManager.DefeatPending)과 운행이 끝난 뒤(GameOver·Victory)엔 웨이브 클리어 판정을 하지 않는다. 아트 v1 의 v6.16 위에 얹었다) / v6.16 (아트 v1 2026-10-03: 코드 폴백 손님도 새 전용 그림 4종 e_armadillo / e_mammoth / e_pachy / e_cactus 를 쓴다) / v6.15 (v9.15.1 2026-09-29 스토리 개정: 최종전 직전 정차엔 베팅 없음(GameBalance.SpinoNoBetAtFinal) / 최종전 시작에 스피노 고백 카드(BriefingTexts.SpinoFinal) / 최종전 긴급 보급 문구 = "스피노가 실어 둔 재료" / 지역 3 첫 웨이브 스피노 한 줄) / v6.14 (v9.13 2026-09-23: 선로 v2 - 정차의 선로 선택이 카드 창 대신 갈림길 + 왼쪽 카드(BranchRouteUI v2, 시간 안 멈춤). 출발 직전 BranchRouteUI.OnDepart 로 세계 밀림·톤 시작 /
@@ -712,7 +712,9 @@ public class WaveManager : MonoBehaviour
         public GameObject prefab;
         public Enemy.EnemyData data;
         public UnitClass cls;
-        public float share;     // 한 마리의 몫 (1 = 구성표 그대로). 머릿수를 늘린 손님은 무리 세기 x 원래 수 / 늘린 수 - HP·공격력에 곱하고 Enemy.Share 로 넘긴다 (보상·방어력·고정량 효과)
+        public float hpMul;     // 한 마리의 HP 배율 (1 = 종류 표 그대로). 크기별 배율 TierHpMul* x 초반 배율
+        public float atkMul;    // 한 마리의 공격력 배율 (초반 배율만 - 1 = 그대로)
+        public float share;     // "한 번에 얼마"의 몫 (1 = 구성표 그대로). 머릿수를 늘린 손님은 SwarmRewardMul x 원래 수 / 늘린 수 - Enemy.Share 로 넘긴다 (보상·도구 부식·빙결 확률·힐러 회복)
         public bool vip;        // 힐러·지원형 - 호위 행렬의 가운데에 설 수 있다
     }
 
@@ -766,54 +768,56 @@ public class WaveManager : MonoBehaviour
     {
         List<SpawnUnit> r = new List<SpawnUnit>();
         // 달리는 손님 (작고 빠르다)
-        AddUnits(r, steamRaptorPrefab, Enemy.SteamRaptor, c.steamRaptorCount, UnitClass.Runner, SizeTier.Small, false, c.waveNumber);
-        AddUnits(r, scorpionPrefab, Enemy.DesertScorpion, c.scorpionCount, UnitClass.Runner, SizeTier.Small, false, c.waveNumber);
-        AddUnits(r, steelRaptorPrefab, Enemy.SteelRaptor, c.steelRaptorCount, UnitClass.Runner, SizeTier.Mid, false, c.waveNumber);
+        AddUnits(r, steamRaptorPrefab, Enemy.SteamRaptor, c.steamRaptorCount, UnitClass.Runner, SizeTier.Small, SizeTier.Small, false, c.waveNumber);
+        AddUnits(r, scorpionPrefab, Enemy.DesertScorpion, c.scorpionCount, UnitClass.Runner, SizeTier.Small, SizeTier.Small, false, c.waveNumber);
+        AddUnits(r, steelRaptorPrefab, Enemy.SteelRaptor, c.steelRaptorCount, UnitClass.Runner, SizeTier.Mid, SizeTier.Big, false, c.waveNumber);   // 머릿수는 중간, HP 는 큰 손님 취급 (기본 HP 150 + 방어 50 - 중간 배율까지 받으면 모사만큼 단단해진다)
         // 큰 손님 (느리고 단단하다)
-        AddUnits(r, springAnkyloPrefab, Enemy.SpringAnkylo, c.springAnkyloCount, UnitClass.Heavy, SizeTier.Big, false, c.waveNumber);
-        AddUnits(r, tortoisePrefab, Enemy.CopperTortoise, c.tortoiseCount, UnitClass.Heavy, SizeTier.Big, false, c.waveNumber);
-        AddUnits(r, iceMosaPrefab, Enemy.IceMosa, c.iceMosaCount, UnitClass.Heavy, SizeTier.Big, false, c.waveNumber);
-        AddUnits(r, crystalPachyPrefab, Enemy.CrystalPachy, c.crystalPachyCount, UnitClass.Heavy, SizeTier.Big, false, c.waveNumber);
-        AddUnits(r, magmaCarnoPrefab, Enemy.MagmaCarno, c.magmaCarnoCount, UnitClass.Heavy, SizeTier.Big, false, c.waveNumber);
-        AddUnits(r, frostMammothPrefab, Enemy.FrostMammoth, c.frostMammothCount, UnitClass.Heavy, SizeTier.Big, false, c.waveNumber);
+        AddUnits(r, springAnkyloPrefab, Enemy.SpringAnkylo, c.springAnkyloCount, UnitClass.Heavy, SizeTier.Big, SizeTier.Big, false, c.waveNumber);
+        AddUnits(r, tortoisePrefab, Enemy.CopperTortoise, c.tortoiseCount, UnitClass.Heavy, SizeTier.Big, SizeTier.Big, false, c.waveNumber);
+        AddUnits(r, iceMosaPrefab, Enemy.IceMosa, c.iceMosaCount, UnitClass.Heavy, SizeTier.Big, SizeTier.Big, false, c.waveNumber);
+        AddUnits(r, crystalPachyPrefab, Enemy.CrystalPachy, c.crystalPachyCount, UnitClass.Heavy, SizeTier.Big, SizeTier.Big, false, c.waveNumber);
+        AddUnits(r, magmaCarnoPrefab, Enemy.MagmaCarno, c.magmaCarnoCount, UnitClass.Heavy, SizeTier.Big, SizeTier.Big, false, c.waveNumber);
+        AddUnits(r, frostMammothPrefab, Enemy.FrostMammoth, c.frostMammothCount, UnitClass.Heavy, SizeTier.Big, SizeTier.Big, false, c.waveNumber);
         // 비행 손님
-        AddUnits(r, boltTeranodonPrefab, Enemy.BoltTeranodon, c.boltTeranodonCount, UnitClass.Flyer, SizeTier.Mid, false, c.waveNumber);
-        AddUnits(r, poisonPteraPrefab, Enemy.PoisonPtera, c.poisonPteraCount, UnitClass.Flyer, SizeTier.Mid, false, c.waveNumber);
-        AddUnits(r, flamePteroPrefab, Enemy.FlamePterosaur, c.flamePteroCount, UnitClass.Flyer, SizeTier.Mid, false, c.waveNumber);
-        AddUnits(r, overloadFlyPrefab, Enemy.OverloadFly, c.overloadFlyCount, UnitClass.Flyer, SizeTier.Small, false, c.waveNumber);
+        AddUnits(r, boltTeranodonPrefab, Enemy.BoltTeranodon, c.boltTeranodonCount, UnitClass.Flyer, SizeTier.Mid, SizeTier.Mid, false, c.waveNumber);
+        AddUnits(r, poisonPteraPrefab, Enemy.PoisonPtera, c.poisonPteraCount, UnitClass.Flyer, SizeTier.Mid, SizeTier.Mid, false, c.waveNumber);
+        AddUnits(r, flamePteroPrefab, Enemy.FlamePterosaur, c.flamePteroCount, UnitClass.Flyer, SizeTier.Mid, SizeTier.Mid, false, c.waveNumber);
+        AddUnits(r, overloadFlyPrefab, Enemy.OverloadFly, c.overloadFlyCount, UnitClass.Flyer, SizeTier.Small, SizeTier.Small, false, c.waveNumber);
         // 그 밖: 원거리(선인장)는 따로 걸어오고, 지원형·힐러는 호위 행렬의 가운데에 서기도 한다
-        AddUnits(r, oilCactusPrefab, Enemy.OilCactus, c.oilCactusCount, UnitClass.Other, SizeTier.Mid, false, c.waveNumber);
-        AddUnits(r, magnetParasaurPrefab, Enemy.MagnetParasaur, c.magnetParasaurCount, UnitClass.Other, SizeTier.Big, true, c.waveNumber);
-        AddUnits(r, necroSpinoPrefab, Enemy.NecroSpino, c.necroSpinoCount, UnitClass.Other, SizeTier.Big, true, c.waveNumber);
+        AddUnits(r, oilCactusPrefab, Enemy.OilCactus, c.oilCactusCount, UnitClass.Other, SizeTier.Mid, SizeTier.Mid, false, c.waveNumber);
+        AddUnits(r, magnetParasaurPrefab, Enemy.MagnetParasaur, c.magnetParasaurCount, UnitClass.Other, SizeTier.Big, SizeTier.Big, true, c.waveNumber);
+        AddUnits(r, necroSpinoPrefab, Enemy.NecroSpino, c.necroSpinoCount, UnitClass.Other, SizeTier.Big, SizeTier.Big, true, c.waveNumber);
         return r;
     }
 
     /// <summary>
-    /// 구성표의 한 종류를 손님 목록에 더한다. v6.20: 머릿수 = 구성표 x 크기별 배율(CountMul*), 한 마리의 몫 = 무리 세기(GroupPower*) x 원래 수 / 늘린 수.
-    /// 몫은 HP·공격력·처치 보상에 곱한다 - 무리 전체의 세기와 보상이 정확히 "구성표 x GroupPower" 가 된다 (반올림으로 덜 늘어난 무리는 한 마리가 그만큼 덜 약하다)
+    /// 구성표의 한 종류를 손님 목록에 더한다. 머릿수 = 구성표 x 크기별 배율(CountMul*).
+    /// v6.21: 머릿수를 늘려도 한 마리는 제 힘이다 (HP = 종류 표 x TierHpMul*, 공격력 그대로). 초반 웨이브만 EarlyBodyStart 에서 1 까지 올라온다.
+    /// tier = 머릿수 등급(CountMul*), hpTier = HP 등급(TierHpMul*) - 강철 랩터만 둘이 다르다
+    /// 몫(share)은 처치 보상·도구 부식처럼 "한 번에 얼마"로 정해진 것에만 쓴다 - 그 합이 "구성표 x SwarmRewardMul" 이 되게
     /// </summary>
-    private void AddUnits(List<SpawnUnit> list, GameObject prefab, Enemy.EnemyData data, int count, UnitClass cls, SizeTier tier, bool vip, int wave)
+    private void AddUnits(List<SpawnUnit> list, GameObject prefab, Enemy.EnemyData data, int count, UnitClass cls, SizeTier tier, SizeTier hpTier, bool vip, int wave)
     {
         if (count <= 0) return;
         float countMul = tier == SizeTier.Small ? GameBalance.CountMulSmall : (tier == SizeTier.Mid ? GameBalance.CountMulMid : GameBalance.CountMulBig);
-        float power = tier == SizeTier.Small ? GameBalance.GroupPowerSmall : (tier == SizeTier.Mid ? GameBalance.GroupPowerMid : GameBalance.GroupPowerBig);
-        // 초반 웨이브는 배율을 덜 건다: 편성이 시작되는 웨이브에 CountRampStart 만큼(늘어나는 몫의 절반), CountRampWaves 웨이브에 걸쳐 끝까지
-        // (포탑이 한두 기뿐인 웨이브 2 에 30마리가 오지 않게 - 웨이브 2 = 2배, 웨이브 6 부터 3배)
+        float tierHp = hpTier == SizeTier.Small ? GameBalance.TierHpMulSmall : (hpTier == SizeTier.Mid ? GameBalance.TierHpMulMid : GameBalance.TierHpMulBig);   // HP 등급은 머릿수 등급과 따로 받는다 (강철 랩터)
+        // 초반 웨이브는 덜 건다: 편성이 시작되는 웨이브에 머릿수는 늘어나는 몫의 CountRampStart 만큼, 한 마리의 HP·공격력은 EarlyBodyStart 배 - CountRampWaves 웨이브에 걸쳐 끝까지
+        // (포탑이 한두 기뿐인 웨이브 2 에 다 자란 손님 30마리가 오지 않게 - 웨이브 2 = 머릿수 2배·힘 0.7배, 웨이브 6 부터 3배·제 힘)
         float ramp = GameBalance.CountRampWaves > 0 ? Mathf.Clamp01((wave - GameBalance.WaveFormationFromWave) / (float)GameBalance.CountRampWaves) : 1f;
-        float k = Mathf.Lerp(Mathf.Clamp01(GameBalance.CountRampStart), 1f, ramp);
-        countMul = 1f + (countMul - 1f) * k;
-        power = 1f + (power - 1f) * k;
+        countMul = 1f + (countMul - 1f) * Mathf.Lerp(Mathf.Clamp01(GameBalance.CountRampStart), 1f, ramp);
+        float early = Mathf.Lerp(Mathf.Clamp(GameBalance.EarlyBodyStart, 0.1f, 1f), 1f, ramp);
         float share = 1f;
         if (countMul > 1.001f)
         {
             int more = Mathf.Max(count, Mathf.FloorToInt(count * countMul + 0.5f));
-            share = Mathf.Max(0.05f, power) * count / (float)more;
+            share = Mathf.Max(0.05f, GameBalance.SwarmRewardMul) * count / (float)more;   // 보상·도구 부식의 합 = 구성표 x SwarmRewardMul
             count = more;
         }
         for (int i = 0; i < count; i++)
         {
             SpawnUnit u = new SpawnUnit();
-            u.prefab = prefab; u.data = data; u.cls = cls; u.share = share; u.vip = vip;
+            u.prefab = prefab; u.data = data; u.cls = cls; u.vip = vip;
+            u.hpMul = Mathf.Max(0.05f, tierHp) * early; u.atkMul = early; u.share = share;
             list.Add(u);
         }
     }
@@ -1072,12 +1076,12 @@ public class WaveManager : MonoBehaviour
         }
     }
 
-    /// <summary>쉼을 잴 때 손님 한 마리의 무게 = 종류 무게(큰 손님 2.2 / 힐러·지원형 2.5 / 원거리 1.2 / 그 밖 1 - 구 방식의 스폰 간격 배율과 같은 뜻) x 한 마리의 몫.
-    /// 머릿수를 늘려도 무리의 무게(= 쉼)는 무리 세기만큼만 는다</summary>
+    /// <summary>쉼을 잴 때 손님 한 마리의 무게 = 종류 무게(큰 손님 2.2 / 힐러·지원형 2.5 / 원거리 1.2 / 그 밖 1 - 구 방식의 스폰 간격 배율과 같은 뜻) x 한 마리의 HP 배율.
+    /// 손님이 제 힘으로 오니 무리의 무게(= 쉼)도 머릿수만큼 는다 - WaveBeatSecPerUnit 을 그만큼 낮춰 웨이브 길이를 맞췄다</summary>
     private static float BeatWeight(SpawnUnit u)
     {
         float w = u.vip ? 2.5f : (u.cls == UnitClass.Heavy ? 2.2f : (u.cls == UnitClass.Other ? 1.2f : 1f));
-        return w * u.share;
+        return w * u.hpMul;   // v6.21: 몫이 아니라 HP 배율 (단단한 조각일수록 쉼이 길다)
     }
 
     /// <summary>
@@ -1142,15 +1146,15 @@ public class WaveManager : MonoBehaviour
             enemy.data = u.data;
             enemy.InitializeWithWaveScaling(config.waveNumber, playerLevel, diffL);
             ApplyRouteStats(enemy);
-            if (!Mathf.Approximately(u.share, 1f))
+            // v6.21: 한 마리의 HP·공격력 (크기별 HP 배율 x 초반 배율). 머릿수를 늘렸다고 나눠 약하게 하지 않는다
+            if (u.hpMul > 0f && !Mathf.Approximately(u.hpMul, 1f))
             {
-                // 머릿수를 늘린 손님: 한 마리는 그만큼 약하다 (무리 전체의 HP·공격력·골드·재료 = 구성표 x GroupPower).
-                // Enemy.Share = 보상·기차 방어력·연속 피격 완충·고정량 효과에 곱하는 몫 (안 넘기면 약한 타격 여러 번이 방어력에 다 지워진다)
-                enemy.currentHP *= u.share;
+                enemy.currentHP *= u.hpMul;
                 enemy.scaledMaxHP = enemy.currentHP;
-                enemy.scaledATK *= u.share;
-                enemy.Share = Mathf.Clamp(u.share, 0.05f, 1f);
             }
+            if (u.atkMul > 0f && !Mathf.Approximately(u.atkMul, 1f)) enemy.scaledATK *= u.atkMul;
+            // 처치 보상·도구 부식처럼 "한 번에 얼마"로 정해진 것은 몫만큼만 (머릿수만큼 불어나지 않게)
+            if (u.share > 0f && u.share < 0.999f) enemy.Share = Mathf.Max(0.05f, u.share);
         }
         aliveEnemyCount++;
         return enemy;

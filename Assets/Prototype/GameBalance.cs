@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// [GameBalance.cs] v9.19.1 (2026-10-07 유저 소감: 스폰 테두리가 보이는 화면을 따라간다 SpawnEdgeFollowView·ViewMargin·BossSpawnExtra / 머릿수 대폭 증가 CountMulSmall·Mid·Big + GroupPower* + FormationSizeMul - SwarmCountMul 을 대신한다) / v9.19 (2026-10-06 웨이브 편성·보스 페이즈 모습: 맨 아래 v9.19 섹션 - 편성 스위치·풀리는 웨이브·예고 시간·조각 사이 쉼·스폰 테두리·작은 손님 머릿수·호위 행렬 / 보스 상태 그림·전환 순간·상태 유지 효과·알림 자리) / v9.18 (2026-10-06 테스터 피드백 3 - 버그·밸런스·새 기차 그림: 맨 아래 v9.18 섹션 - 보행 바닥 표 / 슬롯·꼬리 좌표 / 레벨 상한 복구 / 같은 레벨끼리만 진화 / 폐기 환급 / 사고 실패 피해 / 과열 무작위 / 칸 덜컹임 / 보스 그림·HP 바·등장 띠 / UI 배율) / v9.17 (2026-10-06 화면 손맛 2차: 맨 아래 v9.17 섹션 - 발사 반동·섬광 / 데미지 숫자 크기·합산 / 넉백 / 셰프 찌그러짐 / HUD 수치 / 카드 순차 등장·퇴장 / 보스 등장·처치 / 패배·승리 순서 / 장면 전환 / 알림 중복) / v9.16 (2026-09-29 소리 v2: BuildTag 만 - 소리 표는 SoundManager 에) / v9.15.1 (2026-09-29 스토리 개정 스위치: 최종전 베팅 없음·스피노 고백 카드·마지막 식사 장면 시간) / v9.15 (2026-09-29 2차 피드백: 레벨 상한 해제 -> 접시 곡선·레벨 체감·저항 표시 / 훈련장 반복·자유 연습 / 드래그 투입 / 사고 해결 연출 / 포탑 파손 / HUD 재배치 / 설정창) / v9.12 (2026-09-22 튜토리얼 구간화·인라인 연습·협곡 낙뢰·미니 보스 예습 섹션 추가) / v1 (v9.11 2026-09-22: 타격감 섹션 - 피격 플래시·찌그러짐·스파크·킬 버스트·기차 피격·버튼·모달·웨이브 띠 스위치 / v9.10.1 2026-09-21: 유저 플레이 소감 섹션 - 웨이브 물량·길이, 정차 조리 제한, 행상인 자동 퇴장, 처치 보상 배율 / v9.9 2026-09-16: 포탑 4모서리 배치 SlotPosition + 견습 운행/브리핑 스위치 섹션)
+/// [GameBalance.cs] v9.19.2 (2026-10-07 유저 확인 뒤: 머릿수를 늘린 손님을 약하게 하지 않는다 - GroupPower* 삭제, 크기별 HP 배율 TierHpMul*·초반 배율 EarlyBodyStart·보상 SwarmRewardMul / 손님 전체 강화 EnemyHPMul 1.3·EnemyATKMul 1.2·EnemyDefMul 1.2 (견습 운행은 TutorialEnemy* 로 예전 값) / 기차 방어력 바닥 TrainDefFloor / 보스 HP 종류별 배율 BossHPKindMul / 편성 이름 줄·방향 예고 화살표 끔 FormationLineShows 0·SpawnCueSec 0) / v9.19.1 (2026-10-07 유저 소감: 스폰 테두리가 보이는 화면을 따라간다 SpawnEdgeFollowView·ViewMargin·BossSpawnExtra / 머릿수 대폭 증가 CountMulSmall·Mid·Big + GroupPower* + FormationSizeMul - SwarmCountMul 을 대신한다) / v9.19 (2026-10-06 웨이브 편성·보스 페이즈 모습: 맨 아래 v9.19 섹션 - 편성 스위치·풀리는 웨이브·예고 시간·조각 사이 쉼·스폰 테두리·작은 손님 머릿수·호위 행렬 / 보스 상태 그림·전환 순간·상태 유지 효과·알림 자리) / v9.18 (2026-10-06 테스터 피드백 3 - 버그·밸런스·새 기차 그림: 맨 아래 v9.18 섹션 - 보행 바닥 표 / 슬롯·꼬리 좌표 / 레벨 상한 복구 / 같은 레벨끼리만 진화 / 폐기 환급 / 사고 실패 피해 / 과열 무작위 / 칸 덜컹임 / 보스 그림·HP 바·등장 띠 / UI 배율) / v9.17 (2026-10-06 화면 손맛 2차: 맨 아래 v9.17 섹션 - 발사 반동·섬광 / 데미지 숫자 크기·합산 / 넉백 / 셰프 찌그러짐 / HUD 수치 / 카드 순차 등장·퇴장 / 보스 등장·처치 / 패배·승리 순서 / 장면 전환 / 알림 중복) / v9.16 (2026-09-29 소리 v2: BuildTag 만 - 소리 표는 SoundManager 에) / v9.15.1 (2026-09-29 스토리 개정 스위치: 최종전 베팅 없음·스피노 고백 카드·마지막 식사 장면 시간) / v9.15 (2026-09-29 2차 피드백: 레벨 상한 해제 -> 접시 곡선·레벨 체감·저항 표시 / 훈련장 반복·자유 연습 / 드래그 투입 / 사고 해결 연출 / 포탑 파손 / HUD 재배치 / 설정창) / v9.12 (2026-09-22 튜토리얼 구간화·인라인 연습·협곡 낙뢰·미니 보스 예습 섹션 추가) / v1 (v9.11 2026-09-22: 타격감 섹션 - 피격 플래시·찌그러짐·스파크·킬 버스트·기차 피격·버튼·모달·웨이브 띠 스위치 / v9.10.1 2026-09-21: 유저 플레이 소감 섹션 - 웨이브 물량·길이, 정차 조리 제한, 행상인 자동 퇴장, 처치 보상 배율 / v9.9 2026-09-16: 포탑 4모서리 배치 SlotPosition + 견습 운행/브리핑 스위치 섹션)
 /// 게임 전체 밸런스 수치를 한 곳에 모은 설정 파일.
 ///
 /// 여기 값을 바꾸면 Inspector 값과 상관없이 게임에 적용된다
@@ -18,6 +18,13 @@ public static class GameBalance
 
     /// <summary>기차 시작 최대 HP (기존 1000 -> 500. 강철 리벳/요새/야전 정비반으로 성장)</summary>
     public static float TrainStartHP = 500f;
+
+    /// <summary>
+    /// v9.19.2: 기차 방어력의 바닥. 기차가 받는 피해 = 공격력 - 방어력 인데, 방어력이 아무리 높아도 원래 피해의 이 비율은 들어온다 (0.25 = 4분의 1).
+    /// 방어력은 타격마다 빼는 값이라 장갑 요리 둘(방어 25)이면 랩터 떼의 타격이 전부 1 이 됐다 - 손님이 수십 마리로 늘어난 지금은 떼가 통째로 무해해진다.
+    /// 0 = 예전 식 그대로 (최소 피해 1)
+    /// </summary>
+    public static float TrainDefFloor = 0.25f;
 
     /// <summary>
     /// 모든 포탑 데미지 전역 배율.
@@ -110,10 +117,18 @@ public static class GameBalance
     public static float EnemyDifficultyL = 1.15f;   // v9.14: 1.5 -> 1.15 (테스터 "너무 쉽다" - 웨이브 8 에 1.8배 -> 2.0배, 웨이브 16 에 2.6배 -> 3.1배)
 
     /// <summary>일반 적 체력 전역 배율 (웨이브 스케일링 이후 곱해짐)</summary>
-    public static float EnemyHPMul = 1.15f;   // v9.14: 1.0 -> 1.15
+    public static float EnemyHPMul = 1.3f;   // v9.19.2: 1.15 -> 1.3 (유저 "난이도 여전히 쉬움 - 전반적으로 체력·공격력·방어력 강화") / v9.14: 1.0 -> 1.15
 
     /// <summary>일반 적 공격력 전역 배율</summary>
-    public static float EnemyATKMul = 1.0f;   // v9.14: 0.9 -> 1.0
+    public static float EnemyATKMul = 1.2f;   // v9.19.2: 1.0 -> 1.2 / v9.14: 0.9 -> 1.0
+
+    /// <summary>v9.19.2: 일반 적 방어·저항 전역 배율 (Enemy.AssignCombatStats 의 이름별 표에 곱한다. 랩터·캑터스·플라이는 표가 0 이라 그대로 - "아무거나 잘 박힌다"는 성격 유지).
+    /// 받는 피해 = 50 / (50 + 방어). 1.2 = 강철 랩터 방어 50 -> 60 (물리 피해 50% -> 45%)</summary>
+    public static float EnemyDefMul = 1.2f;
+
+    /// <summary>v9.19.2: 견습 운행(고정 규칙 - 자유 연습 제외)의 손님은 예전 배율 그대로다. 단계마다 "몇 방에 쓰러지나"가 이 값에 맞춰져 있다. 방어 배율도 1</summary>
+    public static float TutorialEnemyHPMul = 1.15f;
+    public static float TutorialEnemyATKMul = 1.0f;
 
     // ==================================================================
     //  연속 피격 완충 - 무리 러시가 같은 순간에 우르르 때려도 즉사하지 않게
@@ -130,10 +145,17 @@ public static class GameBalance
     //  보스 HP = BossHPBase + 웨이브 x BossHPPerWave
     //  보스 ATK = BossATKBase + 웨이브 x BossATKPerWave
     //  예) 웨이브 3: HP 1550 / ATK 64   웨이브 10: HP 3300 / ATK 120
+    //  v9.19.2: 위 HP 에 종류별 배율(BossHPKindMul)을 한 번 더 곱한다 - 예습 보스는 빼고
     // ==================================================================
 
     public static float BossHPBase = 900f;      // v9.14: 800 -> 900
     public static float BossHPPerWave = 300f;   // v9.14: 250 -> 300
+    /// <summary>
+    /// v9.19.2: 보스 종류별 HP 배율 (녹슨 발톱 / 천둥 둥지 / 동면자 / 디 오리지널). 공식이 웨이브에 한 줄로 비례해서, 뒤 지역 보스가 제 웨이브의 큰 손님 한 마리보다 약했다
+    /// (웨이브 24: 동면자 9,300 < 서리 맘모스 9,500). 첫 패턴이 8초 뒤에 나오는데 그 전에 쓰러지면 패턴이 없는 것과 같다.
+    /// 4 / 6 / 6 / 10 = 11,900 / 32,500 / 55,900 / 100,800. 폭식 회복(조각당)과 해동포 피해도 같은 배율을 따라간다 (BossEnemy.hpScale)
+    /// </summary>
+    public static float[] BossHPKindMul = { 4f, 6f, 6f, 10f };
     public static float BossATKBase = 40f;
     public static float BossATKPerWave = 8f;
 
@@ -317,7 +339,7 @@ public static class GameBalance
     public static int BetPerfectMats = 4;      // 보상: 랜덤 재료 수
 
     // [일반] 철벽 주방: 기차 피격 제한
-    public static int BetTankHitsMax = 8;
+    public static int BetTankHitsMax = 20;     // v9.19.2: 8 -> 20 (보스가 오래 버티고 손님이 늘어 8번은 불가능한 조건이 됐다)
     public static float BetTankMaxHP = 80f;    // 보상: 최대 HP (런 한정)
 
     // [도박] 외상 장부: 판돈 선불, 그로기 투척 명중
@@ -988,7 +1010,7 @@ public static class GameBalance
 
     // ── (v9.13.1 2026-09-24) 3인 테스트 준비 ──
     /// <summary>빌드 표시 - 로비 오른쪽 아래에 찍힌다 (테스터 시트에 어느 빌드였는지 적기 위해). 팩마다 올린다</summary>
-    public const string BuildTag = "v9.19.1 (2026-10-07)";   // v9.19.1: 화면 밖 스폰 + 머릿수 대폭 증가
+    public const string BuildTag = "v9.19.2 (2026-10-07)";   // v9.19.2: 손님이 제 힘으로 + 전체 강화 / 예고 화살표·편성 이름 줄 끔
 
     // ── (v9.14 2026-09-28) 3인 테스트 반영 1차 - 버그·밸런스·읽기 ──
     // ── 포탑 (테스터 "더블 육포만 올려도 됨 / 전설이 더 약함 / 하나 점사하면 나머지가 빗나감") ──
@@ -1284,10 +1306,12 @@ public static class GameBalance
     public static int WaveFormationFromWave = 2;
     /// <summary>편성이 풀리는 웨이브: 추격 / 파상 / 매복 / 호위 행렬 / 양동 / 포위 / 공중 편대 순 (공중 편대는 비행 손님이 나오는 테슬라 협곡부터)</summary>
     public static int[] FormationUnlockWave = { 2, 2, 3, 4, 5, 6, 9 };
-    /// <summary>편성 이름 한 줄("[추격] 꼬리 쪽에서 따라붙는다")은 편성마다 한 운행에 이 횟수까지만 알림 줄에 뜬다 (그 뒤로는 화살표와 소리만). 0 = 안 띄운다</summary>
-    public static int FormationLineShows = 2;
-    /// <summary>조각이 나오기 전, 오는 쪽 화면 가장자리에 화살표가 떠 있는 시간 (초). 0 = 예고 없음</summary>
-    public static float SpawnCueSec = 1.0f;
+    /// <summary>편성 이름 한 줄("[추격] 꼬리 쪽에서 따라붙는다")은 편성마다 한 운행에 이 횟수까지만 알림 줄에 뜬다. 0 = 안 띄운다.
+    /// v9.19.2: 2 -> 0 (유저 "추격, 양동 어쩌구 … 이런 말들을 플레이어에게 보여줄 필요는 없다")</summary>
+    public static int FormationLineShows = 0;
+    /// <summary>조각이 나오기 전, 오는 쪽 화면 가장자리에 화살표가 떠 있는 시간 (초). 0 = 예고 없음 (화살표·접근음·예고 대기 전부 없이 바로 나온다).
+    /// v9.19.2: 1.0 -> 0 (유저 "웨이브 오는 방향 예고 화살표도 안 알려줘도 된다 - 노선은 정해져 있고 포탑도 자동 공격"). 매복의 바닥 고리(AmbushCueSec)는 그대로 - 화면 안에서 나오는 손님의 등장 동작이다</summary>
+    public static float SpawnCueSec = 0f;
     /// <summary>매복: 바닥 고리가 뜨고 손님이 튀어나오기까지 (초)</summary>
     public static float AmbushCueSec = 1.2f;
     /// <summary>매복 자리: 기차 가운데 줄에서 북쪽 / 남쪽으로 이만큼 (u). 바닥 고리가 HUD 에 가려지지 않는 높이여야 한다 - 기본 줌에서 북쪽은 좌상단 판(5.0)·가운데 안내 카드(4.3)·
@@ -1296,11 +1320,11 @@ public static class GameBalance
     public static float AmbushDistSouth = 3.8f;
     /// <summary>파상: 줄과 줄 사이 (초)</summary>
     public static float LinesRowGapSec = 2.5f;
-    /// <summary>조각 사이 쉼 = WaveBeatMinGapSec + 그 조각의 무게 x WaveBeatSecPerUnit (최대 WaveBeatMaxGapSec). 무게 = 손님 한 마리 1 (머릿수를 늘린 작은 손님은 제 몫 0.8 안팎 / 큰 손님 2.2 / 힐러·지원형 2.5 / 원거리 1.2).
+    /// <summary>조각 사이 쉼 = WaveBeatMinGapSec + 그 조각의 무게 x WaveBeatSecPerUnit (최대 WaveBeatMaxGapSec). 무게 = 손님 한 마리 1 (큰 손님 2.2 / 힐러·지원형 2.5 / 원거리 1.2) x 그 손님의 HP 배율(TierHpMul* x 초반 배율).
     /// 구 방식(한 마리씩 + 4마리마다 5초 쉼)과 웨이브 길이가 비슷하게 맞춘 값이다 (모의 계산 px/sim_wave_beats.py, 스폰이 끝날 때까지. v9.19.1 의 머릿수 기준: 웨이브 7 = 구 77초 -> 약 114초 / 웨이브 16 = 68 -> 92 / 웨이브 24 = 90 -> 85. 나오는 족족 다 잡으면 82 / 61 / 55초).
     /// 쉼에는 WaveLengthMul(2.0 = 기준)과 레버 전속 배율이 그대로 걸린다 (최소 쉼은 지킨다). 산개 조각 뒤는 최소 쉼만</summary>
     public static float WaveBeatMinGapSec = 3.5f;
-    public static float WaveBeatSecPerUnit = 1.0f;   // v9.19.1: 1.1 -> 1.0 (머릿수가 늘어 조각 수가 조금 늘었다 - 웨이브가 늘어지지 않게)
+    public static float WaveBeatSecPerUnit = 0.7f;   // v9.19.2: 1.0 -> 0.7 (손님이 제 힘으로 와서 조각의 무게가 두 배 넘게 늘었다 - 모의 계산은 이 줄 위 설명에) / v9.19.1: 1.1 -> 1.0
     public static float WaveBeatMaxGapSec = 16f;
     /// <summary>화면의 손님이 WaveBeatAdvanceAlive 이하로 줄면 남은 쉼이 WaveBeatClearedTimeMul 배로 빨리 간다 - 다 잡고 기다리는 시간을 줄인다 (조리할 틈은 남게 최소 쉼은 지킨다). 배수 1 = 안 줄인다</summary>
     public static int WaveBeatAdvanceAlive = 2;
@@ -1313,20 +1337,29 @@ public static class GameBalance
     public static float SpawnEdgeHalfH = 10.5f;
     /// <summary>편성 웨이브의 머릿수 배율 (구성표 x WaveCountMul 위에 한 번 더 곱한다). 유저 10-07 "웨이브별 마릿수를 더 파격적으로" - v9.19 의 SwarmCountMul 1.25 를 대신한다.
     /// 작은 손님 = 스팀 랩터·사막 전갈·과부하 플라이 / 중간 = 강철 랩터·비행 손님 3종·오일 캑터스 / 큰 손님 = 큰 손님 6종·힐러·지원형. 1 = 구성표 그대로.
-    /// 모의 계산(px/sim_wave_beats.py, v9.19 -> v9.19.1): 웨이브 2 = 13 -> 20마리 / 웨이브 7 = 43 -> 98 / 웨이브 8 = 47 -> 107 / 웨이브 16 = 39 -> 93 / 웨이브 24 = 29 -> 59. 무리 세기는 구성표의 1.15 ~ 1.28배</summary>
+    /// 모의 계산(px/sim_wave_beats.py): 웨이브 2 = 20마리 / 웨이브 8 = 103 / 웨이브 16 = 92 / 웨이브 24 = 52 / 웨이브 25 = 18 (v9.19 는 13 / 47 / 39 / 29 / 11)</summary>
     public static float CountMulSmall = 3.0f;
     public static float CountMulMid = 2.5f;
-    public static float CountMulBig = 1.6f;
-    /// <summary>머릿수를 늘린 무리 전체의 세기 (HP·공격력·처치 보상의 합, 구성표 대비). 한 마리의 몫 = 이 값 / 머릿수 배율 (작은 손님 0.43 / 중간 0.5 / 큰 손님 0.72).
-    /// 1 = 무리 전체는 구성표 그대로 (한 마리가 머릿수만큼 약하다) / 머릿수 배율과 같은 값 = 한 마리가 구성표 그대로 (무리가 배율만큼 세다).
-    /// 난이도를 낮추려면 이 셋을 1 쪽으로, 올리려면 배율 쪽으로.
-    /// 한 마리의 몫은 Enemy.Share 로도 넘어간다: 기차 방어력(타격마다 빼는 값)·최소 피해 1·연속 피격 완충·가시 반격·베팅 피격 수,
-    /// 전갈의 도구 부식·모사 빙결 확률·힐러 회복·증강의 타격당 회복이 몫만큼만 먹는다 - 약한 타격 여러 번이 방어력에 다 지워지거나 고정량 효과가 머릿수만큼 불어나지 않게.
-    /// 그대로 둔 것(머릿수가 늘면 같이 세진다): 처치할 때 터지는 증강·처치 누적 증강, 랩터 무리 가속(거의 늘 상한 +40%)</summary>
-    public static float GroupPowerSmall = 1.3f;
-    public static float GroupPowerMid = 1.25f;
-    public static float GroupPowerBig = 1.15f;
-    /// <summary>초반 웨이브는 위 배율(머릿수·무리 세기)을 덜 건다: 편성이 시작되는 웨이브에는 늘어나는 몫의 CountRampStart(0.5 = 절반)만, CountRampWaves 웨이브 뒤에 전부.
+    public static float CountMulBig = 1.2f;   // v9.19.2: 1.6 -> 1.2 (큰 손님도 제 힘으로 온다 - 코발트 광산은 원래 큰 손님의 HP 가 높아, 머릿수까지 1.6배면 벽이 된다)
+    /// <summary>
+    /// v9.19.2: 머릿수를 늘린 손님을 약하게 하지 않는다 (유저 "마릿수가 늘어난다고 약하게 만들 필요 없다 - 1렙 포탑에도 한 대 맞으면 죽는다"). v9.19.1 의 GroupPower*(무리 전체의 합을 정해 한 마리를 나눠 약하게)는 없앴다.
+    /// 대신 크기별 HP 배율: 한 마리의 HP 에 곱한다 (공격력에는 안 곱한다 - 공격력은 EnemyATKMul 하나로). 1 = 종류 표 그대로.
+    /// 편성 웨이브(2부터)의 손님에게만 걸린다 - 웨이브 1, 보스가 부르는 랩터, 작살 난입 랩터, 편성을 끈 구 방식 스폰은 종류 표 x 전체 배율(EnemyHPMul) 그대로다.
+    /// 중간 손님(날아다니는 손님 3종·오일 캑터스)이 2.6 인 이유: 기본 HP 가 45 ~ 80 이라 테슬라 협곡 끝(웨이브 16)의 웨이브 전체 HP 가 사막 끝(웨이브 8)과 비슷했다 - 포탑은 그사이 몇 배가 되니 협곡이 제일 쉬운 구간이었다.
+    /// 강철 랩터는 머릿수만 중간이고 HP 는 큰 손님 배율을 받는다 (기본 HP 150 + 방어 50).
+    /// 모의 계산 - 웨이브 한 판의 HP 합(물리 포탑 기준, 천)은 px/sim_wave_beats.py 맨 아래 표에 (v9.18 은 웨이브 8 = 7 / 12 = 4 / 16 = 10 / 20 = 45 / 24 = 123)
+    /// </summary>
+    public static float TierHpMulSmall = 1.2f;
+    public static float TierHpMulMid = 2.6f;
+    public static float TierHpMulBig = 1.0f;
+    /// <summary>초반 웨이브의 손님은 덜 자랐다: 편성이 시작되는 웨이브(2)의 HP·공격력 배율. CountRampWaves 웨이브에 걸쳐 1 로 올라간다 (웨이브 6 부터 1).
+    /// 0.7 = 웨이브 2 의 스팀 랩터 HP 41 (더블 육포 Lv1 두 방. 웨이브 1 은 44) -> 웨이브 6 은 83, 웨이브 8 은 96 (Lv3 두 방). 1 = 처음부터 제 힘</summary>
+    public static float EarlyBodyStart = 0.7f;
+    /// <summary>머릿수를 늘린 무리의 "한 번에 얼마" 합 (구성표 대비): 처치 보상(골드·재료 확률·상자 확률), 전갈의 도구 부식, 모사의 빙결 확률, 힐러가 주는 회복.
+    /// 한 마리의 몫 = 이 값 x 원래 수 / 늘린 수 (Enemy.Share). 손님은 제 힘으로 오지만 골드·재료와 도구 부식까지 머릿수만큼 세 배가 되면 안 된다.
+    /// 1.3 = 웨이브 한 판의 골드·재료가 구성표의 1.3배</summary>
+    public static float SwarmRewardMul = 1.3f;
+    /// <summary>초반 웨이브는 머릿수 배율을 덜 건다: 편성이 시작되는 웨이브에는 늘어나는 몫의 CountRampStart(0.5 = 절반)만, CountRampWaves 웨이브 뒤에 전부.
     /// 0.5 / 4 = 작은 손님 기준 웨이브 2 = 2배, 웨이브 4 = 2.5배, 웨이브 6 부터 3배. CountRampWaves 0 = 처음부터 전부</summary>
     public static int CountRampWaves = 4;
     public static float CountRampStart = 0.5f;

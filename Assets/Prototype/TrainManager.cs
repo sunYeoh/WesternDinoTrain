@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.Events;
 
 /// <summary>
-/// [TrainManager.cs] v3.4 (v9.19.1 2026-10-07: TakeDamage(피해, 몫) - 머릿수를 늘린 손님(Enemy.Share)의 타격은 방어력·최소 피해·연속 피격 완충·가시 반격·베팅 피격 수를 몫만큼만 쓴다) / v3.3 (v9.18 2026-10-06: TakeDamageIgnoringDef - 주방 사고 실패 피해용. 방어력 차감과 연속 피격 완충을 건너뛴다) / v3.2 (v9.11 2026-09-22: 피격 때 TrainFeel.Hit() - 맞은 칸 플래시) / v3.1 (교수 피드백 A4: AddMaxHP 회복 분리)
+/// [TrainManager.cs] v3.5 (v9.19.2 2026-10-07: 방어력 바닥 GameBalance.TrainDefFloor - 방어력을 빼도 원래 피해의 4분의 1 은 들어온다. v3.4(v9.19.1)의 "몫만큼만 방어"는 걷어냈다 - 손님이 다시 제 힘으로 온다) / v3.3 (v9.18 2026-10-06: TakeDamageIgnoringDef - 주방 사고 실패 피해용. 방어력 차감과 연속 피격 완충을 건너뛴다) / v3.2 (v9.11 2026-09-22: 피격 때 TrainFeel.Hit() - 맞은 칸 플래시) / v3.1 (교수 피드백 A4: AddMaxHP 회복 분리)
 /// 메카 티렉스 열차의 핵심 스탯을 관리합니다.
 /// - v3 변경점 (구시스템 정리):
 ///   1) 허기/포만감 시스템 완전 제거 (감소/등급/절전모드/스탯 페널티 전부 삭제)
@@ -91,9 +91,7 @@ public class TrainManager : MonoBehaviour
 
     // 연속 피격 완충 (무리 러시 즉사 방지)
     private float burstWindowEnd = 0f;
-    private float burstHitWeight = 0f;   // v3.4: 횟수 -> 무게 (머릿수를 늘린 손님의 한 방은 몫만큼만 센다. 평소 손님은 1)
-    private float betHitCarry = 0f;      // v3.4: 스피노 베팅 [철벽 주방] 의 피격 수도 무게로 - 1 이 찰 때마다 한 번
-    private float thornsCarry = 0f;      // v3.4: 가시 요리의 반격(맞을 때마다 주변 손님 피해 + 멈칫)도 무게로 - 1 이 찰 때마다 한 번
+    private int burstHitCount = 0;
 
     private void Start()
     {
@@ -191,22 +189,15 @@ public class TrainManager : MonoBehaviour
                   " (현재 " + currentHP.ToString("F0") + "/" + currentMaxHP.ToString("F0") + ")");
     }
 
-    public void TakeDamage(float rawDamage) { ApplyDamage(rawDamage, false, 1f); }
-
-    /// <summary>
-    /// v3.4: 머릿수를 늘린 손님의 타격. weight = 한 마리의 몫 (Enemy.Share - 작은 손님 0.43 등. 공격력에도 같은 값이 곱해져 있다).
-    /// 방어력은 타격마다 빼는 값이고 연속 피격 완충은 횟수로 센다. 그대로 두면 약한 타격 여러 번이 방어력에 다 지워지고 완충에 반씩 깎인다.
-    /// 그래서 방어력·최소 피해 1·완충·가시 반격·베팅 피격 수를 몫만큼만 쓴다: 무리 전체가 주는 피해 = 구성표의 손님이 주던 피해 x 무리 세기
-    /// </summary>
-    public void TakeDamage(float rawDamage, float weight) { ApplyDamage(rawDamage, false, Mathf.Clamp(weight, 0.05f, 1f)); }
+    public void TakeDamage(float rawDamage) { ApplyDamage(rawDamage, false); }
 
     /// <summary>
     /// v3.3: 방어력을 건너뛰는 피해 (주방 사고 실패 - KitchenEventManager.DamageTrain).
     /// 방어력 차감과 연속 피격 완충(무리 러시용)만 빼고 나머지는 TakeDamage 와 같다: 정차 성역 / 받는 피해 감소(%) / 증기 보호막 / 피격 연출
     /// </summary>
-    public void TakeDamageIgnoringDef(float damage) { ApplyDamage(damage, true, 1f); }
+    public void TakeDamageIgnoringDef(float damage) { ApplyDamage(damage, true); }
 
-    private void ApplyDamage(float rawDamage, bool ignoreDef, float weight)
+    private void ApplyDamage(float rawDamage, bool ignoreDef)
     {
         if (!isAlive) return;
 
@@ -224,16 +215,7 @@ public class TrainManager : MonoBehaviour
         GameFeel.Shake(GameBalance.ShakeTrainHit, "train_hit", GameBalance.ShakeTrainHitCooldown);
 
         // Phase 2-1: 스피노 베팅 [철벽 주방] 피격 카운트
-        if (SpinoBet.Active == SpinoBet.BetId.None) betHitCarry = 0f;   // 베팅이 없는 동안 쌓인 소수는 버린다 (다음 베팅의 첫 타격이 앞당겨 세어지지 않게)
-        else
-        {
-            betHitCarry += weight;
-            if (betHitCarry >= 0.999f)
-            {
-                betHitCarry = Mathf.Max(0f, betHitCarry - 1f);
-                SpinoBet.CountTrainHit();
-            }
-        }
+        SpinoBet.CountTrainHit();
 
         // Phase 2-3 증강 '가시철조망 도금': 피격 시 근처 적 반격 (스팸 방지 쿨타임)
         if (AugmentManager.ThornsStacks > 0 && Time.time >= nextThornsTime)
@@ -249,20 +231,21 @@ public class TrainManager : MonoBehaviour
             }
         }
 
-        // v3.4: 방어력과 최소 피해 1 은 몫만큼만 (평소 손님은 weight 1 = 예전 식 그대로)
-        float finalDamage = ignoreDef ? Mathf.Max(0f, rawDamage) : Mathf.Max(weight, rawDamage - currentDEF * weight);
+        // v3.5: 방어력 바닥 - 방어력은 타격마다 빼는 값이라, 높게 쌓으면 약한 타격(랩터 떼)이 전부 1 이 됐다. 원래 피해의 TrainDefFloor 배는 들어오게 한다
+        float finalDamage;
+        if (ignoreDef) finalDamage = Mathf.Max(0f, rawDamage);
+        else
+        {
+            float floor = rawDamage * Mathf.Clamp01(GameBalance.TrainDefFloor);
+            finalDamage = Mathf.Max(1f, Mathf.Max(rawDamage - currentDEF, floor));
+        }
 
         // 피해 감소 합산: 슬롯 패시브(수정 방패 연회) + 증강(나노 수복 장갑 등)
         float totalReduction = AugmentManager.DamageReductionAdd;
         if (TurretSlotManager.Instance != null)
         {
             totalReduction += TurretSlotManager.Instance.GetDamageReduction();
-            thornsCarry += weight;
-            if (thornsCarry >= 0.999f)
-            {
-                thornsCarry = Mathf.Max(0f, thornsCarry - 1f);
-                TurretSlotManager.Instance.TriggerThorns(transform.position);
-            }
+            TurretSlotManager.Instance.TriggerThorns(transform.position);
         }
         // -0.85(유리 대포 등으로 받는 피해 증가) ~ 0.85(최대 85% 감소) 범위로 제한
         totalReduction = Mathf.Clamp(totalReduction, -0.85f, 0.85f);
@@ -273,12 +256,12 @@ public class TrainManager : MonoBehaviour
         if (Time.time > burstWindowEnd)
         {
             burstWindowEnd = Time.time + GameBalance.BurstHitWindow;
-            burstHitWeight = 0f;
+            burstHitCount = 0;
         }
         if (!ignoreDef)
         {
-            burstHitWeight += weight;
-            if (burstHitWeight > GameBalance.BurstFreeHits + 0.001f)
+            burstHitCount++;
+            if (burstHitCount > GameBalance.BurstFreeHits)
                 finalDamage *= GameBalance.BurstExtraHitMul;
         }
 
