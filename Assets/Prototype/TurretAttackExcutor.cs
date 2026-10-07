@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 
 /// <summary>
-/// [TurretAttackExecutor.cs] v5.7 (v9.19.2 2026-10-07: v5.6 의 "타격당 회복 x 손님의 몫"을 되돌렸다 - 손님이 제 힘으로 오니 때린 만큼 그대로 회복한다) / v5.6 (v9.19.1: 증강의 타격당 회복에 맞은 손님의 몫을 곱했다) / v5.5 (v9.18 2026-10-06: 피해 출처(CurrentSource = 쏜 포탑) - 데미지 숫자를 포탑별로 합산하게 HitFeel 에 같이 넘긴다. 날아가는 탄은 도착할 때 출처를 다시 건다) / v5.4 (v9.17 2026-10-06: v9.14 머리말에 적고 본문에 빠져 있던 것을 실제로 넣음 - 투사체가 날아가는 동안 Enemy.IncomingDamage 예약·도착 때 해제 / 도착했을 때 표적이 죽었으면 ProjectileRetargetRadius 안의 다른 손님을 맞힌다. + A5: 물리 단발이 맞으면 HitFeel.Knock(그림만 움찔)) / v5.3 (v9.16 2026-09-29 손맛 2차 - 소리: 발사음 = 요리 속성·티어·모양별(SoundKeys.Shot, 포탑 위치에서 PlayAt) / 폭발 착탄 sfx_explosion / 장판 sfx_field / 연쇄 번개 튈 때마다 sfx_chain / 증강 폭발(동상 파편·마지막 서비스)도 폭발음 / HitFeel.NextHit 에 요리 속성을 같이 넘겨 명중음에 속성 겹침이 얹힌다) / v5.2 (v9.14 2026-09-28 테스터 "하나 점사해서 잡으면 나머지가 다 빗나감": 투사체가 도착했을 때 표적이 이미 죽었으면 그 자리 근처의 다른 손님을 맞힌다(ProjectileRetargetRadius) + 날아가는 동안 Enemy.IncomingDamage 예약 - 포탑이 곧 죽을 손님을 건너뛴다) / v5.1 (v9.11 2026-09-22 타격감: DealDamage 가 HitFeel.NextHit(속성색·크리) 를 걸고 때린다) / v5
+/// [TurretAttackExecutor.cs] v5.8 (v9.19.3 2026-10-07: 증강의 타격당 회복을 1초에 GameBalance.LifestealHitsPerSec 번까지만 센다 - LifestealReady. 타격마다 전부 세면 손님이 늘고 단단해진 만큼 회복이 불어나 기차 HP 가 닳지 않았다) / v5.7 (v9.19.2 2026-10-07: v5.6 의 "타격당 회복 x 손님의 몫"을 되돌렸다 - 손님이 제 힘으로 오니 때린 만큼 그대로 회복한다) / v5.6 (v9.19.1: 증강의 타격당 회복에 맞은 손님의 몫을 곱했다) / v5.5 (v9.18 2026-10-06: 피해 출처(CurrentSource = 쏜 포탑) - 데미지 숫자를 포탑별로 합산하게 HitFeel 에 같이 넘긴다. 날아가는 탄은 도착할 때 출처를 다시 건다) / v5.4 (v9.17 2026-10-06: v9.14 머리말에 적고 본문에 빠져 있던 것을 실제로 넣음 - 투사체가 날아가는 동안 Enemy.IncomingDamage 예약·도착 때 해제 / 도착했을 때 표적이 죽었으면 ProjectileRetargetRadius 안의 다른 손님을 맞힌다. + A5: 물리 단발이 맞으면 HitFeel.Knock(그림만 움찔)) / v5.3 (v9.16 2026-09-29 손맛 2차 - 소리: 발사음 = 요리 속성·티어·모양별(SoundKeys.Shot, 포탑 위치에서 PlayAt) / 폭발 착탄 sfx_explosion / 장판 sfx_field / 연쇄 번개 튈 때마다 sfx_chain / 증강 폭발(동상 파편·마지막 서비스)도 폭발음 / HitFeel.NextHit 에 요리 속성을 같이 넘겨 명중음에 속성 겹침이 얹힌다) / v5.2 (v9.14 2026-09-28 테스터 "하나 점사해서 잡으면 나머지가 다 빗나감": 투사체가 도착했을 때 표적이 이미 죽었으면 그 자리 근처의 다른 손님을 맞힌다(ProjectileRetargetRadius) + 날아가는 동안 Enemy.IncomingDamage 예약 - 포탑이 곧 죽을 손님을 건너뛴다) / v5.1 (v9.11 2026-09-22 타격감: DealDamage 가 HitFeel.NextHit(속성색·크리) 를 걸고 때린다) / v5
 /// 포탑 공격 형태(8종)별 판정 및 이펙트 실행기
 /// - v3: 모든 TakeDamage에 r.damageType 적용 (DEF/RES 계산)
 /// - v4: 증강 시스템(AugmentManager) 연동
@@ -28,6 +28,29 @@ public static class TurretAttackExecutor
 
     // 기차 참조 캐시 (흡혈용, 매 타격 Find 방지)
     private static TrainManager cachedTrain;
+
+    // v5.8: 증강의 타격당 회복을 다음에 셀 수 있는 시각 (Time.time)
+    private static float nextLifestealTime = 0f;
+
+    /// <summary>
+    /// v5.8: 증강의 타격당 회복을 지금 세도 되는가. 세면 다음 허용 시각을 한 간격 뒤로 민다.
+    /// 간격 = 1 / GameBalance.LifestealHitsPerSec 초 (0 이하면 제한 없음 - 타격마다 센다).
+    /// </summary>
+    private static bool LifestealReady()
+    {
+        float perSec = GameBalance.LifestealHitsPerSec;
+        if (perSec <= 0f) return true;
+
+        float gap = 1f / perSec;
+        float now = Time.time;
+        // 허용 시각이 한 간격 + 1초보다 멀리 있으면 지난 실행에서 남은 값이다 (static 은 남는데 Time.time 은 0 부터 다시 셀 수 있다) - 무시하고 센다.
+        // 여유 1초는 부동소수 오차 때문이다: 딱 한 간격으로 비교하면 같은 프레임의 두 번째 타격이 "남은 값"으로 잘못 읽힐 수 있다
+        bool stale = nextLifestealTime - now > gap + 1f;
+        if (now < nextLifestealTime && !stale) return false;
+
+        nextLifestealTime = now + gap;
+        return true;
+    }
 
     /// <summary>
     /// v5.5: 지금 처리 중인 발사를 쏜 포탑 (TurretSlot 의 출처 번호, 0 = 모름).
@@ -323,8 +346,8 @@ public static class TurretAttackExecutor
             }
         }
 
-        // 흡혈: 타격당 기차 회복
-        if (AugmentManager.LifestealPerHit > 0f)
+        // 흡혈: 타격당 기차 회복. v5.8: 1초에 LifestealHitsPerSec 번까지만 (포탑이 몇 기든, 관통·폭발로 여럿을 맞혀도 합쳐서)
+        if (AugmentManager.LifestealPerHit > 0f && LifestealReady())
         {
             if (cachedTrain == null) cachedTrain = Object.FindFirstObjectByType<TrainManager>();
             if (cachedTrain != null) cachedTrain.Heal(AugmentManager.LifestealPerHit);
