@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// [GameBalance.cs] v9.19.4 (2026-10-07 유저 "포탑 설명이 너무 길다 - 필요한 것만 남기고 폰트를 키워라": 포탑 정보창 글자 크기 SlotInfoFontSize·TitleSize·HintSize, 조작 줄 SlotInfoShowControls) / v9.19.3 (2026-10-07 유저 확인 "체력 회복 증강을 먹으니 HP 가 거의 90% 넘게 남는다": 타격당 회복을 1초에 LifestealHitsPerSec 번까지만 센다) / v9.19.2 (2026-10-07 유저 확인 뒤: 머릿수를 늘린 손님을 약하게 하지 않는다 - GroupPower* 삭제, 크기별 HP 배율 TierHpMul*·초반 배율 EarlyBodyStart·보상 SwarmRewardMul / 손님 전체 강화 EnemyHPMul 1.3·EnemyATKMul 1.2·EnemyDefMul 1.2 (견습 운행은 TutorialEnemy* 로 예전 값) / 기차 방어력 바닥 TrainDefFloor / 보스 HP 종류별 배율 BossHPKindMul / 편성 이름 줄·방향 예고 화살표 끔 FormationLineShows 0·SpawnCueSec 0) / v9.19.1 (2026-10-07 유저 소감: 스폰 테두리가 보이는 화면을 따라간다 SpawnEdgeFollowView·ViewMargin·BossSpawnExtra / 머릿수 대폭 증가 CountMulSmall·Mid·Big + GroupPower* + FormationSizeMul - SwarmCountMul 을 대신한다) / v9.19 (2026-10-06 웨이브 편성·보스 페이즈 모습: 맨 아래 v9.19 섹션 - 편성 스위치·풀리는 웨이브·예고 시간·조각 사이 쉼·스폰 테두리·작은 손님 머릿수·호위 행렬 / 보스 상태 그림·전환 순간·상태 유지 효과·알림 자리) / v9.18 (2026-10-06 테스터 피드백 3 - 버그·밸런스·새 기차 그림: 맨 아래 v9.18 섹션 - 보행 바닥 표 / 슬롯·꼬리 좌표 / 레벨 상한 복구 / 같은 레벨끼리만 진화 / 폐기 환급 / 사고 실패 피해 / 과열 무작위 / 칸 덜컹임 / 보스 그림·HP 바·등장 띠 / UI 배율) / v9.17 (2026-10-06 화면 손맛 2차: 맨 아래 v9.17 섹션 - 발사 반동·섬광 / 데미지 숫자 크기·합산 / 넉백 / 셰프 찌그러짐 / HUD 수치 / 카드 순차 등장·퇴장 / 보스 등장·처치 / 패배·승리 순서 / 장면 전환 / 알림 중복) / v9.16 (2026-09-29 소리 v2: BuildTag 만 - 소리 표는 SoundManager 에) / v9.15.1 (2026-09-29 스토리 개정 스위치: 최종전 베팅 없음·스피노 고백 카드·마지막 식사 장면 시간) / v9.15 (2026-09-29 2차 피드백: 레벨 상한 해제 -> 접시 곡선·레벨 체감·저항 표시 / 훈련장 반복·자유 연습 / 드래그 투입 / 사고 해결 연출 / 포탑 파손 / HUD 재배치 / 설정창) / v9.12 (2026-09-22 튜토리얼 구간화·인라인 연습·협곡 낙뢰·미니 보스 예습 섹션 추가) / v1 (v9.11 2026-09-22: 타격감 섹션 - 피격 플래시·찌그러짐·스파크·킬 버스트·기차 피격·버튼·모달·웨이브 띠 스위치 / v9.10.1 2026-09-21: 유저 플레이 소감 섹션 - 웨이브 물량·길이, 정차 조리 제한, 행상인 자동 퇴장, 처치 보상 배율 / v9.9 2026-09-16: 포탑 4모서리 배치 SlotPosition + 견습 운행/브리핑 스위치 섹션)
+/// [GameBalance.cs] v9.20 (2026-10-07 유저 "패턴이 눈에 안 띔": 보스 패턴의 준비·발동·결과를 몸과 전장에 그린다 BossPatternFxOn·BossCastSwell·BossReleaseSquash·BossLunge*·BossBite* / 부른 무리는 보스 등 뒤에서 BossSummonBehind·SpreadX·StatMul·Share, HowlSummonCount 5 -> 10 · OriginalRoarCount 4 -> 10) / v9.19.4 (2026-10-07 유저 "포탑 설명이 너무 길다 - 필요한 것만 남기고 폰트를 키워라": 포탑 정보창 글자 크기 SlotInfoFontSize·TitleSize·HintSize, 조작 줄 SlotInfoShowControls) / v9.19.3 (2026-10-07 유저 확인 "체력 회복 증강을 먹으니 HP 가 거의 90% 넘게 남는다": 타격당 회복을 1초에 LifestealHitsPerSec 번까지만 센다) / v9.19.2 (2026-10-07 유저 확인 뒤: 머릿수를 늘린 손님을 약하게 하지 않는다 - GroupPower* 삭제, 크기별 HP 배율 TierHpMul*·초반 배율 EarlyBodyStart·보상 SwarmRewardMul / 손님 전체 강화 EnemyHPMul 1.3·EnemyATKMul 1.2·EnemyDefMul 1.2 (견습 운행은 TutorialEnemy* 로 예전 값) / 기차 방어력 바닥 TrainDefFloor / 보스 HP 종류별 배율 BossHPKindMul / 편성 이름 줄·방향 예고 화살표 끔 FormationLineShows 0·SpawnCueSec 0) / v9.19.1 (2026-10-07 유저 소감: 스폰 테두리가 보이는 화면을 따라간다 SpawnEdgeFollowView·ViewMargin·BossSpawnExtra / 머릿수 대폭 증가 CountMulSmall·Mid·Big + GroupPower* + FormationSizeMul - SwarmCountMul 을 대신한다) / v9.19 (2026-10-06 웨이브 편성·보스 페이즈 모습: 맨 아래 v9.19 섹션 - 편성 스위치·풀리는 웨이브·예고 시간·조각 사이 쉼·스폰 테두리·작은 손님 머릿수·호위 행렬 / 보스 상태 그림·전환 순간·상태 유지 효과·알림 자리) / v9.18 (2026-10-06 테스터 피드백 3 - 버그·밸런스·새 기차 그림: 맨 아래 v9.18 섹션 - 보행 바닥 표 / 슬롯·꼬리 좌표 / 레벨 상한 복구 / 같은 레벨끼리만 진화 / 폐기 환급 / 사고 실패 피해 / 과열 무작위 / 칸 덜컹임 / 보스 그림·HP 바·등장 띠 / UI 배율) / v9.17 (2026-10-06 화면 손맛 2차: 맨 아래 v9.17 섹션 - 발사 반동·섬광 / 데미지 숫자 크기·합산 / 넉백 / 셰프 찌그러짐 / HUD 수치 / 카드 순차 등장·퇴장 / 보스 등장·처치 / 패배·승리 순서 / 장면 전환 / 알림 중복) / v9.16 (2026-09-29 소리 v2: BuildTag 만 - 소리 표는 SoundManager 에) / v9.15.1 (2026-09-29 스토리 개정 스위치: 최종전 베팅 없음·스피노 고백 카드·마지막 식사 장면 시간) / v9.15 (2026-09-29 2차 피드백: 레벨 상한 해제 -> 접시 곡선·레벨 체감·저항 표시 / 훈련장 반복·자유 연습 / 드래그 투입 / 사고 해결 연출 / 포탑 파손 / HUD 재배치 / 설정창) / v9.12 (2026-09-22 튜토리얼 구간화·인라인 연습·협곡 낙뢰·미니 보스 예습 섹션 추가) / v1 (v9.11 2026-09-22: 타격감 섹션 - 피격 플래시·찌그러짐·스파크·킬 버스트·기차 피격·버튼·모달·웨이브 띠 스위치 / v9.10.1 2026-09-21: 유저 플레이 소감 섹션 - 웨이브 물량·길이, 정차 조리 제한, 행상인 자동 퇴장, 처치 보상 배율 / v9.9 2026-09-16: 포탑 4모서리 배치 SlotPosition + 견습 운행/브리핑 스위치 섹션)
 /// 게임 전체 밸런스 수치를 한 곳에 모은 설정 파일.
 ///
 /// 여기 값을 바꾸면 Inspector 값과 상관없이 게임에 적용된다
@@ -176,8 +176,34 @@ public static class GameBalance
     public static float BossPatternInterval = 13f;     // 패턴 간격 (+-2초 랜덤)
     public static float BossTelegraphSec = 2f;         // 패턴 예고 시간
 
+    // ── v9.20: 패턴이 화면에서 보이게 (유저 10-07 "패턴이 눈에 안 띔" - 보스 개편 스펙 3-0절) ──
+    /// <summary>
+    /// 패턴의 준비 -> 발동 -> 결과 -> 되돌아옴을 보스 몸과 전장에 그린다. false = v9.19.4 까지 (HP 바 밑 띠 + 가장자리 맥동 + 네 보스 공통 경보음뿐 - 보스 몸은 하얗게 깜빡이기만 했다).
+    ///   준비(BossTelegraphSec): 몸이 BossCastSwell 만큼 부푼다 + 보스마다 다른 울음(공통 경보음 대신) + 패턴별 표시
+    ///       호령·포효 = 입에서 퍼지는 소리 고리 / 낙뢰 = 맞을 포탑 위에 서는 예고 줄 (패링 창에서 깜빡인다) / 갑주 = 몸으로 모이는 냉기와 바닥의 서리
+    ///   발동: 몸이 BossReleaseSquash 만큼 눌렸다 0.25초에 돌아온다 + 충격 고리 + 흔들림
+    ///   결과: 낙뢰 줄기가 예고한 포탑에 꽂힌다 / 얼음 껍질 고리 / 무는 순간 불똥 + 그 칸이 튄다 + 이빨 자국
+    /// 고리·표시의 크기는 보스 그림의 길이를 따라간다 (보스가 커지면 같이 커진다)
+    /// </summary>
+    public static bool BossPatternFxOn = true;
+    public static float BossCastSwell = 0.10f;        // 준비하는 동안 몸이 커지는 양 (1 -> 1.10)
+    public static float BossReleaseSquash = 0.08f;    // 발동 순간 눌리는 양 (-> 0.92)
+    public static float BossReleaseShake = 0.5f;      // 발동 흔들림 = BossEntranceShake x 이 값 (등장보다 약하게)
+    public static float BossPatternEdgeSec = 0.4f;    // 화면 가장자리 붉은 맥동 (구: 예고 내내) - 전장의 표시와 시선을 다투지 않게 처음에만
+    public static float BossLungeWindupSec = 0.25f;   // 물기 전에 웅크리는 시간 (0 = 예전처럼 바로 문다)
+    public static float BossLungeBack = 0.5f;         // 웅크리며 물러나는 거리 (u)
+    public static float BossBiteCarKick = 0.16f;      // 물린 칸이 튀는 폭 (u). 0 = 없음
+    public static float BossBiteMarkSec = 0.6f;       // 이빨 자국이 남는 시간
+    /// <summary>호령·포효로 부른 무리가 보스 등 뒤(기차 반대쪽 스폰 테두리, 보스 좌우 BossSummonSpreadX 안)에서 뛰쳐나온다. false = 구 동작 (아무 방향에서)</summary>
+    public static bool BossSummonBehind = true;
+    public static float BossSummonSpreadX = 6f;
+    /// <summary>부른 무리 한 마리의 힘 (구: 호령 0.7 · 포효 0.8 고정). 1 = 제 힘 (유저 10-07: 머릿수를 늘렸다고 약하게 만들지 않는다)</summary>
+    public static float BossSummonStatMul = 1f;
+    /// <summary>부른 무리 한 마리의 보상 몫 (Enemy.Share). 머릿수를 두 배로 늘렸으니 절반 - 보스전에서 나오는 골드·재료의 합은 예전과 같다</summary>
+    public static float BossSummonShare = 0.5f;
+
     // 지역 1 '녹슨 발톱' - 사냥 호령 (소환. 예고 중 스턴 명중 시 절반)
-    public static int HowlSummonCount = 5;
+    public static int HowlSummonCount = 10;   // v9.20: 5 -> 10 (손님이 한 판에 백 마리 안팎이 된 뒤로 다섯 마리는 섞여서 안 보였다. 예고 중 마비·멈춤이면 절반 - 그대로)
 
     // 지역 2 '천둥 둥지' - 낙뢰 폭격 (포탑 슬롯 마비. 슬롯 곁에서 [E]로 재가동)
     public static int LightningSlotCount = 2;
@@ -189,7 +215,7 @@ public static class GameBalance
     public static float GlacierBreakGroggySec = 3f;    // 파괴 시 보너스 그로기
 
     // 최종 '디 오리지널' - 포효 (정예 증원 소환)
-    public static int OriginalRoarCount = 4;
+    public static int OriginalRoarCount = 10;   // v9.20: 4 -> 10
 
     // ── C-2: 마지막 주문 (진엔딩 B) ──
     /// <summary>
@@ -1029,7 +1055,7 @@ public static class GameBalance
 
     // ── (v9.13.1 2026-09-24) 3인 테스트 준비 ──
     /// <summary>빌드 표시 - 로비 오른쪽 아래에 찍힌다 (테스터 시트에 어느 빌드였는지 적기 위해). 팩마다 올린다</summary>
-    public const string BuildTag = "v9.19.4 (2026-10-07)";   // v9.19.4: 포탑 정보창을 네 줄로 + 글자 크게 / v9.19.3: 타격당 회복 증강은 1초에 한 번만 / v9.19.2: 손님이 제 힘으로 + 전체 강화 / 예고 화살표·편성 이름 줄 끔
+    public const string BuildTag = "v9.20 (2026-10-07)";   // v9.20: 보스 패턴이 화면에서 보인다 + 화살표 글자 / v9.19.4: 포탑 정보창을 네 줄로 + 글자 크게 / v9.19.3: 타격당 회복 증강은 1초에 한 번만 / v9.19.2: 손님이 제 힘으로 + 전체 강화 / 예고 화살표·편성 이름 줄 끔
 
     // ── (v9.14 2026-09-28) 3인 테스트 반영 1차 - 버그·밸런스·읽기 ──
     // ── 포탑 (테스터 "더블 육포만 올려도 됨 / 전설이 더 약함 / 하나 점사하면 나머지가 빗나감") ──

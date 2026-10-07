@@ -2,7 +2,7 @@
 using UnityEngine.UI;
 
 /// <summary>
-/// [CookingMinigame.cs] v2.8 (v9.16 2026-09-29 손맛 2차 - 소리: 조리 시작에 조리법별 소리 SoundKeys.Cook - 굽기 지글 / 볶기 촤악 / 끓이기 보글) / v2.7
+/// [CookingMinigame.cs] v2.9 (v9.20 2026-10-07: 글 속 화살표를 게임 글꼴에 있는 세모로(게임 글꼴에 화살표 글리프가 없어 PC 의 다른 글꼴로 그려졌다 - 모양이 따로 놀고, 대신할 글꼴이 없는 빌드에선 빈칸)) / v2.8 (v9.16 2026-09-29 손맛 2차 - 소리: 조리 시작에 조리법별 소리 SoundKeys.Cook - 굽기 지글 / 볶기 촤악 / 끓이기 보글) / v2.7
 /// - v2.7 변경점 (교수 피드백 2026-09-14, A2/A3 - 조리 공정성):
 ///   배율 하한 CookSpeedMulFloor/CookJudgeMulFloor (팬 마모 x 프테라 x 지역이 겹쳐 0.28배까지 떨어지던 것 차단)
 ///   끓이기 = 총시간 하한(BoilMinTotalSec) + 투입 안내를 절대 초가 아니라 "진행률"로 배치 (25~40% / 55~72%),
@@ -137,7 +137,7 @@ public class CookingMinigame : MonoBehaviour
 
     // 볶기 UI
     private Text[] arrowTexts = new Text[6];
-    private static readonly string[] ARROW_STR = { "←", "→", "↑", "↓" };
+    private static readonly string[] ARROW_STR = { "◀", "▶", "▲", "▼" };
 
     // 끓이기 UI
     private RectTransform boilTrack;

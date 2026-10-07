@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// [TrainDeck.cs] v6 (v9.18 2026-10-06: 보행 영역을 바닥 사각형 묶음(GameBalance.WalkFloors)으로 다시 씀 - 바퀴까지 내려가던 것·벽에서 아래로 순간이동하던 것 / 칸 덜컹임(CarOffsetAt) / 10-05 기차 그림 좌표 - 꼬리 TailDX, 코드 도트 연결부는 PNG 칸이면 안 그린다 / 전리품 상자 자리 LootSpot) / v5.1 - 고퀄 스프라이트 PNG 적용 (목업 v7d 컨펌 2026-09-03) / v3 탑뷰 재스킨 (2026-09-02)
+/// [TrainDeck.cs] v6.1 (v9.20 2026-10-07: 칸 걷어차임 KickCar - 보스가 문 칸이 한 번 크게 튄다. 덜컹임과 같은 길(그림만)로 더해진다) / v6 (v9.18 2026-10-06: 보행 영역을 바닥 사각형 묶음(GameBalance.WalkFloors)으로 다시 씀 - 바퀴까지 내려가던 것·벽에서 아래로 순간이동하던 것 / 칸 덜컹임(CarOffsetAt) / 10-05 기차 그림 좌표 - 꼬리 TailDX, 코드 도트 연결부는 PNG 칸이면 안 그린다 / 전리품 상자 자리 LootSpot) / v5.1 - 고퀄 스프라이트 PNG 적용 (목업 v7d 컨펌 2026-09-03) / v3 탑뷰 재스킨 (2026-09-02)
 ///
 /// - v6 (2026-10-06): 보행 API = IsWalkable / ResolveWalk / NearestWalkPoint / FindDoorY (전부 셰프 위치 기준. 표는 발 기준이고 ChefFootDY 로 옮긴다)
 /// - v5.1 (2026-09-08): 셰프 보행 영역 API (IsWalkable / ResolveWalk) - 칸 바닥(난간 안쪽) + 칸 사이 통로 발판만 걸을 수 있다.
@@ -223,6 +223,50 @@ public class TrainDeck : MonoBehaviour
     private static float railDist = 0f;        // 달린 거리 (u)
     private static bool rattleMoved = false;   // 직전 프레임에 0 이 아닌 값이 있었나 (꺼질 때 한 번 제자리로)
 
+    // ── v6.1 (v9.20): 칸 걷어차임 - 보스가 문 칸이 한 번 크게 튄다 (덜컹임에 더해진다. 그림만 움직인다) ──
+    private const float KICK_SEC = 0.5f;                         // 이 시간 안에 잦아든다
+    private static readonly Vector2[] kickDir = new Vector2[4];
+    private static readonly float[] kickAmp = new float[4];      // 0 = 없음
+    private static readonly float[] kickAt = new float[4];       // 걷어차인 시각 (Time.time)
+
+    /// <summary>
+    /// worldX 가 속한 칸을 dir 쪽으로 amp(월드 유닛)만큼 한 번 튕긴다 - KICK_SEC 안에 흔들리며 제자리로.
+    /// 덜컹임 스위치(CarRattleOn)나 정차와 상관없이 보인다 - 맞았다는 표시라서. GameFeelMaster 가 0 이면 없다
+    /// </summary>
+    public static void KickCar(float worldX, Vector2 dir, float amp)
+    {
+        if (GameBalance.GameFeelMaster <= 0f || amp <= 0f) return;
+        int car = Mathf.Clamp(GameBalance.CarIndexOf(worldX), 0, kickAmp.Length - 1);
+        kickDir[car] = dir.sqrMagnitude > 0.0001f ? dir.normalized : Vector2.down;
+        kickAmp[car] = amp * Mathf.Clamp01(GameBalance.GameFeelMaster);
+        kickAt[car] = Time.time;
+    }
+
+    /// <summary>아직 잦아들지 않은 걷어차임이 있는가. 시각이 미래로 찍혀 있으면(지난 실행에서 남은 값) 지운다</summary>
+    private static bool KickActive()
+    {
+        bool any = false;
+        for (int c = 0; c < kickAmp.Length; c++)
+        {
+            if (kickAmp[c] <= 0f) continue;
+            float t = Time.time - kickAt[c];
+            if (t < 0f || t >= KICK_SEC) kickAmp[c] = 0f;
+            else any = true;
+        }
+        return any;
+    }
+
+    /// <summary>걷어차임을 이번 프레임의 칸 오프셋에 더한다 (처음에 가장 크게 밀리고 빠르게 잦아드는 흔들림)</summary>
+    private static void AddKicks()
+    {
+        for (int c = 0; c < kickAmp.Length && c < carOffset.Length; c++)
+        {
+            if (kickAmp[c] <= 0f) continue;
+            float t = Time.time - kickAt[c];
+            carOffset[c] += kickDir[c] * (kickAmp[c] * Mathf.Exp(-t / 0.12f) * Mathf.Cos(2f * Mathf.PI * 7f * t));
+        }
+    }
+
     /// <summary>x 가 속한 칸의 지금 덜컹임 (월드 유닛). 칸에 실린 그림(포탑·조리대·작살포·레버)이 자기 자리에 이 값을 더해 그린다. 꺼져 있거나 정차 중이면 0</summary>
     public static Vector2 CarOffsetAt(float x)
     {
@@ -253,7 +297,8 @@ public class TrainDeck : MonoBehaviour
     {
         float speed = ParallaxBackground.CurrentSpeed;
         bool on = GameBalance.CarRattleOn && GameBalance.GameFeelMaster > 0f && speed > 0.05f && GameBalance.CarRattleJoint > 0.1f;
-        if (!on)
+        bool kicking = KickActive();   // v6.1: 걷어차임은 덜컹임이 꺼져 있어도(정차 중에도) 보인다
+        if (!on && !kicking)
         {
             if (!rattleMoved) return;
             for (int c = 0; c < carOffset.Length; c++) carOffset[c] = Vector2.zero;
@@ -267,6 +312,7 @@ public class TrainDeck : MonoBehaviour
         float amp = GameBalance.CarRattleAmp * Mathf.Clamp01(speed / 3.2f);   // 출발·정차 중에는 작게
         for (int c = 0; c < carOffset.Length; c++)
         {
+            if (!on) { carOffset[c] = Vector2.zero; continue; }   // v6.1: 걷어차임만 있는 프레임 - 덜컹임은 0 (정차 중이면 아래 식이 0 으로 나눈다)
             float u = railDist / joint - c * GameBalance.CarRattleStagger;   // 이 칸이 지난 이음매 수 (뒤 칸일수록 늦게 밟는다)
             float whole = Mathf.Floor(u);
             float t = (u - whole) * joint / speed;                             // 마지막 이음매를 밟은 뒤 흐른 시간 (초)
@@ -275,6 +321,7 @@ public class TrainDeck : MonoBehaviour
             float tug = 0.5f * Jolt(t, 7f, 0.09f);                                   // 연결기 당김 (진행 방향으로 살짝)
             carOffset[c] = new Vector2(-tug * amp, sway * amp * side);
         }
+        if (kicking) AddKicks();
         ApplyRattle();
         rattleMoved = true;
     }

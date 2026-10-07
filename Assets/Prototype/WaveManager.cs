@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// [WaveManager.cs] v6.21 (v9.19.2 2026-10-07 유저 확인 뒤: 머릿수를 늘린 손님이 제 힘으로 온다 - AddUnits 가 한 마리를 나눠 약하게 하지 않고 크기별 HP 배율(TierHpMul*)과 초반 배율(EarlyBodyStart)만 건다. Enemy.Share 는 보상·도구 부식 같은 "한 번에 얼마"에만 / 편성 이름 줄과 방향 예고 화살표는 GameBalance 값으로 꺼졌다(FormationLineShows 0·SpawnCueSec 0 - 코드는 그대로)) / v6.20 (v9.19.1 2026-10-07 유저 소감: 손님이 생기는 테두리가 "지금 보이는 화면"을 따라간다(SpawnBounds - 휠로 넓게 보면 화면 가운데에서 생기던 것. 구 방식 스폰·보스 증원·보스 등장도 같은 테두리) / 머릿수 대폭 증가: 손님 크기별 배율 CountMulSmall·Mid·Big + 무리 세기 GroupPower*, 조각 크기 FormationSizeMul. 손님에게 한 마리의 몫(Enemy.Share)을 건다 - 보상·기차 방어력·연속 피격 완충·고정량 효과가 몫만큼만 먹게) /
+/// [WaveManager.cs] v6.22 (v9.20 2026-10-07: 보스가 부른 증원이 보스 등 뒤에서 뛰쳐나온다 - SpawnReinforcements 에 부른 자리·등 뒤 여부·보상 몫, 자리로 스폰하는 SpawnEnemyAtPos) / v6.21 (v9.19.2 2026-10-07 유저 확인 뒤: 머릿수를 늘린 손님이 제 힘으로 온다 - AddUnits 가 한 마리를 나눠 약하게 하지 않고 크기별 HP 배율(TierHpMul*)과 초반 배율(EarlyBodyStart)만 건다. Enemy.Share 는 보상·도구 부식 같은 "한 번에 얼마"에만 / 편성 이름 줄과 방향 예고 화살표는 GameBalance 값으로 꺼졌다(FormationLineShows 0·SpawnCueSec 0 - 코드는 그대로)) / v6.20 (v9.19.1 2026-10-07 유저 소감: 손님이 생기는 테두리가 "지금 보이는 화면"을 따라간다(SpawnBounds - 휠로 넓게 보면 화면 가운데에서 생기던 것. 구 방식 스폰·보스 증원·보스 등장도 같은 테두리) / 머릿수 대폭 증가: 손님 크기별 배율 CountMulSmall·Mid·Big + 무리 세기 GroupPower*, 조각 크기 FormationSizeMul. 손님에게 한 마리의 몫(Enemy.Share)을 건다 - 보상·기차 방어력·연속 피격 완충·고정량 효과가 몫만큼만 먹게) /
 /// v6.19 (v9.19 2026-10-06 웨이브 편성: 웨이브 2 부터 손님을 편성 조각으로 내보낸다(RunFormations - 추격·파상·매복·호위 행렬·양동·포위·공중 편대 + 산개, GameBalance.WaveFormationsOn). 조각마다 오는 쪽 예고(WarningFX.SpawnCue)가 먼저, 조각 사이엔 쉼(BeatGap). 손님은 화면 바로 밖 테두리(EdgePoint)에서 생긴다. 구 방식 본문은 SpawnWaveClassic 으로 / 웨이브 예고 카드의 "주의" 문구는 알림 줄로) /
 /// v6.18 (v9.18 2026-10-06: 보스는 기차 북쪽(화면 위)에서만 온다(GameBalance.BossSpawnNorthOnly - 남쪽은 하단 HUD 에 가려진다), 예습 보스는 포탑 칸 B 위에서 / 웨이브가 끝났을 때 사고가 진행 중이면 사고가 끝난 뒤에 증강·선로 선택을 연다(PostWaveHold, WaitEventBeforeChoiceSec) / 코드 폴백 손님의 그림 고르기를 EnemySkin.SpriteFor 한 곳으로) /
 /// v6.17 (v9.17 2026-10-06 화면 손맛 2차 D5: 패배 연출 중(GameManager.DefeatPending)과 운행이 끝난 뒤(GameOver·Victory)엔 웨이브 클리어 판정을 하지 않는다. 아트 v1 의 v6.16 위에 얹었다) / v6.16 (아트 v1 2026-10-03: 코드 폴백 손님도 새 전용 그림 4종 e_armadillo / e_mammoth / e_pachy / e_cactus 를 쓴다) / v6.15 (v9.15.1 2026-09-29 스토리 개정: 최종전 직전 정차엔 베팅 없음(GameBalance.SpinoNoBetAtFinal) / 최종전 시작에 스피노 고백 카드(BriefingTexts.SpinoFinal) / 최종전 긴급 보급 문구 = "스피노가 실어 둔 재료" / 지역 3 첫 웨이브 스피노 한 줄) / v6.14 (v9.13 2026-09-23: 선로 v2 - 정차의 선로 선택이 카드 창 대신 갈림길 + 왼쪽 카드(BranchRouteUI v2, 시간 안 멈춤). 출발 직전 BranchRouteUI.OnDepart 로 세계 밀림·톤 시작 /
@@ -1591,6 +1591,14 @@ public class WaveManager : MonoBehaviour
                 center.y + Mathf.Sin(rad) * distance, 0f);
         }
 
+        return SpawnEnemyAtPos(prefab, enemyData, waveNum, playerLevel, diffL, spawnPos);
+    }
+
+    /// <summary>v6.22: 정해진 자리에 손님 하나 (SpawnEnemyAt 의 뒤 절반 - 보스 등 뒤처럼 각도가 아니라 자리로 정할 때)</summary>
+    private Enemy SpawnEnemyAtPos(GameObject prefab, Enemy.EnemyData enemyData, int waveNum, int playerLevel, float diffL, Vector3 spawnPos)
+    {
+        if (prefab == null && !GameBalance.EnemyFallbackVisuals) return null;
+
         GameObject enemyObj = prefab != null
             ? Instantiate(prefab, spawnPos, Quaternion.identity)
             : BuildFallbackEnemy(enemyData, spawnPos);
@@ -1613,6 +1621,17 @@ public class WaveManager : MonoBehaviour
     /// </summary>
     public void SpawnReinforcements(string kind, int count, float statMul)
     {
+        SpawnReinforcements(kind, count, statMul, Vector3.zero, false, 1f);
+    }
+
+    /// <summary>
+    /// v6.22 (v9.20): 보스가 부른 증원.
+    /// behind = true 면 caller(보스 자리)의 등 뒤 = 기차 반대쪽 스폰 테두리에서, caller 의 좌우 GameBalance.BossSummonSpreadX 안에 흩어져 생긴다
+    ///   - 보스를 스쳐 기차로 달려가므로 "보스가 불렀고 그 뒤에서 왔다"가 한 화면에서 이어진다 (구: 아무 방향 ±30도 - 손님 사이에 섞여 안 보였다)
+    /// share = 한 마리의 보상 몫 (Enemy.Share - 머릿수를 늘린 만큼 줄여 보상의 합을 지킨다. 1 = 그대로)
+    /// </summary>
+    public void SpawnReinforcements(string kind, int count, float statMul, Vector3 caller, bool behind, float share)
+    {
         GameObject prefab = (kind == "ptera") ? boltTeranodonPrefab : steamRaptorPrefab;
         Enemy.EnemyData ed = (kind == "ptera") ? Enemy.BoltTeranodon : Enemy.SteamRaptor;
 
@@ -1625,20 +1644,40 @@ public class WaveManager : MonoBehaviour
         int playerLevel = GameManager.Instance != null ? GameManager.Instance.playerLevel : 1;
         float baseAngle = Random.Range(0f, 360f);
 
+        // 등 뒤 = 기차 반대쪽 테두리. 화면을 넓게 보고 있어도 화면 밖에서 생긴다 (SpawnBounds). 견습 운행의 고정 스폰과 구 방식 스폰에서는 쓰지 않는다
+        bool useBehind = behind && GameBalance.SpawnEdgeFollowView && !tutorialSpawning;
+        float left = 0f, right = 0f, bottom = 0f, top = 0f;
+        if (useBehind) SpawnBounds(0f, out left, out right, out bottom, out top);
+        float trainY = trainTransform != null ? trainTransform.position.y : 0f;
+        float spread = Mathf.Max(0.5f, GameBalance.BossSummonSpreadX);
+
         for (int i = 0; i < count; i++)
         {
-            Enemy e = SpawnEnemyAt(prefab, ed, currentWaveNumber, playerLevel,
-                GameBalance.EnemyDifficultyL, baseAngle + Random.Range(-30f, 30f));
+            Enemy e;
+            if (useBehind)
+            {
+                float x = Mathf.Clamp(caller.x + Random.Range(-spread, spread), left, right);
+                float away = Random.Range(0f, 1.5f);   // 조금씩 다른 거리에서 - 한 줄이 아니라 떼로 쏟아진다
+                float y = caller.y >= trainY ? top + away : bottom - away;
+                e = SpawnEnemyAtPos(prefab, ed, currentWaveNumber, playerLevel, GameBalance.EnemyDifficultyL, new Vector3(x, y, 0f));
+            }
+            else
+            {
+                e = SpawnEnemyAt(prefab, ed, currentWaveNumber, playerLevel,
+                    GameBalance.EnemyDifficultyL, baseAngle + Random.Range(-30f, 30f));
+            }
+            if (e == null) continue;
 
-            if (e != null && !Mathf.Approximately(statMul, 1f))
+            if (!Mathf.Approximately(statMul, 1f))
             {
                 e.currentHP *= statMul;
                 e.scaledMaxHP = e.currentHP;
                 e.scaledATK *= statMul;
             }
+            if (share > 0f && share < 0.999f) e.Share = Mathf.Max(0.05f, share);
         }
 
-        Debug.Log("[WaveManager] 보스 증원 스폰: " + kind + " x" + count + " (배율 " + statMul + ")");
+        Debug.Log("[WaveManager] 보스 증원 스폰: " + kind + " x" + count + " (배율 " + statMul + (useBehind ? ", 보스 등 뒤" : "") + ")");
     }
 
     /// <summary>

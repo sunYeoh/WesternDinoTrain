@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 /// <summary>
-/// [TutorialDirector.cs] v2.2 (v9.18 2026-10-06: 목표 카드의 아래 끝·왼쪽 끝을 밖에서 읽게(CardBottomY·CardLeftFromRight - 알림 줄과 예고 카드가 카드를 피한다) / [Enter] 건너뛰기 오작동 - 요리 창·카드가 닫히는 그 프레임의 Enter 가 단계 건너뛰기로 새던 것(직전 프레임에 창이 떠 있었으면 무시) / 4단계 고기: 손님이 재료를 반드시 떨어뜨리고(Enemy), 그래도 모자라면 10초 뒤 채운다(구 30초)) / v2.1 (v9.15 2026-09-29 2차 피드백 "훈련장 무한 반복·맨땅 연습": 구간 완료 카드 [R] 한 번 더(PendingSegment - 씬 리로드 뒤 자동 시작) / 자유 연습 Begin(SANDBOX=8) - 손님이 계속 오고(SandboxSpawn*) 재료가 안 떨어지고 기차가 안 죽는다, [1] 낙뢰 [2] 화재 [3] 흘림 [4] 고장 [5] 침입 을 직접 일으킨다, 나가기 = [ESC] 메뉴 그만두기. SandboxActive 동안 포탑 파손도 진짜로 일어난다) / v2 (v9.12 2026-09-22: 견습 운행 구간화 - 7구간(S1 이동과 첫 포탑 1~6 / S2 감전된 포탑 복구 7 / S3 작살로 재료 얻기 8 / S4 전속 주행 켜고 끄기 9 /
+/// [TutorialDirector.cs] v2.3 (v9.20 2026-10-07: 글 속 화살표를 게임 글꼴에 있는 세모로(게임 글꼴에 화살표 글리프가 없어 PC 의 다른 글꼴로 그려졌다 - 모양이 따로 놀고, 대신할 글꼴이 없는 빌드에선 빈칸)) / v2.2 (v9.18 2026-10-06: 목표 카드의 아래 끝·왼쪽 끝을 밖에서 읽게(CardBottomY·CardLeftFromRight - 알림 줄과 예고 카드가 카드를 피한다) / [Enter] 건너뛰기 오작동 - 요리 창·카드가 닫히는 그 프레임의 Enter 가 단계 건너뛰기로 새던 것(직전 프레임에 창이 떠 있었으면 무시) / 4단계 고기: 손님이 재료를 반드시 떨어뜨리고(Enemy), 그래도 모자라면 10초 뒤 채운다(구 30초)) / v2.1 (v9.15 2026-09-29 2차 피드백 "훈련장 무한 반복·맨땅 연습": 구간 완료 카드 [R] 한 번 더(PendingSegment - 씬 리로드 뒤 자동 시작) / 자유 연습 Begin(SANDBOX=8) - 손님이 계속 오고(SandboxSpawn*) 재료가 안 떨어지고 기차가 안 죽는다, [1] 낙뢰 [2] 화재 [3] 흘림 [4] 고장 [5] 침입 을 직접 일으킨다, 나가기 = [ESC] 메뉴 그만두기. SandboxActive 동안 포탑 파손도 진짜로 일어난다) / v2 (v9.12 2026-09-22: 견습 운행 구간화 - 7구간(S1 이동과 첫 포탑 1~6 / S2 감전된 포탑 복구 7 / S3 작살로 재료 얻기 8 / S4 전속 주행 켜고 끄기 9 /
 ///   S5 요리하며 기차 지키기 10 / S6 증강 선택과 정비 11 / S7 미끼로 첫 보스 상대하기 12(신규)) + 마지막 앞길 카드 13. Begin(segment) 로 한 구간만 (훈련장 TrainingGroundUI),
 ///   구간마다 PlayerPrefs WDT_Tut_S1..S7 = 1 완료 / 2 건너뜀. 정식 운행 인라인 연습 PlayInline(seg) - 새 기믹 첫 등장 순간(협곡 낙뢰 / 첫 바위 / 레버 웨이브) 손님·스폰·사고·포탑을 멈추고(InlineFreeze)
 ///   셰프만 움직여 그 행동을 해낸다. 30초 = 힌트 추가(자동 통과 없음), [Enter] = 건너뛰기(기록 2). 큰 카드 540x250 = 연습·예습, 목표 카드 330x156 은 그대로 (목업 v4.2).
@@ -595,7 +595,7 @@ public class TutorialDirector : MonoBehaviour
     private IEnumerator Step5_Grill()
     {
         CookingStation grill = FindStation(CookingStation.StationType.Grilling);
-        BeginStep(5, "그릴에서 더블 육포를 구워라", "그릴 곁에서 [E] → 더블 육포 고르기\n눈금이 판정 칸 안에 오면 [Space]", "조리", 0, 1);
+        BeginStep(5, "그릴에서 더블 육포를 구워라", "그릴 곁에서 [E] ▶ 더블 육포 고르기\n눈금이 판정 칸 안에 오면 [Space]", "조리", 0, 1);
         if (grill != null) ShowMarkerFollow(grill.transform, 1.0f, RING_STATION);
         yield return Brief(BriefingTexts.Tutorial(5));
 
@@ -643,7 +643,7 @@ public class TutorialDirector : MonoBehaviour
         while (!skipRequested)
         {
             if (TurretSlot.LastInsertTime > insertMark) break;
-            if (Time.time > hintAt) { hintAt = float.MaxValue; UIManager.Instance?.ShowStatChange("[견습] 하단 바의 요리 카드를 클릭 → 포탑 이름표 클릭"); }
+            if (Time.time > hintAt) { hintAt = float.MaxValue; UIManager.Instance?.ShowStatChange("[견습] 하단 바의 요리 카드를 클릭 ▶ 포탑 이름표 클릭"); }
             yield return null;
         }
         SetProgress(1, 1);
