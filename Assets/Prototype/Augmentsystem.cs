@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 
 /// <summary>
-/// [AugmentSystem.cs] v4.5 (v9.18 2026-10-06: 선대의 기본기 설명에 "기본 요리 최대 레벨" - 레벨 상한이 돌아오면서 이 증강은 기본 요리 상한을 올려 준다(GameBalance.BasicsT1MaxLevel)) / v4.4 (v9.13 2026-09-23: AugmentDatabase.ForceGrade - 선로 보상 "증강 1회 더" 의 등급 고정) / v4.3 (v9.11.1 2026-09-22 문구: 이번 운행·유물·진화) / v4.2 (v9.10 2026-09-17 테스터 피드백 "증강에 모르겠는 말": 첫 지역은 바로 이해되는 증강만 후보(EARLY_SIMPLE, GameBalance.AugmentSimpleEarly) / 설명 낱말 일상어 - 도트·스택·인접 버프·공명·DEF·감쇄) / v4.1 (2026-09-14: 중첩 배수 상한 AugmentStackMulCap) / v4
+/// [AugmentSystem.cs] v4.6 (v9.19.1 2026-10-07: 육수 한 국자·회복의 만찬 설명에 "최대" - 머릿수를 늘린 손님을 때리면 그 손님의 몫(Enemy.Share)만큼만 회복한다) / v4.5 (v9.18 2026-10-06: 선대의 기본기 설명에 "기본 요리 최대 레벨" - 레벨 상한이 돌아오면서 이 증강은 기본 요리 상한을 올려 준다(GameBalance.BasicsT1MaxLevel)) / v4.4 (v9.13 2026-09-23: AugmentDatabase.ForceGrade - 선로 보상 "증강 1회 더" 의 등급 고정) / v4.3 (v9.11.1 2026-09-22 문구: 이번 운행·유물·진화) / v4.2 (v9.10 2026-09-17 테스터 피드백 "증강에 모르겠는 말": 첫 지역은 바로 이해되는 증강만 후보(EARLY_SIMPLE, GameBalance.AugmentSimpleEarly) / 설명 낱말 일상어 - 도트·스택·인접 버프·공명·DEF·감쇄) / v4.1 (2026-09-14: 중첩 배수 상한 AugmentStackMulCap) / v4
 /// 로그라이크 증강 시스템 (기획 C) - 창의적 증강 재설계판
 ///
 /// 설계 철학
@@ -433,7 +433,7 @@ public static class AugmentDatabase
             delegate { AugmentManager.ShredAdd += 5; }));
 
         all.Add(new AugmentData("silver_lifesteal", "육수 한 국자",
-            "포탑이 적을 때릴 때마다 기차 HP 0.5 회복", AugmentGrade.Silver, true,
+            "포탑이 손님을 때릴 때마다 기차 HP 최대 0.5 회복 (떼로 온 손님은 덜)", AugmentGrade.Silver, true,
             delegate { AugmentManager.LifestealPerHit += 0.5f; }));
 
         all.Add(new AugmentData("silver_wavehal", "응급 정비",
@@ -482,7 +482,7 @@ public static class AugmentDatabase
             delegate { AugmentManager.CritChanceAdd += 0.15f; AugmentManager.CritDamageAdd += 0.50f; }));
 
         all.Add(new AugmentData("gold_lifesteal", "회복의 만찬",
-            "포탑이 적을 때릴 때마다 기차 HP 2 회복", AugmentGrade.Gold, true,
+            "포탑이 손님을 때릴 때마다 기차 HP 최대 2 회복 (떼로 온 손님은 덜)", AugmentGrade.Gold, true,
             delegate { AugmentManager.LifestealPerHit += 2f; }));
 
         all.Add(new AugmentData("gold_fortress", "강철의 요새",

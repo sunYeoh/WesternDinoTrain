@@ -3,34 +3,35 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// [DustFX.cs] v1 (ì‹ ê·œ íŒŒì¼) - íƒ‘ë‹¤ìš´ ë¨¼ì§€ í¼í”„ ì—°ì¶œ (2026-09-07, Apocalypse Express ë¬¸ë²•)
+/// [DustFX.cs] v1.1 (v9.19.1 2026-10-07: ¼Õ´Ô ¼ö°¡ µÎ¼¼ ¹è·Î ´Ã¾ú´Ù - Ç® 48 -> 96, ¿òÁ÷ÀÌ´Â ¼Õ´ÔÀÌ ¸¹À¸¸é ¹ø°¥¾Æ °¡¸ç ¸ÕÁö¸¦ ³½´Ù(ÇÑ ¹ø¿¡ 16¸¶¸®Âë). ¾È ±×·¯¸é ¼Õ´Ô ¸ÕÁö°¡ Ç®À» ´Ù ½á¼­ ¹ÙÄû ¸ÕÁö°¡ ²÷±ä´Ù) / v1 (½Å±Ô ÆÄÀÏ) - Å¾´Ù¿î ¸ÕÁö ÆÛÇÁ ¿¬Ãâ (2026-09-07, Apocalypse Express ¹®¹ı)
 ///
-/// Resources/Sprites/WDT/dust_0 ~ dust_3 (24x24, ì‘ê³  ì§„í•¨ -> í¬ê³  ì˜…ìŒ) 4í”„ë ˆì„ì„ ì§§ê²Œ ì¬ìƒí•˜ëŠ” í¼í”„ë¥¼ í’€ì—ì„œ êº¼ë‚´ ì“´ë‹¤.
-///   1) ê¸°ì°¨ ë°”í€´ ë¨¼ì§€: ì§€ë©´ì´ íë¥´ëŠ” ë™ì•ˆ(ParallaxBackground.CurrentSpeed > 0.5) ê¸°ì°¨ ìœ„ì•„ë˜ ë°”í€´ì„ (y = Â±WHEEL_Y)ì—
-///      ë¬´ì‘ìœ„ xë¡œ í¼í”„ë¥¼ í˜ë¦°ë‹¤. í¼í”„ëŠ” ì§€ë©´ê³¼ ê°™ì€ ì†ë„ë¡œ ì˜¤ë¥¸ìª½ìœ¼ë¡œ í˜ëŸ¬ê°€ "ê¸°ì°¨ê°€ ë‹¬ë¦°ë‹¤"ëŠ” ëŠë‚Œì„ ì¤€ë‹¤
-///   2) ì  ì´ë™ ë¨¼ì§€: 0.15ì´ˆë§ˆë‹¤ ì‚´ì•„ìˆëŠ” Enemyë¥¼ í›‘ì–´ ì´ë™ ì¤‘(ì†ë„ > 0.8)ì¸ ì§€ìƒ ì  ë’¤ì— í¼í”„ (ë¹„í–‰ ì ì€ ì œì™¸)
-///   3) ì™¸ë¶€ í›…: DustFX.Puff(ìœ„ì¹˜, í¬ê¸°) - ëŒ€ì‹œ/ì°©ì§€/í­ë°œ ë“± ì–´ë””ì„œë‚˜ í•œ ì¤„ë¡œ í˜¸ì¶œ ê°€ëŠ¥
-/// ì •ë ¬: ORDER_DUST(-5) = ì„ ë¡œ(-10) ìœ„, ê¸°ì°¨ ì¹¸(0 ì´ìƒ) ì•„ë˜ -> ê¸°ì°¨ ë°‘ì—ì„œ ìƒˆì–´ ë‚˜ì˜¤ëŠ” ê²ƒì²˜ëŸ¼ ë³´ì¸ë‹¤
+/// Resources/Sprites/WDT/dust_0 ~ dust_3 (24x24, ÀÛ°í ÁøÇÔ -> Å©°í ¿¶À½) 4ÇÁ·¹ÀÓÀ» Âª°Ô Àç»ıÇÏ´Â ÆÛÇÁ¸¦ Ç®¿¡¼­ ²¨³» ¾´´Ù.
+///   1) ±âÂ÷ ¹ÙÄû ¸ÕÁö: Áö¸éÀÌ Èå¸£´Â µ¿¾È(ParallaxBackground.CurrentSpeed > 0.5) ±âÂ÷ À§¾Æ·¡ ¹ÙÄû¼±(y = ¡¾WHEEL_Y)¿¡
+///      ¹«ÀÛÀ§ x·Î ÆÛÇÁ¸¦ Èê¸°´Ù. ÆÛÇÁ´Â Áö¸é°ú °°Àº ¼Óµµ·Î ¿À¸¥ÂÊÀ¸·Î Èê·¯°¡ "±âÂ÷°¡ ´Ş¸°´Ù"´Â ´À³¦À» ÁØ´Ù
+///   2) Àû ÀÌµ¿ ¸ÕÁö: 0.15ÃÊ¸¶´Ù »ì¾ÆÀÖ´Â Enemy¸¦ ÈÈ¾î ÀÌµ¿ Áß(¼Óµµ > 0.8)ÀÎ Áö»ó Àû µÚ¿¡ ÆÛÇÁ (ºñÇà ÀûÀº Á¦¿Ü)
+///   3) ¿ÜºÎ ÈÅ: DustFX.Puff(À§Ä¡, Å©±â) - ´ë½Ã/ÂøÁö/Æø¹ß µî ¾îµğ¼­³ª ÇÑ ÁÙ·Î È£Ãâ °¡´É
+/// Á¤·Ä: ORDER_DUST(-5) = ¼±·Î(-10) À§, ±âÂ÷ Ä­(0 ÀÌ»ó) ¾Æ·¡ -> ±âÂ÷ ¹Ø¿¡¼­ »õ¾î ³ª¿À´Â °ÍÃ³·³ º¸ÀÎ´Ù
 ///
-/// ì‚¬ìš©ë²•: ì—†ìŒ! íŒŒì¼ë§Œ ë„£ìœ¼ë©´ ê²Œì„ ì‹œì‘ ì‹œ ìŠ¤ìŠ¤ë¡œ ìƒì„±ëœë‹¤. (SpriteBank.cs í•„ìš”, dust_*.png ì—†ìœ¼ë©´ ì•„ë¬´ê²ƒë„ ì•ˆ í•¨)
-/// ì¡°ì ˆê°’: WHEEL_INTERVAL / ENEMY_INTERVAL / PUFF_LIFE / MAX_PUFFS
-/// VS 2017 (C# 7.3) í˜¸í™˜
+/// »ç¿ë¹ı: ¾øÀ½! ÆÄÀÏ¸¸ ³ÖÀ¸¸é °ÔÀÓ ½ÃÀÛ ½Ã ½º½º·Î »ı¼ºµÈ´Ù. (SpriteBank.cs ÇÊ¿ä, dust_*.png ¾øÀ¸¸é ¾Æ¹«°Íµµ ¾È ÇÔ)
+/// Á¶Àı°ª: WHEEL_INTERVAL / ENEMY_INTERVAL / PUFF_LIFE / MAX_PUFFS
+/// VS 2017 (C# 7.3) È£È¯
 /// </summary>
 public class DustFX : MonoBehaviour
 {
-    private const float WHEEL_Y = 1.85f;            // ê¸°ì°¨ ëª¸í†µ ê°€ì¥ìë¦¬(Â±1.8) ë°”ë¡œ ë°”ê¹¥
-    private const float WHEEL_X_MIN = -6.0f;        // ê¸°ì°¨ x ë²”ìœ„ (CarEdgesX -6.5 ~ 11.5 ì•ˆìª½)
+    private const float WHEEL_Y = 1.85f;            // ±âÂ÷ ¸öÅë °¡ÀåÀÚ¸®(¡¾1.8) ¹Ù·Î ¹Ù±ù
+    private const float WHEEL_X_MIN = -6.0f;        // ±âÂ÷ x ¹üÀ§ (CarEdgesX -6.5 ~ 11.5 ¾ÈÂÊ)
     private const float WHEEL_X_MAX = 11.0f;
-    private const float WHEEL_INTERVAL = 0.11f;     // ë°”í€´ í¼í”„ ê°„ê²©(ì´ˆ) - ìœ„/ì•„ë˜ ë²ˆê°ˆì•„
-    private const float ENEMY_INTERVAL = 0.15f;     // ì  í›‘ê¸° ê°„ê²©(ì´ˆ)
-    private const float ENEMY_MIN_SPEED = 0.8f;     // ì´ ì†ë„(ìœ ë‹›/ì´ˆ) ì´ìƒ ì›€ì§ì´ëŠ” ì ë§Œ
-    private const float PUFF_LIFE = 0.45f;          // í¼í”„ ìˆ˜ëª…(ì´ˆ) - 4í”„ë ˆì„
-    private const int MAX_PUFFS = 48;               // í’€ í¬ê¸° (ì´ˆê³¼ ì‹œ ê°€ì¥ ì˜¤ë˜ëœ ê²ƒ ì¬ì‚¬ìš©)
+    private const float WHEEL_INTERVAL = 0.11f;     // ¹ÙÄû ÆÛÇÁ °£°İ(ÃÊ) - À§/¾Æ·¡ ¹ø°¥¾Æ
+    private const float ENEMY_INTERVAL = 0.15f;     // Àû ÈÈ±â °£°İ(ÃÊ)
+    private const float ENEMY_MIN_SPEED = 0.8f;     // ÀÌ ¼Óµµ(À¯´Ö/ÃÊ) ÀÌ»ó ¿òÁ÷ÀÌ´Â Àû¸¸
+    private const float PUFF_LIFE = 0.45f;          // ÆÛÇÁ ¼ö¸í(ÃÊ) - 4ÇÁ·¹ÀÓ
+    private const int MAX_PUFFS = 96;               // Ç® Å©±â (ÃÊ°ú ½Ã °¡Àå ¿À·¡µÈ °Í Àç»ç¿ë). v1.1: 48 -> 96
+    private const int ENEMY_PUFFS_PER_SCAN = 16;    // v1.1: ÇÑ ¹ø ÈÈÀ» ¶§ ¸ÕÁö¸¦ ³»´Â ¼Õ´Ô ¼öÀÇ ±âÁØ - ÀÌº¸´Ù ¸¹À¸¸é ¹ø°¥¾Æ °¡¸ç ³½´Ù
     private const int ORDER_DUST = -5;
-    private const float MIN_GROUND_SPEED = 0.5f;    // ì§€ë©´ì´ ì´ ì†ë„ ì´ìƒ íë¥¼ ë•Œë§Œ ë°”í€´ ë¨¼ì§€
+    private const float MIN_GROUND_SPEED = 0.5f;    // Áö¸éÀÌ ÀÌ ¼Óµµ ÀÌ»ó Èå¸¦ ¶§¸¸ ¹ÙÄû ¸ÕÁö
 
     private static DustFX instance;
-    private static readonly string[] FLYING_KEYS = { "í…Œë¼ë…¸ëˆ", "í”„í…Œë¼", "í”Œë¼ì´", "ìµë£¡", "í”„í…Œë¡œ" };
+    private static readonly string[] FLYING_KEYS = { "Å×¶ó³ëµ·", "ÇÁÅ×¶ó", "ÇÃ¶óÀÌ", "ÀÍ·æ", "ÇÁÅ×·Î" };
 
     private class PuffItem
     {
@@ -45,23 +46,24 @@ public class DustFX : MonoBehaviour
     private Sprite[] frames;
     private float wheelTimer, enemyTimer;
     private bool wheelTop;
+    private int enemyScanPhase;                     // v1.1: ¹ø°¥¾Æ ³¾ ¶§ÀÇ Â÷·Ê
     private readonly Dictionary<Enemy, Vector3> lastEnemyPos = new Dictionary<Enemy, Vector3>();
     private readonly List<Enemy> deadKeys = new List<Enemy>();
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ë¶€íŠ¸ìŠ¤íŠ¸ë©
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ºÎÆ®½ºÆ®·¦
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void Bootstrap()
     {
         if (instance != null) return;
-        if (!SpriteBank.Has("dust_0")) { Debug.Log("[DustFX] dust_*.png ì—†ìŒ - ë¨¼ì§€ ì—°ì¶œ ìƒëµ"); return; }
+        if (!SpriteBank.Has("dust_0")) { Debug.Log("[DustFX] dust_*.png ¾øÀ½ - ¸ÕÁö ¿¬Ãâ »ı·«"); return; }
         GameObject go = new GameObject("DustFX");
         DontDestroyOnLoad(go);
         go.AddComponent<DustFX>();
     }
 
-    /// <summary>ì™¸ë¶€ í›…: ìœ„ì¹˜ì— í¼í”„ í•˜ë‚˜ (scale 1 = 0.75ìœ ë‹›)</summary>
+    /// <summary>¿ÜºÎ ÈÅ: À§Ä¡¿¡ ÆÛÇÁ ÇÏ³ª (scale 1 = 0.75À¯´Ö)</summary>
     public static void Puff(Vector3 pos, float scale)
     {
         if (instance != null) instance.Spawn(pos, scale, Vector3.zero);
@@ -74,7 +76,7 @@ public class DustFX : MonoBehaviour
         frames = new Sprite[4];
         for (int i = 0; i < 4; i++) frames[i] = SpriteBank.Get("dust_" + i);
         SceneManager.sceneLoaded += OnSceneLoaded;
-        Debug.Log("[DustFX] ë¨¼ì§€ í¼í”„ ì—°ì¶œ ì¤€ë¹„ (í’€ " + MAX_PUFFS + ")");
+        Debug.Log("[DustFX] ¸ÕÁö ÆÛÇÁ ¿¬Ãâ ÁØºñ (Ç® " + MAX_PUFFS + ")");
     }
 
     private void OnDestroy()
@@ -84,14 +86,14 @@ public class DustFX : MonoBehaviour
 
     private void OnSceneLoaded(Scene s, LoadSceneMode m)
     {
-        // ì”¬ ë¦¬ë¡œë“œ([ë‹¤ì‹œ êµ½ëŠ”ë‹¤]) ì‹œ ì£½ì€ í¼í”„ ì°¸ì¡° ì •ë¦¬
+        // ¾À ¸®·Îµå([´Ù½Ã ±Á´Â´Ù]) ½Ã Á×Àº ÆÛÇÁ ÂüÁ¶ Á¤¸®
         for (int i = 0; i < pool.Count; i++) if (pool[i].sr == null) pool[i].active = false;
         lastEnemyPos.Clear();
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ë§¤ í”„ë ˆì„: í¼í”„ ê°±ì‹  -> ë°”í€´ ë¨¼ì§€ -> ì  ë¨¼ì§€
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ¸Å ÇÁ·¹ÀÓ: ÆÛÇÁ °»½Å -> ¹ÙÄû ¸ÕÁö -> Àû ¸ÕÁö
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     private void Update()
     {
         float dt = Time.deltaTime;
@@ -119,10 +121,13 @@ public class DustFX : MonoBehaviour
         }
     }
 
-    /// <summary>ì  ìœ„ì¹˜ ë³€í™”ëŸ‰ìœ¼ë¡œ ì´ë™ ì¤‘ì¸ ì§€ìƒ ì ì„ ì°¾ì•„ ë’¤ìª½ì— í¼í”„</summary>
+    /// <summary>Àû À§Ä¡ º¯È­·®À¸·Î ÀÌµ¿ ÁßÀÎ Áö»ó ÀûÀ» Ã£¾Æ µÚÂÊ¿¡ ÆÛÇÁ</summary>
     private void ScanEnemies(float interval, float ground)
     {
         Enemy[] enemies = FindObjectsByType<Enemy>(FindObjectsSortMode.None);
+        // v1.1: ¼Õ´ÔÀÌ ¸¹À¸¸é stride ¸¶¸®¿¡ ÇÑ ¸¶¸®¾¿, ÈÈÀ» ¶§¸¶´Ù Â÷·Ê¸¦ ¹Ù²ã °¡¸ç ³½´Ù (60¸¶¸®¸é ³İ¿¡ ÇÏ³ª = ÇÑ ¸¶¸®´Â 0.6ÃÊ¸¶´Ù)
+        int stride = 1 + enemies.Length / ENEMY_PUFFS_PER_SCAN;
+        enemyScanPhase = (enemyScanPhase + 1) % stride;
         for (int i = 0; i < enemies.Length; i++)
         {
             Enemy e = enemies[i];
@@ -133,7 +138,7 @@ public class DustFX : MonoBehaviour
             {
                 Vector3 d = now - prev;
                 float speed = d.magnitude / interval;
-                if (speed > ENEMY_MIN_SPEED)
+                if (speed > ENEMY_MIN_SPEED && i % stride == enemyScanPhase)
                 {
                     Vector3 back = -d.normalized * 0.55f;
                     Spawn(now + back, 0.75f, new Vector3(ground * 0.5f, 0f, 0f));
@@ -141,7 +146,7 @@ public class DustFX : MonoBehaviour
             }
             lastEnemyPos[e] = now;
         }
-        // ì£½ì€ ì  í•­ëª© ì •ë¦¬ (íŒŒê´´ëœ í‚¤ ì œê±°)
+        // Á×Àº Àû Ç×¸ñ Á¤¸® (ÆÄ±«µÈ Å° Á¦°Å)
         if (lastEnemyPos.Count > enemies.Length + 8)
         {
             deadKeys.Clear();
@@ -158,9 +163,9 @@ public class DustFX : MonoBehaviour
         return false;
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // í¼í”„ í’€
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // ÆÛÇÁ Ç®
+    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
     private void Spawn(Vector3 pos, float scale, Vector3 vel)
     {
         PuffItem p = null;
@@ -169,7 +174,7 @@ public class DustFX : MonoBehaviour
         {
             if (pool.Count >= MAX_PUFFS)
             {
-                // ê°€ì¥ ì˜¤ë˜ëœ ê²ƒ ì¬ì‚¬ìš©
+                // °¡Àå ¿À·¡µÈ °Í Àç»ç¿ë
                 p = pool[0];
                 for (int i = 1; i < pool.Count; i++) if (pool[i].age > p.age) p = pool[i];
             }
