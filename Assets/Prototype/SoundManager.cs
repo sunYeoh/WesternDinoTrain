@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// [SoundManager.cs] v2.1 (v9.19 2026-10-06 웨이브 편성: 예고음 2개 sfx_cue_approach / sfx_cue_ambush 의 키 표 한 줄 - px/sfx5.py 가 만든다) / v2 (v9.16 2026-09-29 손맛 2차 - 소리 한 번에. 유저: 8비트 말고 서부 증기기관·쇠와 화약, 포탑 종류별·손님 종류별로 소리가 달라야)
+/// [SoundManager.cs] v2.2 (v9.21 2026-10-12 보스 1단계: 등장 연출 소리 키 10개의 부모(폴백) - 사운드 프롬프트 3절의 이름 (sfx_boss_far_howl · sfx_boss_land · sfx_thunder_roll · sfx_wing_gust · sfx_ground_crack · sfx_iron_groan · sfx_rival_wheels · sfx_iron_scream · sfx_hp_ratchet · sfx_boss_cast). 파일이 오기 전엔 부모 소리가 난다 / BgmCut - 배경음을 잠깐 뚝 끊는다 (디 오리지널 전조)) / v2.1 (v9.19 2026-10-06 웨이브 편성: 예고음 2개 sfx_cue_approach / sfx_cue_ambush 의 키 표 한 줄 - px/sfx5.py 가 만든다) / v2 (v9.16 2026-09-29 손맛 2차 - 소리 한 번에. 유저: 8비트 말고 서부 증기기관·쇠와 화약, 포탑 종류별·손님 종류별로 소리가 달라야)
 /// 전역 사운드 매니저 - 씬 세팅 불필요 (첫 호출 시 스스로 생성).
 ///
 /// - v2 변경점:
@@ -152,11 +152,27 @@ public class SoundManager : MonoBehaviour
         // 배경음 페이드/덕킹 (unscaled - 일시정지·시간 정지 카드 중에도 자연스럽게)
         if (bgmSource == null) return;
         float target = bgmTarget * (bgmDuckReasons.Count > 0 ? 0.65f : 1f);
+        // v2.2: 뚝 끊긴 동안은 0, 끝나는 프레임에 바로 제자리 (1.5초 페이드는 덕킹·시작·끝에만 - "끊긴다"가 들려야 한다)
+        if (Time.unscaledTime < bgmCutUntil) { if (bgmCur != 0f) { bgmCur = 0f; ApplyBgmVolume(); } return; }
+        if (bgmCutResume) { bgmCutResume = false; bgmCur = target; ApplyBgmVolume(); return; }
         if (Mathf.Abs(bgmCur - target) > 0.001f)
         {
             bgmCur = Mathf.MoveTowards(bgmCur, target, Time.unscaledDeltaTime / 1.5f);
             ApplyBgmVolume();
         }
+    }
+
+    private float bgmCutUntil = 0f;      // v2.2: 이 시각(실시간)까지 배경음이 끊긴다
+    private bool bgmCutResume = false;   // 끊김이 끝나는 프레임에 바로 돌아오기 위한 표시
+
+    /// <summary>v2.2: 배경음을 sec 초(실시간) 동안 뚝 끊었다가 바로 돌린다 (페이드 없음). 디 오리지널 등장의 전조 - 침묵 뒤 낮은 기적</summary>
+    public static void BgmCut(float sec)
+    {
+        if (instance == null || instance.bgmSource == null || sec <= 0f) return;
+        instance.bgmCutUntil = Time.unscaledTime + sec;
+        instance.bgmCutResume = true;
+        instance.bgmCur = 0f;
+        instance.ApplyBgmVolume();
     }
 
     private void ApplyBgmVolume()
@@ -330,6 +346,17 @@ public static class SoundKeys
         if (key == "sfx_field") return "sfx_shot_poison";
         if (key == "sfx_ricochet") return "sfx_hit";
         if (key == "sfx_whistle_low") return "sfx_train_whistle";
+        // v2.2 (v9.21): 보스 등장 연출의 소리 - 파일이 오기 전엔 있는 소리를 빌려 쓴다 (claude/사운드_프롬프트_2026-10-08.md 3절)
+        if (key == "sfx_boss_far_howl") return "sfx_boss_roar_pack";       // 먼 울음 (녹슨 발톱 전조)
+        if (key == "sfx_boss_land") return "sfx_explosion";                // 뛰어내려 착지
+        if (key == "sfx_thunder_roll") return "sfx_boss_roar_lightning";   // 천둥 굴러옴 (천둥 둥지 전조)
+        if (key == "sfx_wing_gust") return "sfx_atk_ptera";                // 날갯짓 바람
+        if (key == "sfx_ground_crack") return "sfx_break";                 // 땅이 갈라짐 (동면자)
+        if (key == "sfx_iron_groan") return "sfx_boss_roar_hibernator";    // 떠오를 때 낮은 쇠 울음
+        if (key == "sfx_rival_wheels") return "sfx_train_hit";             // 붉은 열차가 추월해 들어옴
+        if (key == "sfx_iron_scream") return "sfx_break";                  // 머리가 나란해지는 순간 쇠 비명
+        if (key == "sfx_hp_ratchet") return "sfx_ui_click";                // HP 바가 차오를 때 래칫
+        if (key == "sfx_boss_cast") return "sfx_boss_roar";                // 패턴 준비 울음 (v9.20 은 등장 울음을 작게 - 파일이 오면 CastBegin 이 이 키를 쓴다)
         if (key == "sfx_event_resolve") return "sfx_judge_perfect";
         if (key == "sfx_event_fail") return "sfx_judge_bad";
         if (key == "sfx_levelup" || key == "sfx_insert" || key == "sfx_fusion" || key == "sfx_gold" || key == "sfx_relic") return "sfx_pickup";

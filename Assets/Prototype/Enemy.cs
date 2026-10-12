@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// [Enemy.cs] v3.13 (v9.19.2 2026-10-07 유저 확인 뒤: 머릿수를 늘린 손님이 제 힘으로 온다 - 기차를 물 때 몫을 안 넘기고(TrainManager 가 예전 식 + 방어력 바닥), 받는 회복도 그대로. Share 는 보상·도구 부식·빙결 확률·힐러가 주는 회복에만 / 전체 강화: 방어·저항 x EnemyDefMul, 견습 운행은 TutorialEnemy* 로 예전 값) / v3.12 (v9.19.1 2026-10-07: Share - 머릿수를 늘린 손님 한 마리의 몫 (v3.11 의 RewardMul 을 대신한다). 처치 보상에 더해, 기차를 물 때 방어력·연속 피격 완충을 몫만큼만 쓰게 TrainManager 에 넘기고 전갈의 도구 부식·모사 빙결 확률·힐러 회복에도 곱한다) / v3.11 (v9.19 2026-10-06 웨이브 편성: PaceMul - 호위 행렬의 작은 손님이 큰 손님 걸음에 맞출 때 WaveManager 가 거는 걸음 배율. 둔화·기절(scaledSPD)과 따로 곱해진다 / RewardMul - 머릿수를 늘린 작은 손님의 처치 보상(골드·재료 확률·상자 확률)을 그만큼 나눈다) / v3.10 (v9.18 2026-10-06: 숫자 팝업에 쏜 포탑을 같이 넘긴다(포탑별 합산) / 견습 운행 중에는 쓰러지면 재료를 반드시 떨어뜨린다 - "고기 2개" 단계에서 1개만 나오던 것) / v3.9 (v9.17 2026-10-06 화면 손맛 2차: quietDeath - 식사 엔딩의 보스는 처치음·킬 버스트 없이 흐려진다 / A4: 숫자 팝업을 DamagePopup.CreateFor(크기 비례·0.1초 합산)로, 크리 표시는 진짜 치명타만(HitFeel.ConsumeCrit) - 예전엔 피해가 손님 공격력의 2배 이상이면 크리로 찍혀 치명타 증강이 없어도 "!" 가 떴다) / v3.8 (v9.16 2026-09-29 손맛 2차 - 소리: 공격음 = 손님 종류별(SoundKeys.Attack, 제자리에서 PlayAt) / 처치음 = 재질별(SoundKeys.Die) - 큰 손님은 sfx_kill_big / 명중음은 HitFeel.OnHit 이 재질별로 내고, 방어에 크게 깎인 물리는 튕김음(resisted 전달)) / v3.7 (v9.15 2026-09-29: 방어·저항으로 피해가 GameBalance.ResistShowBelow 이하로 깎이면 팝업에 "저항" - 하나만 키우면 왜 안 통하는지 화면에서) / v3.6 (v9.14 2026-09-28: IncomingDamage - 과잉 집중 방지용 예약 피해) / v3.5 (v9.12 2026-09-22: TutorialDirector.InlineFreeze 동안 정지 / 용어 "지속 피해") / v3.4 (v9.11.1 2026-09-22 문구: 특기 설명 일상어, 강철 = 방어 50) / v3.3 (v9.11 2026-09-22 타격감: 직접 명중 때 HitFeel.OnHit(플래시·찌그러짐·딜 비례 스파크), 죽을 때 HitFeel.OnKill(킬 버스트) - 도트 틱은 제외) / v3.2 (v9.10.1 2026-09-21: 물량 1.6배에 맞춘 처치 보상 배율 - 일반 손님 골드 GameBalance.KillGoldMul, 재료 드랍 확률 KillMaterialChance(보스는 항상). 드랍 이름을 재료 이름표(전기알·화염꽃·독샘)에 맞춤) / v3.1 (2026-09-14: 해빙 문구 / 전갈 마모 대체 스위치) / v3
+/// [Enemy.cs] v3.14 (v9.21 2026-10-12 보스 1단계: DistanceFrom(점) - 범위 판정(폭발·장판·대체 표적)이 쓰는 거리. 손님은 중심까지, 보스(BossEnemy 재정의)는 몸(돌아간 사각형)의 가장자리까지 - 9 ~ 20u 몸의 끝에 떨어진 폭발이 비껴가지 않게) / v3.13 (v9.19.2 2026-10-07 유저 확인 뒤: 머릿수를 늘린 손님이 제 힘으로 온다 - 기차를 물 때 몫을 안 넘기고(TrainManager 가 예전 식 + 방어력 바닥), 받는 회복도 그대로. Share 는 보상·도구 부식·빙결 확률·힐러가 주는 회복에만 / 전체 강화: 방어·저항 x EnemyDefMul, 견습 운행은 TutorialEnemy* 로 예전 값) / v3.12 (v9.19.1 2026-10-07: Share - 머릿수를 늘린 손님 한 마리의 몫 (v3.11 의 RewardMul 을 대신한다). 처치 보상에 더해, 기차를 물 때 방어력·연속 피격 완충을 몫만큼만 쓰게 TrainManager 에 넘기고 전갈의 도구 부식·모사 빙결 확률·힐러 회복에도 곱한다) / v3.11 (v9.19 2026-10-06 웨이브 편성: PaceMul - 호위 행렬의 작은 손님이 큰 손님 걸음에 맞출 때 WaveManager 가 거는 걸음 배율. 둔화·기절(scaledSPD)과 따로 곱해진다 / RewardMul - 머릿수를 늘린 작은 손님의 처치 보상(골드·재료 확률·상자 확률)을 그만큼 나눈다) / v3.10 (v9.18 2026-10-06: 숫자 팝업에 쏜 포탑을 같이 넘긴다(포탑별 합산) / 견습 운행 중에는 쓰러지면 재료를 반드시 떨어뜨린다 - "고기 2개" 단계에서 1개만 나오던 것) / v3.9 (v9.17 2026-10-06 화면 손맛 2차: quietDeath - 식사 엔딩의 보스는 처치음·킬 버스트 없이 흐려진다 / A4: 숫자 팝업을 DamagePopup.CreateFor(크기 비례·0.1초 합산)로, 크리 표시는 진짜 치명타만(HitFeel.ConsumeCrit) - 예전엔 피해가 손님 공격력의 2배 이상이면 크리로 찍혀 치명타 증강이 없어도 "!" 가 떴다) / v3.8 (v9.16 2026-09-29 손맛 2차 - 소리: 공격음 = 손님 종류별(SoundKeys.Attack, 제자리에서 PlayAt) / 처치음 = 재질별(SoundKeys.Die) - 큰 손님은 sfx_kill_big / 명중음은 HitFeel.OnHit 이 재질별로 내고, 방어에 크게 깎인 물리는 튕김음(resisted 전달)) / v3.7 (v9.15 2026-09-29: 방어·저항으로 피해가 GameBalance.ResistShowBelow 이하로 깎이면 팝업에 "저항" - 하나만 키우면 왜 안 통하는지 화면에서) / v3.6 (v9.14 2026-09-28: IncomingDamage - 과잉 집중 방지용 예약 피해) / v3.5 (v9.12 2026-09-22: TutorialDirector.InlineFreeze 동안 정지 / 용어 "지속 피해") / v3.4 (v9.11.1 2026-09-22 문구: 특기 설명 일상어, 강철 = 방어 50) / v3.3 (v9.11 2026-09-22 타격감: 직접 명중 때 HitFeel.OnHit(플래시·찌그러짐·딜 비례 스파크), 죽을 때 HitFeel.OnKill(킬 버스트) - 도트 틱은 제외) / v3.2 (v9.10.1 2026-09-21: 물량 1.6배에 맞춘 처치 보상 배율 - 일반 손님 골드 GameBalance.KillGoldMul, 재료 드랍 확률 KillMaterialChance(보스는 항상). 드랍 이름을 재료 이름표(전기알·화염꽃·독샘)에 맞춤) / v3.1 (2026-09-14: 해빙 문구 / 전갈 마모 대체 스위치) / v3
 /// 모든 적 유닛의 기본 동작 + 전투 스탯(DEF/RES) + 상태이상(도트/방깎/마깎)
 /// - v3 변경점: 행동 패턴 시스템 (이름 기반 자동 배정 - 프리팹 설정 불필요)
 ///   1) 무리 사냥꾼(랩터): 주변 랩터가 많을수록 이동 속도 증가
@@ -1010,6 +1010,12 @@ public class Enemy : MonoBehaviour
     }
 
     public bool IsAlive => isAlive;
+
+    /// <summary>v3.14: 점 p 에서 이 손님까지의 거리 - 범위 판정(폭발·장판·대체 표적)이 쓴다. 손님은 중심까지, 보스는 몸의 가장자리까지 (BossEnemy 가 재정의)</summary>
+    public virtual float DistanceFrom(Vector3 p)
+    {
+        return Vector3.Distance(transform.position, p);
+    }
     public float HPRatio => currentHP / Mathf.Max(1f, scaledMaxHP);
 
     // ─────────────────────────────────────────────

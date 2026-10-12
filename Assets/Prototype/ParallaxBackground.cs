@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// [ParallaxBackground.cs] v4.2 (v9.13 2026-09-23: 선로 v2 갈림길 + 세계 밀림) / v4.1 - 완전 탑다운 지면 (2026-09-07) / v3 고퀄 PNG 지면 / v2 탑뷰 지면 스크롤
+/// [ParallaxBackground.cs] v4.3 (v9.21 2026-10-12 보스 1단계: SideRail - 디 오리지널(맞수 열차)이 달릴 두 번째 선로. rails_ae 한 줄을 본선과 같은 오프셋으로 y 자리에 깔고(본선과 같이 흐른다) 위에서 미끄러져 내려와 자리 잡는다, SideRailOff 로 흐려지며 걷는다) / v4.2 (v9.13 2026-09-23: 선로 v2 갈림길 + 세계 밀림) / v4.1 - 완전 탑다운 지면 (2026-09-07) / v3 고퀄 PNG 지면 / v2 탑뷰 지면 스크롤
 ///
 /// v4.2 (선로 v2 - 목업 v2 그대로. 도트 px/route.py v2.1: rails_fork / rails_fork_up / rails_fork_hi_up·down·straight):
 ///   - 정차(선로 선택)에 두상 앞에 갈림길(전철기 스프라이트)을 띠(rails_ae) 위에 놓는다 - PlaceFork(위 가지, 아래 가지)
@@ -118,6 +118,71 @@ public class ParallaxBackground : MonoBehaviour
     private float railsY = 0f;                   // 띠 층(옛 곧은 선로)·갈림길의 세로 오프셋 = -sign * f(d)
     private float groundY = 0f;                  // 모래 층 세로 오프셋 (누적 - 32u 로 감아 쓴다, 무늬라 이음이 안 보인다)
     private float railsAlpha = 1f;               // 옛 곧은 띠 알파 (페이드)
+
+    // v4.3: 두 번째 선로 (보스 디 오리지널의 평행 선로) - 본선 띠(층 2)와 같은 오프셋으로 흐른다
+    private SpriteRenderer[] sideTiles;
+    private float sideY = 0f, sideT = 0f, sideSec = 0.5f;   // sideT: 0 = 없음, 1 = 자리 잡음
+    private bool sideOn = false;
+
+    /// <summary>v4.3: y 자리에 두 번째 선로를 깐다 - slideSec 에 걸쳐 위(북쪽 3u)에서 미끄러져 내려오며 또렷해진다. 탑다운 띠가 없으면(레거시 배경) 아무것도 안 한다</summary>
+    public static void SideRail(float y, float slideSec)
+    {
+        if (instance == null || !instance.topdown) return;
+        instance.sideY = y; instance.sideSec = Mathf.Max(0.05f, slideSec); instance.sideOn = true;
+        if (instance.sideTiles == null)
+        {
+            Sprite sp = SpriteBank.Get("rails_ae");
+            instance.sideTiles = new SpriteRenderer[RAILS_TILES];
+            for (int i = 0; i < RAILS_TILES; i++)
+            {
+                GameObject t = new GameObject("SideRail" + i);
+                t.transform.SetParent(instance.layerRoots[2], false);
+                SpriteRenderer sr = t.AddComponent<SpriteRenderer>();
+                sr.sprite = sp;
+                sr.sortingOrder = ORDER_RAILS;
+                instance.sideTiles[i] = sr;
+            }
+            instance.sideT = 0f;
+        }
+        instance.LayoutSideRail();
+    }
+
+    /// <summary>v4.3: 두 번째 선로를 fadeSec 에 걸쳐 걷는다 (보스가 쓰러졌을 때)</summary>
+    public static void SideRailOff(float fadeSec)
+    {
+        if (instance == null || instance.sideTiles == null || !instance.sideOn) return;   // 이미 걷는 중이면 처음 시간대로
+        instance.sideSec = Mathf.Max(0.05f, fadeSec); instance.sideOn = false;
+    }
+
+    /// <summary>v4.3: 두 번째 선로 타일을 본선과 같은 오프셋으로 늘어놓고 진행도(sideT)만큼 내려오며 또렷해진다. 다 걷히면 지운다</summary>
+    private void LayoutSideRail()
+    {
+        if (sideTiles == null) return;
+        float stripW = tileW[2] * cols[2];
+        float e = sideT * sideT * (3f - 2f * sideT);
+        float y = sideY + 3f * (1f - e);
+        Color c = tintNow[2]; c.a = e;
+        for (int i = 0; i < sideTiles.Length; i++)
+        {
+            if (sideTiles[i] == null) continue;
+            float x = Mathf.Repeat(i * tileW[2] + offsets[2] + stripW / 2f, stripW) - stripW / 2f;
+            sideTiles[i].transform.localPosition = new Vector3(x, y, 0f);
+            sideTiles[i].color = c;
+        }
+    }
+
+    private void TickSideRail()
+    {
+        if (sideTiles == null) return;
+        sideT = Mathf.MoveTowards(sideT, sideOn ? 1f : 0f, Time.deltaTime / sideSec);
+        if (!sideOn && sideT <= 0f)
+        {
+            for (int i = 0; i < sideTiles.Length; i++) if (sideTiles[i] != null) Destroy(sideTiles[i].gameObject);
+            sideTiles = null;
+            return;
+        }
+        LayoutSideRail();
+    }
     private float oldFadeT = -1f;                // 옛 띠 페이드 진행 시간 (-1 = 아직)
     private SpriteRenderer[] branchTiles;        // 고른 가지의 이어지는 띠
 
@@ -280,6 +345,7 @@ public class ParallaxBackground : MonoBehaviour
 
         // 2.5) v4.2: 갈림길 위치·강조 깜빡임·세계 밀림·옛 띠 페이드
         if (forkTf != null) TickFork(cam);
+        TickSideRail();   // v4.3: 두 번째 선로 (보스전)
 
         // 3) 지역 색: 카메라 배경색을 곱 틴트로 은은하게 (지역 전환 시 자동으로 부드럽게). 층 2 는 옛 띠 페이드 알파를 곱한다
         Color bg = cam.backgroundColor;

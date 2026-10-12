@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 
 /// <summary>
-/// [BossEnemy.cs] v7.11 (v9.20 2026-10-07 유저 "패턴이 눈에 안 띔" - 스펙 3-0: 패턴의 준비(몸이 부푼다 + 보스 울음 + 패턴별 표시) -> 발동(눌렸다 돌아온다 + 충격 고리) -> 결과가 화면에서 보인다. 호령·포효 = 입에서 퍼지는 소리 고리 + 무리가 보스 등 뒤에서 / 낙뢰 = 맞을 포탑을 미리 정해 예고 줄과 발밑 고리(PickBoltTargets·BossMark.Bolt) + 번개 줄기(BoltStrike) + 패링하면 병으로(BoltsToBottle) / 갑주 = 모이는 냉기·서리 원·껍질 고리 / 물기 = 웅크림(그사이 무방비가 되면 물지 않는다. 공격 간격은 그대로) + 문 자리의 불똥·칸 튐·이빨 자국(BiteFx). GameBalance.BossPatternFxOn) / v7.10 (v9.19.2 2026-10-07: 보스 HP 에 종류별 배율 GameBalance.BossHPKindMul (예습 보스 제외) - 뒤 지역 보스가 제 웨이브의 큰 손님 한 마리보다 약했다. 폭식 회복·해동포 피해도 같은 배율 hpScale 을 따라간다) / v7.9 (v9.19 2026-10-06 보스 페이즈 모습 - A1 상태 그림: _rage_groggy(발악 중 무방비)·_p2_groggy 추가, 디 오리지널은 페이즈 그림이 먼저(WantedSkin, GameBalance.BossStateSkins) / A2 전환 순간(PhaseShift): 히트스톱 -> 흰 번쩍 아래에서 그림 교체 -> 장갑 파편·링·폭음 -> 몸이 커졌다 제자리. 지역 보스 발악과 디 오리지널 P2·P3 / A3 상태 유지: 발악 = 김·불티, 무방비 = 불똥·연기 + 몸이 기울어 흔들린다(SkinPivot) / A4 알림 자리: 보스 쪽 알림은 HP 바 밑 띠로(BossNotice), 발악의 화면 가운데 큰 글자는 가장자리 맥동으로) /
+/// [BossEnemy.cs] v7.12 (v9.21 2026-10-12 보스 1단계 큰 몸 - 보스개편 스펙 1·4·5절: 그림을 목표 크기(GameBalance.BossBodyLen x Wide)에 맞춘다(SetupSkin, 불투명 부분을 잰다 OpaqueSize) / 정식 보스는 서는 자리(BossStandX, 북쪽 BossStandOff)에 등장 연출이 놓고 제자리에 선다 - 걸어오지 않는다, 미끼에 끌려도 제자리 / 천둥 둥지는 상공에서 기차를 내려다본다(270도) + 땅 그림자 / 등장 연출 2판 EntranceV2: 전조 -> 보스전 카메라(CameraZoom.BossFraming) -> 보스별 길(EnterRust 떨어져 내림 · EnterThunder 날개 그림자와 번쩍 · EnterHibernator 땅 금과 떠오름 · EnterOriginal 평행 선로와 추월) -> 도착(Arrive) -> 이름판 -> HP 바 -> 밝아짐. 그동안 공격·패턴 없음 / 범위 판정은 몸 가장자리까지(DistanceFrom) / 쓰러지면 카메라·평행 선로 복귀) / v7.11 (v9.20 2026-10-07 유저 "패턴이 눈에 안 띔" - 스펙 3-0: 패턴의 준비(몸이 부푼다 + 보스 울음 + 패턴별 표시) -> 발동(눌렸다 돌아온다 + 충격 고리) -> 결과가 화면에서 보인다. 호령·포효 = 입에서 퍼지는 소리 고리 + 무리가 보스 등 뒤에서 / 낙뢰 = 맞을 포탑을 미리 정해 예고 줄과 발밑 고리(PickBoltTargets·BossMark.Bolt) + 번개 줄기(BoltStrike) + 패링하면 병으로(BoltsToBottle) / 갑주 = 모이는 냉기·서리 원·껍질 고리 / 물기 = 웅크림(그사이 무방비가 되면 물지 않는다. 공격 간격은 그대로) + 문 자리의 불똥·칸 튐·이빨 자국(BiteFx). GameBalance.BossPatternFxOn) / v7.10 (v9.19.2 2026-10-07: 보스 HP 에 종류별 배율 GameBalance.BossHPKindMul (예습 보스 제외) - 뒤 지역 보스가 제 웨이브의 큰 손님 한 마리보다 약했다. 폭식 회복·해동포 피해도 같은 배율 hpScale 을 따라간다) / v7.9 (v9.19 2026-10-06 보스 페이즈 모습 - A1 상태 그림: _rage_groggy(발악 중 무방비)·_p2_groggy 추가, 디 오리지널은 페이즈 그림이 먼저(WantedSkin, GameBalance.BossStateSkins) / A2 전환 순간(PhaseShift): 히트스톱 -> 흰 번쩍 아래에서 그림 교체 -> 장갑 파편·링·폭음 -> 몸이 커졌다 제자리. 지역 보스 발악과 디 오리지널 P2·P3 / A3 상태 유지: 발악 = 김·불티, 무방비 = 불똥·연기 + 몸이 기울어 흔들린다(SkinPivot) / A4 알림 자리: 보스 쪽 알림은 HP 바 밑 띠로(BossNotice), 발악의 화면 가운데 큰 글자는 가장자리 맥동으로) /
 /// v7.8 (v9.18 2026-10-06 - 서는 자세: 기차 옆에 이르면 나란히(머리가 기차 진행 방향) 돌아서서 선다 - 몸 전체가 지붕과 HP 바 사이에 보이게(GameBalance.BossFaceAlongTrain·BossStandOff·BossTurnZone, MoveTowardsTrain 재정의 + HoldStance) / 그림: boss_<종류>.png 를 입힌다(없으면 프리팹의 색 사각형 그대로), 상태 그림 _groggy·_rage·_p2·_p3 는 있으면 자동, 상태 발광 = 그림 위 흰 실루엣(예고 흰빛 / 무방비 금빛 / 발악 붉은 맥동) / 등장: 포효와 함께 경고 띠(WarningFX.BossIntro) + HP 바가 차오른다, 대응법 안내는 띠가 걷힌 뒤 / 발악 신호: 붉은 경고 + 흔들림 + 포효 / 버그: 공격 거리를 기차 "중심"에서 재서 옆에서 온 보스는 기차 위에 올라앉아 물지도 않았다 -> 가장 가까운 몸통에서 잰다, 돌진 방향도. 무는 양은 BossMeleeMul) / v7.7 (v9.17 2026-10-06 화면 손맛 2차 - D2 등장: 첫 등장 카드가 닫힌 뒤 배경이 0.5초 어두워졌다가 흔들림 + 포효 + 이름 예고가 같이 나온다 / A11 처치: 히트스톱 뒤 0.25초 슬로모션 + 줌 당김 / 식사 엔딩의 Die 는 히트스톱·흔들림·킬 버스트 없이 조용히 / EndingWhistled - 엔딩 쪽에서 기적을 울렸으면 승리 화면이 또 울리지 않는다) / v7.6 (v9.16 2026-09-29 손맛 2차 - 소리: 등장 포효 = 종류별(SoundKeys.BossRoar - 녹슨 발톱 무리 울음 / 천둥 둥지 번개 / 동면자 얼음 / 디 오리지널 기본 포효 + 낮은 기적 sfx_whistle_low, 예습 보스는 작게) / 엔딩 B 두 번째 기적 = 낮은 기적 / 공격음은 Enemy.AttackTrain 이 종류별로) / v7.5 (v9.15.1 2026-09-29 스토리 개정: 디 오리지널 = 급식 열차 1호였던 것 - 등장에 낡은 기적 + 안내 문구, 폭식 = 원료 삼키기, 해치 = 기관심장이 드러남 / 마지막 식사 장면 LastSupperRoutine - 포탑 정지(LastSupperServing)·남은 손님 물러남·천천히 씹기(LastSupperChewSec)·두 대의 기적 -> 엔딩 B 글 / 격파 엔딩 = 기적 한 번 + "철길이 열렸다") / v7.4 (v9.12 2026-09-22: practice = 견습 구간 7 "새끼 발톱" - 녹슨 발톱 고정, HP·공격력 배율(GameBalance.BossPractice*), 0.7배 크기, 패턴·무방비·발악 없음(돌진만), 처치해도 재료·베팅·"승리" 없음(ClearBossUI) / TutorialDirector.InlineFreeze 동안 정지) / v7.3 (v9.11.1 2026-09-22 문구: 무방비, 실행 가능한 예고) / v7.2 (v9.10.1 2026-09-21: 재료 이름 전기알) / v7.1 (교수 피드백 C3: 디 오리지널 추가 그로기 / A8: 재가동 문구) / v6 - 보스 패턴 C단계 1차 (보스패턴설계 문서)
 /// - v6 변경점:
 ///   1) 미끼 도발 대응: 도발 중엔 미끼를 쫓아가고 물어뜯는다 (기차 무피해)
@@ -165,6 +165,23 @@ public class BossEnemy : Enemy
     private readonly System.Collections.Generic.List<BossMark> boltMarks = new System.Collections.Generic.List<BossMark>();          // 그 포탑 위의 예고 줄
     private BossMark castDisc;          // 갑주 재전개: 바닥의 서리 (준비가 끊기면 걷는다)
     private Transform chefTf;           // 패링한 번개가 들어갈 자리 (셰프)
+
+    // ── v7.12 (v9.21): 큰 몸·서는 자리·등장 연출 2판 ──
+    private bool entering = false;          // 등장 연출 중 (이동·공격·패턴 없음. 맞기는 한다)
+    private Vector3 standPos;               // 서는 자리 (GameBalance.BossStandX, 기차 y + BossStandOff[종류])
+    private Vector2 bodyExtLocal;           // 그림의 불투명 부분 반 크기 (그림 좌표, 배율 전) - DistanceFrom
+    private float landAge = -1f;            // 도착 순간의 몸 펀치가 시작된 뒤 흐른 시간 (음수 = 없음)
+    private float enterAlpha = 1f;          // 등장 중 그림 알파 (동면자가 떠오를 때)
+    private Vector2 enterScale = Vector2.one;   // 등장 중 SkinPivot 에 곱하는 배율 (떨어져 내림·떠오름·날갯짓)
+    private float eyesAge = -1f;            // 디 오리지널: 머리가 나란해진 순간 몸이 붉게 (새 그림이 오면 눈만)
+    private Vector2 bodyCenterLocal;        // 그림 불투명 부분의 가운데가 피벗에서 벗어난 양 (그림 좌표) - DistanceFrom
+    private float enterClock = 0f;          // 등장 연출이 흐른 시간 (실시간, 메뉴가 떠 있는 동안은 멈춤 - 안전장치용: 너무 오래 끌면 Update 가 끝낸다)
+    private float enterTotal = 3f;
+    private SpriteRenderer shadow;          // 천둥 둥지: 땅 그림자 (이름이 Flash_ 라 HitFeelBody 가 몸으로 세지 않는다)
+    private static readonly System.Collections.Generic.Dictionary<string, Vector4> opaqueCache = new System.Collections.Generic.Dictionary<string, Vector4>();
+    private static readonly Color DUST = new Color(0.80f, 0.66f, 0.48f, 0.75f);
+    private static readonly Color ICE_LINE = new Color(0.86f, 0.96f, 1f, 1f);
+    private static readonly Color SHADOW = new Color(0.04f, 0.03f, 0.08f, 0.42f);
     // 종류별 색 (녹슨 발톱 / 천둥 둥지 / 동면자 / 디 오리지널): 파편(장갑·속) / 김 / 불티
     private static readonly Color[] SHARD_A = { new Color(0.62f, 0.25f, 0.12f), new Color(0.50f, 0.25f, 0.85f), new Color(0.86f, 0.95f, 1f), new Color(0.80f, 0.15f, 0.12f) };
     private static readonly Color[] SHARD_B = { new Color(0.46f, 0.46f, 0.50f), new Color(0.95f, 0.75f, 0.20f), new Color(0.20f, 0.60f, 0.75f), new Color(0.30f, 0.30f, 0.33f) };
@@ -305,13 +322,26 @@ public class BossEnemy : Enemy
 
         BossGimmickSystem.Instance?.RegisterBoss(this);
         EndingWhistled = false;
+        // v7.12: 서는 자리. 정식 보스는 여기에 등장 연출이 놓는다 (WaveManager 는 이 자리 위 BossHideDY 에 숨겨 두고 Start 를 부른다)
+        float trainY = trainTarget != null ? trainTarget.position.y : 0f;
+        standPos = new Vector3(GameBalance.BossStandX, trainY + attackRange, 0f);
+        if (StandMode)
+        {
+            faceAngle = StandAngle();
+            transform.rotation = Quaternion.AngleAxis(faceAngle, Vector3.forward);
+            SetVisible(false);
+        }
         // v7.7 (D2): 등장 연출 - 예습 보스와 연출 끔은 예전처럼 바로 포효
         if (!practice && GameBalance.BossEntranceOn && GameBalance.GameFeelMaster > 0f)
         {
             BossGimmickSystem.Instance?.HoldBarForIntro();   // v7.8: HP 바는 포효 순간에 내려와 차오른다
-            StartCoroutine(EntranceRoutine(intro));
+            StartCoroutine(StandMode ? EntranceV2(intro) : EntranceRoutine(intro));
         }
-        else AnnounceEntrance(intro);
+        else
+        {
+            if (StandMode) PlaceAtStand();   // 연출 없이 바로 자리에
+            AnnounceEntrance(intro);
+        }
 
         Debug.Log("[BossEnemy] " + data.enemyName + " 등장! (웨이브 " + wave + ") HP:" + (int)bossMaxHP
             + " ATK:" + (int)scaledATK + " 종류:" + kind);
@@ -328,7 +358,9 @@ public class BossEnemy : Enemy
         if (band > 0f)
         {
             WarningFX.BossIntro(data.enemyName, Epithet(), band);
-            StartCoroutine(NoticeAfter(Mathf.Max(0f, band - 0.2f), "[" + data.enemyName + "]", intro));
+            // v7.12: 2판에서는 띠 밑 "[이름] 대응법" 줄을 뺀다 (스펙 5절 - 첫 등장 카드와 이름판이면 충분하다). GameBalance.BossEntranceLine 으로 되살린다
+            if (!StandMode || GameBalance.BossEntranceLine)
+                StartCoroutine(NoticeAfter(Mathf.Max(0f, band - 0.2f), "[" + data.enemyName + "]", intro));
         }
         else BossNotice("[" + data.enemyName + "]", intro);   // v7.9: HP 바 밑 띠로
         if (!practice) BossGimmickSystem.Instance?.PlayBarIntro();
@@ -377,6 +409,17 @@ public class BossEnemy : Enemy
         if (practice && GameBalance.BossPracticeScale > 0.01f) rootScale /= GameBalance.BossPracticeScale;
         if (rootScale < 0.01f) rootScale = 1f;
         float want = (GameBalance.BossSkinScale != null && k < GameBalance.BossSkinScale.Length) ? GameBalance.BossSkinScale[k] : 0.85f;
+        // v7.12: 정식 보스는 그림을 목표 크기(길이 x 폭, u)에 맞춘다 - 길이·폭 중 먼저 닿는 쪽까지. 그림의 투명 여백은 빼고 잰다 (OpaqueSize).
+        //   그 크기로 그린 새 그림(32px = 1u)은 저절로 1배가 되고, 지금 그림은 늘어난다 (천둥 둥지는 정사각이라 폭 5.2 에서 멈춘다)
+        Vector2 opaque = OpaqueSize(s);
+        bodyExtLocal = opaque * 0.5f;
+        bodyCenterLocal = OpaqueCenter(s);
+        if (GameBalance.BossFitBody && !practice && GameBalance.BossBodyLen != null && k < GameBalance.BossBodyLen.Length)
+        {
+            float tl = GameBalance.BossBodyLen[k];
+            float tw = (GameBalance.BossBodyWide != null && k < GameBalance.BossBodyWide.Length) ? GameBalance.BossBodyWide[k] : tl * 0.4f;
+            want = Mathf.Min(tl / Mathf.Max(0.05f, opaque.x), tw / Mathf.Max(0.05f, opaque.y));
+        }
         float local = want / rootScale;
 
         // v7.9: 그림을 축(SkinPivot)으로 감싼다 - 전환 순간의 몸 크기·무방비의 기울어짐은 축에, 맞을 때의 찌그러짐은 그림에 (서로 덮어쓰지 않게)
@@ -406,8 +449,104 @@ public class BossEnemy : Enemy
             glow.color = new Color(1f, 1f, 1f, 0f);
             glow.enabled = false;
         }
-        Debug.Log("[BossEnemy] 그림 " + skinBase + " 적용 (배율 " + want + ")");
+        // v7.12: 천둥 둥지는 떠 있다 - 땅에 그림자 (같은 그림을 검게, 기차 쪽으로 BossShadowDY 내려서. 보스를 따라 돌고 상태 그림도 따라간다 - TickSkin)
+        if (!practice && GameBalance.BossEntranceV2 && kind == BossKind.ThunderNest && GameBalance.BossThunderHover)
+        {
+            GameObject sh = new GameObject("Flash_BossShadow");
+            sh.transform.SetParent(transform, false);
+            shadow = sh.AddComponent<SpriteRenderer>();
+            shadow.sprite = s;
+            shadow.color = SHADOW;
+            shadow.sortingOrder = -9;   // 땅(-10) 위, 서리 원(-7)·데크(-6) 아래 - 기차 위로는 안 올라온다
+            shadow.transform.localScale = new Vector3(local, local, 1f);
+        }
+        Debug.Log("[BossEnemy] 그림 " + skinBase + " 적용 (배율 " + want.ToString("0.00") + " = " + (opaque.x * want).ToString("0.0") + " x " + (opaque.y * want).ToString("0.0") + "u)");
         return true;
+    }
+
+    /// <summary>v7.12: 그림의 불투명 부분 크기 (가로, 세로 - 그림 좌표 u, 배율 전). 흰 실루엣(FlashSprites)의 알파를 읽는다 - 원본 텍스처는 읽기 금지일 수 있다. 못 읽으면 사각형 전체</summary>
+    private static Vector2 OpaqueSize(Sprite s)
+    {
+        Vector4 r = OpaqueRect(s);
+        return new Vector2(r.x, r.y);
+    }
+
+    /// <summary>v7.12: 불투명 부분의 가운데가 그림 피벗에서 벗어난 양 (그림 좌표 u). 유저 그림은 가운데에 그려져 있어 0 에 가깝다</summary>
+    private static Vector2 OpaqueCenter(Sprite s)
+    {
+        Vector4 r = OpaqueRect(s);
+        return new Vector2(r.z, r.w);
+    }
+
+    /// <summary>(가로, 세로, 가운데 x 오프셋, 가운데 y 오프셋) - 그림 이름으로 한 번만 잰다</summary>
+    private static Vector4 OpaqueRect(Sprite s)
+    {
+        Vector4 full = new Vector4(s.bounds.size.x, s.bounds.size.y, 0f, 0f);
+        string key = s.name;
+        Vector4 got;
+        if (opaqueCache.TryGetValue(key, out got)) return got;
+        try
+        {
+            Sprite w = FlashSprites.Get(s);
+            if (w == null || w.texture == null) { opaqueCache[key] = full; return full; }
+            Color32[] px = w.texture.GetPixels32();
+            int tw = w.texture.width;
+            int x0 = (int)s.rect.x, y0 = (int)s.rect.y, rw = (int)s.rect.width, rh = (int)s.rect.height;
+            int minX = rw, maxX = -1, minY = rh, maxY = -1;
+            for (int y = 0; y < rh; y++)
+                for (int x = 0; x < rw; x++)
+                {
+                    int i = (y0 + y) * tw + x0 + x;
+                    if (i < 0 || i >= px.Length || px[i].a < 10) continue;
+                    if (x < minX) minX = x; if (x > maxX) maxX = x;
+                    if (y < minY) minY = y; if (y > maxY) maxY = y;
+                }
+            if (maxX < 0) { opaqueCache[key] = full; return full; }
+            float ppu = Mathf.Max(1f, s.pixelsPerUnit);
+            got = new Vector4((maxX - minX + 1) / ppu, (maxY - minY + 1) / ppu,
+                ((minX + maxX + 1) * 0.5f - s.pivot.x) / ppu, ((minY + maxY + 1) * 0.5f - s.pivot.y) / ppu);
+        }
+        catch (System.Exception) { got = full; }
+        opaqueCache[key] = got;
+        return got;
+    }
+
+    /// <summary>v7.12: 범위 판정이 쓰는 거리 - 몸(돌아간 사각형, 불투명 부분)의 가장자리까지. 그림이 없으면 중심까지</summary>
+    public override float DistanceFrom(Vector3 p)
+    {
+        if (skin == null || skin.sprite == null || bodyExtLocal.x <= 0.01f) return base.DistanceFrom(p);
+        Vector3 l = skin.transform.InverseTransformPoint(p);   // 그림 좌표 (배율·회전 전)
+        float dx = Mathf.Max(0f, Mathf.Abs(l.x - bodyCenterLocal.x) - bodyExtLocal.x), dy = Mathf.Max(0f, Mathf.Abs(l.y - bodyCenterLocal.y) - bodyExtLocal.y);
+        return Mathf.Sqrt(dx * dx + dy * dy) * Mathf.Abs(skin.transform.lossyScale.x);
+    }
+
+    // ─────────────────────────────────────────────
+    // v7.12: 서는 자리 (정식 보스는 걸어오지 않는다)
+    // ─────────────────────────────────────────────
+    /// <summary>제자리 모드: 정식 보스 + 등장 연출 2판. 예습 보스와 구 모드는 걸어와서 돈다</summary>
+    private bool StandMode { get { return !practice && GameBalance.BossEntranceV2; } }
+
+    /// <summary>서 있을 때 몸이 보는 각도: 기차가 달리는 쪽(180). 천둥 둥지는 상공에서 기차를 내려다본다(270 - 날개가 좌우로)</summary>
+    private float StandAngle()
+    {
+        return (StandMode && kind == BossKind.ThunderNest && GameBalance.BossThunderHover) ? 270f : 180f;
+    }
+
+    /// <summary>그림(과 그림자)을 켜고 끈다 - 등장 전에는 숨긴다. 그림이 없는(프리팹 사각형) 보스는 그대로 보인다</summary>
+    private void SetVisible(bool on)
+    {
+        if (skin != null) skin.enabled = on;
+        if (shadow != null) shadow.enabled = on;
+        if (!on && glow != null) glow.enabled = false;
+    }
+
+    /// <summary>서는 자리에 바로 놓는다 (연출 없이)</summary>
+    private void PlaceAtStand()
+    {
+        transform.position = standPos;
+        faceAngle = StandAngle();
+        transform.rotation = Quaternion.AngleAxis(faceAngle, Vector3.forward);
+        SetVisible(true);
     }
 
     private bool HasSkin(string suffix) { return SpriteBank.Has(skinBase + suffix); }
@@ -485,21 +624,48 @@ public class BossEnemy : Enemy
         }
 
         // v7.9 (A3): 무방비 = 몸이 기울어 느리게 흔들린다 (주저앉은 모습). 그림을 감싼 SkinPivot 을 돌린다 - 그림 자체는 HitFeelBody 가 찌그러뜨린다
+        // v7.12: 도착 순간의 펀치 (BossArrivePunch 만큼 커졌다가 0.25초에 제자리 - 전환 순간과 같은 곡선, 흰 번쩍은 없다)
+        float land = 0f;
+        if (landAge >= 0f)
+        {
+            landAge += Time.deltaTime;   // 게임 시간 - 히트스톱이 풀린 뒤에 터지고, 일시정지면 선다
+            float k = 1f - Mathf.Clamp01(landAge / SHIFT_PUNCH_SEC);
+            land = k * k * GameBalance.BossArrivePunch;
+            if (landAge >= SHIFT_PUNCH_SEC) landAge = -1f;
+        }
+
         if (skinPivot != null)
         {
             float tiltMax = Mathf.Max(0f, GameBalance.BossGroggyTiltDeg);
             float tiltWant = (isGroggy && !isServing && GameBalance.BossStateFx) ? tiltMax : 0f;
             tiltNow = Mathf.MoveTowards(tiltNow, tiltWant, 40f * Time.deltaTime);
             float sway = tiltMax > 0.01f ? Mathf.Sin(Time.time * 1.8f) * 1.5f * (tiltNow / tiltMax) : 0f;
-            float sc = (1f + GameBalance.BossPhaseShiftPunch * punch) * castMulNow;   // v7.11: x 패턴 준비·발동 배율
-            skinPivot.localScale = new Vector3(sc, sc, 1f);
+            float sc = (1f + GameBalance.BossPhaseShiftPunch * punch + land) * castMulNow;   // v7.11: x 패턴 준비·발동 배율 / v7.12: + 도착 펀치
+            skinPivot.localScale = new Vector3(sc * enterScale.x, sc * enterScale.y, 1f);     // v7.12: x 등장 중 배율 (떨어져 내림·떠오름·날갯짓)
             skinPivot.localRotation = Quaternion.Euler(0f, 0f, tiltNow + sway);
+        }
+        // v7.12: 등장 중 알파 (동면자가 떠오를 때) - 연출이 끝나면 1 로 돌려놓는다 (EndEntrance)
+        if (enterAlpha < 1f) { Color sa = skin.color; sa.a = enterAlpha; skin.color = sa; }
+        // v7.12: 천둥 둥지의 땅 그림자 - 보스를 따라 돌고, 상태 그림·몸 배율을 따라간다. 기차 쪽(아래)으로 BossShadowDY
+        if (shadow != null)
+        {
+            if (shadow.sprite != skin.sprite) shadow.sprite = skin.sprite;
+            shadow.transform.position = transform.position + Vector3.down * GameBalance.BossShadowDY;
+            shadow.transform.rotation = skin.transform.rotation;
+            shadow.transform.localScale = skin.transform.lossyScale;
         }
 
         if (glow == null) return;
         Color c = Color.clear;
         float t = Time.time;
         if (flash > 0f) c = new Color(1f, 1f, 1f, flash);
+        else if (eyesAge >= 0f)
+        {
+            // v7.12: 디 오리지널 도착 - 머리가 나란해진 순간 몸이 붉게 달아올랐다 식는다 (0.4초. 새 그림이 오면 눈에만)
+            eyesAge += Time.deltaTime;
+            c = new Color(1f, 0.12f, 0.08f, 0.6f * (1f - Mathf.Clamp01(eyesAge / 0.4f)));
+            if (eyesAge >= 0.4f) eyesAge = -1f;
+        }
         else if (isServing) c = Color.clear;
         else if (isGroggy) c = new Color(1f, 0.85f, 0.35f, 0.22f + 0.1f * Mathf.Sin(t * 5f));
         else if (telegraphing) c = new Color(1f, 1f, 1f, 0.3f + 0.25f * Mathf.Sin(t * 14f));
@@ -608,17 +774,23 @@ public class BossEnemy : Enemy
     ///   Bolt = 맞을 자리 위에 서는 세로 예고 줄 + 발밑에서 조여 드는 고리 - 준비 시간 동안 점점 굵고 진해지고, 마지막 blinkSec(패링 창) 동안 깜빡인다
     ///   Disc = 바닥에 깔려 커지는 원 (냉기가 뭉치는 자리)
     ///   Claw = 문 자리의 이빨 자국 세 줄 (금방 흐려진다)
+    ///   v7.12: Streak = 짧은 줄이 한 방향으로 날아가며 흐려진다 (날갯짓 바람) / Crack = 땅의 금 - 한쪽 끝에서 반대쪽으로 달리며 끝에서 얼음 조각이 튄다 / DiscAt = 자리가 고정된 Disc (떨어져 내릴 자리의 그림자)
     /// </summary>
     private class BossMark : MonoBehaviour
     {
-        private int mode;                     // 0 = Bolt / 1 = Disc / 2 = Claw
+        private int mode;                     // 0 = Bolt / 1 = Disc / 2 = Claw / 3 = Streak / 4 = Crack
         private float age, life, blinkSec;
         private Color col;
         private Transform follow;             // 따라갈 자리 (Bolt = 포탑 / Disc = 보스)
         private Vector3 basePos;
         private float fromRadius, toRadius;   // Disc
+        private float aspect = 1f;            // Disc: 세로/가로
         private LineRenderer[] lines;
         private SpriteRenderer disc;
+        private Vector3 vel;                  // Streak: 속도 (u/초) / Crack: 끝점
+        private float growSec, sparkT;        // Crack: 달리는 시간 / 다음 얼음 조각까지
+        private Vector3[] path;               // Crack: 금의 꺾인 점들
+        private const int CRACK_PTS = 28;
         private const int RING_SEG = 20;      // Bolt 의 발밑 고리를 이루는 선분 수
         private static Material lineMat;      // 줄 표시가 같이 쓰는 재질 (표시마다 새로 만들면 오브젝트가 사라져도 재질이 남는다)
 
@@ -652,18 +824,65 @@ public class BossEnemy : Enemy
         /// <summary>패링 성공: 깜빡임을 멈추고 병 색으로 바뀐다 (잡았다는 표시 - 떨어질 때 줄기가 병으로 간다)</summary>
         public void Caught(Color c) { col = c; blinkSec = 0f; }
 
-        public static BossMark Disc(Transform center, Color c, float fromRadius, float toRadius, float sec)
+        public static BossMark Disc(Transform center, Color c, float fromRadius, float toRadius, float sec, float aspect = 1f)
         {
             GameObject go = new GameObject("BossMark_Disc");
             Vector3 pos = center != null ? center.position : Vector3.zero;
             go.transform.position = pos;
             BossMark m = go.AddComponent<BossMark>();
             m.mode = 1; m.life = Mathf.Max(0.1f, sec); m.col = c; m.basePos = pos; m.follow = center;
-            m.fromRadius = fromRadius; m.toRadius = toRadius;
+            m.fromRadius = fromRadius; m.toRadius = toRadius; m.aspect = Mathf.Max(0.05f, aspect);   // v7.12: 세로/가로 (1 = 원, 작으면 긴 몸을 따라가는 타원 - 따라가는 것의 회전을 따른다)
             m.disc = go.AddComponent<SpriteRenderer>();
             m.disc.sprite = AttackVFX.GetCircleSprite();   // 지름 1u
             m.disc.sortingOrder = -7;                      // 땅(-10) 위, 기차 데크(-6) 아래 - 서리는 땅에만 깔린다 (지붕을 덮으면 기차가 어는 것처럼 읽힌다)
             m.Draw();
+            return m;
+        }
+
+        /// <summary>v7.12: 자리가 고정된 Disc (보스를 따라가지 않는다) - 떨어져 내릴 자리에 커지는 그림자</summary>
+        public static BossMark DiscAt(Vector3 pos, Color c, float fromRadius, float toRadius, float sec)
+        {
+            BossMark m = Disc(null, c, fromRadius, toRadius, sec);
+            m.transform.position = pos; m.basePos = pos;
+            m.Draw();
+            return m;
+        }
+
+        /// <summary>v7.12: 바람 줄무늬 - pos 에서 dir 로 travel 만큼 sec 동안 날아가며 흐려진다</summary>
+        public static BossMark Streak(Vector3 pos, Vector3 dir, float travel, float sec, Color c)
+        {
+            GameObject go = new GameObject("BossMark_Streak");
+            go.transform.position = pos;
+            BossMark m = go.AddComponent<BossMark>();
+            m.mode = 3; m.life = Mathf.Max(0.1f, sec); m.col = c; m.basePos = pos;
+            Vector3 d = dir.sqrMagnitude > 0.0001f ? dir.normalized : Vector3.down;
+            m.vel = d * (travel / m.life);
+            m.lines = new LineRenderer[] { MakeLine(go.transform, c, 0.06f, 40) };
+            m.lines[0].SetPosition(0, pos); m.lines[0].SetPosition(1, pos + d * 1.1f);
+            return m;
+        }
+
+        /// <summary>v7.12: 땅의 금 - from 에서 to 까지 growSec 에 달리고(끝에서 얼음 조각) sec 뒤에 사라진다 (마지막 0.5초에 흐려진다). 땅 위·데크 아래 층</summary>
+        public static BossMark Crack(Vector3 from, Vector3 to, Color c, float growSec, float sec)
+        {
+            GameObject go = new GameObject("BossMark_Crack");
+            go.transform.position = from;
+            BossMark m = go.AddComponent<BossMark>();
+            m.mode = 4; m.life = Mathf.Max(growSec + 0.2f, sec); m.col = c; m.basePos = from; m.vel = to;
+            m.growSec = Mathf.Max(0.05f, growSec);
+            Vector3 along = to - from;
+            Vector3 side = new Vector3(-along.y, along.x, 0f).normalized;
+            m.path = new Vector3[CRACK_PTS];
+            for (int i = 0; i < CRACK_PTS; i++)
+            {
+                float k = i / (float)(CRACK_PTS - 1);
+                float jit = (i == 0 || i == CRACK_PTS - 1) ? 0f : Random.Range(-0.35f, 0.35f);
+                m.path[i] = from + along * k + side * jit;
+            }
+            m.lines = new LineRenderer[] { MakeLine(go.transform, c, 0.13f, -8), MakeLine(go.transform, new Color(0.1f, 0.2f, 0.3f, 0.8f), 0.22f, -9) };   // 밝은 금 + 그 밑의 어두운 틈
+            m.lines[0].positionCount = 2; m.lines[1].positionCount = 2;
+            m.lines[0].SetPosition(0, from); m.lines[0].SetPosition(1, from);
+            m.lines[1].SetPosition(0, from); m.lines[1].SetPosition(1, from);
             return m;
         }
 
@@ -722,11 +941,39 @@ public class BossEnemy : Enemy
             }
             else if (mode == 1)
             {
-                if (follow != null) transform.position = follow.position;   // 보스가 움직이면 같이
+                if (follow != null) { transform.position = follow.position; if (aspect < 0.999f) transform.rotation = follow.rotation; }   // 보스가 움직이면 같이 (타원은 몸을 따라 돈다)
                 float r = Mathf.Lerp(fromRadius, toRadius, 1f - (1f - k) * (1f - k));
-                transform.localScale = new Vector3(r * 2f, r * 2f, 1f);
+                transform.localScale = new Vector3(r * 2f, r * 2f * aspect, 1f);
                 Color c = col; c.a = col.a * (k < 0.85f ? 1f : (1f - k) / 0.15f);
                 disc.color = c;
+            }
+            else if (mode == 3)
+            {
+                Vector3 p = basePos + vel * age;
+                Vector3 d = vel.sqrMagnitude > 0.0001f ? vel.normalized : Vector3.down;
+                lines[0].SetPosition(0, p); lines[0].SetPosition(1, p + d * 1.1f);
+                Color c = col; c.a = col.a * (1f - k * k);
+                lines[0].startColor = c; lines[0].endColor = c;
+            }
+            else if (mode == 4)
+            {
+                float g = Mathf.Clamp01(age / growSec);
+                int n = Mathf.Clamp(2 + Mathf.FloorToInt(g * (CRACK_PTS - 2)), 2, CRACK_PTS);
+                for (int l = 0; l < lines.Length; l++)
+                {
+                    if (lines[l].positionCount != n) lines[l].positionCount = n;
+                    for (int i = 0; i < n; i++) lines[l].SetPosition(i, path[i]);
+                }
+                if (g < 1f)
+                {
+                    sparkT -= Time.deltaTime;
+                    if (sparkT <= 0f) { sparkT = 0.04f; SparkPool.Emit(path[n - 1], col, 2, 0.08f, 3f); }
+                }
+                float fade = Mathf.Clamp01((life - age) / 0.5f);
+                Color c = col; c.a = col.a * fade;
+                lines[0].startColor = c; lines[0].endColor = c;
+                Color c2 = lines[1].startColor; c2.a = 0.8f * fade;
+                lines[1].startColor = c2; lines[1].endColor = c2;
             }
             else
             {
@@ -895,6 +1142,368 @@ public class BossEnemy : Enemy
     }
 
     // ─────────────────────────────────────────────
+    // v7.12 (v9.21): 등장 연출 2판 (스펙 4절) - 네 보스가 같은 박자, 들어오는 길만 다르다
+    //   0.0 전조 (배경음 줄고 어두워짐 + 보스별) -> 0.5 카메라가 빠진다 -> 0.9 들어오는 길 -> 도착 (히트스톱 + 흔들림 + 먼지 고리 + 포효 + 몸 1.12배)
+    //   -> +0.3 이름판 -> +0.6 HP 바 -> 밝아지고 패턴 시계 시작. 실시간으로 돈다 (게임은 멈추지 않는다). 그동안 보스는 공격하지 않는다 (맞기는 한다)
+    // ─────────────────────────────────────────────
+    /// <summary>등장 연출의 한 프레임 시간: 실시간이되 카드·일시정지·증강 창이 떠 있는 동안은 0 (연출이 메뉴 뒤에서 혼자 진행되지 않게)</summary>
+    private static float EnterDt
+    {
+        get
+        {
+            if (BriefingUI.IsOpen || StoryTexts.IsBlocking || AugmentPickUI.IsOpen || PauseMenu.IsOpen) return 0f;
+            return Time.unscaledDeltaTime;
+        }
+    }
+
+    /// <summary>sec 초(실시간, 메뉴가 떠 있는 동안은 멈춤) 기다린다</summary>
+    private IEnumerator WaitRT(float sec)
+    {
+        float t = 0f;
+        while (t < sec) { t += EnterDt; yield return null; }
+    }
+
+    /// <summary>등장 중 배율·알파를 지금 바로 그림에 쓴다 - 코루틴은 Update(TickSkin) 뒤에 돌아서, 보이게 하는 프레임에 TickSkin 값(배율 1)으로 한 번 그려지는 것을 막는다</summary>
+    private void ApplyEnterPose()
+    {
+        if (skinPivot != null) skinPivot.localScale = new Vector3(enterScale.x * castMulNow, enterScale.y * castMulNow, 1f);
+        if (skin != null && enterAlpha < 1f) { Color sa = skin.color; sa.a = enterAlpha; skin.color = sa; }
+    }
+
+    private IEnumerator EntranceV2(string intro)
+    {
+        entering = true;
+        enterClock = 0f;
+        yield return null;   // WaveManager.SpawnBoss 가 같은 프레임에 여는 첫 등장 카드가 열릴 틈
+        float queued = 0f;
+        while (true)
+        {
+            bool shown = BriefingUI.IsOpen || StoryTexts.IsBlocking || AugmentPickUI.IsOpen || PauseMenu.IsOpen;
+            bool waitingCard = !shown && BriefingUI.Busy;
+            if (!shown && !waitingCard) break;
+            if (waitingCard)
+            {
+                queued += Time.unscaledDeltaTime;
+                if (queued >= 3f) break;
+            }
+            yield return null;
+        }
+        if (!IsAlive) yield break;
+        BossGimmickSystem.Instance?.HoldBarForIntro();   // 카드를 오래 읽었어도 8초 안전장치가 지금부터 세게 (바가 카드 뒤에서 먼저 뜨지 않게)
+
+        int k = Mathf.Clamp((int)kind, 0, 3);
+        float total = (GameBalance.BossEntranceSec != null && k < GameBalance.BossEntranceSec.Length) ? GameBalance.BossEntranceSec[k] : 3f;
+        enterTotal = total; enterClock = 0f;   // enterClock 은 Update 가 메뉴가 안 떠 있는 동안만 센다
+
+        // 0.0 전조: 어두워진다 (밝아지는 건 total 에 맞춰) + 보스별
+        float dimA = kind == BossKind.ThunderNest ? GameBalance.BossEntranceDim + 0.15f : GameBalance.BossEntranceDim;
+        ScreenFx.WorldDim(dimA, 0.35f, Mathf.Max(0.1f, total - 0.35f - 0.5f), 0.5f);
+        if (kind == BossKind.RustClaw)
+        {
+            SoundManager.Play("sfx_boss_far_howl", 0.9f, -1f);
+            StartCoroutine(DustPillars());
+        }
+        else if (kind == BossKind.ThunderNest) SoundManager.Play("sfx_thunder_roll", 0.9f, -1f);
+        else if (kind == BossKind.Hibernator)
+        {
+            WarningFX.FrostEdge(1.8f, new Color(0.78f, 0.92f, 1f));
+            StartCoroutine(RattleTrain(0.8f));
+        }
+        else
+        {
+            SoundManager.BgmCut(0.4f);
+            SoundManager.PlayDelayed("sfx_whistle_low", 0.4f);
+        }
+        yield return WaitRT(0.5f);
+        if (!IsAlive) yield break;
+
+        // 0.5 카메라가 빠진다
+        if (GameBalance.BossCamOn && GameBalance.BossCamZoom != null && k < GameBalance.BossCamZoom.Length)
+            CameraZoom.BossFraming(GameBalance.BossCamZoom[k], GameBalance.BossCamInSec);
+        yield return WaitRT(0.4f);
+        if (!IsAlive) yield break;
+
+        // 0.9 들어오는 길 (끝나면 보스가 서는 자리에 있다)
+        if (kind == BossKind.RustClaw) yield return StartCoroutine(EnterRust());
+        else if (kind == BossKind.ThunderNest) yield return StartCoroutine(EnterThunder());
+        else if (kind == BossKind.Hibernator) yield return StartCoroutine(EnterHibernator());
+        else yield return StartCoroutine(EnterOriginal());
+        if (!IsAlive) yield break;
+
+        // 도착
+        Arrive(kind == BossKind.Original ? GameBalance.BossEntranceHitstop + 0.02f : GameBalance.BossEntranceHitstop);
+        yield return WaitRT(0.3f);
+        if (!IsAlive) yield break;
+
+        // 이름판
+        float band = GameBalance.BossIntroBandSec > 0f ? GameBalance.BossNamePlateSec + 0.38f : 0f;
+        if (band > 0f) WarningFX.BossIntro(data.enemyName, Epithet(), band);
+        if (GameBalance.BossEntranceLine) StartCoroutine(NoticeAfter(Mathf.Max(0.5f, band - 0.2f), "[" + data.enemyName + "]", intro));
+        yield return WaitRT(0.3f);
+        if (!IsAlive) yield break;
+
+        // HP 바가 내려와 차오른다 (래칫은 BossGimmickSystem)
+        BossGimmickSystem.Instance?.PlayBarIntro();
+
+        // 밝아질 때까지 남은 시간 - 그다음 패턴 시계 시작
+        float left = total - enterClock;
+        if (left > 0f) yield return WaitRT(left);
+        if (!IsAlive) yield break;
+        EndEntrance();
+    }
+
+    /// <summary>등장 연출 끝: 몸 배율·알파를 제자리로, 패턴·공격 시계 시작</summary>
+    private void EndEntrance()
+    {
+        entering = false;
+        enterScale = Vector2.one; enterAlpha = 1f;
+        if (skin != null) { Color c = skin.color; c.a = 1f; skin.color = c; }
+        SetVisible(true);
+        transform.position = standPos;
+        patternTimer = GameBalance.BossPatternFirstDelay;
+        attackTimer = 0f;
+    }
+
+    /// <summary>도착: 히트스톱 + 흔들림 + 먼지 고리 + 포효 + 몸 펀치 (landAge -> TickSkin). 디 오리지널은 포효 대신 쇠 비명 + 몸이 붉게</summary>
+    private void Arrive(float hitstop)
+    {
+        transform.position = standPos;
+        SetVisible(true);
+        enterScale = Vector2.one;
+        GameFeel.Hitstop(Mathf.Max(0f, hitstop));
+        GameFeel.Shake(GameBalance.BossEntranceShake);
+        landAge = 0f;
+        float half = FxRadius();
+        if (kind == BossKind.ThunderNest)
+        {
+            WorldFeel.Ring(transform.position, new Color(0.9f, 0.95f, 1f, 0.55f), half * 0.9f, 0.3f);   // 바람
+        }
+        else if (kind == BossKind.Hibernator)
+        {
+            WorldFeel.Ring(transform.position, new Color(0.8f, 0.95f, 1f, 0.8f), 9f, 0.6f);               // 냉기 고리가 기차를 훑는다
+            SoundManager.Play("sfx_freeze", 0.8f, -1f);
+        }
+        else
+        {
+            WorldFeel.Ring(transform.position, DUST, half * 0.9f, 0.35f);
+            for (int i = 0; i < 4; i++)
+                DustFX.Puff(transform.position + new Vector3(Random.Range(-half, half), Random.Range(-0.6f, 0.6f) - 0.5f, 0f), Random.Range(1.0f, 1.5f));
+        }
+        if (kind == BossKind.Original)
+        {
+            eyesAge = 0f;
+            SoundManager.Play("sfx_iron_scream", 1f, -1f);
+            SoundManager.PlayDelayed(SoundKeys.BossRoar(kind.ToString()), 0.25f);
+        }
+        else SoundManager.Play(SoundKeys.BossRoar(kind.ToString()), 1f, -1f);
+    }
+
+    /// <summary>E1 전조: 화면 세 가장자리(꼬리 쪽·위·아래) 안쪽에 먼지 기둥이 솟는다 - 무리가 사방에서 몰려온다는 신호 (부관 둘은 v9.22 에서 여기에 더한다)</summary>
+    private IEnumerator DustPillars()
+    {
+        Camera cam = Camera.main;
+        if (cam == null) yield break;
+        if (statePuffs == null) statePuffs = StatePuffs.Create(this);
+        float hh = cam.orthographicSize, hw = hh * cam.aspect;
+        Vector3 c = cam.transform.position;
+        Vector3[] at =
+        {
+            new Vector3(c.x + hw - 2.5f, c.y + Random.Range(-2f, 2f), 0f),                 // 꼬리 쪽 (오른쪽)
+            new Vector3(c.x + Random.Range(-6f, 6f), c.y + hh - 2.2f, 0f),                 // 위
+            new Vector3(c.x + Random.Range(-6f, 6f), c.y - hh + hh * (190f / 450f) + 1.2f, 0f)   // 아래 (하단 HUD 위)
+        };
+        for (int step = 0; step < 4; step++)
+        {
+            for (int i = 0; i < at.Length; i++)
+                statePuffs.Emit(at[i] + new Vector3(Random.Range(-0.4f, 0.4f), step * 0.35f, 0f), DUST, Random.Range(1.0f, 1.4f), 0.9f, new Vector3(0f, 2.2f, 0f));
+            yield return WaitRT(0.12f);
+        }
+    }
+
+    /// <summary>E3 전조: 기차가 두 배로 덜컹인다 - sec 동안 칸을 번갈아 걷어찬다 (TrainDeck.KickCar, 그림만)</summary>
+    private IEnumerator RattleTrain(float sec)
+    {
+        float[] edges = GameBalance.CarEdgesX;
+        float t = 0f; int n = 0;
+        while (t < sec)
+        {
+            int car = n % (edges.Length - 1);
+            float x = (edges[car] + edges[car + 1]) * 0.5f;
+            TrainDeck.KickCar(x, (n % 2 == 0) ? Vector2.up : Vector2.down, 0.09f);
+            n++;
+            yield return WaitRT(0.1f);
+            t += 0.1f;
+        }
+    }
+
+    /// <summary>E1: 땅에 그림자 원이 커진다(뛰어오른 것) -> 왕이 떨어져 내린다 (크게 보이다 제 크기로, 위에서 내려온다) -> 착지: 먼지 고리 두 겹 + 쿵</summary>
+    private IEnumerator EnterRust()
+    {
+        BossMark.DiscAt(standPos, new Color(0f, 0f, 0f, 0.45f), 0.4f, FxRadius() * 0.6f, 0.65f);
+        yield return WaitRT(0.12f);
+        if (!IsAlive) yield break;
+        enterScale = new Vector2(1.9f, 1.9f); ApplyEnterPose();
+        transform.position = standPos + Vector3.up * 2.5f;
+        SetVisible(true);
+        const float FALL = 0.5f;
+        float t = 0f;
+        while (t < FALL)
+        {
+            t += EnterDt;
+            float k = Mathf.Clamp01(t / FALL);
+            float e = k * k;   // 떨어지며 빨라진다
+            float s = Mathf.Lerp(1.9f, 1f, e);
+            enterScale = new Vector2(s, s); ApplyEnterPose();
+            transform.position = standPos + Vector3.up * Mathf.Lerp(2.5f, 0f, e);
+            yield return null;
+            if (!IsAlive) yield break;
+        }
+        transform.position = standPos; enterScale = Vector2.one;
+        SoundManager.Play("sfx_boss_land", 1f, -1f);
+        WorldFeel.Ring(standPos, DUST, FxRadius() * 1.3f, 0.45f);   // 두 겹 중 바깥 (안쪽은 Arrive 의 고리)
+    }
+
+    /// <summary>E2: 거대한 날개 그림자가 기차를 꼬리에서 머리 쪽으로 훑는다 -> 흰 번쩍 -> 북쪽 상공에 날개를 편 여왕 -> 날갯짓 한 번에 바람 줄무늬</summary>
+    private IEnumerator EnterThunder()
+    {
+        Camera cam = Camera.main;
+        float hw = cam != null ? cam.orthographicSize * cam.aspect : 18f;
+        float cx = cam != null ? cam.transform.position.x : standPos.x;
+        // 날개 그림자: 보스 실루엣을 검게, 목표 날개폭의 1.3배로 (검은 실루엣이라 도트가 뭉개져도 안 보인다 - "거대한" 그림자)
+        GameObject sh = null;
+        Sprite sil = skin != null ? FlashSprites.Get(skin.sprite) : null;
+        if (sil != null)
+        {
+            sh = new GameObject("BossWingShadow");
+            SpriteRenderer sr = sh.AddComponent<SpriteRenderer>();
+            sr.sprite = sil; sr.color = new Color(0f, 0f, 0f, 0.5f); sr.sortingOrder = 40;   // 셰프·포탑·손님 위, 표시(56)·HUD 아래
+            float wing = GameBalance.BossBodyWide != null && GameBalance.BossBodyWide.Length > 1 ? GameBalance.BossBodyWide[1] : 12f;
+            float sc = wing * 1.3f / Mathf.Max(0.5f, OpaqueSize(skin.sprite).y);
+            sh.transform.localScale = new Vector3(sc, sc, 1f);
+            sh.transform.rotation = Quaternion.AngleAxis(270f, Vector3.forward);
+            Destroy(sh, 3f);   // 보험 - 보스가 그사이 사라져도 그림자가 남지 않는다
+        }
+        const float SWEEP = 0.6f;
+        float t = 0f;
+        float y = (trainTarget != null ? trainTarget.position.y : 0f) + 0.6f;
+        while (t < SWEEP)
+        {
+            t += EnterDt;
+            float k = Mathf.Clamp01(t / SWEEP);
+            if (sh != null) sh.transform.position = new Vector3(Mathf.Lerp(cx + hw + 7f, cx - hw - 7f, k), y, 0f);
+            yield return null;
+        }
+        if (sh != null) Destroy(sh);
+        if (!IsAlive) yield break;
+        // 흰 번쩍 한 장 - 걷히면 여왕이 떠 있다
+        bool covered = ScreenFx.Cover(Color.white, 0.04f, 0.3f, delegate
+        {
+            if (this == null || !IsAlive) return;   // 덮이는 0.04초 사이에 사라졌으면 아무것도 안 한다
+            transform.position = standPos; SetVisible(true);
+        });
+        if (!covered) { transform.position = standPos; SetVisible(true); }
+        yield return WaitRT(0.3f);   // 흰 번쩍이 거의 걷힌 뒤에 날갯짓 (덮개 = 0.04 + 0.3초)
+        if (!IsAlive) yield break;
+        // 날갯짓 한 번 (날개 쪽 = 그림의 세로 = enterScale.y) + 바람 줄무늬가 기차를 친다
+        SoundManager.Play("sfx_wing_gust", 1f, -1f);
+        for (int i = 0; i < 7; i++)
+            BossMark.Streak(standPos + new Vector3(Random.Range(-5.5f, 5.5f), Random.Range(-3.2f, -2.2f), 0f), Vector3.down, 9f, 0.38f, new Color(1f, 1f, 1f, 0.5f));
+        const float BEAT = 0.4f;
+        t = 0f;
+        while (t < BEAT)
+        {
+            t += EnterDt;
+            float k = Mathf.Clamp01(t / BEAT);
+            enterScale = new Vector2(1f, 1f - 0.18f * Mathf.Sin(k * Mathf.PI)); ApplyEnterPose();
+            yield return null;
+        }
+        enterScale = Vector2.one; ApplyEnterPose();
+    }
+
+    /// <summary>E3: 기차 북쪽 땅에 금이 머리 쪽에서 꼬리 쪽으로 달린다 (얼음 조각이 차례로 튄다) -> 금이 벌어지며 등줄기부터 떠오른다 -> 냉기 고리 (Arrive)</summary>
+    private IEnumerator EnterHibernator()
+    {
+        SoundManager.Play("sfx_ground_crack", 0.9f, -1f);
+        float half = GameBalance.BossBodyLen != null && GameBalance.BossBodyLen.Length > 2 ? GameBalance.BossBodyLen[2] * 0.5f : 7f;
+        BossMark.Crack(standPos + Vector3.left * half, standPos + Vector3.right * half, ICE_LINE, 0.5f, 1.6f);
+        yield return WaitRT(0.5f);
+        if (!IsAlive) yield break;
+        SoundManager.Play("sfx_iron_groan", 0.9f, -1f);
+        transform.position = standPos;
+        enterScale = new Vector2(1f, 0.15f); enterAlpha = 0.45f; ApplyEnterPose();
+        SetVisible(true);
+        const float RISE = 0.45f;
+        float t = 0f;
+        while (t < RISE)
+        {
+            t += EnterDt;
+            float k = Mathf.Clamp01(t / RISE);
+            float e = 1f - (1f - k) * (1f - k);
+            enterScale = new Vector2(1f, Mathf.Lerp(0.15f, 1f, e));
+            enterAlpha = Mathf.Lerp(0.45f, 1f, e);
+            ApplyEnterPose();
+            if (Random.value < 0.5f) SparkPool.Emit(RandomBodyPoint(), ICE_LINE, 2, 0.08f, 3f);
+            yield return null;
+            if (!IsAlive) yield break;
+        }
+        enterScale = Vector2.one; enterAlpha = 1f;
+        if (skin != null) { Color c = skin.color; c.a = 1f; skin.color = c; }
+    }
+
+    /// <summary>E4: 두 번째 선로가 깔린다 -> 붉은 전조등 빛이 화면을 가른다 -> 붉은 열차가 뒤(꼬리 쪽)에서 추월해 들어온다 (두 열차 사이 불티) -> 머리가 나란해지면 쇠 비명 + 몸이 붉게 (Arrive)</summary>
+    private IEnumerator EnterOriginal()
+    {
+        ParallaxBackground.SideRail(standPos.y, 0.5f);
+        yield return WaitRT(0.3f);
+        if (!IsAlive) yield break;
+        Camera cam = Camera.main;
+        float hw = cam != null ? cam.orthographicSize * cam.aspect : 20f;
+        float cx = cam != null ? cam.transform.position.x : standPos.x;
+        // 전조등: 길고 얇은 붉은 빛이 오른쪽에서 왼쪽으로 화면을 가른다
+        GameObject beam = new GameObject("BossHeadlight");
+        SpriteRenderer br = beam.AddComponent<SpriteRenderer>();
+        br.sprite = TrainDeck.GetWhiteSprite(); br.color = new Color(1f, 0.15f, 0.1f, 0.35f); br.sortingOrder = 40;
+        beam.transform.localScale = new Vector3(hw * 1.1f, 1.1f, 1f);
+        Destroy(beam, 3f);   // 보험
+        SoundManager.Play("sfx_rival_wheels", 1f, -1f);
+        const float BEAM = 0.4f, RUN = 1.1f;
+        float t = 0f;
+        while (t < BEAM)
+        {
+            t += EnterDt;
+            float k = Mathf.Clamp01(t / BEAM);
+            beam.transform.position = new Vector3(Mathf.Lerp(cx + hw * 1.6f, cx - hw * 1.6f, k), standPos.y + 0.2f, 0f);
+            yield return null;
+        }
+        Destroy(beam);
+        if (!IsAlive) yield break;
+        // 추월: 화면 오른쪽 밖에서 서는 자리로 (빠르게 와서 끝에서 선다). 두 열차 사이에 불티
+        float fromX = cx + hw + BodyHalfLength() + 2f;
+        transform.position = new Vector3(fromX, standPos.y, 0f);
+        SetVisible(true);
+        float sparkT = 0f;
+        float gapY = ((trainTarget != null ? trainTarget.position.y : 0f) + 1.9f + standPos.y - bodyExtLocal.y * Mathf.Abs(skin != null ? skin.transform.lossyScale.x : 1f)) * 0.5f;
+        t = 0f;
+        while (t < RUN)
+        {
+            t += EnterDt;
+            float k = Mathf.Clamp01(t / RUN);
+            float e = 1f - (1f - k) * (1f - k) * (1f - k);
+            transform.position = new Vector3(Mathf.Lerp(fromX, standPos.x, e), standPos.y, 0f);
+            sparkT -= EnterDt;
+            if (sparkT <= 0f)
+            {
+                sparkT = 0.06f;
+                float sx = Mathf.Clamp(transform.position.x + Random.Range(-BodyHalfLength(), BodyHalfLength()), GameBalance.CarEdgesX[0], GameBalance.CarEdgesX[GameBalance.CarEdgesX.Length - 1]);
+                SparkPool.Emit(new Vector3(sx, gapY + Random.Range(-0.3f, 0.3f), 0f), EMBER[3], 3, 0.08f, 3.5f);
+            }
+            yield return null;
+            if (!IsAlive) yield break;
+        }
+        transform.position = standPos;
+    }
+
+    // ─────────────────────────────────────────────
     // 메인 루프
     // ─────────────────────────────────────────────
     private void Update()
@@ -905,6 +1514,19 @@ public class BossEnemy : Enemy
         // 도트/방깎 타이머 (v3에서 수정된 보스 도트 버그 유지)
         TickStatusEffects();
         TickSkin();   // v7.8: 상태 그림·발광
+        if (entering)
+        {
+            // v7.12: 등장 연출 중 - 이동·공격·패턴·발악·무방비 판정 없음 (맞기는 한다).
+            // 안전장치: 연출 코루틴이 예외로 죽어 보스가 숨은 채 굳으면(사거리 밖이라 웨이브가 안 끝난다) 길이 + 4초 뒤에 자리에 놓고 끝낸다
+            enterClock += EnterDt;
+            if (enterClock > enterTotal + 4f)
+            {
+                Debug.LogWarning("[BossEnemy] 등장 연출이 끝나지 않았다 - 자리에 놓고 시작한다");
+                StopAllCoroutines();
+                PlaceAtStand(); EndEntrance();
+            }
+            return;
+        }
 
         // 빙하 갑주 파괴 판정 (화상 스택 누적 감시)
         if (armorActive && TotalBurnApplied - burnBaseline >= GameBalance.GlacierBreakBurnStacks)
@@ -961,6 +1583,17 @@ public class BossEnemy : Enemy
 
         // 통상 이동/공격 (v6: 도발 중이면 미끼를 추적)
         attackTimer += Time.deltaTime;
+        // v7.12: 제자리 모드 - 등장 연출이 놓은 자리에 서서 물기만 한다 (큰 몸이 걸어 다니면 기차 위를 쓸고 지나간다). 미끼에 끌리면 제자리에서 미끼 쪽으로 문다 (BossHoldWhenTaunted)
+        if (StandMode && (!IsTaunted || GameBalance.BossHoldWhenTaunted))
+        {
+            HoldStance();
+            if (attackTimer >= attackCooldown)
+            {
+                attackTimer = 0f;
+                StartCoroutine(AttackLunge());
+            }
+            return;
+        }
         // v7.8: 가장 가까운 기차 몸통까지의 거리 (Enemy 와 같은 기준). 구: 기차 "중심"(0,0)까지 - 기차가 4칸으로 길어진 뒤로
         //   중심에서 5u 밖으로 다가온 보스(옆에서 온 경우 대부분)는 영영 사거리에 못 들고 기차 위에 올라앉아 물지도 않았다
         float distanceToTrain = Vector3.Distance(transform.position, CurrentTargetPos);
@@ -986,8 +1619,8 @@ public class BossEnemy : Enemy
     // ─────────────────────────────────────────────
     private float faceAngle = float.NaN;   // 지금 몸이 보는 각도 (도). NaN = 아직 안 정함
 
-    /// <summary>나란히 서는 자세를 쓸 때인가 (미끼에 끌려갈 때는 미끼를 본다)</summary>
-    private bool StanceOn { get { return GameBalance.BossFaceAlongTrain && !IsTaunted; } }
+    /// <summary>나란히 서는 자세를 쓸 때인가 (미끼에 끌려갈 때는 미끼를 본다 - v7.12: 제자리 모드에서는 끌려도 자세를 지킨다)</summary>
+    private bool StanceOn { get { return GameBalance.BossFaceAlongTrain && (!IsTaunted || (StandMode && GameBalance.BossHoldWhenTaunted)); } }
 
     /// <summary>몸을 want 각도로 돌린다 (BossTurnDegPerSec 로 부드럽게)</summary>
     private void TurnBody(float want)
@@ -997,10 +1630,10 @@ public class BossEnemy : Enemy
         transform.rotation = Quaternion.AngleAxis(faceAngle, Vector3.forward);
     }
 
-    /// <summary>사거리 안에 서 있는 동안: 기차가 달리는 쪽(왼쪽)을 본다</summary>
+    /// <summary>사거리 안에 서 있는 동안: 기차가 달리는 쪽(왼쪽)을 본다 (v7.12: 천둥 둥지는 기차를 내려다본다 - StandAngle)</summary>
     private void HoldStance()
     {
-        if (StanceOn && !isLunging) TurnBody(180f);
+        if (StanceOn && !isLunging) TurnBody(StandAngle());
     }
 
     /// <summary>다가오는 동안: 멀리서는 기차를 보고 오다가, 서는 거리 + BossTurnZone 안에 들어오면 미리 옆으로 돈다</summary>
@@ -1111,6 +1744,17 @@ public class BossEnemy : Enemy
         return 1.5f * Mathf.Abs(transform.lossyScale.x);
     }
 
+    /// <summary>v7.12: 몸 폭의 절반 (월드 유닛, 불투명 부분 기준). 그림이 없으면 0.9u</summary>
+    private float BodyHalfWidth()
+    {
+        if (skin != null && skin.sprite != null && bodyExtLocal.y > 0.01f) return bodyExtLocal.y * Mathf.Abs(skin.transform.lossyScale.x);
+        return 0.9f * Mathf.Abs(transform.lossyScale.x);
+    }
+
+    /// <summary>v7.12: 고리·서리·모이는 냉기의 기준 반지름 - 몸 길이의 절반이되 몸 폭의 1.6배를 넘지 않는다.
+    /// v9.20 은 길이의 절반만 썼는데 14 ~ 22u 몸에서는 고리가 기차와 HUD 를 다 덮었다 (px/boss_pattern_preview.py). 녹슨 발톱 2.9 / 천둥 둥지 2.6 / 동면자 3.5 / 디 오리지널 3.1</summary>
+    private float FxRadius() { return Mathf.Min(BodyHalfLength(), BodyHalfWidth() * 1.6f); }
+
     /// <summary>입 자리 (몸 앞쪽 끝에서 조금 안). 그림은 오른쪽을 보고 그려져 있으니 몸이 보는 쪽 = transform.right</summary>
     private Vector3 MouthPos() { return transform.position + transform.right * (BodyHalfLength() * 0.75f); }
 
@@ -1124,7 +1768,8 @@ public class BossEnemy : Enemy
         // 갑주 재전개: 냉기가 뭉치는 자리 - 바닥의 서리가 준비 시간 동안 몸 크기까지 커진다
         // (동면자의 패턴은 지금 갑주 재전개 하나라 종류로 가른다 - 새 패턴이 생기면 패턴별로 갈라야 한다)
         if (kind == BossKind.Hibernator)
-            castDisc = BossMark.Disc(transform, new Color(0.7f, 0.95f, 1f, 0.3f), 0.5f, BodyHalfLength() * 1.3f, GameBalance.BossTelegraphSec);
+            castDisc = BossMark.Disc(transform, new Color(0.7f, 0.95f, 1f, 0.3f), 0.5f, BodyHalfLength() * 1.15f, GameBalance.BossTelegraphSec,
+                BodyHalfWidth() * 1.7f / Mathf.Max(0.1f, BodyHalfLength() * 1.15f));   // v7.12: 긴 몸을 따라가는 타원 (몸보다 조금 넓게)
     }
 
     /// <summary>준비하는 동안 매 프레임: 패턴별 표시 (호령·포효 = 입에서 퍼지는 소리 고리 / 갑주 = 사방에서 몸으로 모이는 냉기)</summary>
@@ -1139,14 +1784,14 @@ public class BossEnemy : Enemy
             castFxTimer = 0.07f;
             float ang = Random.Range(0f, Mathf.PI * 2f);
             Vector3 dir = new Vector3(Mathf.Cos(ang), Mathf.Sin(ang), 0f);
-            float r = BodyHalfLength() * 1.4f + 0.5f;
+            float r = FxRadius() * 1.4f + 0.5f;   // v7.12: 몸 폭 기준
             if (statePuffs == null) statePuffs = StatePuffs.Create(this);
             statePuffs.Emit(transform.position + dir * r, STEAM[k], 0.5f, 0.5f, -dir * (r / 0.5f));   // 0.5초에 몸에 닿는다
         }
         else
         {
             castFxTimer = 0.5f;
-            WorldFeel.Ring(MouthPos(), Color.Lerp(EMBER[k], Color.white, 0.5f), BodyHalfLength() + 0.8f, 0.45f);
+            WorldFeel.Ring(MouthPos(), Color.Lerp(EMBER[k], Color.white, 0.5f), FxRadius() * 0.8f + 0.8f, 0.45f);   // v7.12: 몸 폭 기준
         }
     }
 
@@ -1160,7 +1805,7 @@ public class BossEnemy : Enemy
         if (!PatternFx) return;
         castMulNow = 1f - Mathf.Clamp(GameBalance.BossReleaseSquash, 0f, 0.5f);
         int k = Mathf.Clamp((int)kind, 0, EMBER.Length - 1);
-        if (bodyRing) WorldFeel.Ring(transform.position, Color.Lerp(EMBER[k], Color.white, 0.4f), BodyHalfLength() * 1.6f, 0.3f);
+        if (bodyRing) WorldFeel.Ring(transform.position, Color.Lerp(EMBER[k], Color.white, 0.4f), FxRadius() * 1.6f, 0.3f);   // v7.12: 몸 폭 기준
         GameFeel.Shake(GameBalance.BossEntranceShake * GameBalance.BossReleaseShake);
         SoundManager.Play("sfx_explosion", 0.3f, 0.05f);
         if (statePuffs == null) statePuffs = StatePuffs.Create(this);
@@ -1461,7 +2106,7 @@ public class BossEnemy : Enemy
         // v7.11: 얼음 껍질이 덮이는 순간 - 몸 둘레의 고리 + 얼어붙는 소리 (갑주가 생긴 때가 보인다)
         if (PatternFx)
         {
-            WorldFeel.Ring(transform.position, ArmorTint(), BodyHalfLength() * 1.5f, 0.4f);
+            WorldFeel.Ring(transform.position, ArmorTint(), FxRadius() * 1.5f, 0.4f);   // v7.12: 몸 폭 기준
             SoundManager.Play("sfx_freeze", 0.8f, -1f);
         }
     }
@@ -1815,6 +2460,7 @@ public class BossEnemy : Enemy
     {
         if (glow != null) glow.enabled = false;   // v7.8: 상태 발광은 여기까지 (죽는 과정은 HitFeelBody 가 그림을 흐린다)
         CastCancel();   // v7.11: 준비하다 쓰러지면 예고 줄을 걷는다
+        LeaveStage(GameBalance.BossCamOutSec);   // v7.12: 보스전 카메라·평행 선로·그림자를 걷는다 (쓰러진 뒤 1.2초에 돌아온다)
         // v7.4: 예습 보스 - 연출만, 보상·베팅·"승리" 체인 없음 (디렉터가 완료를 판정한다)
         if (practice)
         {
@@ -1880,6 +2526,17 @@ public class BossEnemy : Enemy
     {
         if (PickupFX.FeedingBoss == this)
             PickupFX.FeedingBoss = null;
+        if (IsAlive) LeaveStage(0.3f);   // v7.12: Die 를 안 거치고 사라질 때만 (씬 전환은 CameraZoom.Start 가 다시 끈다)
+    }
+
+    /// <summary>v7.12: 보스전 무대 걷기 - 카메라 복귀 + 평행 선로 걷기 + 그림자 끔. 두 번 불려도 된다</summary>
+    private void LeaveStage(float sec)
+    {
+        entering = false;
+        if (practice) return;
+        CameraZoom.BossFramingOff(sec);
+        if (kind == BossKind.Original) ParallaxBackground.SideRailOff(sec);
+        if (shadow != null) shadow.enabled = false;
     }
 
     public bool IsGroggy => isGroggy;

@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 
 /// <summary>
-/// [TurretAttackExecutor.cs] v5.8 (v9.19.3 2026-10-07: 증강의 타격당 회복을 1초에 GameBalance.LifestealHitsPerSec 번까지만 센다 - LifestealReady. 타격마다 전부 세면 손님이 늘고 단단해진 만큼 회복이 불어나 기차 HP 가 닳지 않았다) / v5.7 (v9.19.2 2026-10-07: v5.6 의 "타격당 회복 x 손님의 몫"을 되돌렸다 - 손님이 제 힘으로 오니 때린 만큼 그대로 회복한다) / v5.6 (v9.19.1: 증강의 타격당 회복에 맞은 손님의 몫을 곱했다) / v5.5 (v9.18 2026-10-06: 피해 출처(CurrentSource = 쏜 포탑) - 데미지 숫자를 포탑별로 합산하게 HitFeel 에 같이 넘긴다. 날아가는 탄은 도착할 때 출처를 다시 건다) / v5.4 (v9.17 2026-10-06: v9.14 머리말에 적고 본문에 빠져 있던 것을 실제로 넣음 - 투사체가 날아가는 동안 Enemy.IncomingDamage 예약·도착 때 해제 / 도착했을 때 표적이 죽었으면 ProjectileRetargetRadius 안의 다른 손님을 맞힌다. + A5: 물리 단발이 맞으면 HitFeel.Knock(그림만 움찔)) / v5.3 (v9.16 2026-09-29 손맛 2차 - 소리: 발사음 = 요리 속성·티어·모양별(SoundKeys.Shot, 포탑 위치에서 PlayAt) / 폭발 착탄 sfx_explosion / 장판 sfx_field / 연쇄 번개 튈 때마다 sfx_chain / 증강 폭발(동상 파편·마지막 서비스)도 폭발음 / HitFeel.NextHit 에 요리 속성을 같이 넘겨 명중음에 속성 겹침이 얹힌다) / v5.2 (v9.14 2026-09-28 테스터 "하나 점사해서 잡으면 나머지가 다 빗나감": 투사체가 도착했을 때 표적이 이미 죽었으면 그 자리 근처의 다른 손님을 맞힌다(ProjectileRetargetRadius) + 날아가는 동안 Enemy.IncomingDamage 예약 - 포탑이 곧 죽을 손님을 건너뛴다) / v5.1 (v9.11 2026-09-22 타격감: DealDamage 가 HitFeel.NextHit(속성색·크리) 를 걸고 때린다) / v5
+/// [TurretAttackExecutor.cs] v5.9 (v9.21 2026-10-12 보스 1단계: 범위 판정(폭발·장판·동상 파편·마지막 서비스·대체 표적)의 거리를 Enemy.DistanceFrom 으로 - 큰 보스는 몸 가장자리까지 재서 9 ~ 20u 몸의 끝에 떨어진 폭발이 비껴가지 않는다) / v5.8 (v9.19.3 2026-10-07: 증강의 타격당 회복을 1초에 GameBalance.LifestealHitsPerSec 번까지만 센다 - LifestealReady. 타격마다 전부 세면 손님이 늘고 단단해진 만큼 회복이 불어나 기차 HP 가 닳지 않았다) / v5.7 (v9.19.2 2026-10-07: v5.6 의 "타격당 회복 x 손님의 몫"을 되돌렸다 - 손님이 제 힘으로 오니 때린 만큼 그대로 회복한다) / v5.6 (v9.19.1: 증강의 타격당 회복에 맞은 손님의 몫을 곱했다) / v5.5 (v9.18 2026-10-06: 피해 출처(CurrentSource = 쏜 포탑) - 데미지 숫자를 포탑별로 합산하게 HitFeel 에 같이 넘긴다. 날아가는 탄은 도착할 때 출처를 다시 건다) / v5.4 (v9.17 2026-10-06: v9.14 머리말에 적고 본문에 빠져 있던 것을 실제로 넣음 - 투사체가 날아가는 동안 Enemy.IncomingDamage 예약·도착 때 해제 / 도착했을 때 표적이 죽었으면 ProjectileRetargetRadius 안의 다른 손님을 맞힌다. + A5: 물리 단발이 맞으면 HitFeel.Knock(그림만 움찔)) / v5.3 (v9.16 2026-09-29 손맛 2차 - 소리: 발사음 = 요리 속성·티어·모양별(SoundKeys.Shot, 포탑 위치에서 PlayAt) / 폭발 착탄 sfx_explosion / 장판 sfx_field / 연쇄 번개 튈 때마다 sfx_chain / 증강 폭발(동상 파편·마지막 서비스)도 폭발음 / HitFeel.NextHit 에 요리 속성을 같이 넘겨 명중음에 속성 겹침이 얹힌다) / v5.2 (v9.14 2026-09-28 테스터 "하나 점사해서 잡으면 나머지가 다 빗나감": 투사체가 도착했을 때 표적이 이미 죽었으면 그 자리 근처의 다른 손님을 맞힌다(ProjectileRetargetRadius) + 날아가는 동안 Enemy.IncomingDamage 예약 - 포탑이 곧 죽을 손님을 건너뛴다) / v5.1 (v9.11 2026-09-22 타격감: DealDamage 가 HitFeel.NextHit(속성색·크리) 를 걸고 때린다) / v5
 /// 포탑 공격 형태(8종)별 판정 및 이펙트 실행기
 /// - v3: 모든 TakeDamage에 r.damageType 적용 (DEF/RES 계산)
 /// - v4: 증강 시스템(AugmentManager) 연동
@@ -204,7 +204,7 @@ public static class TurretAttackExecutor
         for (int i = 0; i < all.Length; i++)
         {
             if (!all[i].IsAlive) continue;
-            float d = Vector3.Distance(all[i].transform.position, pos);
+            float d = all[i].DistanceFrom(pos);   // v5.9: 보스는 몸 가장자리까지
             if (d < bestDist) { bestDist = d; best = all[i]; }
         }
         return best;
@@ -411,7 +411,7 @@ public static class TurretAttackExecutor
         for (int i = 0; i < all.Length; i++)
         {
             if (all[i] == center || !all[i].IsAlive) continue;
-            if (Vector3.Distance(all[i].transform.position, pos) <= radius)
+            if (all[i].DistanceFrom(pos) <= radius)   // v5.9
                 all[i].TakeDamage(damage, r.damageType);
         }
     }
@@ -434,7 +434,7 @@ public static class TurretAttackExecutor
         for (int i = 0; i < all.Length; i++)
         {
             if (all[i] == center || !all[i].IsAlive) continue;
-            if (Vector3.Distance(all[i].transform.position, pos) <= radius)
+            if (all[i].DistanceFrom(pos) <= radius)   // v5.9
                 all[i].TakeDamage(damage, r.damageType);
         }
     }
@@ -517,7 +517,7 @@ public static class TurretAttackExecutor
         for (int i = 0; i < all.Length; i++)
         {
             if (all[i] == exclude || !all[i].IsAlive) continue;
-            if (Vector3.Distance(all[i].transform.position, center) <= radius)
+            if (all[i].DistanceFrom(center) <= radius)   // v5.9: 보스는 몸 가장자리까지
             {
                 // 폭발 전문가 증강: 스플래시 감쇄 제거 (0.8 -> 1.0)
                 DealDamage(r, all[i], damage, AugmentManager.FullSplash ? 1f : 0.8f);
@@ -533,7 +533,7 @@ public static class TurretAttackExecutor
         for (int i = 0; i < all.Length; i++)
         {
             if (!all[i].IsAlive) continue;
-            if (Vector3.Distance(all[i].transform.position, center) <= radius)
+            if (all[i].DistanceFrom(center) <= radius)   // v5.9
                 ApplyEffects(r, all[i]);
         }
     }

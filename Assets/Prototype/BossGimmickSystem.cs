@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 /// <summary>
-/// [BossGimmickSystem.cs] v9.20 (2026-10-07: 패턴 예고의 공통 경보음은 보스가 제 울음으로 대신하고(BossEnemy.CastBegin), 가장자리 맥동은 처음 BossPatternEdgeSec 만 - GameBalance.BossPatternFxOn) / v9.19 (2026-10-06 보스 페이즈 모습 A4: 보스 쪽 알림 한 줄(ShowBossLine - 페이즈 전환·발악·대응법)을 가운데 예고 카드 대신 HP 바 밑 띠에 띄운다. 띠는 무방비 > 패턴 예고 > 알림 순으로 쓴다 / 패턴 예고·무방비 시작의 화면 가운데 큰 글자를 뺐다(띠와 같은 말이 보스 몸 위에 한 번 더 떴다) - 가장자리 맥동과 띠 등장 강조만. GameBalance.BossNoticeInBar) /
+/// [BossGimmickSystem.cs] v9.21 (2026-10-12 보스 1단계: HP 바가 차오를 때 래칫 소리 sfx_hp_ratchet - 파일이 오기 전엔 폴백) / v9.20 (2026-10-07: 패턴 예고의 공통 경보음은 보스가 제 울음으로 대신하고(BossEnemy.CastBegin), 가장자리 맥동은 처음 BossPatternEdgeSec 만 - GameBalance.BossPatternFxOn) / v9.19 (2026-10-06 보스 페이즈 모습 A4: 보스 쪽 알림 한 줄(ShowBossLine - 페이즈 전환·발악·대응법)을 가운데 예고 카드 대신 HP 바 밑 띠에 띄운다. 띠는 무방비 > 패턴 예고 > 알림 순으로 쓴다 / 패턴 예고·무방비 시작의 화면 가운데 큰 글자를 뺐다(띠와 같은 말이 보스 몸 위에 한 번 더 떴다) - 가장자리 맥동과 띠 등장 강조만. GameBalance.BossNoticeInBar) /
 /// v9.18 (2026-10-06 테스터 피드백 3: 패턴 예고·무방비 띠를 HP 바 바로 밑에 붙였다(폭도 바와 같게, 긴 안내는 글자를 줄여 한 줄 - 구 자리는 보스가 서는 높이라 몸을 가렸다) + 띠가 떠 있으면 가운데 예고 카드를 그 아래로 / 보스 HP 바를 화면 위 가운데(기차 상황판 바로 아래)로 올리고 키웠다 - 이름 28 / 수치 20 / 바 30, 깎인 만큼 밝은 띠가 남았다 줄어든다, 무방비 눈금, 상태 딱지(무방비·빙하 갑주·해치 개방·폭식·발악·번개 병), 발악하면 바 색이 달아오른다 / 등장: HoldBarForIntro -> PlayBarIntro 로 위에서 내려와 차오른다 / 바가 떠 있는 동안 가운데 예고 카드를 그 아래로 민다(UISkin.NoticeShiftY). GameBalance.BossBarBig = false 면 구 배치) / v9.16 (2026-09-29 손맛 2차 - 소리: 보스전 동안 배경음 덕킹 - 등록에 켜고 처치·정리에 끈다) / v9.12 (2026-09-22: ClearBossUI - 예습 보스용) / v4.1
 /// 보스전 전용 기믹 + 보스 UI를 관리합니다.
 ///
@@ -472,6 +472,7 @@ public class BossGimmickSystem : MonoBehaviour
             yield return null;
         }
         bossRoot.anchoredPosition = home;
+        SoundManager.Play("sfx_hp_ratchet", 0.8f, -1f);   // v9.21: 차오르는 동안 쇠 딸깍 (스펙 4-1)
         t = 0f;
         while (t < 0.7f)
         {

@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// [GameBalance.cs] v9.20 (2026-10-07 유저 "패턴이 눈에 안 띔": 보스 패턴의 준비·발동·결과를 몸과 전장에 그린다 BossPatternFxOn·BossCastSwell·BossReleaseSquash·BossLunge*·BossBite* / 부른 무리는 보스 등 뒤에서 BossSummonBehind·SpreadX·StatMul·Share, HowlSummonCount 5 -> 10 · OriginalRoarCount 4 -> 10) / v9.19.4 (2026-10-07 유저 "포탑 설명이 너무 길다 - 필요한 것만 남기고 폰트를 키워라": 포탑 정보창 글자 크기 SlotInfoFontSize·TitleSize·HintSize, 조작 줄 SlotInfoShowControls) / v9.19.3 (2026-10-07 유저 확인 "체력 회복 증강을 먹으니 HP 가 거의 90% 넘게 남는다": 타격당 회복을 1초에 LifestealHitsPerSec 번까지만 센다) / v9.19.2 (2026-10-07 유저 확인 뒤: 머릿수를 늘린 손님을 약하게 하지 않는다 - GroupPower* 삭제, 크기별 HP 배율 TierHpMul*·초반 배율 EarlyBodyStart·보상 SwarmRewardMul / 손님 전체 강화 EnemyHPMul 1.3·EnemyATKMul 1.2·EnemyDefMul 1.2 (견습 운행은 TutorialEnemy* 로 예전 값) / 기차 방어력 바닥 TrainDefFloor / 보스 HP 종류별 배율 BossHPKindMul / 편성 이름 줄·방향 예고 화살표 끔 FormationLineShows 0·SpawnCueSec 0) / v9.19.1 (2026-10-07 유저 소감: 스폰 테두리가 보이는 화면을 따라간다 SpawnEdgeFollowView·ViewMargin·BossSpawnExtra / 머릿수 대폭 증가 CountMulSmall·Mid·Big + GroupPower* + FormationSizeMul - SwarmCountMul 을 대신한다) / v9.19 (2026-10-06 웨이브 편성·보스 페이즈 모습: 맨 아래 v9.19 섹션 - 편성 스위치·풀리는 웨이브·예고 시간·조각 사이 쉼·스폰 테두리·작은 손님 머릿수·호위 행렬 / 보스 상태 그림·전환 순간·상태 유지 효과·알림 자리) / v9.18 (2026-10-06 테스터 피드백 3 - 버그·밸런스·새 기차 그림: 맨 아래 v9.18 섹션 - 보행 바닥 표 / 슬롯·꼬리 좌표 / 레벨 상한 복구 / 같은 레벨끼리만 진화 / 폐기 환급 / 사고 실패 피해 / 과열 무작위 / 칸 덜컹임 / 보스 그림·HP 바·등장 띠 / UI 배율) / v9.17 (2026-10-06 화면 손맛 2차: 맨 아래 v9.17 섹션 - 발사 반동·섬광 / 데미지 숫자 크기·합산 / 넉백 / 셰프 찌그러짐 / HUD 수치 / 카드 순차 등장·퇴장 / 보스 등장·처치 / 패배·승리 순서 / 장면 전환 / 알림 중복) / v9.16 (2026-09-29 소리 v2: BuildTag 만 - 소리 표는 SoundManager 에) / v9.15.1 (2026-09-29 스토리 개정 스위치: 최종전 베팅 없음·스피노 고백 카드·마지막 식사 장면 시간) / v9.15 (2026-09-29 2차 피드백: 레벨 상한 해제 -> 접시 곡선·레벨 체감·저항 표시 / 훈련장 반복·자유 연습 / 드래그 투입 / 사고 해결 연출 / 포탑 파손 / HUD 재배치 / 설정창) / v9.12 (2026-09-22 튜토리얼 구간화·인라인 연습·협곡 낙뢰·미니 보스 예습 섹션 추가) / v1 (v9.11 2026-09-22: 타격감 섹션 - 피격 플래시·찌그러짐·스파크·킬 버스트·기차 피격·버튼·모달·웨이브 띠 스위치 / v9.10.1 2026-09-21: 유저 플레이 소감 섹션 - 웨이브 물량·길이, 정차 조리 제한, 행상인 자동 퇴장, 처치 보상 배율 / v9.9 2026-09-16: 포탑 4모서리 배치 SlotPosition + 견습 운행/브리핑 스위치 섹션)
+/// [GameBalance.cs] v9.21 (2026-10-12 보스 1단계 큰 몸 - 보스개편 스펙 1·4·5절: 맨 아래 v9.21 섹션 - 보스전 카메라 BossCam* / 새 크기 BossBodyLen·Wide (그림을 맞춘다) / 서는 자리 BossStandOff 새 값·BossStandX / 등장 연출 2판 BossEntranceV2·BossEntranceSec / 이름판 BossNamePlateBottom / 등장 때 대응법 줄 BossEntranceLine / 미끼 때 제자리 BossHoldWhenTaunted) / v9.20 (2026-10-07 유저 "패턴이 눈에 안 띔": 보스 패턴의 준비·발동·결과를 몸과 전장에 그린다 BossPatternFxOn·BossCastSwell·BossReleaseSquash·BossLunge*·BossBite* / 부른 무리는 보스 등 뒤에서 BossSummonBehind·SpreadX·StatMul·Share, HowlSummonCount 5 -> 10 · OriginalRoarCount 4 -> 10) / v9.19.4 (2026-10-07 유저 "포탑 설명이 너무 길다 - 필요한 것만 남기고 폰트를 키워라": 포탑 정보창 글자 크기 SlotInfoFontSize·TitleSize·HintSize, 조작 줄 SlotInfoShowControls) / v9.19.3 (2026-10-07 유저 확인 "체력 회복 증강을 먹으니 HP 가 거의 90% 넘게 남는다": 타격당 회복을 1초에 LifestealHitsPerSec 번까지만 센다) / v9.19.2 (2026-10-07 유저 확인 뒤: 머릿수를 늘린 손님을 약하게 하지 않는다 - GroupPower* 삭제, 크기별 HP 배율 TierHpMul*·초반 배율 EarlyBodyStart·보상 SwarmRewardMul / 손님 전체 강화 EnemyHPMul 1.3·EnemyATKMul 1.2·EnemyDefMul 1.2 (견습 운행은 TutorialEnemy* 로 예전 값) / 기차 방어력 바닥 TrainDefFloor / 보스 HP 종류별 배율 BossHPKindMul / 편성 이름 줄·방향 예고 화살표 끔 FormationLineShows 0·SpawnCueSec 0) / v9.19.1 (2026-10-07 유저 소감: 스폰 테두리가 보이는 화면을 따라간다 SpawnEdgeFollowView·ViewMargin·BossSpawnExtra / 머릿수 대폭 증가 CountMulSmall·Mid·Big + GroupPower* + FormationSizeMul - SwarmCountMul 을 대신한다) / v9.19 (2026-10-06 웨이브 편성·보스 페이즈 모습: 맨 아래 v9.19 섹션 - 편성 스위치·풀리는 웨이브·예고 시간·조각 사이 쉼·스폰 테두리·작은 손님 머릿수·호위 행렬 / 보스 상태 그림·전환 순간·상태 유지 효과·알림 자리) / v9.18 (2026-10-06 테스터 피드백 3 - 버그·밸런스·새 기차 그림: 맨 아래 v9.18 섹션 - 보행 바닥 표 / 슬롯·꼬리 좌표 / 레벨 상한 복구 / 같은 레벨끼리만 진화 / 폐기 환급 / 사고 실패 피해 / 과열 무작위 / 칸 덜컹임 / 보스 그림·HP 바·등장 띠 / UI 배율) / v9.17 (2026-10-06 화면 손맛 2차: 맨 아래 v9.17 섹션 - 발사 반동·섬광 / 데미지 숫자 크기·합산 / 넉백 / 셰프 찌그러짐 / HUD 수치 / 카드 순차 등장·퇴장 / 보스 등장·처치 / 패배·승리 순서 / 장면 전환 / 알림 중복) / v9.16 (2026-09-29 소리 v2: BuildTag 만 - 소리 표는 SoundManager 에) / v9.15.1 (2026-09-29 스토리 개정 스위치: 최종전 베팅 없음·스피노 고백 카드·마지막 식사 장면 시간) / v9.15 (2026-09-29 2차 피드백: 레벨 상한 해제 -> 접시 곡선·레벨 체감·저항 표시 / 훈련장 반복·자유 연습 / 드래그 투입 / 사고 해결 연출 / 포탑 파손 / HUD 재배치 / 설정창) / v9.12 (2026-09-22 튜토리얼 구간화·인라인 연습·협곡 낙뢰·미니 보스 예습 섹션 추가) / v1 (v9.11 2026-09-22: 타격감 섹션 - 피격 플래시·찌그러짐·스파크·킬 버스트·기차 피격·버튼·모달·웨이브 띠 스위치 / v9.10.1 2026-09-21: 유저 플레이 소감 섹션 - 웨이브 물량·길이, 정차 조리 제한, 행상인 자동 퇴장, 처치 보상 배율 / v9.9 2026-09-16: 포탑 4모서리 배치 SlotPosition + 견습 운행/브리핑 스위치 섹션)
 /// 게임 전체 밸런스 수치를 한 곳에 모은 설정 파일.
 ///
 /// 여기 값을 바꾸면 Inspector 값과 상관없이 게임에 적용된다
@@ -1322,9 +1322,10 @@ public static class GameBalance
     /// false = 구 동작 (기차를 정면으로 보고 프리팹의 공격 거리 5 / 천둥 둥지 6.5 에 선다)</summary>
     public static bool BossFaceAlongTrain = true;
     /// <summary>나란히 설 때 기차 가운데 줄에서 보스 중심까지의 거리 (u. 녹슨 발톱 / 천둥 둥지 / 동면자 / 디 오리지널).
-    /// 몸 옆면이 칸 지붕(1.8)에서 0.3 ~ 0.5 떨어지고, 윗면이 HP 바 밑 무방비 띠(기본 줌 8.5 에서 4.76) 아래에 오는 값 - 천둥 둥지만 날개 끝이 띠에 1u 걸린다.
-    /// 그림 배율(BossSkinScale)·기본 줌·HP 바 높이를 바꾸면 같이 볼 것 (px/screen_layout_preview.py 로 그려 볼 수 있다)</summary>
-    public static float[] BossStandOff = { 3.2f, 3.6f, 3.4f, 3.4f };
+    /// v9.21: 큰 몸 + 보스전 카메라(BossCamZoom) 기준 - 몸 옆면이 칸 지붕(1.8)에서 0.4 ~ 0.6 떨어지고, 윗면이 HP 바 밑 띠(보스 줌에서 6.47 / 7.6 / 7.04 / 7.6) 아래에 오는 값.
+    /// 천둥 둥지는 상공(5.0)에 떠서 날개 끝이 7.6 에 닿는다. 디 오리지널은 평행 선로(4.6). 구 값(4.5 ~ 6.4u 몸, 기본 줌) = 3.2 / 3.6 / 3.4 / 3.4.
+    /// 그림 크기(BossBodyLen·Wide)·보스 줌·HP 바 높이를 바꾸면 같이 볼 것 (python3 px/boss_size_preview.py 가 보스 줌 화면에 그려 준다)</summary>
+    public static float[] BossStandOff = { 4.2f, 5.0f, 4.4f, 4.6f };
     /// <summary>돌아서기 시작하는 거리 = 서는 거리 + 이 값 (u). 긴 몸의 절반(3.2)만큼 일찍 돌아야 머리가 지붕 위로 안 들어온다</summary>
     public static float BossTurnZone = 3.2f;
     /// <summary>돌아서는 빠르기 (도/초). 90 = 정면에서 옆으로 1초</summary>
@@ -1439,4 +1440,40 @@ public static class GameBalance
     /// (띠와 같은 말이 보스 몸 위에 한 번 더 떴다 - 가장자리 맥동과 띠 등장 강조는 남는다). 큰 HP 바(BossBarBig)일 때만. false = 구 동작</summary>
     public static bool BossNoticeInBar = true;
     public static float BossLineSec = 4f;                // 알림 한 줄이 떠 있는 시간 (초)
+
+    // ── (v9.21 2026-10-12) 보스 1단계 - 큰 몸·보스전 카메라·등장 연출·이름판 (claude/보스개편_스펙_2026-10-07.md 1·4·5절. 유저 10-07 "보스가 보스치고 너무 작고 별게 없다") ──
+    /// <summary>보스전 카메라: 보스가 등장할 때 BossCamInSec 에 걸쳐 줌이 BossCamZoom[종류]까지 빠지고, 뺀 만큼 위로 들어 아래쪽(하단 HUD 가 가리는 선)은 그대로 둔다 - 북쪽에 큰 몸이 설 자리가 생긴다.
+    /// 쓰러지면 BossCamOutSec 에 돌아온다. 휠 줌은 그 위에 더해진다 (당겨 봐도 된다), [Z] 는 보스전 동안 보스 줌으로. false = 기본 줌 8.5 그대로 (큰 몸의 위쪽이 HP 바 뒤로 들어간다)</summary>
+    public static bool BossCamOn = true;
+    public static float[] BossCamZoom = { 10f, 11f, 10.5f, 11f };   // 녹슨 발톱 / 천둥 둥지 / 동면자 / 디 오리지널 (화면 세로 = 줌 x 2 u)
+    public static float BossCamInSec = 0.9f;
+    public static float BossCamOutSec = 1.2f;
+    /// <summary>줌을 1 뺄 때 카메라를 위로 드는 양 (u). 1 - 190 / 450 = 하단 HUD 위 끝(화면 아래에서 190 / 반높이 450)이 가리는 세계 높이가 줌과 무관하게 같아지는 값 - 화면 배치 표(테스터피드백3 부록)의 숫자를 바꾸면 같이</summary>
+    public static float BossCamLiftPerZoom = 0.578f;
+    /// <summary>보스 그림을 목표 크기에 맞춘다: 길이(머리~꼬리)·폭 중 먼저 닿는 쪽까지 키운다 (BossBodyLen x BossBodyWide, u). 32px = 1u 로 그 크기에 맞게 그린 새 그림은 저절로 1배가 된다 -
+    /// 지금 그림(2026-10-05 팩)으로는 녹슨 발톱 9 x 3.6 / 천둥 둥지 5.2 x 5.2 (정사각이라 폭이 먼저 닿는다) / 동면자 10.1 x 4.4 / 디 오리지널 20 x 3.5 (기차 부품을 핏빛으로 칠한 열차 시안).
+    /// 패턴 표시·맞는 범위·서는 자리는 전부 실제 그림 크기를 읽는다. false = 예전처럼 BossSkinScale 배율 (예습 보스는 늘 이쪽)</summary>
+    public static bool BossFitBody = true;
+    public static float[] BossBodyLen = { 9f, 12f, 14f, 22f };      // 스펙 S1 ~ S5: 칸 2개 / 날개폭 12 / 칸 3개 / 맞수 열차 (스펙 20 - 지금 시안은 내 기차 조립 그림 그대로라 22.2 x 3.9. 새 그림(640 x 120)이 오면 20 / 3.6 으로)
+    public static float[] BossBodyWide = { 3.6f, 5.2f, 4.4f, 3.9f };   // 천둥 둥지는 날개폭이 길이(머리~꼬리 5.2)보다 길다 - 그림이 오른쪽을 보니 세로가 날개폭
+    /// <summary>보스가 서는 x (세계. 기차 가운데 = 칸 경계 -6.5 ~ 11.5 의 가운데 2.5). 등장 연출이 보스를 바로 이 자리에 놓는다 - 걸어오지 않는다 (20u 몸이 걸어오며 돌면 기차 위를 쓸고 지나간다)</summary>
+    public static float BossStandX = 2.5f;
+    /// <summary>천둥 둥지는 북쪽 상공에 떠서 기차를 내려다본다 (머리가 남쪽 = 270도, 날개가 좌우) + 땅에 그림자 (BossShadowDY 만큼 기차 쪽으로 내려 그린다). false = 다른 보스처럼 나란히(180도) 선다</summary>
+    public static bool BossThunderHover = true;
+    public static float BossShadowDY = 1.7f;
+    /// <summary>등장 연출 2판 (스펙 4절): 전조(배경음 줄고 어두워짐 + 보스별 전조) -> 0.5 카메라 -> 0.9 보스별로 다른 길로 들어온다 -> 도착(히트스톱 0.06 + 흔들림 + 먼지 고리 + 포효 + 몸 1.12배) -> +0.3 이름판 -> +0.6 HP 바 -> 밝아지고 패턴 시계.
+    /// 보스는 그동안 공격하지 않는다 (맞기는 한다). 정식 보스만 - 예습 보스는 예전처럼 위에서 걸어 내려온다. false = v9.18 ~ v9.20 의 등장 (화면 밖에서 걸어와 나란히 돈다 + 어두워짐 + 포효 + 가운데 띠)</summary>
+    public static bool BossEntranceV2 = true;
+    public static float[] BossEntranceSec = { 3.0f, 3.0f, 3.0f, 3.8f };   // 전조 시작부터 밝아질 때까지 (디 오리지널은 추월해 들어오는 1.4초만큼 길다)
+    public static float BossEntranceHitstop = 0.06f;        // 도착 순간 멈춤 (실시간 초). 디 오리지널은 0.08
+    public static float BossArrivePunch = 0.12f;            // 도착 순간 몸이 이만큼 커졌다가 0.25초에 제자리
+    public static float BossNamePlateSec = 1.1f;            // 이름판이 다 들어온 뒤 머무는 시간 (들어오는 0.18 + 나가는 0.2 는 따로)
+    /// <summary>이름판을 화면 아래쪽(하단 HUD 바로 위)에 - 가운데 띠(v9.18)는 보스 몸을 가렸다. 왼쪽에서 밀려 들어와 이름이 찍히고 오른쪽으로 나간다. false = 가운데 띠</summary>
+    public static bool BossNamePlateBottom = true;
+    /// <summary>등장 때 HP 바 밑 띠에 뜨던 "[이름] 대응법 …" 줄 (스펙 5절: 같은 순간 이름을 세 군데서 말했다 - 첫 등장 카드와 이름판만 남긴다). true = 예전처럼 띄운다</summary>
+    public static bool BossEntranceLine = false;
+    /// <summary>미끼(화덕)에 끌려도 보스는 제자리에 서서 미끼 쪽으로만 문다 (기차 무피해는 그대로). 큰 몸이 미끼까지 걸어가면 기차 위를 지난다. v9.22 R2 에서 도약이 미끼로 가게 바뀐다. false = 예전처럼 미끼까지 걸어간다</summary>
+    public static bool BossHoldWhenTaunted = true;
+    /// <summary>등장 연출 동안 보스를 숨겨 두는 자리: 서는 자리에서 북쪽으로 이만큼 (u). 포탑 사거리(20) 밖이어야 들어오기 전의 빈자리에 탄이 몰리지 않는다</summary>
+    public static float BossHideDY = 40f;
 }

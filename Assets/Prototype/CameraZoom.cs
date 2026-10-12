@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 
 /// <summary>
-/// [CameraZoom.cs] v5.1 (v9.17 2026-10-06 A11: GameFeel.ZoomMul(보스 처치 때 잠깐 당김)을 부드러운 줌 값에 마지막으로 곱한다 - 줌 상태(smoothZoom)와 화면 값을 분리) / v5 (v9.13 2026-09-23: 선로 v2 - 정차 프레이밍 SetRouteFraming: 선로를 고르는 동안 x RouteStopCamX(-3.6)·줌 x RouteStopZoomMul(1.18) 로 0.6초에 옮겨 두상 앞 갈림길이 다 보이게, 출발하면 되돌린다 /
+/// [CameraZoom.cs] v5.2 (v9.21 2026-10-12 보스전 카메라 - BossFraming: 보스가 등장하면 줌을 GameBalance.BossCamZoom[종류]까지 빼고, 뺀 만큼 위로 들어 아래쪽(하단 HUD 선)은 그대로 둔다. 휠 줌은 그 위에 더해지고 [Z] 는 보스전 동안 보스 줌. 쓰러지면 BossFramingOff 로 돌아온다) / v5.1 (v9.17 2026-10-06 A11: GameFeel.ZoomMul(보스 처치 때 잠깐 당김)을 부드러운 줌 값에 마지막으로 곱한다 - 줌 상태(smoothZoom)와 화면 값을 분리) / v5 (v9.13 2026-09-23: 선로 v2 - 정차 프레이밍 SetRouteFraming: 선로를 고르는 동안 x RouteStopCamX(-3.6)·줌 x RouteStopZoomMul(1.18) 로 0.6초에 옮겨 두상 앞 갈림길이 다 보이게, 출발하면 되돌린다 /
 ///   가지로 들어가는 동안 ParallaxBackground.RouteRollDeg 만큼 화면 기울임(Dutch angle) - 기차 데크를 돌리면 셰프 활동 범위·포탑 자리가 어긋나서 카메라를 돌린다)
 /// v4.1 (v9.10 2026-09-17: 최대 줌아웃을 GameBalance.CamMaxZoom(14)으로 - "화면 축소하면 셰프가 점") / v4 (B-2: 셰프 소프트 팔로우 - 방향결정 2026-08-31)
 /// 마우스 휠로 카메라 줌인/줌아웃합니다.
@@ -52,6 +52,26 @@ public class CameraZoom : MonoBehaviour
     private float rollNow = 0f;                 // 현재 기울임 (도)
     private bool rollApplied = false;
 
+    // v5.2: 보스전 카메라 (BossEnemy 가 켜고 끈다)
+    private static bool bossFrameOn = false;
+    private static float bossFrameZoom = 0f;    // 보스 줌 (기본 줌과의 차이만큼 휠 줌에 더한다)
+    private static float bossFrameSec = 0.9f;   // 지금 진행 중인 전환의 길이 (들어갈 때 BossCamInSec / 나올 때 BossCamOutSec)
+    private float bossFrameT = 0f;              // 0 = 평소, 1 = 보스전
+    private float bossLiftNow = 0f;             // 지금 카메라를 위로 든 양 (u)
+
+    /// <summary>v5.2: 보스전 카메라 켜기 - sec 에 걸쳐 줌이 zoom 까지 빠지고(끝에서 느려진다) 뺀 만큼 위로 든다. 씬이 바뀌면 저절로 꺼진다</summary>
+    public static void BossFraming(float zoom, float sec)
+    {
+        bossFrameOn = true; bossFrameZoom = zoom; bossFrameSec = Mathf.Max(0.05f, sec);
+    }
+
+    /// <summary>v5.2: 보스전 카메라 끄기 - sec 에 걸쳐 돌아온다 (휠로 바꾼 줌은 그대로 남는다)</summary>
+    public static void BossFramingOff(float sec)
+    {
+        if (!bossFrameOn) return;
+        bossFrameOn = false; bossFrameSec = Mathf.Max(0.05f, sec);
+    }
+
     /// <summary>선로를 고르는 동안 카메라를 앞으로·줌아웃 (true) / 되돌리기 (false). 씬이 바뀌면 저절로 꺼진다</summary>
     public static void SetRouteFraming(bool on)
     {
@@ -76,6 +96,7 @@ public class CameraZoom : MonoBehaviour
         targetZoom = defaultZoom;
         basePos = transform.position;   // v3: 셰이크 없는 기준 위치 초기화
         routeFrameOn = false; routeFrameT = 0f; rollNow = 0f;   // v5: 씬 전환 뒤 정차 프레이밍·기울임 잔존 방지
+        bossFrameOn = false; bossFrameT = 0f; bossLiftNow = 0f;   // v5.2: 보스전 카메라도 (보스전 중에 재출발하면 남아 있었다)
 
         smoothZoom = defaultZoom;
         if (cam != null)
@@ -104,6 +125,8 @@ public class CameraZoom : MonoBehaviour
         // v5: 정차 프레이밍 진행도 (스케일드 시간 - 카드 창이 시간을 멈추면 카메라도 선다)
         routeFrameT = Mathf.MoveTowards(routeFrameT, routeFrameOn ? 1f : 0f,
             Time.deltaTime / Mathf.Max(0.05f, GameBalance.RouteStopCamSec));
+        // v5.2: 보스전 카메라 진행도 (스케일드 시간 - 일시정지면 카메라도 선다)
+        bossFrameT = Mathf.MoveTowards(bossFrameT, bossFrameOn ? 1f : 0f, Time.deltaTime / bossFrameSec);
 
         HandleZoom();
         HandleCameraPosition();
@@ -114,6 +137,13 @@ public class CameraZoom : MonoBehaviour
     private float RouteFrameEase()
     {
         float t = routeFrameT;
+        return t * t * (3f - 2f * t);
+    }
+
+    /// <summary>v5.2: 보스전 카메라 가중치 0~1 (들어갈 때 끝에서 느려지고, 나올 때도 같은 곡선)</summary>
+    private float BossFrameEase()
+    {
+        float t = bossFrameT;
         return t * t * (3f - 2f * t);
     }
 
@@ -163,7 +193,12 @@ public class CameraZoom : MonoBehaviour
         if (cam == null) return;
         float mul = Mathf.Lerp(1f, GameBalance.RouteStopZoomMul, RouteFrameEase());
         smoothZoom = Mathf.Lerp(smoothZoom, targetZoom * mul, Time.deltaTime * smoothSpeed);
-        cam.orthographicSize = smoothZoom * GameFeel.ZoomMul;   // v5.1: 보스 처치 줌 당김 (평소 1)
+        // v5.2: 보스전 카메라 - 보스 줌과 기본 줌의 차이를 휠 줌 위에 더한다 (휠로 당기면 그만큼 당겨지고, [Z] 로 기본 줌을 고르면 꼭 보스 줌이 된다).
+        //   뺀 만큼 위로 들어 하단 HUD 가 가리는 세계 높이는 그대로 - 북쪽만 넓어진다. 가중치를 곱해 켜고 끌 때 카메라가 뛰지 않는다
+        float ease = BossFrameEase();
+        float eff = Mathf.Min(maxZoom, smoothZoom + (bossFrameZoom - defaultZoom) * ease);
+        bossLiftNow = GameBalance.BossCamLiftPerZoom * Mathf.Max(0f, eff - defaultZoom) * ease;
+        cam.orthographicSize = eff * GameFeel.ZoomMul;   // v5.1: 보스 처치 줌 당김 (평소 1)
     }
 
     // ─────────────────────────────────────────────
@@ -186,9 +221,9 @@ public class CameraZoom : MonoBehaviour
             // v5: 정차 프레이밍 - 두상 앞 갈림길이 다 보이는 x 로 (셰프가 움직여도 고정)
             targetX = Mathf.Lerp(targetX, GameBalance.RouteStopCamX, RouteFrameEase());
 
-            // Y는 기차 기준 유지 (기차 태그 없으면 현재 y)
-            float targetY = targetTransform != null
-                ? targetTransform.position.y + offset.y : basePos.y;
+            // Y는 기차 기준 유지 (기차 태그 없으면 현재 y). v5.2: 보스전 카메라는 뺀 만큼 위로
+            float targetY = (targetTransform != null
+                ? targetTransform.position.y + offset.y : basePos.y) + bossLiftNow;
 
             Vector3 followPos = new Vector3(targetX, targetY, offset.z);
             basePos = Vector3.Lerp(basePos, followPos, Time.deltaTime * GameBalance.CamFollowLerp);
@@ -198,6 +233,7 @@ public class CameraZoom : MonoBehaviour
             // 팔로우 오프 = 기존 기차 고정 추적 (v5: 정차 프레이밍은 여기도)
             Vector3 targetPos = targetTransform.position + offset;
             targetPos.x = Mathf.Lerp(targetPos.x, GameBalance.RouteStopCamX, RouteFrameEase());
+            targetPos.y += bossLiftNow;   // v5.2
             basePos = Vector3.Lerp(basePos, targetPos, Time.deltaTime * smoothSpeed);
         }
 

@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [WarningFX.cs] v1.2 (v9.19 2026-10-06 웨이브 편성: SpawnCue - 손님이 오는 쪽 화면 가장자리에 뜨는 예고 화살표(갈매기 3개가 기차 쪽으로 물결친다). 게임 시간으로 돌고, 연습으로 멈춘 동안은 같이 멈춘다 / FlashEdges - 글자 없이 가장자리 맥동만) / v1.1 (v9.18 2026-10-06: BossIntro - 보스 등장 띠. 화면을 가로지르는 어두운 띠 + "보스 등장" + 큰 이름 + 한 줄, 가장자리 붉은 맥동 2회. 실시간으로 돌고 게임은 멈추지 않는다) / v1 (신규 파일) - 감사 2-D 결정 사항
+/// [WarningFX.cs] v1.3 (v9.21 2026-10-12 보스 1단계: BossIntro 가 GameBalance.BossNamePlateBottom 이면 가운데 띠 대신 화면 아래쪽(하단 HUD 바로 위) 이름판 - 왼쪽에서 밀려 들어와 이름 56 + 별명 22 가 찍히고 오른쪽으로 나간다 (가운데 띠는 보스 몸을 가렸다) / FrostEdge - 화면 위 가장자리에만 서리 (동면자 등장 전조)) / v1.2 (v9.19 2026-10-06 웨이브 편성: SpawnCue - 손님이 오는 쪽 화면 가장자리에 뜨는 예고 화살표(갈매기 3개가 기차 쪽으로 물결친다). 게임 시간으로 돌고, 연습으로 멈춘 동안은 같이 멈춘다 / FlashEdges - 글자 없이 가장자리 맥동만) / v1.1 (v9.18 2026-10-06: BossIntro - 보스 등장 띠. 화면을 가로지르는 어두운 띠 + "보스 등장" + 큰 이름 + 한 줄, 가장자리 붉은 맥동 2회. 실시간으로 돌고 게임은 멈추지 않는다) / v1 (신규 파일) - 감사 2-D 결정 사항
 /// 전체 화면 경고 연출 - 화면 가장자리 붉은 플래시(비네트) + 중앙 대형 경고 텍스트.
 /// 보스 패턴 예고가 눈에 안 들어와서 반응하기 어렵다는 피드백의 해결책.
 ///
@@ -25,6 +25,12 @@ public class WarningFX : MonoBehaviour
     private Text bandCaption, bandName, bandSub;
     private Coroutine bandCo;
     private static readonly Color BAND_RED = new Color(1f, 0.2f, 0.12f);
+    // v1.3: 아래쪽 이름판 (BossNamePlateBottom) - 하단 HUD 위 끝(화면 아래에서 190) 바로 위, 아래에서 196 ~ 296. 보스 줌 11 에서 기차 바닥(아래에서 313)과 17 남는다 (px/boss_layout_v921.py)
+    private bool plateMode;
+    private float plateWidth = 1600f;
+    private const float PLATE_Y = 246f, PLATE_H = 100f;
+    private Image frostTop;                     // v1.3: 위 가장자리 서리 (동면자 전조) - 경고 띠와 따로 둔다
+    private Coroutine frostCo;
 
     // v1.2: 편성 예고 화살표 (풀)
     private const int CUE_POOL = 14;            // 포위 한 번에 10개까지 + 겹치는 조각
@@ -77,6 +83,16 @@ public class WarningFX : MonoBehaviour
         if (fx.bandRoot == null) return;
         if (fx.bandCo != null) fx.StopCoroutine(fx.bandCo);
         fx.bandCo = fx.StartCoroutine(fx.PlayBand(name, sub, Mathf.Max(0.8f, seconds)));
+    }
+
+    /// <summary>v1.3: 화면 위 가장자리에만 색이 낀다 (동면자 등장 전조의 서리). sec 동안 떠올랐다 걷힌다 - 다른 경고와 겹쳐도 서로 안 건드린다</summary>
+    public static void FrostEdge(float sec, Color color)
+    {
+        if (GameBalance.GameFeelMaster <= 0f || sec <= 0.05f) return;
+        WarningFX fx = Get();
+        if (fx.frostTop == null) return;
+        if (fx.frostCo != null) fx.StopCoroutine(fx.frostCo);
+        fx.frostCo = fx.StartCoroutine(fx.PlayFrost(sec, color));
     }
 
     /// <summary>
@@ -190,6 +206,23 @@ public class WarningFX : MonoBehaviour
         }
     }
 
+    private IEnumerator PlayFrost(float sec, Color color)
+    {
+        frostTop.gameObject.SetActive(true);
+        float t = 0f;
+        while (t < sec)
+        {
+            t += Time.unscaledDeltaTime;
+            float k = t / sec;
+            float a = k < 0.3f ? k / 0.3f : (k > 0.75f ? (1f - k) / 0.25f : 1f);   // 0.3 까지 끼고 0.75 부터 걷힌다
+            Color c = color; c.a = Mathf.Clamp01(a) * 0.55f * Mathf.Clamp01(GameBalance.GameFeelMaster);
+            frostTop.color = c;
+            yield return null;
+        }
+        frostTop.gameObject.SetActive(false);
+        frostCo = null;
+    }
+
     private IEnumerator PlayBand(string name, string sub, float seconds)
     {
         bandName.text = name;
@@ -198,18 +231,28 @@ public class WarningFX : MonoBehaviour
         bool useEdges = playCo == null;   // 패턴 예고(Flash)가 가장자리를 쓰는 중이면 건드리지 않는다
         if (useEdges) for (int i = 0; i < edgeBars.Length; i++) if (edgeBars[i] != null) edgeBars[i].gameObject.SetActive(true);
 
-        const float IN = 0.14f, PUNCH = 0.2f, OUT = 0.25f;
+        // v1.3 이름판: 왼쪽에서 밀려 들어와(0.18초, 끝에서 느려진다) 머물다 오른쪽으로 밀려 나간다(0.2초). 가운데 띠: 세로로 펼쳐지며 등장, 끝에서 흐려지며 살짝 접힌다
+        float IN = plateMode ? 0.18f : 0.14f, OUT = plateMode ? 0.2f : 0.25f;
+        const float PUNCH = 0.2f;
         float t = 0f;
         while (t < seconds)
         {
             t += Time.unscaledDeltaTime;
 
-            // 띠: 세로로 펼쳐지며 등장, 끝에서 흐려지며 살짝 접힌다
             float kin = Mathf.Clamp01(t / IN);
             float ein = 1f - (1f - kin) * (1f - kin);
             float kout = Mathf.Clamp01((t - (seconds - OUT)) / OUT);
-            bandRoot.localScale = new Vector3(1f, ein * (1f - 0.3f * kout), 1f);
-            bandGroup.alpha = ein * (1f - kout);
+            if (plateMode)
+            {
+                float x = Mathf.Lerp(-plateWidth, 0f, ein) + plateWidth * kout * kout;
+                bandRoot.anchoredPosition = new Vector2(x, PLATE_Y);
+                bandGroup.alpha = 1f;
+            }
+            else
+            {
+                bandRoot.localScale = new Vector3(1f, ein * (1f - 0.3f * kout), 1f);
+                bandGroup.alpha = ein * (1f - kout);
+            }
 
             // 이름: 1.5배에서 제자리로 찍힌다
             float kp = Mathf.Clamp01((t - 0.05f) / PUNCH);
@@ -300,6 +343,18 @@ public class WarningFX : MonoBehaviour
         CanvasScaler scaler = canvasGo.AddComponent<CanvasScaler>();
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
         scaler.referenceResolution = UIFactory.RefResolution;   // v9.14: UI 전체 배율 (GameBalance.UIScale)
+        plateMode = GameBalance.BossNamePlateBottom;              // v1.3
+        plateWidth = Mathf.Max(800f, UIFactory.RefResolution.x);
+
+        // v1.3: 위 가장자리 서리 (경고 띠 4개와 따로 - 같이 떠도 서로 덮어쓰지 않는다)
+        GameObject frostGo = new GameObject("FrostTop");
+        frostGo.transform.SetParent(canvasGo.transform, false);
+        RectTransform frt = frostGo.AddComponent<RectTransform>();
+        frt.anchorMin = new Vector2(0f, 1f); frt.anchorMax = Vector2.one; frt.pivot = new Vector2(0.5f, 1f);
+        frt.sizeDelta = new Vector2(0f, 110f); frt.anchoredPosition = Vector2.zero;
+        frostTop = frostGo.AddComponent<Image>();
+        frostTop.raycastTarget = false;
+        frostGo.SetActive(false);
 
         // 가장자리 띠 4개 (상/하/좌/우) - 클릭 통과
         for (int i = 0; i < 4; i++)
@@ -346,11 +401,23 @@ public class WarningFX : MonoBehaviour
         GameObject bandGo = new GameObject("BossBand");
         bandGo.transform.SetParent(canvasGo.transform, false);
         bandRoot = bandGo.AddComponent<RectTransform>();
-        bandRoot.anchorMin = new Vector2(0f, 0.5f);
-        bandRoot.anchorMax = new Vector2(1f, 0.5f);
-        bandRoot.pivot = new Vector2(0.5f, 0.5f);
-        bandRoot.anchoredPosition = new Vector2(0f, 150f);
-        bandRoot.sizeDelta = new Vector2(0f, 176f);
+        if (plateMode)
+        {
+            // v1.3 이름판: 화면 아래쪽, 폭 전체. 하단 HUD(아래에서 190)와 사고 배너(216 ~ 360) 사이 - 배너가 같이 뜨면 겹친다 (보스 등장은 웨이브 첫머리라 드물다)
+            bandRoot.anchorMin = new Vector2(0f, 0f);
+            bandRoot.anchorMax = new Vector2(1f, 0f);
+            bandRoot.pivot = new Vector2(0.5f, 0.5f);
+            bandRoot.anchoredPosition = new Vector2(0f, PLATE_Y);
+            bandRoot.sizeDelta = new Vector2(0f, PLATE_H);
+        }
+        else
+        {
+            bandRoot.anchorMin = new Vector2(0f, 0.5f);
+            bandRoot.anchorMax = new Vector2(1f, 0.5f);
+            bandRoot.pivot = new Vector2(0.5f, 0.5f);
+            bandRoot.anchoredPosition = new Vector2(0f, 150f);
+            bandRoot.sizeDelta = new Vector2(0f, 176f);
+        }
         Image bandBg = bandGo.AddComponent<Image>();
         bandBg.color = new Color(0.03f, 0.02f, 0.02f, 0.78f);
         bandBg.raycastTarget = false;
@@ -374,9 +441,19 @@ public class WarningFX : MonoBehaviour
             lim.raycastTarget = false;
         }
 
-        bandCaption = MakeBandText(bandGo.transform, "Caption", "보 스   등 장", 24, new Color(1f, 0.45f, 0.3f, 1f), 54f, false);
-        bandName = MakeBandText(bandGo.transform, "Name", "", 68, new Color(1f, 0.94f, 0.8f, 1f), -2f, true);
-        bandSub = MakeBandText(bandGo.transform, "Sub", "", 24, new Color(0.85f, 0.78f, 0.65f, 1f), -58f, false);
+        if (plateMode)
+        {
+            // 이름판: 이름 56 (쇠도장처럼 찍힌다 - PlayBand 의 1.5배 -> 1) + 별명 22. "보스 등장" 꼬리말은 뺀다 (판 자체가 그 말이다)
+            bandName = MakeBandText(bandGo.transform, "Name", "", 56, new Color(1f, 0.94f, 0.8f, 1f), 10f, true);
+            bandSub = MakeBandText(bandGo.transform, "Sub", "", 22, new Color(0.85f, 0.78f, 0.65f, 1f), -28f, false);
+            bandCaption = bandSub;
+        }
+        else
+        {
+            bandCaption = MakeBandText(bandGo.transform, "Caption", "보 스   등 장", 24, new Color(1f, 0.45f, 0.3f, 1f), 54f, false);
+            bandName = MakeBandText(bandGo.transform, "Name", "", 68, new Color(1f, 0.94f, 0.8f, 1f), -2f, true);
+            bandSub = MakeBandText(bandGo.transform, "Sub", "", 24, new Color(0.85f, 0.78f, 0.65f, 1f), -58f, false);
+        }
         bandGo.SetActive(false);
 
         BuildCues(host.transform);

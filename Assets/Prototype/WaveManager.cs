@@ -5,6 +5,7 @@ using UnityEngine;
 /// <summary>
 /// [WaveManager.cs] v6.22 (v9.20 2026-10-07: 보스가 부른 증원이 보스 등 뒤에서 뛰쳐나온다 - SpawnReinforcements 에 부른 자리·등 뒤 여부·보상 몫, 자리로 스폰하는 SpawnEnemyAtPos) / v6.21 (v9.19.2 2026-10-07 유저 확인 뒤: 머릿수를 늘린 손님이 제 힘으로 온다 - AddUnits 가 한 마리를 나눠 약하게 하지 않고 크기별 HP 배율(TierHpMul*)과 초반 배율(EarlyBodyStart)만 건다. Enemy.Share 는 보상·도구 부식 같은 "한 번에 얼마"에만 / 편성 이름 줄과 방향 예고 화살표는 GameBalance 값으로 꺼졌다(FormationLineShows 0·SpawnCueSec 0 - 코드는 그대로)) / v6.20 (v9.19.1 2026-10-07 유저 소감: 손님이 생기는 테두리가 "지금 보이는 화면"을 따라간다(SpawnBounds - 휠로 넓게 보면 화면 가운데에서 생기던 것. 구 방식 스폰·보스 증원·보스 등장도 같은 테두리) / 머릿수 대폭 증가: 손님 크기별 배율 CountMulSmall·Mid·Big + 무리 세기 GroupPower*, 조각 크기 FormationSizeMul. 손님에게 한 마리의 몫(Enemy.Share)을 건다 - 보상·기차 방어력·연속 피격 완충·고정량 효과가 몫만큼만 먹게) /
 /// v6.19 (v9.19 2026-10-06 웨이브 편성: 웨이브 2 부터 손님을 편성 조각으로 내보낸다(RunFormations - 추격·파상·매복·호위 행렬·양동·포위·공중 편대 + 산개, GameBalance.WaveFormationsOn). 조각마다 오는 쪽 예고(WarningFX.SpawnCue)가 먼저, 조각 사이엔 쉼(BeatGap). 손님은 화면 바로 밖 테두리(EdgePoint)에서 생긴다. 구 방식 본문은 SpawnWaveClassic 으로 / 웨이브 예고 카드의 "주의" 문구는 알림 줄로) /
+/// v6.23 (v9.21 2026-10-12 보스 1단계: 정식 보스는 서는 자리(GameBalance.BossStandX, 북쪽) 위 BossHideDY 만큼 떨어진 곳에 생기고 등장 연출(BossEnemy.EntranceV2)이 자리에 놓는다 - 걸어오지 않는다. BossEntranceV2 가 꺼져 있으면 예전처럼 화면 밖 테두리에서) /
 /// v6.18 (v9.18 2026-10-06: 보스는 기차 북쪽(화면 위)에서만 온다(GameBalance.BossSpawnNorthOnly - 남쪽은 하단 HUD 에 가려진다), 예습 보스는 포탑 칸 B 위에서 / 웨이브가 끝났을 때 사고가 진행 중이면 사고가 끝난 뒤에 증강·선로 선택을 연다(PostWaveHold, WaitEventBeforeChoiceSec) / 코드 폴백 손님의 그림 고르기를 EnemySkin.SpriteFor 한 곳으로) /
 /// v6.17 (v9.17 2026-10-06 화면 손맛 2차 D5: 패배 연출 중(GameManager.DefeatPending)과 운행이 끝난 뒤(GameOver·Victory)엔 웨이브 클리어 판정을 하지 않는다. 아트 v1 의 v6.16 위에 얹었다) / v6.16 (아트 v1 2026-10-03: 코드 폴백 손님도 새 전용 그림 4종 e_armadillo / e_mammoth / e_pachy / e_cactus 를 쓴다) / v6.15 (v9.15.1 2026-09-29 스토리 개정: 최종전 직전 정차엔 베팅 없음(GameBalance.SpinoNoBetAtFinal) / 최종전 시작에 스피노 고백 카드(BriefingTexts.SpinoFinal) / 최종전 긴급 보급 문구 = "스피노가 실어 둔 재료" / 지역 3 첫 웨이브 스피노 한 줄) / v6.14 (v9.13 2026-09-23: 선로 v2 - 정차의 선로 선택이 카드 창 대신 갈림길 + 왼쪽 카드(BranchRouteUI v2, 시간 안 멈춤). 출발 직전 BranchRouteUI.OnDepart 로 세계 밀림·톤 시작 /
 ///   선로 보상 교체: 골드·재료 -> 끝나면 증강 1회 더(사냥터 은 / 위험 금, AugmentPickUI.OpenExtra) + 유물 확률(위험·안개 50%, 폐역 확정) / 웨이브 끝에 RouteFX.ClearTone / 치트 점프·런 시작에 선택 취소) / v6.13 (v9.12 2026-09-22: 협곡의 낙뢰 - 지역 2 일반 웨이브마다 1회 가동 포탑 감전(GameBalance.AmbientLightning*) + 첫 등장 카드 event_lightning + 인라인 연습 구간 2 훅 / 레버 인라인 연습 구간 4 를 InlineLeverWave 시작에 요청 / TutorialDirector.InlineFreeze 동안 스폰 코루틴·클리어 판정·낙뢰 타이머가 쉰다(WaitGap) / 미니 보스 예습용 SpawnBossForPractice) / v6.12 (v9.11.1 2026-09-22 문구) / v6.11 (v9.10.1 2026-09-21: 웨이브 손님 수 배율 GameBalance.WaveCountMul(프롤로그·견습 제외, ApplyRouteCounts 재사용) / 웨이브 시작에 정차 조리 카운터(CookingBridge.StopCooksUsed) 초기화) / v6.10 (v9.10 2026-09-17 테스터 피드백·개정안 §4·§5·§7: 스폰 간격 배율 + 무리 사이 쉼(WaveLengthMul/WaveGroupSize/GapSec) /
@@ -2119,7 +2120,12 @@ public class WaveManager : MonoBehaviour
         float bossSide = (GameBalance.BossSpawnNorthOnly || Random.value < 0.5f) ? 1f : -1f;
         float bossAngleDeg = Random.Range(55f, 125f) * bossSide;
         Vector3 spawnPos;
-        if (GameBalance.SpawnEdgeFollowView)
+        if (GameBalance.BossEntranceV2)
+        {
+            // v6.23: 서는 자리 위 멀리(포탑 사거리 밖)에 숨겨 두고, BossEnemy 의 등장 연출이 제 길로 데려다 놓는다 (서는 높이는 BossEnemy.Start 가 종류별로 잡는다)
+            spawnPos = new Vector3(GameBalance.BossStandX, center.y + GameBalance.BossHideDY, 0f);
+        }
+        else if (GameBalance.SpawnEdgeFollowView)
         {
             // v6.20: 보이는 화면 밖에서 (몸이 길어 테두리보다 BossSpawnExtra 더 밖). 구 반경 12 ~ 16 은 넓게 보면 화면 안이었다
             spawnPos = EdgePoint(bossAngleDeg, GameBalance.BossSpawnExtra);
