@@ -2,7 +2,7 @@
 using UnityEngine.UI;
 
 /// <summary>
-/// [CookingMinigame.cs] v2.9 (v9.20 2026-10-07: 글 속 화살표를 게임 글꼴에 있는 세모로(게임 글꼴에 화살표 글리프가 없어 PC 의 다른 글꼴로 그려졌다 - 모양이 따로 놀고, 대신할 글꼴이 없는 빌드에선 빈칸)) / v2.8 (v9.16 2026-09-29 손맛 2차 - 소리: 조리 시작에 조리법별 소리 SoundKeys.Cook - 굽기 지글 / 볶기 촤악 / 끓이기 보글) / v2.7
+/// [CookingMinigame.cs] v2.10 (v9.21.1 2026-10-13 4차 피드백 4번: 창(증강·행상인·베팅·정비소·카드·일지·일시정지·선로 고르기)이 떠 있는 동안 조리를 보류한다 WindowOpen·HoldForWindow - 시간도 입력도 안 받고 판이 흐려지며 "창을 닫으면 이어진다", 닫히면 그 자리에서. 예전엔 정차 창 뒤에서 혼자 돌다 시간이 끝나 실패가 됐다. GameBalance.CookHoldWhileWindow) / v2.9 (v9.20 2026-10-07: 글 속 화살표를 게임 글꼴에 있는 세모로(게임 글꼴에 화살표 글리프가 없어 PC 의 다른 글꼴로 그려졌다 - 모양이 따로 놀고, 대신할 글꼴이 없는 빌드에선 빈칸)) / v2.8 (v9.16 2026-09-29 손맛 2차 - 소리: 조리 시작에 조리법별 소리 SoundKeys.Cook - 굽기 지글 / 볶기 촤악 / 끓이기 보글) / v2.7
 /// - v2.7 변경점 (교수 피드백 2026-09-14, A2/A3 - 조리 공정성):
 ///   배율 하한 CookSpeedMulFloor/CookJudgeMulFloor (팬 마모 x 프테라 x 지역이 겹쳐 0.28배까지 떨어지던 것 차단)
 ///   끓이기 = 총시간 하한(BoilMinTotalSec) + 투입 안내를 절대 초가 아니라 "진행률"로 배치 (25~40% / 55~72%),
@@ -36,6 +36,40 @@ using UnityEngine.UI;
 public class CookingMinigame : MonoBehaviour
 {
     public static CookingMinigame Instance { get; private set; }
+
+    /// <summary>v2.10: 조리를 보류해야 하는 창이 떠 있는가 (진화 조리 InfusingMinigame 도 같은 기준을 쓴다)</summary>
+    public static bool WindowOpen
+    {
+        get
+        {
+            // 선로 고르기(BranchRouteUI.ChoicePending)는 넣지 않는다 - 창이 아니라 왼쪽의 작은 카드라 조리하며 고를 수 있다 (숫자키는 조리 중 안 받지만 클릭은 된다)
+            return AugmentPickUI.IsOpen || MerchantUI.IsOpen || SpinoBetUI.IsOpen || WorkshopUI.IsOpen || BriefingUI.IsOpen
+                || StoryTexts.IsBlocking || AugmentListUI.ReadingOpen || PauseMenu.IsOpen
+                || SettingsUI.IsOpen || FameShopUI.IsOpen;
+        }
+    }
+
+    private bool heldByWindow = false;   // v2.10: 지금 보류 중 (판을 흐리고 안내 한 줄)
+    private CanvasGroup panelGroup;      // v2.10: 보류 때 흐리기
+    private const string HOLD_MSG = "창을 닫으면 이어진다";
+
+    /// <summary>v2.10: 창이 떠 있으면 보류 (true = 이 프레임은 아무것도 하지 않는다). 창이 닫히면 흐림과 안내를 걷는다</summary>
+    private bool HoldForWindow()
+    {
+        bool hold = GameBalance.CookHoldWhileWindow && WindowOpen;
+        if (hold != heldByWindow)
+        {
+            heldByWindow = hold;
+            if (panelGroup == null && panel != null) panelGroup = panel.gameObject.GetComponent<CanvasGroup>() ?? panel.gameObject.AddComponent<CanvasGroup>();
+            if (panelGroup != null) panelGroup.alpha = hold ? 0.55f : 1f;
+            if (judgeText != null)
+            {
+                if (hold) { judgeText.text = HOLD_MSG; judgeText.color = new Color(0.85f, 0.8f, 0.7f); }
+                else if (judgeText.text == HOLD_MSG) judgeText.text = "";
+            }
+        }
+        return hold;
+    }
 
     /// <summary>미니게임 진행 중 여부 (다른 시스템이 입력 충돌 방지용으로 참조)</summary>
     public static bool IsActive { get; private set; }
@@ -358,6 +392,9 @@ public class CookingMinigame : MonoBehaviour
         // v2.6: 불꽃 띠 애니메이션 (순수 연출 - 홀드 중에도 계속 탄다)
         if (skin) AnimateFlames();
 
+        // v2.10: 창이 떠 있으면 보류 - 시간·입력 모두 (창이 닫히면 그 자리에서 이어진다)
+        if (HoldForWindow()) return;
+
         // v2.2: 외부 홀드 (보스 낙뢰 패링 중) - 미니게임 진행/입력 일시 대기
         // 같은 키(Space)가 패링 판정에 쓰이도록 이 프레임의 조리 입력을 통째로 양보한다
         if (Time.time < externalHoldUntil)
@@ -606,6 +643,9 @@ public class CookingMinigame : MonoBehaviour
     {
         running = false;
         IsActive = false;
+        heldByWindow = false;                                 // v2.10: 보류 중에 닫혀도 다음 조리는 또렷하게
+        if (panelGroup != null) panelGroup.alpha = 1f;
+        if (judgeText != null && judgeText.text == HOLD_MSG) judgeText.text = "";
         panel.gameObject.SetActive(false);
     }
 

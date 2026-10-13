@@ -2,7 +2,9 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [InfusingMinigame.cs] v1 (신규 파일) - P1: T2 인퓨징 미니게임 (감사 1-A 처방 2)
+/// [InfusingMinigame.cs] v1.1 (v9.21.1 2026-10-13 4차 피드백 1·2·4번: 라운드마다 "읽을 시간"(커서 정지, [Space] 로 바로 시작) + 2라운드에 바늘을 그린다(구간 안이면 금색 - 예전엔 채움 바 끝이 바늘이라 뭘 어디에 두라는지 몰랐다) + 안내를 한 줄씩 크게 + 판 560x260 /
+///   접시 합성도 같은 미니게임(BeginForStock - 끝나면 CookingBridge.CompleteStockFusion, 보너스 = 접시 +1) / 창이 떠 있으면 보류(CookingMinigame.WindowOpen)) /
+/// v1 (신규 파일) - P1: T2 인퓨징 미니게임 (감사 1-A 처방 2)
 ///
 /// 배경: 런의 가장 큰 파워 스파이크(T2 전설 포탑 탄생)가 클릭 두 번이었다.
 /// "가장 큰 순간에 손이 가장 한가한 것은 정체성 위반" - 이제 T2 진화는 직접 조리한다.
@@ -26,6 +28,14 @@ public class InfusingMinigame : MonoBehaviour
     private int idxA, idxB;
     private RecipeData fusion;
     private TurretSlotManager manager;
+    // v1.1: 접시 합성 (주방 창) - 포탑 대신 인벤토리 접시 둘
+    private bool stockMode = false;
+    private string stockA = "", stockB = "";
+    private float readTimer = 0f;        // v1.1: 라운드 앞 읽을 시간 (커서가 서 있다)
+    private RectTransform needleRect;    // v1.1: 2라운드 바늘
+    private Text subText;                // v1.1: 둘째 줄 (점수·보너스 규칙)
+    private CanvasGroup panelGroup;      // v1.1: 보류 때 흐리기
+    private bool heldByWindow = false;
 
     // ── 진행 상태 ──
     private int phase = 0;            // 0=굽기, 1=끓이기, 2=종료 연출
@@ -54,7 +64,7 @@ public class InfusingMinigame : MonoBehaviour
     private RectTransform cursorRect;
     private RectTransform fillRect;
 
-    private const float TRACK_W = 380f;
+    private const float TRACK_W = 480f;   // v1.1: 380 -> 480
 
     // ─────────────────────────────────────────────
     // 시작 (TurretSlotManager.TryMergeSlots의 T2 분기가 호출)
@@ -71,18 +81,30 @@ public class InfusingMinigame : MonoBehaviour
         m.Setup();
     }
 
+    /// <summary>v1.1: 접시 합성 (주방 창의 합성 탭에서 - CookingBridge.FuseFoods). 끝나면 CookingBridge.CompleteStockFusion 이 접시를 소모하고 전설 접시를 준다</summary>
+    public static void BeginForStock(string recipeIdA, string recipeIdB, RecipeData fusionRecipe)
+    {
+        if (IsActive || fusionRecipe == null) return;
+        GameObject go = new GameObject("InfusingMinigame");
+        InfusingMinigame m = go.AddComponent<InfusingMinigame>();
+        m.stockMode = true; m.stockA = recipeIdA; m.stockB = recipeIdB;
+        m.fusion = fusionRecipe;
+        m.Setup();
+    }
+
     private void Setup()
     {
         IsActive = true;
         phase = 0;
         score = 0;
         bar = 0f; dir = 1f;
+        readTimer = Mathf.Max(0f, GameBalance.InfuseReadSec);   // v1.1: 첫 라운드 앞 읽을 시간
 
         BuildUI();
         titleText.text = "진화 조리  -  " + fusion.displayName + " [전설]";
         SetPhaseInfo();
 
-        Debug.Log("[Infusing] 인퓨징 시작 -> " + fusion.displayName);
+        Debug.Log("[Infusing] 인퓨징 시작 -> " + fusion.displayName + (stockMode ? " (접시)" : ""));
     }
 
     private void OnDestroy()
@@ -105,11 +127,31 @@ public class InfusingMinigame : MonoBehaviour
             return;
         }
 
+        // v1.1: 창(증강·행상인·베팅·정비소·카드·일지·일시정지·선로 고르기)이 떠 있으면 보류 - 시간도 입력도 안 받는다
+        bool hold = GameBalance.CookHoldWhileWindow && CookingMinigame.WindowOpen;
+        if (hold != heldByWindow)
+        {
+            heldByWindow = hold;
+            if (panelGroup != null) panelGroup.alpha = hold ? 0.55f : 1f;
+            if (hold) ShowJudge("창을 닫으면 이어진다", new Color(0.85f, 0.8f, 0.7f));
+            else if (judgeText != null && judgeText.text == "창을 닫으면 이어진다") judgeText.text = "";
+        }
+        if (hold) return;
+
         // ESC = 중단 (포탑은 그대로 - 아무 일도 일어나지 않은 것으로)
         if (phase < 2 && Input.GetKeyDown(KeyCode.Escape))
         {
             UIManager.Instance?.ShowStatChange("진화 조리 중단 - 두 요리는 그대로 남았다");
             Destroy(gameObject);
+            return;
+        }
+
+        // v1.1: 라운드 앞 읽을 시간 - 커서를 세워 두고 안내를 읽는다. [Space] 나 클릭이면 바로 시작 (판정은 아니다)
+        if (phase < 2 && readTimer > 0f)
+        {
+            readTimer -= Time.deltaTime;
+            if (Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0)) readTimer = 0f;
+            if (judgeTimer > 0f) { judgeTimer -= Time.deltaTime; if (judgeText != null) { Color jc = judgeText.color; jc.a = Mathf.Clamp01(judgeTimer / 0.35f); judgeText.color = jc; } }
             return;
         }
 
@@ -154,9 +196,12 @@ public class InfusingMinigame : MonoBehaviour
             zonePhase = Random.Range(0f, 6.28f);
             holdTimer = GameBalance.InfuseBoilTime;
             inZone = 0f;
+            readTimer = Mathf.Max(0f, GameBalance.InfuseReadSec);   // v1.1: 2라운드 앞에도 읽을 시간
             cursorRect.gameObject.SetActive(false);
             fillRect.gameObject.SetActive(true);
             zoneRect.gameObject.SetActive(true);
+            if (needleRect != null) needleRect.gameObject.SetActive(true);
+            DrawBoil();
             SetPhaseInfo();
         }
     }
@@ -177,9 +222,7 @@ public class InfusingMinigame : MonoBehaviour
         if (Mathf.Abs(gauge - zoneCenter) <= 12f)
             inZone += Time.deltaTime;
 
-        // 렌더: 게이지 채움 + 존 위치
-        fillRect.sizeDelta = new Vector2(TRACK_W * (gauge / 100f), 26f);
-        zoneRect.anchoredPosition = new Vector2(-TRACK_W / 2f + TRACK_W * (zoneCenter / 100f), 0f);
+        DrawBoil();
 
         if (holdTimer <= 0f)
         {
@@ -194,6 +237,19 @@ public class InfusingMinigame : MonoBehaviour
         }
     }
 
+    /// <summary>v1.1: 2라운드 그리기 - 채움 바 + 바늘(채움 끝. 구간 안이면 금색, 밖이면 흰색) + 움직이는 구간</summary>
+    private void DrawBoil()
+    {
+        fillRect.sizeDelta = new Vector2(TRACK_W * (gauge / 100f), 26f);
+        zoneRect.anchoredPosition = new Vector2(-TRACK_W / 2f + TRACK_W * (zoneCenter / 100f), 0f);
+        if (needleRect != null)
+        {
+            needleRect.anchoredPosition = new Vector2(-TRACK_W / 2f + TRACK_W * (gauge / 100f), 0f);
+            Image ni = needleRect.GetComponent<Image>();
+            if (ni != null) ni.color = Mathf.Abs(gauge - zoneCenter) <= 12f ? UIFactory.GOLD : Color.white;
+        }
+    }
+
     // ─────────────────────────────────────────────
     // 종료: 잠깐 결과 보여주고 실제 진화 수행
     // ─────────────────────────────────────────────
@@ -204,7 +260,9 @@ public class InfusingMinigame : MonoBehaviour
 
         int bonus = score >= GameBalance.InfuseBonusScoreNeed ? GameBalance.InfuseBonusLevel : 0;
 
-        if (manager != null)
+        if (stockMode)
+            CookingBridge.CompleteStockFusion(stockA, stockB, fusion, score >= GameBalance.InfuseBonusScoreNeed ? GameBalance.InfuseStockBonusPlates : 0);   // v1.1: 접시 합성
+        else if (manager != null)
             manager.CompleteFusion(idxA, idxB, fusion, bonus, score >= 4);
 
         Destroy(gameObject);
@@ -213,15 +271,18 @@ public class InfusingMinigame : MonoBehaviour
     // ─────────────────────────────────────────────
     // UI
     // ─────────────────────────────────────────────
+    /// <summary>v1.1: 안내 한 줄씩 크게 (무엇을 언제 누르나) + 둘째 줄에 점수와 보너스 규칙</summary>
     private void SetPhaseInfo()
     {
+        string bonusWord = stockMode ? "접시 +" + GameBalance.InfuseStockBonusPlates : "Lv+" + GameBalance.InfuseBonusLevel;
         if (phase == 0)
-            infoText.text = "1/2 [정수 추출]  정중앙에서 [Space]  (합계 "
-                + GameBalance.InfuseBonusScoreNeed + "점 이상 = Lv+" + GameBalance.InfuseBonusLevel + " 탄생)";
+            infoText.text = "1/2 정수 추출 - 꼬치가 가운데 올 때 [Space]";
         else if (phase == 1)
-            infoText.text = "2/2 [융합 안정화]  [Space] 를 누르고 떼며 눈금을 판정 구간에 유지  (현재 " + score + "점)";
+            infoText.text = "2/2 융합 안정화 - [Space] 꾹 = 바늘 오른쪽, 떼면 왼쪽. 흰 구간 안에 두어라";
         else
-            infoText.text = "융합 판정 합계 " + score + "점...";
+            infoText.text = "합계 " + score + "점" + (score >= GameBalance.InfuseBonusScoreNeed ? " - 잘 익었다! " + bonusWord : " - 진화는 된다 (보너스 없음)");
+        if (subText != null)
+            subText.text = phase < 2 ? "지금 " + score + "점 / " + GameBalance.InfuseBonusScoreNeed + "점 이상이면 " + bonusWord + "  ·  [ESC] 그만두기 (잃는 것 없음)" : "";
     }
 
     private void ShowJudge(string msg, Color col)
@@ -241,14 +302,15 @@ public class InfusingMinigame : MonoBehaviour
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
         scaler.referenceResolution = UIFactory.RefResolution;   // v9.14: UI 전체 배율 (GameBalance.UIScale)
 
-        // 좌하단 패널 (조리 미니게임과 같은 자리 - 주방 작업 공간)
+        // 좌하단 패널 (조리 미니게임과 같은 자리 - 주방 작업 공간). v1.1: 440x210 -> 560x260 (안내 글자 15 -> 20)
         RectTransform panel = KitchenEventManager.MakeBox(canvasGo.transform, "Panel",
             new Color(0.10f, 0.06f, 0.09f, 0.95f));
         panel.anchorMin = new Vector2(0f, 0f);
         panel.anchorMax = new Vector2(0f, 0f);
         panel.pivot = new Vector2(0f, 0f);
         panel.anchoredPosition = new Vector2(12f, 192f);
-        panel.sizeDelta = new Vector2(440f, 210f);
+        panel.sizeDelta = new Vector2(560f, 260f);
+        panelGroup = panel.gameObject.AddComponent<CanvasGroup>();
 
         // T2 핑크 테두리 (전설 융합의 색)
         RectTransform border = KitchenEventManager.MakeBox(panel, "Border", UIFactory.T2PINK);
@@ -257,34 +319,42 @@ public class InfusingMinigame : MonoBehaviour
         border.anchoredPosition = Vector2.zero;
         border.sizeDelta = new Vector2(0f, 3f);
 
-        titleText = KitchenEventManager.MakeText(panel, "Title", "", 21, UIFactory.T2PINK);
+        titleText = KitchenEventManager.MakeText(panel, "Title", "", 22, UIFactory.T2PINK);
         RectTransform tRt = titleText.rectTransform;
         tRt.anchorMin = new Vector2(0f, 1f); tRt.anchorMax = new Vector2(1f, 1f);
         tRt.pivot = new Vector2(0.5f, 1f);
         tRt.anchoredPosition = new Vector2(0f, -10f);
-        tRt.sizeDelta = new Vector2(-16f, 28f);
+        tRt.sizeDelta = new Vector2(-16f, 30f);
 
-        infoText = KitchenEventManager.MakeText(panel, "Info", "", 15,
-            new Color(0.92f, 0.88f, 0.82f));
+        // v1.1: 안내 = 큰 한 줄 (무엇을 언제 누르나) + 작은 둘째 줄 (점수·보너스·그만두기)
+        infoText = KitchenEventManager.MakeText(panel, "Info", "", 20,
+            new Color(0.95f, 0.92f, 0.85f));
         RectTransform iRt = infoText.rectTransform;
         iRt.anchorMin = new Vector2(0f, 0f); iRt.anchorMax = new Vector2(1f, 0f);
         iRt.pivot = new Vector2(0.5f, 0f);
-        iRt.anchoredPosition = new Vector2(0f, 14f);
-        iRt.sizeDelta = new Vector2(-16f, 44f);
+        iRt.anchoredPosition = new Vector2(0f, 36f);
+        iRt.sizeDelta = new Vector2(-16f, 54f);
 
-        judgeText = KitchenEventManager.MakeText(panel, "Judge", "", 26, UIFactory.GOLD);
+        subText = KitchenEventManager.MakeText(panel, "Sub", "", 14, new Color(0.72f, 0.66f, 0.58f));
+        RectTransform sRt = subText.rectTransform;
+        sRt.anchorMin = new Vector2(0f, 0f); sRt.anchorMax = new Vector2(1f, 0f);
+        sRt.pivot = new Vector2(0.5f, 0f);
+        sRt.anchoredPosition = new Vector2(0f, 10f);
+        sRt.sizeDelta = new Vector2(-16f, 24f);
+
+        judgeText = KitchenEventManager.MakeText(panel, "Judge", "", 28, UIFactory.GOLD);
         RectTransform jRt = judgeText.rectTransform;
         jRt.anchorMin = new Vector2(0.5f, 0.5f); jRt.anchorMax = new Vector2(0.5f, 0.5f);
         jRt.pivot = new Vector2(0.5f, 0.5f);
-        jRt.anchoredPosition = new Vector2(0f, 48f);
-        jRt.sizeDelta = new Vector2(400f, 34f);
+        jRt.anchoredPosition = new Vector2(0f, 62f);
+        jRt.sizeDelta = new Vector2(520f, 36f);
 
-        // 판정 트랙
+        // 판정 트랙 (v1.1: 폭 380 -> 480)
         track = KitchenEventManager.MakeBox(panel, "Track", new Color(0f, 0f, 0f, 0.6f));
         track.anchorMin = new Vector2(0.5f, 0.5f); track.anchorMax = new Vector2(0.5f, 0.5f);
         track.pivot = new Vector2(0.5f, 0.5f);
-        track.anchoredPosition = new Vector2(0f, 2f);
-        track.sizeDelta = new Vector2(TRACK_W, 30f);
+        track.anchoredPosition = new Vector2(0f, 12f);
+        track.sizeDelta = new Vector2(TRACK_W, 34f);
 
         // 1라운드용: 중앙 판정 존 (고정) - Good 폭
         RectTransform goodZone = KitchenEventManager.MakeBox(track, "Good", new Color(0.35f, 0.6f, 0.3f, 0.8f));
@@ -317,5 +387,12 @@ public class InfusingMinigame : MonoBehaviour
         zoneRect.pivot = new Vector2(0.5f, 0.5f);
         zoneRect.sizeDelta = new Vector2(TRACK_W * 0.24f, 4f);
         zoneRect.gameObject.SetActive(false);
+
+        // v1.1: 바늘 - 채움 바의 끝에 서는 굵은 막대 (이게 구간 안에 있어야 한다는 것이 보이게). 구간 안이면 금색
+        needleRect = KitchenEventManager.MakeBox(track, "Needle", Color.white);
+        needleRect.anchorMin = new Vector2(0.5f, 0f); needleRect.anchorMax = new Vector2(0.5f, 1f);
+        needleRect.pivot = new Vector2(0.5f, 0.5f);
+        needleRect.sizeDelta = new Vector2(8f, 14f);   // 트랙보다 위아래로 7 씩 튀어나온다
+        needleRect.gameObject.SetActive(false);
     }
 }

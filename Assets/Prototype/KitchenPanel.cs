@@ -4,7 +4,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 /// <summary>
-/// [KitchenPanel.cs] v2.10 (v9.18 2026-10-06: 창(1240x900)이 기준 화면보다 크면 화면 안으로 줄인다 - UIFactory.FitScale. UI 배율 1.2 에서 창 높이가 화면 높이와 같아져 테가 잘렸다) / v2.9 (v9.16 2026-09-29 손맛 2차 - 소리: 닫힘 sfx_ui_close. 열림은 ModalFeel) / v2.8 (v9.15 2026-09-29 2차 피드백 "마우스와 WASD 혼용": 조리 탭 카드 격자에 키 커서 - [WASD]/방향키로 고르고 [E]/[Enter] 로 조리 시작. 마우스는 그대로 (GameBalance.KitchenKeyCursor)) / v2.7 (v9.14 2026-09-28: 설명에서 맛 문구 제외) / v2.6 (v9.11.1 2026-09-22 문구: 기본/전설 요리) / v2.5 (v9.11 2026-09-22: 등장 연출 ModalFeel) / v2.4 (v9.10.1 2026-09-21: 재료 이름 MaterialNames 한 곳 / 안내줄에 정차 조리 남은 횟수(CookingBridge.StopCookHint)) / v2.3 (v9.10 2026-09-17 테스터 피드백: [ESC] 로도 닫힘(단축키로 열고 ESC 로 닫기) / 행상인·베팅·선로 창 중 Tab 금지 / 도감 카드 클릭 = 오른쪽 상세(무엇을 하나·어떤 손님에·언제, RecipeText)) / v2.2 (v9.8 재료 아이콘) / v2.1
+/// [KitchenPanel.cs] v2.11 (v9.21.1 2026-10-13 4차 피드백 2번: 합성 탭의 접시 합성이 진화 조리 미니게임을 거친다 - 시작하면 창을 닫는다(미니게임이 보이게), 진화 조리 중엔 Tab 토글 금지. 버튼 "합성!" -> "진화 조리") / v2.10 (v9.18 2026-10-06: 창(1240x900)이 기준 화면보다 크면 화면 안으로 줄인다 - UIFactory.FitScale. UI 배율 1.2 에서 창 높이가 화면 높이와 같아져 테가 잘렸다) / v2.9 (v9.16 2026-09-29 손맛 2차 - 소리: 닫힘 sfx_ui_close. 열림은 ModalFeel) / v2.8 (v9.15 2026-09-29 2차 피드백 "마우스와 WASD 혼용": 조리 탭 카드 격자에 키 커서 - [WASD]/방향키로 고르고 [E]/[Enter] 로 조리 시작. 마우스는 그대로 (GameBalance.KitchenKeyCursor)) / v2.7 (v9.14 2026-09-28: 설명에서 맛 문구 제외) / v2.6 (v9.11.1 2026-09-22 문구: 기본/전설 요리) / v2.5 (v9.11 2026-09-22: 등장 연출 ModalFeel) / v2.4 (v9.10.1 2026-09-21: 재료 이름 MaterialNames 한 곳 / 안내줄에 정차 조리 남은 횟수(CookingBridge.StopCookHint)) / v2.3 (v9.10 2026-09-17 테스터 피드백: [ESC] 로도 닫힘(단축키로 열고 ESC 로 닫기) / 행상인·베팅·선로 창 중 Tab 금지 / 도감 카드 클릭 = 오른쪽 상세(무엇을 하나·어떤 손님에·언제, RecipeText)) / v2.2 (v9.8 재료 아이콘) / v2.1
 /// Tab키 주방 패널 (uGUI 코드 생성) - 조리 / 합성 / 도감 3탭
 /// GameSystems 오브젝트에 부착
 ///
@@ -75,7 +75,7 @@ public class KitchenPanel : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Tab))
         {
-            if (CookingMinigame.IsActive) return;   // 미니게임 중엔 토글 금지
+            if (CookingMinigame.IsActive || InfusingMinigame.IsActive) return;   // 미니게임 중엔 토글 금지 (v2.11: 진화 조리도)
             if (PauseMenu.IsOpen) return;           // 일시정지 중엔 토글 금지
             if (AugmentListUI.ReadingOpen) return;  // A10: 증강 목록[V]/일지[J] 열람 중엔 토글 금지
             if (MerchantUI.IsOpen || SpinoBetUI.IsOpen || BranchRouteUI.IsOpen) return;   // v2.3: 정차역 창이 입력을 독점
@@ -556,7 +556,8 @@ public class KitchenPanel : MonoBehaviour
             RecipeData result = RecipeDatabase.GetFusion(ra.tag, rb.tag);
             if (result != null)
                 resultLine = "결과: " + (FoodStock.Instance.IsDiscovered(result.recipeId)
-                    ? result.displayName : "??? (미지의 전설 요리)");
+                    ? result.displayName : "??? (미지의 전설 요리)")
+                    + (GameBalance.InfuseStockOn ? "  -  진화 조리를 거친다 (잘 익히면 접시 +" + GameBalance.InfuseStockBonusPlates + ")" : "");   // v2.11
         }
 
         UIFactory.CreateText(selBar, "SelText",
@@ -564,7 +565,7 @@ public class KitchenPanel : MonoBehaviour
             19, UIFactory.CREAM, TextAnchor.MiddleLeft)
             .rectTransform.offsetMin = new Vector2(16f, 0f);
 
-        Button fuseBtn = UIFactory.CreateButton(selBar, "FuseGo", "합성!",
+        Button fuseBtn = UIFactory.CreateButton(selBar, "FuseGo", GameBalance.InfuseStockOn ? "진화 조리" : "합성!",
             new Vector2(130f, 48f), new Color(0.55f, 0.2f, 0.42f), Color.white, 22);
         RectTransform frt = fuseBtn.GetComponent<RectTransform>();
         frt.anchorMin = new Vector2(1f, 0.5f);
@@ -575,7 +576,12 @@ public class KitchenPanel : MonoBehaviour
         fuseBtn.onClick.AddListener(delegate
         {
             string made = CookingBridge.FuseFoods(fuseA, fuseB);
-            if (made != null) { fuseA = ""; fuseB = ""; }
+            if (made != null)
+            {
+                fuseA = ""; fuseB = "";
+                // v2.11: 진화 조리가 시작됐으면 창을 닫는다 - 미니게임(좌하단)이 보이게. 접시는 미니게임이 끝날 때 소모된다
+                if (GameBalance.InfuseStockOn && InfusingMinigame.IsActive) { Close(); return; }
+            }
             Refresh();
         });
 

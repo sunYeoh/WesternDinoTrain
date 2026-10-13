@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// [GameBalance.cs] v9.21 (2026-10-12 보스 1단계 큰 몸 - 보스개편 스펙 1·4·5절: 맨 아래 v9.21 섹션 - 보스전 카메라 BossCam* / 새 크기 BossBodyLen·Wide (그림을 맞춘다) / 서는 자리 BossStandOff 새 값·BossStandX / 등장 연출 2판 BossEntranceV2·BossEntranceSec / 이름판 BossNamePlateBottom / 등장 때 대응법 줄 BossEntranceLine / 미끼 때 제자리 BossHoldWhenTaunted) / v9.20 (2026-10-07 유저 "패턴이 눈에 안 띔": 보스 패턴의 준비·발동·결과를 몸과 전장에 그린다 BossPatternFxOn·BossCastSwell·BossReleaseSquash·BossLunge*·BossBite* / 부른 무리는 보스 등 뒤에서 BossSummonBehind·SpreadX·StatMul·Share, HowlSummonCount 5 -> 10 · OriginalRoarCount 4 -> 10) / v9.19.4 (2026-10-07 유저 "포탑 설명이 너무 길다 - 필요한 것만 남기고 폰트를 키워라": 포탑 정보창 글자 크기 SlotInfoFontSize·TitleSize·HintSize, 조작 줄 SlotInfoShowControls) / v9.19.3 (2026-10-07 유저 확인 "체력 회복 증강을 먹으니 HP 가 거의 90% 넘게 남는다": 타격당 회복을 1초에 LifestealHitsPerSec 번까지만 센다) / v9.19.2 (2026-10-07 유저 확인 뒤: 머릿수를 늘린 손님을 약하게 하지 않는다 - GroupPower* 삭제, 크기별 HP 배율 TierHpMul*·초반 배율 EarlyBodyStart·보상 SwarmRewardMul / 손님 전체 강화 EnemyHPMul 1.3·EnemyATKMul 1.2·EnemyDefMul 1.2 (견습 운행은 TutorialEnemy* 로 예전 값) / 기차 방어력 바닥 TrainDefFloor / 보스 HP 종류별 배율 BossHPKindMul / 편성 이름 줄·방향 예고 화살표 끔 FormationLineShows 0·SpawnCueSec 0) / v9.19.1 (2026-10-07 유저 소감: 스폰 테두리가 보이는 화면을 따라간다 SpawnEdgeFollowView·ViewMargin·BossSpawnExtra / 머릿수 대폭 증가 CountMulSmall·Mid·Big + GroupPower* + FormationSizeMul - SwarmCountMul 을 대신한다) / v9.19 (2026-10-06 웨이브 편성·보스 페이즈 모습: 맨 아래 v9.19 섹션 - 편성 스위치·풀리는 웨이브·예고 시간·조각 사이 쉼·스폰 테두리·작은 손님 머릿수·호위 행렬 / 보스 상태 그림·전환 순간·상태 유지 효과·알림 자리) / v9.18 (2026-10-06 테스터 피드백 3 - 버그·밸런스·새 기차 그림: 맨 아래 v9.18 섹션 - 보행 바닥 표 / 슬롯·꼬리 좌표 / 레벨 상한 복구 / 같은 레벨끼리만 진화 / 폐기 환급 / 사고 실패 피해 / 과열 무작위 / 칸 덜컹임 / 보스 그림·HP 바·등장 띠 / UI 배율) / v9.17 (2026-10-06 화면 손맛 2차: 맨 아래 v9.17 섹션 - 발사 반동·섬광 / 데미지 숫자 크기·합산 / 넉백 / 셰프 찌그러짐 / HUD 수치 / 카드 순차 등장·퇴장 / 보스 등장·처치 / 패배·승리 순서 / 장면 전환 / 알림 중복) / v9.16 (2026-09-29 소리 v2: BuildTag 만 - 소리 표는 SoundManager 에) / v9.15.1 (2026-09-29 스토리 개정 스위치: 최종전 베팅 없음·스피노 고백 카드·마지막 식사 장면 시간) / v9.15 (2026-09-29 2차 피드백: 레벨 상한 해제 -> 접시 곡선·레벨 체감·저항 표시 / 훈련장 반복·자유 연습 / 드래그 투입 / 사고 해결 연출 / 포탑 파손 / HUD 재배치 / 설정창) / v9.12 (2026-09-22 튜토리얼 구간화·인라인 연습·협곡 낙뢰·미니 보스 예습 섹션 추가) / v1 (v9.11 2026-09-22: 타격감 섹션 - 피격 플래시·찌그러짐·스파크·킬 버스트·기차 피격·버튼·모달·웨이브 띠 스위치 / v9.10.1 2026-09-21: 유저 플레이 소감 섹션 - 웨이브 물량·길이, 정차 조리 제한, 행상인 자동 퇴장, 처치 보상 배율 / v9.9 2026-09-16: 포탑 4모서리 배치 SlotPosition + 견습 운행/브리핑 스위치 섹션)
+/// [GameBalance.cs] v9.21.1 (2026-10-13 4차 피드백 픽스: 창이 떠 있는 동안 조리·진화 조리 보류 CookHoldWhileWindow / 진화 조리 읽을 시간 InfuseReadSec / 접시 합성도 진화 조리 InfuseStockOn·InfuseStockBonusPlates / 골드 소수 누적 GoldCarryOn / 수급 SwarmRewardMul 1.3 -> 1.0 · KillMaterialChance 0.6 -> 0.5) / v9.21 (2026-10-12 보스 1단계 큰 몸 - 보스개편 스펙 1·4·5절: 맨 아래 v9.21 섹션 - 보스전 카메라 BossCam* / 새 크기 BossBodyLen·Wide (그림을 맞춘다) / 서는 자리 BossStandOff 새 값·BossStandX / 등장 연출 2판 BossEntranceV2·BossEntranceSec / 이름판 BossNamePlateBottom / 등장 때 대응법 줄 BossEntranceLine / 미끼 때 제자리 BossHoldWhenTaunted) / v9.20 (2026-10-07 유저 "패턴이 눈에 안 띔": 보스 패턴의 준비·발동·결과를 몸과 전장에 그린다 BossPatternFxOn·BossCastSwell·BossReleaseSquash·BossLunge*·BossBite* / 부른 무리는 보스 등 뒤에서 BossSummonBehind·SpreadX·StatMul·Share, HowlSummonCount 5 -> 10 · OriginalRoarCount 4 -> 10) / v9.19.4 (2026-10-07 유저 "포탑 설명이 너무 길다 - 필요한 것만 남기고 폰트를 키워라": 포탑 정보창 글자 크기 SlotInfoFontSize·TitleSize·HintSize, 조작 줄 SlotInfoShowControls) / v9.19.3 (2026-10-07 유저 확인 "체력 회복 증강을 먹으니 HP 가 거의 90% 넘게 남는다": 타격당 회복을 1초에 LifestealHitsPerSec 번까지만 센다) / v9.19.2 (2026-10-07 유저 확인 뒤: 머릿수를 늘린 손님을 약하게 하지 않는다 - GroupPower* 삭제, 크기별 HP 배율 TierHpMul*·초반 배율 EarlyBodyStart·보상 SwarmRewardMul / 손님 전체 강화 EnemyHPMul 1.3·EnemyATKMul 1.2·EnemyDefMul 1.2 (견습 운행은 TutorialEnemy* 로 예전 값) / 기차 방어력 바닥 TrainDefFloor / 보스 HP 종류별 배율 BossHPKindMul / 편성 이름 줄·방향 예고 화살표 끔 FormationLineShows 0·SpawnCueSec 0) / v9.19.1 (2026-10-07 유저 소감: 스폰 테두리가 보이는 화면을 따라간다 SpawnEdgeFollowView·ViewMargin·BossSpawnExtra / 머릿수 대폭 증가 CountMulSmall·Mid·Big + GroupPower* + FormationSizeMul - SwarmCountMul 을 대신한다) / v9.19 (2026-10-06 웨이브 편성·보스 페이즈 모습: 맨 아래 v9.19 섹션 - 편성 스위치·풀리는 웨이브·예고 시간·조각 사이 쉼·스폰 테두리·작은 손님 머릿수·호위 행렬 / 보스 상태 그림·전환 순간·상태 유지 효과·알림 자리) / v9.18 (2026-10-06 테스터 피드백 3 - 버그·밸런스·새 기차 그림: 맨 아래 v9.18 섹션 - 보행 바닥 표 / 슬롯·꼬리 좌표 / 레벨 상한 복구 / 같은 레벨끼리만 진화 / 폐기 환급 / 사고 실패 피해 / 과열 무작위 / 칸 덜컹임 / 보스 그림·HP 바·등장 띠 / UI 배율) / v9.17 (2026-10-06 화면 손맛 2차: 맨 아래 v9.17 섹션 - 발사 반동·섬광 / 데미지 숫자 크기·합산 / 넉백 / 셰프 찌그러짐 / HUD 수치 / 카드 순차 등장·퇴장 / 보스 등장·처치 / 패배·승리 순서 / 장면 전환 / 알림 중복) / v9.16 (2026-09-29 소리 v2: BuildTag 만 - 소리 표는 SoundManager 에) / v9.15.1 (2026-09-29 스토리 개정 스위치: 최종전 베팅 없음·스피노 고백 카드·마지막 식사 장면 시간) / v9.15 (2026-09-29 2차 피드백: 레벨 상한 해제 -> 접시 곡선·레벨 체감·저항 표시 / 훈련장 반복·자유 연습 / 드래그 투입 / 사고 해결 연출 / 포탑 파손 / HUD 재배치 / 설정창) / v9.12 (2026-09-22 튜토리얼 구간화·인라인 연습·협곡 낙뢰·미니 보스 예습 섹션 추가) / v1 (v9.11 2026-09-22: 타격감 섹션 - 피격 플래시·찌그러짐·스파크·킬 버스트·기차 피격·버튼·모달·웨이브 띠 스위치 / v9.10.1 2026-09-21: 유저 플레이 소감 섹션 - 웨이브 물량·길이, 정차 조리 제한, 행상인 자동 퇴장, 처치 보상 배율 / v9.9 2026-09-16: 포탑 4모서리 배치 SlotPosition + 견습 운행/브리핑 스위치 섹션)
 /// 게임 전체 밸런스 수치를 한 곳에 모은 설정 파일.
 ///
 /// 여기 값을 바꾸면 Inspector 값과 상관없이 게임에 적용된다
@@ -944,7 +944,7 @@ public static class GameBalance
     /// <summary>일반 손님 처치 골드 배율 (보스 제외). 1 = 구 동작</summary>
     public static float KillGoldMul = 0.35f;   // v9.14: 0.6 -> 0.35 (테스터 "골드가 썩어 넘친다")
     /// <summary>일반 손님 처치 시 재료가 떨어질 확률 (보스는 항상). 1 = 구 동작(항상)</summary>
-    public static float KillMaterialChance = 0.6f;
+    public static float KillMaterialChance = 0.5f;   // v9.21.1 (유저 10-13 "몬스터가 늘어난 만큼 재료 수급이 늘었다"): 0.6 -> 0.5. 한 마리 몫(Share)까지 곱하면 구성표 기준 0.83배
     // ── 정차 ──
     /// <summary>정차 한 번에 시작할 수 있는 조리 횟수. -1 = 제한 없음(구 동작), 0 = 개정안 §4 "정비 중 신규 조리 금지". 견습 운행·프롤로그 조리 게이트는 제한 없음</summary>
     public static int StopCookLimit = 2;
@@ -1404,7 +1404,7 @@ public static class GameBalance
     /// <summary>머릿수를 늘린 무리의 "한 번에 얼마" 합 (구성표 대비): 처치 보상(골드·재료 확률·상자 확률), 전갈의 도구 부식, 모사의 빙결 확률, 힐러가 주는 회복.
     /// 한 마리의 몫 = 이 값 x 원래 수 / 늘린 수 (Enemy.Share). 손님은 제 힘으로 오지만 골드·재료와 도구 부식까지 머릿수만큼 세 배가 되면 안 된다.
     /// 1.3 = 웨이브 한 판의 골드·재료가 구성표의 1.3배</summary>
-    public static float SwarmRewardMul = 1.3f;
+    public static float SwarmRewardMul = 1.0f;   // v9.21.1 (유저 10-13 "골드·재료 수급이 늘었다"): 1.3 -> 1.0 = 웨이브 한 판의 골드·재료 합이 구성표 그대로
     /// <summary>초반 웨이브는 머릿수 배율을 덜 건다: 편성이 시작되는 웨이브에는 늘어나는 몫의 CountRampStart(0.5 = 절반)만, CountRampWaves 웨이브 뒤에 전부.
     /// 0.5 / 4 = 작은 손님 기준 웨이브 2 = 2배, 웨이브 4 = 2.5배, 웨이브 6 부터 3배. CountRampWaves 0 = 처음부터 전부</summary>
     public static int CountRampWaves = 4;
@@ -1476,4 +1476,17 @@ public static class GameBalance
     public static bool BossHoldWhenTaunted = true;
     /// <summary>등장 연출 동안 보스를 숨겨 두는 자리: 서는 자리에서 북쪽으로 이만큼 (u). 포탑 사거리(20) 밖이어야 들어오기 전의 빈자리에 탄이 몰리지 않는다</summary>
     public static float BossHideDY = 40f;
+
+    // ── (v9.21.1 2026-10-13) 4차 피드백 픽스 - claude/테스터피드백4_2026-10-13.md ──
+    /// <summary>4번: 창(증강·행상인·베팅·정비소·카드·일지·일시정지·선로 고르기)이 떠 있는 동안 조리 미니게임과 진화 조리를 보류한다 - 시간도 입력도 안 받고, 창이 닫히면 그 자리에서 이어진다.
+    /// 예전엔 정차 창 뒤에서 미니게임이 혼자 돌다 시간이 끝나 실패가 됐고, 증강 창에서 누른 [ESC]·[Space] 가 조리에 들어갔다. false = 구 동작</summary>
+    public static bool CookHoldWhileWindow = true;
+    /// <summary>1번: 진화 조리의 라운드마다 커서를 세워 두고 안내를 읽을 시간 (초). [Space] 를 누르면 바로 시작한다. 0 = 예전처럼 바로</summary>
+    public static float InfuseReadSec = 1.0f;
+    /// <summary>2번: 주방 창의 접시 합성(인벤토리 접시 둘 -> 전설 접시)도 진화 조리 미니게임을 거친다. 판정 합계가 InfuseBonusScoreNeed 이상이면 전설 접시 InfuseStockBonusPlates 장 더 (포탑 진화의 Lv+1 과 같은 보너스).
+    /// 실패해도 진화는 된다. 끝날 때 접시가 모자라면 아무것도 잃지 않는다. false = 예전처럼 즉시 합성</summary>
+    public static bool InfuseStockOn = true;
+    public static int InfuseStockBonusPlates = 1;
+    /// <summary>7번: 처치 골드를 반올림하지 않고 소수를 모아 둔다 (0.5 가 두 마리 쌓이면 1). 머릿수를 늘린 작은 손님(몫 0.43)은 반올림 + 최소 1 때문에 구성표의 1.7배를 주고 있었다. false = 구 동작(최소 1 반올림)</summary>
+    public static bool GoldCarryOn = true;
 }
