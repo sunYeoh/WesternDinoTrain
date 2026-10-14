@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 /// <summary>
-/// [TutorialDirector.cs] v2.4 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v2.3 (v9.20 2026-10-07: 글 속 화살표를 게임 글꼴에 있는 세모로(게임 글꼴에 화살표 글리프가 없어 PC 의 다른 글꼴로 그려졌다 - 모양이 따로 놀고, 대신할 글꼴이 없는 빌드에선 빈칸)) / v2.2 (v9.18 2026-10-06: 목표 카드의 아래 끝·왼쪽 끝을 밖에서 읽게(CardBottomY·CardLeftFromRight - 알림 줄과 예고 카드가 카드를 피한다) / [Enter] 건너뛰기 오작동 - 요리 창·카드가 닫히는 그 프레임의 Enter 가 단계 건너뛰기로 새던 것(직전 프레임에 창이 떠 있었으면 무시) / 4단계 고기: 손님이 재료를 반드시 떨어뜨리고(Enemy), 그래도 모자라면 10초 뒤 채운다(구 30초)) / v2.1 (v9.15 2026-09-29 2차 피드백 "훈련장 무한 반복·맨땅 연습": 구간 완료 카드 [R] 한 번 더(PendingSegment - 씬 리로드 뒤 자동 시작) / 자유 연습 Begin(SANDBOX=8) - 손님이 계속 오고(SandboxSpawn*) 재료가 안 떨어지고 기차가 안 죽는다, [1] 낙뢰 [2] 화재 [3] 흘림 [4] 고장 [5] 침입 을 직접 일으킨다, 나가기 = [ESC] 메뉴 그만두기. SandboxActive 동안 포탑 파손도 진짜로 일어난다) / v2 (v9.12 2026-09-22: 견습 운행 구간화 - 7구간(S1 이동과 첫 포탑 1~6 / S2 감전된 포탑 복구 7 / S3 작살로 재료 얻기 8 / S4 전속 주행 켜고 끄기 9 /
+/// [TutorialDirector.cs] v2.5 (v9.22.1 2026-10-14 유저 "튜토리얼에 드래그가 반영 안 됐다": 2·5·6단계 목표 글과 지연 힌트를 v9.22 조작(카드 끌어다 놓기 - 교체 / 재료 중심 조리 창) 기준으로. 클릭 ▶ 클릭도 된다고 덧붙임. 5단계에 20초 지연 힌트(고기 카드 두 번 누르기) 추가) / v2.4 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v2.3 (v9.20 2026-10-07: 글 속 화살표를 게임 글꼴에 있는 세모로(게임 글꼴에 화살표 글리프가 없어 PC 의 다른 글꼴로 그려졌다 - 모양이 따로 놀고, 대신할 글꼴이 없는 빌드에선 빈칸)) / v2.2 (v9.18 2026-10-06: 목표 카드의 아래 끝·왼쪽 끝을 밖에서 읽게(CardBottomY·CardLeftFromRight - 알림 줄과 예고 카드가 카드를 피한다) / [Enter] 건너뛰기 오작동 - 요리 창·카드가 닫히는 그 프레임의 Enter 가 단계 건너뛰기로 새던 것(직전 프레임에 창이 떠 있었으면 무시) / 4단계 고기: 손님이 재료를 반드시 떨어뜨리고(Enemy), 그래도 모자라면 10초 뒤 채운다(구 30초)) / v2.1 (v9.15 2026-09-29 2차 피드백 "훈련장 무한 반복·맨땅 연습": 구간 완료 카드 [R] 한 번 더(PendingSegment - 씬 리로드 뒤 자동 시작) / 자유 연습 Begin(SANDBOX=8) - 손님이 계속 오고(SandboxSpawn*) 재료가 안 떨어지고 기차가 안 죽는다, [1] 낙뢰 [2] 화재 [3] 흘림 [4] 고장 [5] 침입 을 직접 일으킨다, 나가기 = [ESC] 메뉴 그만두기. SandboxActive 동안 포탑 파손도 진짜로 일어난다) / v2 (v9.12 2026-09-22: 견습 운행 구간화 - 7구간(S1 이동과 첫 포탑 1~6 / S2 감전된 포탑 복구 7 / S3 작살로 재료 얻기 8 / S4 전속 주행 켜고 끄기 9 /
 ///   S5 요리하며 기차 지키기 10 / S6 증강 선택과 정비 11 / S7 미끼로 첫 보스 상대하기 12(신규)) + 마지막 앞길 카드 13. Begin(segment) 로 한 구간만 (훈련장 TrainingGroundUI),
 ///   구간마다 PlayerPrefs WDT_Tut_S1..S7 = 1 완료 / 2 건너뜀. 정식 운행 인라인 연습 PlayInline(seg) - 새 기믹 첫 등장 순간(협곡 낙뢰 / 첫 바위 / 레버 웨이브) 손님·스폰·사고·포탑을 멈추고(InlineFreeze)
 ///   셰프만 움직여 그 행동을 해낸다. 30초 = 힌트 추가(자동 통과 없음), [Enter] = 건너뛰기(기록 2). 큰 카드 540x250 = 연습·예습, 목표 카드 330x156 은 그대로 (목업 v4.2).
@@ -524,7 +524,7 @@ public class TutorialDirector : MonoBehaviour
     private IEnumerator Step2_Insert()
     {
         TurretSlot slot = SlotAt(1);
-        BeginStep(2, "보급 요리를 포탑에 넣어라", "하단 바의 더블 육포 카드를 클릭\n그다음 화살표 아래 [+] 이름표를 클릭", "투입", 0, 1);
+        BeginStep(2, "보급 요리를 포탑에 넣어라", "하단 바의 더블 육포 카드를 끌어다\n화살표 아래 [+] 이름표에 놓아라", "투입", 0, 1);
         if (FoodStock.Instance != null && FoodStock.Instance.Get(STARTER_RECIPE) < 1) FoodStock.Instance.Add(STARTER_RECIPE, 1);
         if (slot != null) ShowMarkerFollow(slot.transform, SlotArrowTip(1), RING_TURRET);
         yield return Brief(BriefingTexts.Tutorial(2));
@@ -535,7 +535,7 @@ public class TutorialDirector : MonoBehaviour
         while (!skipRequested)
         {
             if (FilledSlotCount() > filledAtStart || TurretSlot.LastInsertTime > insertMark2) break;
-            if (Time.time > hintAt) { hintAt = float.MaxValue; UIManager.Instance?.ShowStatChange("[견습] 요리 카드를 먼저 클릭하고, 포탑 위 [+] 이름표를 클릭 - 마우스"); }
+            if (Time.time > hintAt) { hintAt = float.MaxValue; UIManager.Instance?.ShowStatChange("[견습] 요리 카드를 끌어다 포탑 위 [+] 이름표에 놓아라 (카드 클릭 ▶ 이름표 클릭도 된다)"); }
             yield return null;
         }
         SetProgress(1, 1);
@@ -595,7 +595,7 @@ public class TutorialDirector : MonoBehaviour
     private IEnumerator Step5_Grill()
     {
         CookingStation grill = FindStation(CookingStation.StationType.Grilling);
-        BeginStep(5, "그릴에서 더블 육포를 구워라", "그릴 곁에서 [E] ▶ 더블 육포 고르기\n눈금이 판정 칸 안에 오면 [Space]", "조리", 0, 1);
+        BeginStep(5, "그릴에서 더블 육포를 구워라", "그릴 곁에서 [E] ▶ 고기 둘 올려 굽기\n눈금이 판정 칸 안에 오면 [Space]", "조리", 0, 1);
         if (grill != null) ShowMarkerFollow(grill.transform, 1.0f, RING_STATION);
         yield return Brief(BriefingTexts.Tutorial(5));
 
@@ -603,9 +603,14 @@ public class TutorialDirector : MonoBehaviour
         int badsSeen = CookingBridge.BadsThisRun;
         int resupplies = 0;
         bool passedByGift = false;
+        float hintAt5 = float.MaxValue;   // v2.5: 재료 중심 조리 창을 열고 20초 안에 굽기에 못 들어가면 - 고기 카드 두 번 (한 번이라도 굽기에 들어갔으면 안 띄운다)
+        bool kitchenSeen = false;
         while (!skipRequested)
         {
             if (CookingBridge.LastGoodCookTime > cookMark) break;
+            if (!kitchenSeen && KitchenPanel.IsOpenStatic) { kitchenSeen = true; hintAt5 = Time.time + 20f; }
+            if (CookingMinigame.IsActive) hintAt5 = float.MaxValue;
+            if (Time.time > hintAt5) { hintAt5 = float.MaxValue; UIManager.Instance?.ShowStatChange("[견습] 조리 창에서 고기 카드를 두 번 누르거나 끌어 놓으면 그릴 두 칸이 찬다 ▶ [굽기 시작]"); }
 
             // Bad 판정으로 재료를 잃었으면 다시 준다 (3회) - 3회 다 태우면 요리를 주고 넘긴다 (막히지 않게)
             if (CookingBridge.BadsThisRun > badsSeen)
@@ -633,7 +638,7 @@ public class TutorialDirector : MonoBehaviour
     private IEnumerator Step6_LevelUp()
     {
         TurretSlot first = SlotAt(0);
-        BeginStep(6, "구운 육포를 아까 그 포탑에 넣어라", "같은 요리를 넣으면 레벨업\n빈 칸에 넣으면 새 포탑", "투입", 0, 1);
+        BeginStep(6, "구운 육포를 아까 그 포탑에 넣어라", "카드를 끌어다 화살표 포탑에 놓아라\n같은 요리 = Lv 올리기, 다른 요리 = 교체", "투입", 0, 1);
         if (FoodStock.Instance != null && TotalFood() < 1) FoodStock.Instance.Add(STARTER_RECIPE, 1);
         if (first != null) ShowMarkerFollow(first.transform, SlotArrowTip(0), RING_TURRET);
         yield return Brief(BriefingTexts.Tutorial(6));
@@ -643,7 +648,7 @@ public class TutorialDirector : MonoBehaviour
         while (!skipRequested)
         {
             if (TurretSlot.LastInsertTime > insertMark) break;
-            if (Time.time > hintAt) { hintAt = float.MaxValue; UIManager.Instance?.ShowStatChange("[견습] 하단 바의 요리 카드를 클릭 ▶ 포탑 이름표 클릭"); }
+            if (Time.time > hintAt) { hintAt = float.MaxValue; UIManager.Instance?.ShowStatChange("[견습] 하단 바의 요리 카드를 끌어다 포탑 이름표에 놓아라 (카드 클릭 ▶ 이름표 클릭도 된다)"); }
             yield return null;
         }
         SetProgress(1, 1);

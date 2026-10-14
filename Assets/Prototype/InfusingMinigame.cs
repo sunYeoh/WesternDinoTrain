@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [InfusingMinigame.cs] v1.2 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v1.1 (v9.21.1 2026-10-13 4차 피드백 1·2·4번: 라운드마다 "읽을 시간"(커서 정지, [Space] 로 바로 시작) + 2라운드에 바늘을 그린다(구간 안이면 금색 - 예전엔 채움 바 끝이 바늘이라 뭘 어디에 두라는지 몰랐다) + 안내를 한 줄씩 크게 + 판 560x260 /
+/// [InfusingMinigame.cs] v1.3 (v9.22 2026-10-14 조작 팩 3-1: 화면을 조리 미니게임 그림으로 - 리벳 카드 + 황동 명판 / 1판 = 석쇠(ui_mg_grate)·판정 구간(ui_mg_zone 초록·황금)·꼬치 커서(ui_mg_cursor)·불꽃 띠 / 2판 = 눕힌 압력계(ui_gauge_bg·fill)·초록 구간·바늘·솥 엠블럼 / 오른쪽 위 고기 칩 2개 = 몇 판째. 판 자리·크기·판정·점수는 그대로. GameBalance.InfuseCookLook + UISkin + ui_mg_* 가 있을 때만, 아니면 v9.21.1 판) / v1.2 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v1.1 (v9.21.1 2026-10-13 4차 피드백 1·2·4번: 라운드마다 "읽을 시간"(커서 정지, [Space] 로 바로 시작) + 2라운드에 바늘을 그린다(구간 안이면 금색 - 예전엔 채움 바 끝이 바늘이라 뭘 어디에 두라는지 몰랐다) + 안내를 한 줄씩 크게 + 판 560x260 /
 ///   접시 합성도 같은 미니게임(BeginForStock - 끝나면 CookingBridge.CompleteStockFusion, 보너스 = 접시 +1) / 창이 떠 있으면 보류(CookingMinigame.WindowOpen)) /
 /// v1 (신규 파일) - P1: T2 인퓨징 미니게임 (감사 1-A 처방 2)
 ///
@@ -66,6 +66,21 @@ public class InfusingMinigame : MonoBehaviour
 
     private const float TRACK_W = 480f;   // v1.1: 380 -> 480
 
+    // ── v1.3 (v9.22): 조리 미니게임 그림 ──
+    private bool skin;                              // 그림을 쓰나 (InfuseCookLook + UISkin + ui_mg_* 전부)
+    private Image trackImg;                         // 1판 석쇠 (2판엔 끈다)
+    private RectTransform goodZoneRect, perfectZoneRect;
+    private RectTransform gaugeBg;                  // 2판 눕힌 유리관 (1판엔 숨김)
+    private GameObject potEmblem;                   // 2판 솥
+    private readonly Image[] flames = new Image[10];
+    private readonly Sprite[] flameFrames = new Sprite[3];
+    private float flameTimer = 0f;
+    private int flameFrame = 0;
+    private readonly Image[] roundChips = new Image[2];
+    private static readonly string[] SKIN_PNGS = { "ui_mg_grate", "ui_mg_zone", "ui_mg_cursor", "ui_mg_flame_0", "ui_mg_flame_1", "ui_mg_flame_2", "ui_mg_pot", "ui_mg_meat", "ui_gauge_bg", "ui_gauge_fill" };
+    private static readonly Color ZONE_GOOD = new Color(0.43f, 0.78f, 0.43f, 0.67f);   // CookingMinigame 과 같은 값
+    private static readonly Color FILL_CYAN = new Color(0.43f, 0.78f, 0.79f, 1f);
+
     // ─────────────────────────────────────────────
     // 시작 (TurretSlotManager.TryMergeSlots의 T2 분기가 호출)
     // ─────────────────────────────────────────────
@@ -101,8 +116,9 @@ public class InfusingMinigame : MonoBehaviour
         readTimer = Mathf.Max(0f, GameBalance.InfuseReadSec);   // v1.1: 첫 라운드 앞 읽을 시간
 
         BuildUI();
-        titleText.text = "진화 조리  -  " + fusion.displayName + " [전설]";
+        if (titleText != null) titleText.text = "진화 조리  -  " + fusion.displayName + " [전설]";
         SetPhaseInfo();
+        RefreshRoundChips();
 
         Debug.Log("[Infusing] 인퓨징 시작 -> " + fusion.displayName + (stockMode ? " (접시)" : ""));
     }
@@ -167,9 +183,32 @@ public class InfusingMinigame : MonoBehaviour
             }
         }
 
+        if (skin && phase == 0) AnimateFlames();   // v1.3
         if (phase == 0) UpdateGrillRound();
         else if (phase == 1) UpdateBoilRound();
         else UpdateFinish();
+    }
+
+    /// <summary>v1.3: 불꽃 3프레임 순환 (조리 미니게임과 같은 9fps, 이웃은 한 프레임씩 어긋나게)</summary>
+    private void AnimateFlames()
+    {
+        flameTimer += Time.deltaTime;
+        if (flameTimer < 1f / 9f) return;
+        flameTimer = 0f;
+        flameFrame = (flameFrame + 1) % 3;
+        for (int i = 0; i < flames.Length; i++)
+            if (flames[i] != null) flames[i].sprite = flameFrames[(flameFrame + i) % 3];
+    }
+
+    /// <summary>v1.3: 오른쪽 위 고기 칩 - 끝난 판 황금 / 지금 판 크림 / 남은 판 흐림</summary>
+    private void RefreshRoundChips()
+    {
+        if (!skin) return;
+        for (int i = 0; i < 2; i++)
+        {
+            if (roundChips[i] == null) continue;
+            roundChips[i].color = i < phase ? UIFactory.GOLD : i == phase ? UIFactory.CREAM : UISkin.BRASS_DIM;
+        }
     }
 
     // ─────────────────────────────────────────────
@@ -201,8 +240,19 @@ public class InfusingMinigame : MonoBehaviour
             fillRect.gameObject.SetActive(true);
             zoneRect.gameObject.SetActive(true);
             if (needleRect != null) needleRect.gameObject.SetActive(true);
+            if (skin)
+            {
+                // v1.3: 석쇠·판정 구간·불꽃을 걷고 눕힌 유리관 + 솥
+                if (trackImg != null) trackImg.enabled = false;
+                if (goodZoneRect != null) goodZoneRect.gameObject.SetActive(false);
+                if (perfectZoneRect != null) perfectZoneRect.gameObject.SetActive(false);
+                for (int i = 0; i < flames.Length; i++) if (flames[i] != null) flames[i].gameObject.SetActive(false);
+                if (gaugeBg != null) gaugeBg.gameObject.SetActive(true);
+                if (potEmblem != null) potEmblem.SetActive(true);
+            }
             DrawBoil();
             SetPhaseInfo();
+            RefreshRoundChips();
         }
     }
 
@@ -234,6 +284,7 @@ public class InfusingMinigame : MonoBehaviour
             phase = 2;
             endTimer = 0.8f;
             SetPhaseInfo();
+            RefreshRoundChips();
         }
     }
 
@@ -302,29 +353,67 @@ public class InfusingMinigame : MonoBehaviour
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
         scaler.referenceResolution = UIFactory.RefResolution;   // v9.14: UI 전체 배율 (GameBalance.UIScale)
 
+        // v1.3: 조리 미니게임 그림 - 스위치 + 스킨 + ui_mg_* 전부 있을 때만 (하나라도 없으면 v9.21.1 판)
+        skin = GameBalance.InfuseCookLook && UISkin.Available;
+        if (skin) for (int i = 0; i < SKIN_PNGS.Length; i++) if (!SpriteBank.Has(SKIN_PNGS[i])) { skin = false; break; }
+        if (skin) for (int i = 0; i < 3; i++) flameFrames[i] = SpriteBank.Get("ui_mg_flame_" + i);
+
         // 좌하단 패널 (조리 미니게임과 같은 자리 - 주방 작업 공간). v1.1: 440x210 -> 560x260 (안내 글자 15 -> 20)
-        RectTransform panel = KitchenEventManager.MakeBox(canvasGo.transform, "Panel",
-            new Color(0.10f, 0.06f, 0.09f, 0.95f));
-        panel.anchorMin = new Vector2(0f, 0f);
-        panel.anchorMax = new Vector2(0f, 0f);
-        panel.pivot = new Vector2(0f, 0f);
-        panel.anchoredPosition = new Vector2(12f, 192f);
-        panel.sizeDelta = new Vector2(560f, 260f);
+        RectTransform panel;
+        if (skin)
+        {
+            // 리벳 테 카드 + 무쇠 평판 (조리 미니게임 판과 같은 꼴)
+            panel = UIFactory.CreatePanel(canvasGo.transform, "Panel",
+                new Vector2(0f, 0f), new Vector2(0f, 0f),
+                new Vector2(12f, 192f), new Vector2(572f, 452f),
+                new Color(0.14f, 0.085f, 0.05f, 0.88f), UIFactory.T2PINK, 4f);
+        }
+        else
+        {
+            panel = KitchenEventManager.MakeBox(canvasGo.transform, "Panel", new Color(0.10f, 0.06f, 0.09f, 0.95f));
+            panel.anchorMin = new Vector2(0f, 0f);
+            panel.anchorMax = new Vector2(0f, 0f);
+            panel.pivot = new Vector2(0f, 0f);
+            panel.anchoredPosition = new Vector2(12f, 192f);
+            panel.sizeDelta = new Vector2(560f, 260f);
+        }
         panelGroup = panel.gameObject.AddComponent<CanvasGroup>();
 
-        // T2 핑크 테두리 (전설 융합의 색)
-        RectTransform border = KitchenEventManager.MakeBox(panel, "Border", UIFactory.T2PINK);
-        border.anchorMin = Vector2.zero; border.anchorMax = new Vector2(1f, 0f);
-        border.pivot = new Vector2(0.5f, 0f);
-        border.anchoredPosition = Vector2.zero;
-        border.sizeDelta = new Vector2(0f, 3f);
+        if (skin)
+        {
+            // 황동 명판: "진화 조리 - A + B ▶ 결과" (판 위 테에 걸린다)
+            string a = stockMode ? NameOf(stockA) : SlotName(idxA);
+            string b = stockMode ? NameOf(stockB) : SlotName(idxB);
+            UISkin.Nameplate(panel, "Title", "진화 조리  " + a + " + " + b + " ▶ " + fusion.displayName, 15, new Vector2(0f, 1f), new Vector2(16f, 4f));
+            // 오른쪽 위 고기 칩 2개 + "라운드"
+            Sprite meat = SpriteBank.Get("ui_mg_meat");
+            for (int i = 0; i < 2; i++)
+                roundChips[i] = MakeImage(panel, "RoundChip_" + i, meat, new Vector2(1f, 1f), new Vector2(-54f + i * 22f, -24f), new Vector2(16f, 16f));
+            Text lbl = UIFactory.CreateText(panel, "RoundLabel", "라운드", 13, UIFactory.DIM, TextAnchor.MiddleRight);
+            lbl.rectTransform.anchorMin = new Vector2(1f, 1f); lbl.rectTransform.anchorMax = new Vector2(1f, 1f);
+            lbl.rectTransform.pivot = new Vector2(1f, 1f);
+            lbl.rectTransform.anchoredPosition = new Vector2(-70f, -14f);
+            lbl.rectTransform.sizeDelta = new Vector2(80f, 20f);
+            // 2판 솥 (처음엔 숨김)
+            potEmblem = MakeImage(panel, "PotEmblem", SpriteBank.Get("ui_mg_pot"), new Vector2(1f, 1f), new Vector2(-60f, -66f), new Vector2(72f, 60f)).gameObject;
+            potEmblem.SetActive(false);
+        }
+        else
+        {
+            // T2 핑크 테두리 (전설 융합의 색)
+            RectTransform border = KitchenEventManager.MakeBox(panel, "Border", UIFactory.T2PINK);
+            border.anchorMin = Vector2.zero; border.anchorMax = new Vector2(1f, 0f);
+            border.pivot = new Vector2(0.5f, 0f);
+            border.anchoredPosition = Vector2.zero;
+            border.sizeDelta = new Vector2(0f, 3f);
 
-        titleText = KitchenEventManager.MakeText(panel, "Title", "", 22, UIFactory.T2PINK);
-        RectTransform tRt = titleText.rectTransform;
-        tRt.anchorMin = new Vector2(0f, 1f); tRt.anchorMax = new Vector2(1f, 1f);
-        tRt.pivot = new Vector2(0.5f, 1f);
-        tRt.anchoredPosition = new Vector2(0f, -10f);
-        tRt.sizeDelta = new Vector2(-16f, 30f);
+            titleText = KitchenEventManager.MakeText(panel, "Title", "", 22, UIFactory.T2PINK);
+            RectTransform tRt = titleText.rectTransform;
+            tRt.anchorMin = new Vector2(0f, 1f); tRt.anchorMax = new Vector2(1f, 1f);
+            tRt.pivot = new Vector2(0.5f, 1f);
+            tRt.anchoredPosition = new Vector2(0f, -10f);
+            tRt.sizeDelta = new Vector2(-16f, 30f);
+        }
 
         // v1.1: 안내 = 큰 한 줄 (무엇을 언제 누르나) + 작은 둘째 줄 (점수·보너스·그만두기)
         infoText = KitchenEventManager.MakeText(panel, "Info", "", 20,
@@ -349,43 +438,87 @@ public class InfusingMinigame : MonoBehaviour
         jRt.anchoredPosition = new Vector2(0f, 62f);
         jRt.sizeDelta = new Vector2(520f, 36f);
 
-        // 판정 트랙 (v1.1: 폭 380 -> 480)
+        float trackH = skin ? 40f : 34f;   // v1.3: 석쇠 그림 높이 40
+
+        // v1.3: 2판 눕힌 유리관 (트랙 뒤에 깔린다 - 먼저 만들어 뒤에 그려지게. 1판엔 숨김)
+        if (skin)
+        {
+            GameObject gg = new GameObject("GaugeBg");
+            gaugeBg = gg.AddComponent<RectTransform>();
+            gaugeBg.SetParent(panel, false);
+            gaugeBg.anchorMin = new Vector2(0.5f, 0.5f); gaugeBg.anchorMax = new Vector2(0.5f, 0.5f);
+            gaugeBg.pivot = new Vector2(0.5f, 0.5f);
+            gaugeBg.anchoredPosition = new Vector2(0f, 12f);
+            gaugeBg.sizeDelta = new Vector2(TRACK_W + 12f, trackH + 12f);
+            Image gi = gg.AddComponent<Image>();
+            gi.sprite = SpriteBank.Get("ui_gauge_bg"); gi.type = Image.Type.Sliced; gi.color = Color.white; gi.raycastTarget = false;
+            gaugeBg.gameObject.SetActive(false);
+        }
+
+        // 판정 트랙 (v1.1: 폭 380 -> 480). v1.3: 그림이면 석쇠
         track = KitchenEventManager.MakeBox(panel, "Track", new Color(0f, 0f, 0f, 0.6f));
         track.anchorMin = new Vector2(0.5f, 0.5f); track.anchorMax = new Vector2(0.5f, 0.5f);
         track.pivot = new Vector2(0.5f, 0.5f);
         track.anchoredPosition = new Vector2(0f, 12f);
-        track.sizeDelta = new Vector2(TRACK_W, 34f);
+        track.sizeDelta = new Vector2(TRACK_W, trackH);
+        trackImg = track.GetComponent<Image>();
+        if (skin && trackImg != null) { trackImg.sprite = SpriteBank.Get("ui_mg_grate"); trackImg.type = Image.Type.Simple; trackImg.color = Color.white; }
 
-        // 1라운드용: 중앙 판정 존 (고정) - Good 폭
-        RectTransform goodZone = KitchenEventManager.MakeBox(track, "Good", new Color(0.35f, 0.6f, 0.3f, 0.8f));
+        // 1라운드용: 중앙 판정 존 (고정) - Good 폭. v1.3: 그림이면 초록·황금 판정 조각 (조리 미니게임과 같은 것)
+        RectTransform goodZone = KitchenEventManager.MakeBox(track, "Good", skin ? ZONE_GOOD : new Color(0.35f, 0.6f, 0.3f, 0.8f));
         goodZone.anchorMin = new Vector2(0.5f, 0f); goodZone.anchorMax = new Vector2(0.5f, 1f);
         goodZone.pivot = new Vector2(0.5f, 0.5f);
         goodZone.anchoredPosition = Vector2.zero;
         goodZone.sizeDelta = new Vector2(TRACK_W * 0.4f, 0f);
+        goodZoneRect = goodZone;
+        if (skin) SetZoneSprite(goodZone, ZONE_GOOD);
 
-        RectTransform perfectZone = KitchenEventManager.MakeBox(track, "Perfect", new Color(1f, 0.42f, 0.85f, 0.9f));
+        RectTransform perfectZone = KitchenEventManager.MakeBox(track, "Perfect", skin ? new Color(UIFactory.GOLD.r, UIFactory.GOLD.g, UIFactory.GOLD.b, 0.92f) : new Color(1f, 0.42f, 0.85f, 0.9f));
         perfectZone.anchorMin = new Vector2(0.5f, 0f); perfectZone.anchorMax = new Vector2(0.5f, 1f);
         perfectZone.pivot = new Vector2(0.5f, 0.5f);
         perfectZone.anchoredPosition = Vector2.zero;
         perfectZone.sizeDelta = new Vector2(TRACK_W * 0.12f, 0f);
+        perfectZoneRect = perfectZone;
+        if (skin) SetZoneSprite(perfectZone, new Color(UIFactory.GOLD.r, UIFactory.GOLD.g, UIFactory.GOLD.b, 0.92f));
+
+        // v1.3: 불꽃 띠 (트랙 아래 - 커서보다 먼저 만들어 커서가 위에 그려진다)
+        if (skin)
+        {
+            float x0 = -(flames.Length - 1) * 34f * 0.5f;
+            for (int i = 0; i < flames.Length; i++)
+                flames[i] = MakeImage(track, "Flame_" + i, flameFrames[i % 3], new Vector2(0.5f, 0.5f), new Vector2(x0 + i * 34f, -34f), new Vector2(32f, 24f));
+        }
 
         cursorRect = KitchenEventManager.MakeBox(track, "Cursor", Color.white);
         cursorRect.anchorMin = new Vector2(0.5f, 0f); cursorRect.anchorMax = new Vector2(0.5f, 1f);
         cursorRect.pivot = new Vector2(0.5f, 0.5f);
         cursorRect.sizeDelta = new Vector2(6f, 8f);
+        if (skin)
+        {
+            // 황동 꼬치 + 고기 한 점 (12x56 - 트랙 40 보다 위아래로 8씩)
+            Image ci = cursorRect.GetComponent<Image>();
+            if (ci != null) { ci.sprite = SpriteBank.Get("ui_mg_cursor"); ci.type = Image.Type.Simple; ci.color = Color.white; }
+            cursorRect.sizeDelta = new Vector2(12f, 16f);
+        }
 
-        // 2라운드용: 게이지 채움(왼쪽부터) + 움직이는 존 (시작 시 숨김)
-        fillRect = KitchenEventManager.MakeBox(track, "Fill", new Color(1f, 0.42f, 0.85f, 0.45f));
+        // 2라운드용: 게이지 채움(왼쪽부터) + 움직이는 존 (시작 시 숨김). v1.3: 그림이면 청록 액체 + 초록 구간
+        fillRect = KitchenEventManager.MakeBox(track, "Fill", skin ? FILL_CYAN : new Color(1f, 0.42f, 0.85f, 0.45f));
         fillRect.anchorMin = new Vector2(0f, 0.5f); fillRect.anchorMax = new Vector2(0f, 0.5f);
         fillRect.pivot = new Vector2(0f, 0.5f);
         fillRect.anchoredPosition = Vector2.zero;
-        fillRect.sizeDelta = new Vector2(0f, 26f);
+        fillRect.sizeDelta = new Vector2(0f, skin ? 34f : 26f);
+        if (skin)
+        {
+            Image fi = fillRect.GetComponent<Image>();
+            if (fi != null) { fi.sprite = SpriteBank.Get("ui_gauge_fill"); fi.type = Image.Type.Sliced; fi.color = FILL_CYAN; }
+        }
         fillRect.gameObject.SetActive(false);
 
-        zoneRect = KitchenEventManager.MakeBox(track, "Zone", new Color(1f, 1f, 1f, 0.85f));
+        zoneRect = KitchenEventManager.MakeBox(track, "Zone", skin ? new Color(ZONE_GOOD.r, ZONE_GOOD.g, ZONE_GOOD.b, 0.6f) : new Color(1f, 1f, 1f, 0.85f));
         zoneRect.anchorMin = new Vector2(0.5f, 0f); zoneRect.anchorMax = new Vector2(0.5f, 1f);
         zoneRect.pivot = new Vector2(0.5f, 0.5f);
-        zoneRect.sizeDelta = new Vector2(TRACK_W * 0.24f, 4f);
+        zoneRect.sizeDelta = new Vector2(TRACK_W * 0.24f, skin ? 0f : 4f);
+        if (skin) SetZoneSprite(zoneRect, new Color(ZONE_GOOD.r, ZONE_GOOD.g, ZONE_GOOD.b, 0.6f));
         zoneRect.gameObject.SetActive(false);
 
         // v1.1: 바늘 - 채움 바의 끝에 서는 굵은 막대 (이게 구간 안에 있어야 한다는 것이 보이게). 구간 안이면 금색
@@ -394,5 +527,38 @@ public class InfusingMinigame : MonoBehaviour
         needleRect.pivot = new Vector2(0.5f, 0.5f);
         needleRect.sizeDelta = new Vector2(8f, 14f);   // 트랙보다 위아래로 7 씩 튀어나온다
         needleRect.gameObject.SetActive(false);
+    }
+
+    // ── v1.3 도우미 ──
+    private static void SetZoneSprite(RectTransform rt, Color c)
+    {
+        Image img = rt.GetComponent<Image>();
+        if (img == null) return;
+        img.sprite = SpriteBank.Get("ui_mg_zone"); img.type = Image.Type.Sliced; img.color = c; img.raycastTarget = false;
+    }
+
+    /// <summary>스프라이트 이미지 하나 (앵커 기준 pos 에 중앙 피벗, 클릭 통과) - CookingMinigame.MakeImage 와 같은 꼴</summary>
+    private static Image MakeImage(Transform parent, string name, Sprite sprite, Vector2 anchor, Vector2 pos, Vector2 size)
+    {
+        GameObject go = new GameObject(name);
+        RectTransform rt = go.AddComponent<RectTransform>();
+        rt.SetParent(parent, false);
+        rt.anchorMin = anchor; rt.anchorMax = anchor;
+        rt.anchoredPosition = pos; rt.sizeDelta = size;
+        Image img = go.AddComponent<Image>();
+        img.sprite = sprite; img.type = Image.Type.Simple; img.color = Color.white; img.raycastTarget = false;
+        return img;
+    }
+
+    private static string NameOf(string recipeId)
+    {
+        RecipeData r = RecipeDatabase.Get(recipeId);
+        return r != null ? r.displayName : "요리";
+    }
+
+    private string SlotName(int idx)
+    {
+        if (manager == null || idx < 0 || idx >= 8 || manager.slots[idx] == null || manager.slots[idx].Recipe == null) return "포탑";
+        return manager.slots[idx].Recipe.displayName;
     }
 }

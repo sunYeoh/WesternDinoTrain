@@ -4,7 +4,8 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 /// <summary>
-/// [KitchenPanel.cs] v2.12 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v2.11 (v9.21.1 2026-10-13 4차 피드백 2번: 합성 탭의 접시 합성이 진화 조리 미니게임을 거친다 - 시작하면 창을 닫는다(미니게임이 보이게), 진화 조리 중엔 Tab 토글 금지. 버튼 "합성!" -> "진화 조리") / v2.10 (v9.18 2026-10-06: 창(1240x900)이 기준 화면보다 크면 화면 안으로 줄인다 - UIFactory.FitScale. UI 배율 1.2 에서 창 높이가 화면 높이와 같아져 테가 잘렸다) / v2.9 (v9.16 2026-09-29 손맛 2차 - 소리: 닫힘 sfx_ui_close. 열림은 ModalFeel) / v2.8 (v9.15 2026-09-29 2차 피드백 "마우스와 WASD 혼용": 조리 탭 카드 격자에 키 커서 - [WASD]/방향키로 고르고 [E]/[Enter] 로 조리 시작. 마우스는 그대로 (GameBalance.KitchenKeyCursor)) / v2.7 (v9.14 2026-09-28: 설명에서 맛 문구 제외) / v2.6 (v9.11.1 2026-09-22 문구: 기본/전설 요리) / v2.5 (v9.11 2026-09-22: 등장 연출 ModalFeel) / v2.4 (v9.10.1 2026-09-21: 재료 이름 MaterialNames 한 곳 / 안내줄에 정차 조리 남은 횟수(CookingBridge.StopCookHint)) / v2.3 (v9.10 2026-09-17 테스터 피드백: [ESC] 로도 닫힘(단축키로 열고 ESC 로 닫기) / 행상인·베팅·선로 창 중 Tab 금지 / 도감 카드 클릭 = 오른쪽 상세(무엇을 하나·어떤 손님에·언제, RecipeText)) / v2.2 (v9.8 재료 아이콘) / v2.1
+/// [KitchenPanel.cs] v3.0 (v9.22 2026-10-14 조작 팩 2-1 ~ 2-3: 조리 탭을 재료 중심으로(BuildMaterialTab - 재료 6칸을 끌어다(또는 눌러) 두 칸에 올리면 되는 요리·역할·조리법이 뜨고 정해진 조리법 하나만 불이 들어온다, 아래 "이 조리대에서 되는 요리" 목록은 누르면 두 칸이 채워진다, GameBalance.KitchenMaterialFirst) /
+///   [Tab] 전체 보기는 KitchenTabKey(false) 로 끔 - 조리 창은 조리대 [E] 로만 / 합성 탭은 KitchenFuseTab(false) 로 뺌 - 요리끼리는 하단 카드 끌어다 놓기 / 키 커서 [WASD]+[E] 는 목록에서) / v2.12 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v2.11 (v9.21.1 2026-10-13 4차 피드백 2번: 합성 탭의 접시 합성이 진화 조리 미니게임을 거친다 - 시작하면 창을 닫는다(미니게임이 보이게), 진화 조리 중엔 Tab 토글 금지. 버튼 "합성!" -> "진화 조리") / v2.10 (v9.18 2026-10-06: 창(1240x900)이 기준 화면보다 크면 화면 안으로 줄인다 - UIFactory.FitScale. UI 배율 1.2 에서 창 높이가 화면 높이와 같아져 테가 잘렸다) / v2.9 (v9.16 2026-09-29 손맛 2차 - 소리: 닫힘 sfx_ui_close. 열림은 ModalFeel) / v2.8 (v9.15 2026-09-29 2차 피드백 "마우스와 WASD 혼용": 조리 탭 카드 격자에 키 커서 - [WASD]/방향키로 고르고 [E]/[Enter] 로 조리 시작. 마우스는 그대로 (GameBalance.KitchenKeyCursor)) / v2.7 (v9.14 2026-09-28: 설명에서 맛 문구 제외) / v2.6 (v9.11.1 2026-09-22 문구: 기본/전설 요리) / v2.5 (v9.11 2026-09-22: 등장 연출 ModalFeel) / v2.4 (v9.10.1 2026-09-21: 재료 이름 MaterialNames 한 곳 / 안내줄에 정차 조리 남은 횟수(CookingBridge.StopCookHint)) / v2.3 (v9.10 2026-09-17 테스터 피드백: [ESC] 로도 닫힘(단축키로 열고 ESC 로 닫기) / 행상인·베팅·선로 창 중 Tab 금지 / 도감 카드 클릭 = 오른쪽 상세(무엇을 하나·어떤 손님에·언제, RecipeText)) / v2.2 (v9.8 재료 아이콘) / v2.1
 /// Tab키 주방 패널 (uGUI 코드 생성) - 조리 / 합성 / 도감 3탭
 /// GameSystems 오브젝트에 부착
 ///
@@ -55,7 +56,18 @@ public class KitchenPanel : MonoBehaviour
     private readonly List<GameObject> spawned = new List<GameObject>();
     private Text detailText;             // v2.3: 요리 설명 상자 (조리·도감 탭 아래) - 카드에 마우스를 올리거나 클릭하면 채워진다
     private Text hintText;               // v2.4: 오른쪽 위 안내줄 - 정차 중엔 남은 조리 횟수도
-    private Button[] tabButtons = new Button[3];
+    private Button[] tabButtons = new Button[3];   // 0 조리 / 1 합성 (KitchenFuseTab 이 꺼져 있으면 null) / 2 도감
+
+    // ── v3.0 (v9.22): 재료 중심 조리 탭 ──
+    private readonly int[] potMat = { -1, -1 };                  // 두 칸에 올린 재료 (MaterialType 번호, -1 = 비었다)
+    private readonly RectTransform[] potSlotRects = new RectTransform[2];
+    private RectTransform potBoxRect;                             // 조리대 상자 (두 칸이 아닌 곳에 놓아도 빈 칸으로 들어간다)
+    private RectTransform matDragGhost;                           // 끌고 있는 재료 고스트
+    private RectTransform panelRt;                                // 가운데 창 (fit 배율이 걸려 있다 - 고스트도 이 아래에 둬야 같은 크기)
+    private int matDragging = -1;
+    private int listColumns = GRID_COLUMNS;                       // 키 커서용 칸 수 (재료 중심 목록은 4, 옛 격자는 5)
+    private const int LIST_COLUMNS = 4;
+    private static readonly string[] STATION_NAMES = { "그릴", "팬", "솥" };   // 조리법 0/1/2 의 조리대 이름 (CookingStation 과 같은 말)
 
     private static readonly string[] METHOD_NAMES = { "굽기", "볶기", "끓이기" };
 
@@ -73,7 +85,7 @@ public class KitchenPanel : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Tab))
+        if (GameBalance.KitchenTabKey && Input.GetKeyDown(KeyCode.Tab))   // v3.0: 기본은 Tab 키 없음 - 조리 창은 조리대 [E] 로만 (유저 10-13 "굳이 tab 키를 넣을 필요가 없다")
         {
             if (CookingMinigame.IsActive || InfusingMinigame.IsActive) return;   // 미니게임 중엔 토글 금지 (v2.11: 진화 조리도)
             if (PauseMenu.IsOpen) return;           // 일시정지 중엔 토글 금지
@@ -102,6 +114,7 @@ public class KitchenPanel : MonoBehaviour
     private void TickKeyCursor()
     {
         if (gridIds.Count == 0) return;
+        if (matDragging >= 0) return;   // v3.0 (리뷰 4-1): 재료를 끄는 중엔 Refresh 를 부르지 않는다 (끌던 카드가 지워진다)
         int dx = 0, dy = 0;
         if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow)) dx = -1;
         else if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow)) dx = 1;
@@ -112,15 +125,25 @@ public class KitchenPanel : MonoBehaviour
         {
             int cur = gridIds.IndexOf(selectedRecipe);
             int next;
-            if (cur < 0) next = 0;
+            if (cur < 0)
+            {
+                // v3.0 (리뷰 5-1): 두 칸에 뭔가 올려 둔 채면 키로 덮어쓰지 않는다 - 목록에 없는 조합(다른 조리대 요리)이거나 한 칸만 찬 상태
+                if (GameBalance.KitchenMaterialFirst && (potMat[0] >= 0 || potMat[1] >= 0)) return;
+                next = 0;
+            }
             else
             {
-                next = cur + dx + dy * GRID_COLUMNS;
-                if (next < 0 || next >= gridIds.Count) next = cur;   // 격자 밖으로는 안 나간다
+                // v3.0 (리뷰 5-2): 줄 끝에서 옆으로는 안 넘어가고, 아래위는 칸이 있을 때만
+                int colI = cur % listColumns, rowI = cur / listColumns;
+                int nc = colI + dx, nr = rowI + dy;
+                if (nc < 0 || nc >= listColumns) nc = colI;
+                next = nr * listColumns + nc;
+                if (nr < 0 || next >= gridIds.Count) next = cur;
             }
             if (next != cur)
             {
                 selectedRecipe = gridIds[next];
+                if (GameBalance.KitchenMaterialFirst) FillPotFromKey(selectedRecipe);   // v3.0: 목록에서 고르면 두 칸도 채워진다
                 Refresh();
             }
             return;
@@ -130,9 +153,338 @@ public class KitchenPanel : MonoBehaviour
         if (!go || string.IsNullOrEmpty(selectedRecipe)) return;
         int idx = gridIds.IndexOf(selectedRecipe);
         if (idx < 0) return;
-        if (!gridAfford[idx]) { UIManager.Instance?.ShowStatChange("재료가 모자란다 - 다른 요리를 골라라"); return; }
+        string[] keyParts = selectedRecipe.Split('+');   // v3.0 (리뷰 5-5): 재고는 지금 값으로 다시 본다
+        bool affordNow = keyParts.Length >= 2 && MaterialInventory.Instance != null && MaterialInventory.Instance.CanAfford(ParseMat(keyParts[0]), ParseMat(keyParts[1]));
+        if (!affordNow) { UIManager.Instance?.ShowStatChange("재료가 모자란다 - 다른 요리를 골라라"); return; }
         RecipeData sel = RecipeDatabase.Get(selectedRecipe);
-        if (sel != null) StartMinigame(MethodOf(sel));
+        if (sel == null) return;
+        int m = MethodOf(sel);
+        if (stationFilter >= 0 && m != stationFilter) { UIManager.Instance?.ShowStatChange(sel.displayName + " 은(는) " + STATION_NAMES[m] + "에서 " + MethodName(m)); return; }   // v3.0
+        StartMinigame(m);
+    }
+
+    // ─────────────────────────────────────────
+    // v3.0 (v9.22): 재료 중심 조리 탭 - 두 칸·끌어다 놓기
+    // ─────────────────────────────────────────
+    /// <summary>두 칸에 재료를 올린다 (slotIdx 0/1). 둘 다 차면 되는 요리가 selectedRecipe 가 된다</summary>
+    private void SetPot(int slotIdx, int mat)
+    {
+        if (slotIdx < 0 || slotIdx > 1) return;
+        potMat[slotIdx] = mat;
+        SyncSelectedFromPot();
+        SoundManager.Play("sfx_ui_click");
+        Refresh();
+    }
+
+    /// <summary>재료를 눌렀을 때 - 빈 칸부터, 둘 다 차 있으면 둘째 칸을 바꾼다</summary>
+    private void OnMaterialClicked(int mat)
+    {
+        if (potMat[0] < 0) SetPot(0, mat);
+        else if (potMat[1] < 0) SetPot(1, mat);
+        else SetPot(1, mat);
+    }
+
+    /// <summary>두 칸의 재료 -> selectedRecipe ("fire+meat" 식 키). 한 칸이라도 비면 빈 문자열</summary>
+    private void SyncSelectedFromPot()
+    {
+        selectedRecipe = (potMat[0] >= 0 && potMat[1] >= 0) ? RecipeDatabase.MakeKey((MaterialType)potMat[0], (MaterialType)potMat[1]) : "";
+    }
+
+    /// <summary>목록의 요리를 골랐을 때 - 그 요리의 재료 둘을 두 칸에 올린다</summary>
+    private void FillPotFromKey(string key)
+    {
+        string[] parts = key.Split('+');
+        if (parts.Length < 2) return;
+        potMat[0] = (int)ParseMat(parts[0]);
+        potMat[1] = (int)ParseMat(parts[1]);
+        selectedRecipe = key;
+    }
+
+    private void ClearPot()
+    {
+        potMat[0] = -1; potMat[1] = -1;
+        selectedRecipe = "";
+    }
+
+    /// <summary>MaterialCardDrag 에서: 끌기 시작 - 재료 고스트(아이콘 + 이름)가 커서를 따라간다</summary>
+    public void BeginMatDrag(int mat, Vector2 screenPos)
+    {
+        if (!isOpen || mat < 0 || mat > 5) return;
+        if (MaterialInventory.Instance == null || MaterialInventory.Instance.Get((MaterialType)mat) <= 0) return;   // 리뷰 4-3: 없는 재료는 못 끈다
+        EndMatDrag(Vector2.zero, false);
+        matDragging = mat;
+        MaterialType t = (MaterialType)mat;
+        GameObject go = new GameObject("MatDragGhost");
+        matDragGhost = go.AddComponent<RectTransform>();
+        matDragGhost.SetParent(panelRt != null ? (Transform)panelRt : canvas.transform, false);   // 리뷰 4-2: 창과 같은 배율
+        matDragGhost.SetAsLastSibling();
+        matDragGhost.pivot = new Vector2(0.5f, 0.5f);
+        matDragGhost.sizeDelta = new Vector2(150f, 60f);
+        Image border = go.AddComponent<Image>();
+        Color mc = UIFactory.TagColor(MAT_TAG[mat]);
+        border.color = new Color(mc.r, mc.g, mc.b, 0.85f);
+        border.raycastTarget = false;
+        if (UISkin.Available) UISkin.Ring(border, border.color);
+        GameObject bg = new GameObject("BG");
+        RectTransform bgRt = bg.AddComponent<RectTransform>();
+        bgRt.SetParent(matDragGhost, false);
+        bgRt.anchorMin = Vector2.zero; bgRt.anchorMax = Vector2.one;
+        float pad = UISkin.Available ? 8f : 2f;
+        bgRt.offsetMin = new Vector2(pad, pad); bgRt.offsetMax = new Vector2(-pad, -pad);
+        Image bgImg = bg.AddComponent<Image>();
+        bgImg.color = new Color(mc.r * 0.28f, mc.g * 0.28f, mc.b * 0.28f, 0.85f);
+        bgImg.raycastTarget = false;
+        if (UISkin.Available) UISkin.Plate(bgImg, new Color(1f, 1f, 1f, 0.85f));
+        Image icon = UISkin.AddMaterialIcon(bgRt, t, new Vector2(0f, 0.5f), new Vector2(8f, 0f), 32f);
+        Text name = UIFactory.CreateText(bgRt, "Name", MaterialNames.Kor(t), 17, UIFactory.CREAM, TextAnchor.MiddleLeft);
+        name.rectTransform.offsetMin = new Vector2(icon != null ? 48f : 10f, 0f);
+        name.raycastTarget = false;
+        MoveMatDrag(screenPos);
+    }
+
+    /// <summary>MaterialCardDrag 에서: 매 프레임 - 고스트가 커서를 따라가고, 칸 위면 커진다</summary>
+    public void MoveMatDrag(Vector2 screenPos)
+    {
+        if (matDragGhost == null) return;
+        matDragGhost.position = new Vector3(screenPos.x + 12f, screenPos.y - 10f, 0f);
+        bool over = PotSlotUnder(screenPos) >= 0 || (potBoxRect != null && RectTransformUtility.RectangleContainsScreenPoint(potBoxRect, screenPos, null));
+        matDragGhost.localScale = over ? new Vector3(1.08f, 1.08f, 1f) : Vector3.one;
+    }
+
+    /// <summary>MaterialCardDrag 에서: 놓기 - 두 칸 중 하나 위면 그 칸, 조리대 상자 안이면 빈 칸, 아니면 취소</summary>
+    public void EndMatDrag(Vector2 screenPos, bool drop)
+    {
+        int mat = matDragging;
+        matDragging = -1;
+        if (matDragGhost != null) { Destroy(matDragGhost.gameObject); matDragGhost = null; }
+        if (!drop || mat < 0 || !isOpen) return;
+        if (MaterialInventory.Instance == null || MaterialInventory.Instance.Get((MaterialType)mat) <= 0) return;
+        int j = PotSlotUnder(screenPos);
+        if (j >= 0) { SetPot(j, mat); return; }
+        if (potBoxRect != null && RectTransformUtility.RectangleContainsScreenPoint(potBoxRect, screenPos, null)) { OnMaterialClicked(mat); return; }
+    }
+
+    private int PotSlotUnder(Vector2 screenPos)
+    {
+        for (int j = 0; j < 2; j++)
+            if (potSlotRects[j] != null && RectTransformUtility.RectangleContainsScreenPoint(potSlotRects[j], screenPos, null)) return j;
+        return -1;
+    }
+
+    private static readonly FoodTag[] MAT_TAG = { FoodTag.Phys, FoodTag.Def, FoodTag.Elec, FoodTag.Fire, FoodTag.Ice, FoodTag.Poison };   // 재료 -> 계열색 (GameHUD 와 같은 짝)
+
+    /// <summary>v3.0: 재료 중심 조리 탭 - 재료 6칸 / 조리대 두 칸 + 되는 요리·조리법 / 이 조리대에서 되는 요리 목록</summary>
+    private void BuildMaterialTab()
+    {
+        gridIds.Clear(); gridAfford.Clear();
+        listColumns = LIST_COLUMNS;
+        string station = stationFilter >= 0 ? STATION_NAMES[stationFilter] : "조리대";
+        string stationTitle = stationFilter >= 0 ? STATION_NAMES[stationFilter] + " (" + MethodName(stationFilter) + ")" : "조리대 (전체)";
+
+        // ── 재료 6칸 (끌어다 놓거나 누른다) ──
+        Text matHead = UIFactory.CreateText(contentArea, "MatHead", "재료  -  끌어다 아래 " + station + "에 놓아라 (두 개). 누르면 빈 칸에 들어간다", 15, UIFactory.DIM, TextAnchor.UpperLeft);
+        matHead.rectTransform.anchorMin = new Vector2(0f, 1f); matHead.rectTransform.anchorMax = new Vector2(1f, 1f);
+        matHead.rectTransform.offsetMin = new Vector2(4f, -26f); matHead.rectTransform.offsetMax = new Vector2(0f, -4f);
+        spawned.Add(matHead.gameObject);
+        bool icons = UISkin.Available && UISkin.MaterialIcon(MaterialType.Meat) != null;
+        for (int i = 0; i < 6; i++)
+        {
+            MaterialType t = (MaterialType)i;
+            int have = MaterialInventory.Instance != null ? MaterialInventory.Instance.Get(t) : 0;
+            float x = 4f + i * 188f;
+            Color tagC = UIFactory.TagColor(MAT_TAG[i]);
+            RectTransform card = UIFactory.CreatePanel(contentArea, "MatCard_" + i,
+                new Vector2(0f, 1f), new Vector2(0f, 1f),
+                new Vector2(x, -94f), new Vector2(x + 180f, -30f),
+                new Color(tagC.r * 0.2f, tagC.g * 0.2f, tagC.b * 0.2f, 0.95f), have > 0 ? tagC : new Color(0.35f, 0.3f, 0.26f), 2f);
+            spawned.Add(card.gameObject);
+            float labelX = 12f;
+            if (icons) { UISkin.AddMaterialIcon(card, t, new Vector2(0f, 0.5f), new Vector2(10f, 0f), 36f); labelX = 54f; }
+            Text nm = UIFactory.CreateText(card, "Name", MaterialNames.Kor(t), 15, have > 0 ? UIFactory.CREAM : UIFactory.DIM, TextAnchor.UpperLeft);
+            nm.rectTransform.offsetMin = new Vector2(labelX, 30f); nm.rectTransform.offsetMax = new Vector2(-6f, -8f);
+            Text cnt = UIFactory.CreateText(card, "Count", "x " + have, 17, have > 0 ? UIFactory.CREAM : UIFactory.DIM, TextAnchor.LowerLeft);
+            cnt.rectTransform.offsetMin = new Vector2(labelX, 6f); cnt.rectTransform.offsetMax = new Vector2(-6f, -30f);
+            if (have <= 0) continue;   // 리뷰 4-3: 없는 재료는 끌지도 누르지도 못한다 (흐리게만)
+            int mi = i;
+            Button b = card.gameObject.AddComponent<Button>();
+            b.transition = Selectable.Transition.None;
+            b.onClick.AddListener(delegate { OnMaterialClicked(mi); });
+            MaterialCardDrag d = card.gameObject.AddComponent<MaterialCardDrag>();
+            d.owner = this; d.mat = i;
+        }
+
+        // ── 조리대 상자: 두 칸 + 조리법 그림 ──
+        RectTransform box = UIFactory.CreatePanel(contentArea, "PotBox",
+            new Vector2(0f, 1f), new Vector2(0f, 1f),
+            new Vector2(0f, -278f), new Vector2(560f, -108f),
+            new Color(0.15f, 0.095f, 0.06f, 0.92f), UIFactory.COPPER, 2f);
+        spawned.Add(box.gameObject);
+        potBoxRect = box;
+        Text boxTitle = UIFactory.CreateText(box, "Title", stationTitle, 17, UIFactory.GOLD, TextAnchor.UpperLeft);
+        TopStrip(boxTitle, 16f, 16f, 10f, 34f);
+        for (int j = 0; j < 2; j++)
+        {
+            int mat = potMat[j];
+            bool filled = mat >= 0;
+            Color mc = filled ? UIFactory.TagColor(MAT_TAG[mat]) : new Color(0.35f, 0.3f, 0.26f);
+            float sx = 40f + j * 230f;
+            RectTransform slot = UIFactory.CreatePanel(box, "PotSlot_" + j,
+                new Vector2(0f, 1f), new Vector2(0f, 1f),
+                new Vector2(sx, -120f), new Vector2(sx + 150f, -50f),
+                new Color(0.08f, 0.06f, 0.05f, 0.95f), mc, 2f);
+            spawned.Add(slot.gameObject);
+            potSlotRects[j] = slot;
+            if (filled)
+            {
+                MaterialType t = (MaterialType)mat;
+                float lx = 14f;
+                if (icons) { UISkin.AddMaterialIcon(slot, t, new Vector2(0f, 0.5f), new Vector2(12f, 0f), 40f); lx = 62f; }
+                Text nm = UIFactory.CreateText(slot, "Name", MaterialNames.Kor(t), 18, UIFactory.CREAM, TextAnchor.MiddleLeft);
+                nm.rectTransform.offsetMin = new Vector2(lx, 0f); nm.rectTransform.offsetMax = new Vector2(-6f, 0f);
+                int sj = j;
+                Button clear = slot.gameObject.AddComponent<Button>();
+                clear.transition = Selectable.Transition.None;
+                clear.onClick.AddListener(delegate { SetPot(sj, -1); });   // 누르면 내린다
+            }
+            else
+            {
+                Text hint = UIFactory.CreateText(slot, "Hint", "여기에", 16, UIFactory.DIM, TextAnchor.MiddleCenter);
+                hint.rectTransform.offsetMin = new Vector2(6f, 0f); hint.rectTransform.offsetMax = new Vector2(-6f, 0f);
+            }
+        }
+        Text plus = UIFactory.CreateText(box, "Plus", "+", 26, UIFactory.CREAM, TextAnchor.MiddleCenter);
+        plus.rectTransform.anchorMin = new Vector2(0f, 1f); plus.rectTransform.anchorMax = new Vector2(0f, 1f);
+        plus.rectTransform.offsetMin = new Vector2(196f, -120f); plus.rectTransform.offsetMax = new Vector2(264f, -50f);
+        // 조리법 그림 (그릴 = 석쇠, 팬·솥 = 엠블럼) - 그림이 있을 때만
+        if (UISkin.Available)
+        {
+            string emblem = stationFilter == 1 ? "ui_mg_pan" : stationFilter == 2 ? "ui_mg_pot" : "ui_mg_grate";
+            if (SpriteBank.Has(emblem))
+            {
+                GameObject eg = new GameObject("Emblem");
+                RectTransform ert = eg.AddComponent<RectTransform>();
+                ert.SetParent(box, false);
+                ert.anchorMin = new Vector2(0f, 1f); ert.anchorMax = new Vector2(0f, 1f); ert.pivot = new Vector2(0f, 1f);
+                if (stationFilter == 1) { ert.anchoredPosition = new Vector2(450f, -56f); ert.sizeDelta = new Vector2(80f, 44f); }
+                else if (stationFilter == 2) { ert.anchoredPosition = new Vector2(456f, -52f); ert.sizeDelta = new Vector2(72f, 60f); }
+                else { ert.anchoredPosition = new Vector2(40f, -130f); ert.sizeDelta = new Vector2(380f, 40f); }
+                Image ei = eg.AddComponent<Image>();
+                ei.sprite = SpriteBank.Get(emblem); ei.type = Image.Type.Simple; ei.raycastTarget = false; ei.preserveAspect = true;
+            }
+        }
+
+        // ── 되는 요리 + 조리법 칩 ──
+        RectTransform res = UIFactory.CreatePanel(contentArea, "ResultBox",
+            new Vector2(0f, 1f), new Vector2(1f, 1f),
+            new Vector2(580f, -278f), new Vector2(0f, -108f),
+            new Color(0.22f, 0.14f, 0.08f, 0.95f), UIFactory.GOLD, 2f);
+        spawned.Add(res.gameObject);
+        RecipeData r = string.IsNullOrEmpty(selectedRecipe) ? null : RecipeDatabase.Get(selectedRecipe);
+        if (r == null)
+        {
+            string emptyMsg = potMat[0] < 0 && potMat[1] < 0 ? "재료 둘을 " + station + "에 올려라 - 되는 요리가 여기에 뜬다"
+                : (potMat[0] >= 0 && potMat[1] >= 0) ? "이 조합은 요리가 없다" : "재료 하나 더";   // 리뷰 5-3
+            Text t0 = UIFactory.CreateText(res, "Empty", emptyMsg, 18, UIFactory.DIM, TextAnchor.MiddleLeft);
+            t0.rectTransform.offsetMin = new Vector2(20f, 0f); t0.rectTransform.offsetMax = new Vector2(-16f, 0f);
+        }
+        else
+        {
+            bool disc = FoodStock.Instance != null && FoodStock.Instance.IsDiscovered(r.recipeId);
+            bool afford = MaterialInventory.Instance != null && MaterialInventory.Instance.CanAfford((MaterialType)potMat[0], (MaterialType)potMat[1]);
+            int m = MethodOf(r);
+            Text nm = UIFactory.CreateText(res, "Name", disc ? r.displayName : "???", 24, disc ? UIFactory.GOLD : UIFactory.DIM, TextAnchor.UpperLeft);
+            TopStrip(nm, 20f, 16f, 12f, 46f);
+            float nameW = disc ? r.displayName.Length * 25f + 12f : 70f;
+            Text role = UIFactory.CreateText(res, "Role", disc ? RecipeText.RoleWord(r) + " · " + RecipeText.ShapeWord(r) + (afford ? " · 1개 나온다 (PERFECT 2개)" : "")
+                : "만들어 보면 안다", 15, UIFactory.CREAM, TextAnchor.UpperLeft);
+            TopStrip(role, 20f + nameW, 16f, 18f, 44f);
+            string line2 = afford ? "조리법은 요리마다 정해져 있다 - 불 들어온 것을 눌러 시작"
+                : "재료가 모자란다 - " + MissingWord((MaterialType)potMat[0], (MaterialType)potMat[1]);
+            Text l2 = UIFactory.CreateText(res, "Line2", line2, 13, afford ? UIFactory.DIM : new Color(1f, 0.6f, 0.48f), TextAnchor.UpperLeft);
+            TopStrip(l2, 20f, 16f, 50f, 70f);
+            float bx = 20f;
+            for (int k = 0; k < 3; k++)
+            {
+                bool lit = k == m;
+                bool here = stationFilter < 0 || stationFilter == m;
+                bool canGo = lit && here && afford;
+                string label = lit ? (here ? MethodName(k) + " 시작" : MethodName(k) + " - " + STATION_NAMES[k] + "에서") : MethodName(k);
+                float bw = lit ? (here ? 150f : 190f) : 100f;
+                Button b = UIFactory.CreateButton(res, "Method_" + k, label, new Vector2(bw, 40f),
+                    lit ? (canGo ? new Color(0.8f, 0.28f, 0.18f) : new Color(0.45f, 0.29f, 0.15f)) : new Color(0.27f, 0.24f, 0.22f),
+                    lit ? UIFactory.CREAM : UIFactory.DIM, lit ? 17 : 14);
+                RectTransform brt = b.GetComponent<RectTransform>();
+                brt.anchorMin = new Vector2(0f, 1f); brt.anchorMax = new Vector2(0f, 1f); brt.pivot = new Vector2(0f, 1f);
+                brt.anchoredPosition = new Vector2(bx, -86f);
+                b.interactable = canGo;
+                int km = k;
+                b.onClick.AddListener(delegate { StartMinigame(km); });
+                bx += bw + 10f;
+            }
+            AttachDetailHover(res, r);
+        }
+
+        // ── 이 조리대에서 되는 요리 목록 (누르면 두 칸이 채워진다) ──
+        Text listHead = UIFactory.CreateText(contentArea, "ListHead", station + "에서 되는 요리  (누르면 두 칸이 채워진다  ·  ??? = 아직 못 만든 요리  ·  [WASD] 고르기 [E] 시작)", 15, UIFactory.DIM, TextAnchor.UpperLeft);
+        listHead.rectTransform.anchorMin = new Vector2(0f, 1f); listHead.rectTransform.anchorMax = new Vector2(1f, 1f);
+        listHead.rectTransform.offsetMin = new Vector2(4f, -314f); listHead.rectTransform.offsetMax = new Vector2(0f, -292f);
+        spawned.Add(listHead.gameObject);
+        int col = 0, row = 0;
+        foreach (RecipeData rr in RecipeDatabase.All)
+        {
+            if (rr.tier != 1) continue;
+            if (stationFilter >= 0 && MethodOf(rr) != stationFilter) continue;
+            string[] parts = rr.recipeId.Split('+');
+            if (parts.Length < 2) continue;
+            bool disc = FoodStock.Instance != null && FoodStock.Instance.IsDiscovered(rr.recipeId);
+            bool afford = MaterialInventory.Instance != null && MaterialInventory.Instance.CanAfford(ParseMat(parts[0]), ParseMat(parts[1]));
+            bool sel = selectedRecipe == rr.recipeId;
+            float cx = col * 290f, cy = -318f - row * 46f;
+            Color ring = sel ? UIFactory.GOLD : disc ? UIFactory.TagColor(rr.tag) : new Color(0.35f, 0.3f, 0.26f);
+            RectTransform card = UIFactory.CreatePanel(contentArea, "Row_" + rr.recipeId,
+                new Vector2(0f, 1f), new Vector2(0f, 1f),
+                new Vector2(cx, cy - 38f), new Vector2(cx + 280f, cy),
+                sel ? new Color(0.22f, 0.14f, 0.08f, 0.95f) : new Color(0.12f, 0.08f, 0.06f, 0.9f), ring, 2f);
+            spawned.Add(card.gameObject);
+            Text mats = UIFactory.CreateText(card, "Mats", MaterialNames.PairKor(rr.recipeId), 13, afford ? UIFactory.DIM : new Color(0.5f, 0.42f, 0.36f), TextAnchor.MiddleLeft);
+            mats.rectTransform.offsetMin = new Vector2(10f, 0f); mats.rectTransform.offsetMax = new Vector2(-120f, 0f);
+            Text nmT = UIFactory.CreateText(card, "Name", disc ? rr.displayName : "???", 15, afford ? UIFactory.CREAM : UIFactory.DIM, TextAnchor.MiddleRight);
+            nmT.rectTransform.offsetMin = new Vector2(120f, 0f); nmT.rectTransform.offsetMax = new Vector2(-10f, 0f);
+            string key = rr.recipeId;
+            Button b = card.gameObject.AddComponent<Button>();
+            b.transition = Selectable.Transition.None;
+            b.onClick.AddListener(delegate { FillPotFromKey(key); SoundManager.Play("sfx_ui_click"); Refresh(); });
+            AttachDetailHover(card, rr);
+            gridIds.Add(rr.recipeId); gridAfford.Add(afford);
+            col++;
+            if (col >= LIST_COLUMNS) { col = 0; row++; }
+        }
+    }
+
+    /// <summary>위에 붙는 글 띠: 부모의 위 테에서 top ~ bottom 만큼 내려온 자리, 좌우 여백 left/right</summary>
+    private static void TopStrip(Text t, float left, float right, float top, float bottom)
+    {
+        RectTransform rt = t.rectTransform;
+        rt.anchorMin = new Vector2(0f, 1f); rt.anchorMax = new Vector2(1f, 1f);
+        rt.offsetMin = new Vector2(left, -bottom); rt.offsetMax = new Vector2(-right, -top);
+    }
+
+    /// <summary>모자란 재료를 말로 - "고기 1개 더" / "고기 1개 · 화염꽃 1개 더"</summary>
+    private string MissingWord(MaterialType a, MaterialType b)
+    {
+        if (MaterialInventory.Instance == null) return "";
+        string s = "";
+        if (a == b)
+        {
+            int have = MaterialInventory.Instance.Get(a);
+            if (have < 2) s = MaterialNames.Kor(a) + " " + (2 - have) + "개";
+        }
+        else
+        {
+            if (MaterialInventory.Instance.Get(a) < 1) s = MaterialNames.Kor(a) + " 1개";
+            if (MaterialInventory.Instance.Get(b) < 1) s += (s.Length > 0 ? " · " : "") + MaterialNames.Kor(b) + " 1개";
+        }
+        return s.Length > 0 ? s + " 더" : "";
     }
 
     // ─────────────────────────────────────────
@@ -148,6 +500,7 @@ public class KitchenPanel : MonoBehaviour
         stationFilter = filter;
         tabIndex = 0;
         selectedRecipe = "";
+        ClearPot();   // v3.0
         root.gameObject.SetActive(true);
         ModalFeel.Play(root);   // v2.5: 등장 연출
         Refresh();
@@ -166,6 +519,8 @@ public class KitchenPanel : MonoBehaviour
         root.gameObject.SetActive(false);
         selectedRecipe = ""; fuseA = ""; fuseB = "";
         stationFilter = -1;
+        ClearPot();   // v3.0
+        EndMatDrag(Vector2.zero, false);
     }
 
     // ─────────────────────────────────────────
@@ -234,6 +589,7 @@ public class KitchenPanel : MonoBehaviour
             UIFactory.PANEL, UIFactory.COPPER, 4f);
         float fit = UIFactory.FitScale(1240f, 900f);   // v9.18: 기준 화면(UI 배율)보다 크면 화면 안으로
         panel.localScale = new Vector3(fit, fit, 1f);
+        panelRt = panel;   // v3.0
 
         bool skin = UISkin.Available;   // v2.1: 파이프 프레임(테 28px)일 때만 배치를 조금 옮긴다
 
@@ -253,17 +609,19 @@ public class KitchenPanel : MonoBehaviour
             title.rectTransform.offsetMax = new Vector2(0f, -16f);
         }
 
-        hintText = UIFactory.CreateText(panel, "Hint", "[Tab]/[ESC] 닫기", 16, UIFactory.DIM, TextAnchor.UpperRight);
+        hintText = UIFactory.CreateText(panel, "Hint", (GameBalance.KitchenTabKey ? "[Tab]/" : "") + "[ESC] 닫기", 16, UIFactory.DIM, TextAnchor.UpperRight);
         Text hint = hintText;
         hint.rectTransform.anchorMin = new Vector2(0f, 1f);
         hint.rectTransform.anchorMax = new Vector2(1f, 1f);
         hint.rectTransform.offsetMin = new Vector2(0f, skin ? -60f : -46f);
         hint.rectTransform.offsetMax = new Vector2(-28f, skin ? -34f : -20f);
 
-        // 탭 버튼 3개
+        // 탭 버튼: 조리 / (합성 - KitchenFuseTab 일 때만) / 도감. v3.0: 기본은 조리 · 도감 둘 (요리끼리 합치기는 하단 카드 끌어다 놓기)
         string[] tabNames = { "조리", "합성", "도감" };
+        int slotPos = 0;
         for (int i = 0; i < 3; i++)
         {
+            if (i == 1 && !GameBalance.KitchenFuseTab) { tabButtons[i] = null; continue; }
             int idx = i;
             Button b = UIFactory.CreateButton(panel, "Tab_" + i, tabNames[i],
                 new Vector2(120f, 40f), new Color(0.35f, 0.23f, 0.13f), UIFactory.CREAM, 20);
@@ -271,9 +629,10 @@ public class KitchenPanel : MonoBehaviour
             brt.anchorMin = new Vector2(0f, 1f);
             brt.anchorMax = new Vector2(0f, 1f);
             brt.pivot = new Vector2(0f, 1f);
-            brt.anchoredPosition = new Vector2(130f + i * 128f, -14f);
+            brt.anchoredPosition = new Vector2(130f + slotPos * 128f, -14f);
             b.onClick.AddListener(delegate { tabIndex = idx; Refresh(); });
             tabButtons[i] = b;
+            slotPos++;
         }
 
         // 내용 영역
@@ -291,19 +650,23 @@ public class KitchenPanel : MonoBehaviour
     // ─────────────────────────────────────────
     private void Refresh()
     {
-        if (hintText != null) hintText.text = CookingBridge.StopCookHint() + (GameBalance.KitchenKeyCursor && tabIndex == 0 ? "[WASD] 고르기  [E] 조리  " : "") + "[Tab]/[ESC] 닫기";   // v2.8
+        if (hintText != null) hintText.text = CookingBridge.StopCookHint() + (GameBalance.KitchenKeyCursor && tabIndex == 0 ? "[WASD] 고르기  [E] 조리  " : "") + (GameBalance.KitchenTabKey ? "[Tab]/" : "") + "[ESC] 닫기";   // v2.8 / v3.0
+        if (tabIndex == 1 && !GameBalance.KitchenFuseTab) tabIndex = 0;   // v3.0: 합성 탭이 없다
         // 탭 버튼 강조
         for (int i = 0; i < 3; i++)
         {
+            if (tabButtons[i] == null) continue;
             Image img = tabButtons[i].GetComponent<Image>();
             img.color = (i == tabIndex) ? new Color(0.55f, 0.36f, 0.18f) : new Color(0.35f, 0.23f, 0.13f);
         }
 
         // 기존 내용 제거
+        if (matDragging >= 0) EndMatDrag(Vector2.zero, false);   // v3.0 (리뷰 4-1): 끌던 재료 카드가 지워지니 드래그부터 거둔다
         for (int i = 0; i < spawned.Count; i++) Destroy(spawned[i]);
         spawned.Clear();
+        potSlotRects[0] = null; potSlotRects[1] = null; potBoxRect = null;
 
-        if (tabIndex == 0) BuildCookTab();
+        if (tabIndex == 0) { if (GameBalance.KitchenMaterialFirst) BuildMaterialTab(); else { listColumns = GRID_COLUMNS; BuildCookTab(); } }
         else if (tabIndex == 1) BuildFuseTab();
         else BuildDexTab();
 
@@ -533,6 +896,7 @@ public class KitchenPanel : MonoBehaviour
         root.gameObject.SetActive(false);
         selectedRecipe = "";
         stationFilter = -1;
+        ClearPot();   // v3.0
     }
 
     // ═════════════════ 합성 탭 ═════════════════
@@ -735,4 +1099,30 @@ public class KitchenPanelCardHover : MonoBehaviour, IPointerEnterHandler, IPoint
     public RecipeData recipe;
     public void OnPointerEnter(PointerEventData e) { if (owner != null) owner.OnCardHover(recipe); }
     public void OnPointerClick(PointerEventData e) { if (owner != null) owner.OnCardHover(recipe); }
+}
+
+/// <summary>v3.0 (v9.22): 재료 카드 드래그 수신기 - 끌기 시작/이동/놓기를 KitchenPanel 로 보낸다 (GameHUD.FoodCardDrag 와 같은 꼴). 끌기 시작하면 클릭 자격을 내려 "누르면 빈 칸에" 와 겹치지 않는다</summary>
+public class MaterialCardDrag : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
+{
+    public KitchenPanel owner;
+    public int mat = -1;
+
+    public void OnBeginDrag(PointerEventData e)
+    {
+        if (e.button != PointerEventData.InputButton.Left) return;
+        e.eligibleForClick = false;
+        if (owner != null) owner.BeginMatDrag(mat, e.position);
+    }
+
+    public void OnDrag(PointerEventData e)
+    {
+        if (e.button != PointerEventData.InputButton.Left) return;   // 리뷰 4-4
+        if (owner != null) owner.MoveMatDrag(e.position);
+    }
+
+    public void OnEndDrag(PointerEventData e)
+    {
+        if (e.button != PointerEventData.InputButton.Left) return;
+        if (owner != null) { owner.MoveMatDrag(e.position); owner.EndMatDrag(e.position, true); }
+    }
 }

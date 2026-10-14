@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// [WaveManager.cs] v6.23 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v6.22 (v9.20 2026-10-07: 보스가 부른 증원이 보스 등 뒤에서 뛰쳐나온다 - SpawnReinforcements 에 부른 자리·등 뒤 여부·보상 몫, 자리로 스폰하는 SpawnEnemyAtPos) / v6.21 (v9.19.2 2026-10-07 유저 확인 뒤: 머릿수를 늘린 손님이 제 힘으로 온다 - AddUnits 가 한 마리를 나눠 약하게 하지 않고 크기별 HP 배율(TierHpMul*)과 초반 배율(EarlyBodyStart)만 건다. Enemy.Share 는 보상·도구 부식 같은 "한 번에 얼마"에만 / 편성 이름 줄과 방향 예고 화살표는 GameBalance 값으로 꺼졌다(FormationLineShows 0·SpawnCueSec 0 - 코드는 그대로)) / v6.20 (v9.19.1 2026-10-07 유저 소감: 손님이 생기는 테두리가 "지금 보이는 화면"을 따라간다(SpawnBounds - 휠로 넓게 보면 화면 가운데에서 생기던 것. 구 방식 스폰·보스 증원·보스 등장도 같은 테두리) / 머릿수 대폭 증가: 손님 크기별 배율 CountMulSmall·Mid·Big + 무리 세기 GroupPower*, 조각 크기 FormationSizeMul. 손님에게 한 마리의 몫(Enemy.Share)을 건다 - 보상·기차 방어력·연속 피격 완충·고정량 효과가 몫만큼만 먹게) /
+/// [WaveManager.cs] v6.24 (v9.22.1 2026-10-14 유저 "튜토리얼에 드래그가 반영 안 됐다": 프롤로그 조리 게이트 안내 3줄을 끌어다 놓기·재료 중심 조리 창 기준으로) / v6.23 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v6.22 (v9.20 2026-10-07: 보스가 부른 증원이 보스 등 뒤에서 뛰쳐나온다 - SpawnReinforcements 에 부른 자리·등 뒤 여부·보상 몫, 자리로 스폰하는 SpawnEnemyAtPos) / v6.21 (v9.19.2 2026-10-07 유저 확인 뒤: 머릿수를 늘린 손님이 제 힘으로 온다 - AddUnits 가 한 마리를 나눠 약하게 하지 않고 크기별 HP 배율(TierHpMul*)과 초반 배율(EarlyBodyStart)만 건다. Enemy.Share 는 보상·도구 부식 같은 "한 번에 얼마"에만 / 편성 이름 줄과 방향 예고 화살표는 GameBalance 값으로 꺼졌다(FormationLineShows 0·SpawnCueSec 0 - 코드는 그대로)) / v6.20 (v9.19.1 2026-10-07 유저 소감: 손님이 생기는 테두리가 "지금 보이는 화면"을 따라간다(SpawnBounds - 휠로 넓게 보면 화면 가운데에서 생기던 것. 구 방식 스폰·보스 증원·보스 등장도 같은 테두리) / 머릿수 대폭 증가: 손님 크기별 배율 CountMulSmall·Mid·Big + 무리 세기 GroupPower*, 조각 크기 FormationSizeMul. 손님에게 한 마리의 몫(Enemy.Share)을 건다 - 보상·기차 방어력·연속 피격 완충·고정량 효과가 몫만큼만 먹게) /
 /// v6.19 (v9.19 2026-10-06 웨이브 편성: 웨이브 2 부터 손님을 편성 조각으로 내보낸다(RunFormations - 추격·파상·매복·호위 행렬·양동·포위·공중 편대 + 산개, GameBalance.WaveFormationsOn). 조각마다 오는 쪽 예고(WarningFX.SpawnCue)가 먼저, 조각 사이엔 쉼(BeatGap). 손님은 화면 바로 밖 테두리(EdgePoint)에서 생긴다. 구 방식 본문은 SpawnWaveClassic 으로 / 웨이브 예고 카드의 "주의" 문구는 알림 줄로) /
 /// v6.23 (v9.21 2026-10-12 보스 1단계: 정식 보스는 서는 자리(GameBalance.BossStandX, 북쪽) 위 BossHideDY 만큼 떨어진 곳에 생기고 등장 연출(BossEnemy.EntranceV2)이 자리에 놓는다 - 걸어오지 않는다. BossEntranceV2 가 꺼져 있으면 예전처럼 화면 밖 테두리에서) /
 /// v6.18 (v9.18 2026-10-06: 보스는 기차 북쪽(화면 위)에서만 온다(GameBalance.BossSpawnNorthOnly - 남쪽은 하단 HUD 에 가려진다), 예습 보스는 포탑 칸 B 위에서 / 웨이브가 끝났을 때 사고가 진행 중이면 사고가 끝난 뒤에 증강·선로 선택을 연다(PostWaveHold, WaitEventBeforeChoiceSec) / 코드 폴백 손님의 그림 고르기를 EnemySkin.SpriteFor 한 곳으로) /
@@ -2232,7 +2232,7 @@ public class WaveManager : MonoBehaviour
 
         EnsureCookGateMaterials();
         UIManager.Instance?.ShowWaveNotice("[첫 조리] 찬장에 고기 2개가 있다",
-            "그릴 앞에서 [E] - 더블 육포를 굽고, 완성되면 요리 카드를 클릭해 빈 포탑 자리([+] 이름표)에 넣어라   ([Enter] 건너뛰기)");
+            "그릴 앞에서 [E] - 고기 둘을 올려 더블 육포를 굽고, 완성되면 요리 카드를 끌어다 빈 포탑 자리([+] 이름표)에 놓아라   ([Enter] 건너뛰기)");
         UIManager.Instance?.ShowStatChange("\"애피타이저는 끝났다. 이번엔 네 손으로 요리 하나 - 보여줘라.\" - 스피노");
         Debug.Log("[WaveManager] 프롤로그 조리 게이트 시작");
     }
@@ -2290,9 +2290,9 @@ public class WaveManager : MonoBehaviour
         {
             cookGateHintTimer = 12f;
             if (CookingBridge.LastGoodCookTime > cookGateStartTime)
-                UIManager.Instance?.ShowStatChange("완성된 요리를 하단 카드에서 클릭 -> 빈 포탑 자리의 [+] 이름표 클릭 (투입)");
+                UIManager.Instance?.ShowStatChange("완성된 요리 카드를 끌어다 빈 포탑 자리의 [+] 이름표에 놓아라 (카드 클릭 ▶ 이름표 클릭도 된다)");
             else if (Time.time - cookGateStartTime > 12f)
-                UIManager.Instance?.ShowStatChange("그릴은 주방 칸 왼쪽 - [E]로 조리 창을 열고 더블 육포를 고르자   ([Enter] 건너뛰기)");
+                UIManager.Instance?.ShowStatChange("그릴은 주방 칸 왼쪽 - [E]로 조리 창을 열고 고기 카드를 두 번 눌러 [굽기 시작]   ([Enter] 건너뛰기)");
         }
     }
 

@@ -4,7 +4,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 /// <summary>
-/// [GameHUD.cs] v3.9 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v3.8 (v9.18 2026-10-06: 재료 칸 이름 글자 11 -> 13 (최소 글자 크기), 칸 높이 34 -> 36 으로 이름과 개수가 안 겹치게) / v3.7 (v9.17 2026-10-06 B6: 재료 개수가 늘면 그 숫자가 1.3배에서 제자리로 튄다 - 숫자 왼쪽 아래를 축으로) / v3.6 (v9.15 2026-09-29 2차 피드백: 요리 카드 드래그 투입(FoodCardDrag - 고스트 카드가 커서를 따라가고 SlotMarkerUI.NearestMarker 로 놓을 슬롯 금색, 놓으면 투입. 클릭->클릭도 그대로) / HUD 재배치 GameBalance.HudRegroup: 칼·팬 명판을 하단 바에서 좌상단 HP 판(UISkin SkinPanel_TL)으로) / v3.5 (v9.11 2026-09-22 타격감: 조리 완료 접시 날아가기 + 카드 튀기 / 요리 카드 ButtonFeel) / v3.4 (v9.10.1 2026-09-21: 재료 이름 MaterialNames 한 곳(전기알·화염꽃·얼음꽃·독샘) - 칸 폭 102 에 세 글자 이름이 안 들어가 이름(11px, 위)·개수(20px, 아래) 두 줄) / v3.3 (v9.9 2026-09-16: 로비에서는 하단 바 숨김 - 로비 버튼이 바 위에 겹쳐 있던 것) / v3.2 (v9.8 재료 아이콘) / v3.1 (교수 피드백 A9 반영 2026-09-14) / v3 - 전투 중 핵심 HUD (전부 코드 생성 - Canvas 세팅 불필요)
+/// [GameHUD.cs] v3.11 (v9.22.1 2026-10-14 유저 확인 "카드 위 카드가 교체로 빠진다": 카드 구역 = 하단 바 전체(bottomBarRt - 전엔 카드 스크롤 영역만이라 그 테두리 밖에서 포탑 칸 판정이 걸렸다) + 바 위쪽 여백까지 포함 / 끌기 시작하면 합칠 수 있는 카드에 분홍 테(MarkFusableCards)·못 합치는 카드는 흐리게 - 어디에 놓으면 되는지 보이게 / 카드 위 판정은 카드 rect 에 여유 6px) / v3.10 (v9.22 2026-10-14 조작 팩 1-2 ~ 1-4: 카드를 다른 요리가 든 칸에 놓으면 교체(ReplaceTurret - 폐기 환급 + 투입, GameBalance.DragReplaceOn) / 카드를 다른 기본 요리 카드 위에 놓으면 진화 조리(CardUnderPointer·FuseCheck -> CookingBridge.FuseFoods, DragFuseOn) / 놓을 곳의 종류 DragHoverKind 를 SlotMarkerUI 가 읽어 이름표를 "놓으면 Lv2 (2/3)"·"폐기 - 재료 N개 환급"·"못 놓는다"로 / 고스트 글 "놓으면 투입 / Lv2 / 교체 / 진화 조리 / 못 놓는다" + 테 색) / v3.9 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v3.8 (v9.18 2026-10-06: 재료 칸 이름 글자 11 -> 13 (최소 글자 크기), 칸 높이 34 -> 36 으로 이름과 개수가 안 겹치게) / v3.7 (v9.17 2026-10-06 B6: 재료 개수가 늘면 그 숫자가 1.3배에서 제자리로 튄다 - 숫자 왼쪽 아래를 축으로) / v3.6 (v9.15 2026-09-29 2차 피드백: 요리 카드 드래그 투입(FoodCardDrag - 고스트 카드가 커서를 따라가고 SlotMarkerUI.NearestMarker 로 놓을 슬롯 금색, 놓으면 투입. 클릭->클릭도 그대로) / HUD 재배치 GameBalance.HudRegroup: 칼·팬 명판을 하단 바에서 좌상단 HP 판(UISkin SkinPanel_TL)으로) / v3.5 (v9.11 2026-09-22 타격감: 조리 완료 접시 날아가기 + 카드 튀기 / 요리 카드 ButtonFeel) / v3.4 (v9.10.1 2026-09-21: 재료 이름 MaterialNames 한 곳(전기알·화염꽃·얼음꽃·독샘) - 칸 폭 102 에 세 글자 이름이 안 들어가 이름(11px, 위)·개수(20px, 아래) 두 줄) / v3.3 (v9.9 2026-09-16: 로비에서는 하단 바 숨김 - 로비 버튼이 바 위에 겹쳐 있던 것) / v3.2 (v9.8 재료 아이콘) / v3.1 (교수 피드백 A9 반영 2026-09-14) / v3 - 전투 중 핵심 HUD (전부 코드 생성 - Canvas 세팅 불필요)
 /// - v3.2: 재료 칸의 16px 계열색 판을 ui_mat_*.png 아이콘(32px)으로. 칸 폭 96 -> 102, 간격 100 -> 106 (3열 318 <= 재료 구역 326).
 ///   PNG 가 없으면 v3.1 그대로(계열색 판 + 글자). 이벤트 "재료 흘림" 칩과 같은 그림이라 재료 = 한 그림으로 통일
 /// - 하단 바: 재료 6종 카운트 + 보유 요리 카드 목록 (2줄 그리드, 휠 가로 스크롤)
@@ -62,7 +62,24 @@ public class GameHUD : MonoBehaviour
     public string DragRecipeId { get; private set; }
     private RectTransform dragGhost;
     private Text dragGhostSub;
+    private Image dragGhostBorder;               // v3.10: 놓을 곳의 종류에 따라 테 색이 바뀐다
     private int dragHover = -1;
+    /// <summary>v3.10: 지금 커서 아래 놓을 곳의 종류 (SlotMarkerUI 가 이름표 글에 쓴다). 0 없음 / 1 빈 칸 투입 / 2 같은 요리 (Lv 올리기) / 3 다른 요리 (교체) / 4 못 놓는다 (최대 레벨·교체 꺼짐) / 5 카드 위 (진화 조리) / 6 카드 위 (못 합친다)</summary>
+    public int DragHoverKind { get; private set; }
+    private RectTransform foodViewport;          // v3.10: 카드 위 카드 판정 - 스크롤로 가려진 카드는 제외
+    private GameObject fuseHoverCard;            // v3.10: 끌고 온 카드 아래의 다른 요리 카드 (결과 이름이 그 카드에 뜬다)
+    private string fuseHoverId = "";
+    private Text fuseHoverText; private string fuseHoverOrigText = ""; private Color fuseHoverOrigColor;
+    private Image fuseHoverBorder; private Color fuseHoverOrigBorder;
+    private static readonly Color REPLACE_ORANGE = new Color(1f, 0.6f, 0.42f);   // 교체 = 주황 (폐기 예고와 같은 계열)
+    private Vector2 lastDragPos;                 // v3.10 (리뷰 1-2): 커서가 멈춰 있어도 매 프레임 놓을 곳을 다시 본다 (칸이 그사이 파손·변경될 수 있다)
+    private readonly List<Image> fusableMarked = new List<Image>();     // v3.11: 끌기 시작할 때 분홍 테를 켠 카드들 (끝나면 되돌린다)
+    private readonly List<Color> fusableOrig = new List<Color>();
+    private bool fusableAny = false;             // v3.11 (리뷰 1): 지금 끌고 있는 카드와 합칠 수 있는 카드가 하나라도 있나 (없으면 바를 흐리게 하지 않고 고스트도 "칸에 놓아라")
+    private readonly Vector3[] cornerBuf = new Vector3[4];   // v3.11 (리뷰 5): GetWorldCorners 버퍼 - MoveDrag 는 매 프레임 돈다
+    private const float BAR_DROP_MARGIN = 24f;   // v3.11: 하단 바 위쪽으로 이만큼(캔버스 px - 배율을 곱한다)까지는 카드 구역으로 본다 - 바 테두리에 걸쳐 놓아도 포탑 칸으로 새지 않게
+    private const float CARD_HIT_MARGIN = 3f;    // v3.11 (리뷰 4): 카드 위 판정 여유 (캔버스 px) - 카드 틈(CARD_GAP 6)의 절반이라 이웃 카드와 겹치지 않는다
+    private int dragMouseUpFrames = 0;           // v3.10 (리뷰 1-1): 끌던 카드가 지워져 OnEndDrag 가 안 오면 버튼이 떼진 지 2프레임 뒤에 드래그를 거둔다
     private bool rebuildPending = false;         // 드래그 중 목록 갱신 요청이 오면 놓은 뒤에 (끌고 있는 카드를 지우면 uGUI 드래그가 끊긴다)
     private GameObject toolHintGo;               // 좌상단 칩 안내 줄 (칩과 같이 숨긴다)
 
@@ -109,6 +126,14 @@ public class GameHUD : MonoBehaviour
         {
             LastPlacingCancelTime = Time.unscaledTime;
             SetPlacing("");
+        }
+
+        // v3.10 (리뷰 1-1·1-2): 드래그 중엔 커서가 멈춰 있어도 놓을 곳을 다시 보고, 버튼이 떼진 채 2프레임이 지나면(OnEndDrag 를 놓친 것) 드래그를 거둔다
+        if (DragActive)
+        {
+            MoveDrag(lastDragPos);
+            dragMouseUpFrames = Input.GetMouseButton(0) ? 0 : dragMouseUpFrames + 1;
+            if (dragMouseUpFrames >= 2) { Debug.Log("[GameHUD] 드래그 끝을 놓쳤다 - 거둔다"); EndDrag(false); }
         }
 
         UpdateToolChips();
@@ -237,6 +262,7 @@ public class GameHUD : MonoBehaviour
         viewportRt.offsetMin = Vector2.zero;
         viewportRt.offsetMax = Vector2.zero;
         viewportGo.AddComponent<RectMask2D>();
+        foodViewport = viewportRt;   // v3.10
 
         // 내용물 (카드 부모) - 카드 2줄이 스크롤 영역 세로 가운데에 오도록 남는 높이를 위아래로 나눈다
         float scrollH = BAR_H - (inset - 2f) - (topInset - 2f);
@@ -440,6 +466,8 @@ public class GameHUD : MonoBehaviour
         border.color = new Color(UIFactory.GOLD.r, UIFactory.GOLD.g, UIFactory.GOLD.b, 0.85f);
         border.raycastTarget = false;
         if (UISkin.Available) UISkin.Ring(border, border.color);
+        dragGhostBorder = border;   // v3.10
+        DragHoverKind = 0;
         GameObject bg = new GameObject("BG");
         RectTransform bgRt = bg.AddComponent<RectTransform>();
         bgRt.SetParent(dragGhost, false);
@@ -457,48 +485,283 @@ public class GameHUD : MonoBehaviour
         dragGhostSub = UIFactory.CreateText(bgRt, "Sub", "칸에 놓아라", 12, UIFactory.GOLD, TextAnchor.LowerCenter);
         dragGhostSub.rectTransform.offsetMin = new Vector2(2f, 2f); dragGhostSub.rectTransform.offsetMax = new Vector2(-2f, 18f);
         dragGhostSub.raycastTarget = false;
+        MarkFusableCards(recipeId);   // v3.11
         MoveDrag(screenPos);
         SoundManager.Play("sfx_ui_click");
     }
 
-    /// <summary>FoodCardDrag 에서: 매 프레임 커서 위치. 놓을 슬롯을 찾아 이름표를 바꾼다</summary>
+    /// <summary>v3.11: 끌기 시작할 때 - 이 카드와 합칠 수 있는 카드는 분홍 테, 못 합치는 카드(전설·조합 없음·재고 부족)는 테를 흐리게. 끌고 있는 카드 자체는 그대로.
+    /// 합칠 수 있는 카드가 하나도 없으면(전설 카드를 끌 때, 짝이 없을 때, 선대의 기본기) 아무것도 바꾸지 않는다 - 투입 끌기 때마다 바가 어두워지지 않게 (리뷰 1). 끝나면 UnmarkFusableCards 가 되돌린다</summary>
+    private void MarkFusableCards(string draggingId)
+    {
+        UnmarkFusableCards();
+        if (!GameBalance.DragFuseOn) return;
+        int pink = 0;
+        for (int i = 0; i < foodCards.Count; i++)
+        {
+            GameObject c = foodCards[i];
+            if (c == null || !c.name.StartsWith("Food_")) continue;
+            string id = c.name.Substring(5);
+            if (id == draggingId) continue;
+            Image border = c.GetComponent<Image>();
+            if (border == null) continue;
+            RecipeData fusion; string why;
+            bool ok = FuseCheck(draggingId, id, out fusion, out why);
+            if (ok) pink++;
+            fusableMarked.Add(border); fusableOrig.Add(border.color);
+            border.color = ok ? new Color(UIFactory.T2PINK.r, UIFactory.T2PINK.g, UIFactory.T2PINK.b, 0.75f) : new Color(border.color.r * 0.5f, border.color.g * 0.5f, border.color.b * 0.5f, border.color.a);
+        }
+        fusableAny = pink > 0;
+        if (!fusableAny) UnmarkFusableCards();
+    }
+
+    private void UnmarkFusableCards()
+    {
+        for (int i = 0; i < fusableMarked.Count; i++)
+            if (fusableMarked[i] != null) fusableMarked[i].color = fusableOrig[i];
+        fusableMarked.Clear(); fusableOrig.Clear();
+        fusableAny = false;
+    }
+
+    /// <summary>v3.11: 하단 바(요리·재료 바 전체 + 위쪽 여백) 안인가 - 여기서는 포탑 칸 판정을 하지 않는다</summary>
+    private bool InBar(Vector2 screenPos)
+    {
+        RectTransform bar = bottomBarRt != null ? bottomBarRt : foodViewport;
+        if (bar == null) return false;
+        Vector3[] c = cornerBuf;
+        bar.GetWorldCorners(c);   // 오버레이 캔버스 = 화면 px (캔버스 배율이 곱해져 있다 - 여백에도 곱한다, 리뷰 5)
+        float top = Mathf.Max(c[1].y, c[2].y) + BAR_DROP_MARGIN * bar.lossyScale.y;
+        return screenPos.y <= top && screenPos.x >= Mathf.Min(c[0].x, c[1].x) && screenPos.x <= Mathf.Max(c[2].x, c[3].x);
+    }
+
+    /// <summary>FoodCardDrag 에서: 매 프레임 커서 위치. 놓을 곳(포탑 칸 또는 다른 요리 카드)을 찾아 고스트 글·이름표를 바꾼다.
+    /// v3.10: 종류 = 빈 칸 투입 / 같은 요리 Lv 올리기 / 다른 요리 교체 / 못 놓는다 / 카드 위 진화 조리</summary>
     public void MoveDrag(Vector2 screenPos)
     {
         if (!DragActive || dragGhost == null) return;
+        lastDragPos = screenPos;
         dragGhost.position = new Vector3(screenPos.x + 14f, screenPos.y - 10f, 0f);
-        int near = SlotMarkerUI.Instance != null ? SlotMarkerUI.Instance.NearestMarker(screenPos, GameBalance.DragDropRadius) : -1;
+
+        // 1) 하단 바 안: 다른 요리 카드 위면 진화 조리(1-4), 카드 사이 틈이면 아무것도 아니다 (바 안에서는 칸 판정을 하지 않는다 - v3.11: 바 전체 + 위쪽 여백)
+        bool inBar = InBar(screenPos);
+        GameObject card = (inBar && GameBalance.DragFuseOn) ? CardUnderPointer(screenPos) : null;
+        if (card != null)
+        {
+            string targetId = card.name.Substring(5);   // "Food_" 뒤
+            RecipeData fusion; string why;
+            bool ok = FuseCheck(DragRecipeId, targetId, out fusion, out why);
+            SetFuseHover(card, targetId, ok ? fusion : null);
+            SetSlotHover(-1, ok ? 5 : 6);
+            SetGhostLook(ok ? "놓으면 진화 조리" : (string.IsNullOrEmpty(why) ? "못 놓는다" : why), ok ? UIFactory.T2PINK : UIFactory.DIM);   // 리뷰 3-3: 왜 못 놓는지 그대로
+            return;
+        }
+        ClearFuseHover();
+        if (inBar)
+        {
+            SetSlotHover(-1, 0);
+            SetGhostLook(fusableAny ? "분홍 카드에 놓아라" : "칸에 놓아라", UIFactory.GOLD);   // 리뷰 1·8: 분홍 카드가 있을 때만
+            return;
+        }
+
+        // 2) 포탑 칸 (마커 또는 포탑 실물 가까이)
+        int near = (SlotMarkerUI.Instance != null && TurretSlotManager.Instance != null) ? SlotMarkerUI.Instance.NearestMarker(screenPos, GameBalance.DragDropRadius) : -1;
+        int kind = 0;
+        TurretSlot hoverSlot = null;
         if (near >= 0 && TurretSlotManager.Instance != null)
         {
-            TurretSlot slot = TurretSlotManager.Instance.slots[near];
-            // 다른 요리가 든 슬롯은 못 놓는다 (같은 요리 = 접시 추가, 빈 슬롯 = 새 포탑)
-            if (slot == null || (!slot.IsEmpty && slot.recipeId != DragRecipeId)) near = -1;
+            hoverSlot = near < TurretSlotManager.Instance.slots.Length ? TurretSlotManager.Instance.slots[near] : null;
+            if (hoverSlot == null) near = -1;
+            else if (hoverSlot.IsEmpty) kind = 1;
+            else if (hoverSlot.recipeId == DragRecipeId) kind = hoverSlot.AtMaxLevel ? 4 : 2;
+            else kind = GameBalance.DragReplaceOn ? 3 : 4;   // 다른 요리 칸 = 교체 (꺼져 있으면 못 놓는다)
         }
-        if (near != dragHover)
+        SetSlotHover(near, kind);
+        switch (kind)
         {
-            dragHover = near;
-            if (SlotMarkerUI.Instance != null) SlotMarkerUI.Instance.SetDragHover(near);
-            if (dragGhostSub != null) dragGhostSub.text = near >= 0 ? "놓으면 투입" : "칸에 놓아라";
+            case 1: SetGhostLook("놓으면 투입", UIFactory.GOLD); break;
+            case 2: SetGhostLook("놓으면 " + LevelUpWord(hoverSlot), UIFactory.GOLD); break;
+            case 3: SetGhostLook("놓으면 교체", REPLACE_ORANGE); break;
+            case 4: SetGhostLook("못 놓는다", UIFactory.DIM); break;
+            default: SetGhostLook("칸에 놓아라", UIFactory.GOLD); break;
         }
     }
 
-    /// <summary>FoodCardDrag 에서: 놓기. 슬롯 위면 투입, 아니면 취소</summary>
+    /// <summary>v3.10: 같은 요리를 한 번 더 넣으면 어떻게 되나 - "Lv2" (이번에 오른다) 또는 "2/3" (아직 더 넣어야 한다)</summary>
+    public static string LevelUpWord(TurretSlot slot)
+    {
+        if (slot == null || slot.IsEmpty) return "";
+        int need = GameBalance.PlatesToNext(slot.level);
+        return slot.PlatesLeft <= 1 ? "Lv" + (slot.level + 1) : (slot.platesIn + 1) + "/" + need;
+    }
+
+    private void SetSlotHover(int near, int kind)
+    {
+        if (near == dragHover && kind == DragHoverKind) return;
+        dragHover = near; DragHoverKind = kind;
+        if (SlotMarkerUI.Instance != null) SlotMarkerUI.Instance.SetDragHover(near);
+    }
+
+    private void SetGhostLook(string sub, Color ring)
+    {
+        if (dragGhostSub != null) { dragGhostSub.text = sub; dragGhostSub.color = ring; }
+        if (dragGhostBorder != null) { Color c = ring; c.a = 0.85f; dragGhostBorder.color = c; }
+    }
+
+    /// <summary>v3.10: 커서 아래의 요리 카드 (끌고 있는 카드 자신과 스크롤로 가려진 카드는 제외). 없으면 null</summary>
+    private GameObject CardUnderPointer(Vector2 screenPos)
+    {
+        if (foodViewport == null || !RectTransformUtility.RectangleContainsScreenPoint(foodViewport, screenPos, null)) return null;
+        Vector3[] c4 = cornerBuf;
+        float margin = CARD_HIT_MARGIN * foodViewport.lossyScale.y;   // 리뷰 4·5: 틈의 절반 (이웃 카드와 안 겹친다) x 캔버스 배율
+        for (int i = 0; i < foodCards.Count; i++)
+        {
+            GameObject c = foodCards[i];
+            if (c == null || !c.name.StartsWith("Food_")) continue;
+            RectTransform rt = c.GetComponent<RectTransform>();
+            if (rt == null) continue;
+            bool self = c.name == "Food_" + DragRecipeId;
+            rt.GetWorldCorners(c4);   // 오버레이 캔버스 = 화면 px
+            float m = self ? 0f : margin;
+            float x0 = Mathf.Min(c4[0].x, c4[1].x) - m, x1 = Mathf.Max(c4[2].x, c4[3].x) + m;
+            float y0 = Mathf.Min(c4[0].y, c4[3].y) - m, y1 = Mathf.Max(c4[1].y, c4[2].y) + m;
+            if (screenPos.x >= x0 && screenPos.x <= x1 && screenPos.y >= y0 && screenPos.y <= y1)
+                return self ? null : c;   // 리뷰 4: 끌던 카드 자리에 도로 놓으면 취소 - 이웃 카드의 여유에 걸리지 않게
+        }
+        return null;
+    }
+
+    /// <summary>v3.10: 카드 a 를 카드 b 위에 놓으면 진화 조리가 되나. 서로 다른 기본 요리 둘 + 조합이 있고 + 각 1개 이상 + '선대의 기본기' 아님 + 다른 미니게임이 돌고 있지 않음</summary>
+    public static bool FuseCheck(string a, string b, out RecipeData fusion, out string why)
+    {
+        fusion = null; why = "";
+        if (!GameBalance.DragFuseOn) { why = "꺼짐"; return false; }
+        if (string.IsNullOrEmpty(a) || string.IsNullOrEmpty(b) || a == b) { why = "같은 요리"; return false; }
+        RecipeData ra = RecipeDatabase.Get(a), rb = RecipeDatabase.Get(b);
+        if (ra == null || rb == null) return false;
+        if (ra.tier != 1 || rb.tier != 1) { why = "전설은 못 합친다"; return false; }
+        if (AugmentManager.BasicsDoctrine) { why = "선대의 기본기"; return false; }
+        fusion = RecipeDatabase.GetFusion(ra.tag, rb.tag);
+        if (fusion == null) { why = "조합 없음"; return false; }
+        if (FoodStock.Instance == null || FoodStock.Instance.Get(a) < 1 || FoodStock.Instance.Get(b) < 1) { why = "요리 부족"; return false; }
+        if (InfusingMinigame.IsActive || CookingMinigame.IsActive) { why = "지금은 못 한다"; return false; }
+        return true;
+    }
+
+    /// <summary>v3.10: 끌고 온 카드 아래의 카드 꾸미기 - 등급 줄이 "▶ 결과 이름"(분홍)으로, 테도 분홍. 결과가 없으면(못 합친다) 그대로 둔다</summary>
+    private void SetFuseHover(GameObject card, string targetId, RecipeData fusion)
+    {
+        if (fuseHoverCard == card && fuseHoverId == targetId && (fusion != null) == (fuseHoverText != null)) return;   // 리뷰 1-4: 같은 카드라도 되고/안 되고가 바뀌면 다시 꾸민다
+        ClearFuseHover();
+        fuseHoverCard = card; fuseHoverId = targetId;
+        if (fusion == null || card == null) return;
+        Transform cnt = card.transform.Find("BG/Count");
+        fuseHoverText = cnt != null ? cnt.GetComponent<Text>() : null;
+        if (fuseHoverText != null)
+        {
+            fuseHoverOrigText = fuseHoverText.text; fuseHoverOrigColor = fuseHoverText.color;
+            fuseHoverText.text = "▶ " + fusion.displayName;
+            fuseHoverText.color = UIFactory.T2PINK;
+        }
+        fuseHoverBorder = card.GetComponent<Image>();
+        if (fuseHoverBorder != null)
+        {
+            fuseHoverOrigBorder = fuseHoverBorder.color;
+            fuseHoverBorder.color = UIFactory.T2PINK;
+        }
+    }
+
+    private void ClearFuseHover()
+    {
+        if (fuseHoverText != null) { fuseHoverText.text = fuseHoverOrigText; fuseHoverText.color = fuseHoverOrigColor; }
+        if (fuseHoverBorder != null) fuseHoverBorder.color = fuseHoverOrigBorder;
+        fuseHoverCard = null; fuseHoverId = ""; fuseHoverText = null; fuseHoverBorder = null;
+    }
+
+    /// <summary>v3.10 (1-3): 교체 - 들어 있던 포탑을 폐기 규칙으로 비우고(무작위 재료 환급) 그 자리에 끌고 온 요리를 넣는다</summary>
+    private void ReplaceTurret(TurretSlot slot, string newId)
+    {
+        // 리뷰 2-1·2-3: 폐기하기 전에 투입이 될지 먼저 본다 - 반만 되는(폐기만 되는) 교체는 없다
+        RecipeData newR = RecipeDatabase.Get(newId);
+        if (slot == null || slot.IsEmpty || slot.isLocked || slot.isBroken || newR == null
+            || FoodStock.Instance == null || FoodStock.Instance.Get(newId) < 1)
+        {
+            SoundManager.Play("sfx_judge_bad");
+            return;
+        }
+        if (slot.recipeId == newId)
+        {
+            // 그사이 같은 요리가 돼 있었다 - 교체가 아니라 Lv 올리기
+            if (slot.TryInsertFood(newId)) FoodStock.Instance.TryConsume(newId, 1);
+            else SoundManager.Play("sfx_judge_bad");
+            return;
+        }
+        string oldName = slot.Recipe != null ? slot.Recipe.displayName : "포탑";
+        int oldLv = slot.level;
+        int refund = slot.Scrap();
+        if (MaterialInventory.Instance != null)
+            for (int k = 0; k < refund; k++) MaterialInventory.Instance.Add((MaterialType)Random.Range(0, 6), 1);
+        bool ok = slot.TryInsertFood(newId);
+        if (ok && !FoodStock.Instance.TryConsume(newId, 1)) Debug.LogError("[GameHUD] 교체: 재고 소모 실패 " + newId);
+        if (ok)
+            UIManager.Instance?.ShowStatChange("[교체] " + oldName + " Lv" + oldLv + " 폐기 - " + (refund > 0 ? "무작위 재료 " + refund + "개 환급" : "환급 없음") + " / " + newR.displayName + " 투입");
+        else
+        {
+            SoundManager.Play("sfx_judge_bad");
+            UIManager.Instance?.ShowStatChange("[교체 실패] " + oldName + " Lv" + oldLv + " 은(는) 폐기됐다 (" + (refund > 0 ? "무작위 재료 " + refund + "개 환급" : "환급 없음") + ") - " + newR.displayName + " 은(는) 못 넣었다");
+        }
+        Debug.Log("[GameHUD] 교체: " + oldName + " Lv" + oldLv + " -> " + newId + " (환급 " + refund + ", 투입 " + ok + ")");
+    }
+
+    /// <summary>FoodCardDrag 에서: 놓기. 포탑 칸 위면 투입·Lv 올리기·교체, 다른 요리 카드 위면 진화 조리, 아니면 취소</summary>
     public void EndDrag(bool drop)
     {
         if (!DragActive) return;
         int target = drop ? dragHover : -1;
+        int kind = drop ? DragHoverKind : 0;
         string id = DragRecipeId;
-        DragActive = false; DragRecipeId = ""; dragHover = -1;
+        string fuseTarget = fuseHoverId;
+        DragActive = false; DragRecipeId = ""; dragHover = -1; DragHoverKind = 0;
+        ClearFuseHover();
+        UnmarkFusableCards();   // v3.11
         if (SlotMarkerUI.Instance != null) SlotMarkerUI.Instance.SetDragHover(-1);
-        if (dragGhost != null) { Destroy(dragGhost.gameObject); dragGhost = null; dragGhostSub = null; }
-        TurretSlot slot = (target >= 0 && TurretSlotManager.Instance != null) ? TurretSlotManager.Instance.slots[target] : null;
-        if (slot != null)
+        if (dragGhost != null) { Destroy(dragGhost.gameObject); dragGhost = null; dragGhostSub = null; dragGhostBorder = null; }
+
+        if (kind == 5 && !string.IsNullOrEmpty(fuseTarget))
         {
-            if (slot.TryInsertFood(id))
-                FoodStock.Instance.TryConsume(id, 1);   // OnChanged -> RebuildFoodList (드래그가 끝났으니 바로)
-            else
+            // v3.10 (1-4): 카드 위 카드 = 진화 조리 (InfuseStockOn 이면 미니게임이 뜨고 끝날 때 전설 요리가 들어온다)
+            string made = CookingBridge.FuseFoods(id, fuseTarget);
+            if (made == null) SoundManager.Play("sfx_judge_bad");
+        }
+        else if (kind == 6)
+        {
+            SoundManager.Play("sfx_judge_bad");
+        }
+        else
+        {
+            TurretSlot slot = (target >= 0 && TurretSlotManager.Instance != null && target < TurretSlotManager.Instance.slots.Length) ? TurretSlotManager.Instance.slots[target] : null;
+            if (slot != null && (FoodStock.Instance == null || FoodStock.Instance.Get(id) < 1))
             {
+                // 리뷰 2-2: 끄는 사이 재고가 바닥났다 (진화 조리가 끝나며 소모되는 등) - 공짜 포탑은 없다
                 SoundManager.Play("sfx_judge_bad");
-                Debug.Log("[GameHUD] 드래그 투입 불가 (잠금·파손 또는 다른 요리)");
+            }
+            else if (slot != null && kind == 3)
+                ReplaceTurret(slot, id);   // v3.10 (1-3)
+            else if (slot != null && kind == 4)
+            {
+                // 리뷰 2-5: 안내는 여기서 직접 (TryInsertFood 를 다시 부르지 않는다)
+                SoundManager.Play("sfx_judge_bad");
+                if (!slot.IsEmpty && slot.recipeId == id && slot.Recipe != null)
+                    UIManager.Instance?.ShowStatChange(slot.Recipe.displayName + " Lv" + slot.level + " - 최대 레벨. " + (slot.Recipe.tier >= 2 || AugmentManager.BasicsDoctrine ? "더는 못 오른다" : "같은 레벨의 다른 기본 요리와 합쳐 전설로"));
+            }
+            else if (slot != null)
+            {
+                if (slot.TryInsertFood(id))
+                    FoodStock.Instance.TryConsume(id, 1);   // OnChanged -> RebuildFoodList (드래그가 끝났으니 바로)
+                else
+                {
+                    SoundManager.Play("sfx_judge_bad");
+                    Debug.Log("[GameHUD] 드래그 투입 불가 (잠금·파손 또는 다른 요리)");
+                }
             }
         }
         // 드래그 중 미뤄 둔 목록 갱신 (재고가 그 사이 바뀌었을 수 있다 - 갑판 상자 등)
@@ -540,6 +803,8 @@ public class GameHUD : MonoBehaviour
     {
         // v3.6: 드래그 중엔 미룬다 - 끌고 있는 카드(pointerDrag)를 지우면 uGUI 가 OnDrag/OnEndDrag 를 더 보내지 않는다
         if (DragActive) { rebuildPending = true; return; }
+        rebuildPending = false;   // 리뷰 1-6: 지금 다시 만드니 미뤄 둔 요청은 끝난 것 (같은 프레임에 두 번 만들지 않는다)
+        fusableMarked.Clear(); fusableOrig.Clear();   // v3.11: 카드가 새로 만들어지니 옛 표시 목록은 버린다
 
         // 기존 카드 제거
         for (int i = 0; i < foodCards.Count; i++)

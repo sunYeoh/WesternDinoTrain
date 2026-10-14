@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [TutorialHint.cs] v1.8 (v9.18 2026-10-06: 배너 폭 660 -> 620 - 씬 HUD 가 UI 배율을 따르면서 커진 좌상단 판과 8 겹치던 것) / v1.7 (v9.13 2026-09-23: first_route 트리거 = BranchRouteUI.ChoicePending - 선로 선택이 카드 창이 아니게 됨) / v1.6 (v9.12 2026-09-22: F4 가 구간 기록도 지운다 / 리롤 복원) / v1.5 (v9.11.1 2026-09-22 문구: 복구법 상태별·공명 예외·이번 운행·다시 뽑기·무방비) / v1.4 (v9.9.2 2026-09-16: 승격 5 - first_town / first_augment / first_route / first_item / first_overheat 는 배너 대신 브리핑 카드(BriefingTexts.Promoted), F4 가 첫 등장 카드 기록도 지운다) / v1.3 (v9.9 2026-09-16: 견습 운행·브리핑 카드 중엔 배너 쉼, F4 가 견습 완료 기록도 지움, 배너 캔버스 DontDestroyOnLoad) / v1.2 (v9.8.1: F4 리셋은 GameBalance.CheatsAllowed 일 때만) / v1.1 (교수 피드백 A13: 표시 5초 + 아무 키 닫기 + 조리 중 대기) - 컨텍스트 트리거 튜토리얼 (설계: 튜토리얼_온보딩_설계_2026-08-18)
+/// [TutorialHint.cs] v1.10 (v9.22.1 2026-10-14 유저 "튜토리얼에 드래그가 반영 안 됐다": first_battle·merge_ready 칩을 끌어다 놓기 기준으로, first_stun 에 "방치하면 파손" / 새 칩 fuse_ready(기본 요리 카드 둘 = 진화 조리 - 합칠 수 있는 짝이 재고에 생기면) · swap_ready(빈 칸이 없는데 못 넣은 요리가 있으면 = 교체)) / v1.9 (v9.22 2026-10-14 조작 팩 2-2: Tab 키가 없어져 "재료가 모였다" 칩에서 [Tab] 주방 전체 메뉴를 뺐다 - 조리대 [E] 만) / v1.8 (v9.18 2026-10-06: 배너 폭 660 -> 620 - 씬 HUD 가 UI 배율을 따르면서 커진 좌상단 판과 8 겹치던 것) / v1.7 (v9.13 2026-09-23: first_route 트리거 = BranchRouteUI.ChoicePending - 선로 선택이 카드 창이 아니게 됨) / v1.6 (v9.12 2026-09-22: F4 가 구간 기록도 지운다 / 리롤 복원) / v1.5 (v9.11.1 2026-09-22 문구: 복구법 상태별·공명 예외·이번 운행·다시 뽑기·무방비) / v1.4 (v9.9.2 2026-09-16: 승격 5 - first_town / first_augment / first_route / first_item / first_overheat 는 배너 대신 브리핑 카드(BriefingTexts.Promoted), F4 가 첫 등장 카드 기록도 지운다) / v1.3 (v9.9 2026-09-16: 견습 운행·브리핑 카드 중엔 배너 쉼, F4 가 견습 완료 기록도 지움, 배너 캔버스 DontDestroyOnLoad) / v1.2 (v9.8.1: F4 리셋은 GameBalance.CheatsAllowed 일 때만) / v1.1 (교수 피드백 A13: 표시 5초 + 아무 키 닫기 + 조리 중 대기) - 컨텍스트 트리거 튜토리얼 (설계: 튜토리얼_온보딩_설계_2026-08-18)
 ///
 /// 몰아서 가르치지 않는다. 각 기믹을 "처음 마주치는 순간" 1회만 배너로 안내한다.
 /// - 영구 기록: PlayerPrefs "WDT_Tut_(id)" - 2회차부터 반복 없음 (다회차 마찰 방지)
@@ -35,17 +35,21 @@ public class TutorialHint : MonoBehaviour
     private static readonly HintDef[] HINTS =
     {
         new HintDef("first_battle", "황야로 출발!",
-            "[WASD] 달려라, [Shift] 대시! 보급 요리를 포탑 이름표에 클릭해 투입하라"),
+            "[WASD] 달려라, [Shift] 대시! 요리 카드를 끌어다 포탑 이름표에 놓아라"),
         new HintDef("cook_ready", "재료가 모였다",
-            "재료 2개 = 요리 1개. [E] 가까운 조리대 / [Tab] 주방 전체 메뉴"),
+            "재료 2개 = 요리 1개. 가까운 조리대 곁에서 [E] - 재료 둘을 올리면 요리가 보인다"),
         new HintDef("cook_start", "조리 개시",
             "판정에 맞춰 손을 움직여라. [ESC] 중단하면 재료는 돌려받는다"),
         new HintDef("merge_ready", "같은 요리는 겹친다",
-            "가동 중인 포탑에 같은 요리를 다시 투입 = 레벨업! 같은 포탑 2문은 좌클릭 합체"),
+            "같은 요리 카드를 그 요리의 포탑에 또 놓으면 Lv 올리기. 같은 포탑 2문은 좌클릭 ▶ 좌클릭 합체"),
+        new HintDef("fuse_ready", "전설로 가는 길",
+            "기본 요리 카드를 끌면 합칠 수 있는 카드에 분홍 테 - 그 위에 놓으면 진화 조리 ▶ 전설 요리"),
+        new HintDef("swap_ready", "빈 칸이 없다",
+            "다른 요리가 든 칸에 놓으면 교체 - 들어 있던 포탑은 폐기되고 요리 수의 절반만큼 재료 환급"),
         new HintDef("resonance_near", "공명 임박",
             "같은 속성 2문째다. 3문을 모으면 공명 - 그 속성 피해 +20% (방어 계열은 기차가 받는 피해 -10%)"),
         new HintDef("first_stun", "포탑 마비!",
-            "포탑 곁으로 달려가라 - 감전은 [E] 한 번, 빙결은 [E] 여러 번. 서 있는 포탑은 요리값을 못 한다"),
+            "포탑 곁으로 달려가라 - 감전은 [E] 한 번, 빙결은 [E] 여러 번. 오래 두면 파손된다"),
         new HintDef("first_overheat", "포탑 과열!",
             "[E] 를 누른 채 마우스를 움직여 식혀라. 손을 떼면 식힌 게 샌다"),
         new HintDef("first_event", "주방 사고!",
@@ -271,11 +275,62 @@ public class TutorialHint : MonoBehaviour
             return false;
         }
 
+        // v1.10: 재고에 합칠 수 있는 기본 요리 짝이 생기면 (GameHUD.FuseCheck 와 같은 규칙 - 조합 있음·선대의 기본기 아님). 포탑을 하나는 세운 뒤에 (투입 -> 진화 순서로 배운다)
+        if (id == "fuse_ready")
+        {
+            if (!GameBalance.DragInsertOn || !GameBalance.DragFuseOn || FoodStock.Instance == null) return false;
+            if (TurretSlotManager.Instance == null || !AnyTurretRunning(TurretSlotManager.Instance)) return false;
+            List<string> have = new List<string>();
+            foreach (RecipeData r in RecipeDatabase.All)
+                if (r != null && r.tier == 1 && FoodStock.Instance.Get(r.recipeId) >= 1) have.Add(r.recipeId);
+            RecipeData fusion; string why;
+            for (int a = 0; a < have.Count; a++)
+                for (int b = a + 1; b < have.Count; b++)
+                    if (GameHUD.FuseCheck(have[a], have[b], out fusion, out why)) return true;
+            return false;
+        }
+
+        // v1.10: 놓을 빈 칸이 없는데(바꿀 수 있는 포탑은 있고) 어느 포탑에도 안 든 요리 카드가 있으면 - 교체를 알려 준다
+        if (id == "swap_ready")
+        {
+            if (!GameBalance.DragInsertOn || !GameBalance.DragReplaceOn || FoodStock.Instance == null) return false;
+            TurretSlotManager mgr = TurretSlotManager.Instance;
+            if (mgr == null || !AnyTurretRunning(mgr)) return false;   // 리뷰 2: 바꿀 포탑이 없으면 교체도 없다
+            for (int i = 0; i < mgr.slots.Length; i++)
+            {
+                TurretSlot s = mgr.slots[i];
+                if (s != null && s.IsEmpty && !s.isLocked && !s.isBroken) return false;   // 빈 칸이 있다
+            }
+            foreach (RecipeData r in RecipeDatabase.All)
+            {
+                if (r == null || FoodStock.Instance.Get(r.recipeId) < 1) continue;
+                bool inTurret = false;
+                for (int i = 0; i < mgr.slots.Length; i++)
+                {
+                    TurretSlot s = mgr.slots[i];
+                    if (s != null && !s.IsEmpty && s.recipeId == r.recipeId) { inTurret = true; break; }
+                }
+                if (!inTurret) return true;
+            }
+            return false;
+        }
+
         if (id == "first_crate")
             return FindObjectsByType<DeckLoot>(FindObjectsSortMode.None).Length > 0;
         if (id == "first_rock")
             return FindObjectsByType<ResourceRock>(FindObjectsSortMode.None).Length > 0;
 
+        return false;
+    }
+
+    /// <summary>v1.10: 요리가 들어 있고 잠기지도 파손되지도 않은 포탑이 하나라도 있나</summary>
+    private static bool AnyTurretRunning(TurretSlotManager mgr)
+    {
+        for (int i = 0; i < mgr.slots.Length; i++)
+        {
+            TurretSlot s = mgr.slots[i];
+            if (s != null && !s.IsEmpty && !s.isLocked && !s.isBroken) return true;
+        }
         return false;
     }
 
