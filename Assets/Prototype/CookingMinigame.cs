@@ -2,7 +2,7 @@
 using UnityEngine.UI;
 
 /// <summary>
-/// [CookingMinigame.cs] v2.10 (v9.21.1 2026-10-13 4차 피드백 4번: 창(증강·행상인·베팅·정비소·카드·일지·일시정지·선로 고르기)이 떠 있는 동안 조리를 보류한다 WindowOpen·HoldForWindow - 시간도 입력도 안 받고 판이 흐려지며 "창을 닫으면 이어진다", 닫히면 그 자리에서. 예전엔 정차 창 뒤에서 혼자 돌다 시간이 끝나 실패가 됐다. GameBalance.CookHoldWhileWindow) / v2.9 (v9.20 2026-10-07: 글 속 화살표를 게임 글꼴에 있는 세모로(게임 글꼴에 화살표 글리프가 없어 PC 의 다른 글꼴로 그려졌다 - 모양이 따로 놀고, 대신할 글꼴이 없는 빌드에선 빈칸)) / v2.8 (v9.16 2026-09-29 손맛 2차 - 소리: 조리 시작에 조리법별 소리 SoundKeys.Cook - 굽기 지글 / 볶기 촤악 / 끓이기 보글) / v2.7
+/// [CookingMinigame.cs] v2.11 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v2.10 (v9.21.1 2026-10-13 4차 피드백 4번: 창(증강·행상인·베팅·정비소·카드·일지·일시정지·선로 고르기)이 떠 있는 동안 조리를 보류한다 WindowOpen·HoldForWindow - 시간도 입력도 안 받고 판이 흐려지며 "창을 닫으면 이어진다", 닫히면 그 자리에서. 예전엔 정차 창 뒤에서 혼자 돌다 시간이 끝나 실패가 됐다. GameBalance.CookHoldWhileWindow) / v2.9 (v9.20 2026-10-07: 글 속 화살표를 게임 글꼴에 있는 세모로(게임 글꼴에 화살표 글리프가 없어 PC 의 다른 글꼴로 그려졌다 - 모양이 따로 놀고, 대신할 글꼴이 없는 빌드에선 빈칸)) / v2.8 (v9.16 2026-09-29 손맛 2차 - 소리: 조리 시작에 조리법별 소리 SoundKeys.Cook - 굽기 지글 / 볶기 촤악 / 끓이기 보글) / v2.7
 /// - v2.7 변경점 (교수 피드백 2026-09-14, A2/A3 - 조리 공정성):
 ///   배율 하한 CookSpeedMulFloor/CookJudgeMulFloor (팬 마모 x 프테라 x 지역이 겹쳐 0.28배까지 떨어지던 것 차단)
 ///   끓이기 = 총시간 하한(BoilMinTotalSec) + 투입 안내를 절대 초가 아니라 "진행률"로 배치 (25~40% / 55~72%),
@@ -628,9 +628,9 @@ public class CookingMinigame : MonoBehaviour
         finished = true;
         finishTimer = 0.8f;
 
-        if (quality == "perfect") ShowJudge("PERFECT!  접시 2개", UIFactory.GOLD);
-        else if (quality == "good") ShowJudge("GOOD!  접시 1개", new Color(0.6f, 0.85f, 0.54f));
-        else ShowJudge("실패...  접시 없음", new Color(1f, 0.6f, 0.48f));
+        if (quality == "perfect") ShowJudge("PERFECT!  요리 2개", UIFactory.GOLD);
+        else if (quality == "good") ShowJudge("GOOD!  요리 1개", new Color(0.6f, 0.85f, 0.54f));
+        else ShowJudge("실패...  요리 없음", new Color(1f, 0.6f, 0.48f));
 
         // 도구 마모 (굽기=칼, 볶기/끓이기=팬) - 정비소 수리의 의미가 생긴다
         ChefController chefRef = FindFirstObjectByType<ChefController>();

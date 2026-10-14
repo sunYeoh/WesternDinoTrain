@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// [FoodStock.cs] v2.2 (v9.11 2026-09-22: 방금 늘어난 요리 LastAddedId/Frame - HUD 카드 날아가기·튀기 연출용) / v2.1 (v9.10 2026-09-17: 숙련 알림을 일상어로 - "이 요리를 N번 만들었다 - 손에 익어 ..." 테스터 "숙련도 어쩌구 설명 필요") / v2
+/// [FoodStock.cs] v2.3 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v2.2 (v9.11 2026-09-22: 방금 늘어난 요리 LastAddedId/Frame - HUD 카드 날아가기·튀기 연출용) / v2.1 (v9.10 2026-09-17: 숙련 알림을 일상어로 - "이 요리를 N번 만들었다 - 손에 익어 ..." 테스터 "숙련도 어쩌구 설명 필요") / v2
 /// 완성된 요리 보관소 + 도감(발견) 관리 (싱글톤)
 /// - 조리 성공 -> Add / 슬롯 투입, T2 합성 -> TryConsume
 /// - v2 변경점 (도감 영구화):
@@ -55,7 +55,7 @@ public class FoodStock : MonoBehaviour
         if (tier == GameBalance.MasteryStartLevelTier)
             msg += ", 새로 놓을 때 레벨 2 부터";
         if (tier >= GameBalance.MasteryPerfectTier)
-            msg += ", PERFECT 면 한 접시 더";
+            msg += ", PERFECT 면 하나 더";
         msg += " (" + title + ")";
 
         UIManager.Instance?.ShowStatChange(msg);

@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// [TurretSlot.cs] v6.13 (v9.18 2026-10-06: 들어간 접시 수(platesTotal) -> 폐기 환급 ScrapRefund = 접시 x 0.5 (무한 제작 루프 차단) / 과열은 조건이 된 포탑 중 무작위(TurretSlotManager 가 고른다 - OverheatReady·TriggerOverheat) / 포탑 그림 높이 TurretVisualDY + 칸 덜컹임 따라가기 / 피해 출처 표시(TurretAttackExecutor.CurrentSource) / 견습 운행에선 숙련 시작 레벨 특전 없음) /
+/// [TurretSlot.cs] v6.14 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v6.13 (v9.18 2026-10-06: 들어간 접시 수(platesTotal) -> 폐기 환급 ScrapRefund = 접시 x 0.5 (무한 제작 루프 차단) / 과열은 조건이 된 포탑 중 무작위(TurretSlotManager 가 고른다 - OverheatReady·TriggerOverheat) / 포탑 그림 높이 TurretVisualDY + 칸 덜컹임 따라가기 / 피해 출처 표시(TurretAttackExecutor.CurrentSource) / 견습 운행에선 숙련 시작 레벨 특전 없음) /
 /// v6.12 (v9.17 2026-10-06 화면 손맛 2차 A8: 발사 순간 PlayFireFeel - 포신이 표적을 바로 겨누고 포탑이 1.06배에서 제자리로 + 포신 끝 섬광(MuzzlePool), 전설은 크게 + 작은 링 / 투입 튀기가 끝나면 1.0 이 아니라 레벨 배율로 돌아온다 - 레벨이 올라도 포탑이 안 커지던 것) / v6.11 (v9.16 2026-09-29 손맛 2차 - 소리: 마비 소리는 StunSlot 이 종류별로 낸다(감전 sfx_stun / 빙결 sfx_freeze / 과열 sfx_overheat - 호출부의 과열음 제거) / 저절로 식으면 sfx_cool / 투입 sfx_insert(접시 쌓기는 작게)·레벨업 sfx_levelup / 파손 sfx_break) / v6.10 (v9.15.1 2026-09-29: 마지막 식사 장면 동안 사격 정지 BossEnemy.LastSupperServing) / v6.9 (v9.15 2026-09-29 2차 피드백: 레벨 상한 해제 - 접시 곡선(platesIn / GameBalance.PlatesToNext)·레벨 체감(GameBalance.LevelMultOf) / 마비 방치 파손(StunBreakSec - 경고 뒤 요리 소실 + 슬롯 봉인, isBroken / BreakWarning / Repair)) / v6.8 (v9.14 2026-09-28 테스터 반영: 레벨 상한 T1 3 / T2 6 (MaxLevelOf·AtMaxLevel), 전설 요리 공격력 x T2DamageMul, 표적 고르기에서 곧 죽을 손님 건너뜀(IncomingDamage)) / v6.7 (v9.12 2026-09-22: TutorialDirector.InlineFreeze 동안 사격 정지) / v6.6 (v9.11.1 2026-09-22 문구: 과열 복구법) / v6.5 (v9.11 2026-09-22 타격감: 투입·레벨업 때 접시 낙하 + 링 + "배치!/Lv N" 팝 + 포탑 1.25배 튀기 - GameBalance.CookFeelOn) / v6.4 (v9.9.2 2026-09-16: 마비 FX - 감전·빙결 = 스파크 3점(ui_ev_spark_0/1 교대, 빙결은 얼음색), 과열 = 연기(ui_ev_smoke_0/1). GameBalance.TurretStunFx) / v6.3 (v9.9 2026-09-16: 남쪽 슬롯 포신 기본 방향 -90 = 남쪽 - 4모서리 배치) / v6.2 (런 통계: 과열 횟수·정지 시간 2026-09-14) / v6.1 (교수 피드백 반영 2026-09-14) / v6 (고퀄 PNG 적용 2026-09-03)
 /// 포탑 슬롯 1개. 요리를 투입하면 포탑으로 가동한다.
 /// - v6.2 변경점 (스위치 실험 지표 - 반영계획 §5 관찰 시트):
@@ -246,7 +246,7 @@ public class TurretSlot : MonoBehaviour
                 if (GameBalance.CookFeelOn && GameBalance.GameFeelMaster > 0f)
                 {
                     WorldFeel.PlateDrop(transform.position, UIFactory.TagColor(r.tag));
-                    WorldFeel.TextPop(transform.position + Vector3.up * 0.45f, "Lv" + (level + 1) + " 까지 " + (need - platesIn) + "접시", new Color(0.95f, 0.85f, 0.6f), 2.6f);
+                    WorldFeel.TextPop(transform.position + Vector3.up * 0.45f, "Lv" + (level + 1) + " 까지 " + (need - platesIn) + "개", new Color(0.95f, 0.85f, 0.6f), 2.6f);
                 }
                 SoundManager.Play("sfx_insert", 0.7f, -1f);   // v6.11: 접시 쌓기 - 작은 투입음
                 Debug.Log("[TurretSlot] " + r.displayName + " 접시 " + platesIn + "/" + need + " (Lv" + level + ")");

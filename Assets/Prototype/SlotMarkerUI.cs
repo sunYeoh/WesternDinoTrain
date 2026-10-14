@@ -3,7 +3,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 /// <summary>
-/// [SlotMarkerUI.cs] v6.0 (v9.19.4 2026-10-07 유저 "포탑 설명이 너무 길다, 겜하면서 필요한 내용도 아니다 - 필요한 것만 남기고 폰트를 키워라": 정보창을 네 줄로(이름·레벨 / 숫자 / 낱말 요약 / 다음에 할 일 + 조작 한 줄) · 글자 15 -> 20(이름 23) · 창 높이가 글을 따라간다(ShowTip) · 같은 창에 뜨는 합체 미리보기도 같은 크기로 줄임 + 진화 미리보기의 공명 수가 같은 속성 둘일 때 틀리던 것) / v5.9 (v9.18 2026-10-06: 폐기 환급 = 들어간 접시의 절반(TurretSlot.ScrapRefund) - 예고·결과·설명 문구 / 진화 미리보기에 "레벨이 같아야 한다" / 선택 안내 줄에 같은 조건) / v5.8 (v9.16 2026-09-29 손맛 2차 - 소리: 냉각 완료 sfx_cool / 얼음 깨기 연타 = 결정 두드림(sfx_hit_crystal) -> 깨짐(sfx_die_crystal) / 감전 털기 = 레버 철컥(sfx_lever). 버튼 클릭음을 빌려 쓰던 것 교체) / v5.7 (v9.15 2026-09-29: 접시 곡선 표기 "(1/2)" / 파손 칩 "파손" + 파손 경고 깜빡임(BreakWarning) / 드래그 투입 - GameHUD 가 NearestMarker·SetDragHover 로 놓을 슬롯을 물어 금색 "여기에 놓기" / 강화 미리보기 GameBalance.LevelMultOf) / v5.6 (v9.14 2026-09-28: 레벨 상한 표시 "최대" + 강화 미리보기 상한, 진화 레벨 = 높은 쪽) / v5.5 (v9.12 2026-09-22: 체인 = "연쇄 번개") / v5.4 (v9.11.1 2026-09-22 문구: 마비 종류별 안내, 전설·진화 조리 용어, 역할 낱말) / v5.3 (v9.10 2026-09-17 테스터 피드백: 포탑 정보창이 마우스를 따라다니며 커서 밑에 겹쳐 깜빡이고 클릭을 가로채던 것 ->
+/// [SlotMarkerUI.cs] v6.1 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v6.0 (v9.19.4 2026-10-07 유저 "포탑 설명이 너무 길다, 겜하면서 필요한 내용도 아니다 - 필요한 것만 남기고 폰트를 키워라": 정보창을 네 줄로(이름·레벨 / 숫자 / 낱말 요약 / 다음에 할 일 + 조작 한 줄) · 글자 15 -> 20(이름 23) · 창 높이가 글을 따라간다(ShowTip) · 같은 창에 뜨는 합체 미리보기도 같은 크기로 줄임 + 진화 미리보기의 공명 수가 같은 속성 둘일 때 틀리던 것) / v5.9 (v9.18 2026-10-06: 폐기 환급 = 들어간 접시의 절반(TurretSlot.ScrapRefund) - 예고·결과·설명 문구 / 진화 미리보기에 "레벨이 같아야 한다" / 선택 안내 줄에 같은 조건) / v5.8 (v9.16 2026-09-29 손맛 2차 - 소리: 냉각 완료 sfx_cool / 얼음 깨기 연타 = 결정 두드림(sfx_hit_crystal) -> 깨짐(sfx_die_crystal) / 감전 털기 = 레버 철컥(sfx_lever). 버튼 클릭음을 빌려 쓰던 것 교체) / v5.7 (v9.15 2026-09-29: 접시 곡선 표기 "(1/2)" / 파손 칩 "파손" + 파손 경고 깜빡임(BreakWarning) / 드래그 투입 - GameHUD 가 NearestMarker·SetDragHover 로 놓을 슬롯을 물어 금색 "여기에 놓기" / 강화 미리보기 GameBalance.LevelMultOf) / v5.6 (v9.14 2026-09-28: 레벨 상한 표시 "최대" + 강화 미리보기 상한, 진화 레벨 = 높은 쪽) / v5.5 (v9.12 2026-09-22: 체인 = "연쇄 번개") / v5.4 (v9.11.1 2026-09-22 문구: 마비 종류별 안내, 전설·진화 조리 용어, 역할 낱말) / v5.3 (v9.10 2026-09-17 테스터 피드백: 포탑 정보창이 마우스를 따라다니며 커서 밑에 겹쳐 깜빡이고 클릭을 가로채던 것 ->
 ///   화면 한 자리(왼쪽 아래, 하단 바 위) 고정 + 클릭 통과(raycastTarget off) + 합체 선택 중엔 고정 유지 / 포탑 실물 클릭·호버도 이름표와 같이 /
 ///   설명은 RecipeText 일상어 ("무엇을 하나 / 어떤 손님에 / 언제")) /
 /// v5.2 (v9.9.2 2026-09-16: 마비 칩 = "감전!/빙결!/과열!" + 할 일 한 줄, 빨간 테, 칩 위 모서리 경광등 0.3초 교대 (GameBalance.StunChipBeacons) - 목업 v3 (E), 정식 런 공용) / v5.1 (v9.9 2026-09-16: 4모서리 배치 - 남쪽 슬롯 마커는 발 아래, 폭 96->120(GameBalance.SlotMarkerWidth), 로비에서 숨김) / v5 (교수 피드백 A5/A12 반영 2026-09-14) / v4 (B-1: 근접 위기 대응 - 방향결정 2026-08-31)
@@ -447,7 +447,7 @@ public class SlotMarkerUI : MonoBehaviour
                 bool dragSame = GameHUD.Instance != null && GameHUD.Instance.DragActive && i == dragHoverIndex && GameHUD.Instance.DragRecipeId == slot.recipeId;
                 if (dragSame)
                 {
-                    markerTexts[i].text = r.displayName + "\n놓기 = 접시 +1";
+                    markerTexts[i].text = r.displayName + "\n놓기 = 요리 +1";
                     markerTexts[i].color = UIFactory.GOLD;
                     markerBGs[i].color = BG_DROP;
                 }
@@ -528,7 +528,7 @@ public class SlotMarkerUI : MonoBehaviour
         // 잠금 슬롯은 안내만
         if (slot.isLocked)
         {
-            UIManager.Instance?.ShowStatChange("잠긴 슬롯! 증강 [증축된 주방 칸]으로 해금");
+            UIManager.Instance?.ShowStatChange("잠긴 칸! 증강 [증축된 주방 칸]으로 해금");
             return;
         }
 
@@ -613,7 +613,7 @@ public class SlotMarkerUI : MonoBehaviour
                 for (int k = 0; k < refund; k++)
                     MaterialInventory.Instance.Add((MaterialType)Random.Range(0, 6), 1);
                 UIManager.Instance?.ShowStatChange("[폐기] " + scrappedName + " Lv" + scrappedLevel
-                    + (refund > 0 ? " - 랜덤 재료 " + refund + "개 환급" : " - 환급 없음"));
+                    + (refund > 0 ? " - 무작위 재료 " + refund + "개 환급" : " - 환급 없음"));
                 HideTooltip();
             }
             else
@@ -623,7 +623,7 @@ public class SlotMarkerUI : MonoBehaviour
                 int refund = slot.ScrapRefund;   // v5.9: 들어간 접시의 절반 (구: 레벨만큼)
                 UIManager.Instance?.ShowStatChange("[폐기 예고] " + slot.Recipe.displayName + " Lv" + slot.level
                     + " - " + GameBalance.ScrapArmSec.ToString("F0") + "초 안에 한 번 더 우클릭하면 폐기 ("
-                    + (refund > 0 ? "랜덤 재료 " + refund + "개 환급" : "환급 없음") + ", 레벨은 사라짐)");
+                    + (refund > 0 ? "무작위 재료 " + refund + "개 환급" : "환급 없음") + ", 레벨은 사라짐)");
             }
         }
     }
@@ -695,7 +695,7 @@ public class SlotMarkerUI : MonoBehaviour
         // 4) 다음에 할 일 - 한 줄 (더 올릴 수 있으면 남은 접시, 기본 요리가 상한이면 진화 조건, 전설 상한이면 없음)
         string next = "";
         if (!slot.AtMaxLevel)
-            next = GameBalance.PlatesCurveOn ? "같은 요리 " + slot.PlatesLeft + "접시 더 넣으면 Lv" + (slot.level + 1) : "같은 요리를 또 넣으면 레벨업";
+            next = GameBalance.PlatesCurveOn ? "같은 요리 " + slot.PlatesLeft + "개 더 넣으면 Lv" + (slot.level + 1) : "같은 요리를 또 넣으면 레벨업";
         else if (r.tier < 2 && !AugmentManager.BasicsDoctrine)
             next = "다른 기본 요리(같은 레벨)와 합치면 전설";
         if (next.Length > 0) info += "\n" + next;
@@ -743,7 +743,7 @@ public class SlotMarkerUI : MonoBehaviour
         {
             if (AugmentManager.BasicsDoctrine) return "[진화 불가] 선대의 기본기 - 전설 요리 진화 봉인";
             RecipeData fusion = RecipeDatabase.GetFusion(ra.tag, rb.tag);
-            if (fusion == null) return "[진화 불가] 이 조합의 진화 레시피 없음";
+            if (fusion == null) return "[진화 불가] 이 조합은 진화할 요리가 없다";
             // v5.9 (유저 10-06): 같은 레벨끼리만
             if (GameBalance.FusionSameLevelOnly && a.level != b.level)
                 return "[진화 불가] 레벨이 같아야 한다\n" + ra.displayName + " Lv" + a.level + " / " + rb.displayName + " Lv" + b.level + "\n낮은 쪽에 같은 요리를 더 넣어 레벨을 맞춰라";

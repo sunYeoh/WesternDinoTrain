@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [InfusingMinigame.cs] v1.1 (v9.21.1 2026-10-13 4차 피드백 1·2·4번: 라운드마다 "읽을 시간"(커서 정지, [Space] 로 바로 시작) + 2라운드에 바늘을 그린다(구간 안이면 금색 - 예전엔 채움 바 끝이 바늘이라 뭘 어디에 두라는지 몰랐다) + 안내를 한 줄씩 크게 + 판 560x260 /
+/// [InfusingMinigame.cs] v1.2 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v1.1 (v9.21.1 2026-10-13 4차 피드백 1·2·4번: 라운드마다 "읽을 시간"(커서 정지, [Space] 로 바로 시작) + 2라운드에 바늘을 그린다(구간 안이면 금색 - 예전엔 채움 바 끝이 바늘이라 뭘 어디에 두라는지 몰랐다) + 안내를 한 줄씩 크게 + 판 560x260 /
 ///   접시 합성도 같은 미니게임(BeginForStock - 끝나면 CookingBridge.CompleteStockFusion, 보너스 = 접시 +1) / 창이 떠 있으면 보류(CookingMinigame.WindowOpen)) /
 /// v1 (신규 파일) - P1: T2 인퓨징 미니게임 (감사 1-A 처방 2)
 ///
@@ -274,11 +274,11 @@ public class InfusingMinigame : MonoBehaviour
     /// <summary>v1.1: 안내 한 줄씩 크게 (무엇을 언제 누르나) + 둘째 줄에 점수와 보너스 규칙</summary>
     private void SetPhaseInfo()
     {
-        string bonusWord = stockMode ? "접시 +" + GameBalance.InfuseStockBonusPlates : "Lv+" + GameBalance.InfuseBonusLevel;
+        string bonusWord = stockMode ? "요리 +" + GameBalance.InfuseStockBonusPlates : "Lv+" + GameBalance.InfuseBonusLevel;
         if (phase == 0)
-            infoText.text = "1/2 정수 추출 - 꼬치가 가운데 올 때 [Space]";
+            infoText.text = "1/2 굽기 - 꼬치가 가운데 올 때 [Space]";
         else if (phase == 1)
-            infoText.text = "2/2 융합 안정화 - [Space] 꾹 = 바늘 오른쪽, 떼면 왼쪽. 흰 구간 안에 두어라";
+            infoText.text = "2/2 끓이기 - [Space] 꾹 = 바늘 오른쪽, 떼면 왼쪽. 흰 구간 안에 두어라";
         else
             infoText.text = "합계 " + score + "점" + (score >= GameBalance.InfuseBonusScoreNeed ? " - 잘 익었다! " + bonusWord : " - 진화는 된다 (보너스 없음)");
         if (subText != null)

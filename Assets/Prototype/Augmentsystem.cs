@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 
 /// <summary>
-/// [AugmentSystem.cs] v4.8 (v9.19.3 2026-10-07: 육수 한 국자·회복의 만찬 설명에 "(1초에 N번까지)" - 타격당 회복을 1초에 GameBalance.LifestealHitsPerSec 번까지만 센다. LifestealDesc) / v4.7 (v9.19.2 2026-10-07: 육수 한 국자·회복의 만찬 설명에서 v4.6 의 "최대 … (떼로 온 손님은 덜)"을 뺐다 - 때릴 때마다 적힌 만큼 회복한다) / v4.6 (v9.19.1: 그 문구를 넣었다) / v4.5 (v9.18 2026-10-06: 선대의 기본기 설명에 "기본 요리 최대 레벨" - 레벨 상한이 돌아오면서 이 증강은 기본 요리 상한을 올려 준다(GameBalance.BasicsT1MaxLevel)) / v4.4 (v9.13 2026-09-23: AugmentDatabase.ForceGrade - 선로 보상 "증강 1회 더" 의 등급 고정) / v4.3 (v9.11.1 2026-09-22 문구: 이번 운행·유물·진화) / v4.2 (v9.10 2026-09-17 테스터 피드백 "증강에 모르겠는 말": 첫 지역은 바로 이해되는 증강만 후보(EARLY_SIMPLE, GameBalance.AugmentSimpleEarly) / 설명 낱말 일상어 - 도트·스택·인접 버프·공명·DEF·감쇄) / v4.1 (2026-09-14: 중첩 배수 상한 AugmentStackMulCap) / v4
+/// [AugmentSystem.cs] v4.9 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v4.8 (v9.19.3 2026-10-07: 육수 한 국자·회복의 만찬 설명에 "(1초에 N번까지)" - 타격당 회복을 1초에 GameBalance.LifestealHitsPerSec 번까지만 센다. LifestealDesc) / v4.7 (v9.19.2 2026-10-07: 육수 한 국자·회복의 만찬 설명에서 v4.6 의 "최대 … (떼로 온 손님은 덜)"을 뺐다 - 때릴 때마다 적힌 만큼 회복한다) / v4.6 (v9.19.1: 그 문구를 넣었다) / v4.5 (v9.18 2026-10-06: 선대의 기본기 설명에 "기본 요리 최대 레벨" - 레벨 상한이 돌아오면서 이 증강은 기본 요리 상한을 올려 준다(GameBalance.BasicsT1MaxLevel)) / v4.4 (v9.13 2026-09-23: AugmentDatabase.ForceGrade - 선로 보상 "증강 1회 더" 의 등급 고정) / v4.3 (v9.11.1 2026-09-22 문구: 이번 운행·유물·진화) / v4.2 (v9.10 2026-09-17 테스터 피드백 "증강에 모르겠는 말": 첫 지역은 바로 이해되는 증강만 후보(EARLY_SIMPLE, GameBalance.AugmentSimpleEarly) / 설명 낱말 일상어 - 도트·스택·인접 버프·공명·DEF·감쇄) / v4.1 (2026-09-14: 중첩 배수 상한 AugmentStackMulCap) / v4
 /// 로그라이크 증강 시스템 (기획 C) - 창의적 증강 재설계판
 ///
 /// 설계 철학
@@ -421,7 +421,7 @@ public static class AugmentDatabase
         //  실버 - 무난한 수치 강화 (안전픽)
         // ==========================================================
         all.Add(new AugmentData("silver_atk", "기름칠한 포신",
-            "모든 포탑 데미지 +12%", AugmentGrade.Silver, true,
+            "모든 포탑 피해 +12%", AugmentGrade.Silver, true,
             delegate { AugmentManager.AtkMul *= 1.12f; }));
 
         all.Add(new AugmentData("silver_hp", "강철 리벳 보강",
@@ -463,14 +463,14 @@ public static class AugmentDatabase
         // (Phase 2-3: '잘 드는 식칼'은 아이템으로 이관 - ItemSystem.cs 참고)
 
         all.Add(new AugmentData("silver_magnet", "자석 흡입기 개조",
-            "적 처치 시 재료 드랍량 +25%", AugmentGrade.Silver, true,
+            "손님 처치 시 재료 드롭 +25%", AugmentGrade.Silver, true,
             delegate { AugmentManager.MaterialDropMul *= 1.25f; }));
 
         // ==========================================================
         //  골드 - 조건부 시너지 ("이걸 먹었으니 이렇게 운영하자")
         // ==========================================================
         all.Add(new AugmentData("gold_atk", "볼케이노 압축기",
-            "모든 포탑 데미지 +30%", AugmentGrade.Gold, true,
+            "모든 포탑 피해 +30%", AugmentGrade.Gold, true,
             delegate { AugmentManager.AtkMul *= 1.30f; }));
 
         all.Add(new AugmentData("gold_dot", "매운맛 중독",
@@ -490,7 +490,7 @@ public static class AugmentDatabase
             delegate { AugmentManager.ShredAdd += 12; }));
 
         all.Add(new AugmentData("gold_crit", "헤드샷 프로토콜",
-            "치명타 확률 +15%, 치명타 데미지 +50%", AugmentGrade.Gold, true,
+            "치명타 확률 +15%, 치명타 피해 +50%", AugmentGrade.Gold, true,
             delegate { AugmentManager.CritChanceAdd += 0.15f; AugmentManager.CritDamageAdd += 0.50f; }));
 
         all.Add(new AugmentData("gold_lifesteal", "회복의 만찬",
@@ -527,7 +527,7 @@ public static class AugmentDatabase
             delegate { AugmentManager.FullSplash = true; }));
 
         all.Add(new AugmentData("gold_doubletap", "2연장 개조",
-            "모든 단일 타격이 25% 확률로 즉시 한 발 더 나간다 (50% 데미지)", AugmentGrade.Gold, false,
+            "모든 단일 타격이 25% 확률로 즉시 한 발 더 나간다 (피해 50%)", AugmentGrade.Gold, false,
             delegate { AugmentManager.DoubleTapChance = 0.25f; }));
 
         all.Add(new AugmentData("gold_fieldrepair", "야전 정비반",
@@ -550,12 +550,12 @@ public static class AugmentDatabase
             null, "도박"));
 
         all.Add(new AugmentData("gold_bloodbet", "출혈 베팅",
-            "웨이브가 시작될 때마다 기차 HP -80. 대신 모든 포탑 데미지 +35%", AugmentGrade.Gold, false,
+            "웨이브가 시작될 때마다 기차 HP -80. 대신 모든 포탑 피해 +35%", AugmentGrade.Gold, false,
             delegate { AugmentManager.BloodBet = true; AugmentManager.AtkMul *= 1.35f; },
             null, "도박"));
 
         all.Add(new AugmentData("gold_chalice", "도박사의 성배",
-            "보유한 [도박] 증강 1개당 모든 포탑 데미지 +10% (이 증강 포함, 이후 획득분도 반영)",
+            "보유한 [도박] 증강 1개당 모든 포탑 피해 +10% (이 증강 포함, 이후 획득분도 반영)",
             AugmentGrade.Gold, false,
             delegate { AugmentManager.HasChalice = true; },
             null, "도박"));
@@ -569,7 +569,7 @@ public static class AugmentDatabase
             "prism_shotgun"));
 
         all.Add(new AugmentData("prism_shotgun", "산탄 셰프",
-            "모든 투사체 공격이 부채꼴 산탄으로 변한다 (데미지 -25%)", AugmentGrade.Prismatic, false,
+            "모든 투사체 공격이 부채꼴 산탄으로 변한다 (피해 -25%)", AugmentGrade.Prismatic, false,
             delegate { AugmentManager.ConeConversion = true; },
             "prism_rail"));
 
@@ -583,7 +583,7 @@ public static class AugmentDatabase
             delegate { AugmentManager.IceHeart = true; }));
 
         all.Add(new AugmentData("prism_gambler", "도박사 스피노의 탄환",
-            "모든 데미지가 50% 확률로 2배, 아니면 절반이 된다. [도박] 증강 1개당 2배 확률 +4%p (최대 70%)",
+            "모든 피해가 50% 확률로 2배, 아니면 절반이 된다. [도박] 증강 1개당 2배 확률 +4%p (최대 70%)",
             AugmentGrade.Prismatic, false,
             delegate { AugmentManager.GamblerBullet = true; },
             null, "도박"));
@@ -593,7 +593,7 @@ public static class AugmentDatabase
             delegate { AugmentManager.ChainProcChance = 0.20f; }));
 
         all.Add(new AugmentData("prism_echo", "메아리치는 폭발",
-            "폭발이 한 번 더 터진다 (60% 데미지, 1.2배 반경)", AugmentGrade.Prismatic, false,
+            "폭발이 한 번 더 터진다 (피해 60%, 반경 1.2배)", AugmentGrade.Prismatic, false,
             delegate { AugmentManager.DoubleExplosion = true; }));
 
         all.Add(new AugmentData("prism_chainamp", "증폭 전이",
@@ -601,7 +601,7 @@ public static class AugmentDatabase
             delegate { AugmentManager.ChainAmplify = true; }));
 
         all.Add(new AugmentData("prism_ramp", "과열 기관",
-            "포탑이 사격을 이어갈수록 데미지가 오른다 (타격당 +5%, 최대 +75%, 2.5초 쉬면 초기화)",
+            "포탑이 사격을 이어갈수록 피해가 오른다 (타격당 +5%, 최대 +75%, 2.5초 쉬면 초기화)",
             AugmentGrade.Prismatic, false,
             delegate { AugmentManager.RampAttack = true; }));
 
@@ -611,7 +611,7 @@ public static class AugmentDatabase
             delegate { AugmentManager.FrostShatter = true; }));
 
         all.Add(new AugmentData("prism_opening", "개전 포격",
-            "웨이브 시작 후 8초 동안 모든 포탑 데미지 2배",
+            "웨이브 시작 후 8초 동안 모든 포탑 피해 2배",
             AugmentGrade.Prismatic, false,
             delegate { AugmentManager.OpeningBarrage = true; }));
 
@@ -627,7 +627,7 @@ public static class AugmentDatabase
             delegate { AugmentManager.ReviveCharges += 1; }));
 
         all.Add(new AugmentData("prism_glasscannon", "유리 대포",
-            "모든 포탑 데미지 +70%. 대신 기차가 받는 피해 +25%", AugmentGrade.Prismatic, false,
+            "모든 포탑 피해 +70%. 대신 기차가 받는 피해 +25%", AugmentGrade.Prismatic, false,
             delegate { AugmentManager.AtkMul *= 1.70f; AugmentManager.DamageReductionAdd -= 0.25f; }));
 
         all.Add(new AugmentData("prism_overdrive", "오버차지 엔진",
@@ -635,7 +635,7 @@ public static class AugmentDatabase
             delegate { AugmentManager.AspdMul *= 1.45f; AugmentManager.RangeMul *= 0.85f; }));
 
         all.Add(new AugmentData("prism_extraslot", "증축된 주방 칸",
-            "포탑 슬롯 1칸 추가 해금 (최대 8칸)", AugmentGrade.Prismatic, true,
+            "포탑 칸 1개 추가 해금 (최대 8칸)", AugmentGrade.Prismatic, true,
             delegate { AugmentManager.ExtraSlotUnlock = Mathf.Min(2, AugmentManager.ExtraSlotUnlock + 1); }));
 
         all.Add(new AugmentData("gold_adjacent", "주방 동선 최적화",
@@ -647,7 +647,7 @@ public static class AugmentDatabase
             delegate { AugmentManager.ResonanceBonusAdd += 0.15f; }));
 
         all.Add(new AugmentData("prism_allin", "올인",
-            "지금 가진 골드를 전부 잃는다. 잃은 골드 100당 모든 포탑 데미지 +4% (최대 +100%)",
+            "지금 가진 골드를 전부 잃는다. 잃은 골드 100당 모든 포탑 피해 +4% (최대 +100%)",
             AugmentGrade.Prismatic, false,
             delegate
             {
@@ -682,7 +682,7 @@ public static class AugmentDatabase
             delegate { AugmentManager.SlotStunDurMul *= 0.4f; }));
 
         all.Add(new AugmentData("gold_pantry", "비상 식량 창고",
-            "웨이브 클리어마다 랜덤 재료 +2", AugmentGrade.Gold, true,
+            "웨이브 클리어마다 무작위 재료 +2", AugmentGrade.Gold, true,
             delegate { AugmentManager.ClearMatBonus += 2; }));
 
         all.Add(new AugmentData("gold_stakes", "판돈 두 배",
@@ -709,12 +709,12 @@ public static class AugmentDatabase
             delegate { AugmentManager.ApprenticeCooks += 1; }));
 
         all.Add(new AugmentData("gold_lastservice", "마지막 서비스",
-            "쓰러진 손님이 터지며 주변 손님에게 처치 데미지의 25%를 나눠 준다",
+            "쓰러진 손님이 터지며 주변 손님에게 처치 피해의 25%를 나눠 준다",
             AugmentGrade.Gold, false,
             delegate { AugmentManager.CorpseService = true; }));
 
         all.Add(new AugmentData("gold_overkill", "옆 테이블 계산서",
-            "처치하고 남은 초과 데미지가 가장 가까운 적에게 청구된다", AugmentGrade.Gold, false,
+            "처치하고 남은 피해가 가장 가까운 손님에게 넘어간다", AugmentGrade.Gold, false,
             delegate { AugmentManager.OverkillCarry = true; }));
 
         all.Add(new AugmentData("gold_barbedwire", "가시철조망 도금",
@@ -728,13 +728,13 @@ public static class AugmentDatabase
             }));
 
         all.Add(new AugmentData("gold_collector", "골동품 감정가",
-            "보유한 유물 1개당 모든 포탑 데미지 +6% (이후 획득분도 반영)",
+            "보유한 유물 1개당 모든 포탑 피해 +6% (이후 획득분도 반영)",
             AugmentGrade.Gold, false,
             delegate { AugmentManager.HasCollector = true; }));
 
         // --- 프리즘 5종 ---
         all.Add(new AugmentData("prism_steelheart", "강철의 심장",
-            "기차 최대 HP 100당 모든 포탑 데미지 +2% (HP를 쌓을수록 강해진다)",
+            "기차 최대 HP 100당 모든 포탑 피해 +2% (HP를 쌓을수록 강해진다)",
             AugmentGrade.Prismatic, false,
             delegate { AugmentManager.SteelHeart = true; }));
 
@@ -745,7 +745,7 @@ public static class AugmentDatabase
             delegate { AugmentManager.BasicsDoctrine = true; }));
 
         all.Add(new AugmentData("prism_onechef", "주방장은 하나다",
-            "가장 레벨 높은 포탑이 주방장이 된다: 데미지 +50%, 처치마다 +2% 누적. 다른 포탑은 데미지 -20%",
+            "가장 레벨 높은 포탑이 주방장이 된다: 피해 +50%, 처치마다 +2% 누적. 다른 포탑은 피해 -20%",
             AugmentGrade.Prismatic, false,
             delegate { AugmentManager.OneChef = true; }));
 

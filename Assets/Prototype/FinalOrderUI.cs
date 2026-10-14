@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [FinalOrderUI.cs] v2.1 (v9.15.1 2026-09-29 스토리 개정: 선택창 문구 "기관심장이 드러났다 - 마지막 식사를 준비할 수 있다", 풀코스 제목 "백 년 만에 차려 주는 저녁") / v2 (교수 피드백 A7/C1/C3 반영 2026-09-14) - C-2: 마지막 주문 (진엔딩 B)
+/// [FinalOrderUI.cs] v2.2 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v2.1 (v9.15.1 2026-09-29 스토리 개정: 선택창 문구 "기관심장이 드러났다 - 마지막 식사를 준비할 수 있다", 풀코스 제목 "백 년 만에 차려 주는 저녁") / v2 (교수 피드백 A7/C1/C3 반영 2026-09-14) - C-2: 마지막 주문 (진엔딩 B)
 /// 디 오리지널 P3(해치 개방)에서, 자격을 갖춘 요리사에게만 열리는 마지막 선택지.
 ///
 /// - v2 변경점:
@@ -124,7 +124,7 @@ public class FinalOrderUI : MonoBehaviour
             s += "선대의 일지 " + GameBalance.TrueEndingJournalsNeeded + "장 (현재 " + MetaProgress.CollectedJournalCount + "장, 폐역 선로에서)";
         int t2Need = Mathf.Max(1, GameBalance.TrueEndingT2Needed);
         if (CountTier2Kinds() < t2Need)
-            s += (s.Length > 0 ? " + " : "") + "전설 요리 " + (t2Need == 1 ? "한 접시" : t2Need + "종");
+            s += (s.Length > 0 ? " + " : "") + "전설 요리 " + (t2Need == 1 ? "하나" : t2Need + "종");
         return s;
     }
 

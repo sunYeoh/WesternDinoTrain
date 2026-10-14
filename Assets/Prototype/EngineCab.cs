@@ -4,7 +4,7 @@ using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 
 /// <summary>
-/// [EngineCab.cs] v4.2 (v9.18 2026-10-06, 10-05 그림 팩: 새 작살포 그림은 왼쪽을 보고 누워 있다 - 쏠 때 바위 쪽으로 돌았다가 0.6초에 제자리로, 빔은 촉 끝에서 / 작살포·레버 그림이 기관차 칸의 덜컹임을 따라간다) / v4.1 (v9.12 2026-09-22: 첫 바위 때 작살 인라인 연습 훅 / ForceCruise / 인라인 연습 중 작살 어그로 없음) / v4 (v9.9.2 2026-09-16: 견습 운행 8·9단계용 - HarpoonRetrievals/LeverPulls 카운터, RockCount, SpawnRockNow(x), TutorialDirector.EngineCabUnlocked 면 게이트 무시,
+/// [EngineCab.cs] v4.3 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v4.2 (v9.18 2026-10-06, 10-05 그림 팩: 새 작살포 그림은 왼쪽을 보고 누워 있다 - 쏠 때 바위 쪽으로 돌았다가 0.6초에 제자리로, 빔은 촉 끝에서 / 작살포·레버 그림이 기관차 칸의 덜컹임을 따라간다) / v4.1 (v9.12 2026-09-22: 첫 바위 때 작살 인라인 연습 훅 / ForceCruise / 인라인 연습 중 작살 어그로 없음) / v4 (v9.9.2 2026-09-16: 견습 운행 8·9단계용 - HarpoonRetrievals/LeverPulls 카운터, RockCount, SpawnRockNow(x), TutorialDirector.EngineCabUnlocked 면 게이트 무시,
 ///   견습 중엔 작살 어그로 없음, 작살·레버 기둥 z -0.02 (튜토리얼 발밑 링이 그 밑에 깔리게)) / v3.1 (교수 피드백 A10: 열람 패널 중 레버/작살 입력 차단 2026-09-14) / v3 - B-3: 기관차 칸 = 기관사 페르소나 (방향결정 2026-08-31)
 ///
 /// - v3 (고퀄 PNG 적용 2026-09-03): 작살포/레버/바위가 Resources/Sprites/WDT/ 의 harpoon / leverpost / leverhandle /
@@ -379,7 +379,7 @@ public class EngineCab : MonoBehaviour
         if (!InBattle())
         {
             UIManager.Instance?.ShowStatChange(WaveManager.TutorialGateActive
-                ? "[작살포] 지금은 조리 시간 - 첫 접시부터 굽자"
+                ? "[작살포] 지금은 조리 시간 - 첫 요리부터 굽자"
                 : "[작살포] 기차가 서 있다 - 달릴 때 낚아라");
             return;
         }

@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// [TurretSlotManager.cs] v2.6 (v9.18 2026-10-06: 진화 조리는 같은 레벨끼리만(FusionSameLevelOnly) + 결과 레벨도 상한까지 / 합체·진화 때 들어간 접시 수를 넘겨받는다(폐기 환급) / 과열은 조건이 된 포탑 중 무작위 / 정비 거리 = 슬롯 앞 바닥(TrainDeck.NearestWalkPoint)까지 / 속성 줄에 마우스를 올리면 공명·옆자리 효과 설명) /
+/// [TurretSlotManager.cs] v2.7 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v2.6 (v9.18 2026-10-06: 진화 조리는 같은 레벨끼리만(FusionSameLevelOnly) + 결과 레벨도 상한까지 / 합체·진화 때 들어간 접시 수를 넘겨받는다(폐기 환급) / 과열은 조건이 된 포탑 중 무작위 / 정비 거리 = 슬롯 앞 바닥(TrainDeck.NearestWalkPoint)까지 / 속성 줄에 마우스를 올리면 공명·옆자리 효과 설명) /
 /// v2.5 (v9.16 2026-09-29 손맛 2차 - 소리: 진화 완료 sfx_fusion, 완벽 판정이면 판정음이 뒤따른다 / 오라 화염 틱은 Enemy.TakeTickDamage - 명중음 없이) / v2.4 (v9.15 2026-09-29: 파손 슬롯 - RepairAllBroken(새 운행)·BrokenCount·RepairOne(정비소) / 동종 병합 레벨 배율 표기 GameBalance.LevelMultOf) / v2.3 (v9.14 레벨 상한) / v2.1 (v9.9 2026-09-16: 슬롯 4모서리 배치 GameBalance.SlotPosition + 근접 판정 "가까운 벽 쪽 거리") / v2
 /// 포탑 슬롯 8개를 자동 생성/관리하는 매니저 (싱글톤)
 /// - v2.1: 슬롯 위치는 GameBalance.SlotPosition(i) 한 곳에서 (모서리 4 = 북 2 지붕선 위 / 남 2 섀시 위).
@@ -180,7 +180,7 @@ public class TurretSlotManager : MonoBehaviour
             int c = tagCounts[(int)tag];
             if (c <= 0) continue;
             int need = NeedFor(tag);
-            string effect = tag == FoodTag.Def ? "기차가 받는 피해 -10%" : TagKor(tag) + " 포탑 데미지 +" + bonusPct + "%";
+            string effect = tag == FoodTag.Def ? "기차가 받는 피해 -10%" : TagKor(tag) + " 포탑 피해 +" + bonusPct + "%";
             if (c >= need) sb.Append("<color=#FFD24D>" + TagKor(tag) + " " + c + "/" + need + " 켜짐</color>  " + effect + "\n");
             else sb.Append(TagKor(tag) + " " + c + "/" + need + "  " + (need - c) + "문 더 놓으면 " + effect + "\n");
             lines++;
@@ -402,7 +402,7 @@ public class TurretSlotManager : MonoBehaviour
                 resonanceActive.Add(tag);
                 string effect = (tag == FoodTag.Def)
                     ? "기차 받는 피해 -10%"
-                    : "데미지 +" + Mathf.RoundToInt((GameBalance.ResonanceBonus + AugmentManager.ResonanceBonusAdd) * 100f) + "%";
+                    : "피해 +" + Mathf.RoundToInt((GameBalance.ResonanceBonus + AugmentManager.ResonanceBonusAdd) * 100f) + "%";
                 Debug.Log("[공명] [" + TagKor(tag) + "] 속성 공명 발동! " + effect);
                 UIManager.Instance?.ShowStatChange("[" + TagKor(tag) + "] 속성 공명 발동! " + effect);
             }
@@ -539,14 +539,14 @@ public class TurretSlotManager : MonoBehaviour
     public bool TryMergeSlots(int idxA, int idxB, out string resultMsg)
     {
         resultMsg = "";
-        if (idxA == idxB) { resultMsg = "같은 슬롯"; return false; }
+        if (idxA == idxB) { resultMsg = "같은 칸"; return false; }
         if (idxA < 0 || idxA >= 8 || idxB < 0 || idxB >= 8) return false;
 
         TurretSlot a = slots[idxA];
         TurretSlot b = slots[idxB];
         if (a == null || b == null || a.IsEmpty || b.IsEmpty || a.isLocked || b.isLocked)
         {
-            resultMsg = "빈 슬롯이나 잠긴 슬롯은 합체 불가";
+            resultMsg = "빈 칸이나 잠긴 칸은 합체 불가";
             return false;
         }
 
@@ -593,7 +593,7 @@ public class TurretSlotManager : MonoBehaviour
             RecipeData fusion = RecipeDatabase.GetFusion(ra.tag, rb.tag);
             if (fusion == null)
             {
-                resultMsg = "이 조합의 진화 레시피 없음";
+                resultMsg = "이 조합은 진화할 요리가 없다";
                 return false;
             }
 

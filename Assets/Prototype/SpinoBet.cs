@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// [SpinoBet.cs] v1 (신규 파일) - Phase 2-1: 스피노 베팅 조건 추적/정산 엔진
+/// [SpinoBet.cs] v1.1 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v1 (신규 파일) - Phase 2-1: 스피노 베팅 조건 추적/정산 엔진
 ///
 /// 도박사 스피노가 보스 직전 정차에서 거는 베팅의 "장부" 역할.
 ///  - 카드 6종 (일반 3: 실패 무손실 / 도박 3: 화끈한 대가 - 사용자 결정)
@@ -54,7 +54,7 @@ public static class SpinoBet
         switch (id)
         {
             case BetId.OnTime: return "정시 배식";
-            case BetId.Perfect: return "완벽한 접시";
+            case BetId.Perfect: return "완벽한 요리";
             case BetId.Tank: return "철벽 주방";
             case BetId.Ledger: return "외상 장부";
             case BetId.Rush: return "속전속결";
@@ -72,7 +72,7 @@ public static class SpinoBet
                 return "보스를 " + (int)GameBalance.BetOnTimeSec + "초 안에 격파\n성공: 골드 +"
                     + GameBalance.BetOnTimeGold + "\n실패: 잃는 것 없음";
             case BetId.Perfect:
-                return "보스전 중 PERFECT 조리 " + GameBalance.BetPerfectNeed + "회\n성공: 랜덤 재료 +"
+                return "보스전 중 PERFECT 조리 " + GameBalance.BetPerfectNeed + "회\n성공: 무작위 재료 +"
                     + GameBalance.BetPerfectMats + "\n실패: 잃는 것 없음";
             case BetId.Tank:
                 return "기차 피격 " + GameBalance.BetTankHitsMax + "회 이하로 격파\n성공: 최대 HP +"
@@ -201,7 +201,7 @@ public static class SpinoBet
                 if (MaterialInventory.Instance != null)
                     for (int i = 0; i < matN; i++)
                         MaterialInventory.Instance.Add(RandomMaterial(), 1);
-                Notice("[베팅 승리] 완벽한 접시! 랜덤 재료 +" + matN);
+                Notice("[베팅 승리] 완벽한 요리! 무작위 재료 +" + matN);
                 break;
             case BetId.Tank:
                 float tankHP = GameBalance.BetTankMaxHP * StakesMul;

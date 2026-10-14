@@ -2,7 +2,7 @@
 using UnityEngine;
 
 /// <summary>
-/// [RecipeDatabase.cs] v2
+/// [RecipeDatabase.cs] v2.1 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v2
 /// 레시피 데이터베이스 (정적 정의)
 /// 프로토타입 v3에서 밸런스 검증된 수치를 그대로 사용
 /// - v2 변경점: 도감 플레이버 텍스트 42종 추가 (스토리바이블 Phase 1)
@@ -102,7 +102,7 @@ public static class RecipeDatabase
 
         // 독 계열 (2)
         AddT1("elec+poison", "마비독 꼬치", FoodTag.Poison, TurretRole.Debuffer, AttackShape.Projectile, DamageType.Magic,
-              8f, 0.8f, 500f, r => { r.shredRes = 1; r.description = "속성 공격 + 마법 저항 감소"; });
+              8f, 0.8f, 500f, r => { r.shredRes = 1; r.description = "속성 공격 + 저항 감소"; });
         AddT1("poison+poison", "맹독 진액", FoodTag.Poison, TurretRole.MagicDealer, AttackShape.Projectile, DamageType.Magic,
               6f, 0.9f, 430f, r => { r.poisonStack = 2; r.description = "맹독 · 지속 피해 2겹"; });
 
@@ -137,7 +137,7 @@ public static class RecipeDatabase
         AddT2(FoodTag.Elec, FoodTag.Ice, "뇌빙 결정포", TurretRole.CC, AttackShape.Explode, DamageType.Magic,
               18f, 1.3f, 400f, r => { r.explodeRadius = 80f; r.stunSec = 0.6f; r.description = "폭발 + 0.6초 멈춤"; });
         AddT2(FoodTag.Elec, FoodTag.Poison, "신경독 코일", TurretRole.Debuffer, AttackShape.Chain, DamageType.Magic,
-              10f, 0.7f, 580f, r => { r.chainCount = 3; r.shredRes = 1; r.description = "번개 3마리 + 마법 저항 감소 전파"; });
+              10f, 0.7f, 580f, r => { r.chainCount = 3; r.shredRes = 1; r.description = "번개 3마리 + 저항 감소 전파"; });
         AddT2(FoodTag.Elec, FoodTag.Def, "축포의 연회", TurretRole.Buffer, AttackShape.Passive, DamageType.Phys,
               0f, 0f, 0f, r => { r.buffType = "as"; r.buffValue = 0.3f; r.description = "[강화] 가로·세로 이웃 포탑 공격 속도 +30%"; });
 

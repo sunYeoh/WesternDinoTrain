@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 
 /// <summary>
-/// [RecipeText.cs] v1.4 (v9.19.4 2026-10-07: 낱말 요약 Brief·ShapeWord·PassiveScales - 운행 중 포탑 정보창용. 유저 "포탑 설명이 너무 길다, 겜하면서 필요한 내용도 아니다") / v1.3 (v9.14 2026-09-28: 설명 짧게 - 재료 줄 제외, "잘 박힌다" 줄 간결 / RecipeHoverRelay.onClick) / v1.2 (v9.12 2026-09-22: 용어 "지속 피해") / v1.1 (v9.11.1 2026-09-22: 재료·조리대 줄(Source) 추가, 무방비 표현) / v1 (신규, v9.10 2026-09-17) - 요리(포탑) 설명을 일상어로 만드는 한 곳
+/// [RecipeText.cs] v1.5 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v1.4 (v9.19.4 2026-10-07: 낱말 요약 Brief·ShapeWord·PassiveScales - 운행 중 포탑 정보창용. 유저 "포탑 설명이 너무 길다, 겜하면서 필요한 내용도 아니다") / v1.3 (v9.14 2026-09-28: 설명 짧게 - 재료 줄 제외, "잘 박힌다" 줄 간결 / RecipeHoverRelay.onClick) / v1.2 (v9.12 2026-09-22: 용어 "지속 피해") / v1.1 (v9.11.1 2026-09-22: 재료·조리대 줄(Source) 추가, 무방비 표현) / v1 (신규, v9.10 2026-09-17) - 요리(포탑) 설명을 일상어로 만드는 한 곳
 ///
 /// 테스터 피드백: "도감에 요리를 눌렀을 때 뭔 요린지 모르니까 만들지 말지도 모르겠음", "포탑 효과를 읽을 시간이 없음",
 /// "모르겠는 말(공명·인퓨징·DPS) 쓰지 말기". RecipeData 의 수치 필드(형태·속성·도트·감속·폭발·체인·회복·버프·패시브)를 그대로 읽어
@@ -131,7 +131,7 @@ public static class RecipeText
     public static string When(RecipeData r)
     {
         if (r == null) return "";
-        if (r.shape == AttackShape.Passive) return "슬롯 하나를 화력 대신 기차 자체에 쓰고 싶을 때";
+        if (r.shape == AttackShape.Passive) return "칸 하나를 화력 대신 기차 자체에 쓰고 싶을 때";
         if (!string.IsNullOrEmpty(r.buffType)) return "이미 좋은 포탑 곁에 두어 더 세게 만들 때";
         if (r.role == TurretRole.Debuffer || r.shredDef > 0 || r.shredRes > 0)
             return "두꺼운 손님·보스 (보스가 무방비일 때 [F] 로 던지는 요리)";

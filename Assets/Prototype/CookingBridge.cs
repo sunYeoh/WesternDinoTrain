@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// [CookingBridge.cs] v1.4 (v9.21.1 2026-10-13 4차 피드백 2번: 접시 합성(FuseFoods)도 진화 조리 미니게임을 거친다 - InfusingMinigame.BeginForStock 을 부르고 끝나면 CompleteStockFusion 이 소모·지급 (보너스 = 접시 +1). GameBalance.InfuseStockOn) / v1.3 (v9.18 2026-10-06: 견습 운행에서는 숙련 특전 "PERFECT 접시 +1" 을 끈다 - 안내는 2접시인데 3접시가 나왔다) / v1.2 (v9.10.1 2026-09-21: 정차 조리 횟수 제한 - GameBalance.StopCookLimit, 웨이브 시작에 WaveManager 가 StopCooksUsed 를 0 으로)
+/// [CookingBridge.cs] v1.5 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v1.4 (v9.21.1 2026-10-13 4차 피드백 2번: 접시 합성(FuseFoods)도 진화 조리 미니게임을 거친다 - InfusingMinigame.BeginForStock 을 부르고 끝나면 CompleteStockFusion 이 소모·지급 (보너스 = 접시 +1). GameBalance.InfuseStockOn) / v1.3 (v9.18 2026-10-06: 견습 운행에서는 숙련 특전 "PERFECT 접시 +1" 을 끈다 - 안내는 2접시인데 3접시가 나왔다) / v1.2 (v9.10.1 2026-09-21: 정차 조리 횟수 제한 - GameBalance.StopCookLimit, 웨이브 시작에 WaveManager 가 StopCooksUsed 를 0 으로)
 /// 재료 -> 조리 -> 요리 획득 흐름의 연결부 (정적 클래스)
 /// v1.1 (교수 피드백 09-14): 런 통계(조리/실패 횟수, 마지막 성공 시각) + Bad 판정 부분 환급 스위치
 /// 지금은 "즉시 완성" 모드. 나중에 기존 미니게임(CookingSystem)과 연결하면
@@ -270,14 +270,14 @@ public static class CookingBridge
         int need = recipeIdA == recipeIdB ? 2 : 1;
         if (FoodStock.Instance.Get(recipeIdA) < need || FoodStock.Instance.Get(recipeIdB) < 1)
         {
-            UIManager.Instance?.ShowStatChange("진화 조리 무산 - 재료 접시가 없어졌다 (아무것도 잃지 않음)");
+            UIManager.Instance?.ShowStatChange("진화 조리 무산 - 재료로 쓸 요리가 없어졌다 (아무것도 잃지 않음)");
             return;
         }
         FoodStock.Instance.TryConsume(recipeIdA, 1);
         FoodStock.Instance.TryConsume(recipeIdB, 1);
         int made = 1 + Mathf.Max(0, bonusPlates);
         FoodStock.Instance.Add(result.recipeId, made);
-        UIManager.Instance?.ShowStatChange("[진화] " + result.displayName + " 접시 " + made + (bonusPlates > 0 ? " (잘 익혀 +" + bonusPlates + ")" : ""));
+        UIManager.Instance?.ShowStatChange("[진화] " + result.displayName + " " + made + "개" + (bonusPlates > 0 ? " (잘 익혀 +" + bonusPlates + ")" : ""));
         Debug.Log("[CookingBridge] 접시 진화 조리 완료: " + result.displayName + " x" + made);
     }
 
