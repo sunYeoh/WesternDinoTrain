@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [TutorialHint.cs] v1.10 (v9.22.1 2026-10-14 유저 "튜토리얼에 드래그가 반영 안 됐다": first_battle·merge_ready 칩을 끌어다 놓기 기준으로, first_stun 에 "방치하면 파손" / 새 칩 fuse_ready(기본 요리 카드 둘 = 진화 조리 - 합칠 수 있는 짝이 재고에 생기면) · swap_ready(빈 칸이 없는데 못 넣은 요리가 있으면 = 교체)) / v1.9 (v9.22 2026-10-14 조작 팩 2-2: Tab 키가 없어져 "재료가 모였다" 칩에서 [Tab] 주방 전체 메뉴를 뺐다 - 조리대 [E] 만) / v1.8 (v9.18 2026-10-06: 배너 폭 660 -> 620 - 씬 HUD 가 UI 배율을 따르면서 커진 좌상단 판과 8 겹치던 것) / v1.7 (v9.13 2026-09-23: first_route 트리거 = BranchRouteUI.ChoicePending - 선로 선택이 카드 창이 아니게 됨) / v1.6 (v9.12 2026-09-22: F4 가 구간 기록도 지운다 / 리롤 복원) / v1.5 (v9.11.1 2026-09-22 문구: 복구법 상태별·공명 예외·이번 운행·다시 뽑기·무방비) / v1.4 (v9.9.2 2026-09-16: 승격 5 - first_town / first_augment / first_route / first_item / first_overheat 는 배너 대신 브리핑 카드(BriefingTexts.Promoted), F4 가 첫 등장 카드 기록도 지운다) / v1.3 (v9.9 2026-09-16: 견습 운행·브리핑 카드 중엔 배너 쉼, F4 가 견습 완료 기록도 지움, 배너 캔버스 DontDestroyOnLoad) / v1.2 (v9.8.1: F4 리셋은 GameBalance.CheatsAllowed 일 때만) / v1.1 (교수 피드백 A13: 표시 5초 + 아무 키 닫기 + 조리 중 대기) - 컨텍스트 트리거 튜토리얼 (설계: 튜토리얼_온보딩_설계_2026-08-18)
+/// [TutorialHint.cs] v1.11 (v9.22.2 2026-10-14 유저 "튜토리얼 말투가 번역체·AI 같고 딱딱하다": 안내 글 말투를 반말 해체로 - 명령형 ~라·설명 ~다 끝맺음, 문장 속 기호, 어려운 말(투입·재가동·곁·유인)를 걷어냈다. 규칙 = 문구원칙 10-14 저녁 "말투" 절) / v1.10 (v9.22.1 2026-10-14 유저 "튜토리얼에 드래그가 반영 안 됐다": first_battle·merge_ready 칩을 끌어다 놓기 기준으로, first_stun 에 "방치하면 파손" / 새 칩 fuse_ready(기본 요리 카드 둘 = 진화 조리 - 합칠 수 있는 짝이 재고에 생기면) · swap_ready(빈 칸이 없는데 못 넣은 요리가 있으면 = 교체)) / v1.9 (v9.22 2026-10-14 조작 팩 2-2: Tab 키가 없어져 "재료가 모였다" 칩에서 [Tab] 주방 전체 메뉴를 뺐다 - 조리대 [E] 만) / v1.8 (v9.18 2026-10-06: 배너 폭 660 -> 620 - 씬 HUD 가 UI 배율을 따르면서 커진 좌상단 판과 8 겹치던 것) / v1.7 (v9.13 2026-09-23: first_route 트리거 = BranchRouteUI.ChoicePending - 선로 선택이 카드 창이 아니게 됨) / v1.6 (v9.12 2026-09-22: F4 가 구간 기록도 지운다 / 리롤 복원) / v1.5 (v9.11.1 2026-09-22 문구: 복구법 상태별·공명 예외·이번 운행·다시 뽑기·무방비) / v1.4 (v9.9.2 2026-09-16: 승격 5 - first_town / first_augment / first_route / first_item / first_overheat 는 배너 대신 브리핑 카드(BriefingTexts.Promoted), F4 가 첫 등장 카드 기록도 지운다) / v1.3 (v9.9 2026-09-16: 견습 운행·브리핑 카드 중엔 배너 쉼, F4 가 견습 완료 기록도 지움, 배너 캔버스 DontDestroyOnLoad) / v1.2 (v9.8.1: F4 리셋은 GameBalance.CheatsAllowed 일 때만) / v1.1 (교수 피드백 A13: 표시 5초 + 아무 키 닫기 + 조리 중 대기) - 컨텍스트 트리거 튜토리얼 (설계: 튜토리얼_온보딩_설계_2026-08-18)
 ///
 /// 몰아서 가르치지 않는다. 각 기믹을 "처음 마주치는 순간" 1회만 배너로 안내한다.
 /// - 영구 기록: PlayerPrefs "WDT_Tut_(id)" - 2회차부터 반복 없음 (다회차 마찰 방지)
@@ -35,41 +35,41 @@ public class TutorialHint : MonoBehaviour
     private static readonly HintDef[] HINTS =
     {
         new HintDef("first_battle", "황야로 출발!",
-            "[WASD] 달려라, [Shift] 대시! 요리 카드를 끌어다 포탑 이름표에 놓아라"),
+            "[WASD]로 달리고 [Shift]로 대시. 요리 카드는 끌어서 포탑 이름표에 놔"),
         new HintDef("cook_ready", "재료가 모였다",
-            "재료 2개 = 요리 1개. 가까운 조리대 곁에서 [E] - 재료 둘을 올리면 요리가 보인다"),
-        new HintDef("cook_start", "조리 개시",
-            "판정에 맞춰 손을 움직여라. [ESC] 중단하면 재료는 돌려받는다"),
-        new HintDef("merge_ready", "같은 요리는 겹친다",
-            "같은 요리 카드를 그 요리의 포탑에 또 놓으면 Lv 올리기. 같은 포탑 2문은 좌클릭 ▶ 좌클릭 합체"),
+            "재료 두 개면 요리 하나. 조리대 앞에서 [E], 재료를 올리면 뭐가 나올지 보여"),
+        new HintDef("cook_start", "조리 시작",
+            "눈금 보고 타이밍 맞춰 눌러. [ESC]로 그만둬도 재료는 돌려받아"),
+        new HintDef("merge_ready", "같은 요리로 키우기",
+            "카드를 같은 요리가 든 포탑에 또 놓으면 레벨이 올라. 같은 포탑 둘은 하나씩 좌클릭하면 합체"),
         new HintDef("fuse_ready", "전설로 가는 길",
-            "기본 요리 카드를 끌면 합칠 수 있는 카드에 분홍 테 - 그 위에 놓으면 진화 조리 ▶ 전설 요리"),
-        new HintDef("swap_ready", "빈 칸이 없다",
-            "다른 요리가 든 칸에 놓으면 교체 - 들어 있던 포탑은 폐기되고 요리 수의 절반만큼 재료 환급"),
-        new HintDef("resonance_near", "공명 임박",
-            "같은 속성 2문째다. 3문을 모으면 공명 - 그 속성 피해 +20% (방어 계열은 기차가 받는 피해 -10%)"),
+            "기본 요리 카드를 끌면 합칠 짝에 분홍 테가 떠. 거기 놓으면 진화 조리로 전설 요리가 나와"),
+        new HintDef("swap_ready", "빈 칸이 없을 땐",
+            "다른 요리 칸에 놓으면 교체야. 원래 포탑은 폐기되고 넣었던 요리 절반만큼 재료가 돌아와"),
+        new HintDef("resonance_near", "공명까지 하나 남았어",
+            "같은 속성 포탑이 둘이야. 셋이면 공명, 그 속성 피해 +20% (방어 계열은 기차가 받는 피해 -10%)"),
         new HintDef("first_stun", "포탑 마비!",
-            "포탑 곁으로 달려가라 - 감전은 [E] 한 번, 빙결은 [E] 여러 번. 오래 두면 파손된다"),
+            "포탑 옆으로 달려가. 감전은 [E] 한 번, 빙결은 [E] 여러 번. 오래 두면 망가져"),
         new HintDef("first_overheat", "포탑 과열!",
-            "[E] 를 누른 채 마우스를 움직여 식혀라. 손을 떼면 식힌 게 샌다"),
+            "[E]를 누른 채 마우스를 흔들어서 식혀. 손을 떼면 열이 도로 올라"),
         new HintDef("first_event", "주방 사고!",
-            "화살표를 따라 달려가라 - 현장에 도착해야 수습이 시작된다"),
+            "화살표를 따라 달려가. 현장에 가야 처리할 수 있어"),
         new HintDef("first_crate", "갑판의 전리품",
-            "떨어진 상자는 밟아서 회수한다"),
-        new HintDef("first_item", "유물 획득",
-            "[V] 소지품 목록을 봐라 - 유물은 종류마다 하나, 효과는 이번 운행 동안"),
+            "갑판에 떨어진 상자는 밟아서 주워"),
+        new HintDef("first_item", "유물을 얻었다",
+            "[V]로 소지품을 봐. 유물은 종류마다 하나씩, 효과는 이번 운행 동안만"),
         new HintDef("first_rock", "광맥 바위 발견",
-            "기관차 작살포 [E]로 낚아채라. 가끔 굶주린 것들이 딸려온다"),
+            "기관실 작살포 옆에서 [E]로 낚아. 가끔 굶주린 놈들이 같이 딸려 와"),
         new HintDef("lever_hint", "기관차 레버",
-            "기관차의 레버 [E] = 전속 주행. 위험한 만큼 벌이가 좋다"),
+            "기관실 레버 옆에서 [E]를 꾹 누르면 전속 주행. 위험한 만큼 벌이가 좋아"),
         new HintDef("first_town", "간이역 정차",
-            "[G] 정비소 - 수리·연마·재료 시장. 도구가 상하면 조리가 어려워진다"),
-        new HintDef("first_augment", "증강 선택",
-            "[1~5] 숫자키로 선택 / [0] 건너뛰기(+명성) / [9] 리롤(골드). 증강이 이번 운행의 강화다"),
-        new HintDef("first_route", "분기 선로",
-            "두상 앞에서 선로가 갈라진다 - 왼쪽 카드로 길을 골라라. 폐역에는 선대의 일지가 남아 있다"),
-        new HintDef("boss_incoming", "보스 접근!",
-            "가슴 해치가 열리면(무방비) [F] 로 독샘 요리를 던져라!"),
+            "[G]로 정비소를 열어. 수리, 연마, 재료 시장이 있어. 도구가 상하면 조리가 어려워져"),
+        new HintDef("first_augment", "증강 고르기",
+            "[1~5] 숫자키로 골라. [0]은 건너뛰기(명성 조금), [9]는 리롤(골드). 효과는 이번 운행 동안만"),
+        new HintDef("first_route", "갈림길",
+            "두상 앞에서 선로가 갈라져. 왼쪽 카드로 길을 골라. 폐역엔 선대의 일지가 남아 있어"),
+        new HintDef("boss_incoming", "보스가 온다!",
+            "보스가 무방비가 되면 [F]로 독샘 요리를 던져!"),
     };
 
     private const string PREF_PREFIX = "WDT_Tut_";   // 메타(WDT_)와 같은 계열, 독립 키
@@ -432,7 +432,7 @@ public class TutorialHint : MonoBehaviour
             float top = height - 52f - i * 30f;
             Text row = UIFactory.CreateText(archiveRoot, "Row" + i,
                 seen ? (HINTS[i].title + "  -  " + HINTS[i].body)
-                     : "???  -  아직 만나지 않은 상황이다",
+                     : "???  -  아직 못 본 상황",
                 13, seen ? UIFactory.CREAM : UIFactory.DIM, TextAnchor.MiddleLeft);
             row.rectTransform.anchorMin = new Vector2(0f, 0f);
             row.rectTransform.anchorMax = new Vector2(1f, 0f);

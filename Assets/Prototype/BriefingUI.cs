@@ -4,7 +4,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 /// <summary>
-/// [BriefingUI.cs] v1.5 (v9.16 2026-09-29 손맛 2차 - 소리: 열림은 ModalFeel 이 sfx_ui_open, 닫힘 sfx_ui_close. 클릭음 제거) / v1.4 (v9.15 2026-09-29: 보조 키 - BriefDef.altKey/altHint/onAlt. 구간 완료 카드의 [R] 한 번 더. 닫힘 안내 줄에 "[R] 한 번 더   [Enter] 로비로") / v1.2 (v9.11 2026-09-22: 등장 연출 ModalFeel) / v1.1 (v9.9.2 2026-09-16: 초상 + 키 동시 배치(실루엣 1배 위 + 키 아래) / 초상 틴트(EnemySkin 규칙) / 증강 선택창 위에도 열린다 - 승격 카드 "증강 선택"용)
+/// [BriefingUI.cs] v1.6 (v9.22.2 2026-10-14 유저 "튜토리얼 말투가 번역체·AI 같고 딱딱하다": 안내 글 말투를 반말 해체로 - 명령형 ~라·설명 ~다 끝맺음, 문장 속 기호, 어려운 말(투입·재가동·곁·유인)를 걷어냈다. 규칙 = 문구원칙 10-14 저녁 "말투" 절) / v1.5 (v9.16 2026-09-29 손맛 2차 - 소리: 열림은 ModalFeel 이 sfx_ui_open, 닫힘 sfx_ui_close. 클릭음 제거) / v1.4 (v9.15 2026-09-29: 보조 키 - BriefDef.altKey/altHint/onAlt. 구간 완료 카드의 [R] 한 번 더. 닫힘 안내 줄에 "[R] 한 번 더   [Enter] 로비로") / v1.2 (v9.11 2026-09-22: 등장 연출 ModalFeel) / v1.1 (v9.9.2 2026-09-16: 초상 + 키 동시 배치(실루엣 1배 위 + 키 아래) / 초상 틴트(EnemySkin 규칙) / 증강 선택창 위에도 열린다 - 승격 카드 "증강 선택"용)
 ///   / v1 (신규, v9.9 2026-09-16) - 브리핑 카드: "읽는 동안 세계가 멈추는" 설명 창
 ///
 /// 튜토리얼 계획 v2 §5. 견습 운행(TutorialDirector)의 단계 시작마다, 그리고 정식 런에서 처음 만나는 것
@@ -14,7 +14,7 @@ using UnityEngine.UI;
 ///   - 왼쪽 위 황동 명판 = 화자("스피노" / "새 손님" / "지역" ...)
 ///   - 제목 22pt 금색 + 본문 17pt 크림 최대 4줄
 ///   - 오른쪽 초상 판 220x220 (링 카드): 손님 스프라이트(e_*.png 2배) 또는 키 카드(큰 키 글자 + 한 줄)
-///   - 왼쪽 아래 "시간 정지 중" / 오른쪽 아래 "[Enter] 알겠다"
+///   - 왼쪽 아래 "시간 정지 중" / 오른쪽 아래 "[Enter] 알겠어"
 /// 닫기 = Enter / KeypadEnter / 마우스 클릭 (열린 뒤 0.15초 지나야 - 열리게 한 키가 바로 닫지 않게).
 ///   닫힌 프레임은 KeyConsumedFrame 에 남긴다 - 같은 프레임에 [Enter] = 단계 건너뛰기 등이 이중 소비되지 않게.
 /// 시간: GameBalance.BriefingPausesTime 이면 timeScale 0 (AugmentListUI 의 pausedByMe 패턴 - 이미 멈춘 화면 위면 손대지 않는다).
@@ -327,7 +327,7 @@ public class BriefingUI : MonoBehaviour
         if (portraitBorderImg != null) portraitBorderImg.color = ring;
 
         pauseNote.text = GameBalance.BriefingPausesTime ? "시간 정지 중" : "";
-        closeHint.text = (!string.IsNullOrEmpty(def.altHint) ? def.altHint + "     " : "") + "[Enter] 알겠다";   // v1.4
+        closeHint.text = (!string.IsNullOrEmpty(def.altHint) ? def.altHint + "     " : "") + "[Enter] 알겠어";   // v1.4
     }
 
     /// <summary>키 카드 배치: 초상과 같이면 아래쪽(글자 40pt, 라벨 y 12) / 키만이면 판 위쪽 절반(54pt, 라벨 y 24)</summary>
@@ -401,7 +401,7 @@ public class BriefingUI : MonoBehaviour
         bodyText.lineSpacing = 1.3f;
         bodyText.horizontalOverflow = HorizontalWrapMode.Wrap;   // 긴 줄은 접는다 (560 폭)
 
-        // 초상 판 220x200 (오른쪽 위 (-30,-40), 아래 끝 y 60 = "[Enter] 알겠다" 줄 위) - 링 카드
+        // 초상 판 220x200 (오른쪽 위 (-30,-40), 아래 끝 y 60 = "[Enter] 알겠어" 줄 위) - 링 카드
         portraitCard = UIFactory.CreatePanel(panel, "Portrait",
             new Vector2(1f, 1f), new Vector2(1f, 1f),
             new Vector2(-30f - 220f, -40f - 200f), new Vector2(-30f, -40f),
@@ -440,7 +440,7 @@ public class BriefingUI : MonoBehaviour
         pauseNote.rectTransform.pivot = new Vector2(0f, 0f);
         pauseNote.rectTransform.anchoredPosition = new Vector2(40f, 34f); pauseNote.rectTransform.sizeDelta = new Vector2(300f, 20f);
 
-        closeHint = UIFactory.CreateText(panel, "CloseHint", "[Enter] 알겠다", 15, UIFactory.DIM, TextAnchor.LowerRight);
+        closeHint = UIFactory.CreateText(panel, "CloseHint", "[Enter] 알겠어", 15, UIFactory.DIM, TextAnchor.LowerRight);
         closeHint.rectTransform.anchorMin = new Vector2(1f, 0f); closeHint.rectTransform.anchorMax = new Vector2(1f, 0f);
         closeHint.rectTransform.pivot = new Vector2(1f, 0f);
         closeHint.rectTransform.anchoredPosition = new Vector2(-40f, 34f); closeHint.rectTransform.sizeDelta = new Vector2(300f, 22f);

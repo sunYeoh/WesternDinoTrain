@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 /// <summary>
-/// [TutorialDirector.cs] v2.5 (v9.22.1 2026-10-14 유저 "튜토리얼에 드래그가 반영 안 됐다": 2·5·6단계 목표 글과 지연 힌트를 v9.22 조작(카드 끌어다 놓기 - 교체 / 재료 중심 조리 창) 기준으로. 클릭 ▶ 클릭도 된다고 덧붙임. 5단계에 20초 지연 힌트(고기 카드 두 번 누르기) 추가) / v2.4 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v2.3 (v9.20 2026-10-07: 글 속 화살표를 게임 글꼴에 있는 세모로(게임 글꼴에 화살표 글리프가 없어 PC 의 다른 글꼴로 그려졌다 - 모양이 따로 놀고, 대신할 글꼴이 없는 빌드에선 빈칸)) / v2.2 (v9.18 2026-10-06: 목표 카드의 아래 끝·왼쪽 끝을 밖에서 읽게(CardBottomY·CardLeftFromRight - 알림 줄과 예고 카드가 카드를 피한다) / [Enter] 건너뛰기 오작동 - 요리 창·카드가 닫히는 그 프레임의 Enter 가 단계 건너뛰기로 새던 것(직전 프레임에 창이 떠 있었으면 무시) / 4단계 고기: 손님이 재료를 반드시 떨어뜨리고(Enemy), 그래도 모자라면 10초 뒤 채운다(구 30초)) / v2.1 (v9.15 2026-09-29 2차 피드백 "훈련장 무한 반복·맨땅 연습": 구간 완료 카드 [R] 한 번 더(PendingSegment - 씬 리로드 뒤 자동 시작) / 자유 연습 Begin(SANDBOX=8) - 손님이 계속 오고(SandboxSpawn*) 재료가 안 떨어지고 기차가 안 죽는다, [1] 낙뢰 [2] 화재 [3] 흘림 [4] 고장 [5] 침입 을 직접 일으킨다, 나가기 = [ESC] 메뉴 그만두기. SandboxActive 동안 포탑 파손도 진짜로 일어난다) / v2 (v9.12 2026-09-22: 견습 운행 구간화 - 7구간(S1 이동과 첫 포탑 1~6 / S2 감전된 포탑 복구 7 / S3 작살로 재료 얻기 8 / S4 전속 주행 켜고 끄기 9 /
+/// [TutorialDirector.cs] v2.6 (v9.22.2 2026-10-14 유저 "튜토리얼 말투가 번역체·AI 같고 딱딱하다": 안내 글 말투를 반말 해체로 - 명령형 ~라·설명 ~다 끝맺음, 문장 속 기호, 어려운 말(투입·재가동·곁·유인)를 걷어냈다. 규칙 = 문구원칙 10-14 저녁 "말투" 절) / v2.5 (v9.22.1 2026-10-14 유저 "튜토리얼에 드래그가 반영 안 됐다": 2·5·6단계 목표 글과 지연 힌트를 v9.22 조작(카드 끌어다 놓기 - 교체 / 재료 중심 조리 창) 기준으로. 클릭 ▶ 클릭도 된다고 덧붙임. 5단계에 20초 지연 힌트(고기 카드 두 번 누르기) 추가) / v2.4 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v2.3 (v9.20 2026-10-07: 글 속 화살표를 게임 글꼴에 있는 세모로(게임 글꼴에 화살표 글리프가 없어 PC 의 다른 글꼴로 그려졌다 - 모양이 따로 놀고, 대신할 글꼴이 없는 빌드에선 빈칸)) / v2.2 (v9.18 2026-10-06: 목표 카드의 아래 끝·왼쪽 끝을 밖에서 읽게(CardBottomY·CardLeftFromRight - 알림 줄과 예고 카드가 카드를 피한다) / [Enter] 건너뛰기 오작동 - 요리 창·카드가 닫히는 그 프레임의 Enter 가 단계 건너뛰기로 새던 것(직전 프레임에 창이 떠 있었으면 무시) / 4단계 고기: 손님이 재료를 반드시 떨어뜨리고(Enemy), 그래도 모자라면 10초 뒤 채운다(구 30초)) / v2.1 (v9.15 2026-09-29 2차 피드백 "훈련장 무한 반복·맨땅 연습": 구간 완료 카드 [R] 한 번 더(PendingSegment - 씬 리로드 뒤 자동 시작) / 자유 연습 Begin(SANDBOX=8) - 손님이 계속 오고(SandboxSpawn*) 재료가 안 떨어지고 기차가 안 죽는다, [1] 낙뢰 [2] 화재 [3] 흘림 [4] 고장 [5] 침입 을 직접 일으킨다, 나가기 = [ESC] 메뉴 그만두기. SandboxActive 동안 포탑 파손도 진짜로 일어난다) / v2 (v9.12 2026-09-22: 견습 운행 구간화 - 7구간(S1 이동과 첫 포탑 1~6 / S2 감전된 포탑 복구 7 / S3 작살로 재료 얻기 8 / S4 전속 주행 켜고 끄기 9 /
 ///   S5 요리하며 기차 지키기 10 / S6 증강 선택과 정비 11 / S7 미끼로 첫 보스 상대하기 12(신규)) + 마지막 앞길 카드 13. Begin(segment) 로 한 구간만 (훈련장 TrainingGroundUI),
 ///   구간마다 PlayerPrefs WDT_Tut_S1..S7 = 1 완료 / 2 건너뜀. 정식 운행 인라인 연습 PlayInline(seg) - 새 기믹 첫 등장 순간(협곡 낙뢰 / 첫 바위 / 레버 웨이브) 손님·스폰·사고·포탑을 멈추고(InlineFreeze)
 ///   셰프만 움직여 그 행동을 해낸다. 30초 = 힌트 추가(자동 통과 없음), [Enter] = 건너뛰기(기록 2). 큰 카드 540x250 = 연습·예습, 목표 카드 330x156 은 그대로 (목업 v4.2).
@@ -90,13 +90,13 @@ public class TutorialDirector : MonoBehaviour
     }
 
     public static readonly SegmentInfo[] SEGMENT_TABLE = new SegmentInfo[] {
-        new SegmentInfo(1, "이동과 첫 포탑",        "달리고, 보급 요리를 포탑에 넣고, 굽는다",           "단계 1~6", "예상 3분",  1, 6),
-        new SegmentInfo(2, "감전된 포탑 복구",      "낙뢰로 멈춘 포탑 곁에서 [E] 한 번",                 "단계 7",   "예상 30초", 7, 7),
-        new SegmentInfo(3, "작살로 재료 얻기",      "기관실 작살포로 창밖 바위를 낚는다",                "단계 8",   "예상 40초", 8, 8),
-        new SegmentInfo(4, "전속 주행 켜고 끄기",   "레버를 당기면 빨라지고 골드가 늘지만 손님도 는다",  "단계 9",   "예상 30초", 9, 9),
-        new SegmentInfo(5, "요리하며 기차 지키기",  "손님 무리를 막는다 - 기차가 다친다",               "단계 10",  "예상 1분",  10, 10),
-        new SegmentInfo(6, "증강 선택과 정비",      "증강 카드를 고르고 정차역에서 [G] 정비소",          "단계 11",  "예상 40초", 11, 11),
-        new SegmentInfo(7, "미끼로 첫 보스 상대하기", "미끼 화덕으로 무리와 새끼 발톱을 유인한다",       "단계 12",  "예상 1분",  12, 12),
+        new SegmentInfo(1, "이동과 첫 포탑",        "달리기부터 포탑에 요리 넣고 굽기까지",           "단계 1~6", "예상 3분",  1, 6),
+        new SegmentInfo(2, "감전된 포탑 살리기",      "낙뢰 맞고 멈춘 포탑 옆에서 [E] 한 번",                 "단계 7",   "예상 30초", 7, 7),
+        new SegmentInfo(3, "작살로 재료 얻기",      "기관실 작살포로 창밖 바위 낚기",                "단계 8",   "예상 40초", 8, 8),
+        new SegmentInfo(4, "전속 주행 켜고 끄기",   "레버를 당기면 빨라지고 골드도 늘지만 손님도 늘어",  "단계 9",   "예상 30초", 9, 9),
+        new SegmentInfo(5, "요리하며 기차 지키기",  "몰려오는 손님 막기. 이번엔 기차가 다쳐",               "단계 10",  "예상 1분",  10, 10),
+        new SegmentInfo(6, "증강 고르고 정비하기",      "증강 카드 고르고 정차역에서 [G] 정비소 열기",          "단계 11",  "예상 40초", 11, 11),
+        new SegmentInfo(7, "미끼로 첫 보스 상대하기", "미끼 화덕으로 무리와 새끼 발톱 꾀어내기",       "단계 12",  "예상 1분",  12, 12),
     };
 
     /// <summary>구간 기록: 0 = 아직 / 1 = 완료 / 2 = 건너뜀(단계를 건너뛰었거나 인라인 연습을 건너뜀)</summary>
@@ -395,7 +395,7 @@ public class TutorialDirector : MonoBehaviour
             if (um != null)
             {
                 if (um.waveText != null) um.waveText.text = runSegment == 0 ? "견습 운행" : runSegment == SANDBOX ? "자유 연습" : "훈련장  구간 " + runSegment;
-                if (um.stateText != null) um.stateText.text = runSegment == SANDBOX ? "연습 중  (나가기 = [ESC] 메뉴)" : "견습 중  " + StepPos(step) + " / " + runSteps.Count;
+                if (um.stateText != null) um.stateText.text = runSegment == SANDBOX ? "연습 중  ([ESC] 메뉴에서 나가기)" : "견습 중  " + StepPos(step) + " / " + runSteps.Count;
             }
         }
         else if (um != null && um.stateText != null)
@@ -497,13 +497,13 @@ public class TutorialDirector : MonoBehaviour
         if (seg == 7 && MaterialInventory.Instance != null && MeatCount() < GameBalance.BossPracticeMeat)
             MaterialInventory.Instance.Add(MaterialType.Meat, GameBalance.BossPracticeMeat - MeatCount());
         if (seg == 3 || seg == 4) EngineCabUnlocked = true;
-        UIManager.Instance?.ShowStatChange(seg == 0 || seg == 1 ? "[견습 운행] 보급 요리 도착 - 더블 육포 1개" : "[훈련장] 구간 " + seg + " - " + SEGMENT_TABLE[seg - 1].title);
+        UIManager.Instance?.ShowStatChange(seg == 0 || seg == 1 ? "[견습 운행] 더블 육포 1개가 보급으로 왔다" : "[훈련장] 구간 " + seg + " - " + SEGMENT_TABLE[seg - 1].title);
     }
 
     // ── 1. 이동: 통로를 건너 포탑 칸 A 로 ──
     private IEnumerator Step1_Move()
     {
-        BeginStep(1, "오른쪽 포탑 칸으로 달려라", "[WASD] 이동, [Shift] 대시\n칸 사이는 통로 발판으로만 건넌다", null, 0, 0);
+        BeginStep(1, "오른쪽 포탑 칸으로 가기", "[WASD] 이동, [Shift] 대시\n칸 사이는 통로 발판으로만 건너가", null, 0, 0);
         float carL = GameBalance.CarEdgesX[2] + 0.12f, carR = GameBalance.CarEdgesX[3] - 0.12f;
         Vector3 target = new Vector3((carL + carR) * 0.5f, 0.3f, 0f);   // 포탑 칸 A 바닥 가운데 (약 4.75, 0.3)
         ShowMarkerAt(target, 0.9f, RING_FLOOR);
@@ -514,7 +514,7 @@ public class TutorialDirector : MonoBehaviour
         {
             Transform chef = Chef();
             if (chef != null && Vector2.Distance(chef.position, target) <= 1.0f) break;
-            if (Time.time > blinkAt) { blinkAt = float.MaxValue; UIManager.Instance?.ShowStatChange("[견습] 포탑 칸은 주방 오른쪽 - 칸 사이 발판(통로)으로 건너라"); }
+            if (Time.time > blinkAt) { blinkAt = float.MaxValue; UIManager.Instance?.ShowStatChange("[견습] 포탑 칸은 주방 오른쪽이야. 칸 사이 통로 발판으로 건너가"); }
             yield return null;
         }
         yield return EndStep();
@@ -524,7 +524,7 @@ public class TutorialDirector : MonoBehaviour
     private IEnumerator Step2_Insert()
     {
         TurretSlot slot = SlotAt(1);
-        BeginStep(2, "보급 요리를 포탑에 넣어라", "하단 바의 더블 육포 카드를 끌어다\n화살표 아래 [+] 이름표에 놓아라", "투입", 0, 1);
+        BeginStep(2, "포탑에 보급 요리 넣기", "화면 아래 더블 육포 카드를 끌어서\n화살표 밑 [+] 이름표에 놔", "넣기", 0, 1);
         if (FoodStock.Instance != null && FoodStock.Instance.Get(STARTER_RECIPE) < 1) FoodStock.Instance.Add(STARTER_RECIPE, 1);
         if (slot != null) ShowMarkerFollow(slot.transform, SlotArrowTip(1), RING_TURRET);
         yield return Brief(BriefingTexts.Tutorial(2));
@@ -535,7 +535,7 @@ public class TutorialDirector : MonoBehaviour
         while (!skipRequested)
         {
             if (FilledSlotCount() > filledAtStart || TurretSlot.LastInsertTime > insertMark2) break;
-            if (Time.time > hintAt) { hintAt = float.MaxValue; UIManager.Instance?.ShowStatChange("[견습] 요리 카드를 끌어다 포탑 위 [+] 이름표에 놓아라 (카드 클릭 ▶ 이름표 클릭도 된다)"); }
+            if (Time.time > hintAt) { hintAt = float.MaxValue; UIManager.Instance?.ShowStatChange("[견습] 카드를 [+] 이름표에 끌어다 놔. 카드 누르고 이름표 눌러도 돼"); }
             yield return null;
         }
         SetProgress(1, 1);
@@ -545,14 +545,14 @@ public class TutorialDirector : MonoBehaviour
     // ── 3. 첫 손님 (랩터 2, 약체, 기차 무적) ──
     private IEnumerator Step3_FirstGuests()
     {
-        BeginStep(3, "첫 손님이다 - 포탑이 알아서 쏜다", "포탑이 손님을 쏘는 걸 지켜봐라\n쓰러진 손님의 재료가 기차로 모인다", "손님", 0, 2);
+        BeginStep(3, "첫 손님 지켜보기", "포탑이 알아서 쏘니까 지켜만 봐\n쓰러진 손님 재료는 기차로 모여", "손님", 0, 2);
         HideMarker();
         yield return Brief(BriefingTexts.Tutorial(3));
 
         float spawnDist = TailSpawnDistance();
         List<Enemy> guests = WaveManager.Instance != null ? WaveManager.Instance.SpawnForTutorial("raptor", 2, 0.7f, 0f, spawnDist) : null;
         int need = guests == null ? 0 : guests.Count;         // 프리팹도 폴백도 없으면 0 - 바로 통과 (막히지 않게)
-        Spino("[스피노] 애피타이저다 - 요리가 곧 탄환이지");
+        Spino("[스피노] 애피타이저 왔네. 요리가 곧 총알이야");
         float giveUpAt = Time.time + 90f;
         while (!skipRequested && need > 0)
         {
@@ -570,7 +570,7 @@ public class TutorialDirector : MonoBehaviour
     // ── 4. 재료 (자동 흡수 확인) ──
     private IEnumerator Step4_Materials()
     {
-        BeginStep(4, "재료가 날아온다 - 하단 바를 봐라", "쓰러진 손님의 재료가\n기차로 빨려 온다", "고기", MeatCount(), 2);
+        BeginStep(4, "고기 두 개 모으기", "쓰러진 손님 재료는 알아서 빨려 와\n화면 아래 왼쪽에서 개수를 봐", "고기", MeatCount(), 2);
 
         float fallbackAt = Time.time + 10f;   // v2.2: 30 -> 10초 (손님은 이제 재료를 반드시 떨어뜨린다 - 날아오는 시간만 기다리면 된다)
         while (!skipRequested)
@@ -580,7 +580,7 @@ public class TutorialDirector : MonoBehaviour
             if (Time.time > fallbackAt)
             {
                 if (MaterialInventory.Instance != null) MaterialInventory.Instance.Add(MaterialType.Meat, 2 - MeatCount());
-                UIManager.Instance?.ShowStatChange("[견습] 찬장에서 고기를 꺼내 뒀다");
+                UIManager.Instance?.ShowStatChange("[견습] 찬장에서 고기 꺼내 놨어");
                 break;
             }
             yield return null;
@@ -595,7 +595,7 @@ public class TutorialDirector : MonoBehaviour
     private IEnumerator Step5_Grill()
     {
         CookingStation grill = FindStation(CookingStation.StationType.Grilling);
-        BeginStep(5, "그릴에서 더블 육포를 구워라", "그릴 곁에서 [E] ▶ 고기 둘 올려 굽기\n눈금이 판정 칸 안에 오면 [Space]", "조리", 0, 1);
+        BeginStep(5, "그릴에서 더블 육포 굽기", "그릴 앞에서 [E], 고기 두 개 올려\n눈금이 초록 구간에 오면 [Space]", "굽기", 0, 1);
         if (grill != null) ShowMarkerFollow(grill.transform, 1.0f, RING_STATION);
         yield return Brief(BriefingTexts.Tutorial(5));
 
@@ -610,7 +610,7 @@ public class TutorialDirector : MonoBehaviour
             if (CookingBridge.LastGoodCookTime > cookMark) break;
             if (!kitchenSeen && KitchenPanel.IsOpenStatic) { kitchenSeen = true; hintAt5 = Time.time + 20f; }
             if (CookingMinigame.IsActive) hintAt5 = float.MaxValue;
-            if (Time.time > hintAt5) { hintAt5 = float.MaxValue; UIManager.Instance?.ShowStatChange("[견습] 조리 창에서 고기 카드를 두 번 누르거나 끌어 놓으면 그릴 두 칸이 찬다 ▶ [굽기 시작]"); }
+            if (Time.time > hintAt5) { hintAt5 = float.MaxValue; UIManager.Instance?.ShowStatChange("[견습] 조리 창에서 고기 카드를 두 번 누르거나 끌어 놓고 [굽기 시작]"); }
 
             // Bad 판정으로 재료를 잃었으면 다시 준다 (3회) - 3회 다 태우면 요리를 주고 넘긴다 (막히지 않게)
             if (CookingBridge.BadsThisRun > badsSeen)
@@ -620,16 +620,16 @@ public class TutorialDirector : MonoBehaviour
                 if (resupplies > 3)
                 {
                     if (FoodStock.Instance != null) FoodStock.Instance.Add(STARTER_RECIPE, 1);
-                    UIManager.Instance?.ShowStatChange("[견습] 요리를 하나 구워 뒀다 - 굽기는 나중에 더 연습하자");
+                    UIManager.Instance?.ShowStatChange("[견습] 요리 하나 구워 놨어. 굽기는 나중에 더 연습하자");
                     passedByGift = true;
                     break;
                 }
                 if (MaterialInventory.Instance != null && MeatCount() < 2) MaterialInventory.Instance.Add(MaterialType.Meat, 2 - MeatCount());
-                UIManager.Instance?.ShowStatChange("[견습] 태웠다. 고기를 다시 줬다 - 판정 칸 안에서 [Space]");
+                UIManager.Instance?.ShowStatChange("[견습] 탔네. 고기 다시 줬어. 초록 구간에서 [Space]");
             }
             yield return null;
         }
-        if (!passedByGift && !skipRequested) Spino("[스피노] 그거다. 요리가 곧 탄환이다");
+        if (!passedByGift && !skipRequested) Spino("[스피노] 바로 그거야. 요리가 곧 총알이지");
         SetProgress(1, 1);
         yield return EndStep();
     }
@@ -638,7 +638,7 @@ public class TutorialDirector : MonoBehaviour
     private IEnumerator Step6_LevelUp()
     {
         TurretSlot first = SlotAt(0);
-        BeginStep(6, "구운 육포를 아까 그 포탑에 넣어라", "카드를 끌어다 화살표 포탑에 놓아라\n같은 요리 = Lv 올리기, 다른 요리 = 교체", "투입", 0, 1);
+        BeginStep(6, "같은 요리로 Lv 올리기", "구운 육포 카드를 화살표 포탑에 놔\n다른 요리가 든 칸에 놓으면 교체야", "넣기", 0, 1);
         if (FoodStock.Instance != null && TotalFood() < 1) FoodStock.Instance.Add(STARTER_RECIPE, 1);
         if (first != null) ShowMarkerFollow(first.transform, SlotArrowTip(0), RING_TURRET);
         yield return Brief(BriefingTexts.Tutorial(6));
@@ -648,7 +648,7 @@ public class TutorialDirector : MonoBehaviour
         while (!skipRequested)
         {
             if (TurretSlot.LastInsertTime > insertMark) break;
-            if (Time.time > hintAt) { hintAt = float.MaxValue; UIManager.Instance?.ShowStatChange("[견습] 하단 바의 요리 카드를 끌어다 포탑 이름표에 놓아라 (카드 클릭 ▶ 이름표 클릭도 된다)"); }
+            if (Time.time > hintAt) { hintAt = float.MaxValue; UIManager.Instance?.ShowStatChange("[견습] 카드를 화살표 포탑 이름표에 끌어다 놔. 카드 누르고 이름표 눌러도 돼"); }
             yield return null;
         }
         SetProgress(1, 1);
@@ -659,7 +659,7 @@ public class TutorialDirector : MonoBehaviour
     private IEnumerator Step7_Lightning()
     {
         TurretSlot target = AnyActiveSlot(1);
-        BeginStep(7, "낙뢰! 멈춘 포탑에 달려가 [E]", "곁에 서서 [E] 한 번\n스파크가 꺼지면 재가동", "포탑", 0, 1);
+        BeginStep(7, "감전된 포탑 살리기", "옆에 서서 [E] 한 번\n스파크가 꺼지면 포탑이 다시 쏴", "포탑", 0, 1);
         HideMarker();
 
         // 낙뢰 연출: 흰 번쩍 + 흔들림 + 감전 (브리핑은 그 뒤 - "포탑이 멈췄다" 는 과거형)
@@ -675,7 +675,7 @@ public class TutorialDirector : MonoBehaviour
         while (!skipRequested && target != null)
         {
             if (!target.IsStunned) break;                  // SlotMarkerUI 가 [E] 한 번에 ClearStun
-            if (Time.time > hintAt) { hintAt = float.MaxValue; UIManager.Instance?.ShowStatChange("[견습] 감전 포탑 바로 앞(벽 쪽)까지 가서 [E] 한 번"); }
+            if (Time.time > hintAt) { hintAt = float.MaxValue; UIManager.Instance?.ShowStatChange("[견습] 감전된 포탑 바로 앞, 벽 쪽까지 붙어서 [E] 한 번"); }
             yield return null;
         }
         if (target != null && target.IsStunned) target.ClearStun();   // 건너뛰기 - 멈춘 채로 두지 않는다
@@ -695,7 +695,7 @@ public class TutorialDirector : MonoBehaviour
     private IEnumerator Step8_Harpoon()
     {
         EngineCabUnlocked = true;
-        BeginStep(8, "작살포로 바위를 낚아라", "기관실 작살포 곁에서 [E]\n놓치면 바위는 또 온다", "바위", 0, 1);
+        BeginStep(8, "작살포로 바위 낚기", "기관실 작살포 옆에서 [E]\n놓쳐도 바위는 또 와", "바위", 0, 1);
         ShowMarkerAt(new Vector3(GameBalance.HarpoonX, 1.7f, 0f), 1.0f, RING_HARPOON);
         yield return Brief(BriefingTexts.Tutorial(8));
 
@@ -712,8 +712,8 @@ public class TutorialDirector : MonoBehaviour
                 EngineCab.SpawnRockNow(-13f);
                 nextRockAt = Time.time + 1.5f;
             }
-            if (Time.time > hintAt) { hintAt = float.MaxValue; UIManager.Instance?.ShowStatChange("[견습] 작살포 곁(기관실 왼쪽 위)에서 [E] - 바위가 사거리 안이면 바로 맞는다"); }
-            if (Time.time > hint2At) { hint2At = float.MaxValue; AddHintLine("바위가 작살포 앞을 지날 때 [E] - 재장전 " + Mathf.RoundToInt(GameBalance.HarpoonCooldown) + "초. 안 되면 [Enter] 로 건너뛴다"); }
+            if (Time.time > hintAt) { hintAt = float.MaxValue; UIManager.Instance?.ShowStatChange("[견습] 작살포는 기관실 왼쪽 위에 있어. 바위가 사거리에 들어오면 [E]"); }
+            if (Time.time > hint2At) { hint2At = float.MaxValue; AddHintLine("바위가 작살포 앞을 지날 때 [E]\n재장전 " + Mathf.RoundToInt(GameBalance.HarpoonCooldown) + "초. 안 되면 [Enter]로 넘어가"); }
             yield return null;
         }
         SetProgress(1, 1);
@@ -724,7 +724,7 @@ public class TutorialDirector : MonoBehaviour
     private IEnumerator Step9_Lever()
     {
         EngineCabUnlocked = true;
-        BeginStep(9, "레버를 당겨라 - 전속 주행", "기관실 레버 곁에서 [E] 잠깐 꾹\n다시 당기면 원래대로", "레버", 0, 1);
+        BeginStep(9, "레버로 전속 주행 켜기", "기관실 레버 옆에서 [E]를 잠깐 꾹\n다시 당기면 원래대로 돌아와", "레버", 0, 1);
         ShowMarkerAt(new Vector3(GameBalance.LeverX, 0.35f, 0f), 1.0f, RING_LEVER);
         yield return Brief(BriefingTexts.Tutorial(9));
 
@@ -734,8 +734,8 @@ public class TutorialDirector : MonoBehaviour
         while (!skipRequested)
         {
             if (EngineCab.LeverPulls > mark) break;
-            if (Time.time > hintAt) { hintAt = float.MaxValue; UIManager.Instance?.ShowStatChange("[견습] 레버 곁에서 [E] 를 " + GameBalance.LeverHoldSec + "초 꾹 - 손을 떼면 취소"); }
-            if (Time.time > hint2At) { hint2At = float.MaxValue; AddHintLine("레버는 기관실 오른쪽 아래 기둥 - 곁에 서서 [E] 를 놓지 말고 " + GameBalance.LeverHoldSec + "초. 안 되면 [Enter]"); }
+            if (Time.time > hintAt) { hintAt = float.MaxValue; UIManager.Instance?.ShowStatChange("[견습] 레버 옆에서 [E]를 " + GameBalance.LeverHoldSec + "초 꾹 눌러. 떼면 취소돼"); }
+            if (Time.time > hint2At) { hint2At = float.MaxValue; AddHintLine("레버는 기관실 오른쪽 아래 기둥이야\n[E]를 " + GameBalance.LeverHoldSec + "초 꾹 눌러. 안 되면 [Enter]"); }
             yield return null;
         }
         SetProgress(1, 1);
@@ -746,7 +746,7 @@ public class TutorialDirector : MonoBehaviour
     private IEnumerator Step10_Defense()
     {
         int RAPTORS = Mathf.Max(0, GameBalance.TutorialDefenseRaptors), PTERAS = Mathf.Max(0, GameBalance.TutorialDefensePteras);
-        BeginStep(10, "손님이 몰려온다 - 배운 대로 막아라", "요리를 늘리고, 멈춘 포탑은 털어라\n기차가 멈추면 이 단계만 다시", "손님", 0, RAPTORS + PTERAS);
+        BeginStep(10, "몰려오는 손님 막기", "요리 늘리고, 멈춘 포탑은 [E]로 살려\n기차가 멈추면 이 단계만 다시 해", "손님", 0, RAPTORS + PTERAS);
         HideMarker();
         if (MaterialInventory.Instance != null && MeatCount() < 2) MaterialInventory.Instance.Add(MaterialType.Meat, 2 - MeatCount());   // 싸우면서 구울 재료
         yield return Brief(BriefingTexts.Tutorial(10));
@@ -756,7 +756,7 @@ public class TutorialDirector : MonoBehaviour
         float statMul = 1.0f;
         int need = 0;
         List<Enemy> guests = SpawnDefenseWave(RAPTORS, PTERAS, statMul, out need);
-        Spino("[스피노] 진짜다 - 요리를 늘려라. 멈춘 포탑은 달려가 털어라");
+        Spino("[스피노] 이번엔 진짜야. 요리 늘리고, 멈춘 포탑은 달려가서 살려");
         trainStoppedFlag = false;
 
         while (!skipRequested && need > 0)
@@ -774,7 +774,7 @@ public class TutorialDirector : MonoBehaviour
                 godMode = true;
                 yield return Brief(BriefingTexts.TutorialRetry());
                 if (retries10 >= 2) statMul = 0.6f;
-                if (retries10 >= 4) { UIManager.Instance?.ShowStatChange("[견습] 손님들이 물러갔다 - 정식 운행에서 다시 해보자"); break; }
+                if (retries10 >= 4) { UIManager.Instance?.ShowStatChange("[견습] 손님들이 물러갔어. 정식 운행에서 다시 해 보자"); break; }
                 if (MaterialInventory.Instance != null && MeatCount() < 2) MaterialInventory.Instance.Add(MaterialType.Meat, 2 - MeatCount());
                 godMode = false;
                 guests = SpawnDefenseWave(RAPTORS, PTERAS, statMul, out need);
@@ -816,7 +816,7 @@ public class TutorialDirector : MonoBehaviour
     // ── 11. 정산: 진짜 증강 선택창 -> [G] 정비소 한 번 열기 ──
     private IEnumerator Step11_Settlement()
     {
-        BeginStep(11, "정산 - 증강과 정비소", "[1~5] 증강 하나 고르기\n[G] 정비소를 열어봐라", "증강·정비소", 0, 2);
+        BeginStep(11, "증강 고르고 정비소 열기", "[1~5]로 증강 하나 골라\n그다음 [G]로 정비소를 열어 봐", "증강·정비소", 0, 2);
         HideMarker();
         yield return Brief(BriefingTexts.Tutorial(11));
 
@@ -836,8 +836,8 @@ public class TutorialDirector : MonoBehaviour
             if (!highlighted && Time.unscaledTime > hintAt)
             {
                 highlighted = true;
-                if (linesText != null) { linesText.text = "[G] 정비소 - 지금 눌러봐라\n(정식 운행에선 정차역마다)"; linesText.color = HINT_GOLD; }
-                UIManager.Instance?.ShowStatChange("[견습] [G] 를 눌러 정비소를 열어봐라 - 수리·연마·재료 시장");
+                if (linesText != null) { linesText.text = "지금 [G]를 눌러서 정비소를 열어 봐\n정식 운행에선 정차역마다 열 수 있어"; linesText.color = HINT_GOLD; }
+                UIManager.Instance?.ShowStatChange("[견습] [G]를 눌러서 정비소를 열어 봐. 수리, 연마, 재료 시장이 있어");
             }
             yield return null;
         }
@@ -852,10 +852,10 @@ public class TutorialDirector : MonoBehaviour
     {
         int LURES = Mathf.Max(1, GameBalance.BossPracticeLures);
         SetCardBig(true);
-        BeginStep(12, "미끼로 보스 무리를 유인하라",
-            "1. 왼쪽 아래 [미끼 굽기] 를 눌러라. 고기 1개가 든다\n2. 눈금이 판정 구간에 오면 [Space]\n3. 던진 미끼로 무리가 가는 동안 포탑이 때린다\n4. 유인이 끝나면 다시 기차를 노린다 - 남은 시간을 봐라\n   무리가 미끼를 물면 왕(새끼 발톱)도 따라온다",
-            "유인", 0, LURES);
-        SetFooter("유인 " + LURES + "회 성공 = 완료. 기차 HP " + Mathf.RoundToInt(GameBalance.BossPracticeRetryHp * 100f) + "% 아래면 한 번 다시", "[Enter] 건너뛰기");
+        BeginStep(12, "미끼로 보스 무리 꾀어내기",
+            "1. 왼쪽 아래 [미끼 굽기]를 눌러. 고기 1개가 들어\n2. 눈금이 초록 구간에 오면 [Space]\n3. 무리가 미끼 쪽에 가 있는 동안 포탑이 때려\n4. 시간이 끝나면 무리는 다시 기차로 와. 남은 시간을 봐\n   무리가 미끼를 물면 왕(새끼 발톱)도 따라와",
+            "미끼", 0, LURES);
+        SetFooter("미끼 " + LURES + "번이면 끝. 기차 HP " + Mathf.RoundToInt(GameBalance.BossPracticeRetryHp * 100f) + "% 밑이면 한 번만 다시", "[Enter] 건너뛰기");
         HideMarker();
         if (MaterialInventory.Instance != null && MeatCount() < GameBalance.BossPracticeMeat)
             MaterialInventory.Instance.Add(MaterialType.Meat, GameBalance.BossPracticeMeat - MeatCount());
@@ -868,8 +868,8 @@ public class TutorialDirector : MonoBehaviour
         List<Enemy> pack = new List<Enemy>();
         BossEnemy cub = SpawnPractice(pack);
         bool hadCub = cub != null;
-        UIManager.Instance?.ShowWaveNotice("[예습]  첫 보스 연습 - 미끼로 무리를 유인하라", "왼쪽 아래 미끼 화덕에서 고기를 굽는다");
-        Spino("[스피노] 왕의 새끼다 - 정면으로 붙지 말고 미끼부터 구워라");
+        UIManager.Instance?.ShowWaveNotice("[예습]  첫 보스 연습 - 미끼로 무리 꾀어내기", "왼쪽 아래 미끼 화덕에서 고기를 구워");
+        Spino("[스피노] 왕의 새끼야. 정면으로 붙지 말고 미끼부터 구워");
 
         float hintAt = Time.time + 20f;
         float hint2At = Time.time + GameBalance.InlineHintSec;
@@ -882,14 +882,14 @@ public class TutorialDirector : MonoBehaviour
             if (hadCub && (cub == null || !cub.IsAlive))
             {
                 // 새끼를 먼저 잡았다 - 완료 조건은 유인이지만 잡았으면 덤으로 통과 (막히지 않게)
-                UIManager.Instance?.ShowStatChange("[예습] 새끼 발톱을 잡았다 - 유인 없이도 통과");
+                UIManager.Instance?.ShowStatChange("[예습] 새끼 발톱을 잡았네. 미끼 없이도 통과야");
                 break;
             }
             // 고기가 다 떨어지면 채워 준다 (미끼 = 고기 1)
             if (MeatCount() <= 0 && !BaitStationUI.TimingActive)
             {
                 if (MaterialInventory.Instance != null) MaterialInventory.Instance.Add(MaterialType.Meat, 2);
-                UIManager.Instance?.ShowStatChange("[예습] 고기를 2개 더 줬다 - 미끼는 고기 1개");
+                UIManager.Instance?.ShowStatChange("[예습] 고기 2개 더 줬어. 미끼 하나에 고기 1개야");
             }
             // 기차 HP 절반 아래 -> 다시 (1회). 두 번째부터는 기차가 안 다친다
             bool lowHp = TrainManager.Instance != null && TrainManager.Instance.HPRatio <= GameBalance.BossPracticeRetryHp;
@@ -911,25 +911,25 @@ public class TutorialDirector : MonoBehaviour
                     cub = SpawnPractice(pack);
                     hadCub = cub != null;
                     SetProgress(0, LURES);
-                    AddHintLine("무리가 기차 곁에 붙기 전에 미끼를 던져라 - 굽는 동안은 포탑이 지킨다");
+                    AddHintLine("무리가 붙기 전에 미끼를 던져. 굽는 동안은 포탑이 지켜");
                     Debug.Log("[Tutorial] 단계 12 재시작 1회");
                 }
                 else
                 {
                     godMode = true;
                     if (TrainManager.Instance != null) TrainManager.Instance.currentHP = TrainManager.Instance.currentMaxHP;
-                    UIManager.Instance?.ShowStatChange("[예습] 이제 기차는 안 다친다 - 유인 " + LURES + "회를 채우거나 [Enter] 로 건너뛴다");
+                    UIManager.Instance?.ShowStatChange("[예습] 이제 기차는 안 다쳐. 미끼 " + LURES + "번을 채우거나 [Enter]로 넘어가");
                 }
             }
-            if (Time.time > hintAt) { hintAt = float.MaxValue; UIManager.Instance?.ShowStatChange("[예습] 왼쪽 아래 [미끼 굽기] 클릭 -> 눈금이 판정 구간에 올 때 [Space]"); }
-            if (Time.time > hint2At) { hint2At = float.MaxValue; AddHintLine("가운데(노란 구간)에서 누를수록 오래 유인한다 (8초). 안 되면 [Enter]"); }
+            if (Time.time > hintAt) { hintAt = float.MaxValue; UIManager.Instance?.ShowStatChange("[예습] 왼쪽 아래 [미끼 굽기]를 누르고, 눈금이 초록 구간에 오면 [Space]"); }
+            if (Time.time > hint2At) { hint2At = float.MaxValue; AddHintLine("노란 구간에서 누르면 " + GameBalance.BaitDurationPerfect + "초 동안 붙잡아 둬. 안 되면 [Enter]"); }
             yield return null;
         }
         KillAll(pack); DespawnPractice(ref cub);
         godMode = true;
         if (TrainManager.Instance != null) TrainManager.Instance.currentHP = TrainManager.Instance.currentMaxHP;
         SetProgress(LURES, LURES);
-        if (!skipRequested) Spino("[스피노] 그거다. 왕은 무리를 지키러 온다 - 진짜 왕도 똑같다");
+        if (!skipRequested) Spino("[스피노] 바로 그거야. 왕은 무리를 지키러 와. 진짜 왕도 똑같아");
         yield return EndStep();
         SetCardBig(false);
     }
@@ -943,7 +943,7 @@ public class TutorialDirector : MonoBehaviour
         List<Enemy> raptors = WaveManager.Instance.SpawnForTutorial("raptor", Mathf.Max(0, GameBalance.BossPracticeRaptors), GameBalance.BossPracticeRaptorMul, 0f, spawnDist);
         if (raptors != null) pack.AddRange(raptors);
         BossEnemy cub = WaveManager.Instance.SpawnBossForPractice(spawnDist + 2.5f);
-        if (cub == null) UIManager.Instance?.ShowStatChange("[예습] 보스 프리팹이 없다 - 랩터 무리로만 연습한다");
+        if (cub == null) UIManager.Instance?.ShowStatChange("[예습] 보스가 없어서 랩터 무리로만 연습해");
         return cub;
     }
 
@@ -960,7 +960,7 @@ public class TutorialDirector : MonoBehaviour
     // ── 13. 도박꾼 / 앞길: 실습 없이 카드 2장 (전부 돌리는 런에만) ──
     private IEnumerator Step13_Gambler()
     {
-        BeginStep(13, "도박꾼과 앞길", "카드를 읽어라\n[Enter] 다음 장", null, 0, 0);
+        BeginStep(13, "앞으로 알아 둘 것", "카드를 읽어 봐\n[Enter] 다음 장", null, 0, 0);
         HideMarker();
         yield return Brief(BriefingTexts.Tutorial(12));
         yield return Brief(BriefingTexts.Tutorial(13));
@@ -1076,7 +1076,7 @@ public class TutorialDirector : MonoBehaviour
         yield return Brief(BriefingTexts.SandboxIntro());
         ShowCard(0, "자유 연습", SandboxLines(), null, 0, 0, "연습");
         SetFooter("", "");
-        UIManager.Instance?.ShowStatChange("[자유 연습] 손님이 계속 온다. 재료는 안 떨어지고 기차는 안 죽는다");
+        UIManager.Instance?.ShowStatChange("[자유 연습] 손님은 끝없이 와. 재료도 기차도 걱정 마");
 
         float nextSpawn = Time.time + 2f;
         int spawnCount = 0;
@@ -1104,12 +1104,12 @@ public class TutorialDirector : MonoBehaviour
             if (TrainManager.Instance != null && TrainManager.Instance.HPRatio < GameBalance.SandboxTrainHealBelow)
             {
                 TrainManager.Instance.Heal(TrainManager.Instance.currentMaxHP);
-                UIManager.Instance?.ShowStatChange("[자유 연습] 기차를 고쳤다 - 진짜 운행이었으면 멈췄다");
+                UIManager.Instance?.ShowStatChange("[자유 연습] 기차를 고쳤어. 진짜 운행이었으면 여기서 멈췄을 거야");
             }
             if (trainStoppedFlag)
             {
                 trainStoppedFlag = false;
-                UIManager.Instance?.ShowStatChange("[자유 연습] 기차가 멈췄다 - 여기선 바로 고친다");
+                UIManager.Instance?.ShowStatChange("[자유 연습] 기차가 멈췄어. 여기선 바로 고쳐 줄게");
             }
 
             // 사고 키 (창이 떠 있거나 조리 중이면 무시)
@@ -1130,7 +1130,7 @@ public class TutorialDirector : MonoBehaviour
     private static string SandboxLines()
     {
         bool busy = KitchenEventManager.Instance != null && KitchenEventManager.Instance.EventRunning;
-        return "[1] 낙뢰   [2] 화재   [3] 재료 흘림\n[4] 기구 고장   [5] 침입   [6] 과열" + (busy ? "   (사고 진행 중)" : "") + "\n[ESC] 메뉴 - 그만두기 = 로비로";
+        return "[1] 낙뢰   [2] 화재   [3] 재료 흘림\n[4] 기구 고장   [5] 침입   [6] 과열" + (busy ? "   (사고 처리 중)" : "") + "\n[ESC] 메뉴에서 그만두면 로비로";
     }
 
     /// <summary>6종 재료가 바닥 밑이면 채운다</summary>
@@ -1155,11 +1155,11 @@ public class TutorialDirector : MonoBehaviour
             TurretSlot s = TurretSlotManager.Instance.slots[i];
             if (s != null && !s.IsEmpty && !s.isLocked && !s.IsStunned && !s.isBroken) cand.Add(s);
         }
-        if (cand.Count == 0) { UIManager.Instance?.ShowStatChange("[자유 연습] 감전시킬 포탑이 없다 - 요리를 먼저 넣어라"); return; }
+        if (cand.Count == 0) { UIManager.Instance?.ShowStatChange("[자유 연습] 감전시킬 포탑이 없어. 요리부터 넣어"); return; }
         TurretSlot target = cand[Random.Range(0, cand.Count)];
         LightningFx();
         target.StunSlot(GameBalance.LightningStunSec, "감전");
-        UIManager.Instance?.ShowDanger("[낙뢰] 포탑이 감전됐다 - 곁에서 [E] 한 번 (가만두면 " + Mathf.RoundToInt(GameBalance.LightningStunSec) + "초 못 쏜다)");
+        UIManager.Instance?.ShowDanger("[낙뢰] 포탑 감전! 옆에서 [E] 한 번. 가만두면 " + Mathf.RoundToInt(GameBalance.LightningStunSec) + "초 동안 못 쏴");
     }
 
     /// <summary>[6] 과열: 가동 중인 포탑 하나를 지금 과열시킨다 - 식힐 때까지 멈추고, StunBreakSec 방치하면 파손 (파손을 눈으로 보는 길)</summary>
@@ -1172,15 +1172,15 @@ public class TutorialDirector : MonoBehaviour
             TurretSlot s = TurretSlotManager.Instance.slots[i];
             if (s != null && !s.IsEmpty && !s.isLocked && !s.IsStunned && !s.isBroken) cand.Add(s);
         }
-        if (cand.Count == 0) { UIManager.Instance?.ShowStatChange("[자유 연습] 과열시킬 포탑이 없다 - 요리를 먼저 넣어라"); return; }
+        if (cand.Count == 0) { UIManager.Instance?.ShowStatChange("[자유 연습] 과열시킬 포탑이 없어. 요리부터 넣어"); return; }
         cand[Random.Range(0, cand.Count)].ForceOverheat();
-        UIManager.Instance?.ShowDanger("[과열] 곁에서 [E] 를 누른 채 마우스를 움직여 식혀라. " + Mathf.RoundToInt(GameBalance.StunBreakSec) + "초 두면 파손");
+        UIManager.Instance?.ShowDanger("[과열] 옆에서 [E]를 누른 채 마우스를 흔들어 식혀. " + Mathf.RoundToInt(GameBalance.StunBreakSec) + "초 넘으면 망가져");
     }
 
     private static void SandboxEvent(int kind)
     {
-        if (KitchenEventManager.Instance == null) { UIManager.Instance?.ShowStatChange("[자유 연습] 사고 시스템이 없다"); return; }
-        if (KitchenEventManager.Instance.EventRunning) { UIManager.Instance?.ShowStatChange("[자유 연습] 사고가 진행 중이다 - 먼저 해결"); return; }
+        if (KitchenEventManager.Instance == null) { UIManager.Instance?.ShowStatChange("[자유 연습] 여기선 사고를 못 일으켜"); return; }
+        if (KitchenEventManager.Instance.EventRunning) { UIManager.Instance?.ShowStatChange("[자유 연습] 이미 사고가 났어. 그것부터 처리해"); return; }
         KitchenEventManager.Instance.ForceEvent(kind);
     }
 
@@ -1228,39 +1228,39 @@ public class TutorialDirector : MonoBehaviour
             if (slot == null) slot = AnyActiveSlot(1);
             if (slot == null) { EndInline(seg, false, null); yield break; }   // 포탑이 하나도 없으면 연습이 성립하지 않는다 (기록 없음)
             slot.StunSlot(999f, "감전");                      // 연습 동안은 저절로 안 풀린다
-            title = "낙뢰로 포탑이 멈췄다";
-            lines = "화살표를 따라 \"감전\" 표시가 있는 포탑으로 가라\n포탑 가까이에서 [E] 를 한 번 눌러라\n복구하면 전투가 다시 진행된다\n앞으로 낙뢰가 칠 때마다 이렇게 한다";
-            notice = "[연습]  첫 낙뢰 - 손님은 멈춰 있다"; noticeSub = "멈춘 포탑을 복구하라 - 곁에서 [E] 한 번";
-            hint = "포탑 바로 앞(벽 쪽)까지 가서 [E] 한 번 - 멀면 안 먹는다";
-            doneNotice = "복구했다 - 손님이 다시 온다";
+            title = "감전된 포탑 살리기";
+            lines = "화살표를 따라 \"감전\" 표시가 뜬 포탑으로 가\n포탑 바로 앞에서 [E]를 한 번 눌러\n포탑이 살아나면 멈췄던 전투가 다시 이어져\n앞으로 낙뢰가 칠 때마다 이렇게 하면 돼";
+            notice = "[연습]  첫 낙뢰 - 손님은 잠깐 멈춰 있어"; noticeSub = "멈춘 포탑 옆에서 [E] 한 번";
+            hint = "포탑 바로 앞, 벽 쪽까지 붙어서 [E] 한 번. 멀면 안 돼";
+            doneNotice = "살렸어. 이제 손님이 다시 와";
             ShowMarkerFollow(slot.transform, SlotArrowTip(SlotIndexOf(slot)), RING_TURRET);
         }
         else if (seg == 3)
         {
             yield return Brief(BriefingTexts.Tutorial(8));    // 왜 낚나 (시간 정지 카드) - 그 다음 연습 카드
             if (!InlineActive) yield break;
-            title = "작살포로 바위를 낚아라";
-            lines = "화살표를 따라 기관실 작살포 곁으로 가라\n창밖 바위가 사거리에 들어오면 [E]\n놓치면 바위는 또 온다\n낚은 재료는 기차로 빨려 온다";
-            notice = "[연습]  첫 바위 - 손님은 멈춰 있다"; noticeSub = "작살포로 바위를 낚아라 - 기관실 왼쪽 위에서 [E]";
-            hint = "작살포 곁(기관실 왼쪽 위)에서 [E] - 바위가 사거리 안에 있을 때만 맞는다";
-            doneNotice = "낚았다 - 손님이 다시 온다";
+            title = "작살포로 바위 낚기";
+            lines = "화살표를 따라 기관실 작살포 옆으로 가\n창밖 바위가 사거리에 들어오면 [E]\n놓쳐도 바위는 또 와\n낚은 재료는 알아서 기차로 빨려 와";
+            notice = "[연습]  첫 바위 - 손님은 잠깐 멈춰 있어"; noticeSub = "기관실 왼쪽 위 작살포에서 [E]";
+            hint = "작살포는 기관실 왼쪽 위야. 바위가 사거리 안일 때만 맞아";
+            doneNotice = "낚았어. 이제 손님이 다시 와";
             ShowMarkerAt(new Vector3(GameBalance.HarpoonX, 1.7f, 0f), 1.0f, RING_HARPOON);
         }
         else
         {
             yield return Brief(BriefingTexts.Tutorial(9));
             if (!InlineActive) yield break;
-            title = "레버를 당겨 전속 주행을 켜라";
-            lines = "화살표를 따라 기관실 레버 곁으로 가라\n[E] 를 " + GameBalance.LeverHoldSec + "초 꾹 누르면 전속 주행\n빨라지면 골드가 늘지만 손님도 더 온다\n다시 당기면 원래대로 - 연습이 끝나면 되돌려 놓는다";
-            notice = "[연습]  레버 - 손님은 멈춰 있다"; noticeSub = "레버를 한 번 당겨 봐라 - 곁에서 [E] " + GameBalance.LeverHoldSec + "초 꾹";
-            hint = "레버 곁에서 [E] 를 " + GameBalance.LeverHoldSec + "초 꾹 - 손을 떼면 취소";
-            doneNotice = "당겼다 - 레버는 원래대로 돌려놨다. 손님이 다시 온다";
+            title = "레버로 전속 주행 켜기";
+            lines = "화살표를 따라 기관실 레버 옆으로 가\n[E]를 " + GameBalance.LeverHoldSec + "초 꾹 누르면 전속 주행이야\n빨라지면 골드가 늘지만 손님도 더 와\n다시 당기면 원래대로. 연습이 끝나면 되돌려 놓을게";
+            notice = "[연습]  레버 - 손님은 잠깐 멈춰 있어"; noticeSub = "레버 옆에서 [E]를 " + GameBalance.LeverHoldSec + "초 꾹 눌러 봐";
+            hint = "레버 옆에서 [E]를 " + GameBalance.LeverHoldSec + "초 꾹 눌러. 떼면 취소돼";
+            doneNotice = "당겼어. 레버는 원래대로 돌려놨고, 이제 손님이 다시 와";
             ShowMarkerAt(new Vector3(GameBalance.LeverX, 0.35f, 0f), 1.0f, RING_LEVER);
         }
 
         SetCardBig(true);
         ShowCard(0, title, lines, null, 0, 0, "연습");
-        SetFooter(Mathf.RoundToInt(GameBalance.InlineHintSec) + "초가 지나면 힌트가 더 뜬다", "[Enter] 연습 건너뛰기");
+        SetFooter(Mathf.RoundToInt(GameBalance.InlineHintSec) + "초가 지나면 힌트가 더 떠", "[Enter] 연습 건너뛰기");
         UIManager.Instance?.ShowWaveNotice(notice, noticeSub);
         freezeScanAt = 0f;
 
@@ -1285,7 +1285,7 @@ public class TutorialDirector : MonoBehaviour
         {
             SoundManager.Play("sfx_wave_clear");
             if (titleText != null) { titleText.text = "완료 - " + titleText.text; titleText.color = new Color(0.55f, 0.95f, 0.55f, 1f); }
-            if (linesText != null) { linesText.text = "잘했다. 손님이 다시 온다 -"; linesText.color = UIFactory.CREAM; }
+            if (linesText != null) { linesText.text = "잘했어. 이제 손님이 다시 와"; linesText.color = UIFactory.CREAM; }
             UIManager.Instance?.ShowWaveNotice("", doneNotice);
             HideMarker();
             yield return WaitUnscaled(DONE_BEAT_SEC);
@@ -1303,7 +1303,7 @@ public class TutorialDirector : MonoBehaviour
         else if (skipRequested)
         {
             MarkSegment(seg, 2);
-            UIManager.Instance?.ShowWaveNotice("", "연습을 건너뛰었다 - 로비 [T] 훈련장에서 다시 할 수 있다");
+            UIManager.Instance?.ShowWaveNotice("", "연습을 건너뛰었어. 로비 [T] 훈련장에서 다시 할 수 있어");
         }
         skipRequested = false;
         HideMarker();
@@ -1358,7 +1358,7 @@ public class TutorialDirector : MonoBehaviour
         }
         SoundManager.Play("sfx_wave_clear");
         if (titleText != null) { titleText.text = "완료 - " + titleText.text; titleText.color = new Color(0.55f, 0.95f, 0.55f, 1f); }
-        if (linesText != null) { linesText.text = "잘했다. 다음 -"; linesText.color = UIFactory.CREAM; }
+        if (linesText != null) { linesText.text = "잘했어. 다음 거 가자"; linesText.color = UIFactory.CREAM; }
         float until = Time.unscaledTime + DONE_BEAT_SEC;
         while (Time.unscaledTime < until && Active) yield return null;
         if (titleText != null) titleText.color = UIFactory.GOLD;
