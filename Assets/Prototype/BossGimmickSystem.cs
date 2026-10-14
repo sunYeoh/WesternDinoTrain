@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 /// <summary>
-/// [BossGimmickSystem.cs] v9.21 (2026-10-12 보스 1단계: HP 바가 차오를 때 래칫 소리 sfx_hp_ratchet - 파일이 오기 전엔 폴백) / v9.20 (2026-10-07: 패턴 예고의 공통 경보음은 보스가 제 울음으로 대신하고(BossEnemy.CastBegin), 가장자리 맥동은 처음 BossPatternEdgeSec 만 - GameBalance.BossPatternFxOn) / v9.19 (2026-10-06 보스 페이즈 모습 A4: 보스 쪽 알림 한 줄(ShowBossLine - 페이즈 전환·발악·대응법)을 가운데 예고 카드 대신 HP 바 밑 띠에 띄운다. 띠는 무방비 > 패턴 예고 > 알림 순으로 쓴다 / 패턴 예고·무방비 시작의 화면 가운데 큰 글자를 뺐다(띠와 같은 말이 보스 몸 위에 한 번 더 떴다) - 가장자리 맥동과 띠 등장 강조만. GameBalance.BossNoticeInBar) /
+/// [BossGimmickSystem.cs] v9.23 (2026-10-14 보스 새 패턴: 동면자의 눈사태가 내려오는 동안은 무방비가 아니어도 [F] 로 독샘 요리를 던진다 - 맞으면 눈사태가 멈추고 무방비 (BossEnemy.CancelAvalanche). 무방비 때 던져도 눈사태가 멈춘다 / 던진 요리가 셰프에게서 보스로 날아간다 / 글 말투를 튜토리얼과 같게 (반말 해체, 사건은 ~했다)) / v9.21 (2026-10-12 보스 1단계: HP 바가 차오를 때 래칫 소리 sfx_hp_ratchet - 파일이 오기 전엔 폴백) / v9.20 (2026-10-07: 패턴 예고의 공통 경보음은 보스가 제 울음으로 대신하고(BossEnemy.CastBegin), 가장자리 맥동은 처음 BossPatternEdgeSec 만 - GameBalance.BossPatternFxOn) / v9.19 (2026-10-06 보스 페이즈 모습 A4: 보스 쪽 알림 한 줄(ShowBossLine - 페이즈 전환·발악·대응법)을 가운데 예고 카드 대신 HP 바 밑 띠에 띄운다. 띠는 무방비 > 패턴 예고 > 알림 순으로 쓴다 / 패턴 예고·무방비 시작의 화면 가운데 큰 글자를 뺐다(띠와 같은 말이 보스 몸 위에 한 번 더 떴다) - 가장자리 맥동과 띠 등장 강조만. GameBalance.BossNoticeInBar) /
 /// v9.18 (2026-10-06 테스터 피드백 3: 패턴 예고·무방비 띠를 HP 바 바로 밑에 붙였다(폭도 바와 같게, 긴 안내는 글자를 줄여 한 줄 - 구 자리는 보스가 서는 높이라 몸을 가렸다) + 띠가 떠 있으면 가운데 예고 카드를 그 아래로 / 보스 HP 바를 화면 위 가운데(기차 상황판 바로 아래)로 올리고 키웠다 - 이름 28 / 수치 20 / 바 30, 깎인 만큼 밝은 띠가 남았다 줄어든다, 무방비 눈금, 상태 딱지(무방비·빙하 갑주·해치 개방·폭식·발악·번개 병), 발악하면 바 색이 달아오른다 / 등장: HoldBarForIntro -> PlayBarIntro 로 위에서 내려와 차오른다 / 바가 떠 있는 동안 가운데 예고 카드를 그 아래로 민다(UISkin.NoticeShiftY). GameBalance.BossBarBig = false 면 구 배치) / v9.16 (2026-09-29 손맛 2차 - 소리: 보스전 동안 배경음 덕킹 - 등록에 켜고 처치·정리에 끈다) / v9.12 (2026-09-22: ClearBossUI - 예습 보스용) / v4.1
 /// 보스전 전용 기믹 + 보스 UI를 관리합니다.
 ///
@@ -264,6 +264,11 @@ public class BossGimmickSystem : MonoBehaviour
         UISkin.NoticeShiftY = noticeShift;
 
         UpdateBossHPBar();
+
+        // v9.23 (H3): 눈사태가 내려오는 동안은 무방비가 아니어도 [F] 로 독샘 요리를 던진다 (마지막 주문 선택창이 F 를 쓰는 프레임은 빼고)
+        if (!isGroggyPhase && currentBoss.AvalancheActive && Input.GetKeyDown(KeyCode.F)
+            && !FinalOrderUI.QteOpen && FinalOrderUI.KeyConsumedFrame != Time.frameCount)
+            TryThrowAtAvalanche();
 
         if (!isGroggyPhase && currentBoss.IsGroggy)
             StartGroggyPhase();
@@ -532,11 +537,11 @@ public class BossGimmickSystem : MonoBehaviour
 
         // v5.2: 그로기는 기회의 순간 - 금색 플래시로 구분. v9.19: 큰 글자는 띠의 안내와 같은 말 - 금빛 가장자리와 띠 강조만
         if (BarNotices) { WarningFX.FlashEdges(1.6f, new Color(1f, 0.8f, 0.2f)); bannerPunchT = 0f; }
-        else WarningFX.Flash("보스 무방비! [F] 독샘 요리 투척!", 1.6f, new Color(1f, 0.8f, 0.2f));
+        else WarningFX.Flash("보스가 무방비야. [F]로 독샘 요리를 던져", 1.6f, new Color(1f, 0.8f, 0.2f));
         RefreshGuideText();
 
         Debug.Log("[BossGimmickSystem] 보스 그로기 발동! 10초 안에 디버프 요리 투척!");
-        UIManager.Instance?.ShowStatChange("보스 무방비!! [F] 독샘 요리 투척!");
+        UIManager.Instance?.ShowStatChange("보스가 무방비야. [F]로 독샘 요리를 던져");
     }
 
     private void UpdateGroggyPhase()
@@ -617,9 +622,9 @@ public class BossGimmickSystem : MonoBehaviour
 
         RecipeData found = FindBestDebuffFood();
         if (found != null)
-            groggyGuideText.text = "무방비!  [F] " + found.displayName + " 투척!";
+            groggyGuideText.text = "무방비야. [F]로 " + found.displayName + FoodStock.Eul(found.displayName) + " 던져";
         else
-            groggyGuideText.text = "던질 요리 없음!  독침 육포(고기+독샘)를 그릴에서 구워라!";
+            groggyGuideText.text = "던질 독샘 요리가 없어. 고기와 독샘을 그릴에서 구워";
     }
 
     private void TryThrowDebuffFood()
@@ -637,19 +642,52 @@ public class BossGimmickSystem : MonoBehaviour
             return;
 
         hasThrownThisGroggy = true;
+        ThrowFx(food);                                  // v9.23: 셰프에게서 보스로 날아간다
+        currentBoss.CancelAvalanche("food");            // v9.23: 눈사태가 내려오는 중이었으면 멈춘다
 
         float power = GetDebuffPower(food);
         currentBoss.ReceiveDebuffFood(power);
 
         int reducedPct = Mathf.RoundToInt((1f - power) * 100f);
         Debug.Log("[BossGimmickSystem] " + food.displayName + " 투척! 보스 방어력 " + reducedPct + "% 감소!");
-        UIManager.Instance?.ShowStatChange(food.displayName + " 적중! 보스 방어력 -" + reducedPct + "%!");
+        UIManager.Instance?.ShowStatChange("[" + food.displayName + "] 명중. 보스 방어력 -" + reducedPct + "%");
         SpinoBet.CountThrowHit();   // Phase 2-1: [외상 장부] 베팅 조건 추적
 
         if (groggyGuideText != null)
-            groggyGuideText.text = food.displayName + " 적중!  방어력 -" + reducedPct + "%";
+            groggyGuideText.text = "[" + food.displayName + "] 명중. 방어력 -" + reducedPct + "%";
         if (groggyTimeFillImg != null)
             groggyTimeFillImg.color = new Color(0.25f, 0.9f, 0.3f);
+    }
+
+    /// <summary>v9.23 (H3): 눈사태 중 [F] - 가장 좋은 독샘 요리 하나를 던진다. 맞으면 눈사태가 멈추고 무방비 (무방비 투척과 같은 [외상 장부] 셈)</summary>
+    private void TryThrowAtAvalanche()
+    {
+        RecipeData food = FindBestDebuffFood();
+        if (food == null)
+        {
+            UIManager.Instance?.ShowStatChange("던질 독샘 요리가 없어. 고기와 독샘을 그릴에서 구워");
+            return;
+        }
+        if (FoodStock.Instance == null || !FoodStock.Instance.TryConsume(food.recipeId, 1)) return;
+        ThrowFx(food);
+        if (currentBoss.CancelAvalanche("food")) SpinoBet.CountThrowHit();   // 알림은 눈사태 쪽이 한 줄 ("독샘 요리가 눈사태를 멈췄다")
+        Debug.Log("[BossGimmickSystem] 눈사태 중 " + food.displayName + " 투척");
+    }
+
+    /// <summary>v9.23: 던진 요리가 셰프에게서 보스의 겨누는 자리로 날아간다 (0.35초 안팎). 그림만 - 효과는 던진 순간에 이미 들어갔다</summary>
+    private void ThrowFx(RecipeData food)
+    {
+        if (currentBoss == null || AttackVFX.Instance == null || GameBalance.GameFeelMaster <= 0f) return;
+        GameObject chef = GameObject.Find("Chef");
+        Vector3 from = chef != null ? chef.transform.position + Vector3.up * 0.4f : currentBoss.transform.position + Vector3.down * 4f;
+        Vector3 to = currentBoss.AimPoint;
+        Color c = new Color(0.6f, 0.95f, 0.35f);
+        AttackVFX.Instance.Projectile(from, to, c, 16f, 0.42f, delegate
+        {
+            WorldFeel.Ring(to, c, 1.6f, 0.3f);
+            SparkPool.Emit(to, c, 8, 0.08f, 4f);
+        });
+        SoundManager.Play("sfx_launch_mortar", 0.5f, 0.05f);
     }
 
     private void EndGroggyPhase(bool wasDebuffed)
@@ -660,7 +698,7 @@ public class BossGimmickSystem : MonoBehaviour
         if (!wasDebuffed)
         {
             Debug.Log("[BossGimmickSystem] 그로기 미투척 - 기회를 놓쳤다!");
-            UIManager.Instance?.ShowStatChange("투척 실패! 무방비 기회를 놓쳤다!");
+            UIManager.Instance?.ShowStatChange("무방비 틈에 아무것도 못 던졌다");
         }
     }
 
@@ -700,7 +738,7 @@ public class BossGimmickSystem : MonoBehaviour
         groggyRoot.gameObject.SetActive(false);
 
         Debug.Log("[BossGimmickSystem] 보스 처치!");
-        UIManager.Instance?.ShowStatChange("보스 처치! 승리!");
+        UIManager.Instance?.ShowStatChange("보스를 쓰러뜨렸다");
 
         // Phase 2-1: 스피노 베팅 정산 (격파 보너스 몰수 판정은 GameManager 지급부에서)
         SpinoBet.Resolve();

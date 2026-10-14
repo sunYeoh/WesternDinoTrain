@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [BaitStationUI.cs] v1.1 (v9.12 2026-09-22: 판 340x190 - 무엇을 하나 두 줄 + 굽기 버튼 + 판정 안내 한 줄(목업 v4.2 (C)) / 유인 횟수 LuresThisScene·TimingActive (견습 구간 7 미니 보스 예습이 완료 판정에 쓴다) / 문구 일상어)
+/// [BaitStationUI.cs] v1.2 (v9.23 2026-10-14: 부관 발톱도 미끼에 끌린다 (Enemy.LuredByBait) / 점검 수정: 판정 자리 말을 튜토리얼과 같게 - 초록 구간·노란 구간·꾀어내기, 글 말투 반말 해체) / v1.1 (v9.12 2026-09-22: 판 340x190 - 무엇을 하나 두 줄 + 굽기 버튼 + 판정 안내 한 줄(목업 v4.2 (C)) / 유인 횟수 LuresThisScene·TimingActive (견습 구간 7 미니 보스 예습이 완료 판정에 쓴다) / 문구 일상어)
 /// / v1 (신규 파일) - 보스 패턴 C단계
 /// 미끼 화덕 - 녹슨 발톱(지역 1 보스) 전용 시그니처 기믹.
 ///
@@ -51,7 +51,7 @@ public class BaitStationUI : MonoBehaviour
         boss = targetBoss;
         TimingActive = false;          // LuresThisScene 은 누적 - 디렉터가 시작 전 값과의 차이로 센다
         BuildUI();
-        UIManager.Instance?.ShowStatChange("[미끼 화덕] 가동 - 고기를 구워 던지면 무리가 미끼로 몰린다");
+        UIManager.Instance?.ShowStatChange("[미끼 화덕] 고기를 구워 던지면 무리가 미끼 쪽으로 몰려");
         Debug.Log("[BaitStation] 미끼 화덕 가동 (녹슨 발톱 보스전)");
     }
 
@@ -74,11 +74,11 @@ public class BaitStationUI : MonoBehaviour
         bakeButton.interactable = !timingActive && !onCooldown && meat > 0 && !CookingMinigame.IsActive;
 
         if (onCooldown)
-            statusText.text = "화덕 재가열 중... " + Mathf.CeilToInt(cooldownUntil - Time.time) + "초";
+            statusText.text = "화덕을 다시 달구는 중 " + Mathf.CeilToInt(cooldownUntil - Time.time) + "초";
         else if (meat <= 0)
-            statusText.text = "고기가 없다 - 손님이 남긴 고기를 모아라";
+            statusText.text = "고기가 없어. 손님이 떨군 고기를 모아";
         else
-            statusText.text = "고기 " + meat + "개 - 잘 구울수록 오래 유인한다";
+            statusText.text = "고기 " + meat + "개. 잘 구울수록 미끼가 오래 버텨";
 
         TimingActive = timingActive;
         if (timingActive)
@@ -131,7 +131,7 @@ public class BaitStationUI : MonoBehaviour
         else { duration = GameBalance.BaitDurationMiss; grade = "탄 미끼"; }
 
         DeployBait(duration);
-        UIManager.Instance?.ShowStatChange("[" + grade + "] 미끼를 던졌다 - " + duration + "초 동안 무리가 미끼로 몰린다");
+        UIManager.Instance?.ShowStatChange("[" + grade + "] 미끼를 던졌다. " + duration + "초 동안 무리가 미끼 쪽으로 가");
         Debug.Log("[BaitStation] 미끼 굽기 " + grade + " -> 유인 " + duration + "초");
     }
 
@@ -162,7 +162,7 @@ public class BaitStationUI : MonoBehaviour
         for (int i = 0; i < all.Length; i++)
         {
             if (!all[i].IsAlive) continue;
-            if (all[i] == boss || all[i].behavior == Enemy.BehaviorPattern.Pack)
+            if (all[i] == boss || all[i].behavior == Enemy.BehaviorPattern.Pack || all[i].LuredByBait)   // v1.2 (v9.23): 부관 발톱도
             {
                 all[i].Taunt(bait.transform, duration);
                 lured++;
@@ -170,7 +170,7 @@ public class BaitStationUI : MonoBehaviour
         }
 
         if (lured > 0) LuresThisScene++;
-        else UIManager.Instance?.ShowStatChange("[미끼] 물 손님이 없었다 - 무리가 왔을 때 던져라");
+        else UIManager.Instance?.ShowStatChange("[미끼] 물 손님이 없었다. 무리가 왔을 때 던져");
 
         Destroy(bait, duration);
         Debug.Log("[BaitStation] 미끼 설치 - " + lured + "마리 유인 (" + duration + "초) / 누적 성공 " + LuresThisScene);
@@ -235,7 +235,7 @@ public class BaitStationUI : MonoBehaviour
 
         // v1.1: 무엇을 하나 (두 줄) - 처음 보는 사람도 읽고 바로 한다
         Text how = KitchenEventManager.MakeText(panel, "How",
-            "고기 1개를 구워 던지면 무리가 미끼로 몰린다\n무리가 미끼를 물면 왕도 따라온다 (" + Mathf.RoundToInt(GameBalance.BaitDurationMiss) + "~" + Mathf.RoundToInt(GameBalance.BaitDurationPerfect) + "초)", 14,
+            "고기 1개를 구워 던지면 무리가 미끼로 몰려\n" + (boss != null && !boss.practice && GameBalance.BossNewPatterns && GameBalance.RustLieutenantsOn ? "왕과 부관도" : "왕도") + " 따라와 (" + Mathf.RoundToInt(GameBalance.BaitDurationMiss) + "~" + Mathf.RoundToInt(GameBalance.BaitDurationPerfect) + "초)", 14,
             new Color(0.969f, 0.910f, 0.776f));
         RectTransform hRt = how.rectTransform;
         hRt.anchorMin = new Vector2(0f, 1f); hRt.anchorMax = new Vector2(1f, 1f);
@@ -255,7 +255,7 @@ public class BaitStationUI : MonoBehaviour
             new Color(0.5f, 0.3f, 0.12f), new Vector2(0f, -30f), new Vector2(280f, 44f));
 
         Text hint = KitchenEventManager.MakeText(panel, "Hint",
-            "눈금이 판정 구간에 오면 [Space]  -  유인 " + Mathf.RoundToInt(GameBalance.BaitDurationPerfect) + "초 / " + Mathf.RoundToInt(GameBalance.BaitDurationGood) + "초 / " + Mathf.RoundToInt(GameBalance.BaitDurationMiss) + "초", 12,
+            "노란 구간 " + Mathf.RoundToInt(GameBalance.BaitDurationPerfect) + "초, 초록 구간 " + Mathf.RoundToInt(GameBalance.BaitDurationGood) + "초, 밖이면 " + Mathf.RoundToInt(GameBalance.BaitDurationMiss) + "초 동안 붙잡아 둬", 12,
             new Color(0.627f, 0.549f, 0.431f));
         RectTransform hiRt = hint.rectTransform;
         hiRt.anchorMin = new Vector2(0f, 0f); hiRt.anchorMax = new Vector2(1f, 0f);
@@ -276,7 +276,7 @@ public class BaitStationUI : MonoBehaviour
         timingRoot = tRoot.gameObject;
 
         Text tTitle = KitchenEventManager.MakeText(tRoot, "TTitle",
-            "눈금이 판정 구간에 오면 [Space] - 가운데일수록 오래 유인한다", 22, new Color(1f, 0.8f, 0.4f));
+            "초록 구간에서 [Space]. 노란 구간이면 더 오래", 22, new Color(1f, 0.8f, 0.4f));
         RectTransform ttRt = tTitle.rectTransform;
         ttRt.anchorMin = new Vector2(0f, 1f); ttRt.anchorMax = new Vector2(1f, 1f);
         ttRt.pivot = new Vector2(0.5f, 1f);

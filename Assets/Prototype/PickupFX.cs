@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// [PickupFX.cs] v1
+/// [PickupFX.cs] v1.1 (v9.23 2026-10-14: 폭식 조각은 디 오리지널의 입(BossEnemy.FeedPoint - 맨 뒤 화물칸)으로 빨려 들어간다. 먹힐 때 그 자리에 불티) / v1
 /// 적 처치 시 재료 조각이 튀어나와 기차로 빨려 들어가는 연출.
 /// 재료는 조각이 기차에 "도착하는 순간" 실제로 인벤토리에 들어간다.
 ///
@@ -78,10 +78,11 @@ public class PickupFX : MonoBehaviour
             if (contested && FeedingBoss != null && FeedingBoss.IsAlive)
             {
                 float dTrain = Vector3.Distance(transform.position, target.position);
-                float dBoss = Vector3.Distance(transform.position, FeedingBoss.transform.position);
+                Vector3 mouth = FeedingBoss.FeedPoint;   // v1.1: 몸 가운데가 아니라 입 벌린 화물칸으로
+                float dBoss = Vector3.Distance(transform.position, mouth);
                 if (dBoss < dTrain)
                 {
-                    destination = FeedingBoss.transform.position;
+                    destination = mouth;
                     towardBoss = true;
                 }
             }
@@ -124,7 +125,10 @@ public class PickupFX : MonoBehaviour
     {
         collected = true;   // OnDestroy 보장 지급도 막는다 (도둑맞은 조각)
         if (FeedingBoss != null && FeedingBoss.IsAlive)
+        {
             FeedingBoss.EatFragment();
+            SparkPool.Emit(transform.position, ColorOf(mat), 4, 0.07f, 2.5f);   // v1.1: 삼킨 자리
+        }
         Destroy(gameObject);
     }
 

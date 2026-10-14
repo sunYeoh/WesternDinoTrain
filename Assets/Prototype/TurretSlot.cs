@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// [TurretSlot.cs] v6.14 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v6.13 (v9.18 2026-10-06: 들어간 접시 수(platesTotal) -> 폐기 환급 ScrapRefund = 접시 x 0.5 (무한 제작 루프 차단) / 과열은 조건이 된 포탑 중 무작위(TurretSlotManager 가 고른다 - OverheatReady·TriggerOverheat) / 포탑 그림 높이 TurretVisualDY + 칸 덜컹임 따라가기 / 피해 출처 표시(TurretAttackExecutor.CurrentSource) / 견습 운행에선 숙련 시작 레벨 특전 없음) /
+/// [TurretSlot.cs] v6.15 (v9.23 2026-10-14 보스 새 패턴: 동면자의 백야의 입김을 맞은 칸이면 발사가 느려진다 (BossEnemy.FrostFireMulAt) / ShotDamage - 지금 한 발의 피해 어림 (천둥 둥지의 알 HP 를 포탑 몇 발로 맞춘다) / 포신은 손님의 AimPoint 를 겨눈다 (디 오리지널 약점 칸)) / v6.14 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v6.13 (v9.18 2026-10-06: 들어간 접시 수(platesTotal) -> 폐기 환급 ScrapRefund = 접시 x 0.5 (무한 제작 루프 차단) / 과열은 조건이 된 포탑 중 무작위(TurretSlotManager 가 고른다 - OverheatReady·TriggerOverheat) / 포탑 그림 높이 TurretVisualDY + 칸 덜컹임 따라가기 / 피해 출처 표시(TurretAttackExecutor.CurrentSource) / 견습 운행에선 숙련 시작 레벨 특전 없음) /
 /// v6.12 (v9.17 2026-10-06 화면 손맛 2차 A8: 발사 순간 PlayFireFeel - 포신이 표적을 바로 겨누고 포탑이 1.06배에서 제자리로 + 포신 끝 섬광(MuzzlePool), 전설은 크게 + 작은 링 / 투입 튀기가 끝나면 1.0 이 아니라 레벨 배율로 돌아온다 - 레벨이 올라도 포탑이 안 커지던 것) / v6.11 (v9.16 2026-09-29 손맛 2차 - 소리: 마비 소리는 StunSlot 이 종류별로 낸다(감전 sfx_stun / 빙결 sfx_freeze / 과열 sfx_overheat - 호출부의 과열음 제거) / 저절로 식으면 sfx_cool / 투입 sfx_insert(접시 쌓기는 작게)·레벨업 sfx_levelup / 파손 sfx_break) / v6.10 (v9.15.1 2026-09-29: 마지막 식사 장면 동안 사격 정지 BossEnemy.LastSupperServing) / v6.9 (v9.15 2026-09-29 2차 피드백: 레벨 상한 해제 - 접시 곡선(platesIn / GameBalance.PlatesToNext)·레벨 체감(GameBalance.LevelMultOf) / 마비 방치 파손(StunBreakSec - 경고 뒤 요리 소실 + 슬롯 봉인, isBroken / BreakWarning / Repair)) / v6.8 (v9.14 2026-09-28 테스터 반영: 레벨 상한 T1 3 / T2 6 (MaxLevelOf·AtMaxLevel), 전설 요리 공격력 x T2DamageMul, 표적 고르기에서 곧 죽을 손님 건너뜀(IncomingDamage)) / v6.7 (v9.12 2026-09-22: TutorialDirector.InlineFreeze 동안 사격 정지) / v6.6 (v9.11.1 2026-09-22 문구: 과열 복구법) / v6.5 (v9.11 2026-09-22 타격감: 투입·레벨업 때 접시 낙하 + 링 + "배치!/Lv N" 팝 + 포탑 1.25배 튀기 - GameBalance.CookFeelOn) / v6.4 (v9.9.2 2026-09-16: 마비 FX - 감전·빙결 = 스파크 3점(ui_ev_spark_0/1 교대, 빙결은 얼음색), 과열 = 연기(ui_ev_smoke_0/1). GameBalance.TurretStunFx) / v6.3 (v9.9 2026-09-16: 남쪽 슬롯 포신 기본 방향 -90 = 남쪽 - 4모서리 배치) / v6.2 (런 통계: 과열 횟수·정지 시간 2026-09-14) / v6.1 (교수 피드백 반영 2026-09-14) / v6 (고퀄 PNG 적용 2026-09-03)
 /// 포탑 슬롯 1개. 요리를 투입하면 포탑으로 가동한다.
 /// - v6.2 변경점 (스위치 실험 지표 - 반영계획 §5 관찰 시트):
@@ -164,6 +164,23 @@ public class TurretSlot : MonoBehaviour
         get { return level <= 0 ? 1f : GameBalance.LevelMultOf(level); }
     }
 
+    /// <summary>
+    /// v6.15 (v9.23): 지금 한 발의 피해 어림 - 요리 피해 x 레벨 배율 x 이웃 강화(마지막 사격 때 값) x 전설 배율 x 전역·증강 배율.
+    /// 숙련·과열 기관 같은 그때그때 붙는 배율은 뺀다. 빈 칸·버프형·패시브는 0
+    /// </summary>
+    public float ShotDamage
+    {
+        get
+        {
+            RecipeData r = Recipe;
+            if (r == null || r.shape == AttackShape.Passive || r.shape == AttackShape.Aura || !string.IsNullOrEmpty(r.buffType)) return 0f;
+            float d = r.damage * LevelMult * (1f + lastBuffDamage);
+            if (r.tier >= 2) d *= GameBalance.T2DamageMul;
+            return d * GameBalance.TurretDamageMul * AugmentManager.AtkMul;
+        }
+    }
+    private float lastBuffDamage = 0f;
+
     /// <summary>v6.9: 다음 레벨까지 더 넣어야 하는 접시 수 (빈 슬롯이면 0)</summary>
     public int PlatesLeft { get { return IsEmpty ? 0 : Mathf.Max(0, GameBalance.PlatesToNext(level) - platesIn); } }
 
@@ -297,7 +314,7 @@ public class TurretSlot : MonoBehaviour
     {
         if (!GameBalance.FireFeelOn || GameBalance.GameFeelMaster <= 0f || r == null || target == null) return;
         Vector3 from = visualRoot != null ? visualRoot.position : transform.position;
-        Vector3 d = target.transform.position - from; d.z = 0f;
+        Vector3 d = target.AimPoint - from; d.z = 0f;   // v6.15: 겨누는 자리 (디 오리지널은 약점 칸)
         if (d.sqrMagnitude < 0.0001f) return;
 
         // 포신은 초당 420도로 따라 도는데, 표적이 바뀐 발사에선 늦다 - 쏘는 순간엔 바로 맞춘다 (섬광과 탄이 포신 방향과 어긋나지 않게)
@@ -485,7 +502,9 @@ public class TurretSlot : MonoBehaviour
         if (r.shape == AttackShape.Passive || r.shape == AttackShape.Aura) return;
         if (!string.IsNullOrEmpty(r.buffType)) return; // 버프형은 발사 안 함
 
-        cooldownTimer -= deltaTime;
+        lastBuffDamage = buffDamage;
+        // v6.15: 백야의 입김(동면자)을 맞은 칸이면 쿨다운이 느리게 돈다 = 발사 속도 x HibBreathFireMul
+        cooldownTimer -= deltaTime * BossEnemy.FrostFireMulAt(transform.position.x);
         if (cooldownTimer > 0f) return;
 
         // 가장 가까운 적 탐색
@@ -788,7 +807,7 @@ public class TurretSlot : MonoBehaviour
         float want;
         if (lastTarget != null && lastTarget.IsAlive)
         {
-            Vector3 d = lastTarget.transform.position - transform.position;
+            Vector3 d = lastTarget.AimPoint - transform.position;   // v6.15
             want = Mathf.Atan2(d.y, d.x) * Mathf.Rad2Deg;
         }
         else

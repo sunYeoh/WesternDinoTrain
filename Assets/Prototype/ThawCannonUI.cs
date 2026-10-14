@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [ThawCannonUI.cs] v1 (신규 파일) - 보스 패턴 B단계
+/// [ThawCannonUI.cs] v1.1 (v9.23 2026-10-14: Attention - 동면자가 갑주를 두르는 순간 창이 깜빡인다 (스펙 3-0 P3 뒷부분, GameBalance.ThawAttentionOn) / 해동포 GOOD 이상은 눈사태도 멈춘다 (BossEnemy.HitByThawCannon) / 글 말투를 튜토리얼과 같게) / v1 (신규 파일) - 보스 패턴 B단계
 /// 광산 열차포 "해동포" - 동면자(지역 3 보스) 전용 시그니처 기믹.
 ///
 /// 스토리: 광산 사람들이 대붕괴 때 만들다 버리고 간 열차포. 화실은 아직 살아 있다.
@@ -43,17 +43,35 @@ public class ThawCannonUI : MonoBehaviour
     // ── 상태 ──
     private float charge = 0f;
 
+    // ── v1.1: 깜빡임 (갑주가 생길 때) ──
+    private static ThawCannonUI instance;
+    private RectTransform panelRt;
+    private Image panelImg;
+    private Color panelBase;
+    private float attentionLeft = 0f, attentionSec = 1f;
+
+    /// <summary>v1.1: 해동포 창이 sec 동안 주황으로 깜빡이며 살짝 튄다 (갑주가 생겼다 = 이걸로 녹인다). 창이 없으면 아무것도 안 한다</summary>
+    public static void Attention(float sec)
+    {
+        if (instance == null || sec <= 0f || GameBalance.GameFeelMaster <= 0f) return;
+        instance.attentionSec = sec;
+        instance.attentionLeft = sec;
+    }
+
     public void Setup(BossEnemy targetBoss)
     {
         boss = targetBoss;
+        instance = this;
         BuildUI();
         Refresh();
-        UIManager.Instance?.ShowStatChange("[해동포] 연결! 화염을 장전해 갑주를 녹여라!");
+        if (boss != null && boss.ArmorActive && GameBalance.ThawAttentionOn) Attention(GameBalance.ThawAttentionSec);   // 첫 갑주는 이 창보다 먼저 생긴다
+        UIManager.Instance?.ShowStatChange("[해동포] 연결했다. 화염을 넣고 쏴서 갑주를 녹여");
         Debug.Log("[ThawCannon] 해동포 연결 (동면자 보스전)");
     }
 
     private void OnDestroy()
     {
+        if (instance == this) instance = null;
         if (canvasGo != null) Destroy(canvasGo);
     }
 
@@ -68,6 +86,24 @@ public class ThawCannonUI : MonoBehaviour
 
         if (pressureActive)
             UpdatePressure();
+        TickAttention();
+    }
+
+    /// <summary>v1.1: 깜빡임 - 초당 3번 주황으로 밝아지고, 처음에 1.06배 튀었다 돌아온다 (게임 시간)</summary>
+    private void TickAttention()
+    {
+        if (panelImg == null || attentionLeft <= 0f) return;
+        attentionLeft -= Time.deltaTime;
+        if (attentionLeft <= 0f)
+        {
+            panelImg.color = panelBase;
+            if (panelRt != null) panelRt.localScale = Vector3.one;
+            return;
+        }
+        float t = attentionSec - attentionLeft;
+        float blink = 0.5f + 0.5f * Mathf.Sin(t * Mathf.PI * 6f);
+        panelImg.color = Color.Lerp(panelBase, new Color(0.75f, 0.38f, 0.08f, 0.96f), blink);
+        if (panelRt != null) panelRt.localScale = Vector3.one * (1f + 0.06f * Mathf.Clamp01(1f - t / 0.3f));
     }
 
     // ─────────────────────────────────────────────
@@ -78,7 +114,7 @@ public class ThawCannonUI : MonoBehaviour
         if (pressureActive) return;
         if (MaterialInventory.Instance == null || MaterialInventory.Instance.Get(MaterialType.Fire) <= 0)
         {
-            UIManager.Instance?.ShowStatChange("화염 재료가 없다!");
+            UIManager.Instance?.ShowStatChange("화염 재료가 없어");
             return;
         }
 
@@ -96,7 +132,7 @@ public class ThawCannonUI : MonoBehaviour
         string fireFood = FindFireFood();
         if (fireFood == null)
         {
-            UIManager.Instance?.ShowStatChange("화염 요리가 없다! (화염 방벽/용암 폭탄밥 등)");
+            UIManager.Instance?.ShowStatChange("화염 요리가 없어. 화염 방벽이나 용암 폭탄밥 같은 게 필요해");
             return;
         }
 
@@ -105,7 +141,7 @@ public class ThawCannonUI : MonoBehaviour
 
         RecipeData r = RecipeDatabase.Get(fireFood);
         string name = r != null ? r.displayName : fireFood;
-        UIManager.Instance?.ShowStatChange("[해동포] " + name + " 장전! (화력 +" + GameBalance.ThawChargePerFood + ")");
+        UIManager.Instance?.ShowStatChange("[해동포] " + name + " 장전, 화력 +" + GameBalance.ThawChargePerFood);
         Refresh();
     }
 
@@ -132,7 +168,7 @@ public class ThawCannonUI : MonoBehaviour
         if (charge < GameBalance.ThawChargeMax) return;
         if (CookingMinigame.IsActive)
         {
-            UIManager.Instance?.ShowStatChange("조리 중에는 발사할 수 없다!");
+            UIManager.Instance?.ShowStatChange("조리 중에는 못 쏴");
             return;
         }
 
@@ -140,7 +176,7 @@ public class ThawCannonUI : MonoBehaviour
         pressurePos = 0f;
         pressureDir = 1f;
         pressureRoot.SetActive(true);
-        UIManager.Instance?.ShowStatChange("압력 게이지 정중앙에서 [Space] 발사!");
+        UIManager.Instance?.ShowStatChange("압력 눈금이 가운데 올 때 [Space]");
     }
 
     private void UpdatePressure()
@@ -186,7 +222,7 @@ public class ThawCannonUI : MonoBehaviour
         chargeFill.offsetMax = new Vector2(0f, chargeFill.offsetMax.y);
 
         bool full = charge >= GameBalance.ThawChargeMax;
-        chargeText.text = full ? "충전 완료! 발사하라!" : "화력 " + (int)charge + " / " + (int)GameBalance.ThawChargeMax;
+        chargeText.text = full ? "다 찼어. 발사!" : "화력 " + (int)charge + " / " + (int)GameBalance.ThawChargeMax;
         fireButton.interactable = full;
 
         int fireMat = MaterialInventory.Instance != null ? MaterialInventory.Instance.Get(MaterialType.Fire) : 0;
@@ -216,6 +252,9 @@ public class ThawCannonUI : MonoBehaviour
         panel.pivot = new Vector2(0f, 0.5f);
         panel.anchoredPosition = new Vector2(14f, 60f);
         panel.sizeDelta = new Vector2(280f, 190f);
+        panelRt = panel;                                   // v1.1: 깜빡임
+        panelImg = panel.GetComponent<Image>();
+        if (panelImg != null) panelBase = panelImg.color;
 
         Text title = KitchenEventManager.MakeText(panel, "Title", "해동포 (광산 열차포)", 21,
             new Color(1f, 0.7f, 0.35f));
@@ -275,7 +314,7 @@ public class ThawCannonUI : MonoBehaviour
         pressureRoot = pRoot.gameObject;
 
         Text pTitle = KitchenEventManager.MakeText(pRoot, "PTitle",
-            "압력 정중앙에서 [Space] 발사!", 22, new Color(1f, 0.8f, 0.4f));
+            "압력 눈금이 가운데 올 때 [Space]", 22, new Color(1f, 0.8f, 0.4f));
         RectTransform ptRt = pTitle.rectTransform;
         ptRt.anchorMin = new Vector2(0f, 1f); ptRt.anchorMax = new Vector2(1f, 1f);
         ptRt.pivot = new Vector2(0.5f, 1f);

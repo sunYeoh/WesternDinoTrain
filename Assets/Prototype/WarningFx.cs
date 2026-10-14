@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [WarningFX.cs] v1.3 (v9.21 2026-10-12 보스 1단계: BossIntro 가 GameBalance.BossNamePlateBottom 이면 가운데 띠 대신 화면 아래쪽(하단 HUD 바로 위) 이름판 - 왼쪽에서 밀려 들어와 이름 56 + 별명 22 가 찍히고 오른쪽으로 나간다 (가운데 띠는 보스 몸을 가렸다) / FrostEdge - 화면 위 가장자리에만 서리 (동면자 등장 전조)) / v1.2 (v9.19 2026-10-06 웨이브 편성: SpawnCue - 손님이 오는 쪽 화면 가장자리에 뜨는 예고 화살표(갈매기 3개가 기차 쪽으로 물결친다). 게임 시간으로 돌고, 연습으로 멈춘 동안은 같이 멈춘다 / FlashEdges - 글자 없이 가장자리 맥동만) / v1.1 (v9.18 2026-10-06: BossIntro - 보스 등장 띠. 화면을 가로지르는 어두운 띠 + "보스 등장" + 큰 이름 + 한 줄, 가장자리 붉은 맥동 2회. 실시간으로 돌고 게임은 멈추지 않는다) / v1 (신규 파일) - 감사 2-D 결정 사항
+/// [WarningFX.cs] v1.4 (v9.23 2026-10-14: CrisisPulse - 기차 HP 위기 동안 이어지는 가장자리 붉은 맥동 (1 = 2초 주기 약하게 / 2 = 1초 주기). 경고 띠 4개와 따로 둔다 - 같이 떠도 서로 덮어쓰지 않는다. 일시정지·카드 중에는 멈춘다) / v1.3 (v9.21 2026-10-12 보스 1단계: BossIntro 가 GameBalance.BossNamePlateBottom 이면 가운데 띠 대신 화면 아래쪽(하단 HUD 바로 위) 이름판 - 왼쪽에서 밀려 들어와 이름 56 + 별명 22 가 찍히고 오른쪽으로 나간다 (가운데 띠는 보스 몸을 가렸다) / FrostEdge - 화면 위 가장자리에만 서리 (동면자 등장 전조)) / v1.2 (v9.19 2026-10-06 웨이브 편성: SpawnCue - 손님이 오는 쪽 화면 가장자리에 뜨는 예고 화살표(갈매기 3개가 기차 쪽으로 물결친다). 게임 시간으로 돌고, 연습으로 멈춘 동안은 같이 멈춘다 / FlashEdges - 글자 없이 가장자리 맥동만) / v1.1 (v9.18 2026-10-06: BossIntro - 보스 등장 띠. 화면을 가로지르는 어두운 띠 + "보스 등장" + 큰 이름 + 한 줄, 가장자리 붉은 맥동 2회. 실시간으로 돌고 게임은 멈추지 않는다) / v1 (신규 파일) - 감사 2-D 결정 사항
 /// 전체 화면 경고 연출 - 화면 가장자리 붉은 플래시(비네트) + 중앙 대형 경고 텍스트.
 /// 보스 패턴 예고가 눈에 안 들어와서 반응하기 어렵다는 피드백의 해결책.
 ///
@@ -30,6 +30,9 @@ public class WarningFX : MonoBehaviour
     private float plateWidth = 1600f;
     private const float PLATE_Y = 246f, PLATE_H = 100f;
     private Image frostTop;                     // v1.3: 위 가장자리 서리 (동면자 전조) - 경고 띠와 따로 둔다
+    private Image[] crisisBars;                 // v1.4: 위기 맥동 (상/하/좌/우) - 경고 띠와 따로
+    private int crisisLevel = 0;
+    private float crisisT = 0f;
     private Coroutine frostCo;
 
     // v1.2: 편성 예고 화살표 (풀)
@@ -85,6 +88,18 @@ public class WarningFX : MonoBehaviour
         fx.bandCo = fx.StartCoroutine(fx.PlayBand(name, sub, Mathf.Max(0.8f, seconds)));
     }
 
+    /// <summary>v1.4 (v9.23): 기차 HP 위기 맥동. level 0 = 끔 / 1 = 2초 주기 약하게 / 2 = 1초 주기 조금 진하게 (UIManager 가 HP 를 보고 건다)</summary>
+    public static void CrisisPulse(int level)
+    {
+        if (level > 0 && GameBalance.GameFeelMaster <= 0f) level = 0;
+        if (level <= 0 && instance == null) return;
+        WarningFX fx = Get();
+        fx.crisisLevel = Mathf.Clamp(level, 0, 2);
+        if (fx.crisisBars == null) return;
+        for (int i = 0; i < fx.crisisBars.Length; i++)
+            if (fx.crisisBars[i] != null) fx.crisisBars[i].gameObject.SetActive(fx.crisisLevel > 0);
+    }
+
     /// <summary>v1.3: 화면 위 가장자리에만 색이 낀다 (동면자 등장 전조의 서리). sec 동안 떠올랐다 걷힌다 - 다른 경고와 겹쳐도 서로 안 건드린다</summary>
     public static void FrostEdge(float sec, Color color)
     {
@@ -126,6 +141,7 @@ public class WarningFX : MonoBehaviour
 
     private void Update()
     {
+        TickCrisis();   // v1.4
         if (cues == null) return;
         // 전투가 끝났으면(패배·승리·정차) 남은 예고를 걷는다 - 결과 화면 위에 화살표가 남지 않게
         bool battle = GameManager.Instance == null || GameManager.Instance.currentState == GameManager.GameState.Battle;
@@ -290,6 +306,18 @@ public class WarningFX : MonoBehaviour
         return instance;
     }
 
+    /// <summary>v1.4: 위기 맥동 - 게임 시간으로 돈다 (일시정지·카드 중엔 멈춘 채로)</summary>
+    private void TickCrisis()
+    {
+        if (crisisBars == null || crisisLevel <= 0) return;
+        crisisT += Time.deltaTime;
+        float period = crisisLevel >= 2 ? 1f : 2f;
+        float peak = crisisLevel >= 2 ? 0.3f : 0.18f;
+        float pulse = 0.5f - 0.5f * Mathf.Cos(crisisT / period * Mathf.PI * 2f);
+        Color c = new Color(0.85f, 0.08f, 0.05f, peak * pulse);
+        for (int i = 0; i < crisisBars.Length; i++) if (crisisBars[i] != null) crisisBars[i].color = c;
+    }
+
     private IEnumerator PlayFlash(string message, float duration, Color color)
     {
         bigText.text = message;
@@ -355,6 +383,24 @@ public class WarningFX : MonoBehaviour
         frostTop = frostGo.AddComponent<Image>();
         frostTop.raycastTarget = false;
         frostGo.SetActive(false);
+
+        // v1.4: 위기 맥동 띠 4개 (위·아래 90, 좌우 70 - 경고 띠보다 얇게)
+        crisisBars = new Image[4];
+        for (int i = 0; i < 4; i++)
+        {
+            GameObject cg = new GameObject("CrisisEdge" + i);
+            cg.transform.SetParent(canvasGo.transform, false);
+            RectTransform cr = cg.AddComponent<RectTransform>();
+            if (i == 0) { cr.anchorMin = new Vector2(0f, 1f); cr.anchorMax = Vector2.one; cr.pivot = new Vector2(0.5f, 1f); cr.sizeDelta = new Vector2(0f, 90f); }
+            else if (i == 1) { cr.anchorMin = Vector2.zero; cr.anchorMax = new Vector2(1f, 0f); cr.pivot = new Vector2(0.5f, 0f); cr.sizeDelta = new Vector2(0f, 90f); }
+            else if (i == 2) { cr.anchorMin = Vector2.zero; cr.anchorMax = new Vector2(0f, 1f); cr.pivot = new Vector2(0f, 0.5f); cr.sizeDelta = new Vector2(70f, 0f); }
+            else { cr.anchorMin = new Vector2(1f, 0f); cr.anchorMax = Vector2.one; cr.pivot = new Vector2(1f, 0.5f); cr.sizeDelta = new Vector2(70f, 0f); }
+            cr.anchoredPosition = Vector2.zero;
+            crisisBars[i] = cg.AddComponent<Image>();
+            crisisBars[i].raycastTarget = false;
+            crisisBars[i].color = new Color(0.85f, 0.08f, 0.05f, 0f);
+            cg.SetActive(false);
+        }
 
         // 가장자리 띠 4개 (상/하/좌/우) - 클릭 통과
         for (int i = 0; i < 4; i++)

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// [FoodStock.cs] v2.3 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v2.2 (v9.11 2026-09-22: 방금 늘어난 요리 LastAddedId/Frame - HUD 카드 날아가기·튀기 연출용) / v2.1 (v9.10 2026-09-17: 숙련 알림을 일상어로 - "이 요리를 N번 만들었다 - 손에 익어 ..." 테스터 "숙련도 어쩌구 설명 필요") / v2
+/// [FoodStock.cs] v2.4 (v9.23 2026-10-14 점검 수정: 숙련 알림 말을 튜토리얼과 같게 - "조리 판정 칸" -> "초록·노란 구간", 이름 뒤 을/를을 받침으로 고른다 (예전엔 "을(를)") / 진화 조리 성공도 숙련으로 센다 - 부르는 곳은 CookingBridge·TurretSlotManager) / v2.3 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v2.2 (v9.11 2026-09-22: 방금 늘어난 요리 LastAddedId/Frame - HUD 카드 날아가기·튀기 연출용) / v2.1 (v9.10 2026-09-17: 숙련 알림을 일상어로 - "이 요리를 N번 만들었다 - 손에 익어 ..." 테스터 "숙련도 어쩌구 설명 필요") / v2
 /// 완성된 요리 보관소 + 도감(발견) 관리 (싱글톤)
 /// - 조리 성공 -> Add / 슬롯 투입, T2 합성 -> TryConsume
 /// - v2 변경점 (도감 영구화):
@@ -33,7 +33,16 @@ public class FoodStock : MonoBehaviour
     // 실제 저장/보너스 조회는 MetaProgress.GetCookCount/GetMasteryAtk 등이 담당.
     // ─────────────────────────────────────────────
 
-    /// <summary>성공 조리 1회 기록 (CookingBridge.FinishCook이 호출)</summary>
+    /// <summary>v2.4: 이름 뒤 목적격 조사 - 마지막 글자에 받침이 있으면 "을", 없으면 "를" (한글로 안 끝나면 "을(를)"). 보스 무방비 안내(BossGimmickSystem)도 쓴다</summary>
+    public static string Eul(string word)
+    {
+        if (string.IsNullOrEmpty(word)) return "을(를)";
+        char last = word[word.Length - 1];
+        if (last < 0xAC00 || last > 0xD7A3) return "을(를)";
+        return ((last - 0xAC00) % 28) != 0 ? "을" : "를";
+    }
+
+    /// <summary>성공 조리 1회 기록 (CookingBridge.FinishCook 일반 조리 / v2.4: 진화 조리 성공 - CompleteStockFusion·TurretSlotManager.CompleteFusion)</summary>
     public void CountCook(string recipeId)
     {
         if (string.IsNullOrEmpty(recipeId)) return;
@@ -47,20 +56,20 @@ public class FoodStock : MonoBehaviour
         string shownName = r != null ? r.displayName : recipeId;
         string title = GameBalance.MasteryTitles[tier];
 
-        // v1.3: 일상어 - 무슨 일이 왜 생겼는지 한 문장 (칭호는 괄호)
-        string msg = "[단골 요리] " + shownName + " 을(를) " + c + "번 만들었다 - 손에 익어 이 요리 포탑 공격력 +"
-            + Mathf.RoundToInt(GameBalance.MasteryAtkBonus[tier] * 100f) + "%";
+        // v1.3: 일상어 - 무슨 일이 왜 생겼는지 (칭호는 괄호). v2.4: 두 줄로 - 한 줄이면 알림 줄(560)을 두 배 넘어 글자가 너무 작아졌다
+        string head = "[단골 요리] " + shownName + Eul(shownName) + " " + c + "번 만들었다 (" + title + ")";
+        string msg = "이 요리 포탑 공격력 +" + Mathf.RoundToInt(GameBalance.MasteryAtkBonus[tier] * 100f) + "%";
         if (GameBalance.MasteryJudgeBonus[tier] > 0f)
-            msg += ", 조리 판정 칸 +" + Mathf.RoundToInt(GameBalance.MasteryJudgeBonus[tier] * 100f) + "%";
+            msg += ", 초록·노란 구간 +" + Mathf.RoundToInt(GameBalance.MasteryJudgeBonus[tier] * 100f) + "%";
         if (tier == GameBalance.MasteryStartLevelTier)
-            msg += ", 새로 놓을 때 레벨 2 부터";
+            msg += ", 새로 놓으면 레벨 2부터";
         if (tier >= GameBalance.MasteryPerfectTier)
-            msg += ", PERFECT 면 하나 더";
-        msg += " (" + title + ")";
+            msg += ", PERFECT면 하나 더";
 
+        UIManager.Instance?.ShowStatChange(head);
         UIManager.Instance?.ShowStatChange(msg);
         SoundManager.Play("sfx_judge_perfect");
-        Debug.Log("[FoodStock] 숙련 마일스톤: " + msg);
+        Debug.Log("[FoodStock] 숙련 마일스톤: " + head + " / " + msg);
 
         // 100회 마스터: 최초 1회 명성 + 전용 문구 (팬 리워드)
         if (tier >= GameBalance.MasteryPerfectTier && MetaProgress.TryGrantMasterFame(recipeId))

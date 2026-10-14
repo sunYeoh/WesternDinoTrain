@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// [GameBalance.cs] v9.22.1 (2026-10-14 유저 확인 7번 "판 앞에 멈춰 있는 게 더 불편": 진화 조리 읽을 시간 InfuseReadSec 1.0 -> 0 - 안내는 커서가 움직이는 채로 읽는다) / v9.22 (2026-10-14 조작 팩 - 4차 피드백 5·6번 + 1번의 화면: 맨 아래 v9.22 섹션 - 카드 끌어다 놓기 교체 DragReplaceOn / 카드 위 카드 진화 조리 DragFuseOn / 재료 중심 조리대 창 KitchenMaterialFirst / Tab 키 KitchenTabKey false / 합성 탭 KitchenFuseTab false / 진화 조리 화면 InfuseCookLook) / v9.21.1 (2026-10-13 4차 피드백 픽스: 창이 떠 있는 동안 조리·진화 조리 보류 CookHoldWhileWindow / 진화 조리 읽을 시간 InfuseReadSec / 접시 합성도 진화 조리 InfuseStockOn·InfuseStockBonusPlates / 골드 소수 누적 GoldCarryOn / 수급 SwarmRewardMul 1.3 -> 1.0 · KillMaterialChance 0.6 -> 0.5) / v9.21 (2026-10-12 보스 1단계 큰 몸 - 보스개편 스펙 1·4·5절: 맨 아래 v9.21 섹션 - 보스전 카메라 BossCam* / 새 크기 BossBodyLen·Wide (그림을 맞춘다) / 서는 자리 BossStandOff 새 값·BossStandX / 등장 연출 2판 BossEntranceV2·BossEntranceSec / 이름판 BossNamePlateBottom / 등장 때 대응법 줄 BossEntranceLine / 미끼 때 제자리 BossHoldWhenTaunted) / v9.20 (2026-10-07 유저 "패턴이 눈에 안 띔": 보스 패턴의 준비·발동·결과를 몸과 전장에 그린다 BossPatternFxOn·BossCastSwell·BossReleaseSquash·BossLunge*·BossBite* / 부른 무리는 보스 등 뒤에서 BossSummonBehind·SpreadX·StatMul·Share, HowlSummonCount 5 -> 10 · OriginalRoarCount 4 -> 10) / v9.19.4 (2026-10-07 유저 "포탑 설명이 너무 길다 - 필요한 것만 남기고 폰트를 키워라": 포탑 정보창 글자 크기 SlotInfoFontSize·TitleSize·HintSize, 조작 줄 SlotInfoShowControls) / v9.19.3 (2026-10-07 유저 확인 "체력 회복 증강을 먹으니 HP 가 거의 90% 넘게 남는다": 타격당 회복을 1초에 LifestealHitsPerSec 번까지만 센다) / v9.19.2 (2026-10-07 유저 확인 뒤: 머릿수를 늘린 손님을 약하게 하지 않는다 - GroupPower* 삭제, 크기별 HP 배율 TierHpMul*·초반 배율 EarlyBodyStart·보상 SwarmRewardMul / 손님 전체 강화 EnemyHPMul 1.3·EnemyATKMul 1.2·EnemyDefMul 1.2 (견습 운행은 TutorialEnemy* 로 예전 값) / 기차 방어력 바닥 TrainDefFloor / 보스 HP 종류별 배율 BossHPKindMul / 편성 이름 줄·방향 예고 화살표 끔 FormationLineShows 0·SpawnCueSec 0) / v9.19.1 (2026-10-07 유저 소감: 스폰 테두리가 보이는 화면을 따라간다 SpawnEdgeFollowView·ViewMargin·BossSpawnExtra / 머릿수 대폭 증가 CountMulSmall·Mid·Big + GroupPower* + FormationSizeMul - SwarmCountMul 을 대신한다) / v9.19 (2026-10-06 웨이브 편성·보스 페이즈 모습: 맨 아래 v9.19 섹션 - 편성 스위치·풀리는 웨이브·예고 시간·조각 사이 쉼·스폰 테두리·작은 손님 머릿수·호위 행렬 / 보스 상태 그림·전환 순간·상태 유지 효과·알림 자리) / v9.18 (2026-10-06 테스터 피드백 3 - 버그·밸런스·새 기차 그림: 맨 아래 v9.18 섹션 - 보행 바닥 표 / 슬롯·꼬리 좌표 / 레벨 상한 복구 / 같은 레벨끼리만 진화 / 폐기 환급 / 사고 실패 피해 / 과열 무작위 / 칸 덜컹임 / 보스 그림·HP 바·등장 띠 / UI 배율) / v9.17 (2026-10-06 화면 손맛 2차: 맨 아래 v9.17 섹션 - 발사 반동·섬광 / 데미지 숫자 크기·합산 / 넉백 / 셰프 찌그러짐 / HUD 수치 / 카드 순차 등장·퇴장 / 보스 등장·처치 / 패배·승리 순서 / 장면 전환 / 알림 중복) / v9.16 (2026-09-29 소리 v2: BuildTag 만 - 소리 표는 SoundManager 에) / v9.15.1 (2026-09-29 스토리 개정 스위치: 최종전 베팅 없음·스피노 고백 카드·마지막 식사 장면 시간) / v9.15 (2026-09-29 2차 피드백: 레벨 상한 해제 -> 접시 곡선·레벨 체감·저항 표시 / 훈련장 반복·자유 연습 / 드래그 투입 / 사고 해결 연출 / 포탑 파손 / HUD 재배치 / 설정창) / v9.12 (2026-09-22 튜토리얼 구간화·인라인 연습·협곡 낙뢰·미니 보스 예습 섹션 추가) / v1 (v9.11 2026-09-22: 타격감 섹션 - 피격 플래시·찌그러짐·스파크·킬 버스트·기차 피격·버튼·모달·웨이브 띠 스위치 / v9.10.1 2026-09-21: 유저 플레이 소감 섹션 - 웨이브 물량·길이, 정차 조리 제한, 행상인 자동 퇴장, 처치 보상 배율 / v9.9 2026-09-16: 포탑 4모서리 배치 SlotPosition + 견습 운행/브리핑 스위치 섹션)
+/// [GameBalance.cs] v9.23 (2026-10-14 보스 새 패턴 - 보스개편 스펙 3-1 ~ 3-4절 + B2 피해 예고 바 + 기차 HP 위기 표시 + 명성 상점 실루엣: 맨 아래 v9.23 섹션. 패턴마다 스위치가 있다 - 하나가 이상하면 그것만 끈다. BossNewPatterns = false 면 v9.22 까지의 보스) / v9.22.1 (2026-10-14 유저 확인 7번 "판 앞에 멈춰 있는 게 더 불편": 진화 조리 읽을 시간 InfuseReadSec 1.0 -> 0 - 안내는 커서가 움직이는 채로 읽는다) / v9.22 (2026-10-14 조작 팩 - 4차 피드백 5·6번 + 1번의 화면: 맨 아래 v9.22 섹션 - 카드 끌어다 놓기 교체 DragReplaceOn / 카드 위 카드 진화 조리 DragFuseOn / 재료 중심 조리대 창 KitchenMaterialFirst / Tab 키 KitchenTabKey false / 합성 탭 KitchenFuseTab false / 진화 조리 화면 InfuseCookLook) / v9.21.1 (2026-10-13 4차 피드백 픽스: 창이 떠 있는 동안 조리·진화 조리 보류 CookHoldWhileWindow / 진화 조리 읽을 시간 InfuseReadSec / 접시 합성도 진화 조리 InfuseStockOn·InfuseStockBonusPlates / 골드 소수 누적 GoldCarryOn / 수급 SwarmRewardMul 1.3 -> 1.0 · KillMaterialChance 0.6 -> 0.5) / v9.21 (2026-10-12 보스 1단계 큰 몸 - 보스개편 스펙 1·4·5절: 맨 아래 v9.21 섹션 - 보스전 카메라 BossCam* / 새 크기 BossBodyLen·Wide (그림을 맞춘다) / 서는 자리 BossStandOff 새 값·BossStandX / 등장 연출 2판 BossEntranceV2·BossEntranceSec / 이름판 BossNamePlateBottom / 등장 때 대응법 줄 BossEntranceLine / 미끼 때 제자리 BossHoldWhenTaunted) / v9.20 (2026-10-07 유저 "패턴이 눈에 안 띔": 보스 패턴의 준비·발동·결과를 몸과 전장에 그린다 BossPatternFxOn·BossCastSwell·BossReleaseSquash·BossLunge*·BossBite* / 부른 무리는 보스 등 뒤에서 BossSummonBehind·SpreadX·StatMul·Share, HowlSummonCount 5 -> 10 · OriginalRoarCount 4 -> 10) / v9.19.4 (2026-10-07 유저 "포탑 설명이 너무 길다 - 필요한 것만 남기고 폰트를 키워라": 포탑 정보창 글자 크기 SlotInfoFontSize·TitleSize·HintSize, 조작 줄 SlotInfoShowControls) / v9.19.3 (2026-10-07 유저 확인 "체력 회복 증강을 먹으니 HP 가 거의 90% 넘게 남는다": 타격당 회복을 1초에 LifestealHitsPerSec 번까지만 센다) / v9.19.2 (2026-10-07 유저 확인 뒤: 머릿수를 늘린 손님을 약하게 하지 않는다 - GroupPower* 삭제, 크기별 HP 배율 TierHpMul*·초반 배율 EarlyBodyStart·보상 SwarmRewardMul / 손님 전체 강화 EnemyHPMul 1.3·EnemyATKMul 1.2·EnemyDefMul 1.2 (견습 운행은 TutorialEnemy* 로 예전 값) / 기차 방어력 바닥 TrainDefFloor / 보스 HP 종류별 배율 BossHPKindMul / 편성 이름 줄·방향 예고 화살표 끔 FormationLineShows 0·SpawnCueSec 0) / v9.19.1 (2026-10-07 유저 소감: 스폰 테두리가 보이는 화면을 따라간다 SpawnEdgeFollowView·ViewMargin·BossSpawnExtra / 머릿수 대폭 증가 CountMulSmall·Mid·Big + GroupPower* + FormationSizeMul - SwarmCountMul 을 대신한다) / v9.19 (2026-10-06 웨이브 편성·보스 페이즈 모습: 맨 아래 v9.19 섹션 - 편성 스위치·풀리는 웨이브·예고 시간·조각 사이 쉼·스폰 테두리·작은 손님 머릿수·호위 행렬 / 보스 상태 그림·전환 순간·상태 유지 효과·알림 자리) / v9.18 (2026-10-06 테스터 피드백 3 - 버그·밸런스·새 기차 그림: 맨 아래 v9.18 섹션 - 보행 바닥 표 / 슬롯·꼬리 좌표 / 레벨 상한 복구 / 같은 레벨끼리만 진화 / 폐기 환급 / 사고 실패 피해 / 과열 무작위 / 칸 덜컹임 / 보스 그림·HP 바·등장 띠 / UI 배율) / v9.17 (2026-10-06 화면 손맛 2차: 맨 아래 v9.17 섹션 - 발사 반동·섬광 / 데미지 숫자 크기·합산 / 넉백 / 셰프 찌그러짐 / HUD 수치 / 카드 순차 등장·퇴장 / 보스 등장·처치 / 패배·승리 순서 / 장면 전환 / 알림 중복) / v9.16 (2026-09-29 소리 v2: BuildTag 만 - 소리 표는 SoundManager 에) / v9.15.1 (2026-09-29 스토리 개정 스위치: 최종전 베팅 없음·스피노 고백 카드·마지막 식사 장면 시간) / v9.15 (2026-09-29 2차 피드백: 레벨 상한 해제 -> 접시 곡선·레벨 체감·저항 표시 / 훈련장 반복·자유 연습 / 드래그 투입 / 사고 해결 연출 / 포탑 파손 / HUD 재배치 / 설정창) / v9.12 (2026-09-22 튜토리얼 구간화·인라인 연습·협곡 낙뢰·미니 보스 예습 섹션 추가) / v1 (v9.11 2026-09-22: 타격감 섹션 - 피격 플래시·찌그러짐·스파크·킬 버스트·기차 피격·버튼·모달·웨이브 띠 스위치 / v9.10.1 2026-09-21: 유저 플레이 소감 섹션 - 웨이브 물량·길이, 정차 조리 제한, 행상인 자동 퇴장, 처치 보상 배율 / v9.9 2026-09-16: 포탑 4모서리 배치 SlotPosition + 견습 운행/브리핑 스위치 섹션)
 /// 게임 전체 밸런스 수치를 한 곳에 모은 설정 파일.
 ///
 /// 여기 값을 바꾸면 Inspector 값과 상관없이 게임에 적용된다
@@ -1506,4 +1506,129 @@ public static class GameBalance
     public static bool KitchenFuseTab = false;
     /// <summary>3-1: 진화 조리 화면을 조리 미니게임 그림으로 - 1판 = 석쇠·꼬치 커서·판정 구간·불꽃 띠, 2판 = 눕힌 압력계·초록 구간·바늘·솥 엠블럼, 오른쪽 위 고기 칩 = 몇 판째 (UISkin + ui_mg_* 그림이 있을 때만). false = v9.21.1 판</summary>
     public static bool InfuseCookLook = true;
+
+    // ── (v9.23 2026-10-14) 보스 새 패턴 - claude/보스개편_스펙_2026-10-07.md 3-1 ~ 3-4절. 코드 = BossPatterns.cs (BossEnemy 의 나머지 반쪽) ──
+    /// <summary>새 패턴 전체 스위치. false = v9.22 까지의 보스 (호령·낙뢰·갑주·포효 + 돌진 물기). 아래 패턴별 스위치는 이것이 true 일 때만 본다</summary>
+    public static bool BossNewPatterns = true;
+
+    // 녹슨 발톱
+    /// <summary>R1 부관 둘: 등장 전조 때 화면 좌우에서 달려와 기차 머리·꼬리 쪽에 붙는다. 왕 그림을 줄여 쓴다 (RustLieutenantLen u). 미끼에 끌린다</summary>
+    public static bool RustLieutenantsOn = true;
+    public static int RustLieutenantCount = 2;
+    public static float RustLieutenantHPRatio = 0.25f;     // 한 마리 HP = 왕 HP x 이것
+    public static float RustLieutenantBiteRatio = 0.5f;    // 무는 힘 = 왕 무는 힘(공격력 x BossMeleeMul) x 이것
+    public static float RustKingHPMul = 0.8f;              // 부관이 올 때 왕 HP 배율 - 왕 0.8 + 부관 0.2 x 2 = 예전 왕 하나의 1.2배 (스펙 8절 "왕을 깎을지")
+    public static float RustLieutenantLen = 4.5f;          // 부관 그림 길이 (u)
+    public static float RustLieutenantSpeed = 3.2f;
+    public static float RustLieutenantDashSpeed = 7f;      // 등장 때 처음 RustLieutenantDashSec 동안 (왕보다 먼저 붙게)
+    public static float RustLieutenantDashSec = 1.6f;
+    public static float RustLieutenantHowlDelay = 1.5f;    // 부관이 쓰러지면 왕이 울고 이 시간 뒤에 호령
+    /// <summary>R2 삼단 도약: 예고 RustLeapTelegraphSec 동안 착지 자리에 그림자 원 + 순서 숫자 -> 기차를 뛰어넘으며 북 -> 남 -> 북. 착지한 칸에 무는 힘 x RustLeapDamageMul. 미끼가 깔려 있으면 첫 착지는 미끼 자리 (기차 무피해)</summary>
+    public static bool RustLeapOn = true;
+    public static float RustLeapTelegraphSec = 1.5f;
+    public static int RustLeapCount = 3;
+    public static int RustLeapCountEnraged = 5;
+    public static float RustLeapAirSec = 0.5f;             // 한 번 뛰는 시간
+    public static float RustLeapRestSec = 0.25f;           // 착지 뒤 쉬는 시간
+    public static float RustLeapDamageMul = 0.7f;
+    public static float RustLeapCarKick = 0.38f;           // 착지한 칸이 덜컹이는 폭 (물기 BossBiteCarKick 0.16 의 두 배 남짓)
+    /// <summary>R3 호령 -> 편성: 호령하면 랩터가 포위(사방)·양동(양쪽) 편성 조각으로 번갈아 온다 (화살표 없음, 제 힘 그대로). 예고 중 마비·멈춤이면 절반</summary>
+    public static bool RustHowlFormation = true;
+    public static int RustHowlCount = 9;
+    public static int RustHowlCountEnraged = 14;
+
+    // 천둥 둥지
+    /// <summary>T1 상공: 날갯짓(ThunderFlapSec 주기로 날개폭이 ThunderFlapDepth 만큼 접혔다 펴짐) + ThunderDriftEvery 초마다 기차를 따라 자리를 옮긴다 (±ThunderDriftDX)</summary>
+    public static bool ThunderFlapOn = true;
+    public static float ThunderFlapSec = 1.2f;
+    public static float ThunderFlapDepth = 0.08f;
+    public static float ThunderDriftEvery = 20f;
+    public static float ThunderDriftDX = 3f;
+    public static float ThunderDriftSec = 1.6f;
+    /// <summary>천둥 둥지는 근접 공격이 없다 (스펙 5절 - 낙뢰·알·편대가 그 자리). false = 상공에서 급강하 물기 (v9.21)</summary>
+    public static bool ThunderNoMelee = true;
+    /// <summary>T2 알 투하: 예고 동안 기차 둘레 바닥에 고리 -> 알이 포물선으로 박힌다 -> ThunderEggHatchSec 뒤 새끼 테라노돈 ThunderEggHatchlings 마리씩. 부화 전에 깨면 안 나온다.
+    /// 알 HP = 지금 놓인 포탑 한 발의 평균 x ThunderEggShots (ThunderEggMinHP 이상)</summary>
+    public static bool ThunderEggsOn = true;
+    public static float ThunderEggTelegraphSec = 1.5f;
+    public static int ThunderEggCount = 3;
+    public static int ThunderEggCountEnraged = 5;
+    public static float ThunderEggHatchSec = 6f;
+    public static int ThunderEggHatchlings = 2;
+    public static float ThunderEggShots = 2.5f;
+    public static float ThunderEggMinHP = 60f;
+    public static float ThunderHatchlingHPMul = 0.5f;      // 새끼 테라노돈 = 볼트 테라노돈의 HP·공격력 x 이것
+    /// <summary>T3 편대 발진 (발악 뒤만): 예고 동안 날개를 접고 노릴 칸에 붉은 테두리 -> 등에서 과부하 플라이가 줄지어 쏟아져 그 칸으로 급강하. 예고 중 마비·감전이면 절반</summary>
+    public static bool ThunderFlightOn = true;
+    public static float ThunderFlightTelegraphSec = 1.5f;
+    public static int ThunderFlightCount = 6;
+
+    // 동면자
+    /// <summary>H1 꼬리 후려치기 (돌진 물기 대신): 예고 HibTailTelegraphSec 동안 꼬리 쪽 칸 테두리 -> 머리를 축으로 HibTailDeg 만큼 틀어 꼬리 끝이 그 칸을 친다 (피해 = 무는 힘 그대로)</summary>
+    public static bool HibTailOn = true;
+    public static float HibTailTelegraphSec = 0.6f;
+    public static float HibTailDeg = 8f;
+    /// <summary>H2 백야의 입김: 예고 동안 머리를 기차로 숙이고 덮일 칸 2개에 서리 테두리 -> HibBreathSec 동안 그 칸 포탑 발사 속도 x HibBreathFireMul + 조리 미니게임 speedMul x HibBreathCookMul (작을수록 빠르고 짧다).
+    /// 굽기 요리 하나를 완성하면 바로 풀린다</summary>
+    public static bool HibBreathOn = true;
+    public static float HibBreathTelegraphSec = 2f;
+    public static float HibBreathSec = 10f;
+    public static float HibBreathFireMul = 0.5f;
+    public static float HibBreathCookMul = 0.6f;
+    /// <summary>H3 눈사태: HP HibAvalancheHPRatio 아래에서 한 번. HibAvalancheSec 동안 화면 위에서 흰 벽이 내려와 지붕에 닿으면 기차 최대 HP x HibAvalancheDamageRatio (방어 무시).
+    /// [F] 독샘 요리(무방비가 아니어도 던진다)나 해동포 GOOD 이상이면 벽이 깨지고 무방비 HibAvalancheGroggySec</summary>
+    public static bool HibAvalancheOn = true;
+    public static float HibAvalancheHPRatio = 0.3f;
+    public static float HibAvalancheSec = 12f;
+    public static float HibAvalancheDamageRatio = 0.45f;
+    public static float HibAvalancheGroggySec = 6f;
+    /// <summary>스펙 3-0 P3 뒷부분: 갑주가 생기는 순간 해동포 창이 ThawAttentionSec 동안 깜빡인다 (푸는 방법이 같이 읽히게)</summary>
+    public static bool ThawAttentionOn = true;
+    public static float ThawAttentionSec = 2.4f;
+
+    // 디 오리지널
+    /// <summary>O1: 페이즈가 바뀔 때 평행 선로 위에서 P2 = OrigShiftDX 앞으로(왼쪽) 치고 나가고, P3 = 서는 자리보다 OrigShiftDX 뒤로 처진다 (OrigShiftSec)</summary>
+    public static bool OrigShiftOn = true;
+    public static float OrigShiftDX = 3f;
+    public static float OrigShiftSec = 1.5f;
+    /// <summary>O2 약점 칸: 포탑 탄이 모이는 곳 = P1 머리 / P2 맨 뒤 화물칸 / P3 가운데 심장 칸. 페이즈가 바뀌면 그 칸에 조준 고리 2초</summary>
+    public static bool OrigWeakPointOn = true;
+    /// <summary>그림 왼쪽 끝(꼬리)에서 잰 자리 (몸 길이의 몫): [0] P1 머리 / [1] P2 맨 뒤 화물칸 / [2] P3 가운데 심장 칸. px/rival_train.py 의 칸 자리 (그림은 180도 돌려 저장 - 꼬리가 왼쪽)</summary>
+    public static float[] OrigWeakFrac = { 0.868f, 0.221f, 0.424f };
+    /// <summary>화물칸 셋의 가운데 (같은 기준) - 하차 문 자리</summary>
+    public static float[] OrigDoorFrac = { 0.639f, 0.424f, 0.221f };
+    /// <summary>O3 하차 (포효 대신): 예고 동안 화물칸 문 3개가 붉게 열린다 -> 칸마다 랩터가 내 기차 쪽으로 뛰어내린다 (바로 옆에서 나오니 힘 x OrigUnloadStatMul)</summary>
+    public static bool OrigUnloadOn = true;
+    public static float OrigUnloadTelegraphSec = 1.5f;
+    public static int OrigUnloadPerCar = 3;
+    public static int OrigUnloadPerCarEnraged = 4;
+    public static float OrigUnloadStatMul = 0.7f;
+    /// <summary>최종전 동안 일반 손님은 남쪽·머리·꼬리 쪽에서만 온다 (북쪽은 맞수 열차 몸이 막고 있다)</summary>
+    public static bool OrigNorthBlocked = true;
+    /// <summary>O4 측면 충돌 (돌진 물기 대신): 예고 OrigRamTelegraphSec 동안 차체가 붉어지고 두 열차 사이에 불티 -> OrigRamPush u 붙었다 떨어진다.
+    /// 피해 = 무는 힘 x OrigRamDamageMul, OrigRamCooldown 초마다 (예전 물기와 초당 피해가 비슷하게) + 내 칸이 머리부터 차례로 덜컹</summary>
+    public static bool OrigRamOn = true;
+    public static float OrigRamTelegraphSec = 1.2f;
+    public static float OrigRamCooldown = 4.5f;
+    public static float OrigRamDamageMul = 1.8f;
+    public static float OrigRamPush = 0.8f;
+    /// <summary>O5: 폭식 때 원료 조각이 맨 뒤 화물칸(입)으로 빨려 들어간다 (구: 몸 가운데로)</summary>
+    public static bool OrigFeedMouthOn = true;
+    /// <summary>O6: 쓰러질 때 꼬리부터 세 덩이가 OrigCollapseGap 간격으로 터지며 떨어져 나가 뒤로 처지고 머리만 남아 눈의 불이 꺼진다 -> 지금 처치 순서. 마지막 식사 엔딩은 그대로</summary>
+    public static bool OrigCollapseOn = true;
+    public static float OrigCollapseGap = 0.25f;
+    /// <summary>그림 왼쪽 끝(꼬리)에서 자르는 자리 (몫): 꼬리+맨 뒤 화물칸 / 가운데 칸 / 첫 화물칸 - 칸 사이 연결부</summary>
+    public static float[] OrigCutFrac = { 0.323f, 0.522f, 0.754f };
+
+    // 공통
+    /// <summary>보스가 쓰러지면 남은 손님(부관·무리·알)이 먼지를 끌며 달아난다 - 처치 골드는 그 자리에서 준다 (재료·유물은 없음). 스펙엔 녹슨 발톱만 있는데 넷 다 (보스를 잡고 남은 랩터를 쫓는 시간이 여운을 끊는다)</summary>
+    public static bool BossRoutOnKill = true;
+    /// <summary>B2 피해 예고 바: 도약·눈사태·측면 충돌 예고 동안 기차 HP 바에 맞을 양만큼 빗금이 깜빡인다</summary>
+    public static bool DamagePreviewOn = true;
+    /// <summary>기차 HP 위기 표시 (요구사항 점검 1절 2번): HP TrainCrisisRatio 아래 = 가장자리 붉은 맥동(2초 주기, 약하게) + 기관차 굴뚝 검은 연기 + HP 숫자 깜빡 + 들어설 때 경보 1번 / TrainCrisisRatio2 아래 = 맥동 1초 주기</summary>
+    public static bool TrainCrisisOn = true;
+    public static float TrainCrisisRatio = 0.3f;
+    public static float TrainCrisisRatio2 = 0.15f;
+    /// <summary>명성 상점 맨 아래 잠긴 줄 "심장이 아직 기억해내지 못한 것들" (기차 실루엣 + ???) - 요구사항 점검 1절 3번 (08-21 결정 4-A)</summary>
+    public static bool FameShopSilhouette = true;
 }

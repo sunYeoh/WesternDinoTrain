@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.Events;
 
 /// <summary>
-/// [TrainManager.cs] v3.5 (v9.19.2 2026-10-07: 방어력 바닥 GameBalance.TrainDefFloor - 방어력을 빼도 원래 피해의 4분의 1 은 들어온다. v3.4(v9.19.1)의 "몫만큼만 방어"는 걷어냈다 - 손님이 다시 제 힘으로 온다) / v3.3 (v9.18 2026-10-06: TakeDamageIgnoringDef - 주방 사고 실패 피해용. 방어력 차감과 연속 피격 완충을 건너뛴다) / v3.2 (v9.11 2026-09-22: 피격 때 TrainFeel.Hit() - 맞은 칸 플래시) / v3.1 (교수 피드백 A4: AddMaxHP 회복 분리)
+/// [TrainManager.cs] v3.6 (v9.23 2026-10-14: EstimateDamage - 이 피해가 들어오면 HP 가 얼마 깎이나 (방어력·바닥·받는 피해 감소까지. 연속 피격 완충·증기 보호막은 뺀다) - 보스 패턴 예고 때 HP 바 빗금(B2)이 쓴다) / v3.5 (v9.19.2 2026-10-07: 방어력 바닥 GameBalance.TrainDefFloor - 방어력을 빼도 원래 피해의 4분의 1 은 들어온다. v3.4(v9.19.1)의 "몫만큼만 방어"는 걷어냈다 - 손님이 다시 제 힘으로 온다) / v3.3 (v9.18 2026-10-06: TakeDamageIgnoringDef - 주방 사고 실패 피해용. 방어력 차감과 연속 피격 완충을 건너뛴다) / v3.2 (v9.11 2026-09-22: 피격 때 TrainFeel.Hit() - 맞은 칸 플래시) / v3.1 (교수 피드백 A4: AddMaxHP 회복 분리)
 /// 메카 티렉스 열차의 핵심 스탯을 관리합니다.
 /// - v3 변경점 (구시스템 정리):
 ///   1) 허기/포만감 시스템 완전 제거 (감소/등급/절전모드/스탯 페널티 전부 삭제)
@@ -196,6 +196,17 @@ public class TrainManager : MonoBehaviour
     /// 방어력 차감과 연속 피격 완충(무리 러시용)만 빼고 나머지는 TakeDamage 와 같다: 정차 성역 / 받는 피해 감소(%) / 증기 보호막 / 피격 연출
     /// </summary>
     public void TakeDamageIgnoringDef(float damage) { ApplyDamage(damage, true); }
+
+    /// <summary>v3.6 (v9.23): rawDamage 가 들어오면 HP 가 얼마 깎일지 어림 - ApplyDamage 와 같은 방어력·바닥·받는 피해 감소. 연속 피격 완충·증기 보호막은 뺀다 (예고 빗금이 조금 크게 보이는 쪽)</summary>
+    public float EstimateDamage(float rawDamage, bool ignoreDef)
+    {
+        float d;
+        if (ignoreDef) d = Mathf.Max(0f, rawDamage);
+        else d = Mathf.Max(1f, Mathf.Max(rawDamage - currentDEF, rawDamage * Mathf.Clamp01(GameBalance.TrainDefFloor)));
+        float reduction = AugmentManager.DamageReductionAdd;
+        if (TurretSlotManager.Instance != null) reduction += TurretSlotManager.Instance.GetDamageReduction();
+        return d * (1f - Mathf.Clamp(reduction, -0.85f, 0.85f));
+    }
 
     private void ApplyDamage(float rawDamage, bool ignoreDef)
     {

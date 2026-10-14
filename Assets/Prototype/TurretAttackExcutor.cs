@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 
 /// <summary>
-/// [TurretAttackExecutor.cs] v5.9 (v9.21 2026-10-12 보스 1단계: 범위 판정(폭발·장판·동상 파편·마지막 서비스·대체 표적)의 거리를 Enemy.DistanceFrom 으로 - 큰 보스는 몸 가장자리까지 재서 9 ~ 20u 몸의 끝에 떨어진 폭발이 비껴가지 않는다) / v5.8 (v9.19.3 2026-10-07: 증강의 타격당 회복을 1초에 GameBalance.LifestealHitsPerSec 번까지만 센다 - LifestealReady. 타격마다 전부 세면 손님이 늘고 단단해진 만큼 회복이 불어나 기차 HP 가 닳지 않았다) / v5.7 (v9.19.2 2026-10-07: v5.6 의 "타격당 회복 x 손님의 몫"을 되돌렸다 - 손님이 제 힘으로 오니 때린 만큼 그대로 회복한다) / v5.6 (v9.19.1: 증강의 타격당 회복에 맞은 손님의 몫을 곱했다) / v5.5 (v9.18 2026-10-06: 피해 출처(CurrentSource = 쏜 포탑) - 데미지 숫자를 포탑별로 합산하게 HitFeel 에 같이 넘긴다. 날아가는 탄은 도착할 때 출처를 다시 건다) / v5.4 (v9.17 2026-10-06: v9.14 머리말에 적고 본문에 빠져 있던 것을 실제로 넣음 - 투사체가 날아가는 동안 Enemy.IncomingDamage 예약·도착 때 해제 / 도착했을 때 표적이 죽었으면 ProjectileRetargetRadius 안의 다른 손님을 맞힌다. + A5: 물리 단발이 맞으면 HitFeel.Knock(그림만 움찔)) / v5.3 (v9.16 2026-09-29 손맛 2차 - 소리: 발사음 = 요리 속성·티어·모양별(SoundKeys.Shot, 포탑 위치에서 PlayAt) / 폭발 착탄 sfx_explosion / 장판 sfx_field / 연쇄 번개 튈 때마다 sfx_chain / 증강 폭발(동상 파편·마지막 서비스)도 폭발음 / HitFeel.NextHit 에 요리 속성을 같이 넘겨 명중음에 속성 겹침이 얹힌다) / v5.2 (v9.14 2026-09-28 테스터 "하나 점사해서 잡으면 나머지가 다 빗나감": 투사체가 도착했을 때 표적이 이미 죽었으면 그 자리 근처의 다른 손님을 맞힌다(ProjectileRetargetRadius) + 날아가는 동안 Enemy.IncomingDamage 예약 - 포탑이 곧 죽을 손님을 건너뛴다) / v5.1 (v9.11 2026-09-22 타격감: DealDamage 가 HitFeel.NextHit(속성색·크리) 를 걸고 때린다) / v5
+/// [TurretAttackExecutor.cs] v5.10 (v9.23 2026-10-14 보스 새 패턴: 탄·관통·부채꼴이 손님의 AimPoint 를 겨눈다 - 디 오리지널은 페이즈마다 약점 칸(머리 / 맨 뒤 화물칸 / 심장 칸)으로 탄이 모인다) / v5.9 (v9.21 2026-10-12 보스 1단계: 범위 판정(폭발·장판·동상 파편·마지막 서비스·대체 표적)의 거리를 Enemy.DistanceFrom 으로 - 큰 보스는 몸 가장자리까지 재서 9 ~ 20u 몸의 끝에 떨어진 폭발이 비껴가지 않는다) / v5.8 (v9.19.3 2026-10-07: 증강의 타격당 회복을 1초에 GameBalance.LifestealHitsPerSec 번까지만 센다 - LifestealReady. 타격마다 전부 세면 손님이 늘고 단단해진 만큼 회복이 불어나 기차 HP 가 닳지 않았다) / v5.7 (v9.19.2 2026-10-07: v5.6 의 "타격당 회복 x 손님의 몫"을 되돌렸다 - 손님이 제 힘으로 오니 때린 만큼 그대로 회복한다) / v5.6 (v9.19.1: 증강의 타격당 회복에 맞은 손님의 몫을 곱했다) / v5.5 (v9.18 2026-10-06: 피해 출처(CurrentSource = 쏜 포탑) - 데미지 숫자를 포탑별로 합산하게 HitFeel 에 같이 넘긴다. 날아가는 탄은 도착할 때 출처를 다시 건다) / v5.4 (v9.17 2026-10-06: v9.14 머리말에 적고 본문에 빠져 있던 것을 실제로 넣음 - 투사체가 날아가는 동안 Enemy.IncomingDamage 예약·도착 때 해제 / 도착했을 때 표적이 죽었으면 ProjectileRetargetRadius 안의 다른 손님을 맞힌다. + A5: 물리 단발이 맞으면 HitFeel.Knock(그림만 움찔)) / v5.3 (v9.16 2026-09-29 손맛 2차 - 소리: 발사음 = 요리 속성·티어·모양별(SoundKeys.Shot, 포탑 위치에서 PlayAt) / 폭발 착탄 sfx_explosion / 장판 sfx_field / 연쇄 번개 튈 때마다 sfx_chain / 증강 폭발(동상 파편·마지막 서비스)도 폭발음 / HitFeel.NextHit 에 요리 속성을 같이 넘겨 명중음에 속성 겹침이 얹힌다) / v5.2 (v9.14 2026-09-28 테스터 "하나 점사해서 잡으면 나머지가 다 빗나감": 투사체가 도착했을 때 표적이 이미 죽었으면 그 자리 근처의 다른 손님을 맞힌다(ProjectileRetargetRadius) + 날아가는 동안 Enemy.IncomingDamage 예약 - 포탑이 곧 죽을 손님을 건너뛴다) / v5.1 (v9.11 2026-09-22 타격감: DealDamage 가 HitFeel.NextHit(속성색·크리) 를 걸고 때린다) / v5
 /// 포탑 공격 형태(8종)별 판정 및 이펙트 실행기
 /// - v3: 모든 TakeDamage에 r.damageType 적용 (DEF/RES 계산)
 /// - v4: 증강 시스템(AugmentManager) 연동
@@ -104,7 +104,7 @@ public static class TurretAttackExecutor
                 if (vfx != null)
                 {
                     // 투사체가 날아가서 도달하면 판정 (폭발형 크게, 일반형 작게)
-                    Vector3 targetPos = target.transform.position;
+                    Vector3 targetPos = target.AimPoint;   // v5.10 (v9.23): 겨누는 자리 - 손님은 몸 가운데, 디 오리지널은 페이즈마다 약점 칸 (탄이 그 칸에 모인다)
                     Enemy capturedTarget = target;
                     float projSpeed = r.projectileSpeed > 0f ? r.projectileSpeed * 0.03f : 13f;
                     float projSize = r.explodeRadius > 0f ? 0.5f : 0.32f;
@@ -541,7 +541,7 @@ public static class TurretAttackExecutor
     /// <summary>관통(레일) 공격: 직선 경로상의 적 전부 풀 데미지</summary>
     private static void HitPierce(RecipeData r, Vector3 origin, Enemy target, float damage, Color col)
     {
-        Vector3 dir = (target.transform.position - origin).normalized;
+        Vector3 dir = (target.AimPoint - origin).normalized;   // v5.10 (v9.23)
         float railLength = 20f;
         float railWidth = 1.2f;
 
@@ -552,7 +552,7 @@ public static class TurretAttackExecutor
         for (int i = 0; i < all.Length; i++)
         {
             if (!all[i].IsAlive) continue;
-            Vector3 toEnemy = all[i].transform.position - origin;
+            Vector3 toEnemy = all[i].AimPoint - origin;   // v5.10: 겨눈 자리로 잰다 (손님은 몸 가운데 그대로 - 보스 약점 칸을 겨눈 줄기가 비껴가지 않게)
             float proj = Vector3.Dot(toEnemy, dir);
             if (proj < 0f || proj > railLength) continue;
             float perp = (toEnemy - dir * proj).magnitude;
@@ -567,7 +567,7 @@ public static class TurretAttackExecutor
     /// <summary>부채꼴(화염방사/산탄) 공격: 각도 내 적 전부 풀 데미지</summary>
     private static void HitCone(RecipeData r, Vector3 origin, Enemy target, float damage, Color col)
     {
-        Vector3 dir = (target.transform.position - origin).normalized;
+        Vector3 dir = (target.AimPoint - origin).normalized;   // v5.10 (v9.23)
         float coneRange = 7f;
         float coneHalfAngle = 26f;
 
@@ -578,7 +578,7 @@ public static class TurretAttackExecutor
         for (int i = 0; i < all.Length; i++)
         {
             if (!all[i].IsAlive) continue;
-            Vector3 toEnemy = all[i].transform.position - origin;
+            Vector3 toEnemy = all[i].AimPoint - origin;   // v5.10: 겨눈 자리로 잰다
             if (toEnemy.magnitude > coneRange) continue;
             if (Vector3.Angle(dir, toEnemy) <= coneHalfAngle)
             {

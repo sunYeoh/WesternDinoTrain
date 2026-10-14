@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// [FameShopUI.cs] v1.8 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v1.7 (v9.18 2026-10-06: UI 배율 1.2 에서 결과 화면의 대사 띠와 패널 윗부분이 겹치던 것 - 패널·재출발 버튼을 모자란 여백만큼 내린다) / v1.6 (v9.17 2026-10-06 화면 손맛 2차 - 결과 화면: 운행이 끝나 열리면 머리글이 결과("기차가 멈췄다" / "종착역 도착!")로 바뀌고, 보유 명성이 이번 운행 몫만큼 세어 올라가고(C5), 상품 줄이 위에서부터 하나씩 나타난다(D4). 열릴 때 판 팝. 재출발은 검정 페이드 뒤(D6)) / v1.5 (v9.15.1 2026-09-29 스토리 개정: 재출발 버튼 "다시 굽는다" -> "다시 출발한다 - 비상 복구 끝" (셰프 재생 설정 삭제)) / v1.4 (v9.14 2026-09-28: 명성 사용처 "출발 증강" 줄 추가, 패널 680) / v1.3 (2026-09-14: 런 종료 화면에 이번 런 통계 한 줄) / v1.2 (즉시 재출발 버튼) / v1
+/// [FameShopUI.cs] v1.9 (v9.23 2026-10-14 요구사항 점검 1절 3번 (08-21 결정 4-A): 맨 아래 잠긴 줄 "심장이 아직 기억해내지 못한 것들" - 기차 실루엣 칸 + ??? 칸 (살 수 없다, 다음에 올 것의 자리). 줄 간격 82 -> 70 · 줄 높이 72 -> 64 로 줄여 패널 크기 그대로. GameBalance.FameShopSilhouette) / v1.8 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v1.7 (v9.18 2026-10-06: UI 배율 1.2 에서 결과 화면의 대사 띠와 패널 윗부분이 겹치던 것 - 패널·재출발 버튼을 모자란 여백만큼 내린다) / v1.6 (v9.17 2026-10-06 화면 손맛 2차 - 결과 화면: 운행이 끝나 열리면 머리글이 결과("기차가 멈췄다" / "종착역 도착!")로 바뀌고, 보유 명성이 이번 운행 몫만큼 세어 올라가고(C5), 상품 줄이 위에서부터 하나씩 나타난다(D4). 열릴 때 판 팝. 재출발은 검정 페이드 뒤(D6)) / v1.5 (v9.15.1 2026-09-29 스토리 개정: 재출발 버튼 "다시 굽는다" -> "다시 출발한다 - 비상 복구 끝" (셰프 재생 설정 삭제)) / v1.4 (v9.14 2026-09-28: 명성 사용처 "출발 증강" 줄 추가, 패널 680) / v1.3 (2026-09-14: 런 종료 화면에 이번 런 통계 한 줄) / v1.2 (즉시 재출발 버튼) / v1
 /// 명성 상점 - 런 사이(로비/게임오버)에 명성을 소모해 영구 업그레이드를 사는 UI.
 ///
 /// - v1.3 변경점 (스위치 실험 관찰 시트): 게임오버/승리로 열렸을 때 보유 명성 줄 아래에
@@ -313,7 +313,10 @@ public class FameShopUI : MonoBehaviour
         buyButtons = new Button[count];
         rows = new RectTransform[count];   // v1.6
 
-        float rowY = 130f;
+        // v1.9: 잠긴 줄이 들어갈 자리 - 줄 간격·높이를 줄여 패널 크기를 그대로 둔다 (첫 줄 윗변 168, 잠긴 줄 아랫변 -316 = 예전 마지막 줄 아랫변)
+        bool silhouette = GameBalance.FameShopSilhouette;
+        float rowY = silhouette ? 136f : 130f;
+        float rowStep = silhouette ? 70f : 82f, rowH = silhouette ? 64f : 72f;
         for (int i = 0; i < count; i++)
         {
             // 클로저 캡처용 지역 변수 (for 변수 직접 캡처 금지)
@@ -325,8 +328,8 @@ public class FameShopUI : MonoBehaviour
             row.anchorMax = new Vector2(0.5f, 0.5f);
             row.pivot = new Vector2(0.5f, 0.5f);
             row.anchoredPosition = new Vector2(0f, rowY);
-            row.sizeDelta = new Vector2(800f, 72f);
-            rowY -= 82f;
+            row.sizeDelta = new Vector2(800f, rowH);
+            rowY -= rowStep;
             rows[i] = row;
 
             // 이름 (좌측 상단)
@@ -368,6 +371,14 @@ public class FameShopUI : MonoBehaviour
             buyButtons[i].onClick.AddListener(delegate { OnBuy(index); });
         }
 
+        if (silhouette)
+        {
+            // v1.9: 잠긴 줄도 운행 끝 연출(줄이 위에서부터 하나씩)에 같이 - 맨 끝에
+            RectTransform locked = BuildLockedRow(panel, rowY, rowH);
+            System.Array.Resize(ref rows, rows.Length + 1);
+            rows[rows.Length - 1] = locked;
+        }
+
         // v1.2 (감사 3-E): [다시 굽는다] 버튼 - 캔버스 직속 (패널 아래)
         Button restartBtn = KitchenEventManager.MakeButton(canvasGo.transform,
             "다시 출발한다 (비상 복구 끝 - 즉시 재출발)",
@@ -391,6 +402,57 @@ public class FameShopUI : MonoBehaviour
         hRt.pivot = new Vector2(0.5f, 0f);
         hRt.anchoredPosition = new Vector2(0f, 12f);
         hRt.sizeDelta = new Vector2(0f, 26f);
+    }
+
+    /// <summary>
+    /// v1.9: 잠긴 줄 - 왼쪽 글 "심장이 아직 기억해내지 못한 것들" + 오른쪽 어두운 칸 둘 (기차 실루엣 = 맞수 열차 그림을 검게 / ???). 누를 수 없다.
+    /// 다음에 열릴 것(기차 종류 등 - 로드맵 다회차 동기)의 자리를 미리 보여 준다
+    /// </summary>
+    private RectTransform BuildLockedRow(RectTransform panel, float y, float h)
+    {
+        RectTransform row = KitchenEventManager.MakeBox(panel, "Row_locked", new Color(0.1f, 0.08f, 0.07f, 0.9f));
+        row.anchorMin = new Vector2(0.5f, 0.5f); row.anchorMax = new Vector2(0.5f, 0.5f); row.pivot = new Vector2(0.5f, 0.5f);
+        row.anchoredPosition = new Vector2(0f, y);
+        row.sizeDelta = new Vector2(800f, h);
+
+        Text cap = KitchenEventManager.MakeText(row, "Caption", "심장이 아직 기억해내지 못한 것들", 19, new Color(0.62f, 0.58f, 0.52f));
+        cap.alignment = TextAnchor.MiddleLeft;
+        RectTransform cRt = cap.rectTransform;
+        cRt.anchorMin = new Vector2(0f, 0.5f); cRt.anchorMax = new Vector2(0f, 0.5f); cRt.pivot = new Vector2(0f, 0.5f);
+        cRt.anchoredPosition = new Vector2(18f, 0f);
+        cRt.sizeDelta = new Vector2(330f, 30f);
+
+        // 칸 둘 (오른쪽부터): ??? / 기차 실루엣
+        for (int k = 0; k < 2; k++)
+        {
+            RectTransform tile = KitchenEventManager.MakeBox(row, "Locked" + k, new Color(0.04f, 0.035f, 0.03f, 0.95f));
+            tile.anchorMin = new Vector2(1f, 0.5f); tile.anchorMax = new Vector2(1f, 0.5f); tile.pivot = new Vector2(1f, 0.5f);
+            tile.anchoredPosition = new Vector2(-12f - k * 212f, 0f);
+            tile.sizeDelta = new Vector2(200f, h - 12f);
+            Outline o = tile.gameObject.AddComponent<Outline>();
+            o.effectColor = new Color(0.35f, 0.3f, 0.24f, 0.9f);
+            if (k == 1)
+            {
+                Sprite train = SpriteBank.Get("boss_original");   // 기차 모양 그림 (검게 칠해 실루엣으로)
+                if (train != null)
+                {
+                    GameObject g = new GameObject("Silhouette");
+                    g.transform.SetParent(tile, false);
+                    RectTransform gr = g.AddComponent<RectTransform>();
+                    gr.anchorMin = Vector2.zero; gr.anchorMax = Vector2.one;
+                    gr.offsetMin = new Vector2(10f, 8f); gr.offsetMax = new Vector2(-10f, -8f);
+                    gr.localRotation = Quaternion.Euler(0f, 0f, 180f);   // 그림은 오른쪽을 보고 저장돼 있다 - 내 기차처럼 머리가 왼쪽
+                    Image img = g.AddComponent<Image>();
+                    img.sprite = train; img.preserveAspect = true; img.raycastTarget = false;
+                    img.color = new Color(0f, 0f, 0f, 0.85f);
+                    continue;
+                }
+            }
+            Text q = KitchenEventManager.MakeText(tile, "Q", "? ? ?", 24, new Color(0.45f, 0.4f, 0.34f));
+            RectTransform qRt = q.rectTransform;
+            qRt.anchorMin = Vector2.zero; qRt.anchorMax = Vector2.one; qRt.offsetMin = Vector2.zero; qRt.offsetMax = Vector2.zero;
+        }
+        return row;
     }
 
     /// <summary>상단에 가로로 붙는 텍스트 배치 헬퍼</summary>

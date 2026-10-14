@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// [WaveManager.cs] v6.25 (v9.22.2 2026-10-14 유저 "튜토리얼 말투가 번역체·AI 같고 딱딱하다": 안내 글 말투를 반말 해체로 - 명령형 ~라·설명 ~다 끝맺음, 문장 속 기호, 어려운 말(투입·재가동·곁·유인)를 걷어냈다. 규칙 = 문구원칙 10-14 저녁 "말투" 절) / v6.24 (v9.22.1 2026-10-14 유저 "튜토리얼에 드래그가 반영 안 됐다": 프롤로그 조리 게이트 안내 3줄을 끌어다 놓기·재료 중심 조리 창 기준으로) / v6.23 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v6.22 (v9.20 2026-10-07: 보스가 부른 증원이 보스 등 뒤에서 뛰쳐나온다 - SpawnReinforcements 에 부른 자리·등 뒤 여부·보상 몫, 자리로 스폰하는 SpawnEnemyAtPos) / v6.21 (v9.19.2 2026-10-07 유저 확인 뒤: 머릿수를 늘린 손님이 제 힘으로 온다 - AddUnits 가 한 마리를 나눠 약하게 하지 않고 크기별 HP 배율(TierHpMul*)과 초반 배율(EarlyBodyStart)만 건다. Enemy.Share 는 보상·도구 부식 같은 "한 번에 얼마"에만 / 편성 이름 줄과 방향 예고 화살표는 GameBalance 값으로 꺼졌다(FormationLineShows 0·SpawnCueSec 0 - 코드는 그대로)) / v6.20 (v9.19.1 2026-10-07 유저 소감: 손님이 생기는 테두리가 "지금 보이는 화면"을 따라간다(SpawnBounds - 휠로 넓게 보면 화면 가운데에서 생기던 것. 구 방식 스폰·보스 증원·보스 등장도 같은 테두리) / 머릿수 대폭 증가: 손님 크기별 배율 CountMulSmall·Mid·Big + 무리 세기 GroupPower*, 조각 크기 FormationSizeMul. 손님에게 한 마리의 몫(Enemy.Share)을 건다 - 보상·기차 방어력·연속 피격 완충·고정량 효과가 몫만큼만 먹게) /
+/// [WaveManager.cs] v6.26 (v9.23 2026-10-14 보스 새 패턴: SpawnBossUnits - 보스가 정한 자리마다 한 마리씩 (부관 발톱·새끼 테라노돈·하차 랩터·편대 플라이, 데이터를 바꿔 끼울 수 있다) / SpawnBossFormation - 호령이 편성 조각(포위·양동)으로 온다 (화살표 없음, 제 힘 그대로) / 최종전 동안 북쪽 스폰을 남쪽으로 돌린다 (BossEnemy.NorthBlocked - 맞수 열차 몸이 북쪽을 막고 있다)) / v6.25 (v9.22.2 2026-10-14 유저 "튜토리얼 말투가 번역체·AI 같고 딱딱하다": 안내 글 말투를 반말 해체로 - 명령형 ~라·설명 ~다 끝맺음, 문장 속 기호, 어려운 말(투입·재가동·곁·유인)를 걷어냈다. 규칙 = 문구원칙 10-14 저녁 "말투" 절) / v6.24 (v9.22.1 2026-10-14 유저 "튜토리얼에 드래그가 반영 안 됐다": 프롤로그 조리 게이트 안내 3줄을 끌어다 놓기·재료 중심 조리 창 기준으로) / v6.23 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v6.22 (v9.20 2026-10-07: 보스가 부른 증원이 보스 등 뒤에서 뛰쳐나온다 - SpawnReinforcements 에 부른 자리·등 뒤 여부·보상 몫, 자리로 스폰하는 SpawnEnemyAtPos) / v6.21 (v9.19.2 2026-10-07 유저 확인 뒤: 머릿수를 늘린 손님이 제 힘으로 온다 - AddUnits 가 한 마리를 나눠 약하게 하지 않고 크기별 HP 배율(TierHpMul*)과 초반 배율(EarlyBodyStart)만 건다. Enemy.Share 는 보상·도구 부식 같은 "한 번에 얼마"에만 / 편성 이름 줄과 방향 예고 화살표는 GameBalance 값으로 꺼졌다(FormationLineShows 0·SpawnCueSec 0 - 코드는 그대로)) / v6.20 (v9.19.1 2026-10-07 유저 소감: 손님이 생기는 테두리가 "지금 보이는 화면"을 따라간다(SpawnBounds - 휠로 넓게 보면 화면 가운데에서 생기던 것. 구 방식 스폰·보스 증원·보스 등장도 같은 테두리) / 머릿수 대폭 증가: 손님 크기별 배율 CountMulSmall·Mid·Big + 무리 세기 GroupPower*, 조각 크기 FormationSizeMul. 손님에게 한 마리의 몫(Enemy.Share)을 건다 - 보상·기차 방어력·연속 피격 완충·고정량 효과가 몫만큼만 먹게) /
 /// v6.19 (v9.19 2026-10-06 웨이브 편성: 웨이브 2 부터 손님을 편성 조각으로 내보낸다(RunFormations - 추격·파상·매복·호위 행렬·양동·포위·공중 편대 + 산개, GameBalance.WaveFormationsOn). 조각마다 오는 쪽 예고(WarningFX.SpawnCue)가 먼저, 조각 사이엔 쉼(BeatGap). 손님은 화면 바로 밖 테두리(EdgePoint)에서 생긴다. 구 방식 본문은 SpawnWaveClassic 으로 / 웨이브 예고 카드의 "주의" 문구는 알림 줄로) /
 /// v6.23 (v9.21 2026-10-12 보스 1단계: 정식 보스는 서는 자리(GameBalance.BossStandX, 북쪽) 위 BossHideDY 만큼 떨어진 곳에 생기고 등장 연출(BossEnemy.EntranceV2)이 자리에 놓는다 - 걸어오지 않는다. BossEntranceV2 가 꺼져 있으면 예전처럼 화면 밖 테두리에서) /
 /// v6.18 (v9.18 2026-10-06: 보스는 기차 북쪽(화면 위)에서만 온다(GameBalance.BossSpawnNorthOnly - 남쪽은 하단 HUD 에 가려진다), 예습 보스는 포탑 칸 B 위에서 / 웨이브가 끝났을 때 사고가 진행 중이면 사고가 끝난 뒤에 증강·선로 선택을 연다(PostWaveHold, WaitEventBeforeChoiceSec) / 코드 폴백 손님의 그림 고르기를 EnemySkin.SpriteFor 한 곳으로) /
@@ -1171,6 +1171,12 @@ public class WaveManager : MonoBehaviour
     /// <summary>extra = 테두리보다 이만큼 더 밖에서 (보스처럼 몸이 큰 손님 - 몸 끝이 화면에 걸쳐 생기지 않게)</summary>
     private Vector3 EdgePoint(float angleDeg, float extra)
     {
+        // v6.26: 최종전 동안 북쪽(위 30 ~ 150도)은 맞수 열차 몸이 막고 있다 - 같은 각도의 남쪽으로 (머리·꼬리 쪽은 그대로)
+        if (BossEnemy.NorthBlocked)
+        {
+            float a = Mathf.Repeat(angleDeg, 360f);
+            if (a > 30f && a < 150f) angleDeg = 360f - a;
+        }
         float left, right, bottom, top;
         SpawnBounds(extra, out left, out right, out bottom, out top);
         Vector3 c = trainTransform != null ? trainTransform.position : Vector3.zero;
@@ -1308,6 +1314,7 @@ public class WaveManager : MonoBehaviour
         int n = beat.units.Count;
         // 북쪽이 잦다. 주방 사고 배너(화면 아래쪽 가운데)가 떠 있는 동안은 북쪽만 - 남쪽 고리는 배너에 가려 안 보인다
         bool north = Random.value < 0.7f || KitchenEventManager.IsActive;
+        if (BossEnemy.NorthBlocked) north = false;   // v6.26: 최종전 - 북쪽 매복 자리는 맞수 열차 밑이다
         float trainY = trainTransform != null ? trainTransform.position.y : 0f;
         float y = trainY + (north ? GameBalance.AmbushDistNorth : -GameBalance.AmbushDistSouth);
         float[] e = GameBalance.CarEdgesX;
@@ -1679,6 +1686,62 @@ public class WaveManager : MonoBehaviour
         }
 
         Debug.Log("[WaveManager] 보스 증원 스폰: " + kind + " x" + count + " (배율 " + statMul + (useBehind ? ", 보스 등 뒤" : "") + ")");
+    }
+
+    /// <summary>
+    /// v6.26 (v9.23): 보스 패턴이 정한 자리마다 손님 한 마리씩. 만든 손님 목록을 돌려준다 (크기·그림·노릴 칸은 부른 쪽이 정한다).
+    /// kind = "raptor"(스팀 랩터) / "bolt"(볼트 테라노돈) / "fly"(과부하 플라이). data 가 있으면 그 이름·수치로 (부관 발톱·새끼 테라노돈 - EnemyData 는 값 형식이라 공용 표가 바뀌지 않는다).
+    /// statMul = HP·공격력 배율, share = 한 마리의 보상 몫 (Enemy.Share). 웨이브가 끝났으면 아무것도 안 만든다
+    /// </summary>
+    public List<Enemy> SpawnBossUnits(string kind, Enemy.EnemyData? data, Vector3[] points, float statMul, float share)
+    {
+        List<Enemy> made = new List<Enemy>();
+        if (!isWaveActive || points == null) return made;
+        GameObject prefab = steamRaptorPrefab;
+        Enemy.EnemyData ed = Enemy.SteamRaptor;
+        if (kind == "bolt") { prefab = boltTeranodonPrefab; ed = Enemy.BoltTeranodon; }
+        else if (kind == "fly") { prefab = overloadFlyPrefab; ed = Enemy.OverloadFly; }
+        if (data.HasValue) ed = data.Value;
+        int playerLevel = GameManager.Instance != null ? GameManager.Instance.playerLevel : 1;
+        for (int i = 0; i < points.Length; i++)
+        {
+            Enemy e = SpawnEnemyAtPos(prefab, ed, currentWaveNumber, playerLevel, GameBalance.EnemyDifficultyL, points[i]);
+            if (e == null) continue;
+            if (!Mathf.Approximately(statMul, 1f))
+            {
+                e.currentHP *= statMul;
+                e.scaledMaxHP = e.currentHP;
+                e.scaledATK *= statMul;
+            }
+            if (share > 0f && share < 0.999f) e.Share = Mathf.Max(0.05f, share);
+            made.Add(e);
+        }
+        return made;
+    }
+
+    /// <summary>
+    /// v6.26 (v9.23 R3): 호령 - 랩터 count 마리가 편성 조각으로 온다. encircle = 포위(사방) / false = 양동(양쪽 두 자리에서 번갈아).
+    /// 웨이브 편성과 같은 조각 코드(BeatEncircle·BeatPincer)라 예고 화살표는 GameBalance.SpawnCueSec 을 따른다 (지금 0 - 보스의 호령 자세와 울음이 예고다). 제 힘 그대로, share = 보상 몫.
+    /// 돌려주는 것 = 조각을 내보내는 코루틴 (보스가 쓰러지면 StopCoroutine)
+    /// </summary>
+    public Coroutine SpawnBossFormation(int count, bool encircle, float share)
+    {
+        if (!isWaveActive || count <= 0) return null;
+        if (steamRaptorPrefab == null && !GameBalance.EnemyFallbackVisuals) return null;
+        WaveConfig config = GetWaveConfig(currentWaveNumber);
+        int playerLevel = GameManager.Instance != null ? GameManager.Instance.playerLevel : 1;
+        Beat beat = new Beat { formation = encircle ? Formation.Encircle : Formation.Pincer };
+        for (int i = 0; i < count; i++)
+        {
+            SpawnUnit u = new SpawnUnit();
+            u.prefab = steamRaptorPrefab; u.data = Enemy.SteamRaptor; u.cls = UnitClass.Runner;
+            u.hpMul = 1f; u.atkMul = 1f; u.share = share; u.vip = false;
+            beat.units.Add(u);
+        }
+        Coroutine co = StartCoroutine(encircle ? BeatEncircle(beat, config, playerLevel, GameBalance.EnemyDifficultyL)
+                                               : BeatPincer(beat, config, playerLevel, GameBalance.EnemyDifficultyL));
+        Debug.Log("[WaveManager] 보스 호령 편성: " + (encircle ? "포위" : "양동") + " 랩터 x" + count);
+        return co;   // 보스가 쓰러지면 부른 쪽이 멈춘다 (쓰러진 뒤에 나오지 않게)
     }
 
     /// <summary>

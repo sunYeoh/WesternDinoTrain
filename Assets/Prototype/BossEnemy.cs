@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 
 /// <summary>
-/// [BossEnemy.cs] v7.13 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v7.12 (v9.21 2026-10-12 보스 1단계 큰 몸 - 보스개편 스펙 1·4·5절: 그림을 목표 크기(GameBalance.BossBodyLen x Wide)에 맞춘다(SetupSkin, 불투명 부분을 잰다 OpaqueSize) / 정식 보스는 서는 자리(BossStandX, 북쪽 BossStandOff)에 등장 연출이 놓고 제자리에 선다 - 걸어오지 않는다, 미끼에 끌려도 제자리 / 천둥 둥지는 상공에서 기차를 내려다본다(270도) + 땅 그림자 / 등장 연출 2판 EntranceV2: 전조 -> 보스전 카메라(CameraZoom.BossFraming) -> 보스별 길(EnterRust 떨어져 내림 · EnterThunder 날개 그림자와 번쩍 · EnterHibernator 땅 금과 떠오름 · EnterOriginal 평행 선로와 추월) -> 도착(Arrive) -> 이름판 -> HP 바 -> 밝아짐. 그동안 공격·패턴 없음 / 범위 판정은 몸 가장자리까지(DistanceFrom) / 쓰러지면 카메라·평행 선로 복귀) / v7.11 (v9.20 2026-10-07 유저 "패턴이 눈에 안 띔" - 스펙 3-0: 패턴의 준비(몸이 부푼다 + 보스 울음 + 패턴별 표시) -> 발동(눌렸다 돌아온다 + 충격 고리) -> 결과가 화면에서 보인다. 호령·포효 = 입에서 퍼지는 소리 고리 + 무리가 보스 등 뒤에서 / 낙뢰 = 맞을 포탑을 미리 정해 예고 줄과 발밑 고리(PickBoltTargets·BossMark.Bolt) + 번개 줄기(BoltStrike) + 패링하면 병으로(BoltsToBottle) / 갑주 = 모이는 냉기·서리 원·껍질 고리 / 물기 = 웅크림(그사이 무방비가 되면 물지 않는다. 공격 간격은 그대로) + 문 자리의 불똥·칸 튐·이빨 자국(BiteFx). GameBalance.BossPatternFxOn) / v7.10 (v9.19.2 2026-10-07: 보스 HP 에 종류별 배율 GameBalance.BossHPKindMul (예습 보스 제외) - 뒤 지역 보스가 제 웨이브의 큰 손님 한 마리보다 약했다. 폭식 회복·해동포 피해도 같은 배율 hpScale 을 따라간다) / v7.9 (v9.19 2026-10-06 보스 페이즈 모습 - A1 상태 그림: _rage_groggy(발악 중 무방비)·_p2_groggy 추가, 디 오리지널은 페이즈 그림이 먼저(WantedSkin, GameBalance.BossStateSkins) / A2 전환 순간(PhaseShift): 히트스톱 -> 흰 번쩍 아래에서 그림 교체 -> 장갑 파편·링·폭음 -> 몸이 커졌다 제자리. 지역 보스 발악과 디 오리지널 P2·P3 / A3 상태 유지: 발악 = 김·불티, 무방비 = 불똥·연기 + 몸이 기울어 흔들린다(SkinPivot) / A4 알림 자리: 보스 쪽 알림은 HP 바 밑 띠로(BossNotice), 발악의 화면 가운데 큰 글자는 가장자리 맥동으로) /
+/// [BossEnemy.cs] v7.14 (v9.23 2026-10-14 보스 새 패턴: partial 로 나눴다 - 새 패턴은 BossPatterns.cs (같은 클래스의 나머지 반쪽). 여기서 바뀐 것: 패턴 고르기(PickPattern) / 기본 공격 고르기(StartBasicAttack - 동면자 꼬리·디 오리지널 측면 충돌·천둥 둥지 없음) / 등장 전조에 부관 둘(SpawnLieutenants) / 호령이 편성 조각으로(R3) / 디 오리지널 페이즈마다 앞뒤로(OnOriginalPhase) / 몸 배율 poseScale·고개 lookOffset·붉은 열 heatGlow / 갑주가 생길 때 해동포 창 깜빡임 / 해동포가 눈사태를 멈춘다 / 쓰러질 때 남은 손님이 달아난다(RoutMinions)·디 오리지널은 칸이 떨어져 나간 뒤에(CollapseThenDie) / 보스전 글 말투를 튜토리얼과 같게 (반말 해체, 사건은 ~했다)) / v7.13 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v7.12 (v9.21 2026-10-12 보스 1단계 큰 몸 - 보스개편 스펙 1·4·5절: 그림을 목표 크기(GameBalance.BossBodyLen x Wide)에 맞춘다(SetupSkin, 불투명 부분을 잰다 OpaqueSize) / 정식 보스는 서는 자리(BossStandX, 북쪽 BossStandOff)에 등장 연출이 놓고 제자리에 선다 - 걸어오지 않는다, 미끼에 끌려도 제자리 / 천둥 둥지는 상공에서 기차를 내려다본다(270도) + 땅 그림자 / 등장 연출 2판 EntranceV2: 전조 -> 보스전 카메라(CameraZoom.BossFraming) -> 보스별 길(EnterRust 떨어져 내림 · EnterThunder 날개 그림자와 번쩍 · EnterHibernator 땅 금과 떠오름 · EnterOriginal 평행 선로와 추월) -> 도착(Arrive) -> 이름판 -> HP 바 -> 밝아짐. 그동안 공격·패턴 없음 / 범위 판정은 몸 가장자리까지(DistanceFrom) / 쓰러지면 카메라·평행 선로 복귀) / v7.11 (v9.20 2026-10-07 유저 "패턴이 눈에 안 띔" - 스펙 3-0: 패턴의 준비(몸이 부푼다 + 보스 울음 + 패턴별 표시) -> 발동(눌렸다 돌아온다 + 충격 고리) -> 결과가 화면에서 보인다. 호령·포효 = 입에서 퍼지는 소리 고리 + 무리가 보스 등 뒤에서 / 낙뢰 = 맞을 포탑을 미리 정해 예고 줄과 발밑 고리(PickBoltTargets·BossMark.Bolt) + 번개 줄기(BoltStrike) + 패링하면 병으로(BoltsToBottle) / 갑주 = 모이는 냉기·서리 원·껍질 고리 / 물기 = 웅크림(그사이 무방비가 되면 물지 않는다. 공격 간격은 그대로) + 문 자리의 불똥·칸 튐·이빨 자국(BiteFx). GameBalance.BossPatternFxOn) / v7.10 (v9.19.2 2026-10-07: 보스 HP 에 종류별 배율 GameBalance.BossHPKindMul (예습 보스 제외) - 뒤 지역 보스가 제 웨이브의 큰 손님 한 마리보다 약했다. 폭식 회복·해동포 피해도 같은 배율 hpScale 을 따라간다) / v7.9 (v9.19 2026-10-06 보스 페이즈 모습 - A1 상태 그림: _rage_groggy(발악 중 무방비)·_p2_groggy 추가, 디 오리지널은 페이즈 그림이 먼저(WantedSkin, GameBalance.BossStateSkins) / A2 전환 순간(PhaseShift): 히트스톱 -> 흰 번쩍 아래에서 그림 교체 -> 장갑 파편·링·폭음 -> 몸이 커졌다 제자리. 지역 보스 발악과 디 오리지널 P2·P3 / A3 상태 유지: 발악 = 김·불티, 무방비 = 불똥·연기 + 몸이 기울어 흔들린다(SkinPivot) / A4 알림 자리: 보스 쪽 알림은 HP 바 밑 띠로(BossNotice), 발악의 화면 가운데 큰 글자는 가장자리 맥동으로) /
 /// v7.8 (v9.18 2026-10-06 - 서는 자세: 기차 옆에 이르면 나란히(머리가 기차 진행 방향) 돌아서서 선다 - 몸 전체가 지붕과 HP 바 사이에 보이게(GameBalance.BossFaceAlongTrain·BossStandOff·BossTurnZone, MoveTowardsTrain 재정의 + HoldStance) / 그림: boss_<종류>.png 를 입힌다(없으면 프리팹의 색 사각형 그대로), 상태 그림 _groggy·_rage·_p2·_p3 는 있으면 자동, 상태 발광 = 그림 위 흰 실루엣(예고 흰빛 / 무방비 금빛 / 발악 붉은 맥동) / 등장: 포효와 함께 경고 띠(WarningFX.BossIntro) + HP 바가 차오른다, 대응법 안내는 띠가 걷힌 뒤 / 발악 신호: 붉은 경고 + 흔들림 + 포효 / 버그: 공격 거리를 기차 "중심"에서 재서 옆에서 온 보스는 기차 위에 올라앉아 물지도 않았다 -> 가장 가까운 몸통에서 잰다, 돌진 방향도. 무는 양은 BossMeleeMul) / v7.7 (v9.17 2026-10-06 화면 손맛 2차 - D2 등장: 첫 등장 카드가 닫힌 뒤 배경이 0.5초 어두워졌다가 흔들림 + 포효 + 이름 예고가 같이 나온다 / A11 처치: 히트스톱 뒤 0.25초 슬로모션 + 줌 당김 / 식사 엔딩의 Die 는 히트스톱·흔들림·킬 버스트 없이 조용히 / EndingWhistled - 엔딩 쪽에서 기적을 울렸으면 승리 화면이 또 울리지 않는다) / v7.6 (v9.16 2026-09-29 손맛 2차 - 소리: 등장 포효 = 종류별(SoundKeys.BossRoar - 녹슨 발톱 무리 울음 / 천둥 둥지 번개 / 동면자 얼음 / 디 오리지널 기본 포효 + 낮은 기적 sfx_whistle_low, 예습 보스는 작게) / 엔딩 B 두 번째 기적 = 낮은 기적 / 공격음은 Enemy.AttackTrain 이 종류별로) / v7.5 (v9.15.1 2026-09-29 스토리 개정: 디 오리지널 = 급식 열차 1호였던 것 - 등장에 낡은 기적 + 안내 문구, 폭식 = 원료 삼키기, 해치 = 기관심장이 드러남 / 마지막 식사 장면 LastSupperRoutine - 포탑 정지(LastSupperServing)·남은 손님 물러남·천천히 씹기(LastSupperChewSec)·두 대의 기적 -> 엔딩 B 글 / 격파 엔딩 = 기적 한 번 + "철길이 열렸다") / v7.4 (v9.12 2026-09-22: practice = 견습 구간 7 "새끼 발톱" - 녹슨 발톱 고정, HP·공격력 배율(GameBalance.BossPractice*), 0.7배 크기, 패턴·무방비·발악 없음(돌진만), 처치해도 재료·베팅·"승리" 없음(ClearBossUI) / TutorialDirector.InlineFreeze 동안 정지) / v7.3 (v9.11.1 2026-09-22 문구: 무방비, 실행 가능한 예고) / v7.2 (v9.10.1 2026-09-21: 재료 이름 전기알) / v7.1 (교수 피드백 C3: 디 오리지널 추가 그로기 / A8: 재가동 문구) / v6 - 보스 패턴 C단계 1차 (보스패턴설계 문서)
 /// - v6 변경점:
 ///   1) 미끼 도발 대응: 도발 중엔 미끼를 쫓아가고 물어뜯는다 (기차 무피해)
@@ -38,7 +38,7 @@ using UnityEngine;
 ///   3) 수치는 전부 GameBalance의 '보스 패턴' 섹션에서 조정
 /// VS 2017 (C# 7.3) 호환
 /// </summary>
-public class BossEnemy : Enemy
+public partial class BossEnemy : Enemy
 {
     // ─────────────────────────────────────────────
     // 보스 종류 (지역 기반 자동 결정)
@@ -236,21 +236,21 @@ public class BossEnemy : Enemy
             data.enemyName = "녹슨 발톱";
             bossMaxHP *= 0.9f; bossATK *= 0.9f; spd = 2.0f;      // 빠르고 가벼움
             baseTint = new Color(0.9f, 0.55f, 0.38f);
-            intro = "무리의 왕이 나타났다! 호령(예고) 중에 보스를 멈추면 소환이 절반!";
+            intro = "무리의 왕이 나타났다. 무리를 부를 때 마비시키면 랩터가 절반만 와";
         }
         else if (kind == BossKind.ThunderNest)
         {
             data.enemyName = "천둥 둥지";
             bossMaxHP *= 0.95f; spd = 1.5f; bossAttackRange = 6.5f; // 멀리서 때림
             baseTint = new Color(0.72f, 0.72f, 1f);
-            intro = "선대의 번개 병이 기차에 실려 있다 - 낙뢰의 마지막 순간, [Space]로 병을 내밀어라!";
+            intro = "선대의 번개 병이 기차에 실려 있어. 낙뢰가 떨어지기 직전에 [Space]로 병을 내밀어";
         }
         else if (kind == BossKind.Hibernator)
         {
             data.enemyName = "동면자";
             bossMaxHP *= 1.15f; spd = 1.25f;                      // 느리고 단단함
             baseTint = new Color(0.6f, 0.85f, 1f);
-            intro = "고대 모사! 갑주는 화염으로만 녹는다 - 광산의 해동포에 화염을 장전하라!";
+            intro = "고대 모사야. 갑주는 화염으로만 녹아. 광산의 해동포에 화염을 넣고 쏴";
         }
         else
         {
@@ -280,7 +280,7 @@ public class BossEnemy : Enemy
             bossATK *= GameBalance.BossPracticeAtkMul;
             baseTint = new Color(0.75f, 0.42f, 0.30f);
             transform.localScale = transform.localScale * GameBalance.BossPracticeScale;
-            intro = "녹슨 발톱의 새끼 - 왕의 손님부터 대접해라 (미끼 화덕)";
+            intro = "녹슨 발톱의 새끼야. 미끼 화덕으로 무리부터 꾀어내";
         }
 
         currentHP = bossMaxHP;
@@ -302,6 +302,7 @@ public class BossEnemy : Enemy
         if (GameBalance.BossFaceAlongTrain && standOff != null && standIdx >= 0 && standIdx < standOff.Length && standOff[standIdx] > 0.1f)
             attackRange = standOff[standIdx];
         attackCooldown = bossAttackCooldown;
+        SetupNewPatterns();   // v7.14 (v9.23): 부관이 오는 만큼 왕 HP / 측면 충돌 간격 / 서리 초기화 (BossPatterns.cs)
 
         GameObject trainObj = GameObject.FindGameObjectWithTag("Train");
         if (trainObj != null) trainTarget = trainObj.transform;
@@ -341,6 +342,11 @@ public class BossEnemy : Enemy
         {
             if (StandMode) PlaceAtStand();   // 연출 없이 바로 자리에
             AnnounceEntrance(intro);
+            if (NewPatterns)   // v7.14: 연출을 끈 판에서도 부관·북쪽 막기는 그대로
+            {
+                if (kind == BossKind.RustClaw && GameBalance.RustLieutenantsOn) SpawnLieutenants();
+                OnEntranceEnd();
+            }
         }
 
         Debug.Log("[BossEnemy] " + data.enemyName + " 등장! (웨이브 " + wave + ") HP:" + (int)bossMaxHP
@@ -641,7 +647,7 @@ public class BossEnemy : Enemy
             tiltNow = Mathf.MoveTowards(tiltNow, tiltWant, 40f * Time.deltaTime);
             float sway = tiltMax > 0.01f ? Mathf.Sin(Time.time * 1.8f) * 1.5f * (tiltNow / tiltMax) : 0f;
             float sc = (1f + GameBalance.BossPhaseShiftPunch * punch + land) * castMulNow;   // v7.11: x 패턴 준비·발동 배율 / v7.12: + 도착 펀치
-            skinPivot.localScale = new Vector3(sc * enterScale.x, sc * enterScale.y, 1f);     // v7.12: x 등장 중 배율 (떨어져 내림·떠오름·날갯짓)
+            skinPivot.localScale = new Vector3(sc * enterScale.x * poseScale.x, sc * enterScale.y * poseScale.y, 1f);     // v7.12: x 등장 중 배율 (떨어져 내림·떠오름·날갯짓) / v7.14: x 패턴 자세 (날갯짓·날개 접기·뛰어오름)
             skinPivot.localRotation = Quaternion.Euler(0f, 0f, tiltNow + sway);
         }
         // v7.12: 등장 중 알파 (동면자가 떠오를 때) - 연출이 끝나면 1 로 돌려놓는다 (EndEntrance)
@@ -668,6 +674,7 @@ public class BossEnemy : Enemy
         }
         else if (isServing) c = Color.clear;
         else if (isGroggy) c = new Color(1f, 0.85f, 0.35f, 0.22f + 0.1f * Mathf.Sin(t * 5f));
+        else if (heatGlow > 0.01f) c = new Color(1f, 0.22f, 0.08f, 0.5f * heatGlow + 0.08f * Mathf.Sin(t * 20f) * heatGlow);   // v7.14 O4: 측면 충돌 예고 - 차체가 붉게
         else if (telegraphing) c = new Color(1f, 1f, 1f, 0.3f + 0.25f * Mathf.Sin(t * 14f));
         else if (enraged && GameBalance.BossEnrageSignal) c = new Color(1f, 0.15f, 0.08f, 0.16f + 0.12f * Mathf.Sin(t * 7f));
         c.a *= Mathf.Clamp01(GameBalance.GameFeelMaster);
@@ -1202,6 +1209,7 @@ public class BossEnemy : Enemy
         {
             SoundManager.Play("sfx_boss_far_howl", 0.9f, -1f);
             StartCoroutine(DustPillars());
+            if (NewPatterns && GameBalance.RustLieutenantsOn) SpawnLieutenants();   // v7.14 R1: 부관 둘이 좌우에서 먼저 달려온다
         }
         else if (kind == BossKind.ThunderNest) SoundManager.Play("sfx_thunder_roll", 0.9f, -1f);
         else if (kind == BossKind.Hibernator)
@@ -1262,6 +1270,7 @@ public class BossEnemy : Enemy
         transform.position = standPos;
         patternTimer = GameBalance.BossPatternFirstDelay;
         attackTimer = 0f;
+        OnEntranceEnd();   // v7.14: 디 오리지널 북쪽 막기 / 천둥 둥지 자리 옮기기 시계
     }
 
     /// <summary>도착: 히트스톱 + 흔들림 + 먼지 고리 + 포효 + 몸 펀치 (landAge -> TickSkin). 디 오리지널은 포효 대신 쇠 비명 + 몸이 붉게</summary>
@@ -1527,6 +1536,7 @@ public class BossEnemy : Enemy
             }
             return;
         }
+        TickNewPatterns();   // v7.14 (v9.23): 천둥 둥지 날갯짓·자리 옮기기 / 눈사태 시작 / 측면 충돌 열 (BossPatterns.cs)
 
         // 빙하 갑주 파괴 판정 (화상 스택 누적 감시)
         if (armorActive && TotalBurnApplied - burnBaseline >= GameBalance.GlacierBreakBurnStacks)
@@ -1536,7 +1546,7 @@ public class BossEnemy : Enemy
         if (!practice && !enraged && currentHP / bossMaxHP <= GameBalance.EnrageHPRatio)
         {
             enraged = true;
-            UIManager.Instance?.ShowStatChange("[" + data.enemyName + "] 발악! 패턴이 빨라진다!");
+            UIManager.Instance?.ShowStatChange("[" + data.enemyName + "] 발악. 패턴이 빨라진다");
             // v7.8: 알림 한 줄로는 지나쳤다 - 붉은 경고 + 흔들림 + 포효 한 번. 그 뒤로 몸에 붉은 맥동(TickSkin), HP 바에 "발악" 딱지
             if (GameBalance.BossEnrageSignal && GameBalance.GameFeelMaster > 0f)
             {
@@ -1561,7 +1571,7 @@ public class BossEnemy : Enemy
             CheckGroggyThresholds();
 
         if (isServing) return;   // v7: 마지막 식사 연출 중 - 완전 정지
-        if (isGroggy || isLunging || isCasting) return;
+        if (isGroggy || isLunging || isCasting || gliding) return;   // v7.14: 자리를 옮기는 동안도 (천둥 둥지 활공 · 디 오리지널 앞뒤로)
 
         if (trainTarget == null)
         {
@@ -1590,7 +1600,7 @@ public class BossEnemy : Enemy
             if (attackTimer >= attackCooldown)
             {
                 attackTimer = 0f;
-                StartCoroutine(AttackLunge());
+                StartBasicAttack();   // v7.14: 보스마다 기본 공격 (녹슨 발톱 물기 / 동면자 꼬리 / 디 오리지널 측면 충돌 / 천둥 둥지 없음)
             }
             return;
         }
@@ -1633,7 +1643,7 @@ public class BossEnemy : Enemy
     /// <summary>사거리 안에 서 있는 동안: 기차가 달리는 쪽(왼쪽)을 본다 (v7.12: 천둥 둥지는 기차를 내려다본다 - StandAngle)</summary>
     private void HoldStance()
     {
-        if (StanceOn && !isLunging) TurnBody(StandAngle());
+        if (StanceOn && !isLunging) TurnBody(StandAngle() + lookOffset);   // v7.14: + 고개 (부관이 쓰러지면 쳐든다)
     }
 
     /// <summary>다가오는 동안: 멀리서는 기차를 보고 오다가, 서는 거리 + BossTurnZone 안에 들어오면 미리 옆으로 돈다</summary>
@@ -1658,9 +1668,10 @@ public class BossEnemy : Enemy
         {
             originalPhase = 2;
             PickupFX.FeedingBoss = this;
-            BossNotice("[디 오리지널] 폭식!",
-                "원료 조각을 닥치는 대로 삼킨다 - 곁에 두면 회복하고 세진다. 식사가 아니라 연료다");   // v7.5: 원료 섭취와 식사의 구분
+            BossNotice("[디 오리지널] 폭식",
+                "놈이 원료 조각을 닥치는 대로 삼켜. 조각이 놈 옆에 있으면 회복하고 세져. 식사가 아니라 연료야");   // v7.5: 원료 섭취와 식사의 구분
             PhaseShift();                                                                            // v7.9 (A2): 장갑이 벗겨지는 순간
+            OnOriginalPhase(2);                                                                      // v7.14: 3u 앞으로 치고 나간다 + 약점 칸 (BossPatterns.cs)
             SoundManager.Play(SoundKeys.BossRoar(kind.ToString()), 0.8f, -1f);
             Debug.Log("[BossEnemy] P2 폭식 페이즈 - 조각 쟁탈전 시작");
         }
@@ -1672,10 +1683,11 @@ public class BossEnemy : Enemy
             PickupFX.FeedingBoss = null;
             hatchOpen = true;
             ApplyTint(Color.Lerp(baseTint, Color.white, 0.35f));   // 해치의 빛
-            BossNotice("[디 오리지널] 가슴 해치 개방 - 기관심장이 드러났다",
+            BossNotice("[디 오리지널] 해치가 열려 기관심장이 드러났다",
                 "받는 피해 +" + Mathf.RoundToInt((GameBalance.HatchDamageTakenMul - 1f) * 100f)
-                + "%. 무방비 때 [F] 격파, 또는 [R] 마지막 식사");   // v7.5: 왜 지금 식사가 가능한지
+                + "%. 무방비 때 [F]로 격파하거나 [R]로 마지막 식사");   // v7.5: 왜 지금 식사가 가능한지
             PhaseShift();                                           // v7.9 (A2): 기관심장이 드러나는 순간
+            OnOriginalPhase(3);                                     // v7.14: 3u 뒤로 처진다 + 약점 칸 (BossPatterns.cs)
             SoundManager.Play(SoundKeys.BossRoar(kind.ToString()), 1f, -1f);
             Debug.Log("[BossEnemy] P3 해치 개방 - 받는 피해 증가");
         }
@@ -1713,14 +1725,8 @@ public class BossEnemy : Enemy
     {
         isCasting = true;
 
-        if (kind == BossKind.RustClaw)
-            yield return StartCoroutine(PatternHowl());
-        else if (kind == BossKind.ThunderNest)
-            yield return StartCoroutine(PatternLightning());
-        else if (kind == BossKind.Hibernator)
-            yield return StartCoroutine(PatternRearmor());
-        else
-            yield return StartCoroutine(PatternRoar());
+        // v7.14 (v9.23): 보스마다 패턴 순서 (BossPatterns.PickPattern). 새 패턴을 끄면 예전처럼 보스마다 하나
+        yield return StartCoroutine(PickPattern());
 
         isCasting = false;
 
@@ -1759,15 +1765,15 @@ public class BossEnemy : Enemy
     private Vector3 MouthPos() { return transform.position + transform.right * (BodyHalfLength() * 0.75f); }
 
     /// <summary>준비 시작: 몸이 부풀기 시작하고(TickCastScale) 보스가 제 울음을 낸다 (네 보스 공통 경보음 대신)</summary>
-    private void CastBegin()
+    private void CastBegin(bool frostDisc = true)
     {
         castAge = 0f;
         castFxTimer = 0f;
         if (!PatternFx) return;
         SoundManager.Play(SoundKeys.BossRoar(kind.ToString()), 0.55f, -1f);
         // 갑주 재전개: 냉기가 뭉치는 자리 - 바닥의 서리가 준비 시간 동안 몸 크기까지 커진다
-        // (동면자의 패턴은 지금 갑주 재전개 하나라 종류로 가른다 - 새 패턴이 생기면 패턴별로 갈라야 한다)
-        if (kind == BossKind.Hibernator)
+        // v7.14: 동면자의 새 패턴(입김·눈사태)은 frostDisc = false 로 부른다 - 서리 원은 갑주 재전개만
+        if (kind == BossKind.Hibernator && frostDisc)
             castDisc = BossMark.Disc(transform, new Color(0.7f, 0.95f, 1f, 0.3f), 0.5f, BodyHalfLength() * 1.15f, GameBalance.BossTelegraphSec,
                 BodyHalfWidth() * 1.7f / Mathf.Max(0.1f, BodyHalfLength() * 1.15f));   // v7.12: 긴 몸을 따라가는 타원 (몸보다 조금 넓게)
     }
@@ -1957,30 +1963,46 @@ public class BossEnemy : Enemy
         }
 
         telegraphing = false;
-        ApplyTint(armorActive ? ArmorTint() : baseTint);
+        ApplyTint(RestTint());   // v7.14: 쉬는 색 (P3 해치 빛을 지우지 않게)
         if (isGroggy || !IsAlive) CastCancel();   // v7.11: 끊겼다 - 발동 없이 몸만 제 크기로
     }
 
-    /// <summary>지역 1 - 사냥 호령: 랩터 소환. 예고 중 스턴 명중 시 절반으로 저지</summary>
+    /// <summary>지역 1 - 사냥 호령: 랩터 소환. 예고 중 스턴 명중 시 절반으로 저지. v7.14 (R3): 새 패턴이면 편성 조각(포위·양동 번갈아, 제 힘 그대로, 화살표 없음)으로 온다</summary>
     private IEnumerator PatternHowl()
     {
         float castStart = Time.time;
-        yield return StartCoroutine(Telegraph("사냥 호령! 울음소리가 황야를 가른다 (마비·멈춤으로 저지!)"));
+        bool formation = NewPatterns && GameBalance.RustHowlFormation;
+        yield return StartCoroutine(Telegraph("녹슨 발톱이 무리를 부른다. 지금 마비시키면 절반"));
         if (isGroggy || !IsAlive) yield break;
 
-        int count = GameBalance.HowlSummonCount + (enraged ? GameBalance.EnrageExtraSummon : 0);
+        int count = formation ? (enraged ? GameBalance.RustHowlCountEnraged : GameBalance.RustHowlCount)
+                              : GameBalance.HowlSummonCount + (enraged ? GameBalance.EnrageExtraSummon : 0);
         bool disrupted = LastStunTime >= castStart;   // 예고 중 스턴 맞았는가
         if (disrupted)
         {
             count = Mathf.Max(1, count / 2);
-            UIManager.Instance?.ShowStatChange("호령 저지 성공! 소환 절반!");
+            UIManager.Instance?.ShowStatChange("호령을 끊었다. 랩터가 절반만 와");
         }
 
         CastRelease();   // v7.11: 발동
-        // v7.11: 부른 무리는 보스 등 뒤에서 뛰쳐나온다 (구: 아무 방향) / 한 마리의 힘 = BossSummonStatMul (구: 0.7 고정) / 보상 몫 = BossSummonShare
         if (waveManagerRef != null)
-            waveManagerRef.SpawnReinforcements("raptor", count, GameBalance.BossSummonStatMul, transform.position, GameBalance.BossSummonBehind, GameBalance.BossSummonShare);
-        Debug.Log("[BossEnemy] 사냥 호령 - 랩터 " + count + "마리" + (disrupted ? " (저지됨)" : ""));
+        {
+            if (formation)
+            {
+                // v7.14 (R3): 웨이브 편성과 같은 조각 - 포위(사방) / 양동(양쪽)을 번갈아. 어느 쪽인지 띠에 한 줄 (화살표가 없으니 말로)
+                bool encircle = (howlCount % 2 == 0);
+                howlCount++;
+                formationCo = waveManagerRef.SpawnBossFormation(count, encircle, GameBalance.BossSummonShare);
+                string body = "랩터 " + count + "마리가 " + (encircle ? "사방에서 와" : "양쪽에서 와");
+                if (!BossLine("[녹슨 발톱] 사냥 호령", body, 1.5f)) UIManager.Instance?.ShowStatChange(body);
+            }
+            else
+            {
+                // v7.11: 부른 무리는 보스 등 뒤에서 뛰쳐나온다 (구: 아무 방향) / 한 마리의 힘 = BossSummonStatMul (구: 0.7 고정) / 보상 몫 = BossSummonShare
+                waveManagerRef.SpawnReinforcements("raptor", count, GameBalance.BossSummonStatMul, transform.position, GameBalance.BossSummonBehind, GameBalance.BossSummonShare);
+            }
+        }
+        Debug.Log("[BossEnemy] 사냥 호령 - 랩터 " + count + "마리" + (disrupted ? " (저지됨)" : "") + (formation ? " 편성" : ""));
     }
 
     /// <summary>
@@ -1995,7 +2017,7 @@ public class BossEnemy : Enemy
     {
         float teleSec = GameBalance.BossTelegraphSec;
         BossGimmickSystem.Instance?.ShowPatternTelegraph(
-            "낙뢰 폭격! 게이지 끝자락에서 [Space] 패링 - 번개를 병에 담아라!", teleSec);
+            "낙뢰가 떨어진다. 게이지 끝에서 [Space]면 병에 담겨", teleSec);
         ApplyTint(Color.Lerp(baseTint, Color.white, 0.6f));
         telegraphing = true;   // v7.8
         CastBegin();           // v7.11
@@ -2010,7 +2032,7 @@ public class BossEnemy : Enemy
             t += Time.deltaTime;
             if (isGroggy || !IsAlive)
             {
-                telegraphing = false; ApplyTint(baseTint);
+                telegraphing = false; ApplyTint(RestTint());
                 if (parried) BoltsToBottle();   // v7.11: 이미 병에 담았다 - 줄기는 병으로 간다 (CastCancel 이 표적을 비우기 전에)
                 CastCancel();
                 yield break;
@@ -2032,13 +2054,13 @@ public class BossEnemy : Enemy
                     SoundManager.Play("sfx_parry");
                     for (int n = 0; n < boltMarks.Count; n++)   // v7.11: 예고 줄이 병 색으로 - 잡았다는 표시
                         if (boltMarks[n] != null) boltMarks[n].Caught(BOLT_EDGE);
-                    UIManager.Instance?.ShowStatChange("패링! 번개를 병에 담았다 ("
+                    UIManager.Instance?.ShowStatChange("번개를 병에 담았다 ("
                         + ParryCharges + "/" + GameBalance.ParryChargesForCounter + ")");
                     Debug.Log("[BossEnemy] 번개 병 패링 성공! 충전 " + ParryCharges);
                 }
                 else
                 {
-                    UIManager.Instance?.ShowStatChange("너무 빨랐다! 번개가 병을 비껴갔다...");
+                    UIManager.Instance?.ShowStatChange("너무 빨랐다. 번개가 병을 비껴갔다");
                 }
             }
 
@@ -2046,7 +2068,7 @@ public class BossEnemy : Enemy
         }
 
         telegraphing = false;
-        ApplyTint(armorActive ? ArmorTint() : baseTint);
+        ApplyTint(RestTint());
         if (isGroggy || !IsAlive) { if (parried) BoltsToBottle(); CastCancel(); yield break; }
         ClearBoltMarks();   // v7.11: 예고 줄은 떨어지는 순간까지
 
@@ -2059,7 +2081,7 @@ public class BossEnemy : Enemy
             if (ParryCharges >= GameBalance.ParryChargesForCounter)
             {
                 ParryCharges = 0;
-                BossNoticeAtGroggy("되쏘기!", "병에 담은 번개가 여왕을 꿰뚫는다 - 무방비!");   // v7.9: 띠는 무방비 안내가 쓴다
+                BossNoticeAtGroggy("[되쏘기]", "병에 담은 번개가 여왕을 꿰뚫었다. 무방비");   // v7.9: 띠는 무방비 안내가 쓴다
                 Debug.Log("[BossEnemy] 번개 되쏘기 - 강제 그로기!");
                 ForceGroggy(GameBalance.ParryCounterGroggySec);
             }
@@ -2086,7 +2108,7 @@ public class BossEnemy : Enemy
         else castAge = -1f;
 
         if (hitCount > 0)
-            UIManager.Instance?.ShowStatChange("포탑 " + hitCount + "기 감전! 포탑 곁에서 [E] 한 번!");
+            UIManager.Instance?.ShowStatChange("포탑 " + hitCount + "개가 감전됐다. 옆에서 [E] 한 번");
         Debug.Log("[BossEnemy] 낙뢰 폭격 - 슬롯 " + hitCount + "곳 마비");
     }
 
@@ -2097,7 +2119,7 @@ public class BossEnemy : Enemy
         if (armorActive || secondArmorUsed || currentHP / bossMaxHP > 0.5f)
             yield break;
 
-        yield return StartCoroutine(Telegraph("냉기가 다시 뭉친다 - 갑주 재전개!"));
+        yield return StartCoroutine(Telegraph("동면자가 갑주를 다시 두른다. 화염으로 녹여"));
         if (isGroggy || !IsAlive) yield break;
 
         CastRelease(false);   // v7.11: 발동 (몸 고리는 아래의 껍질 고리가 대신한다)
@@ -2114,7 +2136,7 @@ public class BossEnemy : Enemy
     /// <summary>최종 - 포효: 정예 증원 소환</summary>
     private IEnumerator PatternRoar()
     {
-        yield return StartCoroutine(Telegraph("포효! 대륙이 울린다!"));
+        yield return StartCoroutine(Telegraph("디 오리지널이 포효한다"));
         if (isGroggy || !IsAlive) yield break;
 
         int roarCount = GameBalance.OriginalRoarCount + (enraged ? GameBalance.EnrageExtraSummon : 0);
@@ -2135,7 +2157,9 @@ public class BossEnemy : Enemy
         burnBaseline = TotalBurnApplied;
         ApplyTint(ArmorTint());
         UIManager.Instance?.ShowStatChange("[빙하 갑주] 받는 피해 -"
-            + Mathf.RoundToInt(GameBalance.GlacierArmorDR * 100f) + "%! 화염으로 녹여라!");
+            + Mathf.RoundToInt(GameBalance.GlacierArmorDR * 100f) + "%. 화상이나 해동포로 녹여");
+        // v7.14 (스펙 3-0 P3 뒷부분): 갑주가 생기는 순간 해동포 창이 깜빡인다 - 푸는 방법이 같이 읽힌다
+        if (GameBalance.ThawAttentionOn) ThawCannonUI.Attention(GameBalance.ThawAttentionSec);
         Debug.Log("[BossEnemy] 빙하 갑주 전개 (화상 " + GameBalance.GlacierBreakBurnStacks + "스택으로 파괴)");
     }
 
@@ -2143,7 +2167,7 @@ public class BossEnemy : Enemy
     {
         armorActive = false;
         ApplyTint(baseTint);
-        UIManager.Instance?.ShowStatChange("빙하 갑주 파괴! 보스 무방비!");
+        UIManager.Instance?.ShowStatChange("빙하 갑주가 깨졌다. 동면자가 무방비");
         Debug.Log("[BossEnemy] 빙하 갑주 파괴 - 보너스 그로기 " + GameBalance.GlacierBreakGroggySec + "초");
 
         // 파괴 보상: 짧은 보너스 그로기
@@ -2186,12 +2210,15 @@ public class BossEnemy : Enemy
     {
         if (!IsAlive) return;
 
+        // v7.14 (H3): 눈사태가 내려오는 중이면 GOOD 이상으로 멈춘다 (벽이 깨지고 무방비 - BossPatterns.PatternAvalanche)
+        if (quality >= 1) CancelAvalanche("cannon");   // 알림은 눈사태 쪽이 한 줄 ("해동포가 눈사태를 깨뜨렸다")
+
         if (quality >= 2)
         {
             // 정중앙: 갑주 즉시 전파괴(보너스 그로기 포함) + 대미지
             if (armorActive) BreakArmor();
             TakeDamage(GameBalance.ThawPerfectDamage * hpScale, DamageType.Magic);
-            UIManager.Instance?.ShowStatChange("해동포 직격! 갑주가 산산조각났다!");
+            UIManager.Instance?.ShowStatChange("해동포 직격. 갑주가 산산조각 났다");
         }
         else if (quality == 1)
         {
@@ -2199,7 +2226,7 @@ public class BossEnemy : Enemy
             if (armorActive)
             {
                 armorDR *= 0.5f;
-                UIManager.Instance?.ShowStatChange("해동포 명중! 갑주 감쇄율 절반!");
+                UIManager.Instance?.ShowStatChange("해동포 명중. 갑주가 절반쯤 녹았다");
             }
             TakeDamage(GameBalance.ThawGoodDamage * hpScale, DamageType.Magic);
         }
@@ -2207,7 +2234,7 @@ public class BossEnemy : Enemy
         {
             // 빗맞음: 대미지만
             TakeDamage(GameBalance.ThawMissDamage * hpScale, DamageType.Magic);
-            UIManager.Instance?.ShowStatChange("해동포 빗맞음...");
+            UIManager.Instance?.ShowStatChange("해동포가 빗나갔다");
         }
 
         Debug.Log("[BossEnemy] 해동포 피격 (품질 " + quality + ")");
@@ -2323,7 +2350,7 @@ public class BossEnemy : Enemy
             && hpRatio <= GameBalance.OriginalExtraGroggyRatio)
         {
             extraGroggyTriggered = true;
-            BossNoticeAtGroggy("[디 오리지널] 마지막 틈", "손님이 다시 식탁 앞에 무릎을 꿇었다 - 마지막 기회");   // v7.9
+            BossNoticeAtGroggy("[디 오리지널] 마지막 틈", "손님이 다시 식탁 앞에 무릎을 꿇었다. 마지막 기회야");   // v7.9
             StartCoroutine(EnterGroggyState(groggyDuration));
         }
     }
@@ -2458,6 +2485,16 @@ public class BossEnemy : Enemy
     // ─────────────────────────────────────────────
     protected override void Die()
     {
+        if (collapsing && !collapseDone) return;   // v7.14: 칸이 떨어져 나가는 중 - 끝나면 CollapseThenDie 가 부른다
+        // v7.14 (O6): 디 오리지널은 칸이 떨어져 나간 뒤에 이 순서로 돌아온다 (CollapseThenDie 가 다시 부른다). 마지막 식사 엔딩은 그대로
+        if (kind == BossKind.Original && !practice && !isServing && !collapseDone && !collapsing && NewPatterns
+            && GameBalance.OrigCollapseOn && GameBalance.GameFeelMaster > 0f && skin != null)
+        {
+            StartCoroutine(CollapseThenDie());
+            return;
+        }
+        CleanupNewPatterns();   // v7.14: 서리·눈사태 벽·빗금·북쪽 막기
+        RoutMinions();          // v7.14: 남은 손님이 달아난다 (처치 골드는 준다)
         if (glow != null) glow.enabled = false;   // v7.8: 상태 발광은 여기까지 (죽는 과정은 HitFeelBody 가 그림을 흐린다)
         CastCancel();   // v7.11: 준비하다 쓰러지면 예고 줄을 걷는다
         LeaveStage(GameBalance.BossCamOutSec);   // v7.12: 보스전 카메라·평행 선로·그림자를 걷는다 (쓰러진 뒤 1.2초에 돌아온다)
@@ -2499,7 +2536,7 @@ public class BossEnemy : Enemy
         if (ParryCharges > 0 && MaterialInventory.Instance != null)
         {
             MaterialInventory.Instance.Add(MaterialType.Elec, ParryCharges);
-            UIManager.Instance?.ShowStatChange("번개 병 " + ParryCharges + "개 -> 전기알로 환급!");
+            UIManager.Instance?.ShowStatChange("남은 번개 병 " + ParryCharges + "개를 전기알로 바꿨다");
             ParryCharges = 0;
         }
 
@@ -2527,6 +2564,8 @@ public class BossEnemy : Enemy
         if (PickupFX.FeedingBoss == this)
             PickupFX.FeedingBoss = null;
         if (IsAlive) LeaveStage(0.3f);   // v7.12: Die 를 안 거치고 사라질 때만 (씬 전환은 CameraZoom.Start 가 다시 끈다)
+        if (frostOwner == this) { frostMask = 0; frostUntil = -1f; frostOwner = null; }   // v7.14: 다른 스크립트가 보는 것만 (표시는 스스로 사라진다)
+        if (northBlockedBy == this) northBlockedBy = null;
     }
 
     /// <summary>v7.12: 보스전 무대 걷기 - 카메라 복귀 + 평행 선로 걷기 + 그림자 끔. 두 번 불려도 된다</summary>

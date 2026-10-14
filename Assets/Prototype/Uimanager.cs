@@ -4,7 +4,7 @@ using UnityEngine.UI;
 using TMPro;
 
 /// <summary>
-/// [UIManager.cs] v3.4 (v9.18 2026-10-06: 견습 목표 카드가 떠 있으면 알림 줄을 카드 아래로(카드 뒤에 가려지던 것) / 씬 HUD 손질(FixSceneHud) - 씬 캔버스 [HUD Canvas] 도 UI 배율(GameBalance.UIScale)을 따른다(HP·골드·라운드·예고 글자가 코드로 만든 창보다 작던 것) + 씬에 "New Text" 로 남아 있는 글자를 비우고 포만감 잔재를 끈다 / 골드 글자가 다른 값으로 바뀌어 있으면 바로 다시 쓴다) / v3.3 (v9.17 2026-10-06 화면 손맛 2차 - B7: 골드가 0.4초 동안 세어 올라가고(줄 땐 0.2초) 한 번에 50 이상 벌면 금색 반짝 + 튐 / 알림 통합: 같은 문구가 2초 안에 또 오면 새 줄 대신 "x2" / 위험 알림은 2.5초 동안 일반 알림에 안 밀린다 / 가운데 예고는 같은 문구 2초 무시 + 앞 문구가 1초는 떠 있게) / v3.2 (v9.15 2026-09-29 HUD 재배치 GameBalance.HudRegroup: 우상단 정보 2줄(UISkin.InfoLine1/2 - 손님 남음·보스까지 / 지역·예고) 0.25초마다, 알림 로그 스택을 우상단 판 아래(앵커 (1,1))로) / v3.1 (v9.11 2026-09-22 타격감: 기차 HP 바 지연 잔량(빨간 띠가 0.5초 뒤 따라 내려온다, 회복은 즉시) / 웨이브 예고·클리어 문구 위에서 내려오며 팝, 새 문구가 오면 이전 문구 즉시 교체) / v3
+/// [UIManager.cs] v3.5 (v9.23 2026-10-14: B2 피해 예고 빗금 PreviewTrainDamage - 보스 패턴 예고 동안 기차 HP 바의 지금 끝에서 맞을 양만큼 흰 빗금이 깜빡인다 (도약·눈사태·측면 충돌) / 기차 HP 위기 표시 (요구사항 점검 1절 2번, GameBalance.TrainCrisisOn) - TrainCrisisRatio 아래 = 가장자리 붉은 맥동(WarningFX.CrisisPulse) + 기관차 굴뚝 검은 연기 + HP 숫자 깜빡 + 들어설 때 경보 한 번 / TrainCrisisRatio2 아래 = 맥동이 빨라진다. 전투 중에만) / v3.4 (v9.18 2026-10-06: 견습 목표 카드가 떠 있으면 알림 줄을 카드 아래로(카드 뒤에 가려지던 것) / 씬 HUD 손질(FixSceneHud) - 씬 캔버스 [HUD Canvas] 도 UI 배율(GameBalance.UIScale)을 따른다(HP·골드·라운드·예고 글자가 코드로 만든 창보다 작던 것) + 씬에 "New Text" 로 남아 있는 글자를 비우고 포만감 잔재를 끈다 / 골드 글자가 다른 값으로 바뀌어 있으면 바로 다시 쓴다) / v3.3 (v9.17 2026-10-06 화면 손맛 2차 - B7: 골드가 0.4초 동안 세어 올라가고(줄 땐 0.2초) 한 번에 50 이상 벌면 금색 반짝 + 튐 / 알림 통합: 같은 문구가 2초 안에 또 오면 새 줄 대신 "x2" / 위험 알림은 2.5초 동안 일반 알림에 안 밀린다 / 가운데 예고는 같은 문구 2초 무시 + 앞 문구가 1초는 떠 있게) / v3.2 (v9.15 2026-09-29 HUD 재배치 GameBalance.HudRegroup: 우상단 정보 2줄(UISkin.InfoLine1/2 - 손님 남음·보스까지 / 지역·예고) 0.25초마다, 알림 로그 스택을 우상단 판 아래(앵커 (1,1))로) / v3.1 (v9.11 2026-09-22 타격감: 기차 HP 바 지연 잔량(빨간 띠가 0.5초 뒤 따라 내려온다, 회복은 즉시) / 웨이브 예고·클리어 문구 위에서 내려오며 팝, 새 문구가 오면 이전 문구 즉시 교체) / v3
 /// 게임 HUD 전체를 담당하는 UI 관리 스크립트입니다.
 /// - v3 변경점 (P1: 알림 채널 2분리 - 기술감사 처방):
 ///   1) ShowStatChange가 "우측 로그 스택"으로 개조 - 여러 알림이 겹쳐도 씹히지 않고
@@ -32,6 +32,15 @@ public class UIManager : MonoBehaviour
     public Slider hpSlider;
     private Image hpTrailImage;            // v3.1: 지연 잔량 (코드 생성, 채움 뒤)
     private float hpTrailRatio = 1f;       // v3.1: 지연 잔량 비율
+    private Image hpPreviewImage;          // v3.5: 피해 예고 빗금 (코드 생성, 채움 앞)
+    private float previewAmount = 0f;      // v3.5: 빗금 양 (HP)
+    private float previewUntil = 0f;       // v3.5: 빗금이 꺼지는 실시간
+    private static Sprite stripeSprite;
+    private int crisisLevel = 0;           // v3.5: 0 = 없음 / 1 = TrainCrisisRatio 아래 / 2 = TrainCrisisRatio2 아래
+    private Color hpTextBase;
+    private bool hpTextBaseSet = false;
+    private CrisisSmoke crisisSmoke;
+    private bool crisisInit = false;       // v3.5: 씬을 다시 시작했을 때 지난 판의 위기 맥동(WarningFX 는 씬을 넘어 남는다)을 한 번 끈다
     private float hpTrailHoldUntil = 0f;   // v3.1: 이 시각까지 멈췄다가 내려온다
     private float hpLastRatio = 1f;
     private Coroutine waveNoticeRoutine;   // v3.1: 진행 중인 예고 (새 문구가 오면 끊는다)
@@ -178,6 +187,190 @@ public class UIManager : MonoBehaviour
             hpText.text = (int)trainManager.currentHP + " / " + (int)trainManager.currentMaxHP;
 
         RefreshHPTrail();
+        RefreshDamagePreview();   // v3.5 (B2)
+        RefreshCrisis();          // v3.5
+    }
+
+    // ─────────────────────────────────────────────
+    // v3.5 (v9.23 B2): 피해 예고 빗금 - 보스 패턴 예고 동안 "이만큼 깎인다"
+    // ─────────────────────────────────────────────
+    /// <summary>기차 HP 바의 지금 끝에서 amount(HP)만큼 흰 빗금을 sec 초 동안 깜빡인다. amount 0 이하 = 바로 걷는다. 보스(BossPatterns.PreviewTrainDamage)가 부른다</summary>
+    public void PreviewTrainDamage(float amount, float sec)
+    {
+        previewAmount = Mathf.Max(0f, amount);
+        previewUntil = previewAmount > 0f ? Time.time + Mathf.Max(0.1f, sec) : 0f;   // 게임 시간 (패턴과 같은 시계)
+    }
+
+    /// <summary>빗금 그림 (12 x 12, 왼쪽 아래에서 오른쪽 위로 6px 띠) - Tiled 로 바 높이만큼 반복된다</summary>
+    private static Sprite StripeSprite()
+    {
+        if (stripeSprite != null) return stripeSprite;
+        const int S = 12;
+        Texture2D tex = new Texture2D(S, S, TextureFormat.RGBA32, false);
+        tex.filterMode = FilterMode.Point;
+        tex.wrapMode = TextureWrapMode.Repeat;
+        for (int y = 0; y < S; y++)
+            for (int x = 0; x < S; x++)
+                tex.SetPixel(x, y, ((x + y) % S) < 6 ? Color.white : new Color(1f, 1f, 1f, 0.25f));
+        tex.Apply();
+        stripeSprite = Sprite.Create(tex, new Rect(0, 0, S, S), new Vector2(0.5f, 0.5f), 100f);
+        return stripeSprite;
+    }
+
+    private void RefreshDamagePreview()
+    {
+        bool on = GameBalance.DamagePreviewOn && previewAmount > 0f && Time.time < previewUntil && hpFillImage != null
+            && GameManager.Instance != null && GameManager.Instance.currentState == GameManager.GameState.Battle;
+        if (!on) { if (hpPreviewImage != null && hpPreviewImage.enabled) hpPreviewImage.enabled = false; return; }
+        if (hpPreviewImage == null)
+        {
+            GameObject go = new GameObject("HpDamagePreview");
+            RectTransform rt = go.AddComponent<RectTransform>();
+            rt.SetParent(hpFillImage.transform.parent, false);
+            rt.SetSiblingIndex(hpFillImage.transform.GetSiblingIndex() + 1);   // 채움 앞에 그려진다
+            rt.pivot = hpFillImage.rectTransform.pivot;
+            hpPreviewImage = go.AddComponent<Image>();
+            hpPreviewImage.sprite = StripeSprite();
+            hpPreviewImage.type = Image.Type.Tiled;
+            hpPreviewImage.raycastTarget = false;
+        }
+        hpPreviewImage.enabled = true;
+        float maxHp = Mathf.Max(1f, trainManager.currentMaxHP);
+        float hi = Mathf.Clamp01(trainManager.currentHP / maxHp);
+        float lo = Mathf.Clamp01((trainManager.currentHP - previewAmount) / maxHp);
+        RectTransform fillRt = hpFillImage.rectTransform;
+        RectTransform prt = hpPreviewImage.rectTransform;
+        Vector2 aMin = fillRt.anchorMin, aMax = fillRt.anchorMax;
+        if (hpSlider != null && hpSlider.direction == Slider.Direction.RightToLeft) { aMin.x = 1f - hi; aMax.x = 1f - lo; }
+        else { aMin.x = lo; aMax.x = hi; }
+        prt.anchorMin = aMin; prt.anchorMax = aMax;
+        prt.offsetMin = new Vector2(0f, fillRt.offsetMin.y); prt.offsetMax = new Vector2(0f, fillRt.offsetMax.y);
+        // 깜빡임 (초당 3번) - 맞을 양이 HP 보다 크면(이대로면 멈춘다) 붉게
+        float blink = 0.55f + 0.4f * Mathf.Abs(Mathf.Sin(Time.unscaledTime * Mathf.PI * 3f));
+        hpPreviewImage.color = previewAmount >= trainManager.currentHP ? new Color(1f, 0.35f, 0.3f, blink) : new Color(1f, 1f, 1f, blink);
+    }
+
+    // ─────────────────────────────────────────────
+    // v3.5 (v9.23): 기차 HP 위기 표시 (GameBalance.TrainCrisisOn)
+    // ─────────────────────────────────────────────
+    private void RefreshCrisis()
+    {
+        if (!crisisInit) { crisisInit = true; WarningFX.CrisisPulse(0); }
+        int level = 0;
+        bool battle = GameManager.Instance != null && GameManager.Instance.currentState == GameManager.GameState.Battle && !GameManager.Instance.DefeatPending;
+        if (GameBalance.TrainCrisisOn && battle && trainManager.currentHP > 0f)
+        {
+            float r = trainManager.currentHP / Mathf.Max(1f, trainManager.currentMaxHP);
+            if (r <= GameBalance.TrainCrisisRatio2) level = 2;
+            else if (r <= GameBalance.TrainCrisisRatio) level = 1;
+        }
+        if (level != crisisLevel)
+        {
+            if (level > 0 && crisisLevel == 0) SoundManager.Play("sfx_alarm", 0.7f, -1f);   // 들어설 때 한 번
+            crisisLevel = level;
+            WarningFX.CrisisPulse(level);
+            if (level > 0 && crisisSmoke == null) crisisSmoke = CrisisSmoke.Create();
+            if (crisisSmoke != null) crisisSmoke.level = level;
+        }
+        // HP 숫자 깜빡 (위기 1 = 초당 1번, 2 = 초당 2번)
+        if (hpText != null)
+        {
+            if (!hpTextBaseSet) { hpTextBase = hpText.color; hpTextBaseSet = true; }
+            if (level > 0)
+            {
+                float hz = level >= 2 ? 2f : 1f;
+                float k = 0.5f + 0.5f * Mathf.Sin(Time.unscaledTime * Mathf.PI * 2f * hz);
+                hpText.color = Color.Lerp(hpTextBase, new Color(1f, 0.25f, 0.2f, hpTextBase.a), k);
+            }
+            else if (hpText.color != hpTextBase) hpText.color = hpTextBase;
+        }
+    }
+
+    /// <summary>
+    /// v3.5: 위기 때 기관차 굴뚝의 검은 연기 (먼지 그림 dust_0 ~ 3 을 검게). 굴뚝 = TrainDeck 의 자식 "Chimney" (없으면 기관차 칸 위).
+    /// level 0 이면 내보내지 않고 남은 연기가 다 사라지면 쉰다. 조각 12개를 돌려 쓴다
+    /// </summary>
+    private class CrisisSmoke : MonoBehaviour
+    {
+        public int level = 0;
+        private const int MAX = 12;
+        private readonly SpriteRenderer[] sr = new SpriteRenderer[MAX];
+        private readonly Vector3[] vel = new Vector3[MAX];
+        private readonly float[] age = new float[MAX], life = new float[MAX];
+        private readonly bool[] on = new bool[MAX];
+        private Sprite[] frames;
+        private int cursor;
+        private float timer;
+        private Transform chimney;
+        private bool chimneySearched;
+
+        public static CrisisSmoke Create()
+        {
+            GameObject go = new GameObject("CrisisSmoke");
+            CrisisSmoke s = go.AddComponent<CrisisSmoke>();
+            Sprite d0 = SpriteBank.Get("dust_0");
+            if (d0 != null)
+            {
+                s.frames = new Sprite[4];
+                for (int i = 0; i < 4; i++)
+                {
+                    Sprite f = SpriteBank.Get("dust_" + i);   // ?? 를 쓰지 않는다 (유니티 오브젝트)
+                    s.frames[i] = f != null ? f : d0;
+                }
+            }
+            else s.frames = new Sprite[] { TrainDeck.GetCircleSprite() };
+            for (int i = 0; i < MAX; i++)
+            {
+                GameObject c = new GameObject("Puff");
+                c.transform.SetParent(go.transform, false);
+                s.sr[i] = c.AddComponent<SpriteRenderer>();
+                s.sr[i].sortingOrder = 7;   // 기차·포탑 위, 손님(5)·보스(6) 바로 위
+                c.SetActive(false);
+            }
+            return s;
+        }
+
+        private Vector3 ChimneyPos()
+        {
+            if (chimney == null && !chimneySearched)
+            {
+                chimneySearched = true;   // 못 찾아도 한 번만 찾는다 (연기 한 번마다 찾지 않게)
+                TrainDeck deck = FindFirstObjectByType<TrainDeck>();
+                if (deck != null) chimney = deck.transform.Find("Chimney");
+            }
+            if (chimney != null) return chimney.position + new Vector3(0f, 0.3f, 0f);
+            return new Vector3(GameBalance.CarEdgesX[0] + 2.5f, 0.3f, 0f);
+        }
+
+        private void Update()
+        {
+            float dt = Time.deltaTime;
+            if (level > 0 && GameBalance.GameFeelMaster > 0f)
+            {
+                timer -= dt;
+                if (timer <= 0f)
+                {
+                    timer = level >= 2 ? 0.12f : 0.22f;
+                    int i = cursor; cursor = (cursor + 1) % MAX;
+                    on[i] = true; age[i] = 0f; life[i] = Random.Range(1.1f, 1.5f);
+                    vel[i] = new Vector3(Random.Range(0.6f, 1.2f), Random.Range(0.9f, 1.4f), 0f);   // 기차가 달리는 반대쪽(오른쪽)으로 밀리며 오른다
+                    sr[i].transform.position = ChimneyPos() + new Vector3(Random.Range(-0.15f, 0.15f), 0f, 0f);
+                    sr[i].gameObject.SetActive(true);
+                }
+            }
+            for (int i = 0; i < MAX; i++)
+            {
+                if (!on[i]) continue;
+                age[i] += dt;
+                float k = age[i] / life[i];
+                if (k >= 1f) { on[i] = false; sr[i].gameObject.SetActive(false); continue; }
+                sr[i].transform.position += vel[i] * dt;
+                float s = 0.55f + 0.9f * k;
+                sr[i].transform.localScale = new Vector3(s, s, 1f);
+                sr[i].sprite = frames[Mathf.Min(frames.Length - 1, Mathf.FloorToInt(k * frames.Length))];
+                sr[i].color = new Color(0.1f, 0.09f, 0.1f, 0.7f * (1f - k * k));
+            }
+        }
     }
 
     /// <summary>
