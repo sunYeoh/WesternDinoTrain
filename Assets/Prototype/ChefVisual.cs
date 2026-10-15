@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// [ChefVisual.cs] v2.5 (v9.18 2026-10-06: 그림 비율 바로잡기 - 씬의 Chef 스케일이 (0.3, 0.5) 라 그림이 가로로 60% 눌려 그려지고 있었다. 가로 배율에 (세로/가로)를 곱해 그린 그대로 보이게 (GameBalance.ChefAspectFix, 키는 그대로) /
+/// [ChefVisual.cs] v2.6 (v9.24 2026-10-15 갈림길 칸 꺾임: 셰프 그림·그림자가 서 있는 칸의 꺾임을 따라 옮겨진다 (TrainDeck.RidePos, 덜컹임 없이 - 예전처럼 흔들리지 않는다). 돌리지는 않는다 - 3/4 시점 인물은 서 있다. 셰프 자리·판정은 곧은 자리 그대로) / v2.5 (v9.18 2026-10-06: 그림 비율 바로잡기 - 씬의 Chef 스케일이 (0.3, 0.5) 라 그림이 가로로 60% 눌려 그려지고 있었다. 가로 배율에 (세로/가로)를 곱해 그린 그대로 보이게 (GameBalance.ChefAspectFix, 키는 그대로) /
 /// v2.4 (v9.17 2026-10-06 B3: 찌그러짐 - 대시 시작에 가는 방향으로 늘어남(0.08초) / 달리다 멈추면 납작(0.1초) / 조리 시작에 한 번 튕김(0.12초). 그림(spriteTf) 크기만 바꾼다) / v2.3 (v9.10 2026-09-17 테스터 피드백: "가다가 뒤도는 버그" - 바라보는 방향을 실제 위치 변화가 아니라 ChefController.CurrentVel(가려는 속도)로 정한다.
 ///   통로·벽에서 ResolveWalk 가 한 프레임 되밀 때 위치 변화 부호가 뒤집혀 뒤돌던 것. 걷는지/대시인지는 종전대로 위치 변화로 / GameBalance.ChefVisualScale 로 그림 배율 - "셰프가 너무 작다")
 /// v2.2 - 셰프 스프라이트 애니메이션 (2026-09-07, 유저 제작 도트 8장 대응)
@@ -53,6 +53,8 @@ public class ChefVisual : MonoBehaviour
 
     private SpriteRenderer sr;
     private Transform spriteTf;
+    private Transform shadowTf;          // v2.6: 그림자도 칸 꺾임을 따라 옮긴다
+    private bool rideMoved = false;      // v2.6: 지난 프레임에 칸 꺾임만큼 옮겨 그렸나 (끝나는 프레임에 그림자를 제자리로)
     private ChefController controller;               // v2.3: 방향 = 가려는 속도
     private Vector3 lastPos;
     private string dir = "s";                       // s / n / e / w
@@ -117,6 +119,7 @@ public class ChefVisual : MonoBehaviour
         {
             GameObject sh = new GameObject("ChefShadow");
             sh.transform.SetParent(transform, false);
+            shadowTf = sh.transform;
             sh.transform.localPosition = new Vector3(0f, SPRITE_Y_OFFSET + 0.02f, 0f);
             sh.transform.localScale = new Vector3(BaseScaleX(), GameBalance.ChefVisualScale, 1f);   // v2.3, v2.5: 비율 보정
             SpriteRenderer ssr = sh.AddComponent<SpriteRenderer>();
@@ -224,6 +227,7 @@ public class ChefVisual : MonoBehaviour
         else name = prefix + spriteDir + "_idle";
         wasMoving = moving;
         spriteTf.localPosition = new Vector3(0f, SPRITE_Y_OFFSET + bob, 0f);
+        ApplyRide();   // v2.6: 갈림길 칸 꺾임
 
         Sprite s = SpriteBank.Get(name);
         if (s != null) sr.sprite = s;
@@ -283,6 +287,22 @@ public class ChefVisual : MonoBehaviour
         Ghost gh = new Ghost();
         gh.sr = g; gh.life = GHOST_LIFE;
         ghosts.Add(gh);
+    }
+
+    /// <summary>
+    /// v2.6 (v9.24): 갈림길에서 칸이 꺾이면 셰프 그림·그림자를 서 있는 칸을 따라 옮긴다 (발 자리 기준, 월드에서 옮긴 만큼을 루트 기준으로).
+    /// 루트(셰프 자리·판정)는 그대로 - 그림만. 꺾임이 없으면 아무것도 안 한다
+    /// </summary>
+    private void ApplyRide()
+    {
+        Vector3 foot = transform.position;
+        Vector3 d = TrainDeck.RidePos(foot, false) - foot;
+        bool moved = d.sqrMagnitude > 1e-8f;
+        if (!moved && !rideMoved) return;
+        Vector3 local = moved ? transform.InverseTransformVector(d) : Vector3.zero;
+        spriteTf.localPosition += local;
+        if (shadowTf != null) shadowTf.localPosition = new Vector3(0f, SPRITE_Y_OFFSET + 0.02f, 0f) + local;
+        rideMoved = moved;
     }
 
     private void UpdateGhosts(float dt)

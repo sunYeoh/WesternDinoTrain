@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// [SoundManager.cs] v2.2 (v9.21 2026-10-12 보스 1단계: 등장 연출 소리 키 10개의 부모(폴백) - 사운드 프롬프트 3절의 이름 (sfx_boss_far_howl · sfx_boss_land · sfx_thunder_roll · sfx_wing_gust · sfx_ground_crack · sfx_iron_groan · sfx_rival_wheels · sfx_iron_scream · sfx_hp_ratchet · sfx_boss_cast). 파일이 오기 전엔 부모 소리가 난다 / BgmCut - 배경음을 잠깐 뚝 끊는다 (디 오리지널 전조)) / v2.1 (v9.19 2026-10-06 웨이브 편성: 예고음 2개 sfx_cue_approach / sfx_cue_ambush 의 키 표 한 줄 - px/sfx5.py 가 만든다) / v2 (v9.16 2026-09-29 손맛 2차 - 소리 한 번에. 유저: 8비트 말고 서부 증기기관·쇠와 화약, 포탑 종류별·손님 종류별로 소리가 달라야)
+/// [SoundManager.cs] v2.3 (v9.24 2026-10-15 클라이맥스 층 B3: bgm_main 을 틀 때 bgm_climax · bgm_climax_lite 를 같은 오디오 시계 순간에 소리 0 으로 같이 틀어 두고(PlayScheduled) LayerIn 이 박 머리에 소리만 올린다 - 박이 어긋날 수가 없다. 층 길이가 bgm_main 의 정수분의 1 이 아니면(생성 도구로 뽑은 독립 곡) 클라이맥스 층만 단독 곡으로 - 켜면 배경음을 소리 0 으로 두고 그 곡을 처음부터. SecondsToNextBeat = 다음 박까지 남은 시간 (GameBalance.BgmBpm) / 새 키 sfx_fork_clank (갈림길 덜컹, 부모 sfx_lever) · sfx_whistle_long (긴 기적, 부모 sfx_train_whistle)) / v2.2 (v9.21 2026-10-12 보스 1단계: 등장 연출 소리 키 10개의 부모(폴백) - 사운드 프롬프트 3절의 이름 (sfx_boss_far_howl · sfx_boss_land · sfx_thunder_roll · sfx_wing_gust · sfx_ground_crack · sfx_iron_groan · sfx_rival_wheels · sfx_iron_scream · sfx_hp_ratchet · sfx_boss_cast). 파일이 오기 전엔 부모 소리가 난다 / BgmCut - 배경음을 잠깐 뚝 끊는다 (디 오리지널 전조)) / v2.1 (v9.19 2026-10-06 웨이브 편성: 예고음 2개 sfx_cue_approach / sfx_cue_ambush 의 키 표 한 줄 - px/sfx5.py 가 만든다) / v2 (v9.16 2026-09-29 손맛 2차 - 소리 한 번에. 유저: 8비트 말고 서부 증기기관·쇠와 화약, 포탑 종류별·손님 종류별로 소리가 달라야)
 /// 전역 사운드 매니저 - 씬 세팅 불필요 (첫 호출 시 스스로 생성).
 ///
 /// - v2 변경점:
@@ -92,6 +92,8 @@ public class SoundManager : MonoBehaviour
         Def("sfx_event_", 1f, 0.03f, 0.3f, false, false);   // 결과음(resolve/fail)은 현장음(sfx_ev_) 표와 별개
         Def("sfx_alarm", 0.8f, 0f, 0.3f, false, false);
         Def("sfx_cue", 1f, 0.05f, 0.3f, false, false);      // v2.1: 편성 예고 - 두 조각의 예고가 겹쳐도 0.3초 안에는 한 번만
+        Def("sfx_fork_clank", 0.8f, 0.05f, 0.12f, false, false);   // v2.3: 갈림길 - 칸마다 (0.12초 안에 두 칸이 겹치면 한 번)
+        Def("sfx_whistle_long", 1f, 0.02f, 1f, false, false);      // v2.3: 클라이맥스 긴 기적 - 화음이라 피치 변주는 작게
     }
 
     private static KeyDef DefOf(string key)
@@ -149,9 +151,15 @@ public class SoundManager : MonoBehaviour
 
     private void Update()
     {
+        TickMain();
+        TickLayers();   // v2.3: 배경음 배율을 정한 뒤에 - 끊김이 풀리는 프레임에 배경음과 층이 같이 오른다
+    }
+
+    private void TickMain()
+    {
         // 배경음 페이드/덕킹 (unscaled - 일시정지·시간 정지 카드 중에도 자연스럽게)
         if (bgmSource == null) return;
-        float target = bgmTarget * (bgmDuckReasons.Count > 0 ? 0.65f : 1f);
+        float target = bgmTarget * (bgmDuckReasons.Count > 0 ? 0.65f : 1f) * (soloOn ? 0f : 1f);   // v2.3: 단독 곡이 대신하는 동안 배경음은 소리 0 으로 돈다
         // v2.2: 뚝 끊긴 동안은 0, 끝나는 프레임에 바로 제자리 (1.5초 페이드는 덕킹·시작·끝에만 - "끊긴다"가 들려야 한다)
         if (Time.unscaledTime < bgmCutUntil) { if (bgmCur != 0f) { bgmCur = 0f; ApplyBgmVolume(); } return; }
         if (bgmCutResume) { bgmCutResume = false; bgmCur = target; ApplyBgmVolume(); return; }
@@ -263,12 +271,181 @@ public class SoundManager : MonoBehaviour
         sm.bgmSource.clip = clip;
         sm.bgmCur = 0f;   // v2: 페이드 인
         sm.ApplyBgmVolume();
-        sm.bgmSource.Play();
+        // v2.3: 클라이맥스 층과 같은 오디오 시계 순간에 시작한다 (프레임 시각이 아니라 dspTime - 둘이 같은 샘플에서 출발해 박이 안 어긋난다)
+        double startAt = AudioSettings.dspTime + 0.1;
+        sm.bgmSource.PlayScheduled(startAt);
+        if (key == "bgm_main") sm.StartLayers(startAt);
+        else sm.StopLayers();
     }
 
     public static void StopBGM()
     {
         if (instance != null && instance.bgmSource != null) { instance.bgmTarget = 0f; instance.bgmCur = 0f; instance.bgmSource.Stop(); }
+        if (instance != null) instance.StopLayers();   // v2.3
+    }
+
+    // ─────────────────────────────────────────────
+    // v2.3 (v9.24): 클라이맥스 층 - bgm_main 과 같은 순간에 소리 0 으로 같이 틀어 두고, 박 머리에 소리만 올린다
+    //   같이 도는 층 = 길이가 bgm_main 의 정수분의 1 (px/sfx6.py 는 4마디 = 1/4). 아니면 단독 곡 - 클라이맥스 층만, 켜면 배경음 대신 처음부터
+    // ─────────────────────────────────────────────
+    public const int LayerClimax = 0;   // 디 오리지널 P3
+    public const int LayerLite = 1;     // 지역 보스 발악 (피스톤만)
+    private static readonly string[] LAYER_KEYS = { "bgm_climax", "bgm_climax_lite" };
+    private AudioSource[] layerSrc;
+    private readonly bool[] layerSync = new bool[2];         // 배경음과 같이 도는 층인가
+    private readonly float[] layerCur = new float[2];         // 지금 배율
+    private readonly float[] layerTarget = new float[2];      // 목표 배율
+    private readonly float[] layerRate = new float[2];        // 내려갈 때 초당 변화 (LayerOut 이 정한다)
+    private readonly float[] layerEnterAt = { -1f, -1f };     // 이 실시간에 목표로 뛴다 (-1 = 없음)
+    private bool soloOn = false;                              // 단독 곡이 배경음을 대신하는 중
+
+    private void EnsureLayers()
+    {
+        if (layerSrc != null) return;
+        layerSrc = new AudioSource[LAYER_KEYS.Length];
+        for (int i = 0; i < layerSrc.Length; i++)
+        {
+            layerSrc[i] = gameObject.AddComponent<AudioSource>();
+            layerSrc[i].playOnAwake = false;
+            layerSrc[i].loop = true;
+            layerSrc[i].volume = 0f;
+        }
+    }
+
+    /// <summary>배경음과 같은 dsp 시각에 층들을 소리 0 으로 시작한다. 같이 돌 수 없는 층(길이가 안 맞음)은 틀지 않고 표시만</summary>
+    private void StartLayers(double startAt)
+    {
+        EnsureLayers();
+        soloOn = false;
+        AudioClip main = bgmSource.clip;
+        for (int i = 0; i < layerSrc.Length; i++)
+        {
+            AudioSource src = layerSrc[i];
+            src.Stop();
+            layerCur[i] = 0f; layerTarget[i] = 0f; layerEnterAt[i] = -1f; src.volume = 0f;
+            AudioClip clip = LoadClip(LAYER_KEYS[i]);
+            src.clip = clip;
+            layerSync[i] = clip != null && main != null && LayerFits(main, clip);
+            if (layerSync[i]) src.PlayScheduled(startAt);
+            if (clip != null && !layerSync[i])
+                Debug.Log("[SoundManager] " + LAYER_KEYS[i] + " 길이가 bgm_main 과 안 맞는다 - " + (i == LayerClimax ? "켤 때 배경음 대신 단독으로 튼다" : "쓰지 않는다"));
+        }
+    }
+
+    private void StopLayers()
+    {
+        soloOn = false;
+        if (layerSrc == null) return;
+        for (int i = 0; i < layerSrc.Length; i++)
+        {
+            layerSrc[i].Stop();
+            layerSrc[i].volume = 0f;
+            layerCur[i] = 0f; layerTarget[i] = 0f; layerEnterAt[i] = -1f;
+        }
+    }
+
+    /// <summary>층 길이가 배경음 길이의 정수분의 1 인가 (한 바퀴에 3ms 안으로만 어긋나면 된다) - 그래야 같이 틀어 둔 채 박이 맞는다</summary>
+    private static bool LayerFits(AudioClip main, AudioClip layer)
+    {
+        if (layer.samples <= 0 || main.samples <= 0 || layer.frequency != main.frequency) return false;
+        int k = Mathf.RoundToInt((float)main.samples / layer.samples);
+        if (k < 1) return false;
+        return Mathf.Abs(main.samples - k * layer.samples) <= main.frequency * 0.003f;
+    }
+
+    /// <summary>매 프레임 (실시간): 들어올 시각이 된 층은 목표로 바로 (박 머리 - 페이드 없음), 내려가는 층은 정한 속도로</summary>
+    private void TickLayers()
+    {
+        if (layerSrc == null) return;
+        float now = Time.unscaledTime;
+        for (int i = 0; i < layerSrc.Length; i++)
+        {
+            if (layerEnterAt[i] >= 0f)
+            {
+                if (now < layerEnterAt[i]) { layerSrc[i].volume = 0f; continue; }   // 아직 숨
+                layerEnterAt[i] = -1f;
+                if (!layerSync[i]) BeginSolo(i);
+                layerCur[i] = layerTarget[i];
+            }
+            else if (layerCur[i] != layerTarget[i])
+            {
+                layerCur[i] = Mathf.MoveTowards(layerCur[i], layerTarget[i], Mathf.Max(0.01f, layerRate[i]) * Time.unscaledDeltaTime);
+                if (layerCur[i] <= 0f && soloOn && i == LayerClimax) EndSolo();
+            }
+            layerSrc[i].volume = BgmVolume * layerCur[i] * LayerGain(i);
+        }
+    }
+
+    /// <summary>
+    /// 층에 곱하는 배경음 쪽 배율 - 같이 도는 층은 배경음의 지금 배율(덕킹·끊김·페이드)을 같이 탄다 (지역 보스전의 -35% 덕킹 아래에서도 배경음 대비 비율이 그대로).
+    /// 단독 곡은 배경음이 소리 0 이라 덕킹·끊김만 따른다
+    /// </summary>
+    private float LayerGain(int i)
+    {
+        if (Time.unscaledTime < bgmCutUntil) return 0f;
+        if (layerSync[i]) return bgmTarget > 0f ? Mathf.Clamp01(bgmCur / bgmTarget) : 0f;
+        return bgmDuckReasons.Count > 0 ? 0.65f : 1f;
+    }
+
+    private void BeginSolo(int i)
+    {
+        if (i != LayerClimax || layerSrc[i].clip == null) return;
+        layerSrc[i].Stop();
+        layerSrc[i].Play();   // 단독 곡은 처음부터
+        soloOn = true;
+        bgmCur = 0f;
+        ApplyBgmVolume();
+    }
+
+    private void EndSolo()
+    {
+        layerSrc[LayerClimax].Stop();
+        soloOn = false;   // 배경음은 Update 의 1.5초 페이드로 돌아온다 (소리 0 으로 계속 돌고 있었다)
+    }
+
+    /// <summary>
+    /// v2.3: 다음 박까지 남은 실시간 초 (minSec 이상) - bgm_main 의 지금 자리와 GameBalance.BgmBpm 으로 센다. 배경음이 안 돌면 minSec.
+    /// 클라이맥스의 "숨"이 이 길이다 - 숨이 끝나는 순간이 박 머리
+    /// </summary>
+    public static float SecondsToNextBeat(float minSec)
+    {
+        if (instance == null || instance.bgmSource == null || instance.bgmSource.clip == null || !instance.bgmSource.isPlaying) return minSec;
+        AudioClip c = instance.bgmSource.clip;
+        int freq = c.frequency > 0 ? c.frequency : 44100;
+        double beat = freq * 60.0 / Mathf.Max(30f, GameBalance.BgmBpm);
+        double pos = instance.bgmSource.timeSamples;
+        double next = System.Math.Ceiling((pos + minSec * freq) / beat) * beat;
+        return (float)((next - pos) / freq);
+    }
+
+    /// <summary>
+    /// v2.3: 층 i (LayerClimax / LayerLite) 를 delaySec(실시간) 뒤에 level 로 올린다 - 그 순간 바로 (페이드 없음).
+    /// 같이 도는 층이 아니면 클라이맥스 층만 단독 곡으로 바꿔 튼다 (배경음은 소리 0). 파일이 없거나 쓸 수 없으면 false
+    /// </summary>
+    public static bool LayerIn(int i, float level, float delaySec)
+    {
+        SoundManager sm = instance;
+        if (sm == null || sm.layerSrc == null || i < 0 || i >= sm.layerSrc.Length || sm.layerSrc[i].clip == null) return false;
+        if (!sm.layerSync[i] && i != LayerClimax) return false;
+        sm.layerTarget[i] = Mathf.Clamp01(level);
+        sm.layerEnterAt[i] = Time.unscaledTime + Mathf.Max(0f, delaySec);
+        return true;
+    }
+
+    /// <summary>v2.3: 층 i 를 fadeSec(실시간)에 걸쳐 내린다 (0 = 바로 끊김). 단독 곡이면 다 내려간 뒤 배경음이 돌아온다</summary>
+    public static void LayerOut(int i, float fadeSec)
+    {
+        SoundManager sm = instance;
+        if (sm == null || sm.layerSrc == null || i < 0 || i >= sm.layerSrc.Length) return;
+        sm.layerEnterAt[i] = -1f;
+        sm.layerTarget[i] = 0f;
+        if (fadeSec <= 0f)
+        {
+            sm.layerCur[i] = 0f;
+            sm.layerSrc[i].volume = 0f;
+            if (sm.soloOn && i == LayerClimax) sm.EndSolo();
+        }
+        else sm.layerRate[i] = sm.layerCur[i] / fadeSec;
     }
 
     /// <summary>v2: 사고·보스전 동안 배경음을 낮춘다 (-35%, 1.5초 걸쳐). reason 별로 켜고 끈다 - 겹친 이유가 하나라도 남아 있으면 낮은 채로</summary>
@@ -346,6 +523,8 @@ public static class SoundKeys
         if (key == "sfx_field") return "sfx_shot_poison";
         if (key == "sfx_ricochet") return "sfx_hit";
         if (key == "sfx_whistle_low") return "sfx_train_whistle";
+        if (key == "sfx_whistle_long") return "sfx_train_whistle";   // v2.3 (v9.24): 클라이맥스 긴 기적
+        if (key == "sfx_fork_clank") return "sfx_lever";             // v2.3 (v9.24): 갈림길 덜컹 - 파일이 없으면 쇠 손잡이 소리 (기차 피격음은 맞은 줄 안다)
         // v2.2 (v9.21): 보스 등장 연출의 소리 - 파일이 오기 전엔 있는 소리를 빌려 쓴다 (claude/사운드_프롬프트_2026-10-08.md 3절)
         if (key == "sfx_boss_far_howl") return "sfx_boss_roar_pack";       // 먼 울음 (녹슨 발톱 전조)
         if (key == "sfx_boss_land") return "sfx_explosion";                // 뛰어내려 착지

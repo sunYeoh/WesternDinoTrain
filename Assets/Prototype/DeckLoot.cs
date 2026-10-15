@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// [DeckLoot.cs] v1.3 (v9.18 2026-10-06: 상자 자리 = TrainDeck.LootSpot - 셰프가 걸을 수 있는 바닥 위(포탑 칸은 가운데 복도, 주방은 조리대 위쪽). 예전 높이 -1.25 는 새 그림에서 남쪽 포탑 줄·바퀴 위였다) / v1.2 (v9.14 2026-09-28: 상자 위 노란 화살표 + 상자 조금 크게 - 테스터 "줍는 게 창에 가려 안 보임") / v1.1 (v9.9.2 2026-09-16: 4모서리 배치의 남쪽 포탑 자리를 피해 떨어진다 - 상자가 포탑 위에 그려지던 것) / v1 (신규 파일) - B-2: 갑판 전리품 상자 (방향결정 2026-08-31)
+/// [DeckLoot.cs] v1.4 (v9.24 2026-10-15: 갈림길 칸 꺾임 - 상자 그림이 놓인 칸을 따라 옮겨진다 (TrainDeck.RidePos, 덜컹임 없이). 밟았나는 곧은 자리로 잰다 / 알림 말투 10-14 표대로 "밟아서 주워") / v1.3 (v9.18 2026-10-06: 상자 자리 = TrainDeck.LootSpot - 셰프가 걸을 수 있는 바닥 위(포탑 칸은 가운데 복도, 주방은 조리대 위쪽). 예전 높이 -1.25 는 새 그림에서 남쪽 포탑 줄·바퀴 위였다) / v1.2 (v9.14 2026-09-28: 상자 위 노란 화살표 + 상자 조금 크게 - 테스터 "줍는 게 창에 가려 안 보임") / v1.1 (v9.9.2 2026-09-16: 4모서리 배치의 남쪽 포탑 자리를 피해 떨어진다 - 상자가 포탑 위에 그려지던 것) / v1 (신규 파일) - B-2: 갑판 전리품 상자 (방향결정 2026-08-31)
 ///
 /// 아이템(유물) 획득이 즉시 지급 대신 "갑판에 떨어진 상자"가 된다.
 /// 셰프가 걸어가서 밟으면 회수 - 걷는 것 자체가 보상 행위가 되게.
@@ -20,6 +20,7 @@ public class DeckLoot : MonoBehaviour
     private Transform chefTransform;
     private float bobPhase;
     private float baseY;               // v1.3: 놓인 높이 (칸마다 다르다)
+    private float baseX;               // v1.4: 놓인 x (곧은 자리 - 셰프가 밟았나는 이 자리로 잰다)
 
     /// <summary>
     /// 아이템 상자 생성. nearX 근처의 갑판 위에 떨어진다 (활동 범위로 클램프).
@@ -42,9 +43,10 @@ public class DeckLoot : MonoBehaviour
         DeckLoot loot = go.AddComponent<DeckLoot>();
         loot.sourceLabel = sourceLabel;
         loot.baseY = spot.y;
+        loot.baseX = spot.x;
         loot.BuildVisual();
 
-        UIManager.Instance?.ShowStatChange("[전리품] 갑판에 상자가 떨어졌다 - 밟아서 회수하라!");
+        UIManager.Instance?.ShowStatChange("[전리품] 갑판에 상자가 떨어졌다. 밟아서 주워");
         SoundManager.Play("sfx_pickup");
         Debug.Log("[DeckLoot] 상자 생성 (x " + x.ToString("F1") + ") / 출처: " + sourceLabel);
     }
@@ -99,8 +101,8 @@ public class DeckLoot : MonoBehaviour
     {
         // 들썩임 (여기 있어! 하는 존재감)
         bobPhase += Time.deltaTime * 3f;
-        Vector3 p = transform.position;
-        p.y = baseY + Mathf.Abs(Mathf.Sin(bobPhase)) * 0.12f;
+        Vector3 logical = new Vector3(baseX, baseY + Mathf.Abs(Mathf.Sin(bobPhase)) * 0.12f, transform.position.z);
+        Vector3 p = TrainDeck.RidePos(logical, false);   // v1.4: 갈림길에서 칸이 꺾이면 그림만 칸을 따라 (곧을 땐 logical 그대로)
         transform.position = p;
         // v1.2: 화살표는 상자 위 1.0u 에서 까딱 (0.5초 주기)
         if (markerSr != null)
@@ -117,7 +119,7 @@ public class DeckLoot : MonoBehaviour
         }
 
         // 밟으면 회수
-        if (Vector2.Distance(chefTransform.position, transform.position) <= GameBalance.DeckLootPickupRange)
+        if (Vector2.Distance(chefTransform.position, new Vector2(baseX, baseY)) <= GameBalance.DeckLootPickupRange)   // v1.4: 곧은 자리로 (셰프 자리도 곧은 자리다)
             Collect();
     }
 

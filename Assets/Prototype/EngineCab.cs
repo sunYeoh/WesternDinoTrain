@@ -4,7 +4,7 @@ using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 
 /// <summary>
-/// [EngineCab.cs] v4.3 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v4.2 (v9.18 2026-10-06, 10-05 그림 팩: 새 작살포 그림은 왼쪽을 보고 누워 있다 - 쏠 때 바위 쪽으로 돌았다가 0.6초에 제자리로, 빔은 촉 끝에서 / 작살포·레버 그림이 기관차 칸의 덜컹임을 따라간다) / v4.1 (v9.12 2026-09-22: 첫 바위 때 작살 인라인 연습 훅 / ForceCruise / 인라인 연습 중 작살 어그로 없음) / v4 (v9.9.2 2026-09-16: 견습 운행 8·9단계용 - HarpoonRetrievals/LeverPulls 카운터, RockCount, SpawnRockNow(x), TutorialDirector.EngineCabUnlocked 면 게이트 무시,
+/// [EngineCab.cs] v4.4 (v9.24 2026-10-15 갈림길 칸 꺾임: 작살포·레버 그림이 기관차 칸 자세를 따른다 - TrainDeck.RidePos 자리 + RideAngle 기울기 (레버 손잡이 ±25도·작살포 겨냥에 더한다)) / v4.3 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v4.2 (v9.18 2026-10-06, 10-05 그림 팩: 새 작살포 그림은 왼쪽을 보고 누워 있다 - 쏠 때 바위 쪽으로 돌았다가 0.6초에 제자리로, 빔은 촉 끝에서 / 작살포·레버 그림이 기관차 칸의 덜컹임을 따라간다) / v4.1 (v9.12 2026-09-22: 첫 바위 때 작살 인라인 연습 훅 / ForceCruise / 인라인 연습 중 작살 어그로 없음) / v4 (v9.9.2 2026-09-16: 견습 운행 8·9단계용 - HarpoonRetrievals/LeverPulls 카운터, RockCount, SpawnRockNow(x), TutorialDirector.EngineCabUnlocked 면 게이트 무시,
 ///   견습 중엔 작살 어그로 없음, 작살·레버 기둥 z -0.02 (튜토리얼 발밑 링이 그 밑에 깔리게)) / v3.1 (교수 피드백 A10: 열람 패널 중 레버/작살 입력 차단 2026-09-14) / v3 - B-3: 기관차 칸 = 기관사 페르소나 (방향결정 2026-08-31)
 ///
 /// - v3 (고퀄 PNG 적용 2026-09-03): 작살포/레버/바위가 Resources/Sprites/WDT/ 의 harpoon / leverpost / leverhandle /
@@ -150,20 +150,37 @@ public class EngineCab : MonoBehaviour
         leverHandle = handle.transform; leverHandleBase = leverHandle.localPosition;
     }
 
-    /// <summary>v4.2: 작살포·레버 그림을 기관차 칸의 덜컹임만큼 옮기고, 쏘고 난 작살포를 제자리 각도로 돌린다</summary>
+    /// <summary>
+    /// v4.2: 작살포·레버 그림을 기관차 칸의 덜컹임만큼 옮기고, 쏘고 난 작살포를 제자리 각도로 돌린다.
+    /// v4.4 (v9.24): 갈림길 칸 꺾임도 같은 길 - 곧을 때 자리를 기관차 칸 자세로 옮기고 칸 기울기만큼 같이 돈다 (레버 손잡이 ±25도·작살포 겨냥에 더한다)
+    /// </summary>
     private void TickVisuals()
     {
-        Vector2 r = TrainDeck.CarOffsetAt(GameBalance.LeverX);
-        Vector3 off = new Vector3(r.x, r.y, 0f);
-        if (harpoonTf != null) harpoonTf.localPosition = harpoonBase + off;
-        if (leverPostTf != null) leverPostTf.localPosition = leverPostBase + off;
-        if (leverHandle != null) leverHandle.localPosition = leverHandleBase + off;
+        float tilt = TrainDeck.RideAngle(GameBalance.LeverX);
+        bool tilted = Mathf.Abs(tilt) > 0.01f;
+        if (harpoonTf != null) harpoonTf.localPosition = RideLocal(harpoonBase);
+        if (leverPostTf != null) leverPostTf.localPosition = RideLocal(leverPostBase);
+        if (leverHandle != null) leverHandle.localPosition = RideLocal(leverHandleBase);
+        if (tilted || rideTilted)
+        {
+            if (leverPostTf != null) leverPostTf.localEulerAngles = new Vector3(0f, 0f, tilt);
+            if (leverHandle != null) leverHandle.localEulerAngles = new Vector3(0f, 0f, (FullSteam ? -25f : 25f) + tilt);
+        }
 
-        if (harpoonPng && harpoonTf != null && Mathf.Abs(harpoonAimDeg) > 0.01f)
+        if (harpoonPng && harpoonTf != null && (Mathf.Abs(harpoonAimDeg) > 0.01f || tilted || rideTilted))
         {
             harpoonAimDeg = Mathf.MoveTowards(harpoonAimDeg, 0f, Mathf.Max(60f, Mathf.Abs(harpoonAimDeg) / 0.6f * 1.5f) * Time.deltaTime);
-            harpoonTf.localEulerAngles = new Vector3(0f, 0f, harpoonAimDeg);
+            harpoonTf.localEulerAngles = new Vector3(0f, 0f, harpoonAimDeg + tilt);
         }
+        rideTilted = tilted;   // 꺾임이 끝나는 프레임에 한 번 더 - 제 각도로 돌려 둔다
+    }
+
+    private bool rideTilted = false;   // v4.4: 지난 프레임에 칸이 기울어 있었나
+
+    /// <summary>v4.4: 곧을 때 자리(이 오브젝트 기준 local) -> 기관차 칸 자세(덜컹임 + 갈림길 꺾임)를 따른 local 자리</summary>
+    private Vector3 RideLocal(Vector3 baseLocal)
+    {
+        return transform.InverseTransformPoint(TrainDeck.RidePos(transform.TransformPoint(baseLocal)));
     }
 
     /// <summary>작살포 (캔버스 40x40, 피벗 = 삼각대 링 중심 (14,26)). 목업 v2 좌표 이식</summary>

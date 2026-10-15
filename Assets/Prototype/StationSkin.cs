@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// [StationSkin.cs] v1.1 (v9.18 2026-10-06: 조리대 그림이 주방 칸의 덜컹임을 따라간다 - TrainDeck.CarOffsetAt) / v1 (신규 파일) - 씬 조리대 3대에 픽셀 PNG 입히기 (2026-09-09, v9.5 조리 목업 v1 컨펌)
+/// [StationSkin.cs] v1.2 (v9.24 2026-10-15 갈림길 칸 꺾임: 조리대 그림이 주방 칸 자세를 따른다 - TrainDeck.RidePos 자리 + RideAngle 기울기. 조리대 자리·[E] 거리는 그대로) / v1.1 (v9.18 2026-10-06: 조리대 그림이 주방 칸의 덜컹임을 따라간다 - TrainDeck.CarOffsetAt) / v1 (신규 파일) - 씬 조리대 3대에 픽셀 PNG 입히기 (2026-09-09, v9.5 조리 목업 v1 컨펌)
 ///
 /// 씬의 CookingStation 오브젝트(그릴/볶음팬/냄비)는 아직 placeholder 그림이다. 이 파일은 EnemySkin 과 같은 방식으로
 /// 게임 시작 뒤 0.25초마다 CookingStation 을 훑어 아직 스킨이 없는 조리대에 PNG 자식("Skin")을 붙이고 기존 렌더러는 끈다.
@@ -140,13 +140,15 @@ public class StationSkin : MonoBehaviour
         // TrainDeck 이 Start 에서 조리대 스케일을 바꾸므로 (스캐너보다 늦을 수 있다) 매 프레임 확인
         FitScale();
 
-        // v1.1: 칸 덜컹임 - 그림만 옮긴다 (조리대 위치·[E] 거리는 그대로). 루트 스케일만큼 나눠 월드 크기로 맞춘다
+        // v1.1: 칸 덜컹임 - 그림만 옮긴다 (조리대 위치·[E] 거리는 그대로)
+        // v1.2 (v9.24): 갈림길 칸 꺾임도 같은 길 - 월드에서 옮긴 만큼을 루트 기준(스케일·뒤집힘 포함)으로 바꿔 넣고, 칸 기울기만큼 돌린다
         if (skinRoot != null)
         {
-            Vector2 r = TrainDeck.CarOffsetAt(transform.position.x);
-            float rootScale = Mathf.Abs(transform.localScale.x);
-            if (rootScale < 0.01f) rootScale = 1f;
-            skinRoot.localPosition = new Vector3(r.x / rootScale, r.y / rootScale, 0f);
+            Vector3 ride = TrainDeck.RidePos(transform.position);
+            skinRoot.localPosition = transform.InverseTransformVector(ride - transform.position);
+            float tilt = TrainDeck.RideAngle(transform.position.x);
+            Vector3 ls = transform.lossyScale;
+            skinRoot.localRotation = Quaternion.Euler(0f, 0f, ls.x * ls.y < 0f ? -tilt : tilt);   // 한 축만 뒤집힌 부모 밑에서는 도는 방향이 반대로 보인다
         }
     }
 

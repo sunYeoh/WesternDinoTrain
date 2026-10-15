@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [RouteFX.cs] v1 (신규, v9.13 2026-09-23) - 선로 v2 보조 연출
+/// [RouteFX.cs] v1.1 (v9.24 2026-10-15 클라이맥스 B4: SetClimaxTone - 켜져 있는 동안 선로 톤 대신 호박색 (GameBalance.ClimaxToneSec 에 밴다), 끄면 선로 톤으로 돌아간다) / v1 (신규, v9.13 2026-09-23) - 선로 v2 보조 연출
 ///
 /// 1) 세계 밀림 (ParallaxBackground v4.2 가 매 프레임 부른다): 기차가 가지로 들어갈 때 지면과 같이 밀려야 하는 것들을
 ///    세로로 옮긴다 - 손님(보스 제외: 등장 연출 자리 고정) / 길가 바위 / 재료 조각 / 미끼. 기차 위 것(셰프·포탑·상자·먼지)은 안 옮긴다
@@ -28,6 +28,19 @@ public class RouteFX : MonoBehaviour
     private Color tintNow = new Color(0f, 0f, 0f, 0f);
     private Color vigNow = new Color(0f, 0f, 0f, 0f);
     private float fadeSec = TONE_IN_SEC;
+
+    // ── v1.1 (v9.24): 클라이맥스 호박색 - 켜져 있는 동안 선로 톤(tintTarget·vigTarget)을 덮는다. 선로 톤은 그대로 기억해 두었다가 끄면 돌아간다 ──
+    private bool climaxTone = false;
+    private static readonly Color CLIMAX_TINT = new Color(1f, 0.64f, 0.24f, 0.10f);
+    private static readonly Color CLIMAX_VIG = new Color(0.42f, 0.18f, 0.03f, 0.40f);
+
+    /// <summary>v1.1: 클라이맥스 호박색 켜기·끄기 (ClimaxDirector). 화면 연출이 꺼져 있으면(GameFeelMaster 0) 켜지 않는다</summary>
+    public static void SetClimaxTone(bool on)
+    {
+        if (instance == null) return;
+        instance.climaxTone = on && GameBalance.GameFeelMaster > 0f;
+        instance.fadeSec = on ? Mathf.Max(0.05f, GameBalance.ClimaxToneSec) : TONE_OUT_SEC;
+    }
     private static Sprite vignetteSprite;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
@@ -174,8 +187,8 @@ public class RouteFX : MonoBehaviour
     {
         if (tint == null) return;
         float k = Mathf.Clamp01(Time.unscaledDeltaTime / Mathf.Max(0.05f, fadeSec)) * 3f;   // 대략 fadeSec 안에 도달
-        tintNow = Color.Lerp(tintNow, tintTarget, k);
-        vigNow = Color.Lerp(vigNow, vigTarget, k);
+        tintNow = Color.Lerp(tintNow, climaxTone ? CLIMAX_TINT : tintTarget, k);   // v1.1: 클라이맥스 동안은 호박색
+        vigNow = Color.Lerp(vigNow, climaxTone ? CLIMAX_VIG : vigTarget, k);
         tint.color = tintNow;
         vignette.color = vigNow;
         bool on = tintNow.a > 0.003f || vigNow.a > 0.003f;

@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// [GameBalance.cs] v9.23 (2026-10-14 보스 새 패턴 - 보스개편 스펙 3-1 ~ 3-4절 + B2 피해 예고 바 + 기차 HP 위기 표시 + 명성 상점 실루엣: 맨 아래 v9.23 섹션. 패턴마다 스위치가 있다 - 하나가 이상하면 그것만 끈다. BossNewPatterns = false 면 v9.22 까지의 보스) / v9.22.1 (2026-10-14 유저 확인 7번 "판 앞에 멈춰 있는 게 더 불편": 진화 조리 읽을 시간 InfuseReadSec 1.0 -> 0 - 안내는 커서가 움직이는 채로 읽는다) / v9.22 (2026-10-14 조작 팩 - 4차 피드백 5·6번 + 1번의 화면: 맨 아래 v9.22 섹션 - 카드 끌어다 놓기 교체 DragReplaceOn / 카드 위 카드 진화 조리 DragFuseOn / 재료 중심 조리대 창 KitchenMaterialFirst / Tab 키 KitchenTabKey false / 합성 탭 KitchenFuseTab false / 진화 조리 화면 InfuseCookLook) / v9.21.1 (2026-10-13 4차 피드백 픽스: 창이 떠 있는 동안 조리·진화 조리 보류 CookHoldWhileWindow / 진화 조리 읽을 시간 InfuseReadSec / 접시 합성도 진화 조리 InfuseStockOn·InfuseStockBonusPlates / 골드 소수 누적 GoldCarryOn / 수급 SwarmRewardMul 1.3 -> 1.0 · KillMaterialChance 0.6 -> 0.5) / v9.21 (2026-10-12 보스 1단계 큰 몸 - 보스개편 스펙 1·4·5절: 맨 아래 v9.21 섹션 - 보스전 카메라 BossCam* / 새 크기 BossBodyLen·Wide (그림을 맞춘다) / 서는 자리 BossStandOff 새 값·BossStandX / 등장 연출 2판 BossEntranceV2·BossEntranceSec / 이름판 BossNamePlateBottom / 등장 때 대응법 줄 BossEntranceLine / 미끼 때 제자리 BossHoldWhenTaunted) / v9.20 (2026-10-07 유저 "패턴이 눈에 안 띔": 보스 패턴의 준비·발동·결과를 몸과 전장에 그린다 BossPatternFxOn·BossCastSwell·BossReleaseSquash·BossLunge*·BossBite* / 부른 무리는 보스 등 뒤에서 BossSummonBehind·SpreadX·StatMul·Share, HowlSummonCount 5 -> 10 · OriginalRoarCount 4 -> 10) / v9.19.4 (2026-10-07 유저 "포탑 설명이 너무 길다 - 필요한 것만 남기고 폰트를 키워라": 포탑 정보창 글자 크기 SlotInfoFontSize·TitleSize·HintSize, 조작 줄 SlotInfoShowControls) / v9.19.3 (2026-10-07 유저 확인 "체력 회복 증강을 먹으니 HP 가 거의 90% 넘게 남는다": 타격당 회복을 1초에 LifestealHitsPerSec 번까지만 센다) / v9.19.2 (2026-10-07 유저 확인 뒤: 머릿수를 늘린 손님을 약하게 하지 않는다 - GroupPower* 삭제, 크기별 HP 배율 TierHpMul*·초반 배율 EarlyBodyStart·보상 SwarmRewardMul / 손님 전체 강화 EnemyHPMul 1.3·EnemyATKMul 1.2·EnemyDefMul 1.2 (견습 운행은 TutorialEnemy* 로 예전 값) / 기차 방어력 바닥 TrainDefFloor / 보스 HP 종류별 배율 BossHPKindMul / 편성 이름 줄·방향 예고 화살표 끔 FormationLineShows 0·SpawnCueSec 0) / v9.19.1 (2026-10-07 유저 소감: 스폰 테두리가 보이는 화면을 따라간다 SpawnEdgeFollowView·ViewMargin·BossSpawnExtra / 머릿수 대폭 증가 CountMulSmall·Mid·Big + GroupPower* + FormationSizeMul - SwarmCountMul 을 대신한다) / v9.19 (2026-10-06 웨이브 편성·보스 페이즈 모습: 맨 아래 v9.19 섹션 - 편성 스위치·풀리는 웨이브·예고 시간·조각 사이 쉼·스폰 테두리·작은 손님 머릿수·호위 행렬 / 보스 상태 그림·전환 순간·상태 유지 효과·알림 자리) / v9.18 (2026-10-06 테스터 피드백 3 - 버그·밸런스·새 기차 그림: 맨 아래 v9.18 섹션 - 보행 바닥 표 / 슬롯·꼬리 좌표 / 레벨 상한 복구 / 같은 레벨끼리만 진화 / 폐기 환급 / 사고 실패 피해 / 과열 무작위 / 칸 덜컹임 / 보스 그림·HP 바·등장 띠 / UI 배율) / v9.17 (2026-10-06 화면 손맛 2차: 맨 아래 v9.17 섹션 - 발사 반동·섬광 / 데미지 숫자 크기·합산 / 넉백 / 셰프 찌그러짐 / HUD 수치 / 카드 순차 등장·퇴장 / 보스 등장·처치 / 패배·승리 순서 / 장면 전환 / 알림 중복) / v9.16 (2026-09-29 소리 v2: BuildTag 만 - 소리 표는 SoundManager 에) / v9.15.1 (2026-09-29 스토리 개정 스위치: 최종전 베팅 없음·스피노 고백 카드·마지막 식사 장면 시간) / v9.15 (2026-09-29 2차 피드백: 레벨 상한 해제 -> 접시 곡선·레벨 체감·저항 표시 / 훈련장 반복·자유 연습 / 드래그 투입 / 사고 해결 연출 / 포탑 파손 / HUD 재배치 / 설정창) / v9.12 (2026-09-22 튜토리얼 구간화·인라인 연습·협곡 낙뢰·미니 보스 예습 섹션 추가) / v1 (v9.11 2026-09-22: 타격감 섹션 - 피격 플래시·찌그러짐·스파크·킬 버스트·기차 피격·버튼·모달·웨이브 띠 스위치 / v9.10.1 2026-09-21: 유저 플레이 소감 섹션 - 웨이브 물량·길이, 정차 조리 제한, 행상인 자동 퇴장, 처치 보상 배율 / v9.9 2026-09-16: 포탑 4모서리 배치 SlotPosition + 견습 운행/브리핑 스위치 섹션)
+/// [GameBalance.cs] v9.24 (2026-10-15 클라이맥스·갈림길 - 테스터피드백3 B·D 스펙 표: 맨 아래 v9.24 섹션. 갈림길 = 칸이 선로를 따라 꺾임 ForkCarFollow·회전 ForkCarRotate·손님 대기 ForkHoldOn·출발 가속 ForkDepartBoost·덜컹 소리 / 클라이맥스 = ClimaxOn - 숨(히트스톱·흰 번쩍·음악 끊김) -> 다음 박에 BGM 층 -> 기적·전조등·배경 가속·호박색 -> 처치에 끊김. 지역 보스 발악은 가벼운 층만 ClimaxLiteOn) / v9.23 (2026-10-14 보스 새 패턴 - 보스개편 스펙 3-1 ~ 3-4절 + B2 피해 예고 바 + 기차 HP 위기 표시 + 명성 상점 실루엣: 맨 아래 v9.23 섹션. 패턴마다 스위치가 있다 - 하나가 이상하면 그것만 끈다. BossNewPatterns = false 면 v9.22 까지의 보스) / v9.22.1 (2026-10-14 유저 확인 7번 "판 앞에 멈춰 있는 게 더 불편": 진화 조리 읽을 시간 InfuseReadSec 1.0 -> 0 - 안내는 커서가 움직이는 채로 읽는다) / v9.22 (2026-10-14 조작 팩 - 4차 피드백 5·6번 + 1번의 화면: 맨 아래 v9.22 섹션 - 카드 끌어다 놓기 교체 DragReplaceOn / 카드 위 카드 진화 조리 DragFuseOn / 재료 중심 조리대 창 KitchenMaterialFirst / Tab 키 KitchenTabKey false / 합성 탭 KitchenFuseTab false / 진화 조리 화면 InfuseCookLook) / v9.21.1 (2026-10-13 4차 피드백 픽스: 창이 떠 있는 동안 조리·진화 조리 보류 CookHoldWhileWindow / 진화 조리 읽을 시간 InfuseReadSec / 접시 합성도 진화 조리 InfuseStockOn·InfuseStockBonusPlates / 골드 소수 누적 GoldCarryOn / 수급 SwarmRewardMul 1.3 -> 1.0 · KillMaterialChance 0.6 -> 0.5) / v9.21 (2026-10-12 보스 1단계 큰 몸 - 보스개편 스펙 1·4·5절: 맨 아래 v9.21 섹션 - 보스전 카메라 BossCam* / 새 크기 BossBodyLen·Wide (그림을 맞춘다) / 서는 자리 BossStandOff 새 값·BossStandX / 등장 연출 2판 BossEntranceV2·BossEntranceSec / 이름판 BossNamePlateBottom / 등장 때 대응법 줄 BossEntranceLine / 미끼 때 제자리 BossHoldWhenTaunted) / v9.20 (2026-10-07 유저 "패턴이 눈에 안 띔": 보스 패턴의 준비·발동·결과를 몸과 전장에 그린다 BossPatternFxOn·BossCastSwell·BossReleaseSquash·BossLunge*·BossBite* / 부른 무리는 보스 등 뒤에서 BossSummonBehind·SpreadX·StatMul·Share, HowlSummonCount 5 -> 10 · OriginalRoarCount 4 -> 10) / v9.19.4 (2026-10-07 유저 "포탑 설명이 너무 길다 - 필요한 것만 남기고 폰트를 키워라": 포탑 정보창 글자 크기 SlotInfoFontSize·TitleSize·HintSize, 조작 줄 SlotInfoShowControls) / v9.19.3 (2026-10-07 유저 확인 "체력 회복 증강을 먹으니 HP 가 거의 90% 넘게 남는다": 타격당 회복을 1초에 LifestealHitsPerSec 번까지만 센다) / v9.19.2 (2026-10-07 유저 확인 뒤: 머릿수를 늘린 손님을 약하게 하지 않는다 - GroupPower* 삭제, 크기별 HP 배율 TierHpMul*·초반 배율 EarlyBodyStart·보상 SwarmRewardMul / 손님 전체 강화 EnemyHPMul 1.3·EnemyATKMul 1.2·EnemyDefMul 1.2 (견습 운행은 TutorialEnemy* 로 예전 값) / 기차 방어력 바닥 TrainDefFloor / 보스 HP 종류별 배율 BossHPKindMul / 편성 이름 줄·방향 예고 화살표 끔 FormationLineShows 0·SpawnCueSec 0) / v9.19.1 (2026-10-07 유저 소감: 스폰 테두리가 보이는 화면을 따라간다 SpawnEdgeFollowView·ViewMargin·BossSpawnExtra / 머릿수 대폭 증가 CountMulSmall·Mid·Big + GroupPower* + FormationSizeMul - SwarmCountMul 을 대신한다) / v9.19 (2026-10-06 웨이브 편성·보스 페이즈 모습: 맨 아래 v9.19 섹션 - 편성 스위치·풀리는 웨이브·예고 시간·조각 사이 쉼·스폰 테두리·작은 손님 머릿수·호위 행렬 / 보스 상태 그림·전환 순간·상태 유지 효과·알림 자리) / v9.18 (2026-10-06 테스터 피드백 3 - 버그·밸런스·새 기차 그림: 맨 아래 v9.18 섹션 - 보행 바닥 표 / 슬롯·꼬리 좌표 / 레벨 상한 복구 / 같은 레벨끼리만 진화 / 폐기 환급 / 사고 실패 피해 / 과열 무작위 / 칸 덜컹임 / 보스 그림·HP 바·등장 띠 / UI 배율) / v9.17 (2026-10-06 화면 손맛 2차: 맨 아래 v9.17 섹션 - 발사 반동·섬광 / 데미지 숫자 크기·합산 / 넉백 / 셰프 찌그러짐 / HUD 수치 / 카드 순차 등장·퇴장 / 보스 등장·처치 / 패배·승리 순서 / 장면 전환 / 알림 중복) / v9.16 (2026-09-29 소리 v2: BuildTag 만 - 소리 표는 SoundManager 에) / v9.15.1 (2026-09-29 스토리 개정 스위치: 최종전 베팅 없음·스피노 고백 카드·마지막 식사 장면 시간) / v9.15 (2026-09-29 2차 피드백: 레벨 상한 해제 -> 접시 곡선·레벨 체감·저항 표시 / 훈련장 반복·자유 연습 / 드래그 투입 / 사고 해결 연출 / 포탑 파손 / HUD 재배치 / 설정창) / v9.12 (2026-09-22 튜토리얼 구간화·인라인 연습·협곡 낙뢰·미니 보스 예습 섹션 추가) / v1 (v9.11 2026-09-22: 타격감 섹션 - 피격 플래시·찌그러짐·스파크·킬 버스트·기차 피격·버튼·모달·웨이브 띠 스위치 / v9.10.1 2026-09-21: 유저 플레이 소감 섹션 - 웨이브 물량·길이, 정차 조리 제한, 행상인 자동 퇴장, 처치 보상 배율 / v9.9 2026-09-16: 포탑 4모서리 배치 SlotPosition + 견습 운행/브리핑 스위치 섹션)
 /// 게임 전체 밸런스 수치를 한 곳에 모은 설정 파일.
 ///
 /// 여기 값을 바꾸면 Inspector 값과 상관없이 게임에 적용된다
@@ -511,6 +511,18 @@ public static class GameBalance
         for (int i = 1; i < CarEdgesX.Length - 1; i++)
             if (x < CarEdgesX[i]) return i - 1;
         return CarEdgesX.Length - 2;
+    }
+
+    /// <summary>
+    /// v9.24: 칸의 앞(true)·뒤 바퀴 x - 칸 몸(경계에서 0.12 들여쓴 그림)의 가운데에서 반 길이 x ForkBogieFrac 만큼 앞뒤.
+    /// 갈림길에서 칸 자세를 잡는 두 점 (TrainDeck) 이고, 앞바퀴가 분기점을 밟을 때 덜컹 소리가 난다 (ParallaxBackground)
+    /// </summary>
+    public static float CarBogieX(int car, bool front)
+    {
+        int c = Mathf.Clamp(car, 0, CarEdgesX.Length - 2);
+        float left = CarEdgesX[c] + 0.12f, right = CarEdgesX[c + 1] - 0.12f;
+        float center = (left + right) * 0.5f, half = (right - left) * 0.5f;
+        return front ? center - half * ForkBogieFrac : center + half * ForkBogieFrac;
     }
 
     /// <summary>슬롯 배치 (B-2: 포탑칸 가로 1열 4+4. 0~3=포탑 A, 4~7=포탑 B) - v9.9 부터는 SlotCornerLayout 이 false 일 때만 쓰인다</summary>
@@ -1055,7 +1067,7 @@ public static class GameBalance
 
     // ── (v9.13.1 2026-09-24) 3인 테스트 준비 ──
     /// <summary>빌드 표시 - 로비 오른쪽 아래에 찍힌다 (테스터 시트에 어느 빌드였는지 적기 위해). 팩마다 올린다</summary>
-    public const string BuildTag = "v9.20 (2026-10-07)";   // v9.20: 보스 패턴이 화면에서 보인다 + 화살표 글자 / v9.19.4: 포탑 정보창을 네 줄로 + 글자 크게 / v9.19.3: 타격당 회복 증강은 1초에 한 번만 / v9.19.2: 손님이 제 힘으로 + 전체 강화 / 예고 화살표·편성 이름 줄 끔
+    public const string BuildTag = "v9.24 (2026-10-15)";   // v9.20: 보스 패턴이 화면에서 보인다 + 화살표 글자 / v9.19.4: 포탑 정보창을 네 줄로 + 글자 크게 / v9.19.3: 타격당 회복 증강은 1초에 한 번만 / v9.19.2: 손님이 제 힘으로 + 전체 강화 / 예고 화살표·편성 이름 줄 끔
 
     // ── (v9.14 2026-09-28) 3인 테스트 반영 1차 - 버그·밸런스·읽기 ──
     // ── 포탑 (테스터 "더블 육포만 올려도 됨 / 전설이 더 약함 / 하나 점사하면 나머지가 빗나감") ──
@@ -1631,4 +1643,53 @@ public static class GameBalance
     public static float TrainCrisisRatio2 = 0.15f;
     /// <summary>명성 상점 맨 아래 잠긴 줄 "심장이 아직 기억해내지 못한 것들" (기차 실루엣 + ???) - 요구사항 점검 1절 3번 (08-21 결정 4-A)</summary>
     public static bool FameShopSilhouette = true;
+
+    // ── (v9.24 2026-10-15) 클라이맥스·갈림길 - claude/테스터피드백3_2026-10-06.md 의 B·D 스펙 표 ──
+    // D 갈림길 (ParallaxBackground v4.4 · TrainDeck v6.2 · 탄 것들 · WaveManager v6.27)
+    /// <summary>D1: 칸마다 앞뒤 바퀴가 밟은 선로 높이로 칸이 꺾인다 (그림만 - 판정 자리는 곧은 자리 그대로). false = 예전 (기차는 곧게 서고 세계가 두상 앞 기준으로 밀린다 + 화면 기울임)</summary>
+    public static bool ForkCarFollow = true;
+    /// <summary>D4: 칸을 선로 기울기만큼 돌린다 (최대 25도). false = 높이만 따라간다 (도트 회전이 거슬릴 때)</summary>
+    public static bool ForkCarRotate = true;
+    /// <summary>세계를 미는 기준 x (주방 칸 가운데). 칸의 어긋남이 앞뒤로 나뉜다</summary>
+    public static float ForkWorldRefX = 0f;
+    /// <summary>바퀴 자리 = 칸 반 길이의 몇 배 (앞뒤). 1 이면 칸 끝</summary>
+    public static float ForkBogieFrac = 0.8f;
+    /// <summary>칸이 꺾이는 동안 화면 기울임 배율 (RouteShiftRollDeg 에 곱한다). 0 = 끔 - 칸이 직접 꺾이니 같은 말을 두 번 하지 않는다</summary>
+    public static float ForkRollMul = 0f;
+    /// <summary>D2: 가지로 출발하면 첫 손님은 꼬리까지 넘은 뒤에 (웨이브 예고는 그대로). 최대 ForkHoldMaxSec 초 기다린다</summary>
+    public static bool ForkHoldOn = true;
+    public static float ForkHoldMaxSec = 9f;
+    /// <summary>넘는 동안 배경 속도 배율 - 34u 를 3.2u/s 로 가면 12초라 약 6초로 줄인다. 다 넘으면 ForkBoostEaseSec 에 걸쳐 1 로</summary>
+    public static float ForkDepartBoost = 2f;
+    public static float ForkBoostEaseSec = 1.5f;
+    /// <summary>D3: 칸마다 앞바퀴가 분기점을 밟을 때 흔들림 (덜컹 소리 sfx_fork_clank 와 같이)</summary>
+    public static float ForkClankShake = 0.05f;
+    /// <summary>배경 가속 배율들(출발 가속 x 클라이맥스)의 곱 상한</summary>
+    public static float BgBoostCap = 2.2f;
+
+    // B 클라이맥스 (ClimaxDirector · SoundManager v2.3 · BossEnemy v7.15 · RouteFX)
+    /// <summary>디 오리지널 P3(해치) 진입에 한 번: 숨 -> 다음 박에 BGM 층 -> 긴 기적·전조등 -> 배경 가속·지면 줄무늬·불티·호박색 -> 처치 히트스톱에 끊김 / 식사 엔딩은 잦아듦</summary>
+    public static bool ClimaxOn = true;
+    /// <summary>지역 보스 발악에 가벼운 층(피스톤만)이 다음 박에 들어온다 - 소리만, 화면 연출 없음</summary>
+    public static bool ClimaxLiteOn = true;
+    /// <summary>배경음 박자 (bgm_main 76 BPM) - 층이 들어올 "다음 박"을 셈한다. bgm_main 을 바꾸면 같이 바꾼다</summary>
+    public static float BgmBpm = 76f;
+    /// <summary>B2 숨: P3 전환 순간의 히트스톱 (다른 페이즈 전환은 BossPhaseShiftHitstop) / 음악이 끊기는 최소 시간 (실제로는 다음 박까지 - 76BPM 이면 0.4 ~ 1.2초)</summary>
+    public static float ClimaxHitstop = 0.12f;
+    public static float ClimaxBreathMin = 0.4f;
+    /// <summary>숨의 흰 번쩍 - 최대 알파 / 걷히는 시간 (클릭은 막지 않는다)</summary>
+    public static float ClimaxFlashAlpha = 0.55f;
+    public static float ClimaxFlashSec = 0.35f;
+    /// <summary>B3 층 소리 배율 (bgm_climax / bgm_climax_lite). 배경음 볼륨 설정을 따른다</summary>
+    public static float ClimaxLayerVol = 1f;
+    public static float ClimaxLiteVol = 0.45f;
+    /// <summary>B4 배경 속도 배율 / 따라가는 시간 / 호박색이 배는 시간</summary>
+    public static float ClimaxSpeedMul = 1.5f;
+    public static float ClimaxSpeedEaseSec = 1f;
+    public static float ClimaxToneSec = 0.8f;
+    /// <summary>지면 줄무늬 / 불티 - 초당 개수 (반복 플레이에 거슬리면 줄인다)</summary>
+    public static float ClimaxStreakRate = 9f;
+    public static float ClimaxEmberRate = 7f;
+    /// <summary>B5 식사 엔딩 - 층이 잦아드는 시간</summary>
+    public static float ClimaxMealFadeSec = 2f;
 }

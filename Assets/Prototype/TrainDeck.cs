@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// [TrainDeck.cs] v6.1 (v9.20 2026-10-07: 칸 걷어차임 KickCar - 보스가 문 칸이 한 번 크게 튄다. 덜컹임과 같은 길(그림만)로 더해진다) / v6 (v9.18 2026-10-06: 보행 영역을 바닥 사각형 묶음(GameBalance.WalkFloors)으로 다시 씀 - 바퀴까지 내려가던 것·벽에서 아래로 순간이동하던 것 / 칸 덜컹임(CarOffsetAt) / 10-05 기차 그림 좌표 - 꼬리 TailDX, 코드 도트 연결부는 PNG 칸이면 안 그린다 / 전리품 상자 자리 LootSpot) / v5.1 - 고퀄 스프라이트 PNG 적용 (목업 v7d 컨펌 2026-09-03) / v3 탑뷰 재스킨 (2026-09-02)
+/// [TrainDeck.cs] v6.2 (v9.24 2026-10-15 갈림길 칸 꺾임 - 테스터피드백3 D1: 칸마다 앞뒤 바퀴(GameBalance.CarBogieX)가 밟은 선로 높이(ParallaxBackground.TrackYAt)로 칸 가운데를 축으로 들고(lift) 돌린다(tilt, 최대 25도). 그림만 - 판정 자리는 곧은 자리 그대로. 탄 것들은 CarOffsetAt 대신 RidePos(곧을 때 자리) / RideAngle(x) 로 같은 자세를 읽는다 (포탑·조리대·레버·작살포·셰프·갑판 상자·포탑 칸 표시). 칸 자세는 그 프레임에 처음 부르는 쪽이 한 번 잡는다 - 실행 순서에 기대지 않는다) / v6.1 (v9.20 2026-10-07: 칸 걷어차임 KickCar - 보스가 문 칸이 한 번 크게 튄다. 덜컹임과 같은 길(그림만)로 더해진다) / v6 (v9.18 2026-10-06: 보행 영역을 바닥 사각형 묶음(GameBalance.WalkFloors)으로 다시 씀 - 바퀴까지 내려가던 것·벽에서 아래로 순간이동하던 것 / 칸 덜컹임(CarOffsetAt) / 10-05 기차 그림 좌표 - 꼬리 TailDX, 코드 도트 연결부는 PNG 칸이면 안 그린다 / 전리품 상자 자리 LootSpot) / v5.1 - 고퀄 스프라이트 PNG 적용 (목업 v7d 컨펌 2026-09-03) / v3 탑뷰 재스킨 (2026-09-02)
 ///
 /// - v6 (2026-10-06): 보행 API = IsWalkable / ResolveWalk / NearestWalkPoint / FindDoorY (전부 셰프 위치 기준. 표는 발 기준이고 ChefFootDY 로 옮긴다)
 /// - v5.1 (2026-09-08): 셰프 보행 영역 API (IsWalkable / ResolveWalk) - 칸 바닥(난간 안쪽) + 칸 사이 통로 발판만 걸을 수 있다.
@@ -267,11 +267,73 @@ public class TrainDeck : MonoBehaviour
         }
     }
 
-    /// <summary>x 가 속한 칸의 지금 덜컹임 (월드 유닛). 칸에 실린 그림(포탑·조리대·작살포·레버)이 자기 자리에 이 값을 더해 그린다. 꺼져 있거나 정차 중이면 0</summary>
-    public static Vector2 CarOffsetAt(float x)
+    // ── v6.2 (v9.24): 갈림길 칸 꺾임 - 칸마다 앞뒤 바퀴가 밟은 선로 높이로 자리(lift)·기울기(tilt). 그림만 (판정 자리는 곧은 자리 그대로) ──
+    private static readonly float[] carLift = new float[4];   // 칸 피벗(칸 가운데, y 0)의 세로 이동 (u)
+    private static readonly float[] carTilt = new float[4];   // 칸 기울기 (도, 반시계 +). 위 가지로 들면 앞(왼쪽)이 들린다 = 음수
+    private static bool forkPose = false;                     // 이번 프레임에 꺾인 칸이 있나
+    private static int poseFrame = -1;                        // 칸 자세를 잡은 프레임 (한 프레임에 한 번)
+
+    /// <summary>
+    /// 이번 프레임의 칸 자세를 한 번만 잡는다 - TrainDeck.Update 든 탄 것의 Update 든 먼저 부르는 쪽이 (실행 순서에 기대지 않는다).
+    /// Update 단계에서 처음 불리므로 ParallaxBackground.TrackYAt 의 "이번 프레임 이동량 미리 셈"이 맞는다
+    /// </summary>
+    private static void EnsureForkPose()
     {
-        int car = Mathf.Clamp(GameBalance.CarIndexOf(x), 0, carOffset.Length - 1);
-        return carOffset[car];
+        if (poseFrame == Time.frameCount) return;
+        poseFrame = Time.frameCount;
+        forkPose = GameBalance.ForkCarFollow && ParallaxBackground.ForkFollowActive;
+        if (forkPose) ComputeForkPose();
+        else
+            for (int c = 0; c < carLift.Length; c++) { carLift[c] = 0f; carTilt[c] = 0f; }
+    }
+
+    /// <summary>
+    /// v6.2: 칸에 실린 그림의 지금 자리. basePos = 칸이 곧게 서 있을 때의 월드 자리 -> 그 칸의 덜컹임·걷어차임 + 갈림길 꺾임(칸 가운데를 축으로 돌고 들림)을 따른 자리.
+    /// 포탑·조리대·레버·작살포·셰프·갑판 상자·포탑 칸 표시가 쓴다 (v6.1 의 CarOffsetAt 을 대신한다). 판정은 basePos 그대로 한다
+    /// </summary>
+    public static Vector3 RidePos(Vector3 basePos)
+    {
+        EnsureForkPose();
+        return RideOnCar(basePos, Mathf.Clamp(GameBalance.CarIndexOf(basePos.x), 0, carOffset.Length - 1), true);
+    }
+
+    /// <summary>v6.2: RidePos 와 같고 withRattle 이 false 면 덜컹임·걷어차임 없이 갈림길 꺾임만 (셰프·갑판 상자·포탑 칸 표시 - 예전에도 덜컹임을 안 따랐다)</summary>
+    public static Vector3 RidePos(Vector3 basePos, bool withRattle)
+    {
+        EnsureForkPose();
+        return RideOnCar(basePos, Mathf.Clamp(GameBalance.CarIndexOf(basePos.x), 0, carOffset.Length - 1), withRattle);
+    }
+
+    /// <summary>v6.2: x 가 속한 칸의 지금 기울기 (도, 반시계 +). 탄 그림의 각도에 더한다. 꺾임이 없으면 0</summary>
+    public static float RideAngle(float x)
+    {
+        EnsureForkPose();
+        if (!forkPose) return 0f;
+        return carTilt[Mathf.Clamp(GameBalance.CarIndexOf(x), 0, carTilt.Length - 1)];
+    }
+
+    /// <summary>점 p 를 칸 c 의 자세로 옮긴다: 칸 가운데 (cx, 0) 를 축으로 tilt 만큼 돌리고 lift 만큼 든 뒤 덜컹임을 더한다</summary>
+    private static Vector3 RideOnCar(Vector3 p, int c, bool withRattle)
+    {
+        Vector2 o = withRattle ? carOffset[c] : Vector2.zero;
+        if (!forkPose) return new Vector3(p.x + o.x, p.y + o.y, p.z);
+        float[] e = GameBalance.CarEdgesX;
+        float cx = (e[c] + e[c + 1]) * 0.5f;
+        float a = carTilt[c] * Mathf.Deg2Rad, cs = Mathf.Cos(a), sn = Mathf.Sin(a);
+        float vx = p.x - cx, vy = p.y;
+        return new Vector3(cx + vx * cs - vy * sn + o.x, carLift[c] + vx * sn + vy * cs + o.y, p.z);
+    }
+
+    /// <summary>v6.2: 칸마다 앞뒤 바퀴 x 의 선로 높이 -> 칸 가운데 높이(lift) = 두 높이의 평균, 기울기(tilt) = 두 바퀴를 잇는 선의 각 (ForkCarRotate 가 꺼져 있으면 0)</summary>
+    private static void ComputeForkPose()
+    {
+        for (int c = 0; c < carLift.Length; c++)
+        {
+            float xf = GameBalance.CarBogieX(c, true), xb = GameBalance.CarBogieX(c, false);
+            float yf = ParallaxBackground.TrackYAt(xf), yb = ParallaxBackground.TrackYAt(xb);
+            carLift[c] = (yf + yb) * 0.5f;
+            carTilt[c] = GameBalance.ForkCarRotate ? Mathf.Atan2(yb - yf, xb - xf) * Mathf.Rad2Deg : 0f;
+        }
     }
 
     /// <summary>덜컹 한 번: t 초 전에 이음매를 밟았을 때의 흔들림 (빠르게 잦아드는 사인)</summary>
@@ -281,7 +343,7 @@ public class TrainDeck : MonoBehaviour
         return Mathf.Exp(-t / decaySec) * Mathf.Sin(2f * Mathf.PI * hz * t);
     }
 
-    private struct RattlePart { public Transform tf; public Vector3 basePos; public int carA, carB; }
+    private struct RattlePart { public Transform tf; public Vector3 basePos; public Quaternion baseRot; public int carA, carB; }
     private readonly System.Collections.Generic.List<RattlePart> rattleParts = new System.Collections.Generic.List<RattlePart>();
 
     /// <summary>덜컹임을 따라갈 그림 등록. 통로·연결부는 앞뒤 두 칸의 평균을 따른다 (carA != carB)</summary>
@@ -289,16 +351,19 @@ public class TrainDeck : MonoBehaviour
     {
         if (sr == null) return;
         RattlePart part = new RattlePart();
-        part.tf = sr.transform; part.basePos = sr.transform.localPosition; part.carA = carA; part.carB = carB;
+        part.tf = sr.transform; part.basePos = sr.transform.localPosition; part.baseRot = sr.transform.localRotation; part.carA = carA; part.carB = carB;
         rattleParts.Add(part);
     }
 
     private void Update()
     {
+        // v6.2: 갈림길 칸 자세 (이번 프레임에 아직 안 잡았으면). 끝나는 프레임에는 0 - 아래 덜컹임 길이 제자리로 돌린다
+        EnsureForkPose();
+
         float speed = ParallaxBackground.CurrentSpeed;
         bool on = GameBalance.CarRattleOn && GameBalance.GameFeelMaster > 0f && speed > 0.05f && GameBalance.CarRattleJoint > 0.1f;
         bool kicking = KickActive();   // v6.1: 걷어차임은 덜컹임이 꺼져 있어도(정차 중에도) 보인다
-        if (!on && !kicking)
+        if (!on && !kicking && !forkPose)
         {
             if (!rattleMoved) return;
             for (int c = 0; c < carOffset.Length; c++) carOffset[c] = Vector2.zero;
@@ -332,8 +397,13 @@ public class TrainDeck : MonoBehaviour
         {
             RattlePart part = rattleParts[i];
             if (part.tf == null) continue;
-            Vector2 o = (carOffset[Mathf.Clamp(part.carA, 0, carOffset.Length - 1)] + carOffset[Mathf.Clamp(part.carB, 0, carOffset.Length - 1)]) * 0.5f;
-            part.tf.localPosition = part.basePos + new Vector3(o.x, o.y, 0f);
+            // 통로·연결부는 앞뒤 두 칸의 자리를 반씩 (v6.2: 갈림길 기울기도 반씩). 칸 몸·두상·굴뚝·꼬리는 제 칸 그대로
+            int a = Mathf.Clamp(part.carA, 0, carOffset.Length - 1), b = Mathf.Clamp(part.carB, 0, carOffset.Length - 1);
+            Vector3 pa = RideOnCar(part.basePos, a, true);
+            Vector3 pb = a == b ? pa : RideOnCar(part.basePos, b, true);
+            part.tf.localPosition = (pa + pb) * 0.5f;
+            float tilt = forkPose ? (carTilt[a] + carTilt[b]) * 0.5f : 0f;
+            part.tf.localRotation = Quaternion.Euler(0f, 0f, tilt) * part.baseRot;
         }
     }
 

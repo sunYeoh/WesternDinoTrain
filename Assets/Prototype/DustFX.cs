@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// [DustFX.cs] v1.1 (v9.19.1 2026-10-07: 손님 수가 두세 배로 늘었다 - 풀 48 -> 96, 움직이는 손님이 많으면 번갈아 가며 먼지를 낸다(한 번에 16마리쯤). 안 그러면 손님 먼지가 풀을 다 써서 바퀴 먼지가 끊긴다) / v1 (신규 파일) - 탑다운 먼지 퍼프 연출 (2026-09-07, Apocalypse Express 문법)
+/// [DustFX.cs] v1.2 (v9.24 2026-10-15: 바퀴 먼지가 갈림길에서 꺾인 칸 자리에서 핀다 - TrainDeck.RidePos (덜컹임 없이)) / v1.1 (v9.19.1 2026-10-07: 손님 수가 두세 배로 늘었다 - 풀 48 -> 96, 움직이는 손님이 많으면 번갈아 가며 먼지를 낸다(한 번에 16마리쯤). 안 그러면 손님 먼지가 풀을 다 써서 바퀴 먼지가 끊긴다) / v1 (신규 파일) - 탑다운 먼지 퍼프 연출 (2026-09-07, Apocalypse Express 문법)
 ///
 /// Resources/Sprites/WDT/dust_0 ~ dust_3 (24x24, 작고 진함 -> 크고 옅음) 4프레임을 짧게 재생하는 퍼프를 풀에서 꺼내 쓴다.
 ///   1) 기차 바퀴 먼지: 지면이 흐르는 동안(ParallaxBackground.CurrentSpeed > 0.5) 기차 위아래 바퀴선(y = ±WHEEL_Y)에
@@ -109,7 +109,7 @@ public class DustFX : MonoBehaviour
                 wheelTimer = 0f; wheelTop = !wheelTop;
                 float x = Random.Range(WHEEL_X_MIN, WHEEL_X_MAX);
                 float y = wheelTop ? WHEEL_Y : -WHEEL_Y;
-                Spawn(new Vector3(x, y, 0f), Random.Range(0.8f, 1.1f), new Vector3(ground * 0.9f, wheelTop ? 0.4f : -0.4f, 0f));
+                Spawn(TrainDeck.RidePos(new Vector3(x, y, 0f), false), Random.Range(0.8f, 1.1f), new Vector3(ground * 0.9f, wheelTop ? 0.4f : -0.4f, 0f));   // v1.2: 칸이 꺾여 있으면 그 자리
             }
         }
 

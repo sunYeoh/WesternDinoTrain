@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// [ParallaxBackground.cs] v4.3 (v9.21 2026-10-12 보스 1단계: SideRail - 디 오리지널(맞수 열차)이 달릴 두 번째 선로. rails_ae 한 줄을 본선과 같은 오프셋으로 y 자리에 깔고(본선과 같이 흐른다) 위에서 미끄러져 내려와 자리 잡는다, SideRailOff 로 흐려지며 걷는다) / v4.2 (v9.13 2026-09-23: 선로 v2 갈림길 + 세계 밀림) / v4.1 - 완전 탑다운 지면 (2026-09-07) / v3 고퀄 PNG 지면 / v2 탑뷰 지면 스크롤
+/// [ParallaxBackground.cs] v4.4 (v9.24 2026-10-15 갈림길 칸 꺾임 - 테스터피드백3 D1~D3 + 클라이맥스 B4: 세계를 미는 기준을 두상 앞 -> 기차 가운데(주방 칸, GameBalance.ForkWorldRefX)로 옮기고 TrackYAt 으로 기차 x 밑 선로 높이를 내준다 - TrainDeck 이 칸마다 앞뒤 바퀴가 밟은 높이로 칸을 꺾는다 / ForkFollowActive = 분기점 출발부터 마지막 칸 뒷바퀴까지 평행이 될 때까지 (WaveManager 가 첫 손님을 기다린다) / 넘는 동안 배경 ForkDepartBoost 배 (34u 를 3.2u/s 로 가면 12초라서) / 칸마다 앞바퀴가 분기점을 밟으면 sfx_fork_clank + 작은 흔들림 / 칸이 직접 꺾이니 화면 기울임은 ForkRollMul(0) / SetClimaxBoost - 클라이맥스 배경 가속) / v4.3 (v9.21 2026-10-12 보스 1단계: SideRail - 디 오리지널(맞수 열차)이 달릴 두 번째 선로. rails_ae 한 줄을 본선과 같은 오프셋으로 y 자리에 깔고(본선과 같이 흐른다) 위에서 미끄러져 내려와 자리 잡는다, SideRailOff 로 흐려지며 걷는다) / v4.2 (v9.13 2026-09-23: 선로 v2 갈림길 + 세계 밀림) / v4.1 - 완전 탑다운 지면 (2026-09-07) / v3 고퀄 PNG 지면 / v2 탑뷰 지면 스크롤
 ///
 /// v4.2 (선로 v2 - 목업 v2 그대로. 도트 px/route.py v2.1: rails_fork / rails_fork_up / rails_fork_hi_up·down·straight):
 ///   - 정차(선로 선택)에 두상 앞에 갈림길(전철기 스프라이트)을 띠(rails_ae) 위에 놓는다 - PlaceFork(위 가지, 아래 가지)
@@ -119,6 +119,14 @@ public class ParallaxBackground : MonoBehaviour
     private float groundY = 0f;                  // 모래 층 세로 오프셋 (누적 - 32u 로 감아 쓴다, 무늬라 이음이 안 보인다)
     private float railsAlpha = 1f;               // 옛 곧은 띠 알파 (페이드)
 
+    // ── v4.4 (v9.24): 갈림길 칸 꺾임 (테스터피드백3 D1~D3) ──
+    private float laneU0 = 0f;                   // 고른 가지의 분기점 월드 x (지난 LateUpdate). TrackYAt 이 이번 프레임 자리를 미리 셈한다
+    private bool tailSettled = false;            // 마지막 칸의 뒷바퀴까지 평행이 됐나 (= 칸 꺾임 끝, 손님이 와도 된다)
+    private readonly bool[] carClanked = new bool[4];   // 칸마다 앞바퀴가 분기점을 밟았나 (덜컹 소리 1회)
+    private float forkBoostCur = 1f;             // 출발 가속 배율 (넘는 동안 ForkDepartBoost, 끝나면 1 로 돌아온다)
+    private static float climaxBoostTarget = 1f; // 클라이맥스 배경 가속 목표 (ClimaxDirector 가 정한다)
+    private float climaxBoostCur = 1f;
+
     // v4.3: 두 번째 선로 (보스 디 오리지널의 평행 선로) - 본선 띠(층 2)와 같은 오프셋으로 흐른다
     private SpriteRenderer[] sideTiles;
     private float sideY = 0f, sideT = 0f, sideSec = 0.5f;   // sideT: 0 = 없음, 1 = 자리 잡음
@@ -188,6 +196,41 @@ public class ParallaxBackground : MonoBehaviour
 
     /// <summary>가지 원호를 도는 동안의 화면 기울임 (도, +면 시계 방향으로 보인다). CameraZoom v5 가 읽는다</summary>
     public static float RouteRollDeg { get; private set; }
+
+    /// <summary>
+    /// v4.4 (D1): 칸이 갈림길 선로를 따라 꺾여 있을 수 있는 동안 - 가지로 출발한 뒤부터 마지막 칸의 뒷바퀴까지 평행이 될 때까지.
+    /// TrainDeck 이 이 동안 칸 자세를 잡고, WaveManager 가 첫 손님을 내보내지 않고 기다린다 (D2)
+    /// </summary>
+    public static bool ForkFollowActive
+    {
+        get { return instance != null && instance.laneActive && instance.forkTf != null && !instance.tailSettled; }
+    }
+
+    /// <summary>
+    /// v4.4 (D1): 기차 x 밑 선로 중심의 높이 (월드 y, 칸 꺾임이 없으면 0).
+    /// TrainDeck 은 Update 에서 부르고 이 클래스는 LateUpdate 에서 띠를 옮기므로, 이번 프레임에 옮겨질 거리만큼 분기점을 미리 당겨 셈한다 (칸이 선로보다 한 프레임 늦지 않게)
+    /// </summary>
+    public static float TrackYAt(float x)
+    {
+        if (!ForkFollowActive) return 0f;
+        ParallaxBackground pb = instance;
+        float u0 = pb.laneU0 + CurrentSpeed * Time.deltaTime;
+        float ang;
+        float railsYNow = -pb.laneSign * BranchOffset(Mathf.Max(0f, u0 - WorldRefX()), out ang);
+        return railsYNow + pb.laneSign * BranchOffset(Mathf.Max(0f, u0 - x), out ang);
+    }
+
+    /// <summary>v4.4: 세계를 미는 기준 x - 칸 꺾임이 켜져 있으면 기차 가운데(주방 칸), 아니면 예전대로 두상 앞 (기차는 곧게 서고 세계만 밀린다)</summary>
+    private static float WorldRefX()
+    {
+        return GameBalance.ForkCarFollow ? GameBalance.ForkWorldRefX : GameBalance.RouteHeadFrontX;
+    }
+
+    /// <summary>v4.4 (B4): 클라이맥스 배경 가속 목표 (1 = 끔). GameBalance.ClimaxSpeedEaseSec 에 걸쳐 따라간다 - 배경 연출만 (판정·손님 속도와 무관)</summary>
+    public static void SetClimaxBoost(float mul)
+    {
+        climaxBoostTarget = Mathf.Max(0.1f, mul);
+    }
 
     // ─────────────────────────────────────────────
     // 자동 부트스트랩 - 파일만 넣으면 게임 시작 시 스스로 생성
@@ -329,7 +372,13 @@ public class ParallaxBackground : MonoBehaviour
         if (gm != null && gm.currentState == GameManager.GameState.Battle) target = 1f;
         float rate = target > speedFactor ? ACCEL_RATE : DECEL_RATE;
         speedFactor = Mathf.MoveTowards(speedFactor, target, rate * Time.deltaTime);
-        CurrentSpeed = BASE_SPEED * speedFactor * externalMul;
+        // v4.4: 출발 가속(가지로 넘는 동안) x 클라이맥스 가속 - 둘 다 배경 연출만 (덜컹임·먼지가 따라 잦아진다. 판정·손님 속도와 무관)
+        bool forkBoosting = GameBalance.ForkCarFollow && laneActive && laneSign != 0 && forkTf != null && !tailSettled;
+        forkBoostCur = Mathf.MoveTowards(forkBoostCur, forkBoosting ? GameBalance.ForkDepartBoost : 1f,
+            Time.deltaTime / Mathf.Max(0.05f, GameBalance.ForkBoostEaseSec));
+        climaxBoostCur = Mathf.MoveTowards(climaxBoostCur, climaxBoostTarget, Time.deltaTime / Mathf.Max(0.05f, GameBalance.ClimaxSpeedEaseSec));
+        float boost = Mathf.Min(GameBalance.BgBoostCap, forkBoostCur * climaxBoostCur);
+        CurrentSpeed = BASE_SPEED * speedFactor * externalMul * boost;
 
         // 2) 층별 스크롤 (스케일드 시간 - 일시정지/히트스톱 시 배경도 정지)
         float move = CurrentSpeed * Time.deltaTime;
@@ -537,6 +586,10 @@ public class ParallaxBackground : MonoBehaviour
         instance.laneActive = sign != 0;
         instance.laneEntered = false; instance.laneSettled = false;
         if (sign != 0) instance.MakeBranchTiles();
+        // v4.4: 칸 꺾임 상태 초기화 - 분기점 자리는 지금 갈림길 자리에서 (첫 TickFork 전에 TrainDeck 이 읽어도 맞게)
+        instance.tailSettled = false;
+        for (int c = 0; c < instance.carClanked.Length; c++) instance.carClanked[c] = false;
+        instance.laneU0 = instance.forkTf.localPosition.x - (sign < 0 ? GameBalance.RouteStagger : 0f);
         Debug.Log("[ParallaxBackground] 출발 - " + (sign > 0 ? "위 가지" : sign < 0 ? "아래 가지" : "곧은 길"));
     }
 
@@ -575,6 +628,8 @@ public class ParallaxBackground : MonoBehaviour
         laneActive = false; laneSign = 0; hiOn = false;
         railsY = 0f; railsAlpha = 1f; oldFadeT = -1f;
         RouteRollDeg = 0f;
+        tailSettled = false;   // v4.4
+        for (int c = 0; c < carClanked.Length; c++) carClanked[c] = false;
         if (tiles[2] != null && tiles[2].Length > 0) LayoutLayer(2);
     }
 
@@ -600,11 +655,12 @@ public class ParallaxBackground : MonoBehaviour
             forkHiSr.color = new Color(1f, 1f, 1f, a);
         }
 
-        // 세계 밀림: 두상 앞이 (고른 가지의) 분기점을 지난 거리 d -> f(d)
+        // 세계 밀림: 기준점(v4.4: 칸 꺾임이면 기차 가운데, 아니면 두상 앞)이 (고른 가지의) 분기점을 지난 거리 d -> f(d)
         if (laneActive)
         {
             float u0 = fx - (laneSign < 0 ? GameBalance.RouteStagger : 0f);
-            float d = u0 - GameBalance.RouteHeadFrontX;
+            laneU0 = u0;
+            float d = u0 - WorldRefX();
             float ang;
             float f = BranchOffset(Mathf.Max(0f, d), out ang);
             float newRailsY = -laneSign * f;
@@ -618,20 +674,41 @@ public class ParallaxBackground : MonoBehaviour
                 RouteFX.ShiftWorldObjects(delta);
             }
             float th = GameBalance.RouteAngleDeg * Mathf.Deg2Rad;
-            RouteRollDeg = th > 0f ? laneSign * GameBalance.RouteShiftRollDeg * (ang / th) : 0f;
+            // v4.4: 칸이 직접 꺾이면 화면 기울임은 ForkRollMul 배 (기본 0 - 같은 말을 두 번 하지 않게. 기울임은 칸을 못 돌리던 때의 대체였다)
+            float rollMul = GameBalance.ForkCarFollow ? GameBalance.ForkRollMul : 1f;
+            RouteRollDeg = th > 0f ? laneSign * GameBalance.RouteShiftRollDeg * rollMul * (ang / th) : 0f;
 
-            if (!laneEntered && d > 0f)
+            if (!laneEntered && u0 - GameBalance.RouteHeadFrontX > 0f)   // v4.4: 기적은 두상 앞이 분기점을 지날 때 (기준점이 옮겨져도)
             {
-                laneEntered = true;   // 분기점 진입: 기적 + 덜컹
+                laneEntered = true;   // 분기점 진입: 기적 + 덜컹 (v4.4: 칸 꺾임이면 기적만 - 칸마다 덜컹이 곧 따라온다)
                 SoundManager.Play("sfx_train_whistle");
-                GameFeel.Shake(0.12f);
+                if (!GameBalance.ForkCarFollow) GameFeel.Shake(0.12f);
             }
             if (!laneSettled && d >= BranchTotal())
             {
-                laneSettled = true;   // 평행이 됐다: 덜컹 한 번 더
-                GameFeel.Shake(0.08f);
+                laneSettled = true;   // 평행이 됐다: 덜컹 한 번 더 (v4.4: 칸 꺾임이면 없음 - 칸마다 덜컹이 맡는다)
+                if (!GameBalance.ForkCarFollow) GameFeel.Shake(0.08f);
                 RouteRollDeg = 0f;
             }
+
+            // v4.4 (D3): 칸마다 앞바퀴가 분기점을 밟을 때 쇠 덜컹 두 번 + 바퀴 긁힘 (소리 하나에 들어 있다) + 작은 흔들림. 앞 칸부터 차례로
+            if (GameBalance.ForkCarFollow)
+            {
+                for (int c = 0; c < carClanked.Length; c++)
+                {
+                    if (carClanked[c] || u0 < GameBalance.CarBogieX(c, true)) continue;
+                    carClanked[c] = true;
+                    SoundManager.Play("sfx_fork_clank", c == 0 ? 1f : 0.85f, -1f);
+                    GameFeel.Shake(GameBalance.ForkClankShake);
+                }
+                // 마지막 칸의 뒷바퀴가 원호를 다 지나면 칸 꺾임 끝 (손님이 와도 된다)
+                if (!tailSettled && u0 - GameBalance.CarBogieX(carClanked.Length - 1, false) >= BranchTotal())
+                {
+                    tailSettled = true;
+                    Debug.Log("[ParallaxBackground] 꼬리까지 넘었다 - 칸 꺾임 끝");
+                }
+            }
+            else tailSettled = laneSettled;
 
             // 가지 이어지는 띠 - 갈림길 왼쪽 끝에 오른쪽 끝을 붙인다
             if (branchTiles != null)
@@ -663,7 +740,7 @@ public class ParallaxBackground : MonoBehaviour
         {
             oldFadeT += Time.deltaTime;
             railsAlpha = 1f - Mathf.Clamp01(oldFadeT / Mathf.Max(0.05f, GameBalance.RouteOldRailFadeSec));
-            if (railsAlpha <= 0f) RebaseToBranch(forkLeft);
+            if (railsAlpha <= 0f && (tailSettled || !laneActive)) RebaseToBranch(forkLeft);   // v4.4: 칸이 아직 꺾여 있으면 다 넘을 때까지 기다린다
         }
     }
 
