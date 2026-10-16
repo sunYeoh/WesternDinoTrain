@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.Events;
 
 /// <summary>
-/// [TrainManager.cs] v3.7 (v9.25 2026-10-16 B5 유물 '탐욕의 국자'의 대가: 받는 피해 +15% = 받는 피해 감소에서 ItemManager.DamageTakenAdd 를 뺀다 (어림 EstimateDamage 도 같게)) / v3.6 (v9.23 2026-10-14: EstimateDamage - 이 피해가 들어오면 HP 가 얼마 깎이나 (방어력·바닥·받는 피해 감소까지. 연속 피격 완충·증기 보호막은 뺀다) - 보스 패턴 예고 때 HP 바 빗금(B2)이 쓴다) / v3.5 (v9.19.2 2026-10-07: 방어력 바닥 GameBalance.TrainDefFloor - 방어력을 빼도 원래 피해의 4분의 1 은 들어온다. v3.4(v9.19.1)의 "몫만큼만 방어"는 걷어냈다 - 손님이 다시 제 힘으로 온다) / v3.3 (v9.18 2026-10-06: TakeDamageIgnoringDef - 주방 사고 실패 피해용. 방어력 차감과 연속 피격 완충을 건너뛴다) / v3.2 (v9.11 2026-09-22: 피격 때 TrainFeel.Hit() - 맞은 칸 플래시) / v3.1 (교수 피드백 A4: AddMaxHP 회복 분리)
+/// [TrainManager.cs] v3.8 (v9.26 2026-10-16 마감 정리: 허기 스텁 ConsumeSatiety · 옛 웨건 API(InstallWagon · HasWagonType · GetEmptySlotIndex) 삭제) / v3.7 (v9.25 2026-10-16 B5 유물 '탐욕의 국자'의 대가: 받는 피해 +15% = 받는 피해 감소에서 ItemManager.DamageTakenAdd 를 뺀다 (어림 EstimateDamage 도 같게)) / v3.6 (v9.23 2026-10-14: EstimateDamage - 이 피해가 들어오면 HP 가 얼마 깎이나 (방어력·바닥·받는 피해 감소까지. 연속 피격 완충·증기 보호막은 뺀다) - 보스 패턴 예고 때 HP 바 빗금(B2)이 쓴다) / v3.5 (v9.19.2 2026-10-07: 방어력 바닥 GameBalance.TrainDefFloor - 방어력을 빼도 원래 피해의 4분의 1 은 들어온다. v3.4(v9.19.1)의 "몫만큼만 방어"는 걷어냈다 - 손님이 다시 제 힘으로 온다) / v3.3 (v9.18 2026-10-06: TakeDamageIgnoringDef - 주방 사고 실패 피해용. 방어력 차감과 연속 피격 완충을 건너뛴다) / v3.2 (v9.11 2026-09-22: 피격 때 TrainFeel.Hit() - 맞은 칸 플래시) / v3.1 (교수 피드백 A4: AddMaxHP 회복 분리)
 /// 메카 티렉스 열차의 핵심 스탯을 관리합니다.
 /// - v3 변경점 (구시스템 정리):
 ///   1) 허기/포만감 시스템 완전 제거 (감소/등급/절전모드/스탯 페널티 전부 삭제)
@@ -117,12 +117,6 @@ public class TrainManager : MonoBehaviour
     // ─────────────────────────────────────────────
     // 구시스템 호환 스텁 (허기 제거)
     // ─────────────────────────────────────────────
-
-    /// <summary>[구시스템 호환] 허기 제거됨 - 아무 것도 하지 않는다</summary>
-    public void ConsumeSatiety(float amount)
-    {
-        // 허기 시스템 제거 - 의도적으로 비워둠
-    }
 
     /// <summary>[구시스템 호환] 허기 제거됨 - 급양은 기차 회복으로 전환</summary>
     public void FeedTrain(float amount)
@@ -308,36 +302,6 @@ public class TrainManager : MonoBehaviour
                 steamShield = Mathf.Min(steamShield + overflow,
                     currentMaxHP * GameBalance.OverflowShieldCap);
         }
-    }
-
-    // ─────────────────────────────────────────────
-    // 구 웨건 API (CraftingUI 등 구 스크립트 삭제 전까지 호환 유지)
-    // ─────────────────────────────────────────────
-    public bool InstallWagon(int slotIndex, WagonType type)
-    {
-        if (slotIndex < 0 || slotIndex >= wagonSlots.Length)
-        {
-            Debug.LogWarning("[TrainManager] 유효하지 않은 슬롯 인덱스: " + slotIndex);
-            return false;
-        }
-
-        wagonSlots[slotIndex] = type;
-        RecalculateStats();
-        return true;
-    }
-
-    public bool HasWagonType(WagonType type)
-    {
-        foreach (WagonType slot in wagonSlots)
-            if (slot == type) return true;
-        return false;
-    }
-
-    public int GetEmptySlotIndex()
-    {
-        for (int i = 0; i < wagonSlots.Length; i++)
-            if (wagonSlots[i] == WagonType.Empty) return i;
-        return -1;
     }
 
     private void OnTrainDestroyed()

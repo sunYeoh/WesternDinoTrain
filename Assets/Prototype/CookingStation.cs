@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// [CookingStation.cs] v2.3 (v9.14 2026-09-28: [E] 안내 글자 배율 GameBalance.InteractPromptScale) / v2.2 (v9.10 2026-09-17 테스터 피드백: 행상인·베팅·분기 선로 창이 떠 있을 때 조리 시작 금지 - "안킬로 상인 나올 때 요리 되던 것") / v2.1 (교수 피드백 A10: 열람 패널 중 기구 상호작용 차단 2026-09-14) / v2
+/// [CookingStation.cs] v2.4 (v9.26 2026-10-16 마감 정리: 옛 UI 스텁 ResetCooking 삭제) / v2.3 (v9.14 2026-09-28: [E] 안내 글자 배율 GameBalance.InteractPromptScale) / v2.2 (v9.10 2026-09-17 테스터 피드백: 행상인·베팅·분기 선로 창이 떠 있을 때 조리 시작 금지 - "안킬로 상인 나올 때 요리 되던 것") / v2.1 (교수 피드백 A10: 열람 패널 중 기구 상호작용 차단 2026-09-14) / v2
 /// 주방 기구(그릴/볶음팬/냄비) 오브젝트에 붙이는 스크립트입니다.
 /// 셰프가 상호작용 범위 안에서 E키를 누르면 조리창이 열립니다.
 ///
@@ -9,7 +9,7 @@ using UnityEngine;
 ///   E키 -> ChefController 구 미니게임 대신 KitchenPanel(새 조리창)을 연다.
 ///   이때 이 조리대의 조리법에 맞는 요리만 표시된다:
 ///     그릴 = 굽기 요리 / 볶음팬 = 볶기 요리 / 냄비 = 끓이기 요리
-///   (Tab으로 열면 전체 요리가 보이므로, 조리대는 "가까운 기구에서 바로 조리" 동선용)
+///   (조리 창은 조리대에서만 연다 - Tab 전체 보기는 v9.26 에서 지웠다)
 ///   구 CookingUIManager / MaterialSelectUI 경유 흐름 제거.
 ///
 /// 사용법:
@@ -142,9 +142,6 @@ public class CookingStation : MonoBehaviour
         KitchenPanel.Instance.OpenForStation(method);
         Debug.Log("[CookingStation] " + GetStationName() + " 조리창 열림");
     }
-
-    /// <summary>[구시스템 호환] MaterialSelectUI 등이 호출할 수 있음 - 이제 할 일 없음</summary>
-    public void ResetCooking() { }
 
     // ─────────────────────────────────────────────
     // 상호작용 프롬프트 표시/숨김

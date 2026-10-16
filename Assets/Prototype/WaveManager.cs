@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// [WaveManager.cs] v6.27 (v9.24 2026-10-15 갈림길 D2: 가지로 출발했으면 첫 손님은 꼬리까지 갈림길을 다 넘은 뒤에 (ParallaxBackground.ForkFollowActive, 최대 GameBalance.ForkHoldMaxSec) - 칸이 꺾인 동안은 그림과 판정 자리가 달라서. 웨이브 예고는 그대로) / v6.26 (v9.23 2026-10-14 보스 새 패턴: SpawnBossUnits - 보스가 정한 자리마다 한 마리씩 (부관 발톱·새끼 테라노돈·하차 랩터·편대 플라이, 데이터를 바꿔 끼울 수 있다) / SpawnBossFormation - 호령이 편성 조각(포위·양동)으로 온다 (화살표 없음, 제 힘 그대로) / 최종전 동안 북쪽 스폰을 남쪽으로 돌린다 (BossEnemy.NorthBlocked - 맞수 열차 몸이 북쪽을 막고 있다)) / v6.25 (v9.22.2 2026-10-14 유저 "튜토리얼 말투가 번역체·AI 같고 딱딱하다": 안내 글 말투를 반말 해체로 - 명령형 ~라·설명 ~다 끝맺음, 문장 속 기호, 어려운 말(투입·재가동·곁·유인)를 걷어냈다. 규칙 = 문구원칙 10-14 저녁 "말투" 절) / v6.24 (v9.22.1 2026-10-14 유저 "튜토리얼에 드래그가 반영 안 됐다": 프롤로그 조리 게이트 안내 3줄을 끌어다 놓기·재료 중심 조리 창 기준으로) / v6.23 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v6.22 (v9.20 2026-10-07: 보스가 부른 증원이 보스 등 뒤에서 뛰쳐나온다 - SpawnReinforcements 에 부른 자리·등 뒤 여부·보상 몫, 자리로 스폰하는 SpawnEnemyAtPos) / v6.21 (v9.19.2 2026-10-07 유저 확인 뒤: 머릿수를 늘린 손님이 제 힘으로 온다 - AddUnits 가 한 마리를 나눠 약하게 하지 않고 크기별 HP 배율(TierHpMul*)과 초반 배율(EarlyBodyStart)만 건다. Enemy.Share 는 보상·도구 부식 같은 "한 번에 얼마"에만 / 편성 이름 줄과 방향 예고 화살표는 GameBalance 값으로 꺼졌다(FormationLineShows 0·SpawnCueSec 0 - 코드는 그대로)) / v6.20 (v9.19.1 2026-10-07 유저 소감: 손님이 생기는 테두리가 "지금 보이는 화면"을 따라간다(SpawnBounds - 휠로 넓게 보면 화면 가운데에서 생기던 것. 구 방식 스폰·보스 증원·보스 등장도 같은 테두리) / 머릿수 대폭 증가: 손님 크기별 배율 CountMulSmall·Mid·Big + 무리 세기 GroupPower*, 조각 크기 FormationSizeMul. 손님에게 한 마리의 몫(Enemy.Share)을 건다 - 보상·기차 방어력·연속 피격 완충·고정량 효과가 몫만큼만 먹게) /
+/// [WaveManager.cs] v6.28 (v9.26 2026-10-16 마감 정리: 편성 이름 줄(ShowFormationLine·FORMATION_HINTS)과 방향 예고 화살표(CueAt·CueArrow·sfx_cue_approach) 코드 삭제 - 10-07 유저 결정으로 값을 0 으로 꺼 두었던 것. 하던 일은 그대로) / v6.27 (v9.24 2026-10-15 갈림길 D2: 가지로 출발했으면 첫 손님은 꼬리까지 갈림길을 다 넘은 뒤에 (ParallaxBackground.ForkFollowActive, 최대 GameBalance.ForkHoldMaxSec) - 칸이 꺾인 동안은 그림과 판정 자리가 달라서. 웨이브 예고는 그대로) / v6.26 (v9.23 2026-10-14 보스 새 패턴: SpawnBossUnits - 보스가 정한 자리마다 한 마리씩 (부관 발톱·새끼 테라노돈·하차 랩터·편대 플라이, 데이터를 바꿔 끼울 수 있다) / SpawnBossFormation - 호령이 편성 조각(포위·양동)으로 온다 (화살표 없음, 제 힘 그대로) / 최종전 동안 북쪽 스폰을 남쪽으로 돌린다 (BossEnemy.NorthBlocked - 맞수 열차 몸이 북쪽을 막고 있다)) / v6.25 (v9.22.2 2026-10-14 유저 "튜토리얼 말투가 번역체·AI 같고 딱딱하다": 안내 글 말투를 반말 해체로 - 명령형 ~라·설명 ~다 끝맺음, 문장 속 기호, 어려운 말(투입·재가동·곁·유인)를 걷어냈다. 규칙 = 문구원칙 10-14 저녁 "말투" 절) / v6.24 (v9.22.1 2026-10-14 유저 "튜토리얼에 드래그가 반영 안 됐다": 프롤로그 조리 게이트 안내 3줄을 끌어다 놓기·재료 중심 조리 창 기준으로) / v6.23 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v6.22 (v9.20 2026-10-07: 보스가 부른 증원이 보스 등 뒤에서 뛰쳐나온다 - SpawnReinforcements 에 부른 자리·등 뒤 여부·보상 몫, 자리로 스폰하는 SpawnEnemyAtPos) / v6.21 (v9.19.2 2026-10-07 유저 확인 뒤: 머릿수를 늘린 손님이 제 힘으로 온다 - AddUnits 가 한 마리를 나눠 약하게 하지 않고 크기별 HP 배율(TierHpMul*)과 초반 배율(EarlyBodyStart)만 건다. Enemy.Share 는 보상·도구 부식 같은 "한 번에 얼마"에만 / 편성 이름 줄과 방향 예고 화살표는 GameBalance 값으로 꺼졌다(FormationLineShows 0·SpawnCueSec 0 - 코드는 그대로)) / v6.20 (v9.19.1 2026-10-07 유저 소감: 손님이 생기는 테두리가 "지금 보이는 화면"을 따라간다(SpawnBounds - 휠로 넓게 보면 화면 가운데에서 생기던 것. 구 방식 스폰·보스 증원·보스 등장도 같은 테두리) / 머릿수 대폭 증가: 손님 크기별 배율 CountMulSmall·Mid·Big + 무리 세기 GroupPower*, 조각 크기 FormationSizeMul. 손님에게 한 마리의 몫(Enemy.Share)을 건다 - 보상·기차 방어력·연속 피격 완충·고정량 효과가 몫만큼만 먹게) /
 /// v6.19 (v9.19 2026-10-06 웨이브 편성: 웨이브 2 부터 손님을 편성 조각으로 내보낸다(RunFormations - 추격·파상·매복·호위 행렬·양동·포위·공중 편대 + 산개, GameBalance.WaveFormationsOn). 조각마다 오는 쪽 예고(WarningFX.SpawnCue)가 먼저, 조각 사이엔 쉼(BeatGap). 손님은 화면 바로 밖 테두리(EdgePoint)에서 생긴다. 구 방식 본문은 SpawnWaveClassic 으로 / 웨이브 예고 카드의 "주의" 문구는 알림 줄로) /
 /// v6.23 (v9.21 2026-10-12 보스 1단계: 정식 보스는 서는 자리(GameBalance.BossStandX, 북쪽) 위 BossHideDY 만큼 떨어진 곳에 생기고 등장 연출(BossEnemy.EntranceV2)이 자리에 놓는다 - 걸어오지 않는다. BossEntranceV2 가 꺼져 있으면 예전처럼 화면 밖 테두리에서) /
 /// v6.18 (v9.18 2026-10-06: 보스는 기차 북쪽(화면 위)에서만 온다(GameBalance.BossSpawnNorthOnly - 남쪽은 하단 HUD 에 가려진다), 예습 보스는 포탑 칸 B 위에서 / 웨이브가 끝났을 때 사고가 진행 중이면 사고가 끝난 뒤에 증강·선로 선택을 연다(PostWaveHold, WaitEventBeforeChoiceSec) / 코드 폴백 손님의 그림 고르기를 EnemySkin.SpriteFor 한 곳으로) /
@@ -234,7 +234,6 @@ public class WaveManager : MonoBehaviour
         PostWaveHold = false;   // v6.18
         aliveEnemyCount = 0;
         spawnDone = false;
-        if (waveNumber <= 1) System.Array.Clear(formationLineShown, 0, formationLineShown.Length);   // v6.19: 새 운행 - 편성 이름 한 줄을 다시 보여 준다
 
         // 증강 '개전 포격' 참조용: 웨이브 시작 시각 기록
         AugmentManager.WaveStartTime = Time.time;
@@ -712,9 +711,8 @@ public class WaveManager : MonoBehaviour
     //   호위 행렬 = 큰 손님 둘레에서 작은 손님들이 걸음을 맞춰 온다 / 양동 = 반대편 두 무리 /
     //   포위 = 사방에서 같은 때 닿게 / 공중 편대 = 비행 손님이 V 자로 / 산개 = 남은 손님이 한 마리씩 (구 방식과 같은 모양)
     //   파상·양동·포위는 달리는 손님 무리나 비행 손님 무리 어느 쪽으로도 짠다 (테슬라 협곡이 공중 편대만 되풀이하지 않게)
-    //   손님 종류와 무리 전체의 스탯은 웨이브 구성표 그대로다 (작은 손님만 머릿수를 늘리고 그만큼 한 마리를 약하게 - GameBalance.SwarmCountMul).
-    //   조각이 나오기 전에 오는 쪽 화면 가장자리에 예고(WarningFX.SpawnCue)가 먼저 뜬다 - "어디서 오나"가 등장보다 먼저 보이게.
-    //   조각 사이에는 쉼(BeatGap)이 있다 - 예고를 보고 조리할 틈
+    //   손님 종류는 웨이브 구성표 그대로, 머릿수는 크기 등급별 CountMul* 로 늘리고 한 마리는 제 힘 그대로 (v9.19.2).
+    //   조각 사이에는 쉼(BeatGap)이 있다 - 조리할 틈. 예고는 매복의 바닥 고리 하나뿐 (방향 화살표·편성 이름 줄은 v9.26 에서 지웠다)
     // ─────────────────────────────────────────────
     private enum UnitClass { Runner, Heavy, Flyer, Other }
     private enum Formation { Chase, Lines, Ambush, Escort, Pincer, Encircle, VFlight, Scatter }   // 앞의 7개 = GameBalance.FormationUnlockWave 의 순서
@@ -738,33 +736,8 @@ public class WaveManager : MonoBehaviour
         public List<SpawnUnit> units = new List<SpawnUnit>();
     }
 
-    /// <summary>편성 이름 한 줄을 이번 운행에 몇 번 띄웠나 (GameBalance.FormationLineShows 번까지만)</summary>
-    private int[] formationLineShown = new int[8];
-
-    private static readonly string[] FORMATION_NAMES = { "추격", "파상", "매복", "호위 행렬", "양동", "포위", "공중 편대", "산개" };   // Formation 순서
-    private static readonly string[] FORMATION_HINTS = {
-        "꼬리 쪽에서 따라붙는다", "한 줄씩 밀려온다", "기차 옆에서 튀어나온다",
-        "큰 손님을 무리가 둘러싸고 온다 - 큰 손님이 쓰러지면 무리가 달려든다",
-        "양쪽에서 온다", "사방에서 온다", "비행 손님이 한꺼번에 날아온다" };
-
+    private static readonly string[] FORMATION_NAMES = { "추격", "파상", "매복", "호위 행렬", "양동", "포위", "공중 편대", "산개" };   // Formation 순서 (디버그 로그용)
     private static string FormationName(Formation f) { return FORMATION_NAMES[(int)f]; }
-
-    /// <summary>알림 줄에 띄울 한 줄 ("[추격] 꼬리 쪽에서 따라붙는다"). 산개는 없음</summary>
-    private static string FormationLine(Formation f)
-    {
-        int idx = (int)f;
-        return idx < FORMATION_HINTS.Length ? "[" + FORMATION_NAMES[idx] + "] " + FORMATION_HINTS[idx] : null;
-    }
-
-    private void ShowFormationLine(Formation f)
-    {
-        string line = FormationLine(f);
-        int idx = (int)f;
-        if (line == null || idx >= formationLineShown.Length) return;
-        if (formationLineShown[idx] >= GameBalance.FormationLineShows) return;
-        formationLineShown[idx]++;
-        UIManager.Instance?.ShowDanger(line);
-    }
 
     private static bool Unlocked(Formation f, int wave)
     {
@@ -1071,8 +1044,6 @@ public class WaveManager : MonoBehaviour
         for (int b = 0; b < beats.Count; b++)
         {
             Beat beat = beats[b];
-            ShowFormationLine(beat.formation);
-
             switch (beat.formation)
             {
                 case Formation.Chase: yield return BeatChase(beat, config, playerLevel, diffL); break;
@@ -1262,30 +1233,11 @@ public class WaveManager : MonoBehaviour
         return 180f + Random.Range(-14f, 14f);
     }
 
-    /// <summary>예고 화살표 하나 (그 자리 쪽 화면 가장자리에, 기차 쪽을 가리킨다)</summary>
-    private void CueArrow(Vector3 pos, float sec)
-    {
-        if (sec > 0.01f) WarningFX.SpawnCue(pos, ApproachDir(pos), sec);
-    }
-
-    /// <summary>예고: 화살표 + 접근음 한 번, 그리고 예고 시간만큼 기다린다</summary>
-    private IEnumerator CueAt(Vector3 pos)
-    {
-        float sec = GameBalance.SpawnCueSec;
-        if (sec > 0.01f)
-        {
-            CueArrow(pos, sec);
-            SoundManager.Play("sfx_cue_approach", 0.7f, 0.05f);
-            yield return WaitGap(sec);
-        }
-    }
-
     // ── 편성별 ──
-    /// <summary>추격: 꼬리 쪽에서 한 줄로 달려든다 (머리 쪽에서 오는 것은 양동·포위가 맡는다 - 이름과 안내 문구가 방향을 말한다)</summary>
+    /// <summary>추격: 꼬리 쪽에서 한 줄로 달려든다 (머리 쪽에서 오는 것은 양동·포위가 맡는다)</summary>
     private IEnumerator BeatChase(Beat beat, WaveConfig config, int playerLevel, float diffL)
     {
         Vector3 p = EdgePoint(PickSideAngle(0f, 0f, 1f, 0f));
-        yield return CueAt(p);
         Vector3 lat = Lateral(ApproachDir(p));
         for (int i = 0; i < beat.units.Count; i++)
         {
@@ -1305,15 +1257,7 @@ public class WaveManager : MonoBehaviour
         int idx = 0;
         for (int row = 0; row < rows && idx < n; row++)
         {
-            if (row == 0) yield return CueAt(p);
-            else
-            {
-                // 둘째 줄부터는 예고를 짧게, 소리 없이 (같은 자리라 한 번 본 것)
-                float cue = Mathf.Min(0.5f, GameBalance.SpawnCueSec);
-                yield return WaitGap(Mathf.Max(0.2f, GameBalance.LinesRowGapSec - cue));
-                CueArrow(p, cue);
-                if (cue > 0.01f) yield return WaitGap(cue);
-            }
+            if (row > 0) yield return WaitGap(Mathf.Max(0.2f, GameBalance.LinesRowGapSec));   // 둘째 줄부터 줄 간격
             int count = Mathf.Min(perRow, n - idx);
             for (int j = 0; j < count; j++, idx++)
                 SpawnUnitAt(beat.units[idx], p + lat * ((j - (count - 1) * 0.5f) * 1.7f), config, playerLevel, diffL);
@@ -1365,7 +1309,6 @@ public class WaveManager : MonoBehaviour
         Vector3 dir = ApproachDir(edge);
         Vector3 lat = Lateral(dir);
         Vector3 center = edge - dir * ringR;        // 둘레의 앞줄도 테두리 밖에서 생기게 반경만큼 물린다
-        yield return CueAt(edge);
 
         Enemy leader = SpawnUnitAt(beat.units[0], center, config, playerLevel, diffL);
         int escorts = beat.units.Count - 1;
@@ -1378,6 +1321,7 @@ public class WaveManager : MonoBehaviour
             Enemy e = SpawnUnitAt(beat.units[i + 1], center + dir * along + lat * side, config, playerLevel, diffL);
             if (e != null && leader != null) EscortLeash.Attach(e, leader, dir, along, GameBalance.EscortMaxHoldSec);
         }
+        yield break;   // 한 번에 다 나온다 (v9.26: 예고 대기가 빠져 기다리는 곳이 없다)
     }
 
     /// <summary>양동: 반대편 두 자리(위·아래가 잦고, 가끔 머리·꼬리)에서 번갈아 나온다</summary>
@@ -1385,14 +1329,6 @@ public class WaveManager : MonoBehaviour
     {
         float a = Random.value < 0.65f ? 90f + Random.Range(-20f, 20f) : Random.Range(-12f, 12f);
         Vector3 p1 = EdgePoint(a), p2 = EdgePoint(a + 180f);
-        float sec = GameBalance.SpawnCueSec;
-        if (sec > 0.01f)
-        {
-            CueArrow(p1, sec);
-            CueArrow(p2, sec);
-            SoundManager.Play("sfx_cue_approach", 0.7f, 0.05f);
-            yield return WaitGap(sec);
-        }
         Vector3 lat1 = Lateral(ApproachDir(p1)), lat2 = Lateral(ApproachDir(p2));
         for (int i = 0; i < beat.units.Count; i++)
         {
@@ -1420,15 +1356,6 @@ public class WaveManager : MonoBehaviour
         }
         for (int i = 0; i < n; i++) delay[i] = Mathf.Min(4f, longest - delay[i]);
 
-        float sec = GameBalance.SpawnCueSec;
-        if (sec > 0.01f)
-        {
-            int cueStep = n > 12 ? 2 : 1;                                   // 화살표는 12개까지만 (자리가 더 많으면 하나 걸러 - 화면 둘레가 화살표로 덮이지 않게)
-            for (int i = 0; i < n; i += cueStep) CueArrow(pts[i], sec + delay[i]);   // 화살표는 그 손님이 나올 때까지 떠 있다
-            SoundManager.Play("sfx_cue_approach", 0.9f, 0.05f);
-            yield return WaitGap(sec);
-        }
-
         bool[] sent = new bool[n];
         int left = n;
         float t = 0f;
@@ -1454,13 +1381,13 @@ public class WaveManager : MonoBehaviour
         Vector3 p = EdgePoint(corners[Random.Range(0, corners.Length)] + Random.Range(-8f, 8f));
         Vector3 dir = ApproachDir(p);
         Vector3 lat = Lateral(dir);
-        yield return CueAt(p);
         for (int i = 0; i < beat.units.Count; i++)
         {
             int rank = (i + 1) / 2;                          // 0, 1, 1, 2, 2 ...
             float side = (i % 2 == 1) ? 1f : -1f;
             SpawnUnitAt(beat.units[i], p - dir * (rank * 1.3f) + lat * (side * rank * 1.1f), config, playerLevel, diffL);
         }
+        yield break;   // 한 번에 다 나온다 (v9.26: 예고 대기가 빠져 기다리는 곳이 없다)
     }
 
     /// <summary>산개: 한 마리씩 따로 (구 방식과 같은 모양). 느린 손님은 위·아래에서만 - 좌우 끝에서 오면 20u 를 걸어야 한다</summary>
@@ -1470,9 +1397,6 @@ public class WaveManager : MonoBehaviour
         {
             bool slow = beat.units[i].data.baseSPD < 2.2f;
             Vector3 p = EdgePoint(slow ? PickSideAngle(3f, 2f, 0f, 0f) : Random.Range(0f, 360f));
-            float cue = Mathf.Min(0.5f, GameBalance.SpawnCueSec);
-            CueArrow(p, cue);
-            if (cue > 0.01f) yield return WaitGap(cue);
             SpawnUnitAt(beat.units[i], p, config, playerLevel, diffL);
             if (i < beat.units.Count - 1) yield return WaitGap(0.5f);   // v6.20: 0.9 -> 0.5 (산개 조각이 4 -> 7마리로 커졌다)
         }
@@ -1733,7 +1657,7 @@ public class WaveManager : MonoBehaviour
 
     /// <summary>
     /// v6.26 (v9.23 R3): 호령 - 랩터 count 마리가 편성 조각으로 온다. encircle = 포위(사방) / false = 양동(양쪽 두 자리에서 번갈아).
-    /// 웨이브 편성과 같은 조각 코드(BeatEncircle·BeatPincer)라 예고 화살표는 GameBalance.SpawnCueSec 을 따른다 (지금 0 - 보스의 호령 자세와 울음이 예고다). 제 힘 그대로, share = 보상 몫.
+    /// 웨이브 편성과 같은 조각 코드(BeatEncircle·BeatPincer) - 보스의 호령 자세와 울음이 예고다. 제 힘 그대로, share = 보상 몫.
     /// 돌려주는 것 = 조각을 내보내는 코루틴 (보스가 쓰러지면 StopCoroutine)
     /// </summary>
     public Coroutine SpawnBossFormation(int count, bool encircle, float share)

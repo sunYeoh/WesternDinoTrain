@@ -25,7 +25,7 @@ using UnityEngine;
 ///  손님: HitFeel.OnHit 명중 = 재질(Hit) + 속성 겹침(Accent), 크리 hit_crit, 물리 튕김 ricochet / Enemy.Die 처치 = 재질(Die), 큰 손님 kill_big / Enemy.AttackTrain 공격 = 종류(Attack) / BossEnemy.Setup 포효(BossRoar), 디 오리지널 whistle_low
 ///  주방: CookingMinigame.StartGame 조리법(Cook) / KitchenEventManager 사고 alarm + 종류(Event) + 배경음 덕킹, 결과 event_resolve/fail / ItemManager.Acquire relic / GameManager 정차 gold
 ///  진행: GameManager 패배 train_break→game_over, 승리 whistle→victory, 배경음 로비부터 / BossGimmickSystem 보스전 덕킹 / UI: ModalFeel.Play ui_open, 닫힘 ui_close, 증강 augment_pick
-///  편성 (v9.19): WaveManager 조각 예고 = cue_approach (화살표와 같이, 조각당 한 번) / 매복 바닥 고리 = cue_ambush
+///  편성 (v9.19): 매복 바닥 고리 = cue_ambush (조각 예고음 cue_approach 는 v9.26 에서 화살표와 같이 지웠다)
 /// VS 2017 (C# 7.3) 호환.
 /// </summary>
 public class SoundManager : MonoBehaviour

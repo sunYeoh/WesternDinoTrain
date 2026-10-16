@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [SettingsUI.cs] v1 (신규, v9.15 2026-09-29) - 설정창: 화면 / 소리 / 언어를 한 곳에 (테스터 09-29 "홈 화면 설정창에 언어·볼륨·화면 비율을 몰아넣기")
+/// [SettingsUI.cs] v1.1 (v9.26 2026-10-16 마감 정리: 열림 소리 중복 호출(ModalFeel 이 낸다) · 안 쓰는 CloseIfOpen 삭제) / v1 (신규, v9.15 2026-09-29) - 설정창: 화면 / 소리 / 언어를 한 곳에 (테스터 09-29 "홈 화면 설정창에 언어·볼륨·화면 비율을 몰아넣기")
 ///
 /// 창: 어둡게 + 가운데 카드 560x520 - 명판 "설정"
 ///   화면  : [<] 전체화면 / 창 1920x1080 / 창 1600x900 / 창 1280x720 [>]  (PlayerPrefs WDT_ScreenMode. Alt+Enter 도 된다)
@@ -58,11 +58,6 @@ public class SettingsUI : MonoBehaviour
         if (IsOpen) Instance.Close(); else Instance.Open();
     }
 
-    public static void CloseIfOpen()
-    {
-        if (Instance != null && IsOpen) Instance.Close();
-    }
-
     /// <summary>게임 시작 때 저장된 화면 모드 적용 (0 = 전체화면 = 기본이라 손대지 않는다)</summary>
     public static void ApplySavedScreenMode()
     {
@@ -116,8 +111,7 @@ public class SettingsUI : MonoBehaviour
         openedAt = Time.unscaledTime;
         RefreshAll();
         root.SetActive(true);
-        ModalFeel.Play(root.transform);
-        SoundManager.Play("sfx_ui_open");   // 클립 없으면 무시
+        ModalFeel.Play(root.transform);   // 등장 연출 + 열림 소리
     }
 
     private void Close()

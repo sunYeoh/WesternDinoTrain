@@ -4,7 +4,7 @@ using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// [GameManager.cs] v4.8 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v4.7 (v9.17 2026-10-06 화면 손맛 2차 - D5 패배 순서: 슬로모션 + 붉은 가장자리 -> 어두워지며 세상이 멈춤 -> 결과 / D4 최종 승리 순서: 엔딩 글 뒤 흰 화면 -> 결과 / D6: 견습 종료 때 검정 페이드 / 승리 기적은 엔딩 쪽에서 울렸으면 생략) / v4.6 (v9.16 2026-09-29 손맛 2차 - 소리: 배경음을 로비부터 / 정차 골드 sfx_gold / 패배 = 기차 정지음 sfx_train_break -> 0.7초 뒤 sfx_game_over, 배경음 덕킹 / 승리 = 기적 -> 0.6초 뒤 sfx_victory) / v4.5 (v9.15 2026-09-29: 운행 시작에 파손 포탑 자리 전부 수리 - 파손은 이번 운행 한정) / v4.4 (v9.14 2026-09-28: 운행 시작에 증강·유물 강제 초기화 + 명성 상점 "출발 증강") / v4.3 (v9.9 2026-09-16: 견습 운행 StartTutorial/EndTutorial - 튜토리얼 런은 웨이브·보급·메타 기록 없이 Battle 상태만 빌린다) / v4.2 (2026-09-14: 포탑 과열 런 통계 초기화 - TurretSlot.ResetRunStats) / v4.1 (런 통계 초기화 / 프롤로그 찬장 고기 고정 / 전투 중 수리 기록) / v4
+/// [GameManager.cs] v4.9 (v9.26 2026-10-16 마감 정리: 경험치 스텁 AddXP · 안 쓰는 playerXP 삭제) / v4.8 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v4.7 (v9.17 2026-10-06 화면 손맛 2차 - D5 패배 순서: 슬로모션 + 붉은 가장자리 -> 어두워지며 세상이 멈춤 -> 결과 / D4 최종 승리 순서: 엔딩 글 뒤 흰 화면 -> 결과 / D6: 견습 종료 때 검정 페이드 / 승리 기적은 엔딩 쪽에서 울렸으면 생략) / v4.6 (v9.16 2026-09-29 손맛 2차 - 소리: 배경음을 로비부터 / 정차 골드 sfx_gold / 패배 = 기차 정지음 sfx_train_break -> 0.7초 뒤 sfx_game_over, 배경음 덕킹 / 승리 = 기적 -> 0.6초 뒤 sfx_victory) / v4.5 (v9.15 2026-09-29: 운행 시작에 파손 포탑 자리 전부 수리 - 파손은 이번 운행 한정) / v4.4 (v9.14 2026-09-28: 운행 시작에 증강·유물 강제 초기화 + 명성 상점 "출발 증강") / v4.3 (v9.9 2026-09-16: 견습 운행 StartTutorial/EndTutorial - 튜토리얼 런은 웨이브·보급·메타 기록 없이 Battle 상태만 빌린다) / v4.2 (2026-09-14: 포탑 과열 런 통계 초기화 - TurretSlot.ResetRunStats) / v4.1 (런 통계 초기화 / 프롤로그 찬장 고기 고정 / 전투 중 수리 기록) / v4
 /// 게임 전체 상태를 관리하는 최상위 싱글톤 클래스.
 /// Cooking 페이즈 제거 — 게임 시작하면 바로 Battle.
 /// 조리는 전투 중 언제든 가능.
@@ -53,8 +53,7 @@ public class GameManager : MonoBehaviour
     [Header("─ 게임 진행 데이터 ─")]
     public int currentWave = 0;
     public int playerGold = 500;
-    public int playerXP = 0;
-    public int playerLevel = 1;
+    public int playerLevel = 1;   // 손님 스탯 계산에 넘기는 값 (경험치 시스템은 없다 - 늘 1)
 
     // 상태 변경 이벤트
     public UnityEvent<GameState> OnGameStateChanged = new UnityEvent<GameState>();
@@ -467,13 +466,6 @@ public class GameManager : MonoBehaviour
         playerGold -= amount;
         return true;
     }
-
-    /// <summary>
-    /// [절단됨 - 감사 3-B] XP/레벨 시스템 제거.
-    /// 성장은 증강/포탑 합체가 전담한다. 구 스크립트(DevCheat 등) 호환용 빈 함수.
-    /// playerXP/playerLevel 필드는 Inspector 호환을 위해 남아 있지만 아무 데도 안 쓰인다.
-    /// </summary>
-    public void AddXP(int amount) { }
 
     // ─────────────────────────────────────────────
     // 외부 콜백

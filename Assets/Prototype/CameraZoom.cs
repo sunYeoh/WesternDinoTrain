@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 
 /// <summary>
-/// [CameraZoom.cs] v5.2 (v9.21 2026-10-12 보스전 카메라 - BossFraming: 보스가 등장하면 줌을 GameBalance.BossCamZoom[종류]까지 빼고, 뺀 만큼 위로 들어 아래쪽(하단 HUD 선)은 그대로 둔다. 휠 줌은 그 위에 더해지고 [Z] 는 보스전 동안 보스 줌. 쓰러지면 BossFramingOff 로 돌아온다) / v5.1 (v9.17 2026-10-06 A11: GameFeel.ZoomMul(보스 처치 때 잠깐 당김)을 부드러운 줌 값에 마지막으로 곱한다 - 줌 상태(smoothZoom)와 화면 값을 분리) / v5 (v9.13 2026-09-23: 선로 v2 - 정차 프레이밍 SetRouteFraming: 선로를 고르는 동안 x RouteStopCamX(-3.6)·줌 x RouteStopZoomMul(1.18) 로 0.6초에 옮겨 두상 앞 갈림길이 다 보이게, 출발하면 되돌린다 /
+/// [CameraZoom.cs] v5.3 (v9.26 2026-10-16 마감 정리: 부르는 곳 없는 GetZoomLevel 삭제) / v5.2 (v9.21 2026-10-12 보스전 카메라 - BossFraming: 보스가 등장하면 줌을 GameBalance.BossCamZoom[종류]까지 빼고, 뺀 만큼 위로 들어 아래쪽(하단 HUD 선)은 그대로 둔다. 휠 줌은 그 위에 더해지고 [Z] 는 보스전 동안 보스 줌. 쓰러지면 BossFramingOff 로 돌아온다) / v5.1 (v9.17 2026-10-06 A11: GameFeel.ZoomMul(보스 처치 때 잠깐 당김)을 부드러운 줌 값에 마지막으로 곱한다 - 줌 상태(smoothZoom)와 화면 값을 분리) / v5 (v9.13 2026-09-23: 선로 v2 - 정차 프레이밍 SetRouteFraming: 선로를 고르는 동안 x RouteStopCamX(-3.6)·줌 x RouteStopZoomMul(1.18) 로 0.6초에 옮겨 두상 앞 갈림길이 다 보이게, 출발하면 되돌린다 /
 ///   가지로 들어가는 동안 ParallaxBackground.RouteRollDeg 만큼 화면 기울임(Dutch angle) - 기차 데크를 돌리면 셰프 활동 범위·포탑 자리가 어긋나서 카메라를 돌린다)
 /// v4.1 (v9.10 2026-09-17: 최대 줌아웃을 GameBalance.CamMaxZoom(14)으로 - "화면 축소하면 셰프가 점") / v4 (B-2: 셰프 소프트 팔로우 - 방향결정 2026-08-31)
 /// 마우스 휠로 카메라 줌인/줌아웃합니다.
@@ -252,14 +252,5 @@ public class CameraZoom : MonoBehaviour
             targetZoom = defaultZoom;
             Debug.Log("[CameraZoom] 줌 리셋");
         }
-    }
-
-    // ─────────────────────────────────────────────
-    // 줌 레벨 조회 (0~1, 0=줌아웃, 1=줌인)
-    // ─────────────────────────────────────────────
-    public float GetZoomLevel()
-    {
-        if (cam == null) return 0.5f;
-        return 1f - (cam.orthographicSize - minZoom) / (maxZoom - minZoom);
     }
 }

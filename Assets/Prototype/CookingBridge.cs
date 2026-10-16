@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// [CookingBridge.cs] v1.6 (v9.23 2026-10-14: 굽기 요리를 완성하면 동면자의 백야의 입김이 풀린다 (BossEnemy.OnGrillCooked) / 점검 수정: 요리 진화 조리 성공 = 그 전설 요리 숙련 1회 (CompleteStockFusion 이 FoodStock.CountCook)) / v1.5 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v1.4 (v9.21.1 2026-10-13 4차 피드백 2번: 접시 합성(FuseFoods)도 진화 조리 미니게임을 거친다 - InfusingMinigame.BeginForStock 을 부르고 끝나면 CompleteStockFusion 이 소모·지급 (보너스 = 접시 +1). GameBalance.InfuseStockOn) / v1.3 (v9.18 2026-10-06: 견습 운행에서는 숙련 특전 "PERFECT 접시 +1" 을 끈다 - 안내는 2접시인데 3접시가 나왔다) / v1.2 (v9.10.1 2026-09-21: 정차 조리 횟수 제한 - GameBalance.StopCookLimit, 웨이브 시작에 WaveManager 가 StopCooksUsed 를 0 으로)
+/// [CookingBridge.cs] v1.7 (v9.26 2026-10-16 마감 정리: 미니게임 전 임시 함수 QuickCook 삭제) / v1.6 (v9.23 2026-10-14: 굽기 요리를 완성하면 동면자의 백야의 입김이 풀린다 (BossEnemy.OnGrillCooked) / 점검 수정: 요리 진화 조리 성공 = 그 전설 요리 숙련 1회 (CompleteStockFusion 이 FoodStock.CountCook)) / v1.5 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v1.4 (v9.21.1 2026-10-13 4차 피드백 2번: 접시 합성(FuseFoods)도 진화 조리 미니게임을 거친다 - InfusingMinigame.BeginForStock 을 부르고 끝나면 CompleteStockFusion 이 소모·지급 (보너스 = 접시 +1). GameBalance.InfuseStockOn) / v1.3 (v9.18 2026-10-06: 견습 운행에서는 숙련 특전 "PERFECT 접시 +1" 을 끈다 - 안내는 2접시인데 3접시가 나왔다) / v1.2 (v9.10.1 2026-09-21: 정차 조리 횟수 제한 - GameBalance.StopCookLimit, 웨이브 시작에 WaveManager 가 StopCooksUsed 를 0 으로)
 /// 재료 -> 조리 -> 요리 획득 흐름의 연결부 (정적 클래스)
 /// v1.1 (교수 피드백 09-14): 런 통계(조리/실패 횟수, 마지막 성공 시각) + Bad 판정 부분 환급 스위치
 /// 지금은 "즉시 완성" 모드. 나중에 기존 미니게임(CookingSystem)과 연결하면
@@ -182,25 +182,6 @@ public static class CookingBridge
         UIManager.Instance?.ShowStatChange("[조리 중단] 재료를 되찾았다 - 현장으로!");
         Debug.Log("[CookingBridge] 조리 자발 중단 - 재료 환급: " + pendingRecipeId);
         pendingRecipeId = "";
-    }
-
-    /// <summary>간편 조리: 발견한 레시피를 바로 조리 (재료 자동 차감)</summary>
-    public static bool QuickCook(string recipeId)
-    {
-        RecipeData r = RecipeDatabase.Get(recipeId);
-        if (r == null || r.tier != 1) return false;
-
-        // recipeId 형식: "fire+meat" -> 재료 2개 복원
-        string[] parts = recipeId.Split('+');
-        MaterialType a, b;
-        if (!TryParseMaterial(parts[0], out a)) return false;
-        if (!TryParseMaterial(parts[1], out b)) return false;
-
-        if (!StartCook(a, b)) return false;
-
-        // 즉시 완성 모드 (미니게임 연결 전 임시)
-        FinishCook("good");
-        return true;
     }
 
     /// <summary>

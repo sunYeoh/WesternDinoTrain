@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [TrainingGroundUI.cs] v1.2 (v9.22.2 2026-10-14 유저 "튜토리얼 말투가 번역체·AI 같고 딱딱하다": 안내 글 말투를 반말 해체로 - 명령형 ~라·설명 ~다 끝맺음, 문장 속 기호, 어려운 말(투입·재가동·곁·유인)를 걷어냈다. 규칙 = 문구원칙 10-14 저녁 "말투" 절) / v1.1 (v9.15 2026-09-29: 8번째 줄 "자유 연습" - TutorialDirector.SANDBOX. 카드 600 -> 672, [1~8]) / v1 (신규, v9.12 2026-09-22) - 로비 [T] 훈련장: 견습 운행을 구간별로 다시 연습하는 목록 창 (목업 v4.2 (A))
+/// [TrainingGroundUI.cs] v1.3 (v9.26 2026-10-16 마감 정리: 열림 소리 중복 호출(ModalFeel 이 낸다) · 안 쓰는 CloseStatic 삭제) / v1.2 (v9.22.2 2026-10-14 유저 "튜토리얼 말투가 번역체·AI 같고 딱딱하다": 안내 글 말투를 반말 해체로 - 명령형 ~라·설명 ~다 끝맺음, 문장 속 기호, 어려운 말(투입·재가동·곁·유인)를 걷어냈다. 규칙 = 문구원칙 10-14 저녁 "말투" 절) / v1.1 (v9.15 2026-09-29: 8번째 줄 "자유 연습" - TutorialDirector.SANDBOX. 카드 600 -> 672, [1~8]) / v1 (신규, v9.12 2026-09-22) - 로비 [T] 훈련장: 견습 운행을 구간별로 다시 연습하는 목록 창 (목업 v4.2 (A))
 ///
 /// 처음 실행(구간 기록이 하나도 없음)에는 [T] 가 이 창을 열지 않고 견습 운행 전부(1~7)를 바로 연다 (LobbyUI). 한 번이라도 돌린 뒤엔 이 목록.
 /// 창: 어둡게 + 가운데 카드 680x600 - 명판 "훈련장  -  구간별 연습" / 안내 한 줄 + 오른쪽 "완료 n / 7" / 구간 7줄(번호·배울 행동·한 줄·단계·예상·기록) /
@@ -79,11 +79,6 @@ public class TrainingGroundUI : MonoBehaviour
         if (IsOpen) Instance.Close(); else Instance.Open();
     }
 
-    public static void CloseStatic()
-    {
-        if (Instance != null && IsOpen) Instance.Close();
-    }
-
     private void Open()
     {
         if (!GameBalance.TutorialRunEnabled) return;
@@ -96,8 +91,7 @@ public class TrainingGroundUI : MonoBehaviour
             if (TutorialDirector.SegmentState(i) != 1) { selected = i; break; }
         Refresh();
         root.SetActive(true);
-        ModalFeel.Play(root.transform);
-        SoundManager.Play("sfx_ui_open");   // 클립 없으면 무시
+        ModalFeel.Play(root.transform);   // 등장 연출 + 열림 소리
     }
 
     private void Close()

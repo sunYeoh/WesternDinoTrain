@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.Events;
 
 /// <summary>
-/// [ChefController.cs] v5.3 (v9.18 2026-10-06: 세로 한계를 따로 자르지 않는다 - 바닥 판정은 전부 TrainDeck.ResolveWalk(바닥 사각형 표) / 문 도움: 벽에 막힌 채 좌우 키만 누르면 가까운 통로 입구 높이로 미끄러진다 / 기즈모 = 바닥 표) /
+/// [ChefController.cs] v5.4 (v9.26 2026-10-16 마감 정리: 옛 조리 UI 스텁(Start* · SetGrillHeat · SetPendingMaterials · 상태 프로퍼티 · GetMethodName) 삭제) / v5.3 (v9.18 2026-10-06: 세로 한계를 따로 자르지 않는다 - 바닥 판정은 전부 TrainDeck.ResolveWalk(바닥 사각형 표) / 문 도움: 벽에 막힌 채 좌우 키만 누르면 가까운 통로 입구 높이로 미끄러진다 / 기즈모 = 바닥 표) /
 /// v5.2 (v9.10 2026-09-17 테스터 피드백: 벽에 막힌 대시는 소리·먼지 없이 바로 취소(쿨타임 환급) - 대시 연출은 실제로 움직인 첫 프레임에 /
 ///   ChefVisual 이 바라보는 방향을 실제 위치 변화가 아니라 '가려는 속도'(CurrentVel)로 정하게 공개 - 벽·통로에서 밀려날 때 뒤도는 것 제거) /
 /// v5.1 (교수 피드백 2026-09-14: 도구 경고 화면 표시 / 마모 스위치 / 전갈 대체 효과) / v5 (통로 보행 2026-09-08) / v4 (B-1: 셰프의 몸 - 방향결정 2026-08-31)
@@ -354,50 +354,13 @@ public class ChefController : MonoBehaviour
     }
 
     // ─────────────────────────────────────────────
-    // 구시스템 호환 스텁
-    // 구 UI(CookingUIManager 버튼 등)가 부르던 함수들 - 새 조리창으로 리다이렉트
+    // 조리 허용 플래그 (GameManager 가 켜고 끈다). 조리는 조리대 [E] -> KitchenPanel 로만 시작한다
+    // (옛 조리 UI 가 부르던 빈 함수들은 v9.26 에서 지웠다)
     // ─────────────────────────────────────────────
 
     public void EnableCooking(bool enable)
     {
         isCookingEnabled = enable;
-    }
-
-    /// <summary>[구시스템 호환] MaterialSelectUI가 호출할 수 있음 - 이제 할 일 없음</summary>
-    public void SetPendingMaterials(List<string> materials) { }
-
-    // 구 UI/스크립트가 어디서 호출해도 아무 일도 일어나지 않는다 (키 꼬임 방지)
-    // 조리는 오직 CookingStation(E) / Tab -> KitchenPanel 경로로만 시작된다
-    public void StartGrilling() { }
-    public void StartSaute() { }
-    public void StartBoiling() { }
-    public void StartFrying() { }
-    public void StartFermenting() { }
-
-    /// <summary>[구시스템 호환] 굽기 불 세기 - 이제 할 일 없음</summary>
-    public void SetGrillHeat(int level) { }
-
-    // 구 UI가 읽던 상태 프로퍼티 - 항상 기본값
-    public float GrillProgress => 0f;
-    public bool IsGrillSmoking => false;
-    public int GrillHeatLevel => 2;
-    public int GrillFlipCount => 0;
-    public float SauteShakeValue => 0f;
-    public float BoilingGauge => 0f;
-    public float FryingTemp => 0f;
-    public float FermentingProgress => 0f;
-
-    public string GetMethodName(CookingMethod method)
-    {
-        switch (method)
-        {
-            case CookingMethod.Grilling: return "굽기";
-            case CookingMethod.Saute: return "볶기";
-            case CookingMethod.Boiling: return "끓이기";
-            case CookingMethod.Frying: return "튀기기";
-            case CookingMethod.Fermenting: return "절임/숙성";
-            default: return "없음";
-        }
     }
 
     /// <summary>에디터 기즈모: 셰프가 설 수 있는 바닥 (GameBalance.WalkFloors - 발 기준). 앞 4줄 = 칸 바닥(노랑), 나머지 = 통로(초록)</summary>

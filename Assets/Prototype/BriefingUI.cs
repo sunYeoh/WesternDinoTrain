@@ -4,7 +4,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 /// <summary>
-/// [BriefingUI.cs] v1.6 (v9.22.2 2026-10-14 유저 "튜토리얼 말투가 번역체·AI 같고 딱딱하다": 안내 글 말투를 반말 해체로 - 명령형 ~라·설명 ~다 끝맺음, 문장 속 기호, 어려운 말(투입·재가동·곁·유인)를 걷어냈다. 규칙 = 문구원칙 10-14 저녁 "말투" 절) / v1.5 (v9.16 2026-09-29 손맛 2차 - 소리: 열림은 ModalFeel 이 sfx_ui_open, 닫힘 sfx_ui_close. 클릭음 제거) / v1.4 (v9.15 2026-09-29: 보조 키 - BriefDef.altKey/altHint/onAlt. 구간 완료 카드의 [R] 한 번 더. 닫힘 안내 줄에 "[R] 한 번 더   [Enter] 로비로") / v1.2 (v9.11 2026-09-22: 등장 연출 ModalFeel) / v1.1 (v9.9.2 2026-09-16: 초상 + 키 동시 배치(실루엣 1배 위 + 키 아래) / 초상 틴트(EnemySkin 규칙) / 증강 선택창 위에도 열린다 - 승격 카드 "증강 선택"용)
+/// [BriefingUI.cs] v1.7 (v9.26 2026-10-16 마감 정리: 부르는 곳 없는 HasSeen 삭제) / v1.6 (v9.22.2 2026-10-14 유저 "튜토리얼 말투가 번역체·AI 같고 딱딱하다": 안내 글 말투를 반말 해체로 - 명령형 ~라·설명 ~다 끝맺음, 문장 속 기호, 어려운 말(투입·재가동·곁·유인)를 걷어냈다. 규칙 = 문구원칙 10-14 저녁 "말투" 절) / v1.5 (v9.16 2026-09-29 손맛 2차 - 소리: 열림은 ModalFeel 이 sfx_ui_open, 닫힘 sfx_ui_close. 클릭음 제거) / v1.4 (v9.15 2026-09-29: 보조 키 - BriefDef.altKey/altHint/onAlt. 구간 완료 카드의 [R] 한 번 더. 닫힘 안내 줄에 "[R] 한 번 더   [Enter] 로비로") / v1.2 (v9.11 2026-09-22: 등장 연출 ModalFeel) / v1.1 (v9.9.2 2026-09-16: 초상 + 키 동시 배치(실루엣 1배 위 + 키 아래) / 초상 틴트(EnemySkin 규칙) / 증강 선택창 위에도 열린다 - 승격 카드 "증강 선택"용)
 ///   / v1 (신규, v9.9 2026-09-16) - 브리핑 카드: "읽는 동안 세계가 멈추는" 설명 창
 ///
 /// 튜토리얼 계획 v2 §5. 견습 운행(TutorialDirector)의 단계 시작마다, 그리고 정식 런에서 처음 만나는 것
@@ -146,12 +146,6 @@ public class BriefingUI : MonoBehaviour
         def.id = id;
         Show(def);
         return true;
-    }
-
-    /// <summary>이 카드를 본 적이 있는가</summary>
-    public static bool HasSeen(string id)
-    {
-        return PlayerPrefs.GetInt(PREF_PREFIX + id, 0) == 1;
     }
 
     /// <summary>대기 중인 카드 전부 버리기 (튜토리얼 그만두기 등)</summary>
