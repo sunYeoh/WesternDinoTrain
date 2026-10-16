@@ -4,7 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 /// <summary>
-/// [ItemSystem.cs] v1.4 (v9.18 2026-10-06: 유물 획득 알림 카드 RelicToast - 이름·효과·"[V] 로 다시 본다" 를 4.5초 띄운다. 상자로 주운 유물은 알림 줄에 이름만 나와 무슨 효과인지 알 수 없었다) / v1.3 (v9.16 2026-09-29 손맛 2차 - 소리: 유물 획득 sfx_relic) / v1.2 (v9.14 2026-09-28: 유물 15종 설명을 일상어로 - 테스터 "황금 조리 기구가 뭔지 모르겠음": "판정 구간" -> "맞춰야 하는 구간이 넓어진다") / v1.1 (2026-09-14: IsItemUsable 스위치 연동) / v1 (신규 파일) - Phase 2-3: 아이템(유물) 시스템
+/// [ItemSystem.cs] v1.5 (v9.25 2026-10-16 B5 - 5차 피드백 4번 "유물 개구림 의미없음": 조리 판정·사고 쪽 8 (보험·부채·매트·숫돌·온도계·뒤집개·밸브·고글)을 싸움 유물 8 로 - 녹슨 탄창·굶주린 화덕·짝꿍 숟가락·탐욕의 국자·무거운 냄비·선대의 식탁보·독한 소스·빈 접시. 09 월 "증강 = 싸움 / 유물 = 주방 일" 나누기를 바꾸는 것이라 GameBalance.RelicCombatSet = false 면 예전 15종. 새 값은 ItemManager 의 v1.5 칸, 피해 배율은 RelicDamageMul) / v1.4 (v9.18 2026-10-06: 유물 획득 알림 카드 RelicToast - 이름·효과·"[V] 로 다시 본다" 를 4.5초 띄운다. 상자로 주운 유물은 알림 줄에 이름만 나와 무슨 효과인지 알 수 없었다) / v1.3 (v9.16 2026-09-29 손맛 2차 - 소리: 유물 획득 sfx_relic) / v1.2 (v9.14 2026-09-28: 유물 15종 설명을 일상어로 - 테스터 "황금 조리 기구가 뭔지 모르겠음": "판정 구간" -> "맞춰야 하는 구간이 넓어진다") / v1.1 (2026-09-14: IsItemUsable 스위치 연동) / v1 (신규 파일) - Phase 2-3: 아이템(유물) 시스템
 ///
 /// 설계 (사용자 결정 - 증강/아이템 이원화):
 ///  - 증강 = 포탑 강화 + 기차 유틸 (전투 출력에 관여)
@@ -104,6 +104,34 @@ public static class ItemManager
     public static bool FailRefund = false;       // 선대의 앞치마: 실패 시 재료 환급
     public static float PerfectExtraChance = 0f; // 비밀 향신료 주머니: PERFECT 시 요리 +1 확률
 
+    // ---------- v1.5 (v9.25 B5): 싸움 유물 (TurretSlot·TurretAttackExecutor·TurretSlotManager·Enemy·TrainManager·AugmentPickUI 에서 읽음) ----------
+    public static float AspdMul = 1f;            // 녹슨 탄창 x1.25 / 무거운 냄비 x0.9 - 포탑 공격속도 (증강 공격속도 상한과 따로)
+    public static float RangeMul = 1f;           // 녹슨 탄창 x0.85 - 포탑 사거리
+    public static float LowHpAtkBonus = 0f;      // 굶주린 화덕: 기차 HP 절반 아래면 피해 +30%
+    public static float PairAtkBonus = 0f;       // 짝꿍 숟가락: 같은 요리 포탑이 둘 이상이면 그 포탑들 피해 +20%
+    public static bool NoResonance = false;      // 짝꿍 숟가락의 대가: 공명이 꺼진다
+    public static float KillGoldMul = 1f;        // 탐욕의 국자: 처치 골드 x1.4
+    public static float DamageTakenAdd = 0f;     // 탐욕의 국자의 대가: 기차가 받는 피해 +15% (받는 피해 감소에서 뺀다)
+    public static float ExplodeRadiusMul = 1f;   // 무거운 냄비: 폭발 반경 x1.3
+    public static float WaveHeal = 0f;           // 선대의 식탁보: 웨이브를 막을 때마다 기차 HP 회복
+    public static float DotMul = 1f;             // 독한 소스: 화상·독 x1.5
+    public static float EmptySlotAtkBonus = 0f;  // 빈 접시: 비어 있는 포탑 칸 하나마다 다른 포탑 피해 +8%
+
+    /// <summary>v1.5 (v9.25 B5): 이 요리 포탑의 유물 피해 배율 - 굶주린 화덕 / 짝꿍 숟가락 / 빈 접시 (TurretAttackExecutor.DealDamage 가 곱한다)</summary>
+    public static float RelicDamageMul(RecipeData r)
+    {
+        float mul = 1f;
+        if (LowHpAtkBonus > 0f && TrainManager.Instance != null && TrainManager.Instance.HPRatio < 0.5f)
+            mul *= 1f + LowHpAtkBonus;
+        TurretSlotManager mgr = TurretSlotManager.Instance;
+        if (mgr != null && r != null)
+        {
+            if (PairAtkBonus > 0f && mgr.CountRecipe(r.recipeId) >= 2) mul *= 1f + PairAtkBonus;
+            if (EmptySlotAtkBonus > 0f) mul *= 1f + EmptySlotAtkBonus * mgr.EmptyUnlockedCount();
+        }
+        return mul;
+    }
+
     // ---------- 내부 상태 ----------
     private static int lastExtinguishWave = -1;  // 소화기: 이번 웨이브에 이미 썼는가
     public static int MerchantGuaranteedRegion = 0; // 행상인: 지역 첫 정차 확정 등장 기록
@@ -123,6 +151,8 @@ public static class ItemManager
         EventPenaltyMul = 1f; EventRewardMul = 1f; EventIntervalMul = 1f;
         HasExtinguisher = false; IntruderGaugeMul = 1f; SwagGoldPerIntruder = 0;
         FailRefund = false; PerfectExtraChance = 0f;
+        AspdMul = 1f; RangeMul = 1f; LowHpAtkBonus = 0f; PairAtkBonus = 0f; NoResonance = false;   // v1.5: 싸움 유물
+        KillGoldMul = 1f; DamageTakenAdd = 0f; ExplodeRadiusMul = 1f; WaveHeal = 0f; DotMul = 1f; EmptySlotAtkBonus = 0f;
         lastExtinguishWave = -1;
         MerchantGuaranteedRegion = 0;
         Owned.Clear();
@@ -304,43 +334,50 @@ public static class ItemDatabase
             ItemRarity.Rare, 300,
             delegate { ItemManager.CookJudgeMul *= 1.35f; ItemManager.CookTimeMul *= 1.10f; }));
 
-        all.Add(new ItemData("item_insurance", "보험 계약서",
-            "주방 사고에 실패해도 기차가 받는 피해가 60% 줄어든다",
-            ItemRarity.Common, 160,
-            delegate { ItemManager.EventPenaltyMul *= 0.40f; }));
+        // v1.5 (v9.25 B5): 아래 셋(보험·부채·매트)과 숫돌·온도계·뒤집개·밸브·고글은 RelicCombatSet 을 끈 때만 - 켜면 싸움 유물 8 이 그 자리를 맡는다
+        if (!GameBalance.RelicCombatSet)
+        {
+            all.Add(new ItemData("item_insurance", "보험 계약서",
+                "주방 사고에 실패해도 기차가 받는 피해가 60% 줄어든다",
+                ItemRarity.Common, 160,
+                delegate { ItemManager.EventPenaltyMul *= 0.40f; }));
 
-        all.Add(new ItemData("item_fan", "부채질 장인의 부채",
-            "주방 사고가 2배 자주 오지만, 막아내면 보상이 3배",
-            ItemRarity.Rare, 280,
-            delegate { ItemManager.EventIntervalMul *= 0.5f; ItemManager.EventRewardMul *= 3f; }));
+            all.Add(new ItemData("item_fan", "부채질 장인의 부채",
+                "주방 사고가 2배 자주 오지만, 막아내면 보상이 3배",
+                ItemRarity.Rare, 280,
+                delegate { ItemManager.EventIntervalMul *= 0.5f; ItemManager.EventRewardMul *= 3f; }));
 
-        all.Add(new ItemData("item_oilmat", "미끄럼 방지 매트",
-            "오일 캑터스가 튀기는 기름에 안 미끄러진다",
-            ItemRarity.Common, 140,
-            delegate { ItemManager.OilImmune = true; }));
+            all.Add(new ItemData("item_oilmat", "미끄럼 방지 매트",
+                "오일 캑터스가 튀기는 기름에 안 미끄러진다",
+                ItemRarity.Common, 140,
+                delegate { ItemManager.OilImmune = true; }));
+        }
 
         // ==========================================================
-        //  신규 10종
+        //  신규 10종 (v1.5: 숫돌·온도계·뒤집개·밸브·고글은 RelicCombatSet 을 끈 때만)
         // ==========================================================
-        all.Add(new ItemData("item_whetstone", "휴대용 숫돌",
-            "조리 도구가 절반만 닳는다 (전갈의 부식도 절반)",
-            ItemRarity.Common, 150,
-            delegate { ItemManager.ToolWearMul *= 0.5f; }));
+        if (!GameBalance.RelicCombatSet)
+        {
+            all.Add(new ItemData("item_whetstone", "휴대용 숫돌",
+                "조리 도구가 절반만 닳는다 (전갈의 부식도 절반)",
+                ItemRarity.Common, 150,
+                delegate { ItemManager.ToolWearMul *= 0.5f; }));
 
-        all.Add(new ItemData("item_thermometer", "구리 온도계",
-            "굽기(그릴)에서 맞춰야 하는 구간이 25% 넓어진다",
-            ItemRarity.Common, 150,
-            delegate { ItemManager.GrillJudgeMul *= 1.25f; }));
+            all.Add(new ItemData("item_thermometer", "구리 온도계",
+                "굽기(그릴)에서 맞춰야 하는 구간이 25% 넓어진다",
+                ItemRarity.Common, 150,
+                delegate { ItemManager.GrillJudgeMul *= 1.25f; }));
 
-        all.Add(new ItemData("item_spatula", "균형 잡힌 뒤집개",
-            "볶기(팬) 제한 시간이 25% 길어진다",
-            ItemRarity.Common, 150,
-            delegate { ItemManager.StirTimeMul *= 1.25f; }));
+            all.Add(new ItemData("item_spatula", "균형 잡힌 뒤집개",
+                "볶기(팬) 제한 시간이 25% 길어진다",
+                ItemRarity.Common, 150,
+                delegate { ItemManager.StirTimeMul *= 1.25f; }));
 
-        all.Add(new ItemData("item_valve", "압력 조절 밸브",
-            "끓이기(솥)에서 맞춰야 하는 구간이 25% 넓어진다",
-            ItemRarity.Common, 150,
-            delegate { ItemManager.BoilJudgeMul *= 1.25f; }));
+            all.Add(new ItemData("item_valve", "압력 조절 밸브",
+                "끓이기(솥)에서 맞춰야 하는 구간이 25% 넓어진다",
+                ItemRarity.Common, 150,
+                delegate { ItemManager.BoilJudgeMul *= 1.25f; }));
+        }
 
         all.Add(new ItemData("item_extinguisher", "구리 소화기",
             "주방 화재가 웨이브마다 한 번은 저절로 꺼진다",
@@ -352,10 +389,11 @@ public static class ItemDatabase
             ItemRarity.Common, 160,
             delegate { ItemManager.IntruderGaugeMul *= 0.6f; }));
 
-        all.Add(new ItemData("item_goggles", "김서림 방지 고글",
-            "독침 프테라가 쏴 맞혀도 조리 속도가 안 느려진다",
-            ItemRarity.Rare, 260,
-            delegate { ItemManager.SnipeImmune = true; }));
+        if (!GameBalance.RelicCombatSet)
+            all.Add(new ItemData("item_goggles", "김서림 방지 고글",
+                "독침 프테라가 쏴 맞혀도 조리 속도가 안 느려진다",
+                ItemRarity.Rare, 260,
+                delegate { ItemManager.SnipeImmune = true; }));
 
         all.Add(new ItemData("item_apron", "선대의 앞치마",
             "조리에 실패해도 재료를 돌려받는다",
@@ -366,6 +404,52 @@ public static class ItemDatabase
             "조리를 PERFECT 로 마치면 20% 확률로 요리가 하나 더 나온다",
             ItemRarity.Rare, 300,
             delegate { ItemManager.PerfectExtraChance += 0.20f; }));
+
+        // ==========================================================
+        //  v1.5 (v9.25 B5): 싸움 유물 8 - 대가가 붙은 것 위주 (RelicCombatSet)
+        // ==========================================================
+        if (GameBalance.RelicCombatSet)
+        {
+            all.Add(new ItemData("item_rustymag", "녹슨 탄창",
+                "모든 포탑 공격속도 +25%. 대신 사거리 -15%",
+                ItemRarity.Common, 160,
+                delegate { ItemManager.AspdMul *= 1.25f; ItemManager.RangeMul *= 0.85f; }));
+
+            all.Add(new ItemData("item_hungryoven", "굶주린 화덕",
+                "기차 HP 가 절반 아래면 모든 포탑 피해 +30%",
+                ItemRarity.Rare, 260,
+                delegate { ItemManager.LowHpAtkBonus += 0.30f; }));
+
+            all.Add(new ItemData("item_pairspoon", "짝꿍 숟가락",
+                "같은 요리 포탑이 둘 이상이면 그 포탑들 피해 +20%. 대신 공명이 꺼져",
+                ItemRarity.Rare, 280,
+                delegate { ItemManager.PairAtkBonus += 0.20f; ItemManager.NoResonance = true; }));
+
+            all.Add(new ItemData("item_greedladle", "탐욕의 국자",
+                "손님을 잡으면 골드 +40%. 대신 기차가 받는 피해 +15%",
+                ItemRarity.Common, 150,
+                delegate { ItemManager.KillGoldMul *= 1.40f; ItemManager.DamageTakenAdd += 0.15f; }));
+
+            all.Add(new ItemData("item_heavypot", "무거운 냄비",
+                "폭발 반경 +30%. 대신 모든 포탑 공격속도 -10%",
+                ItemRarity.Common, 150,
+                delegate { ItemManager.ExplodeRadiusMul *= 1.30f; ItemManager.AspdMul *= 0.90f; }));
+
+            all.Add(new ItemData("item_tablecloth", "선대의 식탁보",
+                "웨이브를 막을 때마다 기차 HP 40 회복",
+                ItemRarity.Common, 140,
+                delegate { ItemManager.WaveHeal += 40f; }));
+
+            all.Add(new ItemData("item_hotsauce", "독한 소스",
+                "화상·독 피해 +50%",
+                ItemRarity.Common, 160,
+                delegate { ItemManager.DotMul *= 1.50f; }));
+
+            all.Add(new ItemData("item_emptyplate", "빈 접시",
+                "비어 있는 포탑 칸 하나마다 다른 포탑 피해 +8%",
+                ItemRarity.Rare, 240,
+                delegate { ItemManager.EmptySlotAtkBonus += 0.08f; }));
+        }
 
         // 유일 - 침입자 격퇴 시에만 낮은 확률로 획득 (비매품)
         all.Add(new ItemData("item_swagbag", "장물 주머니",

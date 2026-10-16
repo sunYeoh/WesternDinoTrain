@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// [Enemy.cs] v3.17 (v9.23 2026-10-14 보스 새 패턴: AimPoint - 포탑이 겨누는 자리 (보통은 몸 가운데, 디 오리지널은 약점 칸 - BossEnemy 재정의) / AimX - 노릴 칸의 x (편대 발진의 플라이가 표시된 칸으로 내리꽂힌다) / LuredByBait - 랩터 무리가 아니어도 미끼에 끌린다 (부관 발톱) / OnDied - 쓰러질 때 부르는 곳 하나 (부관이 쓰러지면 왕이 운다) / Rout - 보스가 쓰러졌다: 먼지를 끌며 달아난다, 처치 골드는 그 자리에서 (재료·유물 없음, 표적이 안 된다)) / v3.16 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v3.15 (v9.21.1 2026-10-13 4차 피드백 7번: 처치 골드를 반올림하지 않고 소수를 모아 둔다 GoldCarry - 머릿수를 늘린 작은 손님(몫 0.43)이 "최소 1 + 반올림"으로 구성표의 1.7배를 주던 것. GameBalance.GoldCarryOn) / v3.14 (v9.21 2026-10-12 보스 1단계: DistanceFrom(점) - 범위 판정(폭발·장판·대체 표적)이 쓰는 거리. 손님은 중심까지, 보스(BossEnemy 재정의)는 몸(돌아간 사각형)의 가장자리까지 - 9 ~ 20u 몸의 끝에 떨어진 폭발이 비껴가지 않게) / v3.13 (v9.19.2 2026-10-07 유저 확인 뒤: 머릿수를 늘린 손님이 제 힘으로 온다 - 기차를 물 때 몫을 안 넘기고(TrainManager 가 예전 식 + 방어력 바닥), 받는 회복도 그대로. Share 는 보상·도구 부식·빙결 확률·힐러가 주는 회복에만 / 전체 강화: 방어·저항 x EnemyDefMul, 견습 운행은 TutorialEnemy* 로 예전 값) / v3.12 (v9.19.1 2026-10-07: Share - 머릿수를 늘린 손님 한 마리의 몫 (v3.11 의 RewardMul 을 대신한다). 처치 보상에 더해, 기차를 물 때 방어력·연속 피격 완충을 몫만큼만 쓰게 TrainManager 에 넘기고 전갈의 도구 부식·모사 빙결 확률·힐러 회복에도 곱한다) / v3.11 (v9.19 2026-10-06 웨이브 편성: PaceMul - 호위 행렬의 작은 손님이 큰 손님 걸음에 맞출 때 WaveManager 가 거는 걸음 배율. 둔화·기절(scaledSPD)과 따로 곱해진다 / RewardMul - 머릿수를 늘린 작은 손님의 처치 보상(골드·재료 확률·상자 확률)을 그만큼 나눈다) / v3.10 (v9.18 2026-10-06: 숫자 팝업에 쏜 포탑을 같이 넘긴다(포탑별 합산) / 견습 운행 중에는 쓰러지면 재료를 반드시 떨어뜨린다 - "고기 2개" 단계에서 1개만 나오던 것) / v3.9 (v9.17 2026-10-06 화면 손맛 2차: quietDeath - 식사 엔딩의 보스는 처치음·킬 버스트 없이 흐려진다 / A4: 숫자 팝업을 DamagePopup.CreateFor(크기 비례·0.1초 합산)로, 크리 표시는 진짜 치명타만(HitFeel.ConsumeCrit) - 예전엔 피해가 손님 공격력의 2배 이상이면 크리로 찍혀 치명타 증강이 없어도 "!" 가 떴다) / v3.8 (v9.16 2026-09-29 손맛 2차 - 소리: 공격음 = 손님 종류별(SoundKeys.Attack, 제자리에서 PlayAt) / 처치음 = 재질별(SoundKeys.Die) - 큰 손님은 sfx_kill_big / 명중음은 HitFeel.OnHit 이 재질별로 내고, 방어에 크게 깎인 물리는 튕김음(resisted 전달)) / v3.7 (v9.15 2026-09-29: 방어·저항으로 피해가 GameBalance.ResistShowBelow 이하로 깎이면 팝업에 "저항" - 하나만 키우면 왜 안 통하는지 화면에서) / v3.6 (v9.14 2026-09-28: IncomingDamage - 과잉 집중 방지용 예약 피해) / v3.5 (v9.12 2026-09-22: TutorialDirector.InlineFreeze 동안 정지 / 용어 "지속 피해") / v3.4 (v9.11.1 2026-09-22 문구: 특기 설명 일상어, 강철 = 방어 50) / v3.3 (v9.11 2026-09-22 타격감: 직접 명중 때 HitFeel.OnHit(플래시·찌그러짐·딜 비례 스파크), 죽을 때 HitFeel.OnKill(킬 버스트) - 도트 틱은 제외) / v3.2 (v9.10.1 2026-09-21: 물량 1.6배에 맞춘 처치 보상 배율 - 일반 손님 골드 GameBalance.KillGoldMul, 재료 드랍 확률 KillMaterialChance(보스는 항상). 드랍 이름을 재료 이름표(전기알·화염꽃·독샘)에 맞춤) / v3.1 (2026-09-14: 해빙 문구 / 전갈 마모 대체 스위치) / v3
+/// [Enemy.cs] v3.18 (v9.25 2026-10-16 B3 지역 곡선: 지역 2·3 손님 HP·공격력에 GameBalance.RegionHpMulAt·RegionAtkMulAt (견습 운행 제외) / B5 유물 '탐욕의 국자': 처치 골드 x ItemManager.KillGoldMul (보스 포함)) / v3.17 (v9.23 2026-10-14 보스 새 패턴: AimPoint - 포탑이 겨누는 자리 (보통은 몸 가운데, 디 오리지널은 약점 칸 - BossEnemy 재정의) / AimX - 노릴 칸의 x (편대 발진의 플라이가 표시된 칸으로 내리꽂힌다) / LuredByBait - 랩터 무리가 아니어도 미끼에 끌린다 (부관 발톱) / OnDied - 쓰러질 때 부르는 곳 하나 (부관이 쓰러지면 왕이 운다) / Rout - 보스가 쓰러졌다: 먼지를 끌며 달아난다, 처치 골드는 그 자리에서 (재료·유물 없음, 표적이 안 된다)) / v3.16 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v3.15 (v9.21.1 2026-10-13 4차 피드백 7번: 처치 골드를 반올림하지 않고 소수를 모아 둔다 GoldCarry - 머릿수를 늘린 작은 손님(몫 0.43)이 "최소 1 + 반올림"으로 구성표의 1.7배를 주던 것. GameBalance.GoldCarryOn) / v3.14 (v9.21 2026-10-12 보스 1단계: DistanceFrom(점) - 범위 판정(폭발·장판·대체 표적)이 쓰는 거리. 손님은 중심까지, 보스(BossEnemy 재정의)는 몸(돌아간 사각형)의 가장자리까지 - 9 ~ 20u 몸의 끝에 떨어진 폭발이 비껴가지 않게) / v3.13 (v9.19.2 2026-10-07 유저 확인 뒤: 머릿수를 늘린 손님이 제 힘으로 온다 - 기차를 물 때 몫을 안 넘기고(TrainManager 가 예전 식 + 방어력 바닥), 받는 회복도 그대로. Share 는 보상·도구 부식·빙결 확률·힐러가 주는 회복에만 / 전체 강화: 방어·저항 x EnemyDefMul, 견습 운행은 TutorialEnemy* 로 예전 값) / v3.12 (v9.19.1 2026-10-07: Share - 머릿수를 늘린 손님 한 마리의 몫 (v3.11 의 RewardMul 을 대신한다). 처치 보상에 더해, 기차를 물 때 방어력·연속 피격 완충을 몫만큼만 쓰게 TrainManager 에 넘기고 전갈의 도구 부식·모사 빙결 확률·힐러 회복에도 곱한다) / v3.11 (v9.19 2026-10-06 웨이브 편성: PaceMul - 호위 행렬의 작은 손님이 큰 손님 걸음에 맞출 때 WaveManager 가 거는 걸음 배율. 둔화·기절(scaledSPD)과 따로 곱해진다 / RewardMul - 머릿수를 늘린 작은 손님의 처치 보상(골드·재료 확률·상자 확률)을 그만큼 나눈다) / v3.10 (v9.18 2026-10-06: 숫자 팝업에 쏜 포탑을 같이 넘긴다(포탑별 합산) / 견습 운행 중에는 쓰러지면 재료를 반드시 떨어뜨린다 - "고기 2개" 단계에서 1개만 나오던 것) / v3.9 (v9.17 2026-10-06 화면 손맛 2차: quietDeath - 식사 엔딩의 보스는 처치음·킬 버스트 없이 흐려진다 / A4: 숫자 팝업을 DamagePopup.CreateFor(크기 비례·0.1초 합산)로, 크리 표시는 진짜 치명타만(HitFeel.ConsumeCrit) - 예전엔 피해가 손님 공격력의 2배 이상이면 크리로 찍혀 치명타 증강이 없어도 "!" 가 떴다) / v3.8 (v9.16 2026-09-29 손맛 2차 - 소리: 공격음 = 손님 종류별(SoundKeys.Attack, 제자리에서 PlayAt) / 처치음 = 재질별(SoundKeys.Die) - 큰 손님은 sfx_kill_big / 명중음은 HitFeel.OnHit 이 재질별로 내고, 방어에 크게 깎인 물리는 튕김음(resisted 전달)) / v3.7 (v9.15 2026-09-29: 방어·저항으로 피해가 GameBalance.ResistShowBelow 이하로 깎이면 팝업에 "저항" - 하나만 키우면 왜 안 통하는지 화면에서) / v3.6 (v9.14 2026-09-28: IncomingDamage - 과잉 집중 방지용 예약 피해) / v3.5 (v9.12 2026-09-22: TutorialDirector.InlineFreeze 동안 정지 / 용어 "지속 피해") / v3.4 (v9.11.1 2026-09-22 문구: 특기 설명 일상어, 강철 = 방어 50) / v3.3 (v9.11 2026-09-22 타격감: 직접 명중 때 HitFeel.OnHit(플래시·찌그러짐·딜 비례 스파크), 죽을 때 HitFeel.OnKill(킬 버스트) - 도트 틱은 제외) / v3.2 (v9.10.1 2026-09-21: 물량 1.6배에 맞춘 처치 보상 배율 - 일반 손님 골드 GameBalance.KillGoldMul, 재료 드랍 확률 KillMaterialChance(보스는 항상). 드랍 이름을 재료 이름표(전기알·화염꽃·독샘)에 맞춤) / v3.1 (2026-09-14: 해빙 문구 / 전갈 마모 대체 스위치) / v3
 /// 모든 적 유닛의 기본 동작 + 전투 스탯(DEF/RES) + 상태이상(도트/방깎/마깎)
 /// - v3 변경점: 행동 패턴 시스템 (이름 기반 자동 배정 - 프리팹 설정 불필요)
 ///   1) 무리 사냥꾼(랩터): 주변 랩터가 많을수록 이동 속도 증가
@@ -485,9 +485,12 @@ public class Enemy : MonoBehaviour
         float multiplier = 1f + (waveNumber * 0.15f) / difficultyL;
         // 전역 밸런스 배율 (GameBalance에서 조정). v3.13: 견습 운행은 예전 배율 (TutorialEnemy*)
         bool tutorial = TutorialRules();
-        currentHP = data.baseHP * multiplier * (tutorial ? GameBalance.TutorialEnemyHPMul : GameBalance.EnemyHPMul);
+        // v3.18 (v9.25 B3): 지역 곡선 - 지역 2·3 손님은 더 단단하고 세다 (5차 피드백 "너무 쉬움". 견습 운행은 예전 값)
+        float regionHp = tutorial ? 1f : GameBalance.RegionHpMulAt(waveNumber);
+        float regionAtk = tutorial ? 1f : GameBalance.RegionAtkMulAt(waveNumber);
+        currentHP = data.baseHP * multiplier * (tutorial ? GameBalance.TutorialEnemyHPMul : GameBalance.EnemyHPMul) * regionHp;
         scaledMaxHP = currentHP;
-        scaledATK = data.baseATK * multiplier * (tutorial ? GameBalance.TutorialEnemyATKMul : GameBalance.EnemyATKMul);
+        scaledATK = data.baseATK * multiplier * (tutorial ? GameBalance.TutorialEnemyATKMul : GameBalance.EnemyATKMul) * regionAtk;
         scaledSPD = data.baseSPD;
     }
 
@@ -1011,12 +1014,13 @@ public class Enemy : MonoBehaviour
             if (GameBalance.GoldCarryOn)
             {
                 // v3.15: 소수 누적 - 한 마리 1.5 골드면 두 마리에 3 (예전엔 2 + 2). 새 운행마다 0 에서 (CookingBridge.ResetRunStats)
-                float exact = gold * GameBalance.KillGoldMul * Share + goldCarry;
+                float exact = gold * GameBalance.KillGoldMul * ItemManager.KillGoldMul * Share + goldCarry;   // v3.18: 유물 탐욕의 국자
                 gold = Mathf.FloorToInt(exact);
                 goldCarry = exact - gold;
             }
-            else gold = Mathf.Max(1, Mathf.RoundToInt(gold * GameBalance.KillGoldMul * Share));
+            else gold = Mathf.Max(1, Mathf.RoundToInt(gold * GameBalance.KillGoldMul * ItemManager.KillGoldMul * Share));
         }
+        else if (ItemManager.KillGoldMul != 1f) gold = Mathf.RoundToInt(gold * ItemManager.KillGoldMul);   // v3.18: 보스 처치 골드도 유물 배율
         if (gold > 0) GameManager.Instance?.AddGold(gold);
     }
 
