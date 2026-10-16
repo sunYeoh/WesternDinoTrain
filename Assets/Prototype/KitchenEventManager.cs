@@ -4,7 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 /// <summary>
-/// [KitchenEventManager.cs] v4.13 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v4.12 (v9.20 2026-10-07: 글 속 화살표를 게임 글꼴에 있는 세모로(게임 글꼴에 화살표 글리프가 없어 PC 의 다른 글꼴로 그려졌다 - 모양이 따로 놀고, 대신할 글꼴이 없는 빌드에선 빈칸)) / v4.11 (v9.18 2026-10-06: 경광등 2개를 기차 상황판 양옆으로(구 자리는 커진 좌우 판 위) / 실패 피해를 기차 최대 HP 에 맞춰 키우고 방어력으로 깎지 않는다(EventFailScaleOn - "HP 2800 에 19 닳던 것") / 웨이브가 끝나 사고 수습을 기다리는 동안(WaveManager.PostWaveHold) 새 사고를 시작하지 않는다 / MakeText 최소 글자 크기 / AnchorCanvasX 를 캔버스 실제 폭으로 - 1920 고정이라 현장 그림이 바깥으로 밀려 있었다) / v4.10 (v9.16 2026-09-29 손맛 2차 - 소리: 사고 시작 = 경보 + 종류별 소리(SoundKeys.Event: 침입 발소리 / 고장 쇠 삐걱 / 화재 불붙음 / 흘림 쏟아짐) + 배경음 덕킹 / 끝나면 덕킹 해제 / 결과 sfx_event_resolve·sfx_event_fail) / v4.9 (v9.15 2026-09-29 2차 피드백: 사고 해결 연출 - 현장 초록 링 2겹 + "해결!" + 화면 테두리 초록 한 번 + 배너가 초록 "해결 - 기차 HP +n"으로 바뀌고 EventResolveHoldSec 뒤 내려감 / 실패는 붉은 "실패" + "[사고 실패] ... 기차 HP -n" 한 줄 (훈련장에서 결과를 알게) / ForceEvent(kind) - 자유 연습 [2]~[5] / 자유 연습 중 첫 등장 카드는 세션당 1회) / v4.8 (v9.14 2026-09-28 테스터 반영: 사고 현장에 월드 마커(붉은 화살표 + 링) - "직접 가야 한다는 인식 부족" / 흘림 조각이 사고 배너 뒤에 가려지던 것 - 커스텀 층을 배너 위로) / v4.7 (v9.12 2026-09-22: 인라인 연습 중 사고 타이머 정지) / v4.6 (v9.11 2026-09-22: MakeButton 에 ButtonFeel) / v4.5 (v9.10 2026-09-17 테스터 피드백 "사고 중에 증강 선택이 뜨면 사고가 끝난다": 웨이브가 끝나 정차로 넘어가며 사고가 취소될 때 "정차 정비로 사고가 정리됐다 (벌점 없음)" 알림 - 조용히 사라지던 것) / v4.4 (v9.9.2 2026-09-16: 사고 종류별 첫 등장 카드 - StartEvent 에서 BriefingUI.ShowOnce("event_<종류>"), 카드가 뜨면 시간이 멈춰 제한 시간은 그 뒤 흐른다) / v4.3 (v9.9 2026-09-16: 견습 운행 중 F11 무시 - 이벤트 자체는 WaveManager.TutorialGateActive 로 쉰다) / v4.2 (v9.8.1: F11 강제 발생은 GameBalance.CheatsAllowed 일 때만) / v4.1 (2026-09-14: 마모 off 가중치 / 프롤로그 게이트 차단) / v4
+/// [KitchenEventManager.cs] v4.14 (v9.24.1 2026-10-16 5차 피드백 8번: 위치형 사고(침입·고장·화재)는 위치 먼저 (GameBalance.EventLocationFirst) - 현장 고리·화살표를 키우고(EventSiteScaleAway) 현장 위에 "화재 12초", 셰프 머리 위에 현장 쪽 세모. 배너·현장 카드·전체 화면 그림·처음 보는 사고의 설명 카드는 셰프가 현장에 처음 닿는 순간에 뜬다. 경보음·가장자리 붉은빛·배경음 낮춤은 처음부터. 현장을 벗어나면 안내 줄 "현장으로 돌아가". 사고 종류 키를 EventKey 하나로) / v4.13 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v4.12 (v9.20 2026-10-07: 글 속 화살표를 게임 글꼴에 있는 세모로(게임 글꼴에 화살표 글리프가 없어 PC 의 다른 글꼴로 그려졌다 - 모양이 따로 놀고, 대신할 글꼴이 없는 빌드에선 빈칸)) / v4.11 (v9.18 2026-10-06: 경광등 2개를 기차 상황판 양옆으로(구 자리는 커진 좌우 판 위) / 실패 피해를 기차 최대 HP 에 맞춰 키우고 방어력으로 깎지 않는다(EventFailScaleOn - "HP 2800 에 19 닳던 것") / 웨이브가 끝나 사고 수습을 기다리는 동안(WaveManager.PostWaveHold) 새 사고를 시작하지 않는다 / MakeText 최소 글자 크기 / AnchorCanvasX 를 캔버스 실제 폭으로 - 1920 고정이라 현장 그림이 바깥으로 밀려 있었다) / v4.10 (v9.16 2026-09-29 손맛 2차 - 소리: 사고 시작 = 경보 + 종류별 소리(SoundKeys.Event: 침입 발소리 / 고장 쇠 삐걱 / 화재 불붙음 / 흘림 쏟아짐) + 배경음 덕킹 / 끝나면 덕킹 해제 / 결과 sfx_event_resolve·sfx_event_fail) / v4.9 (v9.15 2026-09-29 2차 피드백: 사고 해결 연출 - 현장 초록 링 2겹 + "해결!" + 화면 테두리 초록 한 번 + 배너가 초록 "해결 - 기차 HP +n"으로 바뀌고 EventResolveHoldSec 뒤 내려감 / 실패는 붉은 "실패" + "[사고 실패] ... 기차 HP -n" 한 줄 (훈련장에서 결과를 알게) / ForceEvent(kind) - 자유 연습 [2]~[5] / 자유 연습 중 첫 등장 카드는 세션당 1회) / v4.8 (v9.14 2026-09-28 테스터 반영: 사고 현장에 월드 마커(붉은 화살표 + 링) - "직접 가야 한다는 인식 부족" / 흘림 조각이 사고 배너 뒤에 가려지던 것 - 커스텀 층을 배너 위로) / v4.7 (v9.12 2026-09-22: 인라인 연습 중 사고 타이머 정지) / v4.6 (v9.11 2026-09-22: MakeButton 에 ButtonFeel) / v4.5 (v9.10 2026-09-17 테스터 피드백 "사고 중에 증강 선택이 뜨면 사고가 끝난다": 웨이브가 끝나 정차로 넘어가며 사고가 취소될 때 "정차 정비로 사고가 정리됐다 (벌점 없음)" 알림 - 조용히 사라지던 것) / v4.4 (v9.9.2 2026-09-16: 사고 종류별 첫 등장 카드 - StartEvent 에서 BriefingUI.ShowOnce("event_<종류>"), 카드가 뜨면 시간이 멈춰 제한 시간은 그 뒤 흐른다) / v4.3 (v9.9 2026-09-16: 견습 운행 중 F11 무시 - 이벤트 자체는 WaveManager.TutorialGateActive 로 쉰다) / v4.2 (v9.8.1: F11 강제 발생은 GameBalance.CheatsAllowed 일 때만) / v4.1 (2026-09-14: 마모 off 가중치 / 프롤로그 게이트 차단) / v4
 /// 주방 돌발 이벤트 총괄 매니저 (기획 B-4)
 /// - v4 (v9.6, 2026-09-09): "화면 전체 경보" - 기차 안 작은 아이콘은 조리하다 놓친다는 피드백
 ///   * 경보 글로우: 화면 가장자리 붉은(이벤트별 색) 비네트가 0.6초 주기로 맥동 (삐뽀삐뽀). SetAlarm(color, strength)
@@ -143,6 +143,12 @@ public class KitchenEventManager : MonoBehaviour
     private Color resultAlarmRestore = new Color(0.84f, 0.16f, 0.16f, 1f);   // v4.9: 결과 글로우 전의 경보 색 (되돌린다)
     private Color titleBaseColor = new Color(1f, 0.78f, 0.32f);
     private readonly HashSet<string> sandboxSeen = new HashSet<string>();   // v4.9: 자유 연습 중 첫 등장 카드 (세션당 1회)
+    // v4.14 (v9.24.1): 위치 먼저 - 셰프가 현장에 처음 닿기 전까지 배너·현장 카드·전체 화면 그림·설명 카드를 미룬다
+    private bool awaitingArrival;             // 참 = 아직 현장에 한 번도 안 닿았다 (위치 표시만 보인다)
+    private string pendingBriefKey;           // 닿을 때 보여 줄 첫 등장 카드 (없으면 null)
+    private Text siteLabel;                   // 현장 위 "화재 12초"
+    private Text chefCue;                     // 셰프 머리 위 현장 쪽 세모
+    private const float CHEF_HEAD_Y = 1.85f;  // 셰프 머리 위 (발밑 피벗 -0.35 + 그림 높이 약 1.9u)
     private const int SITE_ARROW_ORDER = 7;   // 셰프(0+)·포탑 위
     private const int SITE_RING_ORDER = -3;   // 갑판(-6~-4) 위, 조리대 아래
 
@@ -183,7 +189,8 @@ public class KitchenEventManager : MonoBehaviour
         if (siteRoot == null)
         {
             Sprite arrow = SpriteBank.Get("tut_arrow");
-            Sprite ring = SpriteBank.Get("tut_ring_l") ?? SpriteBank.Get("tut_ring");
+            Sprite ring = SpriteBank.Get("tut_ring_l");
+            if (ring == null) ring = SpriteBank.Get("tut_ring");   // v4.14: UnityEngine.Object 에 ?? 를 쓰지 않는다
             if (arrow == null && ring == null) return;   // PNG 없으면 배너 화살표(→→)만
             siteRoot = new GameObject("EventSiteMarker").transform;
             if (ring != null)
@@ -215,19 +222,154 @@ public class KitchenEventManager : MonoBehaviour
         float t = Time.unscaledTime;
         // 링: 기차 중심선 (갑판 바닥), 0.8초 주기로 맥동
         float pulse = 1f + 0.12f * Mathf.Sin(t * Mathf.PI * 2f / 0.8f);
+        float awayMul = awaitingArrival ? GameBalance.EventSiteScaleAway : 1f;   // v4.14: 아직 안 닿았으면 크게 (위치 먼저)
         if (siteRingTf != null)
         {
             siteRingTf.position = new Vector3(AnchorX, 0f, 0.05f);
-            siteRingTf.localScale = new Vector3(pulse, pulse, 1f);
+            siteRingTf.localScale = new Vector3(pulse * awayMul, pulse * awayMul, 1f);
         }
         // 화살표: 현장 위 1.6u 에서 까딱 (0.5초 주기 0.25u). 셰프가 닿으면 작게
         if (siteArrowTf != null)
         {
             float bob = 0.25f * (0.5f + 0.5f * Mathf.Sin(t * Mathf.PI * 2f / 0.5f));
-            float k = ChefInReach ? 0.9f : 1.5f;
+            float k = ChefInReach ? 0.9f : 1.5f * awayMul;
             siteArrowTf.position = new Vector3(AnchorX, 1.6f + bob, 0f);
             siteArrowTf.localScale = new Vector3(k, k, 1f);
         }
+    }
+
+    // ─────────────────────────────────────────────
+    // v4.14 (v9.24.1): 위치 먼저 - 현장 위 이름표 "화재 12초" + 셰프 머리 위 현장 쪽 세모 (화면 캔버스, 배너·현장 카드와 따로)
+    // ─────────────────────────────────────────────
+
+    /// <summary>사고 종류 키 (첫 등장 카드·현장음 이름). 흘림은 "spill"</summary>
+    private static string EventKey(IKitchenEvent ev)
+    {
+        return ev is MonsterIntrusionEvent ? "intrusion" : ev is EquipmentBreakEvent ? "break" : ev is KitchenFireEvent ? "fire" : "spill";
+    }
+
+    /// <summary>현장 이름표에 쓰는 짧은 이름</summary>
+    private static string ShortName(IKitchenEvent ev)
+    {
+        if (ev is MonsterIntrusionEvent) return "침입자";
+        if (ev is EquipmentBreakEvent) return "기구 고장";
+        if (ev is KitchenFireEvent) return "화재";
+        return ev != null ? ev.Title : "";
+    }
+
+    /// <summary>첫 등장 카드를 지금 보여 준다 (자유 연습은 종류마다 세션당 한 번, 운행은 기록에 한 번). 띄웠으면 true</summary>
+    private bool ShowBriefingNow(string key)
+    {
+        if (TutorialDirector.SandboxActive)
+        {
+            // v4.9: 자유 연습에서는 기록과 무관하게 종류마다 한 번 보여 준다 (실패하면 어떻게 되는지가 카드에 있다)
+            if (!sandboxSeen.Add(key)) return false;
+            BriefingUI.Show(BriefingTexts.Event(key));
+            return true;
+        }
+        return BriefingUI.ShowOnce("event_" + key, BriefingTexts.Event(key));
+    }
+
+    /// <summary>월드 좌표 -> 이 캔버스의 가운데 기준 좌표 (AnchorCanvasX 와 같은 셈을 y 까지)</summary>
+    private Vector2 WorldToCanvas(Vector3 world)
+    {
+        if (Camera.main == null) return Vector2.zero;
+        Vector3 sp = Camera.main.WorldToScreenPoint(world);
+        RectTransform crt = canvas != null ? canvas.transform as RectTransform : null;
+        float w = crt != null && crt.rect.width > 1f ? crt.rect.width : UIFactory.RefResolution.x;
+        float h = crt != null && crt.rect.height > 1f ? crt.rect.height : UIFactory.RefResolution.y;
+        return new Vector2((sp.x / Mathf.Max(1f, Screen.width) - 0.5f) * w, (sp.y / Mathf.Max(1f, Screen.height) - 0.5f) * h);
+    }
+
+    /// <summary>현장 카드(CustomRoot)·전체 화면 그림(OverlayRoot)을 켜고 끈다 - 배너는 ShowPanel/HidePanel</summary>
+    private void SetEventVisualsActive(bool on)
+    {
+        if (customRoot != null) customRoot.gameObject.SetActive(on);
+        if (overlayRoot != null) overlayRoot.gameObject.SetActive(on);
+    }
+
+    private void ShowSiteCue()
+    {
+        if (siteLabel == null && canvas != null)
+        {
+            siteLabel = MakeText(canvas.transform, "SiteLabel", "", 34, SITE_RED);
+            Outline o = siteLabel.gameObject.AddComponent<Outline>();   // 싸움 화면 위에서도 읽히게 검은 테
+            o.effectColor = new Color(0f, 0f, 0f, 0.9f);
+            o.effectDistance = new Vector2(2f, -2f);
+            chefCue = MakeText(canvas.transform, "ChefCue", "", 40, SITE_RED);
+            Outline o2 = chefCue.gameObject.AddComponent<Outline>();
+            o2.effectColor = new Color(0f, 0f, 0f, 0.9f);
+            o2.effectDistance = new Vector2(2f, -2f);
+        }
+        if (siteLabel != null) siteLabel.gameObject.SetActive(true);
+        if (chefCue != null) chefCue.gameObject.SetActive(true);
+        TickSiteCue();
+    }
+
+    private void HideSiteCue()
+    {
+        if (siteLabel != null) siteLabel.gameObject.SetActive(false);
+        if (chefCue != null) chefCue.gameObject.SetActive(false);
+    }
+
+    private void TickSiteCue()
+    {
+        if (siteLabel == null) return;
+        if (currentEvent == null) { HideSiteCue(); return; }   // 사고 없이 남은 이름표·세모는 거둔다 (방어)
+        float t = Time.unscaledTime;
+        RectTransform crt = canvas != null ? canvas.transform as RectTransform : null;
+        float halfW = (crt != null && crt.rect.width > 1f ? crt.rect.width : UIFactory.RefResolution.x) * 0.5f;
+        float halfH = (crt != null && crt.rect.height > 1f ? crt.rect.height : UIFactory.RefResolution.y) * 0.5f;
+
+        // 현장 이름표: 화살표 머리 위 (화살표 = 끝이 발밑인 0.66u 그림 x 크기 1.5 x EventSiteScaleAway, 까딱 0.25u). 화면 밖이면 가장자리에 붙는다
+        float arrowTop = 1.6f + 0.25f + 0.66f * 1.5f * GameBalance.EventSiteScaleAway;
+        Vector2 p = WorldToCanvas(new Vector3(AnchorX, arrowTop + 0.45f, 0f));
+        p.x = Mathf.Clamp(p.x, -halfW + 120f, halfW - 120f);
+        p.y = Mathf.Clamp(p.y, -halfH + 40f, halfH - 60f);
+        siteLabel.rectTransform.anchoredPosition = p;
+        siteLabel.text = ShortName(currentEvent) + (eventTimeMax > 0f ? " " + Mathf.Max(0, Mathf.CeilToInt(eventTimeLeft)) + "초" : "");
+        float s = 1f + 0.06f * Mathf.Sin(t * Mathf.PI * 2f / 0.8f);   // 고리와 같은 0.8초 맥동
+        siteLabel.rectTransform.localScale = new Vector3(s, s, 1f);
+
+        // 셰프 머리 위 세모: 현장 쪽을 가리키며 그쪽으로 까딱
+        if (chefCue != null)
+        {
+            bool show = chefTransform != null;
+            if (chefCue.gameObject.activeSelf != show) chefCue.gameObject.SetActive(show);
+            if (show)
+            {
+                float dir = AnchorX > chefTransform.position.x ? 1f : -1f;
+                chefCue.text = dir > 0f ? "▶" : "◀";
+                Vector2 c = WorldToCanvas(chefTransform.position + new Vector3(0f, CHEF_HEAD_Y, 0f));
+                c.x += dir * 10f * (0.5f + 0.5f * Mathf.Sin(t * Mathf.PI * 2f / 0.5f));
+                chefCue.rectTransform.anchoredPosition = c;
+            }
+        }
+    }
+
+    /// <summary>셰프가 현장에 처음 닿았다: 배너·현장 카드·전체 화면 그림·미뤘던 첫 등장 카드</summary>
+    private void Arrive()
+    {
+        awaitingArrival = false;
+        HideSiteCue();
+        SetEventVisualsActive(true);
+        ShowPanel();
+        if (pendingBriefKey != null)
+        {
+            string key = pendingBriefKey;
+            pendingBriefKey = null;
+            // 처음 보는 사고: 걸어오는 동안 깎인 시간을 반까지 채워 준다 (카드를 읽고 2 ~ 3초 안에 처음 보는 사고를 풀어야 하는 일이 없게)
+            if (ShowBriefingNow(key)) eventTimeLeft = Mathf.Max(eventTimeLeft, eventTimeMax * 0.5f);
+        }
+    }
+
+    /// <summary>사고가 끝나거나 취소될 때 위치 먼저 상태를 되돌린다</summary>
+    private void ResetLocationFirst()
+    {
+        awaitingArrival = false;
+        pendingBriefKey = null;
+        HideSiteCue();
+        SetEventVisualsActive(true);
     }
 
     private static Font cachedFont;
@@ -436,19 +578,12 @@ public class KitchenEventManager : MonoBehaviour
         }
 
         // v4.4: 첫 등장 카드 (종류별 1회). 견습 운행 중엔 이벤트 자체가 막혀 있다
-        if (GameBalance.FirstEncounterBriefings)
-        {
-            string key = ev is MonsterIntrusionEvent ? "intrusion" : ev is EquipmentBreakEvent ? "break" : ev is KitchenFireEvent ? "fire" : "spill";
-            if (TutorialDirector.SandboxActive)
-            {
-                // v4.9: 자유 연습에서는 기록과 무관하게 종류마다 한 번 보여 준다 (실패하면 어떻게 되는지가 카드에 있다)
-                if (sandboxSeen.Add(key)) BriefingUI.Show(BriefingTexts.Event(key));
-            }
-            else BriefingUI.ShowOnce("event_" + key, BriefingTexts.Event(key));
-        }
+        //   v4.14: 키만 정해 두고, 앵커·셰프 거리를 정한 뒤에 바로 보여 주거나(현장 곁) 셰프가 닿을 때로 미룬다(위치 먼저)
+        string briefKey = GameBalance.FirstEncounterBriefings ? EventKey(ev) : null;
 
         // v4.9: 결과 배너가 아직 내려가는 중이면 즉시 정리 (글로우 색도 원래대로 - 새 사고의 OnStart 가 SetAlarm 을 안 부를 수도 있다)
         if (resultRoutine != null) { StopCoroutine(resultRoutine); resultRoutine = null; RestoreBanner(); SetAlarm(resultAlarmRestore, 0f); }
+        ResetLocationFirst();   // v4.14: 앞 사고의 위치 먼저 상태가 남았으면 정리 (방어 - 끝·취소가 늘 거두지만)
 
         currentEvent = ev;
         firedCount++;
@@ -465,6 +600,15 @@ public class KitchenEventManager : MonoBehaviour
         }
         UpdateChefReach();
 
+        // v4.14: 위치 먼저 - 현장에서 멀면 현장 표시만 먼저 (배너·현장 카드·전체 화면 그림·설명 카드는 닿을 때)
+        awaitingArrival = HasAnchor && GameBalance.EventLocationFirst && !ChefInReach;
+        pendingBriefKey = null;
+        if (briefKey != null)
+        {
+            if (awaitingArrival) pendingBriefKey = briefKey;
+            else ShowBriefingNow(briefKey);
+        }
+
         // 이벤트가 누적될수록 조금씩 어려워진다 (최대 +100%)
         float difficulty = Mathf.Min(1f, firedCount * 0.08f);
 
@@ -477,12 +621,23 @@ public class KitchenEventManager : MonoBehaviour
 
         titleText.text = ev.Title;
         guideText.text = ev.Guide;
-        ShowPanel();
+        if (awaitingArrival)
+        {
+            // v4.14: 현장 카드·전체 화면 그림은 OnStart 가 만들어 둔 채 숨긴다 (닿는 순간 Arrive 가 켠다)
+            SetEventVisualsActive(false);
+            HidePanel();
+            ShowSiteCue();
+        }
+        else
+        {
+            SetEventVisualsActive(true);
+            ShowPanel();
+        }
 
         // v4: 사이렌 (클립 없으면 조용히 무시) - 이벤트가 SetAlarm 을 안 불렀으면 기본 빨강 경보
-        // v4.10: 경보 + 종류별 현장음 + 배경음 덕킹 (사고 동안 -35%)
+        // v4.10: 경보 + 종류별 현장음 + 배경음 덕킹 (사고 동안 -35%). v4.14: 위치 먼저여도 처음부터 (급하다는 건 바로 알아야 한다)
         SoundManager.Play("sfx_alarm");
-        SoundManager.PlayDelayed(SoundKeys.Event(ev is MonsterIntrusionEvent ? "intrusion" : ev is EquipmentBreakEvent ? "break" : ev is KitchenFireEvent ? "fire" : "spill"), 0.25f);
+        SoundManager.PlayDelayed(SoundKeys.Event(EventKey(ev)), 0.25f);
         SoundManager.BgmDuck("event", true);
         if (alarmStrength <= 0f) SetAlarm(new Color(0.84f, 0.16f, 0.16f, 1f), 0.45f);
 
@@ -496,6 +651,15 @@ public class KitchenEventManager : MonoBehaviour
 
         // B-1: 셰프-앵커 근접 갱신 (각 이벤트가 ChefInReach로 입력을 게이트)
         UpdateChefReach();
+        if (awaitingArrival)
+        {
+            if (ChefInReach)
+            {
+                Arrive();   // v4.14: 처음 닿았다 - 배너·현장 카드·설명 카드
+                if (BriefingUI.IsOpen) return;   // 설명 카드가 떴다 - 이 프레임의 사고 입력은 넘긴다 (카드가 닫힌 뒤부터)
+            }
+            else TickSiteCue();
+        }
         TickSiteMarker();   // v4.8
 
         bool success;
@@ -512,11 +676,11 @@ public class KitchenEventManager : MonoBehaviour
         SetFill(gaugeFill, Mathf.Clamp01(currentEvent.Progress));
         SetFill(timeFill, eventTimeMax > 0f ? Mathf.Clamp01(eventTimeLeft / eventTimeMax) : 0f);
 
-        // B-1: 현장 밖이면 방향 화살표 + 달려가라 안내가 가이드를 대신한다
+        // B-1: 현장 밖이면 방향 화살표 + 현장 안내가 가이드를 대신한다 (v4.14: 위치 먼저면 배너는 한 번 닿은 뒤에만 보이니 "돌아가")
         if (HasAnchor && !ChefInReach && chefTransform != null)
         {
             string arrow = AnchorX > chefTransform.position.x ? "▶▶" : "◀◀";
-            guideText.text = arrow + " 현장으로 달려가라! " + arrow + "   (" + currentEvent.Guide + ")";
+            guideText.text = arrow + (GameBalance.EventLocationFirst ? " 현장으로 돌아가 " : " 현장으로 달려가 ") + arrow + "   " + currentEvent.Guide;
         }
         else
             guideText.text = currentEvent.Guide;
@@ -550,6 +714,7 @@ public class KitchenEventManager : MonoBehaviour
         currentEvent = null;
         HasAnchor = false; ChefInReach = true;   // B-1: 앵커 정리
         HideSiteMarker();
+        ResetLocationFirst();   // v4.14
 
         ClearCustomRoot();
         ClearOverlay();
@@ -566,6 +731,7 @@ public class KitchenEventManager : MonoBehaviour
         bool hadAnchor = HasAnchor; float siteX = AnchorX;
         HasAnchor = false; ChefInReach = true;   // B-1: 앵커 정리
         HideSiteMarker();
+        ResetLocationFirst();   // v4.14: 못 닿고 끝났으면 미룬 설명 카드는 버린다 (다음에 같은 사고가 나면 그때)
 
         if (cachedTrain == null) cachedTrain = Object.FindFirstObjectByType<TrainManager>();
         float hpBefore = cachedTrain != null ? cachedTrain.currentHP : 0f;

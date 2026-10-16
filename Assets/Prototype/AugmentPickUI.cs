@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 
 /// <summary>
-/// [AugmentPickUI.cs] v1.10 (v9.18 2026-10-06: 카드 줄이 기준 화면보다 넓으면(카드 5장 = 1810) 카드 영역을 화면 안으로 줄인다 - UIFactory.FitScale) / v1.9 (v9.17 2026-10-06 C3·C4: 카드가 왼쪽부터 0.06초 간격으로 나타난다(리롤도) / 고르면 그 카드만 0.15초 밝게 남고 나머지는 흐려진 뒤 창이 0.95배로 줄며 사라진다 - 그동안 입력은 받지 않는다) / v1.8 (v9.16 2026-09-29 손맛 2차 - 소리: 증강 고르면 sfx_augment_pick, 건너뛰면 sfx_ui_close) / v1.7 (v9.13.1 2026-09-24: F12 강제 오픈을 GameBalance.CheatsAllowed 로 - 빌드에서 꺼진다) / v1.6 (v9.13 2026-09-23: 선로 보상 "증강 1회 더" - OpenExtra(등급 고정, 머리글 "[선로 보상] ..."). 리롤도 그 등급) / v1.5 (v9.12 2026-09-22: 리롤 복원 - 유저 "게이머는 아는 말") / v1.4 (v9.11.1 2026-09-22 문구: 리롤 -> 다시 뽑기) / v1.3 (v9.11 2026-09-22: 등장 연출 ModalFeel) / v1.2 (v9.10 2026-09-17: 증강 선택이 매 웨이브가 아니게 되면서(GameBalance.AugmentPickAt) 선택창을 안 여는 웨이브에도 웨이브 회복·최대 HP 효과는 적용 - ApplyPerWaveEffects) / v1.1
+/// [AugmentPickUI.cs] v1.11 (v9.24.1 2026-10-16 5차 피드백 6번: "[보유 n개 - 이번 획득 효과 n배!]" 를 실제 실행 횟수(AugmentManager.StackTimes - 최대 3배, 점증 없는 증강은 "[보유 n개]" 만)와 맞춤. 4번째부터 "4배" 라고 적었지만 실제는 3배였다) / v1.10 (v9.18 2026-10-06: 카드 줄이 기준 화면보다 넓으면(카드 5장 = 1810) 카드 영역을 화면 안으로 줄인다 - UIFactory.FitScale) / v1.9 (v9.17 2026-10-06 C3·C4: 카드가 왼쪽부터 0.06초 간격으로 나타난다(리롤도) / 고르면 그 카드만 0.15초 밝게 남고 나머지는 흐려진 뒤 창이 0.95배로 줄며 사라진다 - 그동안 입력은 받지 않는다) / v1.8 (v9.16 2026-09-29 손맛 2차 - 소리: 증강 고르면 sfx_augment_pick, 건너뛰면 sfx_ui_close) / v1.7 (v9.13.1 2026-09-24: F12 강제 오픈을 GameBalance.CheatsAllowed 로 - 빌드에서 꺼진다) / v1.6 (v9.13 2026-09-23: 선로 보상 "증강 1회 더" - OpenExtra(등급 고정, 머리글 "[선로 보상] ..."). 리롤도 그 등급) / v1.5 (v9.12 2026-09-22: 리롤 복원 - 유저 "게이머는 아는 말") / v1.4 (v9.11.1 2026-09-22 문구: 리롤 -> 다시 뽑기) / v1.3 (v9.11 2026-09-22: 등장 연출 ModalFeel) / v1.2 (v9.10 2026-09-17: 증강 선택이 매 웨이브가 아니게 되면서(GameBalance.AugmentPickAt) 선택창을 안 여는 웨이브에도 웨이브 회복·최대 HP 효과는 적용 - ApplyPerWaveEffects) / v1.1
 /// 웨이브 클리어 시 뜨는 증강 3택1 화면 (기획 C)
 /// - v1.1: '행운의 부적'(선택지 +1) / '야전 정비반'(웨이브당 최대 HP 성장) 반영
 ///
@@ -334,7 +334,13 @@ public class AugmentPickUI : MonoBehaviour
             string descBody = aug.desc;
             int ownedCount = AugmentManager.CountAugment(aug.id);
             if (ownedCount > 0)
-                descBody += "\n\n[보유 " + ownedCount + "개 - 이번 획득 효과 " + (ownedCount + 1) + "배!]";
+            {
+                int timesNext = AugmentManager.StackTimes(aug.id, ownedCount + 1);   // v1.11: 실제로 몇 번 실행되나 (Acquire 와 같은 값)
+                descBody += "\n\n[보유 " + ownedCount + "개" + (timesNext > 1 ? " - 이번 획득 효과 " + timesNext + "배!" : "") + "]";
+            }
+            // v1.11: 공속 증강은 상한 때문에 덜 붙을 때만 지금 붙는 몫을 적는다
+            string aspdNote = AugmentManager.AspdGainNote(aug.id);
+            if (aspdNote.Length > 0) descBody += "\n\n" + aspdNote;
 
             Text descTxt = KitchenEventManager.MakeText(inner, "Desc", descBody, 21, new Color(0.88f, 0.88f, 0.84f));
             RectTransform dRt = descTxt.rectTransform;

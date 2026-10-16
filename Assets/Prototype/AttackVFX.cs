@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 
 /// <summary>
-/// [AttackVFX.cs]
+/// [AttackVFX.cs] v1.1 (v9.24.1 2026-10-16 5차 피드백 5번 "탄환 증발": ProjectileFollow - 매 프레임 겨눈 자리(aimAt)로 꺾어 날아가는 탄. 쏜 순간의 자리로만 날던 Projectile 은 스위치를 끈 때를 위해 그대로 둔다)
 /// 공격 이펙트 렌더러 (에셋 없이 코드 생성 - 추후 파티클로 교체 가능)
 /// - 투사체(이동하는 원), 관통 빔, 체인 번개(지그재그), 폭발 원, 부채꼴, 장판
 /// 싱글톤. GameSystems 오브젝트에 부착
@@ -71,6 +71,43 @@ public class AttackVFX : MonoBehaviour
         }
         Destroy(go);
         if (onHit != null) onHit();
+    }
+
+    // ─────────────────────────────────────────
+    // v1.1 (v9.24.1): 따라가는 투사체 - 매 프레임 aimAt(탄 자리) 이 돌려준 자리로 speed 만큼 다가간다.
+    //   그 자리에 닿거나 maxFlight 초가 지나면 onHit(떨어진 자리). 표적을 무엇으로 삼을지는 부르는 쪽(aimAt)이 정한다
+    // ─────────────────────────────────────────
+    public void ProjectileFollow(Vector3 from, System.Func<Vector3, Vector3> aimAt, Color color, float speed,
+        float size, float maxFlight, System.Action<Vector3> onHit)
+    {
+        StartCoroutine(ProjectileFollowCo(from, aimAt, color, speed, size, maxFlight, onHit));
+    }
+
+    private IEnumerator ProjectileFollowCo(Vector3 from, System.Func<Vector3, Vector3> aimAt, Color color, float speed,
+        float size, float maxFlight, System.Action<Vector3> onHit)
+    {
+        GameObject go = MakeCircle("VFX_Projectile", from, color, size);
+        Vector3 pos = from;
+        float flown = 0f;
+        float stepSpeed = Mathf.Max(1f, speed);
+        // 첫 프레임은 총구에 그리기만 한다 - StartCoroutine 은 첫 yield 까지 그 자리에서 돌아서, 바로 앞 손님이면 쏘는 함수 안에서 맞고 쓰러졌다 (예전 탄도 한 프레임은 날았다)
+        yield return null;
+        while (true)
+        {
+            if (go == null) yield break;                                  // 판을 정리하며 지운 탄 (예전 Projectile 과 같게 판정 없이 끝)
+            float dt = Time.deltaTime;
+            flown += dt;
+            Vector3 dest = aimAt != null ? aimAt(pos) : pos;
+            Vector3 delta = dest - pos;
+            float move = stepSpeed * dt;
+            if (delta.magnitude <= move) { pos = dest; break; }            // 닿았다
+            pos += delta.normalized * move;
+            if (maxFlight > 0f && flown >= maxFlight) break;              // 너무 오래 쫓았다 - 그 자리에서 맞는다
+            go.transform.position = pos;
+            yield return null;
+        }
+        if (go != null) Destroy(go);
+        if (onHit != null) onHit(pos);
     }
 
     // ─────────────────────────────────────────

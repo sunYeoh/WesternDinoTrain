@@ -3,7 +3,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 /// <summary>
-/// [SlotMarkerUI.cs] v6.3 (v9.24 2026-10-15 갈림길 칸 꺾임: 포탑 칸 표시를 칸이 꺾인 자리에 띄운다 - TrainDeck.RidePos (덜컹임 없이). 놓을 칸 고르기도 그 자리로) / v6.2 (v9.22 2026-10-14 조작 팩 1-2·1-3: 끌고 온 카드 아래 이름표가 놓을 곳의 종류(GameHUD.DragHoverKind)대로 - 같은 요리 "놓으면 Lv2 / 2/3", 다른 요리 "폐기 - 재료 N개 환급"(주황), 최대 레벨·교체 꺼짐 "못 놓는다") / v6.1 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v6.0 (v9.19.4 2026-10-07 유저 "포탑 설명이 너무 길다, 겜하면서 필요한 내용도 아니다 - 필요한 것만 남기고 폰트를 키워라": 정보창을 네 줄로(이름·레벨 / 숫자 / 낱말 요약 / 다음에 할 일 + 조작 한 줄) · 글자 15 -> 20(이름 23) · 창 높이가 글을 따라간다(ShowTip) · 같은 창에 뜨는 합체 미리보기도 같은 크기로 줄임 + 진화 미리보기의 공명 수가 같은 속성 둘일 때 틀리던 것) / v5.9 (v9.18 2026-10-06: 폐기 환급 = 들어간 접시의 절반(TurretSlot.ScrapRefund) - 예고·결과·설명 문구 / 진화 미리보기에 "레벨이 같아야 한다" / 선택 안내 줄에 같은 조건) / v5.8 (v9.16 2026-09-29 손맛 2차 - 소리: 냉각 완료 sfx_cool / 얼음 깨기 연타 = 결정 두드림(sfx_hit_crystal) -> 깨짐(sfx_die_crystal) / 감전 털기 = 레버 철컥(sfx_lever). 버튼 클릭음을 빌려 쓰던 것 교체) / v5.7 (v9.15 2026-09-29: 접시 곡선 표기 "(1/2)" / 파손 칩 "파손" + 파손 경고 깜빡임(BreakWarning) / 드래그 투입 - GameHUD 가 NearestMarker·SetDragHover 로 놓을 슬롯을 물어 금색 "여기에 놓기" / 강화 미리보기 GameBalance.LevelMultOf) / v5.6 (v9.14 2026-09-28: 레벨 상한 표시 "최대" + 강화 미리보기 상한, 진화 레벨 = 높은 쪽) / v5.5 (v9.12 2026-09-22: 체인 = "연쇄 번개") / v5.4 (v9.11.1 2026-09-22 문구: 마비 종류별 안내, 전설·진화 조리 용어, 역할 낱말) / v5.3 (v9.10 2026-09-17 테스터 피드백: 포탑 정보창이 마우스를 따라다니며 커서 밑에 겹쳐 깜빡이고 클릭을 가로채던 것 ->
+/// [SlotMarkerUI.cs] v6.4 (v9.24.1 2026-10-16 5차 피드백 1·2번: 합체 미리보기에 넘친 레벨 = 요리 n개 돌려받음, 진화 미리보기에 "판정이 좋으면 Lv+1". 미리보기 글을 10-14 말투로) / v6.3 (v9.24 2026-10-15 갈림길 칸 꺾임: 포탑 칸 표시를 칸이 꺾인 자리에 띄운다 - TrainDeck.RidePos (덜컹임 없이). 놓을 칸 고르기도 그 자리로) / v6.2 (v9.22 2026-10-14 조작 팩 1-2·1-3: 끌고 온 카드 아래 이름표가 놓을 곳의 종류(GameHUD.DragHoverKind)대로 - 같은 요리 "놓으면 Lv2 / 2/3", 다른 요리 "폐기 - 재료 N개 환급"(주황), 최대 레벨·교체 꺼짐 "못 놓는다") / v6.1 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v6.0 (v9.19.4 2026-10-07 유저 "포탑 설명이 너무 길다, 겜하면서 필요한 내용도 아니다 - 필요한 것만 남기고 폰트를 키워라": 정보창을 네 줄로(이름·레벨 / 숫자 / 낱말 요약 / 다음에 할 일 + 조작 한 줄) · 글자 15 -> 20(이름 23) · 창 높이가 글을 따라간다(ShowTip) · 같은 창에 뜨는 합체 미리보기도 같은 크기로 줄임 + 진화 미리보기의 공명 수가 같은 속성 둘일 때 틀리던 것) / v5.9 (v9.18 2026-10-06: 폐기 환급 = 들어간 접시의 절반(TurretSlot.ScrapRefund) - 예고·결과·설명 문구 / 진화 미리보기에 "레벨이 같아야 한다" / 선택 안내 줄에 같은 조건) / v5.8 (v9.16 2026-09-29 손맛 2차 - 소리: 냉각 완료 sfx_cool / 얼음 깨기 연타 = 결정 두드림(sfx_hit_crystal) -> 깨짐(sfx_die_crystal) / 감전 털기 = 레버 철컥(sfx_lever). 버튼 클릭음을 빌려 쓰던 것 교체) / v5.7 (v9.15 2026-09-29: 접시 곡선 표기 "(1/2)" / 파손 칩 "파손" + 파손 경고 깜빡임(BreakWarning) / 드래그 투입 - GameHUD 가 NearestMarker·SetDragHover 로 놓을 슬롯을 물어 금색 "여기에 놓기" / 강화 미리보기 GameBalance.LevelMultOf) / v5.6 (v9.14 2026-09-28: 레벨 상한 표시 "최대" + 강화 미리보기 상한, 진화 레벨 = 높은 쪽) / v5.5 (v9.12 2026-09-22: 체인 = "연쇄 번개") / v5.4 (v9.11.1 2026-09-22 문구: 마비 종류별 안내, 전설·진화 조리 용어, 역할 낱말) / v5.3 (v9.10 2026-09-17 테스터 피드백: 포탑 정보창이 마우스를 따라다니며 커서 밑에 겹쳐 깜빡이고 클릭을 가로채던 것 ->
 ///   화면 한 자리(왼쪽 아래, 하단 바 위) 고정 + 클릭 통과(raycastTarget off) + 합체 선택 중엔 고정 유지 / 포탑 실물 클릭·호버도 이름표와 같이 /
 ///   설명은 RecipeText 일상어 ("무엇을 하나 / 어떤 손님에 / 언제")) /
 /// v5.2 (v9.9.2 2026-09-16: 마비 칩 = "감전!/빙결!/과열!" + 할 일 한 줄, 빨간 테, 칩 위 모서리 경광등 0.3초 교대 (GameBalance.StunChipBeacons) - 목업 v3 (E), 정식 런 공용) / v5.1 (v9.9 2026-09-16: 4모서리 배치 - 남쪽 슬롯 마커는 발 아래, 폭 96->120(GameBalance.SlotMarkerWidth), 로비에서 숨김) / v5 (교수 피드백 A5/A12 반영 2026-09-14) / v4 (B-1: 근접 위기 대응 - 방향결정 2026-08-31)
@@ -746,13 +746,15 @@ public class SlotMarkerUI : MonoBehaviour
             int merged = a.level + b.level;
             int cap = TurretSlot.MaxLevelOf(ra);   // v5.6 (v9.14): 레벨 상한
             if (cap > 0 && b.level >= cap) return "[강화 불가] " + ra.displayName + " Lv" + b.level + " - 이미 최대"
-                + (ra.tier >= 2 || AugmentManager.BasicsDoctrine ? "" : "\n같은 레벨의 다른 기본 요리와 합쳐 전설로 진화시켜라");   // v5.9: 전설·선대의 기본기에는 진화 안내를 붙이지 않는다
-            if (cap > 0 && merged > cap) merged = cap;
+                + (ra.tier >= 2 || AugmentManager.BasicsDoctrine ? "" : "\n다른 기본 요리 Lv" + b.level + " 하나와 합치면 전설로 진화해");   // v5.9: 전설·선대의 기본기에는 진화 안내를 붙이지 않는다
+            int over = cap > 0 && merged > cap ? merged - cap : 0;   // v6.4: 넘친 레벨 = 요리로 돌려받는다 (TurretSlotManager v2.9)
+            if (over > 0) merged = cap;
             int cnt = mgr.GetTagCount(ra.tag);
             string s = TipTitle("[강화] " + ra.displayName) + "\n";
             s += "Lv" + a.level + " + Lv" + b.level + " -> Lv" + merged + (cap > 0 && merged >= cap ? " (최대)" : "") + "\n";
-            s += "포탑 칸 하나가 빈다";
-            if (cnt >= resonance && cnt - 1 < resonance) s += "\n" + TipWarn("공명이 풀린다: " + mgr.TagName(ra.tag));
+            if (over > 0 && GameBalance.MergeOverflowRefund) s += "넘친 " + over + "레벨 = 요리 " + over + "개 돌려받음\n";
+            s += "포탑 칸 하나가 비어";
+            if (cnt >= resonance && cnt - 1 < resonance) s += "\n" + TipWarn("공명이 풀려: " + mgr.TagName(ra.tag));
             return s + "\n" + TipHint("클릭 = 확정");
         }
 
@@ -761,22 +763,26 @@ public class SlotMarkerUI : MonoBehaviour
         {
             if (AugmentManager.BasicsDoctrine) return "[진화 불가] 선대의 기본기 - 전설 요리 진화 봉인";
             RecipeData fusion = RecipeDatabase.GetFusion(ra.tag, rb.tag);
-            if (fusion == null) return "[진화 불가] 이 조합은 진화할 요리가 없다";
+            if (fusion == null) return "[진화 불가] 이 조합은 진화할 요리가 없어";
             // v5.9 (유저 10-06): 같은 레벨끼리만
             if (GameBalance.FusionSameLevelOnly && a.level != b.level)
-                return "[진화 불가] 레벨이 같아야 한다\n" + ra.displayName + " Lv" + a.level + " / " + rb.displayName + " Lv" + b.level + "\n낮은 쪽에 같은 요리를 더 넣어 레벨을 맞춰라";
+                return "[진화 불가] 레벨이 같아야 해\n" + ra.displayName + " Lv" + a.level + " / " + rb.displayName + " Lv" + b.level + "\n낮은 쪽에 같은 요리를 더 넣어 레벨을 맞춰";
 
-            int baseLevel = GameBalance.FusionLevelMax ? Mathf.Max(a.level, b.level) : Mathf.Max(1, (a.level + b.level) / 2);   // v5.6 (v9.14): 둘 중 높은 쪽
-            bool masteryUp = MetaProgress.GetMasteryTier(fusion.recipeId) >= GameBalance.MasteryStartLevelTier;
+            int baseLevel = TurretSlotManager.FusionBaseLevel(a.level, b.level);   // v6.4: 결과(CompleteFusion)와 같은 셈 하나 - 둘 중 높은 쪽
+            bool masteryUp = TurretSlotManager.FusionMasteryUp(fusion.recipeId);
             bool known = FoodStock.Instance != null && FoodStock.Instance.IsDiscovered(fusion.recipeId);
 
             string s = TipTitle("[진화] " + ra.displayName + " + " + rb.displayName) + "\n";
+            int fusionCap = TurretSlot.MaxLevelOf(fusion);
+            int fusionLv = baseLevel + (masteryUp ? 1 : 0);
+            if (fusionCap > 0 && fusionLv > fusionCap) fusionLv = fusionCap;   // 결과 레벨도 상한까지 (TurretSlotManager.CompleteFusion 과 같게)
+            int fusionLvGood = fusionCap > 0 ? Mathf.Min(fusionCap, fusionLv + GameBalance.InfuseBonusLevel) : fusionLv + GameBalance.InfuseBonusLevel;
             s += "-> " + (known ? fusion.displayName + " [전설]" : "미발견 전설 요리")   // 화살표 글리프(U+2192)는 게임 글꼴에 없다 - "->" 로 쓴다
-                + "  Lv" + (baseLevel + (masteryUp ? 1 : 0)) + "\n";
+                + "  Lv" + fusionLv + "\n";
             // 미발견이면 역할과 공격 형태까지만 (이름·덤 효과는 만들어 봐야 안다)
             s += (known ? RecipeText.Brief(fusion) : RecipeText.RoleWord(fusion) + " · " + RecipeText.ShapeWord(fusion)) + "\n";
-            s += "진화 조리를 한다 (판정에 따라 Lv +1까지)\n";
-            s += "포탑 칸 하나가 빈다";
+            s += (fusionLvGood > fusionLv ? "진화 조리 판정이 좋으면 Lv" + fusionLvGood : "합치면 진화 조리를 해") + "\n";   // v6.4: 레벨이 나오는 규칙을 미리
+            s += "포탑 칸 하나가 비어";
 
             // 공명: 진화 뒤 속성별 포탑 수가 공명 기준을 넘나드는 것만 알린다 (재료 둘의 속성은 하나씩 빠지고, 전설 요리의 속성은 하나 는다)
             FoodTag[] tags = { ra.tag, rb.tag, fusion.tag };
@@ -793,12 +799,12 @@ public class SlotMarkerUI : MonoBehaviour
                 if (before >= resonance && after < resonance) lost += (lost.Length > 0 ? ", " : "") + mgr.TagName(t);
                 else if (before < resonance && after >= resonance) gained += (gained.Length > 0 ? ", " : "") + mgr.TagName(t);
             }
-            if (lost.Length > 0) s += "\n" + TipWarn("공명이 풀린다: " + lost);
-            if (gained.Length > 0) s += "\n공명이 생긴다: " + gained;
+            if (lost.Length > 0) s += "\n" + TipWarn("공명이 풀려: " + lost);
+            if (gained.Length > 0) s += "\n공명이 생겨: " + gained;
             return s + "\n" + TipHint("클릭 = 확정");
         }
 
-        return "[합체 불가] 전설 포탑은 같은 요리끼리만 합칠 수 있다";
+        return "[합체 불가] 전설 포탑은 같은 요리끼리만 합칠 수 있어";
     }
 
     public void OnMarkerExit(int index)

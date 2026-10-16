@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 
 /// <summary>
-/// [TurretAttackExecutor.cs] v5.10 (v9.23 2026-10-14 보스 새 패턴: 탄·관통·부채꼴이 손님의 AimPoint 를 겨눈다 - 디 오리지널은 페이즈마다 약점 칸(머리 / 맨 뒤 화물칸 / 심장 칸)으로 탄이 모인다) / v5.9 (v9.21 2026-10-12 보스 1단계: 범위 판정(폭발·장판·동상 파편·마지막 서비스·대체 표적)의 거리를 Enemy.DistanceFrom 으로 - 큰 보스는 몸 가장자리까지 재서 9 ~ 20u 몸의 끝에 떨어진 폭발이 비껴가지 않는다) / v5.8 (v9.19.3 2026-10-07: 증강의 타격당 회복을 1초에 GameBalance.LifestealHitsPerSec 번까지만 센다 - LifestealReady. 타격마다 전부 세면 손님이 늘고 단단해진 만큼 회복이 불어나 기차 HP 가 닳지 않았다) / v5.7 (v9.19.2 2026-10-07: v5.6 의 "타격당 회복 x 손님의 몫"을 되돌렸다 - 손님이 제 힘으로 오니 때린 만큼 그대로 회복한다) / v5.6 (v9.19.1: 증강의 타격당 회복에 맞은 손님의 몫을 곱했다) / v5.5 (v9.18 2026-10-06: 피해 출처(CurrentSource = 쏜 포탑) - 데미지 숫자를 포탑별로 합산하게 HitFeel 에 같이 넘긴다. 날아가는 탄은 도착할 때 출처를 다시 건다) / v5.4 (v9.17 2026-10-06: v9.14 머리말에 적고 본문에 빠져 있던 것을 실제로 넣음 - 투사체가 날아가는 동안 Enemy.IncomingDamage 예약·도착 때 해제 / 도착했을 때 표적이 죽었으면 ProjectileRetargetRadius 안의 다른 손님을 맞힌다. + A5: 물리 단발이 맞으면 HitFeel.Knock(그림만 움찔)) / v5.3 (v9.16 2026-09-29 손맛 2차 - 소리: 발사음 = 요리 속성·티어·모양별(SoundKeys.Shot, 포탑 위치에서 PlayAt) / 폭발 착탄 sfx_explosion / 장판 sfx_field / 연쇄 번개 튈 때마다 sfx_chain / 증강 폭발(동상 파편·마지막 서비스)도 폭발음 / HitFeel.NextHit 에 요리 속성을 같이 넘겨 명중음에 속성 겹침이 얹힌다) / v5.2 (v9.14 2026-09-28 테스터 "하나 점사해서 잡으면 나머지가 다 빗나감": 투사체가 도착했을 때 표적이 이미 죽었으면 그 자리 근처의 다른 손님을 맞힌다(ProjectileRetargetRadius) + 날아가는 동안 Enemy.IncomingDamage 예약 - 포탑이 곧 죽을 손님을 건너뛴다) / v5.1 (v9.11 2026-09-22 타격감: DealDamage 가 HitFeel.NextHit(속성색·크리) 를 걸고 때린다) / v5
+/// [TurretAttackExecutor.cs] v5.11 (v9.24.1 2026-10-16 5차 피드백 5번 "탄환 증발": 탄이 손님을 따라간다 (GameBalance.ProjectileHoming - 예전엔 쏜 순간의 자리로 날아가 손님이 움직이면 빈자리에 떨어졌다). 날아가는 동안 표적이 죽으면 직격 탄은 탄 자리에서 가장 가까운 손님(ProjectileRetargetRadius 4u)으로 방향을 틀고, 폭발·장판은 마지막 자리에 떨어진다. 떨어진 자리의 판정은 LandShot 하나로) / v5.10 (v9.23 2026-10-14 보스 새 패턴: 탄·관통·부채꼴이 손님의 AimPoint 를 겨눈다 - 디 오리지널은 페이즈마다 약점 칸(머리 / 맨 뒤 화물칸 / 심장 칸)으로 탄이 모인다) / v5.9 (v9.21 2026-10-12 보스 1단계: 범위 판정(폭발·장판·동상 파편·마지막 서비스·대체 표적)의 거리를 Enemy.DistanceFrom 으로 - 큰 보스는 몸 가장자리까지 재서 9 ~ 20u 몸의 끝에 떨어진 폭발이 비껴가지 않는다) / v5.8 (v9.19.3 2026-10-07: 증강의 타격당 회복을 1초에 GameBalance.LifestealHitsPerSec 번까지만 센다 - LifestealReady. 타격마다 전부 세면 손님이 늘고 단단해진 만큼 회복이 불어나 기차 HP 가 닳지 않았다) / v5.7 (v9.19.2 2026-10-07: v5.6 의 "타격당 회복 x 손님의 몫"을 되돌렸다 - 손님이 제 힘으로 오니 때린 만큼 그대로 회복한다) / v5.6 (v9.19.1: 증강의 타격당 회복에 맞은 손님의 몫을 곱했다) / v5.5 (v9.18 2026-10-06: 피해 출처(CurrentSource = 쏜 포탑) - 데미지 숫자를 포탑별로 합산하게 HitFeel 에 같이 넘긴다. 날아가는 탄은 도착할 때 출처를 다시 건다) / v5.4 (v9.17 2026-10-06: v9.14 머리말에 적고 본문에 빠져 있던 것을 실제로 넣음 - 투사체가 날아가는 동안 Enemy.IncomingDamage 예약·도착 때 해제 / 도착했을 때 표적이 죽었으면 ProjectileRetargetRadius 안의 다른 손님을 맞힌다. + A5: 물리 단발이 맞으면 HitFeel.Knock(그림만 움찔)) / v5.3 (v9.16 2026-09-29 손맛 2차 - 소리: 발사음 = 요리 속성·티어·모양별(SoundKeys.Shot, 포탑 위치에서 PlayAt) / 폭발 착탄 sfx_explosion / 장판 sfx_field / 연쇄 번개 튈 때마다 sfx_chain / 증강 폭발(동상 파편·마지막 서비스)도 폭발음 / HitFeel.NextHit 에 요리 속성을 같이 넘겨 명중음에 속성 겹침이 얹힌다) / v5.2 (v9.14 2026-09-28 테스터 "하나 점사해서 잡으면 나머지가 다 빗나감": 투사체가 도착했을 때 표적이 이미 죽었으면 그 자리 근처의 다른 손님을 맞힌다(ProjectileRetargetRadius) + 날아가는 동안 Enemy.IncomingDamage 예약 - 포탑이 곧 죽을 손님을 건너뛴다) / v5.1 (v9.11 2026-09-22 타격감: DealDamage 가 HitFeel.NextHit(속성색·크리) 를 걸고 때린다) / v5
 /// 포탑 공격 형태(8종)별 판정 및 이펙트 실행기
 /// - v3: 모든 TakeDamage에 r.damageType 적용 (DEF/RES 계산)
 /// - v4: 증강 시스템(AugmentManager) 연동
@@ -118,54 +118,67 @@ public static class TurretAttackExecutor
                     }
 
                     int shotSource = CurrentSource;   // v5.5: 이 탄을 쏜 포탑 (도착할 때는 TickFire 가 이미 끝나 있다)
-                    vfx.Projectile(origin, targetPos, col, projSpeed, projSize, delegate
+                    // 대체 표적은 직격 탄만 찾는다 - 폭발·장판은 제자리에 터지거나 깔리니 옆 손님에게 옮겨 붙으면 어색하다.
+                    //   마지막 식사 장면에선 찾지 않는다 - 물러난 손님을 겨눴던 탄이 식사 중인 보스에게 옮겨 붙는다
+                    bool canRetarget = r.shape == AttackShape.Projectile && GameBalance.ProjectileRetargetRadius > 0f;
+
+                    if (GameBalance.ProjectileHoming)
                     {
-                        int outerSource = CurrentSource;
-                        CurrentSource = shotSource;
-                        if (reserved > 0f && capturedTarget != null)
-                            capturedTarget.IncomingDamage = Mathf.Max(0f, capturedTarget.IncomingDamage - reserved);
-
-                        // 도달 시점 판정. v5.4: 표적이 그사이 죽었으면 착탄 자리 근처의 다른 손님을 맞힌다 (탄이 허공에 사라지지 않는다)
-                        Enemy hitTarget = capturedTarget;
-                        //   폭발·장판은 제자리에 터지거나 깔리니 대체 표적을 찾지 않는다 (직격만 3u 옆으로 옮겨 붙으면 어색하다)
-                        //   마지막 식사 장면에선 찾지 않는다 - 물러난 손님을 겨눴던 탄이 식사 중인 보스에게 옮겨 붙는다
-                        if ((hitTarget == null || !hitTarget.IsAlive) && r.shape == AttackShape.Projectile && GameBalance.ProjectileRetargetRadius > 0f
-                            && !BossEnemy.LastSupperServing)
-                            hitTarget = FindNearestAlive(targetPos, GameBalance.ProjectileRetargetRadius);
-                        if (hitTarget != null && hitTarget.IsAlive)
+                        // v5.11 (v9.24.1): 탄이 손님을 따라간다. chase = 지금 쫓는 손님, lastAim = 마지막으로 겨눈 자리
+                        Enemy chase = capturedTarget;
+                        Vector3 lastAim = targetPos;
+                        int retargetsLeft = 2;          // 갈아탈 수 있는 횟수 (찾았을 때만 깎는다)
+                        float nextSearchAt = 0f;        // 못 찾았으면 0.15초 뒤 다시 (매 프레임 찾지 않게. 시간이 멈추면 같이 멈춘다)
+                        // 너무 오래 쫓으면 그 자리에서 맞는다 - 상한은 ProjectileMaxFlight 와 "곧장 가는 시간의 두 배" 중 긴 쪽 (사거리 증강으로 멀리 쏜 느린 탄이 상한에 걸려 빗나가지 않게)
+                        float maxFlight = Mathf.Max(GameBalance.ProjectileMaxFlight, Vector3.Distance(origin, targetPos) / Mathf.Max(1f, projSpeed) * 2f);
+                        vfx.ProjectileFollow(origin, delegate (Vector3 shotPos)
                         {
-                            HitSingle(r, hitTarget, damage);
-                            // v5.4 (A5): 물리 단발 - 손님 그림이 탄이 날아온 반대쪽으로 움찔한다 (판정 위치는 그대로)
-                            if (r.damageType == DamageType.Phys && r.shape == AttackShape.Projectile)
-                                HitFeel.Knock(hitTarget, targetPos - origin);
-                        }
-
-                        if (r.shape == AttackShape.Explode)
-                        {
-                            float radius = r.explodeRadius * 0.06f * AugmentManager.ExplodeRadiusMul;
-                            vfx.Explosion(targetPos, col, radius);
-                            SoundManager.PlayAt("sfx_explosion", targetPos);   // v5.3: 착탄음 (큰 소리 - 잦은 소리를 0.3초 덕킹)
-                            // P1 게임필: 폭발 미세 럼블 - 쿨타임 채널 방식 (연사돼도 2.5초에 1번만)
-                            GameFeel.Shake(GameBalance.ShakeExplosion, "explosion", GameBalance.ShakeExplosionCooldown);
-                            HitExplosionArea(r, targetPos, damage, hitTarget, radius);
-
-                            // 프리즘 증강 '메아리치는 폭발': 60% 데미지로 한 번 더 (중심 대상 포함)
-                            if (AugmentManager.DoubleExplosion)
+                            if (chase != null && chase.IsAlive) { lastAim = chase.AimPoint; return lastAim; }
+                            // 날아가는 동안 표적이 죽었다: 직격 탄은 그 손님이 죽은 자리(lastAim) 곁의 다른 손님으로 방향을 튼다 (탄 곁에서 찾으면 뒤쪽 손님으로 되돌아 날았다).
+                            //   없거나 폭발·장판이면 마지막 자리로
+                            if (canRetarget && retargetsLeft > 0 && Time.time >= nextSearchAt && !BossEnemy.LastSupperServing)
                             {
-                                float radius2 = radius * 1.2f;
-                                vfx.Explosion(targetPos, col, radius2);
-                                HitExplosionArea(r, targetPos, damage * 0.6f, null, radius2);
+                                nextSearchAt = Time.time + 0.15f;
+                                Enemy next = FindNearestAlive(lastAim, GameBalance.ProjectileRetargetRadius);
+                                if (next != null) { chase = next; lastAim = next.AimPoint; retargetsLeft--; }
                             }
-                        }
-                        if (r.shape == AttackShape.Field)
+                            return lastAim;
+                        }, col, projSpeed, projSize, maxFlight, delegate (Vector3 hitPos)
                         {
-                            float radius = (r.fieldBig ? 130f : 90f) * 0.06f;
-                            vfx.Field(targetPos, col, radius, 4f);
-                            SoundManager.PlayAt("sfx_field", targetPos);   // v5.3: 장판 깔림
-                            HitFieldArea(r, targetPos, radius);
-                        }
-                        CurrentSource = outerSource;
-                    });
+                            int outerSource = CurrentSource;
+                            CurrentSource = shotSource;
+                            if (reserved > 0f && capturedTarget != null)
+                                capturedTarget.IncomingDamage = Mathf.Max(0f, capturedTarget.IncomingDamage - reserved);
+
+                            // 떨어진 순간 쫓던 손님이 살아 있고 가까우면 그 손님 (2초 상한에 걸려 조금 못 미쳤어도 - 쫓던 탄이 빗나가 보이지 않게).
+                            //   상한에 걸려 멀리 떨어졌으면 그 자리 기준으로 다시 찾는다 (직격만 먼 손님에게 들어가고 폭발은 딴 데서 터지지 않게)
+                            Enemy hitTarget = chase;
+                            if (hitTarget != null && hitTarget.IsAlive && hitTarget.DistanceFrom(hitPos) > Mathf.Max(1.5f, GameBalance.ProjectileRetargetRadius))
+                                hitTarget = null;
+                            if ((hitTarget == null || !hitTarget.IsAlive) && canRetarget && !BossEnemy.LastSupperServing)
+                                hitTarget = FindNearestAlive(hitPos, GameBalance.ProjectileRetargetRadius);
+                            LandShot(r, origin, hitPos, hitTarget, damage, col, vfx);
+                            CurrentSource = outerSource;
+                        });
+                    }
+                    else
+                    {
+                        // 예전 탄 (스위치를 끈 때): 쏜 순간의 자리로 날아간다
+                        vfx.Projectile(origin, targetPos, col, projSpeed, projSize, delegate
+                        {
+                            int outerSource = CurrentSource;
+                            CurrentSource = shotSource;
+                            if (reserved > 0f && capturedTarget != null)
+                                capturedTarget.IncomingDamage = Mathf.Max(0f, capturedTarget.IncomingDamage - reserved);
+
+                            // 도달 시점 판정. v5.4: 표적이 그사이 죽었으면 착탄 자리 근처의 다른 손님을 맞힌다 (탄이 허공에 사라지지 않는다)
+                            Enemy hitTarget = capturedTarget;
+                            if ((hitTarget == null || !hitTarget.IsAlive) && canRetarget && !BossEnemy.LastSupperServing)
+                                hitTarget = FindNearestAlive(targetPos, GameBalance.ProjectileRetargetRadius);
+                            LandShot(r, origin, targetPos, hitTarget, damage, col, vfx);
+                            CurrentSource = outerSource;
+                        });
+                    }
                 }
                 else
                 {
@@ -195,15 +208,69 @@ public static class TurretAttackExecutor
         return damage * GameBalance.TurretDamageMul * AugmentManager.AtkMul * 50f / (50f + Mathf.Max(0f, stat));
     }
 
-    /// <summary>v5.4: pos 에서 radius 안의 살아 있는 손님 중 가장 가까운 것 (없으면 null)</summary>
+    /// <summary>
+    /// v5.11 (v9.24.1): 탄이 떨어진 자리의 판정 - 따라가는 탄과 예전 탄이 같이 쓴다.
+    /// hitTarget 이 살아 있으면 직격, 폭발형이면 hitPos 에 폭발 (직격 손님은 폭발에서 뺀다), 장판형이면 hitPos 에 장판
+    /// </summary>
+    private static void LandShot(RecipeData r, Vector3 origin, Vector3 hitPos, Enemy hitTarget, float damage, Color col, AttackVFX vfx)
+    {
+        if (hitTarget != null && hitTarget.IsAlive)
+        {
+            HitSingle(r, hitTarget, damage);
+            // v5.4 (A5): 물리 단발 - 손님 그림이 탄이 날아온 반대쪽으로 움찔한다 (판정 위치는 그대로)
+            if (r.damageType == DamageType.Phys && r.shape == AttackShape.Projectile)
+                HitFeel.Knock(hitTarget, hitPos - origin);
+        }
+
+        if (r.shape == AttackShape.Explode)
+        {
+            float radius = r.explodeRadius * 0.06f * AugmentManager.ExplodeRadiusMul;
+            vfx.Explosion(hitPos, col, radius);
+            SoundManager.PlayAt("sfx_explosion", hitPos);   // v5.3: 착탄음 (큰 소리 - 잦은 소리를 0.3초 덕킹)
+            // P1 게임필: 폭발 미세 럼블 - 쿨타임 채널 방식 (연사돼도 2.5초에 1번만)
+            GameFeel.Shake(GameBalance.ShakeExplosion, "explosion", GameBalance.ShakeExplosionCooldown);
+            HitExplosionArea(r, hitPos, damage, hitTarget, radius);
+
+            // 프리즘 증강 '메아리치는 폭발': 60% 데미지로 한 번 더 (중심 대상 포함)
+            if (AugmentManager.DoubleExplosion)
+            {
+                float radius2 = radius * 1.2f;
+                vfx.Explosion(hitPos, col, radius2);
+                HitExplosionArea(r, hitPos, damage * 0.6f, null, radius2);
+            }
+        }
+        if (r.shape == AttackShape.Field)
+        {
+            float radius = (r.fieldBig ? 130f : 90f) * 0.06f;
+            vfx.Field(hitPos, col, radius, 4f);
+            SoundManager.PlayAt("sfx_field", hitPos);   // v5.3: 장판 깔림
+            HitFieldArea(r, hitPos, radius);
+        }
+    }
+
+    // v5.11 (v9.24.1): 이번 프레임의 손님 목록 - 날던 탄 여럿이 한꺼번에 표적을 잃어도 FindObjectsByType 은 프레임당 한 번
+    private static Enemy[] enemyCache;
+    private static int enemyCacheFrame = -1;
+
+    private static Enemy[] EnemiesThisFrame()
+    {
+        if (enemyCache == null || enemyCacheFrame != Time.frameCount)
+        {
+            enemyCache = Object.FindObjectsByType<Enemy>(FindObjectsSortMode.None);
+            enemyCacheFrame = Time.frameCount;
+        }
+        return enemyCache;
+    }
+
+    /// <summary>v5.4: pos 에서 radius 안의 살아 있는 손님 중 가장 가까운 것 (없으면 null). v5.11: 목록은 프레임 캐시 (그 프레임에 지워진 손님은 건너뛴다)</summary>
     private static Enemy FindNearestAlive(Vector3 pos, float radius)
     {
         Enemy best = null;
         float bestDist = radius;
-        Enemy[] all = Object.FindObjectsByType<Enemy>(FindObjectsSortMode.None);
+        Enemy[] all = EnemiesThisFrame();
         for (int i = 0; i < all.Length; i++)
         {
-            if (!all[i].IsAlive) continue;
+            if (all[i] == null || !all[i].IsAlive) continue;
             float d = all[i].DistanceFrom(pos);   // v5.9: 보스는 몸 가장자리까지
             if (d < bestDist) { bestDist = d; best = all[i]; }
         }

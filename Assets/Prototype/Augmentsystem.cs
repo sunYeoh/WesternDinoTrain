@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 
 /// <summary>
-/// [AugmentSystem.cs] v4.9 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v4.8 (v9.19.3 2026-10-07: 육수 한 국자·회복의 만찬 설명에 "(1초에 N번까지)" - 타격당 회복을 1초에 GameBalance.LifestealHitsPerSec 번까지만 센다. LifestealDesc) / v4.7 (v9.19.2 2026-10-07: 육수 한 국자·회복의 만찬 설명에서 v4.6 의 "최대 … (떼로 온 손님은 덜)"을 뺐다 - 때릴 때마다 적힌 만큼 회복한다) / v4.6 (v9.19.1: 그 문구를 넣었다) / v4.5 (v9.18 2026-10-06: 선대의 기본기 설명에 "기본 요리 최대 레벨" - 레벨 상한이 돌아오면서 이 증강은 기본 요리 상한을 올려 준다(GameBalance.BasicsT1MaxLevel)) / v4.4 (v9.13 2026-09-23: AugmentDatabase.ForceGrade - 선로 보상 "증강 1회 더" 의 등급 고정) / v4.3 (v9.11.1 2026-09-22 문구: 이번 운행·유물·진화) / v4.2 (v9.10 2026-09-17 테스터 피드백 "증강에 모르겠는 말": 첫 지역은 바로 이해되는 증강만 후보(EARLY_SIMPLE, GameBalance.AugmentSimpleEarly) / 설명 낱말 일상어 - 도트·스택·인접 버프·공명·DEF·감쇄) / v4.1 (2026-09-14: 중첩 배수 상한 AugmentStackMulCap) / v4
+/// [AugmentSystem.cs] v4.10 (v9.24.1 2026-10-16 5차 피드백 6번 "실버 공속증강 사기": 고속 회전 모터는 점증 없이 집을 때마다 x1.12 (GameBalance.AugmentNoEscalate - StackTimes), 증강으로 붙는 공격속도는 합쳐서 GameBalance.AugmentAspdCap 배까지 (오버차지 엔진 포함 - 상한 없이 곱이 쌓여 다섯 번이면 x3.9 였다)) / v4.9 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v4.8 (v9.19.3 2026-10-07: 육수 한 국자·회복의 만찬 설명에 "(1초에 N번까지)" - 타격당 회복을 1초에 GameBalance.LifestealHitsPerSec 번까지만 센다. LifestealDesc) / v4.7 (v9.19.2 2026-10-07: 육수 한 국자·회복의 만찬 설명에서 v4.6 의 "최대 … (떼로 온 손님은 덜)"을 뺐다 - 때릴 때마다 적힌 만큼 회복한다) / v4.6 (v9.19.1: 그 문구를 넣었다) / v4.5 (v9.18 2026-10-06: 선대의 기본기 설명에 "기본 요리 최대 레벨" - 레벨 상한이 돌아오면서 이 증강은 기본 요리 상한을 올려 준다(GameBalance.BasicsT1MaxLevel)) / v4.4 (v9.13 2026-09-23: AugmentDatabase.ForceGrade - 선로 보상 "증강 1회 더" 의 등급 고정) / v4.3 (v9.11.1 2026-09-22 문구: 이번 운행·유물·진화) / v4.2 (v9.10 2026-09-17 테스터 피드백 "증강에 모르겠는 말": 첫 지역은 바로 이해되는 증강만 후보(EARLY_SIMPLE, GameBalance.AugmentSimpleEarly) / 설명 낱말 일상어 - 도트·스택·인접 버프·공명·DEF·감쇄) / v4.1 (2026-09-14: 중첩 배수 상한 AugmentStackMulCap) / v4
 /// 로그라이크 증강 시스템 (기획 C) - 창의적 증강 재설계판
 ///
 /// 설계 철학
@@ -262,18 +262,84 @@ public static class AugmentManager
 
         // 2026-09-14 (교수 피드백 C2, 사용자 결정): 점증은 유지하되 배수 상한 GameBalance.AugmentStackMulCap(기본 3)
         // - 3스택 = 1+2+3 = 6회 복리는 과했고, 상한 3이면 4스택째부터는 3배로 고정 (터지는 딜의 도파민은 남긴다)
-        int times = Mathf.Min(stackNumber, Mathf.Max(1, GameBalance.AugmentStackMulCap));
+        // v4.10 (v9.24.1): 점증 없는 증강(AugmentNoEscalate)은 늘 1번 - StackTimes 가 정한다 (증강 카드도 같은 값을 보여 준다)
+        int times = StackTimes(aug.id, stackNumber);
         if (aug.apply != null)
             for (int k = 0; k < times; k++) aug.apply();
 
         if (stackNumber > 1)
         {
             UIManager.Instance?.ShowStatChange("[중첩 " + stackNumber + "] " + aug.name
-                + " - 이번 효과 " + times + "배!" + (times < stackNumber ? " (최대 " + times + "배)" : ""));
+                + (times > 1 ? " - 이번 효과 " + times + "배!" + (times < stackNumber ? " (최대 " + times + "배)" : "")
+                             : " - 효과를 한 번 더 받았다"));
         }
 
         Debug.Log("[증강] 획득: " + aug.name + " (" + aug.GradeName() + ") x" + stackNumber
             + (aug.family != null ? " [" + aug.family + "]" : ""));
+    }
+
+    /// <summary>
+    /// v4.10 (v9.24.1): stackNumber 번째로 집은 증강의 효과를 몇 번 실행하나 - 점증(n번째 = n배, 최대 AugmentStackMulCap).
+    /// GameBalance.AugmentNoEscalate 에 든 증강은 늘 1번. AugmentPickUI 의 "[보유 n개 - 이번 획득 효과 n배!]" 도 이 값을 쓴다
+    /// </summary>
+    public static int StackTimes(string id, int stackNumber)
+    {
+        string[] noEscalate = GameBalance.AugmentNoEscalate;
+        if (noEscalate != null)
+            for (int i = 0; i < noEscalate.Length; i++)
+                if (noEscalate[i] == id) return 1;
+        return Mathf.Max(1, Mathf.Min(stackNumber, Mathf.Max(1, GameBalance.AugmentStackMulCap)));
+    }
+
+    /// <summary>v4.10 (v9.24.1): 증강 공격속도 배율을 곱하되 GameBalance.AugmentAspdCap 을 넘지 않게 (고속 회전 모터·오버차지 엔진이 같이 쓴다)</summary>
+    public static void MulAspdCapped(float mul)
+    {
+        float cap = GameBalance.AugmentAspdCap > 1f ? GameBalance.AugmentAspdCap : float.MaxValue;
+        AspdMul = Mathf.Min(AspdMul * mul, cap);
+    }
+
+    /// <summary>v4.10: 공속 증강 두 장의 배율 (설명·후보 거르기·카드 글이 같이 쓴다)</summary>
+    public const float AspdMotorMul = 1.12f;       // 고속 회전 모터 (실버)
+    public const float AspdOverdriveMul = 1.45f;   // 오버차지 엔진 (프리즘)
+
+    /// <summary>v4.10: 공속 증강이면 그 배율, 아니면 0</summary>
+    public static float AspdNominal(string id)
+    {
+        if (id == "silver_aspd") return AspdMotorMul;
+        if (id == "prism_overdrive") return AspdOverdriveMul;
+        return 0f;
+    }
+
+    /// <summary>v4.10: 이 공속 증강을 지금 집으면 실제로 붙는 몫 (0.12 = +12%). 공속 증강이 아니면 -1</summary>
+    public static float AspdGainNow(string id)
+    {
+        float nominal = AspdNominal(id);
+        if (nominal <= 0f) return -1f;
+        float cap = GameBalance.AugmentAspdCap > 1f ? GameBalance.AugmentAspdCap : float.MaxValue;
+        float now = Mathf.Max(0.01f, AspdMul);
+        return Mathf.Min(now * nominal, cap) / now - 1f;
+    }
+
+    /// <summary>v4.10: 상한 때문에 원래 몫보다 덜 붙으면 증강 카드에 붙일 한 줄 (아니면 빈 글)</summary>
+    public static string AspdGainNote(string id)
+    {
+        float gain = AspdGainNow(id);
+        if (gain < 0f || gain >= AspdNominal(id) - 1f - 0.005f) return "";
+        return "[지금 집으면 공격속도 +" + Mathf.RoundToInt(gain * 100f) + "%]";
+    }
+
+    /// <summary>v4.10: 공속 증강인데 남은 몫이 원래 효과의 절반도 안 되나 - 증강 후보에서 뺀다 (집어도 거의 안 붙는다. 오버차지는 사거리 -15% 만 남는다)</summary>
+    public static bool AspdNearCap(string id)
+    {
+        float gain = AspdGainNow(id);
+        return gain >= 0f && gain < (AspdNominal(id) - 1f) * 0.5f;
+    }
+
+    /// <summary>v4.10: 증강 카드 설명 꼬리 - "증강 공격속도는 합쳐서 +80% 까지" (상한을 끄면 빈 글)</summary>
+    public static string AspdCapNote()
+    {
+        if (GameBalance.AugmentAspdCap <= 1f) return "";
+        return ". 증강 공격속도는 합쳐서 +" + Mathf.RoundToInt((GameBalance.AugmentAspdCap - 1f) * 100f) + "% 까지";
     }
 
     /// <summary>해당 증강을 이미 갖고 있는지</summary>
@@ -453,8 +519,8 @@ public static class AugmentDatabase
             delegate { AugmentManager.HealPerWave += 60f; }));
 
         all.Add(new AugmentData("silver_aspd", "고속 회전 모터",
-            "모든 포탑 공격속도 +12%", AugmentGrade.Silver, true,
-            delegate { AugmentManager.AspdMul *= 1.12f; }));
+            "모든 포탑 공격속도 +12%" + AugmentManager.AspdCapNote(), AugmentGrade.Silver, true,
+            delegate { AugmentManager.MulAspdCapped(AugmentManager.AspdMotorMul); }));   // v4.10: 점증 없음(AugmentNoEscalate) + 상한
 
         all.Add(new AugmentData("silver_range", "망원 조준경",
             "모든 포탑 사거리 +15%", AugmentGrade.Silver, true,
@@ -631,8 +697,8 @@ public static class AugmentDatabase
             delegate { AugmentManager.AtkMul *= 1.70f; AugmentManager.DamageReductionAdd -= 0.25f; }));
 
         all.Add(new AugmentData("prism_overdrive", "오버차지 엔진",
-            "모든 포탑 공격속도 +45%. 대신 사거리 -15%", AugmentGrade.Prismatic, false,
-            delegate { AugmentManager.AspdMul *= 1.45f; AugmentManager.RangeMul *= 0.85f; }));
+            "모든 포탑 공격속도 +45%. 대신 사거리 -15%" + AugmentManager.AspdCapNote(), AugmentGrade.Prismatic, false,
+            delegate { AugmentManager.MulAspdCapped(AugmentManager.AspdOverdriveMul); AugmentManager.RangeMul *= 0.85f; }));   // v4.10: 증강 공격속도 상한
 
         all.Add(new AugmentData("prism_extraslot", "증축된 주방 칸",
             "포탑 칸 1개 추가 해금 (최대 8칸)", AugmentGrade.Prismatic, true,
@@ -782,6 +848,7 @@ public static class AugmentDatabase
             // 충돌 증강(예: 레일건 개조 vs 산탄 셰프)은 상대를 가졌으면 제외
             if (a.conflictId != null && AugmentManager.HasAugment(a.conflictId)) continue;
             if (simpleOnly && System.Array.IndexOf(EARLY_SIMPLE, a.id) < 0) continue;
+            if (AugmentManager.AspdNearCap(a.id)) continue;   // v4.10 (v9.24.1): 증강 공격속도가 상한 가까이면 공속 증강은 안 나온다
             pool.Add(a);
         }
         if (pool.Count < count) { pool.Clear(); for (int i = 0; i < All.Count; i++) if ((All[i].stackable || !AugmentManager.HasAugment(All[i].id))) pool.Add(All[i]); }

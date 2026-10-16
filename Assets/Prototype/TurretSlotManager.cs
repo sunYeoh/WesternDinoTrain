@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// [TurretSlotManager.cs] v2.8 (v9.23 2026-10-14 점검 수정: 포탑 진화 조리 성공 = 그 전설 요리 숙련 1회 - FoodStock.CountCook) / v2.7 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v2.6 (v9.18 2026-10-06: 진화 조리는 같은 레벨끼리만(FusionSameLevelOnly) + 결과 레벨도 상한까지 / 합체·진화 때 들어간 접시 수를 넘겨받는다(폐기 환급) / 과열은 조건이 된 포탑 중 무작위 / 정비 거리 = 슬롯 앞 바닥(TrainDeck.NearestWalkPoint)까지 / 속성 줄에 마우스를 올리면 공명·옆자리 효과 설명) /
+/// [TurretSlotManager.cs] v2.9 (v9.24.1 2026-10-16 5차 피드백 1·2번: 같은 요리 합체가 상한을 넘치면 넘친 레벨만큼 그 요리를 하단 카드로 돌려준다 (4 + 4 = Lv6 + 요리 2개 - 예전엔 말없이 사라졌다, GameBalance.MergeOverflowRefund). 진화 결과 글에 레벨이 나온 까닭 (높은 쪽 Lv + 판정 보너스 + 숙련). 손댄 안내 글은 10-14 말투로) / v2.8 (v9.23 2026-10-14 점검 수정: 포탑 진화 조리 성공 = 그 전설 요리 숙련 1회 - FoodStock.CountCook) / v2.7 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v2.6 (v9.18 2026-10-06: 진화 조리는 같은 레벨끼리만(FusionSameLevelOnly) + 결과 레벨도 상한까지 / 합체·진화 때 들어간 접시 수를 넘겨받는다(폐기 환급) / 과열은 조건이 된 포탑 중 무작위 / 정비 거리 = 슬롯 앞 바닥(TrainDeck.NearestWalkPoint)까지 / 속성 줄에 마우스를 올리면 공명·옆자리 효과 설명) /
 /// v2.5 (v9.16 2026-09-29 손맛 2차 - 소리: 진화 완료 sfx_fusion, 완벽 판정이면 판정음이 뒤따른다 / 오라 화염 틱은 Enemy.TakeTickDamage - 명중음 없이) / v2.4 (v9.15 2026-09-29: 파손 슬롯 - RepairAllBroken(새 운행)·BrokenCount·RepairOne(정비소) / 동종 병합 레벨 배율 표기 GameBalance.LevelMultOf) / v2.3 (v9.14 레벨 상한) / v2.1 (v9.9 2026-09-16: 슬롯 4모서리 배치 GameBalance.SlotPosition + 근접 판정 "가까운 벽 쪽 거리") / v2
 /// 포탑 슬롯 8개를 자동 생성/관리하는 매니저 (싱글톤)
 /// - v2.1: 슬롯 위치는 GameBalance.SlotPosition(i) 한 곳에서 (모서리 4 = 북 2 지붕선 위 / 남 2 섀시 위).
@@ -558,22 +558,28 @@ public class TurretSlotManager : MonoBehaviour
         {
             int merged = a.level + b.level;
             int cap = TurretSlot.MaxLevelOf(rb);   // v2.3 (v9.14): 레벨 상한
+            int overflow = 0;                      // v2.9: 상한을 넘친 레벨 - 그만큼 요리를 하단 카드로 돌려준다
             if (cap > 0 && merged > cap)
             {
                 if (b.level >= cap)
                 {
                     // v2.6: 전설·'선대의 기본기' 에는 진화 안내를 붙이지 않는다 (못 하는 걸 하라고 하지 않는다)
                     resultMsg = rb.displayName + " Lv" + b.level + " - 이미 최대"
-                        + (rb.tier >= 2 || AugmentManager.BasicsDoctrine ? "" : ". 같은 레벨의 다른 기본 요리와 합쳐 전설로");
+                        + (rb.tier >= 2 || AugmentManager.BasicsDoctrine ? "" : ". 다른 기본 요리 Lv" + b.level + " 하나와 합치면 전설로 진화해");
                     return false;
                 }
+                overflow = merged - cap;
                 merged = cap;
             }
+            bool refund = overflow > 0 && GameBalance.MergeOverflowRefund && FoodStock.Instance != null;
             int plates = a.platesTotal + b.platesTotal;   // v2.6: 폐기 환급용 - 두 포탑에 들어간 접시를 합친다
+            if (refund) plates = Mathf.Max(1, plates - overflow);   // v2.9: 돌려준 요리는 폐기 환급에서 빼야 두 번 받지 않는다
             b.SetTurret(b.recipeId, merged);
             b.platesTotal = plates;
             a.ClearSlot();
-            resultMsg = rb.displayName + " 합체! " + b.GradeName + "등급 Lv" + merged;
+            if (refund) FoodStock.Instance.Add(rb.recipeId, overflow);   // v2.9: 넘친 레벨 = 요리 n개 (하단 카드로 날아간다)
+            resultMsg = rb.displayName + " 합체! " + (merged >= cap && cap > 0 ? "최대 " : "") + "Lv" + merged
+                + (refund ? ". 넘친 " + overflow + "레벨은 요리 " + overflow + "개로 돌려받았다" : "");
             Debug.Log("[합체] 동종 병합: " + resultMsg);
             return true;
         }
@@ -593,14 +599,14 @@ public class TurretSlotManager : MonoBehaviour
             RecipeData fusion = RecipeDatabase.GetFusion(ra.tag, rb.tag);
             if (fusion == null)
             {
-                resultMsg = "이 조합은 진화할 요리가 없다";
+                resultMsg = "이 조합은 진화할 요리가 없어";
                 return false;
             }
 
             // v2.6 (유저 10-06): 레벨이 같은 포탑끼리만 진화 - "80레벨 + 1레벨 = 81레벨 전설" 차단
             if (GameBalance.FusionSameLevelOnly && a.level != b.level)
             {
-                resultMsg = "레벨이 같아야 진화한다 (" + ra.displayName + " Lv" + a.level + " / " + rb.displayName + " Lv" + b.level + ") - 낮은 쪽을 먼저 올려라";
+                resultMsg = ra.displayName + " Lv" + a.level + " / " + rb.displayName + " Lv" + b.level + " - 레벨이 같아야 진화해";
                 return false;
             }
 
@@ -734,6 +740,31 @@ public class TurretSlotManager : MonoBehaviour
     /// bonusLevel = 판정 보너스 (기준 미달이면 0), perfect = 만점(연출용).
     /// 미니게임 도중 슬롯이 비었으면(다른 합체 등) 진화는 무산되고 아무것도 잃지 않는다.
     /// </summary>
+    /// <summary>
+    /// v2.9 (v9.24.1): 진화(다른 기본 요리 둘 -> 전설)의 기준 레벨 - 결과(CompleteFusion)·결과 글·미리보기(SlotMarkerUI)가 이것 하나를 쓴다.
+    /// v2.3 (v9.14): 둘 중 높은 레벨 (구 동작 평균 - 테스터 "전설이 더 약함": Lv3+Lv3 이 Lv3 이 돼 두 칸 화력보다 약했다).
+    /// v2.6: 같은 레벨끼리만 규칙 - 미니게임 도중 한쪽만 올랐으면 낮은 쪽 (시작할 때만 맞춰 놓고 한쪽을 키우는 우회 차단)
+    /// </summary>
+    public static int FusionBaseLevel(int levelA, int levelB)
+    {
+        if (GameBalance.FusionSameLevelOnly && levelA != levelB) return Mathf.Min(levelA, levelB);
+        return GameBalance.FusionLevelMax ? Mathf.Max(levelA, levelB) : Mathf.Max(1, (levelA + levelB) / 2);
+    }
+
+    /// <summary>v2.9: 결과 글에서 기준 레벨을 부르는 말 (FusionBaseLevel 과 짝)</summary>
+    public static string FusionBaseWord(int levelA, int levelB)
+    {
+        if (levelA == levelB) return "Lv";
+        if (GameBalance.FusionSameLevelOnly) return "낮은 쪽 Lv";
+        return GameBalance.FusionLevelMax ? "높은 쪽 Lv" : "평균 Lv";
+    }
+
+    /// <summary>P1+: 요리 숙련 '장인의 감각'(50회) - 숙련된 전설 요리는 탄생 레벨 +1 (결과·미리보기 같이)</summary>
+    public static bool FusionMasteryUp(string fusionId)
+    {
+        return MetaProgress.GetMasteryTier(fusionId) >= GameBalance.MasteryStartLevelTier;
+    }
+
     public void CompleteFusion(int idxA, int idxB, RecipeData fusion, int bonusLevel, bool perfect)
     {
         TurretSlot a = (idxA >= 0 && idxA < 8) ? slots[idxA] : null;
@@ -746,20 +777,18 @@ public class TurretSlotManager : MonoBehaviour
             return;
         }
 
-        // 레벨은 완료 시점의 실제 레벨로 계산 (미니게임 중 동종 병합으로 올랐다면 반영)
-        // v2.3 (v9.14): 기본 = 둘 중 높은 레벨 (구 동작 평균 - 테스터 "전설이 더 약함": Lv3+Lv3 이 Lv3 이 돼 두 칸 화력보다 약했다)
-        int newLevel = (GameBalance.FusionLevelMax ? Mathf.Max(a.level, b.level) : Mathf.Max(1, (a.level + b.level) / 2)) + bonusLevel;
-        // v2.6: 같은 레벨끼리만 규칙 - 미니게임 도중 한쪽만 올랐으면 낮은 쪽을 기준으로 (시작할 때만 맞춰 놓고 한쪽을 키우는 우회 차단)
-        if (GameBalance.FusionSameLevelOnly && a.level != b.level)
-            newLevel = Mathf.Min(a.level, b.level) + bonusLevel;
+        // 레벨은 완료 시점의 실제 레벨로 계산 (미니게임 중 동종 병합으로 올랐다면 반영). 기준 레벨 = FusionBaseLevel (미리보기 SlotMarkerUI 와 같은 셈 하나)
+        int baseLevel = FusionBaseLevel(a.level, b.level);
+        bool masteryUp = FusionMasteryUp(fusion.recipeId);
+        int newLevel = baseLevel + bonusLevel + (masteryUp ? 1 : 0);
 
-        // P1+: 요리 숙련 '장인의 감각'(50회) - 숙련된 T2 레시피는 탄생 레벨 +1
-        if (MetaProgress.GetMasteryTier(fusion.recipeId) >= GameBalance.MasteryStartLevelTier)
-            newLevel += 1;
+        // v2.9: 결과 글에 레벨이 나온 까닭 (5차 피드백 2번 "2렙 2렙 합쳤는데 3렙" - 진화는 기준 레벨에 판정 보너스가 붙는 규칙인데 글에 없었다). 위 셈에 쓴 값 그대로
+        string why = FusionBaseWord(a.level, b.level) + baseLevel
+            + (bonusLevel > 0 ? " + 판정 보너스 " + bonusLevel : "") + (masteryUp ? " + 숙련 1" : "");
 
         // v2.6: 전설 상한 (보너스가 겹쳐도 넘지 않는다) + 폐기 환급용 접시 수 넘겨받기
         int fusionCap = TurretSlot.MaxLevelOf(fusion);
-        if (fusionCap > 0) newLevel = Mathf.Min(newLevel, fusionCap);
+        if (fusionCap > 0 && newLevel > fusionCap) { newLevel = fusionCap; why += ", 최대 Lv" + fusionCap; }
         int plates = a.platesTotal + b.platesTotal;
 
         b.SetTurret(fusion.recipeId, newLevel);
@@ -772,11 +801,9 @@ public class TurretSlotManager : MonoBehaviour
 
         string msg;
         if (perfect)
-            msg = "완벽한 융합! " + fusion.displayName + " [전설] Lv" + newLevel + " - 두 요리의 심장이 하나로 뛴다";
-        else if (bonusLevel > 0)
-            msg = fusion.displayName + " [전설] 진화! Lv" + newLevel + " (판정 보너스 +" + bonusLevel + ")";
+            msg = "완벽한 융합! " + fusion.displayName + " [전설] Lv" + newLevel + " = " + why;
         else
-            msg = fusion.displayName + " [전설] 진화! Lv" + newLevel;
+            msg = fusion.displayName + " [전설] 진화! Lv" + newLevel + " = " + why;
 
         UIManager.Instance?.ShowStatChange(msg);
         SoundManager.Play("sfx_fusion");   // v2.5: 전설 탄생 - 쇳물 붓는 소리
