@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [LobbyUI.cs] v1.11 (v9.26 2026-10-16 마감 정리: 안 쓰는 MatKorName · SetCorner 삭제) / v1.10 (v9.20 2026-10-07: 글 속 화살표를 게임 글꼴에 있는 세모로(게임 글꼴에 화살표 글리프가 없어 PC 의 다른 글꼴로 그려졌다 - 모양이 따로 놀고, 대신할 글꼴이 없는 빌드에선 빈칸)) / v1.9 (v9.17 2026-10-06 D6: 출발 때 검정 페이드 - 덮인 사이에 로비 -> 운행) / v1.8 (v9.15 2026-09-29: 왼쪽 아래 소리·화면 줄을 [설정] 버튼 하나로 - SettingsUI(화면·소리·언어). 화면 모드 코드는 SettingsUI 로 이동) / v1.7 (v9.14 2026-09-28 테스터 반영: 화면 설정 줄(전체화면 / 창 1920·1600·1280, PlayerPrefs WDT_ScreenMode, 시작 때 적용) / 도감은 클릭으로 고정(다시 클릭 = 닫기, 마우스 스침 무시) + 설명 짧게(맛 문구 제외)) / v1.6 (v9.13.1 2026-09-24: 오른쪽 아래 빌드 표시 GameBalance.BuildTag) / v1.5 (v9.12 2026-09-22: [T] = 견습 기록이 없으면 견습 운행 전부, 있으면 훈련장(TrainingGroundUI) 목록 / 처음 실행이면 [출발]·[Enter] 도 견습부터(GameBalance.TutorialForceFirst) / 버튼 글자 "훈련장") / v1.4 (v9.10.1 2026-09-21: 재료 이름 MaterialNames) / [LobbyUI.cs] v1.3 (v9.10 2026-09-17: 요리 도감에 설명 상자 - 이름에 마우스를 올리거나 클릭하면 무엇을 하나·어떤 손님에·언제 (RecipeText)) / v1.2 (v9.9 2026-09-16: [T] 견습 운행 버튼 + 첫 실행 강조) / v1.1 (v9.8: 칭호 표시) / v1 - 로비 개편 (튜토리얼_온보딩_설계 6절 + 화면 검수 "시작 버튼 묻힘")
+/// [LobbyUI.cs] v1.12 (v9.28 2026-10-20 하드 모드: 출발 버튼 오른쪽 [2] 하드 모드 칩 (종착역에 닿은 뒤에만, 켜면 황동 테 + 금색 글자 + 아래 한 줄) - 고른 것은 HardMode.Picked 에 남는다 / 칭호 줄에 "황야의 베테랑") / v1.11 (v9.26 2026-10-16 마감 정리: 안 쓰는 MatKorName · SetCorner 삭제) / v1.10 (v9.20 2026-10-07: 글 속 화살표를 게임 글꼴에 있는 세모로(게임 글꼴에 화살표 글리프가 없어 PC 의 다른 글꼴로 그려졌다 - 모양이 따로 놀고, 대신할 글꼴이 없는 빌드에선 빈칸)) / v1.9 (v9.17 2026-10-06 D6: 출발 때 검정 페이드 - 덮인 사이에 로비 -> 운행) / v1.8 (v9.15 2026-09-29: 왼쪽 아래 소리·화면 줄을 [설정] 버튼 하나로 - SettingsUI(화면·소리·언어). 화면 모드 코드는 SettingsUI 로 이동) / v1.7 (v9.14 2026-09-28 테스터 반영: 화면 설정 줄(전체화면 / 창 1920·1600·1280, PlayerPrefs WDT_ScreenMode, 시작 때 적용) / 도감은 클릭으로 고정(다시 클릭 = 닫기, 마우스 스침 무시) + 설명 짧게(맛 문구 제외)) / v1.6 (v9.13.1 2026-09-24: 오른쪽 아래 빌드 표시 GameBalance.BuildTag) / v1.5 (v9.12 2026-09-22: [T] = 견습 기록이 없으면 견습 운행 전부, 있으면 훈련장(TrainingGroundUI) 목록 / 처음 실행이면 [출발]·[Enter] 도 견습부터(GameBalance.TutorialForceFirst) / 버튼 글자 "훈련장") / v1.4 (v9.10.1 2026-09-21: 재료 이름 MaterialNames) / [LobbyUI.cs] v1.3 (v9.10 2026-09-17: 요리 도감에 설명 상자 - 이름에 마우스를 올리거나 클릭하면 무엇을 하나·어떤 손님에·언제 (RecipeText)) / v1.2 (v9.9 2026-09-16: [T] 견습 운행 버튼 + 첫 실행 강조) / v1.1 (v9.8: 칭호 표시) / v1 - 로비 개편 (튜토리얼_온보딩_설계 6절 + 화면 검수 "시작 버튼 묻힘")
 ///
 /// - v1.2: 출발 버튼 아래 [T] 견습 운행 (340x44, y 130). 미완료(TutorialDirector.Done == false)면 목업 v2 (C) 대로
 ///   위에 현장 마커 화살표(tut_arrow 2배)가 까딱이고, 버튼 양끝 경광등(ui_ev_beacon_0/1)이 0.3초마다 교대, 황동 테,
@@ -45,6 +45,13 @@ public class LobbyUI : MonoBehaviour
     private bool highlightOn = false;
     private const float TUT_BTN_Y = 130f;
 
+    // v1.12 (v9.28): [2] 하드 모드 칩 (출발 버튼 오른쪽) - 종착역에 닿은 뒤에만 보인다
+    private Button hardBtn;
+    private Text hardLabel;
+    private Text hardDesc;
+    private Image hardRing;
+    private const float HARD_X = 170f + 12f + 105f, HARD_Y = 236f;
+
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void Bootstrap()
     {
@@ -72,7 +79,7 @@ public class LobbyUI : MonoBehaviour
         if (root != null && root.activeSelf != lobby)
             root.SetActive(lobby);
         // v1.1: 로비에 들어오는 순간 칭호 갱신 (엔딩 B 직후 돌아왔을 때 바로 보이게)
-        if (lobby && !wasLobby) { RefreshTitleBadge(); RefreshTutorialButton(); }
+        if (lobby && !wasLobby) { RefreshTitleBadge(); RefreshTutorialButton(); RefreshHardChip(); NoticeHardUnlock(); }
         wasLobby = lobby;
         if (!lobby)
         {
@@ -92,6 +99,12 @@ public class LobbyUI : MonoBehaviour
             && !AugmentListUI.ReadingOpen && !FameShopUI.IsOpen && !TrainingGroundUI.IsOpen && !SettingsUI.IsOpen)
             StartTutorial();
 
+        // v1.12 (v9.28): [2] 하드 모드 켜고 끄기 (종착역에 닿은 뒤에만. 창이 떠 있으면 양보 - 훈련장·상점이 숫자 키를 쓴다)
+        if (keysOk && (Input.GetKeyDown(KeyCode.Alpha2) || Input.GetKeyDown(KeyCode.Keypad2)) && HardMode.Unlocked
+            && !JournalViewerUI.IsOpen && !PauseMenu.IsOpen && !BriefingUI.IsOpen
+            && !AugmentListUI.ReadingOpen && !FameShopUI.IsOpen && !TrainingGroundUI.IsOpen && !SettingsUI.IsOpen)
+            ToggleHard();
+
         // 구 씬 로비 패널 숨김 (Uimanager.ShowOnlyPanel이 다시 켜도 매 프레임 꺼서 유지)
         if (GameBalance.HideLegacyLobbyPanel && UIManager.Instance != null
             && UIManager.Instance.lobbyPanel != null
@@ -109,9 +122,11 @@ public class LobbyUI : MonoBehaviour
     private void RefreshTitleBadge()
     {
         if (titleBadge == null) return;
-        titleBadge.text = MetaProgress.MasterChefTitle
+        string t = MetaProgress.MasterChefTitle
             ? "[칭호]  황야의 마스터 셰프  -  요리책 " + GameBalance.TrueEndingRecipesNeeded + "종을 완성하고 마지막 손님을 대접한 요리사"
             : "";
+        if (MetaProgress.VeteranTitle) t += (t.Length > 0 ? "      " : "") + "[칭호]  황야의 베테랑  -  하드 모드로 종착역에 닿은 요리사";   // v1.12 (v9.28)
+        titleBadge.text = t;
     }
 
     private void StartRun()
@@ -230,6 +245,7 @@ public class LobbyUI : MonoBehaviour
         startRt.anchorMax = new Vector2(0.5f, 0f);
         startRt.anchoredPosition = new Vector2(0f, 236f);   // v1.2: 156 -> 236 ([T] 버튼 + 마커 화살표 자리)
         startBtn.onClick.AddListener(StartRun);
+        BuildHardChip();   // v1.12 (v9.28): 오른쪽 [2] 하드 모드 칩
 
         // ── v1.2: 출발 버튼 아래 [T] 견습 운행 (목업 v2 (C)) ──
         BuildTutorialButton();
@@ -352,6 +368,53 @@ public class LobbyUI : MonoBehaviour
         }
 
         RefreshTutorialButton();
+    }
+
+    /// <summary>v1.12 (v9.28): [2] 하드 모드 칩 - 출발 버튼 오른쪽 (210x62). 종착역에 닿은 뒤에만 보인다. 켜면 황동 테 + 금색 글자, 아래 한 줄 설명</summary>
+    private void BuildHardChip()
+    {
+        hardBtn = UIFactory.CreateButton(root.transform, "HardBtn", "[2] 하드 모드: 끔", new Vector2(210f, 62f), UIFactory.PANEL, UIFactory.DIM, 17);
+        RectTransform rt = hardBtn.GetComponent<RectTransform>();
+        rt.anchorMin = new Vector2(0.5f, 0f); rt.anchorMax = new Vector2(0.5f, 0f);
+        rt.anchoredPosition = new Vector2(HARD_X, HARD_Y);
+        hardBtn.onClick.AddListener(ToggleHard);
+        Transform lt = hardBtn.transform.Find("Label");
+        hardLabel = lt != null ? lt.GetComponent<Text>() : null;
+        if (UISkin.Available) hardRing = UISkin.AddRing(rt, UISkin.BRASS, 0f);
+        hardDesc = UIFactory.CreateText(root.transform, "HardDesc", "", 13, UIFactory.DIM, TextAnchor.MiddleCenter);
+        RectTransform drt = hardDesc.rectTransform;
+        drt.anchorMin = new Vector2(0.5f, 0f); drt.anchorMax = new Vector2(0.5f, 0f);
+        drt.anchoredPosition = new Vector2(HARD_X, HARD_Y - 31f - 12f); drt.sizeDelta = new Vector2(260f, 20f);
+        RefreshHardChip();
+    }
+
+    private void ToggleHard()
+    {
+        if (!HardMode.Unlocked) return;
+        HardMode.Picked = !HardMode.Picked;
+        SoundManager.Play(HardMode.Picked ? "sfx_lever" : "sfx_ui_close");
+        RefreshHardChip();
+    }
+
+    /// <summary>종착역에 처음 닿고 로비에 돌아온 순간 한 번: 칩이 생겼다고 알린다</summary>
+    private void NoticeHardUnlock()
+    {
+        if (!HardMode.NoticePending || UIManager.Instance == null) return;
+        HardMode.MarkNoticed();
+        UIManager.Instance.ShowStatChange("[해금] 하드 모드가 열렸다 - 출발 옆 [2] 로 켠다");
+    }
+
+    private void RefreshHardChip()
+    {
+        if (hardBtn == null) return;
+        bool show = HardMode.Unlocked;
+        hardBtn.gameObject.SetActive(show);
+        if (hardDesc != null) hardDesc.gameObject.SetActive(show);
+        if (!show) return;
+        bool on = HardMode.Picked;
+        if (hardLabel != null) { hardLabel.text = on ? "[2] 하드 모드: 켬" : "[2] 하드 모드: 끔"; hardLabel.color = on ? UIFactory.GOLD : UIFactory.DIM; }
+        if (hardRing != null) hardRing.enabled = on;
+        if (hardDesc != null) hardDesc.text = (on ? "" : "켜면 ") + "손님 세짐 · 수급 적음 · 명성 " + GameBalance.HardFameMul + "배";
     }
 
     private static Image MakeBeacon(RectTransform parent, string name, Vector2 anchor, Vector2 pos)

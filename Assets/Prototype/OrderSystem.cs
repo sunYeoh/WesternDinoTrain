@@ -4,7 +4,7 @@ using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 
 /// <summary>
-/// [OrderSystem.cs] v1.1 (v9.27 2026-10-20 튜토리얼 개편: 견습 카드 10 에 주문 하나 - TutorialOrder(계열, 개수, 초) 로 디렉터가 직접 낸다 (견습에선 자동 주문 없음), TutorialDone / TutorialEnd) / v1 (신규, v9.25 2026-10-16 5차 피드백 7·9번 "6렙 4개 찍으면 이제 뭐함 - 재료 개많이 남음" / "1라운드 중반부터 할 게 없음" -> 스펙 B4 단골 주문)
+/// [OrderSystem.cs] v1.2 (v9.28 2026-10-20 하드 모드: 주문 시간 x HardOrderTimeMul. 눈금은 그 주문의 제 시간(timeMax)으로 - 견습 주문(60초)의 눈금도 이제 맞다) / v1.1 (v9.27 2026-10-20 튜토리얼 개편: 견습 카드 10 에 주문 하나 - TutorialOrder(계열, 개수, 초) 로 디렉터가 직접 낸다 (견습에선 자동 주문 없음), TutorialDone / TutorialEnd) / v1 (신규, v9.25 2026-10-16 5차 피드백 7·9번 "6렙 4개 찍으면 이제 뭐함 - 재료 개많이 남음" / "1라운드 중반부터 할 게 없음" -> 스펙 B4 단골 주문)
 /// 웨이브마다 한 번 (첫 주문은 GameBalance.OrderFirstWave 부터, 보스 웨이브는 쉰다) 왼쪽에 주문 카드가 들어온다: "냉기 요리 2개 - 40초".
 ///   - 조리를 마칠 때마다 (FoodStock.OnCooked - 일반 조리·접시 진화 조리·포탑 진화 조리) 그 계열 요리면 +1. 다 채운 처리는 자기 Update 에서 (조리 콜스택 밖)
 ///   - 다 채우면 그 계열 포탑 피해 +40% 20초 (TurretAttackExecutor.DealDamage 가 DamageMulFor 를 곱한다) + 골드 30. 버프 중엔 그 포탑 위에 "+40%"
@@ -27,6 +27,7 @@ public class OrderSystem : MonoBehaviour
     private FoodTag family;          // 주문 계열
     private int need, made;          // 채울 수 / 채운 수
     private float timeLeft;          // 남은 주문 시간 (게임 시간 - 멈추면 같이 멈춘다)
+    private float timeMax = 40f;     // v1.2: 이 주문의 전체 시간 (눈금 기준)
     private float buffLeft;          // 완료 버프 남은 시간
     private int lastWave = -1;       // 마지막으로 본 웨이브 (웨이브가 바뀌면 주문 자격을 새로)
     private bool wasBattle;          // 지난 프레임이 전투였나 (전투로 막 들어온 프레임 = 대기 시작)
@@ -186,7 +187,8 @@ public class OrderSystem : MonoBehaviour
         family = pool[Random.Range(0, pool.Count)];
         need = Mathf.Max(1, GameBalance.OrderCount);
         made = 0;
-        timeLeft = Mathf.Max(5f, GameBalance.OrderTimeSec);
+        timeLeft = Mathf.Max(5f, GameBalance.OrderTimeSec * HardMode.Mul(GameBalance.HardOrderTimeMul));   // v1.2: 하드 모드
+        timeMax = timeLeft;
         state = State.Active;
 
         ShowCard();
@@ -264,6 +266,7 @@ public class OrderSystem : MonoBehaviour
         instance.need = Mathf.Max(1, count);
         instance.made = 0;
         instance.timeLeft = Mathf.Max(5f, sec);
+        instance.timeMax = instance.timeLeft;
         instance.state = State.Active;
         instance.ShowCard();
         SoundManager.Play("sfx_lever");
@@ -503,7 +506,7 @@ public class OrderSystem : MonoBehaviour
         {
             case State.Active:
                 SetSeconds(timeLeft);
-                SetGauge(Mathf.Clamp01(timeLeft / Mathf.Max(1f, GameBalance.OrderTimeSec)), UIFactory.TagColor(family));
+                SetGauge(Mathf.Clamp01(timeLeft / Mathf.Max(1f, timeMax)), UIFactory.TagColor(family));
                 break;
             case State.Done:
                 SetSeconds(buffLeft);

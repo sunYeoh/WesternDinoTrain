@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.Events;
 
 /// <summary>
-/// [TrainManager.cs] v3.8 (v9.26 2026-10-16 마감 정리: 허기 스텁 ConsumeSatiety · 옛 웨건 API(InstallWagon · HasWagonType · GetEmptySlotIndex) 삭제) / v3.7 (v9.25 2026-10-16 B5 유물 '탐욕의 국자'의 대가: 받는 피해 +15% = 받는 피해 감소에서 ItemManager.DamageTakenAdd 를 뺀다 (어림 EstimateDamage 도 같게)) / v3.6 (v9.23 2026-10-14: EstimateDamage - 이 피해가 들어오면 HP 가 얼마 깎이나 (방어력·바닥·받는 피해 감소까지. 연속 피격 완충·증기 보호막은 뺀다) - 보스 패턴 예고 때 HP 바 빗금(B2)이 쓴다) / v3.5 (v9.19.2 2026-10-07: 방어력 바닥 GameBalance.TrainDefFloor - 방어력을 빼도 원래 피해의 4분의 1 은 들어온다. v3.4(v9.19.1)의 "몫만큼만 방어"는 걷어냈다 - 손님이 다시 제 힘으로 온다) / v3.3 (v9.18 2026-10-06: TakeDamageIgnoringDef - 주방 사고 실패 피해용. 방어력 차감과 연속 피격 완충을 건너뛴다) / v3.2 (v9.11 2026-09-22: 피격 때 TrainFeel.Hit() - 맞은 칸 플래시) / v3.1 (교수 피드백 A4: AddMaxHP 회복 분리)
+/// [TrainManager.cs] v3.9 (v9.28 2026-10-20 하드 모드: ApplyStartHpMul - 운행 시작 때 기차 시작 HP 에 배율 (HardMode.BeginRun 이 부른다)) / v3.8 (v9.26 2026-10-16 마감 정리: 허기 스텁 ConsumeSatiety · 옛 웨건 API(InstallWagon · HasWagonType · GetEmptySlotIndex) 삭제) / v3.7 (v9.25 2026-10-16 B5 유물 '탐욕의 국자'의 대가: 받는 피해 +15% = 받는 피해 감소에서 ItemManager.DamageTakenAdd 를 뺀다 (어림 EstimateDamage 도 같게)) / v3.6 (v9.23 2026-10-14: EstimateDamage - 이 피해가 들어오면 HP 가 얼마 깎이나 (방어력·바닥·받는 피해 감소까지. 연속 피격 완충·증기 보호막은 뺀다) - 보스 패턴 예고 때 HP 바 빗금(B2)이 쓴다) / v3.5 (v9.19.2 2026-10-07: 방어력 바닥 GameBalance.TrainDefFloor - 방어력을 빼도 원래 피해의 4분의 1 은 들어온다. v3.4(v9.19.1)의 "몫만큼만 방어"는 걷어냈다 - 손님이 다시 제 힘으로 온다) / v3.3 (v9.18 2026-10-06: TakeDamageIgnoringDef - 주방 사고 실패 피해용. 방어력 차감과 연속 피격 완충을 건너뛴다) / v3.2 (v9.11 2026-09-22: 피격 때 TrainFeel.Hit() - 맞은 칸 플래시) / v3.1 (교수 피드백 A4: AddMaxHP 회복 분리)
 /// 메카 티렉스 열차의 핵심 스탯을 관리합니다.
 /// - v3 변경점 (구시스템 정리):
 ///   1) 허기/포만감 시스템 완전 제거 (감소/등급/절전모드/스탯 페널티 전부 삭제)
@@ -156,6 +156,15 @@ public class TrainManager : MonoBehaviour
         // 허기 배율 제거: 항상 기본 공격력/공속
         currentATK = baseATK;
         currentAttackSpeed = baseAttackSpeed;
+    }
+
+    /// <summary>v3.9 (v9.28): 운행 시작 때 시작 HP 에 배율 (하드 모드). 보일러 보너스를 더한 값에 곱하고 현재 HP 도 가득</summary>
+    public void ApplyStartHpMul(float mul)
+    {
+        baseHP = Mathf.Max(100f, (GameBalance.TrainStartHP + MetaProgress.TrainHPBonus) * mul);
+        RecalculateStats();
+        currentHP = currentMaxHP;
+        Debug.Log("[TrainManager] 시작 HP x" + mul + " = " + baseHP);
     }
 
     /// <summary>최대 HP 증감 (패시브 요리 / 증강 / 스피노 벌금). 음수여도 죽지는 않는다</summary>

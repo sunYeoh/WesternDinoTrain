@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// [MetaProgress.cs] v1.3 (v9.14 2026-09-28: 명성 상점 "출발 증강" StartAugment) / v1.2 (2026-09-14: 이번 런 클리어 웨이브 + 런 통계 한 줄 RunStatsLine) / v1.1 (마스터 셰프 칭호 + 도감 완성 보너스) / v1
+/// [MetaProgress.cs] v1.4 (v9.28 2026-10-20 하드 모드: 종착역 기록 ClearCount·HardClears (RecordClear - 승리 때 GameManager 가 부른다, 하드 첫 종착역 = 명성 HardClearFame + 칭호 "황야의 베테랑" VeteranTitle) / 웨이브 명성 x HardFameMul / 요약 줄 앞에 [하드]) / v1.3 (v9.14 2026-09-28: 명성 상점 "출발 증강" StartAugment) / v1.2 (2026-09-14: 이번 런 클리어 웨이브 + 런 통계 한 줄 RunStatsLine) / v1.1 (마스터 셰프 칭호 + 도감 완성 보너스) / v1
 /// 런이 끝나도 사라지지 않는 "메타 진행" 저장소.
 ///
 /// - PlayerPrefs 기반 static 클래스라서 씬 배치, 오브젝트 연결이 전혀 필요 없다.
@@ -87,7 +87,7 @@ public static class MetaProgress
     /// <summary>웨이브 클리어 시 호출. 명성 적립 + 기록 갱신 + 즉시 저장.</summary>
     public static void OnWaveCleared(int wave)
     {
-        int gain = 10 + wave;
+        int gain = Mathf.CeilToInt((10 + wave) * HardMode.Mul(GameBalance.HardFameMul));   // v1.4: 하드 모드는 더 (올림 - 반올림은 .5 를 짝수로 보내 들쭉날쭉)
         RunFame += gain;
         if (wave > WaveClearedThisRun) WaveClearedThisRun = wave;
         // v1.2: 웨이브마다 통계 한 줄 (런을 포기하면 요약 창이 안 뜨므로 Console/Player.log 의 이 줄이 기록이 된다)
@@ -111,7 +111,7 @@ public static class MetaProgress
     /// <summary>게임오버/승리 화면에 띄울 요약 문자열.</summary>
     public static string RunSummary()
     {
-        string s = "이번 운행 명성 +" + RunFame
+        string s = (HardMode.LastRunHard ? "[하드]  " : "") + "이번 운행 명성 +" + RunFame
             + "  |  보유 명성 " + Fame
             + "  |  최고 기록 " + BestWave + "웨이브";
         // v1.1 (교수 피드백 C4·관찰 시트): 조리 통계와 전투 중 수리 기록 -> v1.2: 한 줄 함수로 분리 (명성 상점도 같은 줄을 띄운다)
@@ -285,6 +285,38 @@ public static class MetaProgress
             UIManager.Instance?.ShowStatChange("[칭호] 황야의 마스터 셰프 - 요리책 완성 보너스 명성 +" + GameBalance.DexCompleteFameBonus);
             Debug.Log("[MetaProgress] 도감 완성 + 진엔딩 - 마스터 셰프 칭호 (+" + GameBalance.DexCompleteFameBonus + ")");
         }
+    }
+
+    // ─────────────────────────────────────────────
+    // v1.4 (v9.28): 종착역 기록 - 하드 모드 해금·칭호
+    // ─────────────────────────────────────────────
+    /// <summary>종착역에 닿은 횟수 (승리 - 엔딩 A·B 모두). 1 이상이면 하드 모드 해금 (HardMode.Unlocked)</summary>
+    public static int ClearCount { get { return PlayerPrefs.GetInt(PREFIX + "Clears", 0); } }
+
+    /// <summary>하드 모드로 종착역에 닿은 횟수</summary>
+    public static int HardClears { get { return PlayerPrefs.GetInt(PREFIX + "HardClears", 0); } }
+
+    /// <summary>칭호 '황야의 베테랑' (하드 모드 종착역 1회)</summary>
+    public static bool VeteranTitle { get { return HardClears > 0; } }
+
+    /// <summary>승리 때 (GameManager.HandleVictory). 하드 첫 종착역은 보너스 명성 + 칭호</summary>
+    public static void RecordClear(bool hard)
+    {
+        PlayerPrefs.SetInt(PREFIX + "Clears", ClearCount + 1);
+        if (hard)
+        {
+            bool first = HardClears == 0;
+            PlayerPrefs.SetInt(PREFIX + "HardClears", HardClears + 1);
+            PlayerPrefs.Save();
+            if (first)
+            {
+                AddFame(GameBalance.HardClearFame);
+                UIManager.Instance?.ShowStatChange("[칭호] 황야의 베테랑 - 하드 모드 첫 종착역, 명성 +" + GameBalance.HardClearFame);
+                Debug.Log("[MetaProgress] 하드 모드 첫 종착역 - 베테랑 칭호 (+" + GameBalance.HardClearFame + ")");
+            }
+        }
+        PlayerPrefs.Save();
+        Debug.Log("[MetaProgress] 종착역 " + ClearCount + "번째" + (hard ? " (하드 " + HardClears + ")" : ""));
     }
 
     /// <summary>칭호 '황야의 마스터 셰프' 획득 여부 (도감 42 + 엔딩 B)</summary>
@@ -525,6 +557,9 @@ public static class MetaProgress
         PlayerPrefs.DeleteKey(PREFIX + "Journals");
         PlayerPrefs.DeleteKey(PREFIX + "EndingB");
         PlayerPrefs.DeleteKey(PREFIX + "MasterChef");
+        PlayerPrefs.DeleteKey(PREFIX + "Clears");       // v1.4
+        PlayerPrefs.DeleteKey(PREFIX + "HardClears");
+        HardMode.ResetPick();
         PlayerPrefs.DeleteKey(PREFIX + "CookCounts");
         PlayerPrefs.DeleteKey(PREFIX + "MasterFamed");
         PlayerPrefs.DeleteKey(PREFIX + "SpinoMet");
