@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [TrainingGroundUI.cs] v1.3 (v9.26 2026-10-16 마감 정리: 열림 소리 중복 호출(ModalFeel 이 낸다) · 안 쓰는 CloseStatic 삭제) / v1.2 (v9.22.2 2026-10-14 유저 "튜토리얼 말투가 번역체·AI 같고 딱딱하다": 안내 글 말투를 반말 해체로 - 명령형 ~라·설명 ~다 끝맺음, 문장 속 기호, 어려운 말(투입·재가동·곁·유인)를 걷어냈다. 규칙 = 문구원칙 10-14 저녁 "말투" 절) / v1.1 (v9.15 2026-09-29: 8번째 줄 "자유 연습" - TutorialDirector.SANDBOX. 카드 600 -> 672, [1~8]) / v1 (신규, v9.12 2026-09-22) - 로비 [T] 훈련장: 견습 운행을 구간별로 다시 연습하는 목록 창 (목업 v4.2 (A))
+/// [TrainingGroundUI.cs] v1.4 (v9.27 2026-10-20 튜토리얼 개편: 구간 8 + 자유 연습 = 9줄, 줄 높이 62 -> 58, 판 672 -> 700, 키 안내 [1~9]) / v1.3 (v9.26 2026-10-16 마감 정리: 열림 소리 중복 호출(ModalFeel 이 낸다) · 안 쓰는 CloseStatic 삭제) / v1.2 (v9.22.2 2026-10-14 유저 "튜토리얼 말투가 번역체·AI 같고 딱딱하다": 안내 글 말투를 반말 해체로 - 명령형 ~라·설명 ~다 끝맺음, 문장 속 기호, 어려운 말(투입·재가동·곁·유인)를 걷어냈다. 규칙 = 문구원칙 10-14 저녁 "말투" 절) / v1.1 (v9.15 2026-09-29: 8번째 줄 "자유 연습" - TutorialDirector.SANDBOX. 카드 600 -> 672, [1~8]) / v1 (신규, v9.12 2026-09-22) - 로비 [T] 훈련장: 견습 운행을 구간별로 다시 연습하는 목록 창 (목업 v4.2 (A))
 ///
 /// 처음 실행(구간 기록이 하나도 없음)에는 [T] 가 이 창을 열지 않고 견습 운행 전부(1~7)를 바로 연다 (LobbyUI). 한 번이라도 돌린 뒤엔 이 목록.
 /// 창: 어둡게 + 가운데 카드 680x600 - 명판 "훈련장  -  구간별 연습" / 안내 한 줄 + 오른쪽 "완료 n / 7" / 구간 7줄(번호·배울 행동·한 줄·단계·예상·기록) /
@@ -22,9 +22,9 @@ public class TrainingGroundUI : MonoBehaviour
     public static bool IsOpen { get; private set; }
 
     private const int SORT = 575;
-    private const float PW = 680f, PH = 672f;   // v1.1: 자유 연습 줄이 늘어 600 -> 672
-    private const int ROWS = TutorialDirector.SEGMENTS + 1;   // v1.1: 구간 7 + 자유 연습
-    private const float ROW_H = 62f, ROW_GAP = 6f;
+    private const float PW = 680f, PH = 700f;   // v1.1: 자유 연습 줄이 늘어 600 -> 672 / v1.4: 9줄 - 700 (줄 58 x 9 + 틈 5 x 8 + 위 78 + 아래 60)
+    private const int ROWS = TutorialDirector.SEGMENTS + 1;   // v1.1: 구간 + 자유 연습 (v1.4: 8 + 1)
+    private const float ROW_H = 58f, ROW_GAP = 5f;   // v1.4: 62·6 -> 58·5 (9줄이 700 안에)
 
     private static readonly Color GREEN = new Color(0.45f, 0.85f, 0.45f, 1f);
     private static readonly Color GREEN_BG = new Color(0.09f, 0.18f, 0.11f, 1f);
@@ -108,7 +108,7 @@ public class TrainingGroundUI : MonoBehaviour
         if (Time.unscaledTime - openedAt < 0.15f) return;   // 연 키가 바로 닫지 않게
 
         if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.T)) { Close(); return; }
-        for (int i = 1; i <= ROWS; i++)   // v1.1: [8] = 자유 연습
+        for (int i = 1; i <= ROWS; i++)   // v1.1: 마지막 = 자유 연습 ([9])
             if (Input.GetKeyDown(KeyCode.Alpha0 + i) || Input.GetKeyDown(KeyCode.Keypad0 + i)) { selected = i; Refresh(); }
         if (Input.GetKeyDown(KeyCode.Alpha0) || Input.GetKeyDown(KeyCode.Keypad0)) { StartSegment(0); return; }
         if ((Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
@@ -217,7 +217,7 @@ public class TrainingGroundUI : MonoBehaviour
         float ry = -78f;
         for (int i = 0; i < ROWS; i++)
         {
-            // v1.1: 8번째 줄 = 자유 연습 (배그 훈련장처럼 - 손님이 계속 오고 재료·기차 걱정 없이, 사고는 [1]~[5]로 직접)
+            // v1.1: 마지막 줄 = 자유 연습 (배그 훈련장처럼 - 손님이 계속 오고 재료·기차 걱정 없이, 사고는 [1]~[6]으로 직접)
             TutorialDirector.SegmentInfo info = i < TutorialDirector.SEGMENTS ? TutorialDirector.SEGMENT_TABLE[i]
                 : new TutorialDirector.SegmentInfo(TutorialDirector.SANDBOX, "자유 연습", "손님은 계속 와. 재료·기차 걱정은 없어. 사고는 [1]~[6]으로 직접", "끝없음", "나갈 때까지", 0, 0);
             RectTransform row = UIFactory.CreatePanel(panel, "Row_" + info.no,
@@ -241,22 +241,22 @@ public class TrainingGroundUI : MonoBehaviour
 
             // 번호 칩
             RectTransform chip = UIFactory.CreatePanel(row, "Chip", new Vector2(0f, 1f), new Vector2(0f, 1f),
-                new Vector2(12f, -15f - 32f), new Vector2(12f + 40f, -15f), CHIP_BG, CHIP_BG, 0f);
+                new Vector2(12f, -13f - 32f), new Vector2(12f + 40f, -13f), CHIP_BG, CHIP_BG, 0f);
             rowNo[i] = UIFactory.CreateText(chip, "No", info.no.ToString(), 15, UIFactory.CREAM, TextAnchor.MiddleCenter);
 
             rowTitle[i] = UIFactory.CreateText(row, "Title", info.title, 18, UIFactory.CREAM, TextAnchor.MiddleLeft);
-            PlaceTopLeft(rowTitle[i].rectTransform, 68f, -10f, 360f, 24f);
+            PlaceTopLeft(rowTitle[i].rectTransform, 68f, -8f, 360f, 24f);
             rowLine[i] = UIFactory.CreateText(row, "Line", info.line, 14, UIFactory.DIM, TextAnchor.MiddleLeft);
-            PlaceTopLeft(rowLine[i].rectTransform, 68f, -34f, 400f, 20f);
+            PlaceTopLeft(rowLine[i].rectTransform, 68f, -32f, 400f, 20f);
 
             Text stepT = UIFactory.CreateText(row, "Step", info.stepLabel, 13, UIFactory.DIM, TextAnchor.MiddleRight);
-            PlaceTopLeft(stepT.rectTransform, PW - 44f - 128f - 110f, -10f, 110f, 22f);
+            PlaceTopLeft(stepT.rectTransform, PW - 44f - 128f - 110f, -8f, 110f, 22f);
             Text estT = UIFactory.CreateText(row, "Est", info.estimate, 13, UIFactory.DIM, TextAnchor.MiddleRight);
-            PlaceTopLeft(estT.rectTransform, PW - 44f - 128f - 110f, -33f, 110f, 22f);
+            PlaceTopLeft(estT.rectTransform, PW - 44f - 128f - 110f, -31f, 110f, 22f);
 
             // 기록 상자 88x28 (오른쪽)
             RectTransform box = UIFactory.CreatePanel(row, "State", new Vector2(1f, 1f), new Vector2(1f, 1f),
-                new Vector2(-22f - 88f, -17f - 28f), new Vector2(-22f, -17f), new Color(0f, 0f, 0f, 0f), GREY, 1f);
+                new Vector2(-22f - 88f, -15f - 28f), new Vector2(-22f, -15f), new Color(0f, 0f, 0f, 0f), GREY, 1f);
             rowStateBox[i] = box.GetComponent<Image>();
             Transform bgT = box.Find("BG");
             if (bgT != null) { rowStateBg[i] = bgT.GetComponent<Image>(); if (rowStateBg[i] != null) rowStateBg[i].color = new Color(0f, 0f, 0f, 0f); }
@@ -265,7 +265,7 @@ public class TrainingGroundUI : MonoBehaviour
             ry -= ROW_H + ROW_GAP;
         }
 
-        Text keys = UIFactory.CreateText(panel, "Keys", "[1~8] 고르기   [Enter] 시작   [0] 처음부터 전부   [ESC] 닫기", 14, UIFactory.DIM, TextAnchor.MiddleLeft);
+        Text keys = UIFactory.CreateText(panel, "Keys", "[1~9] 고르기   [Enter] 시작   [0] 처음부터 전부   [ESC] 닫기", 14, UIFactory.DIM, TextAnchor.MiddleLeft);
         keys.rectTransform.anchorMin = new Vector2(0f, 0f); keys.rectTransform.anchorMax = new Vector2(0f, 0f);
         keys.rectTransform.pivot = new Vector2(0f, 0f);
         keys.rectTransform.anchoredPosition = new Vector2(26f, 18f); keys.rectTransform.sizeDelta = new Vector2(600f, 22f);

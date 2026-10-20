@@ -4,7 +4,7 @@ using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 
 /// <summary>
-/// [OrderSystem.cs] v1 (신규, v9.25 2026-10-16 5차 피드백 7·9번 "6렙 4개 찍으면 이제 뭐함 - 재료 개많이 남음" / "1라운드 중반부터 할 게 없음" -> 스펙 B4 단골 주문)
+/// [OrderSystem.cs] v1.1 (v9.27 2026-10-20 튜토리얼 개편: 견습 카드 10 에 주문 하나 - TutorialOrder(계열, 개수, 초) 로 디렉터가 직접 낸다 (견습에선 자동 주문 없음), TutorialDone / TutorialEnd) / v1 (신규, v9.25 2026-10-16 5차 피드백 7·9번 "6렙 4개 찍으면 이제 뭐함 - 재료 개많이 남음" / "1라운드 중반부터 할 게 없음" -> 스펙 B4 단골 주문)
 /// 웨이브마다 한 번 (첫 주문은 GameBalance.OrderFirstWave 부터, 보스 웨이브는 쉰다) 왼쪽에 주문 카드가 들어온다: "냉기 요리 2개 - 40초".
 ///   - 조리를 마칠 때마다 (FoodStock.OnCooked - 일반 조리·접시 진화 조리·포탑 진화 조리) 그 계열 요리면 +1. 다 채운 처리는 자기 Update 에서 (조리 콜스택 밖)
 ///   - 다 채우면 그 계열 포탑 피해 +40% 20초 (TurretAttackExecutor.DealDamage 가 DamageMulFor 를 곱한다) + 골드 30. 버프 중엔 그 포탑 위에 "+40%"
@@ -33,6 +33,8 @@ public class OrderSystem : MonoBehaviour
     private float waveSeenAt;        // 대기 시작 시각 (새 웨이브 또는 전투 진입)
     private bool orderedThisWave;    // 이번 웨이브에 주문을 냈나 (냈거나 못 낼 걸 확인했으면 true)
     private float hintRefreshAt;     // 넷째 줄(만들 수 있는 요리) 다시 고를 시각
+    private bool tutorialOrder;      // v1.1: 견습 운행이 낸 주문 (Update 의 견습 가드를 지나간다)
+    private bool tutorialOrderDone;  // v1.1: 견습 주문을 다 채운 적이 있나 (카드 10 재시작 때 또 내지 않게)
 
     // ---------- 화면 ----------
     private Canvas canvas;
@@ -113,7 +115,7 @@ public class OrderSystem : MonoBehaviour
 
         bool battle = GameManager.Instance != null
             && GameManager.Instance.currentState == GameManager.GameState.Battle
-            && !TutorialDirector.Active;   // 견습 운행·자유 연습에는 주문이 없다
+            && (!TutorialDirector.Active || tutorialOrder);   // 견습 운행·자유 연습에는 자동 주문이 없다 (v1.1: 디렉터가 낸 주문만)
 
         if (!battle)
         {
@@ -158,7 +160,7 @@ public class OrderSystem : MonoBehaviour
     /// <summary>이번 웨이브에 주문을 낼 때인가</summary>
     private bool CanStartOrder(int wave)
     {
-        if (orderedThisWave) return false;
+        if (orderedThisWave || TutorialDirector.Active) return false;   // v1.1: 견습에선 디렉터가 낸다
         if (wave < GameBalance.OrderFirstWave || GameBalance.IsBossWave(wave)) return false;   // 보스 웨이브는 보스 패턴이 할 일을 준다
         if (Time.time - waveSeenAt < GameBalance.OrderDelaySec) return false;                   // 웨이브가 자리 잡은 뒤에
         if (WaveManager.PostWaveHold) return false;                                             // 웨이브가 끝나 사고 수습만 기다리는 중
@@ -208,6 +210,7 @@ public class OrderSystem : MonoBehaviour
     private void Complete()
     {
         state = State.Done;
+        if (tutorialOrder) tutorialOrderDone = true;   // v1.1
         buffLeft = Mathf.Max(1f, GameBalance.OrderBuffSec);
         flashT = 0f;
         if (GameManager.Instance != null && GameBalance.OrderGold > 0) GameManager.Instance.AddGold(GameBalance.OrderGold);   // 카드 넷째 줄 "골드 30 받았어"
@@ -249,9 +252,43 @@ public class OrderSystem : MonoBehaviour
         fadeT = 0f;
     }
 
+    // ---------- v1.1: 견습 운행 (TutorialDirector 카드 10) ----------
+    /// <summary>견습 운행에서 주문 하나를 낸다 - 계열·개수·시간을 디렉터가 정한다 (자동 주문의 후보 셈은 건너뛴다)</summary>
+    public static void TutorialOrder(FoodTag fam, int count, float sec)
+    {
+        if (instance == null || !GameBalance.OrderOn || instance.card == null) return;
+        if (instance.state == State.Active || instance.state == State.Done) return;
+        instance.tutorialOrder = true;
+        instance.orderedThisWave = true;
+        instance.family = fam;
+        instance.need = Mathf.Max(1, count);
+        instance.made = 0;
+        instance.timeLeft = Mathf.Max(5f, sec);
+        instance.state = State.Active;
+        instance.ShowCard();
+        SoundManager.Play("sfx_lever");
+        Debug.Log("[주문] (견습) " + TagWord(fam) + " 요리 " + instance.need + "개 - " + Mathf.RoundToInt(instance.timeLeft) + "초");
+    }
+
+    /// <summary>견습 주문을 다 채운 적이 있나</summary>
+    public static bool TutorialDone
+    {
+        get { return instance == null || instance.tutorialOrderDone; }
+    }
+
+    /// <summary>견습 카드가 끝났다 - 남은 주문·버프는 조용히 접는다 (벌칙 없음). 견습이 아니었으면 아무 일 없음</summary>
+    public static void TutorialEnd()
+    {
+        if (instance == null || !instance.tutorialOrder) return;
+        instance.tutorialOrder = false;
+        instance.orderedThisWave = false;   // 같은 웨이브 번호로 정식 운행이 이어져도 첫 주문이 막히지 않게
+        if (instance.state == State.Active || instance.state == State.Done) instance.BeginClose();
+    }
+
     private void ResetAll()
     {
         state = State.Idle;
+        tutorialOrder = false; tutorialOrderDone = false;   // v1.1
         lastWave = -1;
         wasBattle = false;
         orderedThisWave = false;

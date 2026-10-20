@@ -4,7 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 /// <summary>
-/// [KitchenEventManager.cs] v4.14 (v9.24.1 2026-10-16 5차 피드백 8번: 위치형 사고(침입·고장·화재)는 위치 먼저 (GameBalance.EventLocationFirst) - 현장 고리·화살표를 키우고(EventSiteScaleAway) 현장 위에 "화재 12초", 셰프 머리 위에 현장 쪽 세모. 배너·현장 카드·전체 화면 그림·처음 보는 사고의 설명 카드는 셰프가 현장에 처음 닿는 순간에 뜬다. 경보음·가장자리 붉은빛·배경음 낮춤은 처음부터. 현장을 벗어나면 안내 줄 "현장으로 돌아가". 사고 종류 키를 EventKey 하나로) / v4.13 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v4.12 (v9.20 2026-10-07: 글 속 화살표를 게임 글꼴에 있는 세모로(게임 글꼴에 화살표 글리프가 없어 PC 의 다른 글꼴로 그려졌다 - 모양이 따로 놀고, 대신할 글꼴이 없는 빌드에선 빈칸)) / v4.11 (v9.18 2026-10-06: 경광등 2개를 기차 상황판 양옆으로(구 자리는 커진 좌우 판 위) / 실패 피해를 기차 최대 HP 에 맞춰 키우고 방어력으로 깎지 않는다(EventFailScaleOn - "HP 2800 에 19 닳던 것") / 웨이브가 끝나 사고 수습을 기다리는 동안(WaveManager.PostWaveHold) 새 사고를 시작하지 않는다 / MakeText 최소 글자 크기 / AnchorCanvasX 를 캔버스 실제 폭으로 - 1920 고정이라 현장 그림이 바깥으로 밀려 있었다) / v4.10 (v9.16 2026-09-29 손맛 2차 - 소리: 사고 시작 = 경보 + 종류별 소리(SoundKeys.Event: 침입 발소리 / 고장 쇠 삐걱 / 화재 불붙음 / 흘림 쏟아짐) + 배경음 덕킹 / 끝나면 덕킹 해제 / 결과 sfx_event_resolve·sfx_event_fail) / v4.9 (v9.15 2026-09-29 2차 피드백: 사고 해결 연출 - 현장 초록 링 2겹 + "해결!" + 화면 테두리 초록 한 번 + 배너가 초록 "해결 - 기차 HP +n"으로 바뀌고 EventResolveHoldSec 뒤 내려감 / 실패는 붉은 "실패" + "[사고 실패] ... 기차 HP -n" 한 줄 (훈련장에서 결과를 알게) / ForceEvent(kind) - 자유 연습 [2]~[5] / 자유 연습 중 첫 등장 카드는 세션당 1회) / v4.8 (v9.14 2026-09-28 테스터 반영: 사고 현장에 월드 마커(붉은 화살표 + 링) - "직접 가야 한다는 인식 부족" / 흘림 조각이 사고 배너 뒤에 가려지던 것 - 커스텀 층을 배너 위로) / v4.7 (v9.12 2026-09-22: 인라인 연습 중 사고 타이머 정지) / v4.6 (v9.11 2026-09-22: MakeButton 에 ButtonFeel) / v4.5 (v9.10 2026-09-17 테스터 피드백 "사고 중에 증강 선택이 뜨면 사고가 끝난다": 웨이브가 끝나 정차로 넘어가며 사고가 취소될 때 "정차 정비로 사고가 정리됐다 (벌점 없음)" 알림 - 조용히 사라지던 것) / v4.4 (v9.9.2 2026-09-16: 사고 종류별 첫 등장 카드 - StartEvent 에서 BriefingUI.ShowOnce("event_<종류>"), 카드가 뜨면 시간이 멈춰 제한 시간은 그 뒤 흐른다) / v4.3 (v9.9 2026-09-16: 견습 운행 중 F11 무시 - 이벤트 자체는 WaveManager.TutorialGateActive 로 쉰다) / v4.2 (v9.8.1: F11 강제 발생은 GameBalance.CheatsAllowed 일 때만) / v4.1 (2026-09-14: 마모 off 가중치 / 프롤로그 게이트 차단) / v4
+/// [KitchenEventManager.cs] v4.15 (v9.27 2026-10-20 튜토리얼 개편 - 견습 구간 4 "주방 사고 막기": TutorialDirector.ForcedEventsOnly 동안 견습 중에도 디렉터가 ForceEvent 로 일으킨 사고를 돌린다 (무작위 사고는 없음), 끝난 사고 수·결과를 공개 (EventsEnded · LastEventSuccess - 디렉터가 성공·실패를 센다), 첫 등장 카드는 견습 전체에서 기록 없이 (자유 연습과 같게 - 정식 운행에서 다시 뜬다), 견습에선 제한 시간 x GameBalance.TutorialEventTimeMul) / v4.14 (v9.24.1 2026-10-16 5차 피드백 8번: 위치형 사고(침입·고장·화재)는 위치 먼저 (GameBalance.EventLocationFirst) - 현장 고리·화살표를 키우고(EventSiteScaleAway) 현장 위에 "화재 12초", 셰프 머리 위에 현장 쪽 세모. 배너·현장 카드·전체 화면 그림·처음 보는 사고의 설명 카드는 셰프가 현장에 처음 닿는 순간에 뜬다. 경보음·가장자리 붉은빛·배경음 낮춤은 처음부터. 현장을 벗어나면 안내 줄 "현장으로 돌아가". 사고 종류 키를 EventKey 하나로) / v4.13 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v4.12 (v9.20 2026-10-07: 글 속 화살표를 게임 글꼴에 있는 세모로(게임 글꼴에 화살표 글리프가 없어 PC 의 다른 글꼴로 그려졌다 - 모양이 따로 놀고, 대신할 글꼴이 없는 빌드에선 빈칸)) / v4.11 (v9.18 2026-10-06: 경광등 2개를 기차 상황판 양옆으로(구 자리는 커진 좌우 판 위) / 실패 피해를 기차 최대 HP 에 맞춰 키우고 방어력으로 깎지 않는다(EventFailScaleOn - "HP 2800 에 19 닳던 것") / 웨이브가 끝나 사고 수습을 기다리는 동안(WaveManager.PostWaveHold) 새 사고를 시작하지 않는다 / MakeText 최소 글자 크기 / AnchorCanvasX 를 캔버스 실제 폭으로 - 1920 고정이라 현장 그림이 바깥으로 밀려 있었다) / v4.10 (v9.16 2026-09-29 손맛 2차 - 소리: 사고 시작 = 경보 + 종류별 소리(SoundKeys.Event: 침입 발소리 / 고장 쇠 삐걱 / 화재 불붙음 / 흘림 쏟아짐) + 배경음 덕킹 / 끝나면 덕킹 해제 / 결과 sfx_event_resolve·sfx_event_fail) / v4.9 (v9.15 2026-09-29 2차 피드백: 사고 해결 연출 - 현장 초록 링 2겹 + "해결!" + 화면 테두리 초록 한 번 + 배너가 초록 "해결 - 기차 HP +n"으로 바뀌고 EventResolveHoldSec 뒤 내려감 / 실패는 붉은 "실패" + "[사고 실패] ... 기차 HP -n" 한 줄 (훈련장에서 결과를 알게) / ForceEvent(kind) - 자유 연습 [2]~[5] / 자유 연습 중 첫 등장 카드는 세션당 1회) / v4.8 (v9.14 2026-09-28 테스터 반영: 사고 현장에 월드 마커(붉은 화살표 + 링) - "직접 가야 한다는 인식 부족" / 흘림 조각이 사고 배너 뒤에 가려지던 것 - 커스텀 층을 배너 위로) / v4.7 (v9.12 2026-09-22: 인라인 연습 중 사고 타이머 정지) / v4.6 (v9.11 2026-09-22: MakeButton 에 ButtonFeel) / v4.5 (v9.10 2026-09-17 테스터 피드백 "사고 중에 증강 선택이 뜨면 사고가 끝난다": 웨이브가 끝나 정차로 넘어가며 사고가 취소될 때 "정차 정비로 사고가 정리됐다 (벌점 없음)" 알림 - 조용히 사라지던 것) / v4.4 (v9.9.2 2026-09-16: 사고 종류별 첫 등장 카드 - StartEvent 에서 BriefingUI.ShowOnce("event_<종류>"), 카드가 뜨면 시간이 멈춰 제한 시간은 그 뒤 흐른다) / v4.3 (v9.9 2026-09-16: 견습 운행 중 F11 무시 - 이벤트 자체는 WaveManager.TutorialGateActive 로 쉰다) / v4.2 (v9.8.1: F11 강제 발생은 GameBalance.CheatsAllowed 일 때만) / v4.1 (2026-09-14: 마모 off 가중치 / 프롤로그 게이트 차단) / v4
 /// 주방 돌발 이벤트 총괄 매니저 (기획 B-4)
 /// - v4 (v9.6, 2026-09-09): "화면 전체 경보" - 기차 안 작은 아이콘은 조리하다 놓친다는 피드백
 ///   * 경보 글로우: 화면 가장자리 붉은(이벤트별 색) 비네트가 0.6초 주기로 맥동 (삐뽀삐뽀). SetAlarm(color, strength)
@@ -49,6 +49,11 @@ public class KitchenEventManager : MonoBehaviour
 
     [Header("디버그")]
     public bool debugKeyEnabled = true;       // F11로 이벤트 강제 발생 (빌드 전 false)
+
+    /// <summary>v4.15: 이 장면에서 끝난(성공·실패) 사고 수 - 견습 구간 4 가 "끝났나"를 이걸로 본다 (취소는 안 센다)</summary>
+    public static int EventsEnded { get; private set; }
+    /// <summary>v4.15: 마지막으로 끝난 사고의 결과</summary>
+    public static bool LastEventSuccess { get; private set; }
 
     // 현재 진행 중인 이벤트
     private IKitchenEvent currentEvent;
@@ -260,9 +265,9 @@ public class KitchenEventManager : MonoBehaviour
     /// <summary>첫 등장 카드를 지금 보여 준다 (자유 연습은 종류마다 세션당 한 번, 운행은 기록에 한 번). 띄웠으면 true</summary>
     private bool ShowBriefingNow(string key)
     {
-        if (TutorialDirector.SandboxActive)
+        if (TutorialDirector.Active)
         {
-            // v4.9: 자유 연습에서는 기록과 무관하게 종류마다 한 번 보여 준다 (실패하면 어떻게 되는지가 카드에 있다)
+            // v4.9: 자유 연습에서는 기록과 무관하게 종류마다 한 번 보여 준다 (실패하면 어떻게 되는지가 카드에 있다). v4.15: 견습 구간 4 도 같게 - 정식 운행에서 처음 만나면 또 뜬다
             if (!sandboxSeen.Add(key)) return false;
             BriefingUI.Show(BriefingTexts.Event(key));
             return true;
@@ -413,7 +418,7 @@ public class KitchenEventManager : MonoBehaviour
         // - 타이머를 firstDelay로 계속 밀어서, 전투 시작 후에도 최소 firstDelay만큼 여유를 준다
         bool inBattle = GameManager.Instance != null
             && GameManager.Instance.currentState == GameManager.GameState.Battle
-            && (!WaveManager.TutorialGateActive || TutorialDirector.SandboxActive);   // v4.1: 프롤로그 조리 게이트 중에는 이벤트 없음. v4.9: 자유 연습은 키로 일으킨 사고를 돌린다
+            && (!WaveManager.TutorialGateActive || TutorialDirector.SandboxActive || TutorialDirector.ForcedEventsOnly);   // v4.1: 프롤로그 조리 게이트 중에는 이벤트 없음. v4.9: 자유 연습은 키로 일으킨 사고를 돌린다. v4.15: 견습 구간 4 도
         if (!inBattle)
         {
             if (currentEvent != null)
@@ -447,8 +452,8 @@ public class KitchenEventManager : MonoBehaviour
             return;
         }
 
-        // v4.9: 자유 연습은 무작위 사고 없음 - [2]~[5] 로만 (ForceEvent)
-        if (TutorialDirector.SandboxActive) return;
+        // v4.9: 자유 연습은 무작위 사고 없음 - [2]~[5] 로만 (ForceEvent). v4.15: 견습 구간 4 도 디렉터가 일으킨 것만
+        if (TutorialDirector.SandboxActive || TutorialDirector.ForcedEventsOnly) return;
 
         // 조리 미니게임 중에는 이벤트를 미룬다 (E / 방향키 입력이 겹치기 때문)
         if (CookingMinigame.IsActive)
@@ -615,8 +620,9 @@ public class KitchenEventManager : MonoBehaviour
         ClearCustomRoot();
         ev.OnStart(this, difficulty);
 
-        // 위치형 이벤트는 달려가는 시간만큼 제한시간에 여유를 준다
+        // 위치형 이벤트는 달려가는 시간만큼 제한시간에 여유를 준다. v4.15: 견습(자유 연습 제외)은 배율만큼 더
         eventTimeMax = ev.TimeLimit + (HasAnchor ? GameBalance.EventReachGrace : 0f);
+        if (TutorialDirector.Active && !TutorialDirector.SandboxActive) eventTimeMax *= Mathf.Max(1f, GameBalance.TutorialEventTimeMul);
         eventTimeLeft = eventTimeMax;
 
         titleText.text = ev.Title;
@@ -728,6 +734,7 @@ public class KitchenEventManager : MonoBehaviour
     {
         IKitchenEvent ev = currentEvent;
         currentEvent = null;
+        EventsEnded++; LastEventSuccess = success;   // v4.15: 맨 앞에서 - 뒤 연출이 어떻게 끝나든 디렉터가 센다
         bool hadAnchor = HasAnchor; float siteX = AnchorX;
         HasAnchor = false; ChefInReach = true;   // B-1: 앵커 정리
         HideSiteMarker();
