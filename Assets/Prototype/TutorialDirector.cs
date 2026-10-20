@@ -306,6 +306,7 @@ public class TutorialDirector : MonoBehaviour
         EngineCabUnlocked = false;
         SceneManager.sceneLoaded += OnSceneLoaded;
         FoodStock.OnCooked += OnCookedForTutorial;   // v2.7: 카드 3·5 의 "만들었다" 판정
+        TutorialHint.CheckNewBuild();   // v2.7: 새 빌드 첫 실행이면 기록 리셋 - 옮기기보다 먼저
         MigrateOldDone();
         MigrateV3();   // v2.7
         BuildCard();
