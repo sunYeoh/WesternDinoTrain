@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// [CookingBridge.cs] v1.7 (v9.26 2026-10-16 마감 정리: 미니게임 전 임시 함수 QuickCook 삭제) / v1.6 (v9.23 2026-10-14: 굽기 요리를 완성하면 동면자의 백야의 입김이 풀린다 (BossEnemy.OnGrillCooked) / 점검 수정: 요리 진화 조리 성공 = 그 전설 요리 숙련 1회 (CompleteStockFusion 이 FoodStock.CountCook)) / v1.5 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v1.4 (v9.21.1 2026-10-13 4차 피드백 2번: 접시 합성(FuseFoods)도 진화 조리 미니게임을 거친다 - InfusingMinigame.BeginForStock 을 부르고 끝나면 CompleteStockFusion 이 소모·지급 (보너스 = 접시 +1). GameBalance.InfuseStockOn) / v1.3 (v9.18 2026-10-06: 견습 운행에서는 숙련 특전 "PERFECT 접시 +1" 을 끈다 - 안내는 2접시인데 3접시가 나왔다) / v1.2 (v9.10.1 2026-09-21: 정차 조리 횟수 제한 - GameBalance.StopCookLimit, 웨이브 시작에 WaveManager 가 StopCooksUsed 를 0 으로)
+/// [CookingBridge.cs] v1.8 (v9.31 2026-10-21 급식 조리: StartCook(a, b, sets) 가 재료를 인분만큼 빼고 pendingPortions 에 적는다 - FinishCook 은 요리를 인분 배로 (숙련 +1 도 인분마다, 향신료 주머니는 한 번), 실패 환급·중단 환급도 인분마다. 최대 인분은 MaxPortions() - 지역별 GameBalance.BatchPortionsByRegion, 견습·훈련장 1) / v1.7 (v9.26 2026-10-16 마감 정리: 미니게임 전 임시 함수 QuickCook 삭제) / v1.6 (v9.23 2026-10-14: 굽기 요리를 완성하면 동면자의 백야의 입김이 풀린다 (BossEnemy.OnGrillCooked) / 점검 수정: 요리 진화 조리 성공 = 그 전설 요리 숙련 1회 (CompleteStockFusion 이 FoodStock.CountCook)) / v1.5 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v1.4 (v9.21.1 2026-10-13 4차 피드백 2번: 접시 합성(FuseFoods)도 진화 조리 미니게임을 거친다 - InfusingMinigame.BeginForStock 을 부르고 끝나면 CompleteStockFusion 이 소모·지급 (보너스 = 접시 +1). GameBalance.InfuseStockOn) / v1.3 (v9.18 2026-10-06: 견습 운행에서는 숙련 특전 "PERFECT 접시 +1" 을 끈다 - 안내는 2접시인데 3접시가 나왔다) / v1.2 (v9.10.1 2026-09-21: 정차 조리 횟수 제한 - GameBalance.StopCookLimit, 웨이브 시작에 WaveManager 가 StopCooksUsed 를 0 으로)
 /// 재료 -> 조리 -> 요리 획득 흐름의 연결부 (정적 클래스)
 /// v1.1 (교수 피드백 09-14): 런 통계(조리/실패 횟수, 마지막 성공 시각) + Bad 판정 부분 환급 스위치
 /// 지금은 "즉시 완성" 모드. 나중에 기존 미니게임(CookingSystem)과 연결하면
@@ -12,6 +12,20 @@ public static class CookingBridge
 {
     // 조리 중인 레시피 (StartCook에서 설정)
     public static string pendingRecipeId = "";
+    /// <summary>v1.8: 조리 중인 인분 (StartCook 이 적고 FinishCook·AbortCook 이 1 로 되돌린다)</summary>
+    public static int pendingPortions = 1;
+    /// <summary>v1.8: 마지막 FinishCook 이 실제로 넣은 요리 수 (숙련·향신료 주머니 덤 포함, 실패 0) - 미니게임 판정 글이 이 숫자를 쓴다 (리뷰 2: 글과 실제가 달랐다)</summary>
+    public static int LastCookCount = 0;
+
+    /// <summary>v1.8: 지금 고를 수 있는 최대 인분 - 지역별 (GameBalance.BatchPortionsByRegion). 꺼져 있거나 견습 운행·훈련장이면 1</summary>
+    public static int MaxPortions()
+    {
+        if (!GameBalance.BatchCookOn || GameBalance.BatchPortionsByRegion == null || GameBalance.BatchPortionsByRegion.Length == 0) return 1;
+        if (TutorialDirector.Active || TutorialDirector.SandboxActive) return 1;
+        int wave = GameManager.Instance != null ? GameManager.Instance.currentWave : 1;
+        int region = Mathf.Clamp(GameBalance.RegionOf(wave), 1, GameBalance.BatchPortionsByRegion.Length);
+        return Mathf.Max(1, GameBalance.BatchPortionsByRegion[region - 1]);
+    }
 
     // v1.1 (교수 피드백 09-14): 런 통계 - 프롤로그 조리 게이트(WaveManager)와 관찰 시트용
     /// <summary>이번 런에서 Good 이상으로 끝난 조리 횟수 / Bad 횟수</summary>
@@ -63,7 +77,14 @@ public static class CookingBridge
     /// <summary>재료 2개로 조리 시작. 재료 차감 + 레시피 결정. 성공하면 true</summary>
     public static bool StartCook(MaterialType a, MaterialType b)
     {
+        return StartCook(a, b, 1);
+    }
+
+    /// <summary>v1.8: sets 인분으로 조리 시작 - 재료를 sets 개씩 빼고 pendingPortions 에 적는다. 최대 인분(MaxPortions)을 넘으면 깎는다</summary>
+    public static bool StartCook(MaterialType a, MaterialType b, int sets)
+    {
         if (MaterialInventory.Instance == null) return false;
+        sets = Mathf.Clamp(sets, 1, MaxPortions());
 
         // v1.2: 정차 조리 제한
         if (StopCookLimited && StopCooksUsed >= GameBalance.StopCookLimit)
@@ -74,14 +95,15 @@ public static class CookingBridge
             SoundManager.Play("sfx_ui_click");
             return false;
         }
-        if (!MaterialInventory.Instance.TryConsume(a, b))
+        if (!MaterialInventory.Instance.TryConsume(a, b, sets))
         {
-            Debug.Log("[CookingBridge] 재료 부족: " + a + " + " + b);
+            Debug.Log("[CookingBridge] 재료 부족: " + a + " + " + b + " x" + sets);
             return false;
         }
         pendingRecipeId = RecipeDatabase.MakeKey(a, b);
-        if (StopCookLimited) StopCooksUsed++;   // v1.2: 정차 중 시작한 조리만 센다
-        Debug.Log("[CookingBridge] 조리 시작: " + RecipeDatabase.Get(pendingRecipeId).displayName);
+        pendingPortions = sets;
+        if (StopCookLimited) StopCooksUsed += GameBalance.BatchStopCookCountsSets ? sets : 1;   // v1.2: 정차 중 시작한 조리만 센다 (v1.8: 기본은 인분과 상관없이 1회)
+        Debug.Log("[CookingBridge] 조리 시작: " + RecipeDatabase.Get(pendingRecipeId).displayName + (sets > 1 ? " x" + sets : ""));
         return true;
     }
 
@@ -92,6 +114,8 @@ public static class CookingBridge
     public static void FinishCook(string quality)
     {
         if (string.IsNullOrEmpty(pendingRecipeId)) return;
+        int sets = Mathf.Max(1, pendingPortions);   // v1.8: 인분
+        LastCookCount = 0;
 
         if (quality == "bad")
         {
@@ -101,6 +125,7 @@ public static class CookingBridge
             // v1.1 (교수 피드백 B4): 앞치마가 없어도 GameBalance.BadRefundCount(기본 0, 실험안 1)개는
             // 돌려준다 - 초보의 재시도 보장. 요리는 계속 0개.
             // (pendingRecipeId는 T1 조리 키 "재료+재료" 형식 - 여기서 재료 2개를 복원)
+            // v1.8: 인분마다 - 앞치마는 전부(2 x 인분), 기본 환급(0~2)은 인분마다 그만큼
             int refund = ItemManager.FailRefund ? 2 : Mathf.Clamp(GameBalance.BadRefundCount, 0, 2);
             if (refund > 0 && MaterialInventory.Instance != null)
             {
@@ -109,14 +134,14 @@ public static class CookingBridge
                 if (parts.Length == 2
                     && TryParseMaterial(parts[0], out ra) && TryParseMaterial(parts[1], out rb))
                 {
-                    MaterialInventory.Instance.Add(ra, 1);
-                    if (refund >= 2) MaterialInventory.Instance.Add(rb, 1);
+                    MaterialInventory.Instance.Add(ra, sets);
+                    if (refund >= 2) MaterialInventory.Instance.Add(rb, sets);
                     UIManager.Instance?.ShowStatChange(ItemManager.FailRefund
                         ? "[선대의 앞치마] 실패한 재료를 되살렸다"
-                        : "[실패] 타다 만 재료 1개는 건졌다");
+                        : "[실패] 타다 만 재료 " + (refund >= 2 ? 2 * sets : sets) + "개는 건졌다");   // 리뷰 4: 돌려준 개수 그대로
                 }
             }
-            Debug.Log("[CookingBridge] 조리 실패! 환급 " + refund + "개");
+            Debug.Log("[CookingBridge] 조리 실패! 환급 " + refund + "개 x" + sets);
         }
         else
         {
@@ -129,7 +154,9 @@ public static class CookingBridge
                 && MetaProgress.GetMasteryTier(pendingRecipeId) >= GameBalance.MasteryPerfectTier)
                 n += 1;
 
-            // Phase 2-3 아이템 '비밀 향신료 주머니': PERFECT 시 확률로 요리 +1
+            n *= sets;   // v1.8: 인분 배 (숙련 +1 도 인분마다)
+
+            // Phase 2-3 아이템 '비밀 향신료 주머니': PERFECT 시 확률로 요리 +1 (v1.8: 인분과 상관없이 한 번)
             if (quality == "perfect" && ItemManager.PerfectExtraChance > 0f
                 && Random.value < ItemManager.PerfectExtraChance)
             {
@@ -151,11 +178,13 @@ public static class CookingBridge
             LastGoodCookTime = Time.time;
 
             RecipeData r = RecipeDatabase.Get(pendingRecipeId);
-            Debug.Log("[CookingBridge] " + r.displayName + " x" + n + " 획득! (" + quality + ")");
+            LastCookCount = n;
+            Debug.Log("[CookingBridge] " + r.displayName + " x" + n + " 획득! (" + quality + (sets > 1 ? ", " + sets + "인분" : "") + ")");
             // v1.6: 굽기 요리를 완성했다 - 동면자의 백야의 입김(서리)이 녹는다 ("불을 피워 녹인다")
             if (r != null && KitchenPanel.MethodOf(r) == 0) BossEnemy.OnGrillCooked();
         }
         pendingRecipeId = "";
+        pendingPortions = 1;
     }
 
     /// <summary>
@@ -174,14 +203,15 @@ public static class CookingBridge
             if (parts.Length == 2
                 && TryParseMaterial(parts[0], out a) && TryParseMaterial(parts[1], out b))
             {
-                MaterialInventory.Instance.Add(a, 1);
-                MaterialInventory.Instance.Add(b, 1);
+                MaterialInventory.Instance.Add(a, Mathf.Max(1, pendingPortions));   // v1.8: 인분만큼
+                MaterialInventory.Instance.Add(b, Mathf.Max(1, pendingPortions));
             }
         }
 
         UIManager.Instance?.ShowStatChange("[조리 중단] 재료를 되찾았다 - 현장으로!");
-        Debug.Log("[CookingBridge] 조리 자발 중단 - 재료 환급: " + pendingRecipeId);
+        Debug.Log("[CookingBridge] 조리 자발 중단 - 재료 환급: " + pendingRecipeId + " x" + pendingPortions);
         pendingRecipeId = "";
+        pendingPortions = 1;
     }
 
     /// <summary>

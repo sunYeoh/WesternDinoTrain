@@ -2,7 +2,7 @@
 using UnityEngine.UI;
 
 /// <summary>
-/// [CookingMinigame.cs] v2.12 (v9.23 2026-10-14: 동면자의 백야의 입김 동안 조리 속도 배율 x HibBreathCookMul (BossEnemy.FrostCookMul) / 점검 수정: 창이 뜰 때 흐리게 하는 CanvasGroup 을 ?? 로 찾던 것 - 유니티 오브젝트는 ?? 가 "없음"을 못 알아본다 (에디터에서 빈 껍데기를 돌려줘 붙이지 못했다)) / v2.11 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v2.10 (v9.21.1 2026-10-13 4차 피드백 4번: 창(증강·행상인·베팅·정비소·카드·일지·일시정지·선로 고르기)이 떠 있는 동안 조리를 보류한다 WindowOpen·HoldForWindow - 시간도 입력도 안 받고 판이 흐려지며 "창을 닫으면 이어진다", 닫히면 그 자리에서. 예전엔 정차 창 뒤에서 혼자 돌다 시간이 끝나 실패가 됐다. GameBalance.CookHoldWhileWindow) / v2.9 (v9.20 2026-10-07: 글 속 화살표를 게임 글꼴에 있는 세모로(게임 글꼴에 화살표 글리프가 없어 PC 의 다른 글꼴로 그려졌다 - 모양이 따로 놀고, 대신할 글꼴이 없는 빌드에선 빈칸)) / v2.8 (v9.16 2026-09-29 손맛 2차 - 소리: 조리 시작에 조리법별 소리 SoundKeys.Cook - 굽기 지글 / 볶기 촤악 / 끓이기 보글) / v2.7
+/// [CookingMinigame.cs] v2.13 (v9.31 2026-10-21 급식 조리: 인분(CookingBridge.pendingPortions)이 2·3 이면 불이 세다 - 커서·제한 시간 압박 BatchSpeedUp, 판정 구간 BatchJudgeShrink, 끓이기 안정 구간 흔들림 BatchBoilZoneSpeed (지역·전속·내구도 하한 뒤에 한 번 더, 하한 BatchSpeedMulFloor·BatchJudgeMulFloor). 제목 "x2", 시작에 "2인분 - 불이 세다!", 결과 글의 요리 개수도 인분 배) / v2.12 (v9.23 2026-10-14: 동면자의 백야의 입김 동안 조리 속도 배율 x HibBreathCookMul (BossEnemy.FrostCookMul) / 점검 수정: 창이 뜰 때 흐리게 하는 CanvasGroup 을 ?? 로 찾던 것 - 유니티 오브젝트는 ?? 가 "없음"을 못 알아본다 (에디터에서 빈 껍데기를 돌려줘 붙이지 못했다)) / v2.11 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v2.10 (v9.21.1 2026-10-13 4차 피드백 4번: 창(증강·행상인·베팅·정비소·카드·일지·일시정지·선로 고르기)이 떠 있는 동안 조리를 보류한다 WindowOpen·HoldForWindow - 시간도 입력도 안 받고 판이 흐려지며 "창을 닫으면 이어진다", 닫히면 그 자리에서. 예전엔 정차 창 뒤에서 혼자 돌다 시간이 끝나 실패가 됐다. GameBalance.CookHoldWhileWindow) / v2.9 (v9.20 2026-10-07: 글 속 화살표를 게임 글꼴에 있는 세모로(게임 글꼴에 화살표 글리프가 없어 PC 의 다른 글꼴로 그려졌다 - 모양이 따로 놀고, 대신할 글꼴이 없는 빌드에선 빈칸)) / v2.8 (v9.16 2026-09-29 손맛 2차 - 소리: 조리 시작에 조리법별 소리 SoundKeys.Cook - 굽기 지글 / 볶기 촤악 / 끓이기 보글) / v2.7
 /// - v2.7 변경점 (교수 피드백 2026-09-14, A2/A3 - 조리 공정성):
 ///   배율 하한 CookSpeedMulFloor/CookJudgeMulFloor (팬 마모 x 프테라 x 지역이 겹쳐 0.28배까지 떨어지던 것 차단)
 ///   끓이기 = 총시간 하한(BoilMinTotalSec) + 투입 안내를 절대 초가 아니라 "진행률"로 배치 (25~40% / 55~72%),
@@ -52,6 +52,8 @@ public class CookingMinigame : MonoBehaviour
     private bool heldByWindow = false;   // v2.10: 지금 보류 중 (판을 흐리고 안내 한 줄)
     private CanvasGroup panelGroup;      // v2.10: 보류 때 흐리기
     private const string HOLD_MSG = "창을 닫으면 이어진다";
+    private int portions = 1;                 // v2.13: 이번 조리의 인분 (StartGame 에서 CookingBridge 가 적은 값을 읽는다)
+    private float boilZoneSpeedMul = 1f;      // v2.13: 끓이기 안정 구간이 흔들리는 속도 배율 (인분)
 
     /// <summary>v2.10: 창이 떠 있으면 보류 (true = 이 프레임은 아무것도 하지 않는다). 창이 닫히면 흐림과 안내를 걷는다</summary>
     private bool HoldForWindow()
@@ -293,6 +295,19 @@ public class CookingMinigame : MonoBehaviour
         speedMul = Mathf.Max(speedMul, GameBalance.CookSpeedMulFloor);
         judgeMul = Mathf.Max(judgeMul, GameBalance.CookJudgeMulFloor);
 
+        // v2.13 (v9.31): 급식 조리 - 인분이 많으면 불이 세다. 위 하한 뒤에 한 번 더 곱해서 방해가 다 겹쳐도 굽기 커서·판정 구간엔 인분 차이가 남는다 (볶기·끓이기 제한 시간은 SauteMinTotalSec·BoilMinTotalSec 하한에 닿으면 거기서 멈춘다)
+        portions = Mathf.Max(1, CookingBridge.pendingPortions);
+        boilZoneSpeedMul = 1f;
+        if (portions > 1 && GameBalance.BatchSpeedUp != null && GameBalance.BatchSpeedUp.Length > 0)
+        {
+            int pi = Mathf.Clamp(portions - 1, 0, GameBalance.BatchSpeedUp.Length - 1);
+            speedMul /= (1f + GameBalance.BatchSpeedUp[pi]);
+            if (GameBalance.BatchJudgeShrink != null && pi < GameBalance.BatchJudgeShrink.Length) judgeMul *= (1f - GameBalance.BatchJudgeShrink[pi]);
+            if (GameBalance.BatchBoilZoneSpeed != null && pi < GameBalance.BatchBoilZoneSpeed.Length) boilZoneSpeedMul = GameBalance.BatchBoilZoneSpeed[pi];
+            speedMul = Mathf.Max(speedMul, GameBalance.BatchSpeedMulFloor);
+            judgeMul = Mathf.Max(judgeMul, GameBalance.BatchJudgeMulFloor);
+        }
+
         // 지역이 바뀐 뒤 첫 조리에서 1회만 안내 (스토리 감싸기)
         if (region < regionNoticeShown) regionNoticeShown = region;   // 새 런 시작 - 안내 재무장
         if (region >= 2 && region != regionNoticeShown)
@@ -315,14 +330,14 @@ public class CookingMinigame : MonoBehaviour
 
         if (method == 0)
         {
-            SetTitle("굽기  -  " + foodName);
+            SetTitle("굽기  -  " + foodName + PortionTag());
             grillRound = 0; grillScore = 0;
             grillBar = 0f; grillDir = 1f;
             grillSpeed = 55f / speedMul;   // 식칼 증강: 커서 감속
         }
         else if (method == 1)
         {
-            SetTitle("볶기  -  " + foodName);
+            SetTitle("볶기  -  " + foodName + PortionTag());
             for (int i = 0; i < 6; i++) sauteSeq[i] = Random.Range(0, 4);
             sauteIdx = 0; sauteMiss = 0;
             sauteTimer = Mathf.Max(6f * speedMul, GameBalance.SauteMinTotalSec);    // 식칼 증강: 제한 시간 증가 / v2.7 하한
@@ -330,7 +345,7 @@ public class CookingMinigame : MonoBehaviour
         }
         else
         {
-            SetTitle("끓이기  -  " + foodName);
+            SetTitle("끓이기  -  " + foodName + PortionTag());
             boilGauge = 50f; boilHold = false;
             boilTimer = Mathf.Max(7f * speedMul, GameBalance.BoilMinTotalSec);     // 식칼 증강: 제한 시간 증가 / v2.7 하한
             boilTotalTime = boilTimer;
@@ -348,6 +363,13 @@ public class CookingMinigame : MonoBehaviour
 
         panel.gameObject.SetActive(true);
         ShowMethodUI();
+        if (portions > 1) ShowJudge(portions + "인분 - 불이 세다!", new Color(1f, 0.6f, 0.3f));   // v2.13: 급식 조리 시작 안내 (판정음 없음)
+    }
+
+    /// <summary>v2.13: 제목 꼬리 - 2인분 이상이면 "  x2"</summary>
+    private string PortionTag()
+    {
+        return portions > 1 ? "  x" + portions : "";
     }
 
     // ─────────────────────────────────────────
@@ -566,7 +588,7 @@ public class CookingMinigame : MonoBehaviour
         boilGauge = Mathf.Clamp(boilGauge, 0f, 100f);
 
         // 안정존이 사인파로 이동
-        boilZonePhase += Time.deltaTime * (OilSlipActive ? 1.35f : 0.9f);
+        boilZonePhase += Time.deltaTime * (OilSlipActive ? 1.35f : 0.9f) * boilZoneSpeedMul;   // v2.13: 인분이 많으면 더 흔들린다
         boilZoneCenter = 50f + Mathf.Sin(boilZonePhase) * 22f;
 
         boilTotal += Time.deltaTime;
@@ -634,15 +656,16 @@ public class CookingMinigame : MonoBehaviour
         finished = true;
         finishTimer = 0.8f;
 
-        if (quality == "perfect") ShowJudge("PERFECT!  요리 2개", UIFactory.GOLD);
-        else if (quality == "good") ShowJudge("GOOD!  요리 1개", new Color(0.6f, 0.85f, 0.54f));
-        else ShowJudge("실패...  요리 없음", new Color(1f, 0.6f, 0.48f));
+        // v2.13: 요리를 먼저 넣고(FinishCook) 실제 들어간 개수(LastCookCount - 인분·숙련·향신료 주머니 덤까지)를 판정 글에 쓴다 (리뷰 2: 전엔 "2개" 고정이라 숙련 3개와 달랐다)
+        CookingBridge.FinishCook(quality);
+        int made = CookingBridge.LastCookCount;
+        if (quality == "perfect") ShowJudge("PERFECT!  요리 " + made + "개", UIFactory.GOLD);
+        else if (quality == "good") ShowJudge("GOOD!  요리 " + made + "개", new Color(0.6f, 0.85f, 0.54f));
+        else ShowJudge(portions > 1 ? "실패...  " + portions + "인분이 다 탔다" : "실패...  요리 없음", new Color(1f, 0.6f, 0.48f));
 
         // 도구 마모 (굽기=칼, 볶기/끓이기=팬) - 정비소 수리의 의미가 생긴다
         ChefController chefRef = FindFirstObjectByType<ChefController>();
         if (chefRef != null) chefRef.WearToolsByMethod(method);
-
-        CookingBridge.FinishCook(quality);
     }
 
     private void Close()

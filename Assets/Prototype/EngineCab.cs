@@ -4,7 +4,7 @@ using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 
 /// <summary>
-/// [EngineCab.cs] v4.4 (v9.24 2026-10-15 갈림길 칸 꺾임: 작살포·레버 그림이 기관차 칸 자세를 따른다 - TrainDeck.RidePos 자리 + RideAngle 기울기 (레버 손잡이 ±25도·작살포 겨냥에 더한다)) / v4.3 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v4.2 (v9.18 2026-10-06, 10-05 그림 팩: 새 작살포 그림은 왼쪽을 보고 누워 있다 - 쏠 때 바위 쪽으로 돌았다가 0.6초에 제자리로, 빔은 촉 끝에서 / 작살포·레버 그림이 기관차 칸의 덜컹임을 따라간다) / v4.1 (v9.12 2026-09-22: 첫 바위 때 작살 인라인 연습 훅 / ForceCruise / 인라인 연습 중 작살 어그로 없음) / v4 (v9.9.2 2026-09-16: 견습 운행 8·9단계용 - HarpoonRetrievals/LeverPulls 카운터, RockCount, SpawnRockNow(x), TutorialDirector.EngineCabUnlocked 면 게이트 무시,
+/// [EngineCab.cs] v4.5 (v9.31 2026-10-21 작살 바위 맵 밖: 바위가 카메라 왼쪽 끝 밖(GameBalance.RockOffscreenMargin)에서 생기고 오른쪽 끝 밖에서 사라진다 - 줌·보스전 줌·휠 줌아웃·카메라 위치를 그때그때 읽는다 (CamEdgeX). 전엔 x -20 / 16 고정. 견습 작살 카드의 SpawnRockNow(-13) 은 그대로) / v4.4 (v9.24 2026-10-15 갈림길 칸 꺾임: 작살포·레버 그림이 기관차 칸 자세를 따른다 - TrainDeck.RidePos 자리 + RideAngle 기울기 (레버 손잡이 ±25도·작살포 겨냥에 더한다)) / v4.3 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v4.2 (v9.18 2026-10-06, 10-05 그림 팩: 새 작살포 그림은 왼쪽을 보고 누워 있다 - 쏠 때 바위 쪽으로 돌았다가 0.6초에 제자리로, 빔은 촉 끝에서 / 작살포·레버 그림이 기관차 칸의 덜컹임을 따라간다) / v4.1 (v9.12 2026-09-22: 첫 바위 때 작살 인라인 연습 훅 / ForceCruise / 인라인 연습 중 작살 어그로 없음) / v4 (v9.9.2 2026-09-16: 견습 운행 8·9단계용 - HarpoonRetrievals/LeverPulls 카운터, RockCount, SpawnRockNow(x), TutorialDirector.EngineCabUnlocked 면 게이트 무시,
 ///   견습 중엔 작살 어그로 없음, 작살·레버 기둥 z -0.02 (튜토리얼 발밑 링이 그 밑에 깔리게)) / v3.1 (교수 피드백 A10: 열람 패널 중 레버/작살 입력 차단 2026-09-14) / v3 - B-3: 기관차 칸 = 기관사 페르소나 (방향결정 2026-08-31)
 ///
 /// - v3 (고퀄 PNG 적용 2026-09-03): 작살포/레버/바위가 Resources/Sprites/WDT/ 의 harpoon / leverpost / leverhandle /
@@ -270,7 +270,11 @@ public class EngineCab : MonoBehaviour
 
         // 스폰
         rocks.RemoveAll(r => r == null);
-        if (Time.time >= nextRockTime && rocks.Count < GameBalance.RockMaxAlive)
+        // v4.5: 작살이 닿지 않는 곳까지 흘러간 바위는 산 것으로 안 센다 (삭제선이 카메라 밖으로 밀리면서 그 바위가 다음 바위를 막지 않게 - 리뷰 참고)
+        int reachable = 0;
+        for (int i = 0; i < rocks.Count; i++)
+            if (rocks[i] != null && rocks[i].transform.position.x <= GameBalance.HarpoonX + GameBalance.HarpoonRange) reachable++;
+        if (Time.time >= nextRockTime && reachable < GameBalance.RockMaxAlive)
         {
             nextRockTime = Time.time
                 + Random.Range(GameBalance.RockSpawnIntervalMin, GameBalance.RockSpawnIntervalMax);
@@ -285,7 +289,17 @@ public class EngineCab : MonoBehaviour
 
     private void SpawnRock()
     {
-        SpawnRockAt(-20f);   // v2: 앞(왼쪽)에서 나타난다
+        // v4.5: 앞(왼쪽)에서 - 카메라 왼쪽 끝보다 더 밖에서 (예전 -20 과 둘 중 더 왼쪽)
+        SpawnRockAt(Mathf.Min(GameBalance.RockSpawnXFallback, CamEdgeX(true) - GameBalance.RockOffscreenMargin));
+    }
+
+    /// <summary>v4.5: 지금 카메라의 왼쪽(left) / 오른쪽 끝 세계 x (줌·종횡비 포함). 카메라가 없으면 예전 고정값</summary>
+    public static float CamEdgeX(bool left)
+    {
+        Camera cam = Camera.main;
+        if (cam == null) return left ? GameBalance.RockSpawnXFallback : GameBalance.RockDespawnXFallback;
+        float half = cam.orthographic ? cam.orthographicSize * cam.aspect : GameBalance.CamDefaultZoom * cam.aspect;
+        return cam.transform.position.x + (left ? -half : half);
     }
 
     private void SpawnRockAt(float x)
@@ -598,6 +612,7 @@ public class ResourceRock : MonoBehaviour
     {
         // v2: 오른쪽으로 흘러간다 (기차가 두상 쪽 = 왼쪽으로 달리는 연출과 합치)
         transform.position += Vector3.right * GameBalance.RockSpeed * Time.deltaTime;
-        if (transform.position.x > 16f) Destroy(gameObject);
+        // v4.5: 카메라 오른쪽 끝보다 더 밖으로 나가야 사라진다 (예전 16 과 둘 중 더 오른쪽 - 카메라가 오른쪽에 있을 때 화면 안에서 없어지던 것)
+        if (transform.position.x > Mathf.Max(GameBalance.RockDespawnXFallback, EngineCab.CamEdgeX(false) + GameBalance.RockOffscreenMargin)) Destroy(gameObject);
     }
 }
