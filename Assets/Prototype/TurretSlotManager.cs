@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// [TurretSlotManager.cs] v2.11 (v9.26 2026-10-16 마감 정리: 어디서도 안 부르는 RepairOne 삭제) / v2.10 (v9.25 2026-10-16 B5 싸움 유물: CountRecipe · EmptyUnlockedCount (짝꿍 숟가락·빈 접시가 읽는다) / 짝꿍 숟가락을 가지면 공명이 꺼진다 (ItemManager.NoResonance - 피해·방어 공명·발동 알림·속성 줄)) / v2.9 (v9.24.1 2026-10-16 5차 피드백 1·2번: 같은 요리 합체가 상한을 넘치면 넘친 레벨만큼 그 요리를 하단 카드로 돌려준다 (4 + 4 = Lv6 + 요리 2개 - 예전엔 말없이 사라졌다, GameBalance.MergeOverflowRefund). 진화 결과 글에 레벨이 나온 까닭 (높은 쪽 Lv + 판정 보너스 + 숙련). 손댄 안내 글은 10-14 말투로) / v2.8 (v9.23 2026-10-14 점검 수정: 포탑 진화 조리 성공 = 그 전설 요리 숙련 1회 - FoodStock.CountCook) / v2.7 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v2.6 (v9.18 2026-10-06: 진화 조리는 같은 레벨끼리만(FusionSameLevelOnly) + 결과 레벨도 상한까지 / 합체·진화 때 들어간 접시 수를 넘겨받는다(폐기 환급) / 과열은 조건이 된 포탑 중 무작위 / 정비 거리 = 슬롯 앞 바닥(TrainDeck.NearestWalkPoint)까지 / 속성 줄에 마우스를 올리면 공명·옆자리 효과 설명) /
+/// [TurretSlotManager.cs] v2.12 (v9.30 2026-10-21 포탑 칸: 시작 4칸(GameBalance.BaseSlotCount), 지역 보스를 잡고 정차할 때 하나씩 더 (BossSlotUnlocks - 운행 단위, GameManager 가 부른다 UnlockByBoss - 열린 칸에 금빛 고리 + 알림), 그다음 증강. 잠긴 칸 글은 SlotMarkerUI) / v2.11 (v9.26 2026-10-16 마감 정리: 어디서도 안 부르는 RepairOne 삭제) / v2.10 (v9.25 2026-10-16 B5 싸움 유물: CountRecipe · EmptyUnlockedCount (짝꿍 숟가락·빈 접시가 읽는다) / 짝꿍 숟가락을 가지면 공명이 꺼진다 (ItemManager.NoResonance - 피해·방어 공명·발동 알림·속성 줄)) / v2.9 (v9.24.1 2026-10-16 5차 피드백 1·2번: 같은 요리 합체가 상한을 넘치면 넘친 레벨만큼 그 요리를 하단 카드로 돌려준다 (4 + 4 = Lv6 + 요리 2개 - 예전엔 말없이 사라졌다, GameBalance.MergeOverflowRefund). 진화 결과 글에 레벨이 나온 까닭 (높은 쪽 Lv + 판정 보너스 + 숙련). 손댄 안내 글은 10-14 말투로) / v2.8 (v9.23 2026-10-14 점검 수정: 포탑 진화 조리 성공 = 그 전설 요리 숙련 1회 - FoodStock.CountCook) / v2.7 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v2.6 (v9.18 2026-10-06: 진화 조리는 같은 레벨끼리만(FusionSameLevelOnly) + 결과 레벨도 상한까지 / 합체·진화 때 들어간 접시 수를 넘겨받는다(폐기 환급) / 과열은 조건이 된 포탑 중 무작위 / 정비 거리 = 슬롯 앞 바닥(TrainDeck.NearestWalkPoint)까지 / 속성 줄에 마우스를 올리면 공명·옆자리 효과 설명) /
 /// v2.5 (v9.16 2026-09-29 손맛 2차 - 소리: 진화 완료 sfx_fusion, 완벽 판정이면 판정음이 뒤따른다 / 오라 화염 틱은 Enemy.TakeTickDamage - 명중음 없이) / v2.4 (v9.15 2026-09-29: 파손 슬롯 - RepairAllBroken(새 운행)·BrokenCount·RepairOne(정비소) / 동종 병합 레벨 배율 표기 GameBalance.LevelMultOf) / v2.3 (v9.14 레벨 상한) / v2.1 (v9.9 2026-09-16: 슬롯 4모서리 배치 GameBalance.SlotPosition + 근접 판정 "가까운 벽 쪽 거리") / v2
 /// 포탑 슬롯 8개를 자동 생성/관리하는 매니저 (싱글톤)
 /// - v2.1: 슬롯 위치는 GameBalance.SlotPosition(i) 한 곳에서 (모서리 4 = 북 2 지붕선 위 / 남 2 섀시 위).
@@ -10,7 +10,7 @@ using UnityEngine;
 /// - 기차 오브젝트에 붙이면 시작 시 슬롯 8개(2x4)를 자식으로 생성
 /// - 매 프레임: 인접 버프 계산 + 각 슬롯 발사 + 패시브(재생/오라) 처리
 /// - v2 변경점: 슬롯 잠금 시스템
-///   기본 해금 = GameBalance.BaseSlotCount (6칸)
+///   기본 해금 = GameBalance.BaseSlotCount (v9.30: 4칸) + 지역 보스 격파마다 하나 (BossSlotUnlocks, 최대 GameBalance.BossSlotUnlockMax)
 ///   증강 '증축된 주방 칸'(ExtraSlotUnlock)으로 최대 8칸까지 확장
 /// - v3 변경점: 속성 공명 (기획 B-5)
 ///   같은 속성(FoodTag) 포탑 3개 이상 배치 시 해당 속성 데미지 +20%
@@ -41,10 +41,36 @@ public class TurretSlotManager : MonoBehaviour
     // 공명 현황 HUD (v3.1): 우하단 상시 표시
     private UnityEngine.UI.Text resonanceText;
 
-    /// <summary>현재 해금된 슬롯 수 (기본 + 증강)</summary>
+    /// <summary>v2.12: 이번 운행에서 보스를 잡아 연 칸 수 (운행 시작에 GameManager 가 0 으로)</summary>
+    public static int BossSlotUnlocks = 0;
+
+    /// <summary>현재 해금된 슬롯 수 (기본 + 보스 격파 + 증강)</summary>
     public int UnlockedSlotCount
     {
-        get { return Mathf.Min(8, GameBalance.BaseSlotCount + AugmentManager.ExtraSlotUnlock); }
+        get { return Mathf.Min(8, GameBalance.BaseSlotCount + BossSlotUnlocks + AugmentManager.ExtraSlotUnlock); }
+    }
+
+    /// <summary>v2.12: 지역 보스를 잡고 정차했다 - 칸 하나를 연다 (한도 GameBalance.BossSlotUnlockMax). 열린 칸에 금빛 고리 + 알림. 더 열 칸이 없으면 아무 일 없음</summary>
+    public void UnlockByBoss()
+    {
+        if (BossSlotUnlocks >= GameBalance.BossSlotUnlockMax) return;
+        int before = UnlockedSlotCount;
+        BossSlotUnlocks++;
+        int after = UnlockedSlotCount;
+        if (after <= before) return;   // 증강으로 이미 8칸
+        TurretSlot opened = (after - 1 < slots.Length) ? slots[after - 1] : null;
+        if (opened != null)
+        {
+            opened.isLocked = false;   // 바로 (Update 의 동기화를 안 기다린다)
+            if (GameBalance.GameFeelMaster > 0f)
+            {
+                WorldFeel.Ring(opened.transform.position, new Color(1f, 0.85f, 0.4f), 1.3f, 0.45f);
+                SparkPool.Emit(opened.transform.position, new Color(1f, 0.85f, 0.4f), 8, 0.12f, 3f);
+            }
+        }
+        SoundManager.Play("sfx_augment_pick");
+        UIManager.Instance?.ShowStatChange("[보스 격파] 포탑 칸이 하나 더 열렸다 (" + after + " / 8)");
+        Debug.Log("[TurretSlotManager] 보스 격파로 칸 열림 - " + after + "칸");
     }
 
     /// <summary>해당 인덱스 슬롯이 해금됐는지</summary>
@@ -846,7 +872,7 @@ public class TurretSlotManager : MonoBehaviour
             if (slots[i] != null && !slots[i].isLocked && !slots[i].isBroken && slots[i].IsEmpty)
                 return slots[i].TryInsertFood(recipeId);
 
-        Debug.Log("[TurretSlotManager] 빈 슬롯 없음! (해금 " + UnlockedSlotCount + "칸 - 증강 '증축된 주방 칸'으로 확장 가능)");
+        Debug.Log("[TurretSlotManager] 빈 슬롯 없음! (해금 " + UnlockedSlotCount + "칸 - 보스 격파·증강 '증축된 주방 칸'으로 확장)");
         return false;
     }
 }

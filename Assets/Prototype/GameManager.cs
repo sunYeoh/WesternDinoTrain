@@ -4,7 +4,7 @@ using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// [GameManager.cs] v4.10 (v9.28 2026-10-20 하드 모드: 첫 웨이브에 HardMode.BeginRun (로비에서 고른 것을 이번 운행으로 - 기차 시작 HP 배율), 로비로 오면 EndRun, 승리에 MetaProgress.RecordClear + 명성 x HardFameMul) / v4.9 (v9.26 2026-10-16 마감 정리: 경험치 스텁 AddXP · 안 쓰는 playerXP 삭제) / v4.8 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v4.7 (v9.17 2026-10-06 화면 손맛 2차 - D5 패배 순서: 슬로모션 + 붉은 가장자리 -> 어두워지며 세상이 멈춤 -> 결과 / D4 최종 승리 순서: 엔딩 글 뒤 흰 화면 -> 결과 / D6: 견습 종료 때 검정 페이드 / 승리 기적은 엔딩 쪽에서 울렸으면 생략) / v4.6 (v9.16 2026-09-29 손맛 2차 - 소리: 배경음을 로비부터 / 정차 골드 sfx_gold / 패배 = 기차 정지음 sfx_train_break -> 0.7초 뒤 sfx_game_over, 배경음 덕킹 / 승리 = 기적 -> 0.6초 뒤 sfx_victory) / v4.5 (v9.15 2026-09-29: 운행 시작에 파손 포탑 자리 전부 수리 - 파손은 이번 운행 한정) / v4.4 (v9.14 2026-09-28: 운행 시작에 증강·유물 강제 초기화 + 명성 상점 "출발 증강") / v4.3 (v9.9 2026-09-16: 견습 운행 StartTutorial/EndTutorial - 튜토리얼 런은 웨이브·보급·메타 기록 없이 Battle 상태만 빌린다) / v4.2 (2026-09-14: 포탑 과열 런 통계 초기화 - TurretSlot.ResetRunStats) / v4.1 (런 통계 초기화 / 프롤로그 찬장 고기 고정 / 전투 중 수리 기록) / v4
+/// [GameManager.cs] v4.11 (v9.30 2026-10-21 포탑 칸: 지역 보스를 잡고 정차할 때 TurretSlotManager.UnlockByBoss (격파 보너스 옆), 운행 시작·로비에 BossSlotUnlocks 0 - 견습·훈련장은 늘 처음 칸 수) / v4.10 (v9.28 2026-10-20 하드 모드: 첫 웨이브에 HardMode.BeginRun (로비에서 고른 것을 이번 운행으로 - 기차 시작 HP 배율), 로비로 오면 EndRun, 승리에 MetaProgress.RecordClear + 명성 x HardFameMul) / v4.9 (v9.26 2026-10-16 마감 정리: 경험치 스텁 AddXP · 안 쓰는 playerXP 삭제) / v4.8 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v4.7 (v9.17 2026-10-06 화면 손맛 2차 - D5 패배 순서: 슬로모션 + 붉은 가장자리 -> 어두워지며 세상이 멈춤 -> 결과 / D4 최종 승리 순서: 엔딩 글 뒤 흰 화면 -> 결과 / D6: 견습 종료 때 검정 페이드 / 승리 기적은 엔딩 쪽에서 울렸으면 생략) / v4.6 (v9.16 2026-09-29 손맛 2차 - 소리: 배경음을 로비부터 / 정차 골드 sfx_gold / 패배 = 기차 정지음 sfx_train_break -> 0.7초 뒤 sfx_game_over, 배경음 덕킹 / 승리 = 기적 -> 0.6초 뒤 sfx_victory) / v4.5 (v9.15 2026-09-29: 운행 시작에 파손 포탑 자리 전부 수리 - 파손은 이번 운행 한정) / v4.4 (v9.14 2026-09-28: 운행 시작에 증강·유물 강제 초기화 + 명성 상점 "출발 증강") / v4.3 (v9.9 2026-09-16: 견습 운행 StartTutorial/EndTutorial - 튜토리얼 런은 웨이브·보급·메타 기록 없이 Battle 상태만 빌린다) / v4.2 (2026-09-14: 포탑 과열 런 통계 초기화 - TurretSlot.ResetRunStats) / v4.1 (런 통계 초기화 / 프롤로그 찬장 고기 고정 / 전투 중 수리 기록) / v4
 /// 게임 전체 상태를 관리하는 최상위 싱글톤 클래스.
 /// Cooking 페이즈 제거 — 게임 시작하면 바로 Battle.
 /// 조리는 전투 중 언제든 가능.
@@ -134,6 +134,7 @@ public class GameManager : MonoBehaviour
     {
         SoundManager.PlayBGM("bgm_main");   // v4.6: 배경음은 로비부터 (같은 곡이 이미 돌고 있으면 그대로. 지난 운행의 덕킹은 여기서 풀린다)
         HardMode.EndRun();                  // v4.10: 하드 모드는 운행 단위
+        TurretSlotManager.BossSlotUnlocks = 0;   // v4.11 (v9.30): 보스로 연 칸도 - 로비 뒤 견습·훈련장이 지난 운행의 칸 수를 물려받지 않게
         Debug.Log("[GameManager] 로비 진입 - 게임 시작 버튼 대기");
     }
 
@@ -162,6 +163,7 @@ public class GameManager : MonoBehaviour
             HardMode.BeginRun();             // v4.10 (v9.28): 로비에서 켜 둔 하드 모드 -> 이번 운행 (기차 시작 HP 도 여기서)
             CookingBridge.ResetRunStats();   // v4.1: 런 통계 초기화 (프롤로그 조리 게이트·관찰 시트)
             TurretSlot.ResetRunStats();      // v4.2: 과열 횟수·정지 시간 (static 이라 씬 리로드 뒤에도 남는다)
+            TurretSlotManager.BossSlotUnlocks = 0;   // v4.11 (v9.30): 보스로 연 칸은 이번 운행 것
             RepairsInBattle = 0; RepairGoldInBattle = 0;
             if (TurretSlotManager.Instance != null) TurretSlotManager.Instance.RepairAllBroken();   // v4.5 (v9.15): 파손 슬롯은 이번 운행 한정
 
@@ -332,6 +334,8 @@ public class GameManager : MonoBehaviour
                 AddGold(GameBalance.BossClearGold);
                 UIManager.Instance?.ShowStatChange("[보스 격파 보너스] 골드 +" + GameBalance.BossClearGold);
             }
+            // v4.11 (v9.30): 지역 보스를 잡으면 포탑 칸 하나 (베팅에 졌어도 - 칸은 스피노 몫이 아니다)
+            if (TurretSlotManager.Instance != null) TurretSlotManager.Instance.UnlockByBoss();
         }
 
         Debug.Log("[GameManager] 마을 정비 - 골드 +" + goldReward);
