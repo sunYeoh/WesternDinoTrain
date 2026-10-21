@@ -3,7 +3,7 @@ using UnityEngine;
 using TMPro;
 
 /// <summary>
-/// [HitFeel.cs] v1.3 (v9.18 2026-10-06: NextHit 에 쏜 포탑(source) - ConsumeHit 이 치명타 여부와 같이 돌려준다, 데미지 숫자를 포탑별로 합산하는 데 쓴다) / v1.2 (v9.17 2026-10-06 화면 손맛 2차: MuzzlePool(포신 끝 섬광 - 풀 24) / Knock(물리 단발 넉백 - 그림만 밀렸다 돌아온다) / ConsumeCrit(숫자 팝업이 진짜 치명타만 크리로 찍게)) / v1.1 (v9.16 2026-09-29 손맛 2차 - 소리: 명중음이 여기서 난다 - 손님 재질별(SoundKeys.Hit: 비늘·무쇠·결정·날개·용암) + 요리 속성 겹침(SoundKeys.Accent) + 크리 sfx_hit_crit / 물리가 방어에 크게 깎이면 재질음 대신 sfx_ricochet(튕김) / 처치음은 Enemy.Die 가 재질별로) / v1 (신규, v9.11 2026-09-22) - 타격감 계층: 손님이 맞는다 / 죽는다 / 월드 팝 (스펙 표 A1 A2 A3 A6 + 월드 공용)
+/// [HitFeel.cs] v1.4 (v9.29 2026-10-21 손맛 3차 A10: 치명타로 처치하면 GameBalance.CritKillHitstopSec 히트스탑 - CritKillHitstopGap 에 한 번, 보스 제외. 마지막 치명타 명중을 ConsumeCrit 과 따로 기억한다(lastCrit*) - 숫자 팝업이 먼저 읽어 지우기 때문) / v1.3 (v9.18 2026-10-06: NextHit 에 쏜 포탑(source) - ConsumeHit 이 치명타 여부와 같이 돌려준다, 데미지 숫자를 포탑별로 합산하는 데 쓴다) / v1.2 (v9.17 2026-10-06 화면 손맛 2차: MuzzlePool(포신 끝 섬광 - 풀 24) / Knock(물리 단발 넉백 - 그림만 밀렸다 돌아온다) / ConsumeCrit(숫자 팝업이 진짜 치명타만 크리로 찍게)) / v1.1 (v9.16 2026-09-29 손맛 2차 - 소리: 명중음이 여기서 난다 - 손님 재질별(SoundKeys.Hit: 비늘·무쇠·결정·날개·용암) + 요리 속성 겹침(SoundKeys.Accent) + 크리 sfx_hit_crit / 물리가 방어에 크게 깎이면 재질음 대신 sfx_ricochet(튕김) / 처치음은 Enemy.Die 가 재질별로) / v1 (신규, v9.11 2026-09-22) - 타격감 계층: 손님이 맞는다 / 죽는다 / 월드 팝 (스펙 표 A1 A2 A3 A6 + 월드 공용)
 ///
 /// 원칙 (타격감 스펙 표): 일반 사건(매초 수십 번인 명중)은 플래시·찌그러짐·작은 스파크·숫자까지만.
 /// 중요 사건(처치·크리·큰 손님)은 킬 버스트 + 채널 쿨타임 흔들림. 흔들림·히트스탑·줌은 여기서 늘리지 않는다.
@@ -62,6 +62,8 @@ public static class HitFeel
         bool hasTag = hinted && nextHasTag;
         nextFrame = -1;
         lastHitEnemy = e; lastHitFrame = Time.frameCount; lastHitCrit = crit;   // v1.2: 숫자 팝업용 (연출 스위치와 무관)
+        if (crit) { lastCritEnemy = e; lastCritFrame = Time.frameCount; }         // v1.4: 처치 히트스탑용 (팝업이 지워도 남는다)
+        else if (lastCritEnemy == e) lastCritEnemy = null;                          // 같은 프레임에 크리 뒤 비크리로 끝나면 안 멈춘다
         lastHitSource = hinted ? nextSource : 0;                                // v1.3
 
         // v1.1: 명중음 - 손님 재질 + 요리 속성 겹침. 크리는 전용음. 물리가 튕기면 재질음 대신 튕김음 (연출 스위치와 무관하게 난다)
@@ -89,6 +91,9 @@ public static class HitFeel
     private static Enemy lastHitEnemy = null;
     private static int lastHitFrame = -1;
     private static bool lastHitCrit = false;
+    private static Enemy lastCritEnemy = null;    // v1.4: 마지막 치명타를 맞은 손님과 프레임
+    private static int lastCritFrame = -1;
+    private static float lastCritStopReal = -10f; // v1.4: 마지막 크리 처치 히트스탑 시각 (실시간)
     private static int lastHitSource = 0;   // v1.3: 그 명중을 쏜 포탑 (0 = 모름 - 지속 피해·반격·증강 부가 타격)
 
     /// <summary>v1.3: ConsumeCrit + 쏜 포탑. 같은 프레임·같은 손님의 직접 명중이 아니면 source = 0</summary>
@@ -138,6 +143,15 @@ public static class HitFeel
         SparkPool.Emit(pos, col, big ? 14 : 8, big ? 0.15f : 0.12f, big ? 3.8f : 3f);
         SparkPool.Emit(pos, Color.white, big ? 6 : 3, 0.1f, 4.5f);
         if (big && !boss) GameFeel.Shake(GameBalance.ShakeBigKill, "kill", 0.3f);
+
+        // v1.4 (A10): 치명타로 끝냈으면 아주 짧은 히트스탑 - 딜이 세질수록 손에 걸린다. 보스가 있는 동안은 쉰다 (보스 처치·클라이맥스의 히트스탑을 0.45초 규칙으로 삼키지 않게)
+        if (!boss && GameBalance.CritKillHitstopSec > 0f && lastCritEnemy == e && lastCritFrame == Time.frameCount
+            && Time.realtimeSinceStartup - lastCritStopReal >= GameBalance.CritKillHitstopGap
+            && !(BossGimmickSystem.Instance != null && BossGimmickSystem.Instance.HasActiveBoss))
+        {
+            lastCritStopReal = Time.realtimeSinceStartup;
+            GameFeel.Hitstop(GameBalance.CritKillHitstopSec);
+        }
     }
 }
 

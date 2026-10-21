@@ -1,7 +1,8 @@
+using System.Collections;
 using UnityEngine;
 
 /// <summary>
-/// [DeckLoot.cs] v1.4 (v9.24 2026-10-15: 갈림길 칸 꺾임 - 상자 그림이 놓인 칸을 따라 옮겨진다 (TrainDeck.RidePos, 덜컹임 없이). 밟았나는 곧은 자리로 잰다 / 알림 말투 10-14 표대로 "밟아서 주워") / v1.3 (v9.18 2026-10-06: 상자 자리 = TrainDeck.LootSpot - 셰프가 걸을 수 있는 바닥 위(포탑 칸은 가운데 복도, 주방은 조리대 위쪽). 예전 높이 -1.25 는 새 그림에서 남쪽 포탑 줄·바퀴 위였다) / v1.2 (v9.14 2026-09-28: 상자 위 노란 화살표 + 상자 조금 크게 - 테스터 "줍는 게 창에 가려 안 보임") / v1.1 (v9.9.2 2026-09-16: 4모서리 배치의 남쪽 포탑 자리를 피해 떨어진다 - 상자가 포탑 위에 그려지던 것) / v1 (신규 파일) - B-2: 갑판 전리품 상자 (방향결정 2026-08-31)
+/// [DeckLoot.cs] v1.5 (v9.29 2026-10-21 손맛 3차 B8 "아이템은 얻지만 획득감이 없다": 밟으면 상자가 튀어오르며 열린다(1.3배 + 흰 번쩍 + 금빛 조각, GameBalance.LootOpenSec) -> 작은 상자가 왼쪽 위 유물 카드 자리로 날아간다(LootFlySec, UIFeel.FlyTo) -> 닿는 순간 알림 줄 + 카드 + 유물 소리 (ItemManager.Reveal - 효과는 밟는 순간 이미). 유물이 아니라 골드였으면(행낭이 가득) 예전 연출. GameBalance.LootOpenFx = false 면 예전(조각 팝 + 바로 사라짐)) / v1.4 (v9.24 2026-10-15: 갈림길 칸 꺾임 - 상자 그림이 놓인 칸을 따라 옮겨진다 (TrainDeck.RidePos, 덜컹임 없이). 밟았나는 곧은 자리로 잰다 / 알림 말투 10-14 표대로 "밟아서 주워") / v1.3 (v9.18 2026-10-06: 상자 자리 = TrainDeck.LootSpot - 셰프가 걸을 수 있는 바닥 위(포탑 칸은 가운데 복도, 주방은 조리대 위쪽). 예전 높이 -1.25 는 새 그림에서 남쪽 포탑 줄·바퀴 위였다) / v1.2 (v9.14 2026-09-28: 상자 위 노란 화살표 + 상자 조금 크게 - 테스터 "줍는 게 창에 가려 안 보임") / v1.1 (v9.9.2 2026-09-16: 4모서리 배치의 남쪽 포탑 자리를 피해 떨어진다 - 상자가 포탑 위에 그려지던 것) / v1 (신규 파일) - B-2: 갑판 전리품 상자 (방향결정 2026-08-31)
 ///
 /// 아이템(유물) 획득이 즉시 지급 대신 "갑판에 떨어진 상자"가 된다.
 /// 셰프가 걸어가서 밟으면 회수 - 걷는 것 자체가 보상 행위가 되게.
@@ -58,6 +59,7 @@ public class DeckLoot : MonoBehaviour
     {
         // 상자 본체 (호박색)
         SpriteRenderer body = gameObject.AddComponent<SpriteRenderer>();
+        bodySr = body;
         body.sprite = TrainDeck.GetWhiteSprite();
         body.color = new Color(0.85f, 0.6f, 0.22f);
         body.sortingOrder = 58;   // 처치 팝과 같은 층 (셰프보다 위 아님)
@@ -67,7 +69,7 @@ public class DeckLoot : MonoBehaviour
         GameObject strap = new GameObject("Strap");
         strap.transform.SetParent(transform, false);
         strap.transform.localScale = new Vector3(1f, 0.22f, 1f);
-        SpriteRenderer strapSr = strap.AddComponent<SpriteRenderer>();
+        strapSr = strap.AddComponent<SpriteRenderer>();
         strapSr.sprite = TrainDeck.GetWhiteSprite();
         strapSr.color = new Color(0.16f, 0.11f, 0.08f);
         strapSr.sortingOrder = 59;
@@ -88,6 +90,8 @@ public class DeckLoot : MonoBehaviour
     }
 
     private SpriteRenderer markerSr;   // v1.2: 상자 위 화살표
+    private SpriteRenderer bodySr, strapSr;   // v1.5: 열림 연출이 번쩍이고 숨긴다
+    private bool collected = false;           // v1.5: 연출 중 다시 밟아도 한 번만
 
     private void OnDestroy()
     {
@@ -99,6 +103,7 @@ public class DeckLoot : MonoBehaviour
     // ─────────────────────────────────────────────
     private void Update()
     {
+        if (collected) return;   // v1.5: 열림 연출 중
         // 들썩임 (여기 있어! 하는 존재감)
         bobPhase += Time.deltaTime * 3f;
         Vector3 logical = new Vector3(baseX, baseY + Mathf.Abs(Mathf.Sin(bobPhase)) * 0.12f, transform.position.z);
@@ -125,9 +130,62 @@ public class DeckLoot : MonoBehaviour
 
     private void Collect()
     {
-        ItemManager.GrantRandom(sourceLabel);
-        GameFeel.DeathPop(transform.position, new Color(1f, 0.85f, 0.4f), 0.6f);
+        if (collected) return;
+        collected = true;
+        bool fx = GameBalance.LootOpenFx && GameBalance.GameFeelMaster > 0f;
+        ItemData granted;
+        bool gotItem = ItemManager.GrantRandom(sourceLabel, fx, out granted);   // 연출이면 효과만 먼저 - 알림·카드·소리는 상자가 닿을 때 (Reveal)
+        if (!fx || !gotItem)
+        {
+            // 예전 연출 (연출 끔 / 행낭이 가득해 골드였다 - 그쪽 알림은 GrantRandom 이 냈다)
+            GameFeel.DeathPop(transform.position, new Color(1f, 0.85f, 0.4f), 0.6f);
+            SoundManager.Play("sfx_pickup");
+            Destroy(gameObject);
+            return;
+        }
         SoundManager.Play("sfx_pickup");
+        StartCoroutine(OpenAndFly(granted));
+    }
+
+    /// <summary>v1.5 (B8): 열림 - 튀어오르며 1.3배 + 흰 번쩍 + 꼭대기에서 금빛 조각 -> 작은 상자가 유물 카드 자리로 날아간다 -> 닿으면 ItemManager.Reveal (알림 줄 + 카드 + 유물 소리)</summary>
+    private IEnumerator OpenAndFly(ItemData granted)
+    {
+        if (markerSr != null) markerSr.gameObject.SetActive(false);
+        Vector3 basePos = TrainDeck.RidePos(new Vector3(baseX, baseY, transform.position.z), false);
+        Vector3 baseScale = transform.localScale;
+        Color bodyCol = bodySr != null ? bodySr.color : Color.white;
+        Color gold = new Color(1f, 0.85f, 0.4f);
+        float sec = Mathf.Max(0.05f, GameBalance.LootOpenSec);
+        float t = 0f;
+        bool popped = false;
+        while (t < sec)
+        {
+            t += Time.unscaledDeltaTime;                               // 실시간 - 날아가기(UIFeel)와 같은 시계
+            float k = Mathf.Clamp01(t / sec);
+            float arc = Mathf.Sin(k * Mathf.PI);                       // 올라갔다 내려온다
+            transform.position = basePos + Vector3.up * (arc * 0.45f);
+            transform.localScale = baseScale * (1f + arc * 0.3f);
+            if (bodySr != null) bodySr.color = k < 0.3f ? Color.white : bodyCol;   // 처음 0.3 은 흰 번쩍
+            if (!popped && k >= 0.45f)
+            {
+                popped = true;
+                SparkPool.Emit(transform.position + Vector3.up * 0.2f, gold, 10, 0.12f, 3.5f);
+                SparkPool.Emit(transform.position + Vector3.up * 0.2f, Color.white, 4, 0.1f, 4.5f);
+            }
+            yield return null;
+        }
+        // 날아간다 - 세계 자리를 화면 자리로, 유물 카드 자리까지. 닿으면 드러낸다 (운행이 끝나 있으면 조용히 - 유물은 이미 가진 것)
+        Vector2 from = Camera.main != null ? (Vector2)Camera.main.WorldToScreenPoint(transform.position) : new Vector2(Screen.width * 0.5f, Screen.height * 0.5f);
+        Canvas canvas; RectTransform card;
+        RelicToast.FlightTarget(out canvas, out card);
+        if (bodySr != null) bodySr.enabled = false;
+        if (strapSr != null) strapSr.enabled = false;
+        string label = sourceLabel;
+        UIFeel.FlyTo(canvas, from, card, TrainDeck.GetWhiteSprite(), bodyCol, 30f, Mathf.Max(0.05f, GameBalance.LootFlySec), delegate
+        {
+            if (GameManager.Instance != null && GameManager.Instance.currentState == GameManager.GameState.Battle)
+                ItemManager.Reveal(granted, label);
+        });
         Destroy(gameObject);
     }
 }

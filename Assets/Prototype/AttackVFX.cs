@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 
 /// <summary>
-/// [AttackVFX.cs] v1.1 (v9.24.1 2026-10-16 5차 피드백 5번 "탄환 증발": ProjectileFollow - 매 프레임 겨눈 자리(aimAt)로 꺾어 날아가는 탄. 쏜 순간의 자리로만 날던 Projectile 은 스위치를 끈 때를 위해 그대로 둔다)
+/// [AttackVFX.cs] v1.2 (v9.29 2026-10-21 손맛 3차 A7: 관통 빔에 잔광 한 겹 (GameBalance.BeamAfterglow), 연쇄 번개에 지그재그가 다른 두 번째 줄 (LightningDouble) / 선 재질을 하나로 같이 쓴다 - 선이 그어질 때마다 new Material 이었다) / v1.1 (v9.24.1 2026-10-16 5차 피드백 5번 "탄환 증발": ProjectileFollow - 매 프레임 겨눈 자리(aimAt)로 꺾어 날아가는 탄. 쏜 순간의 자리로만 날던 Projectile 은 스위치를 끈 때를 위해 그대로 둔다)
 /// 공격 이펙트 렌더러 (에셋 없이 코드 생성 - 추후 파티클로 교체 가능)
 /// - 투사체(이동하는 원), 관통 빔, 체인 번개(지그재그), 폭발 원, 부채꼴, 장판
 /// 싱글톤. GameSystems 오브젝트에 부착
@@ -122,6 +122,20 @@ public class AttackVFX : MonoBehaviour
         lr.SetPosition(0, from);
         lr.SetPosition(1, to);
         StartCoroutine(FadeAndDestroy(go, lr, 0.18f));
+
+        // v1.2 (A7): 잔광 - 본 줄 밑에 넓고 옅은 줄이 조금 더 오래 남는다 (레일이 "지나간 자리"가 보인다)
+        if (GameBalance.BeamAfterglow && GameBalance.GameFeelMaster > 0f && GameBalance.BeamGlowSec > 0f)
+        {
+            GameObject glow = new GameObject("VFX_BeamGlow");
+            LineRenderer gl = glow.AddComponent<LineRenderer>();
+            Color gc = color; gc.a = Mathf.Clamp01(GameBalance.BeamGlowAlpha * GameBalance.GameFeelMaster);
+            SetupLine(gl, gc, width * GameBalance.BeamGlowWidthMul);
+            gl.sortingOrder = lr.sortingOrder - 1;   // 본 줄 밑
+            gl.positionCount = 2;
+            gl.SetPosition(0, from);
+            gl.SetPosition(1, to);
+            StartCoroutine(FadeAndDestroy(glow, gl, GameBalance.BeamGlowSec));
+        }
     }
 
     // ─────────────────────────────────────────
@@ -129,9 +143,21 @@ public class AttackVFX : MonoBehaviour
     // ─────────────────────────────────────────
     public void Lightning(Vector3 from, Vector3 to, Color color)
     {
-        GameObject go = new GameObject("VFX_Lightning");
+        Jagged("VFX_Lightning", from, to, color, 0.12f, 0.15f);
+        // v1.2 (A7): 지그재그가 다른 두 번째 줄 - 옅고 조금 더 오래 남아 번개가 깜빡이는 것처럼
+        if (GameBalance.LightningDouble && GameBalance.GameFeelMaster > 0f && GameBalance.LightningSecondSec > 0f)
+        {
+            Color c2 = color; c2.a = Mathf.Clamp01(GameBalance.LightningSecondAlpha * GameBalance.GameFeelMaster);
+            Jagged("VFX_Lightning2", from, to, c2, 0.09f, GameBalance.LightningSecondSec);
+        }
+    }
+
+    /// <summary>지그재그 줄 하나 (6 마디, 가운데 마디는 0.35u 안에서 흔들린다)</summary>
+    private void Jagged(string name, Vector3 from, Vector3 to, Color color, float width, float sec)
+    {
+        GameObject go = new GameObject(name);
         LineRenderer lr = go.AddComponent<LineRenderer>();
-        SetupLine(lr, color, 0.12f);
+        SetupLine(lr, color, width);
 
         int segments = 6;
         lr.positionCount = segments + 1;
@@ -146,7 +172,7 @@ public class AttackVFX : MonoBehaviour
             }
             lr.SetPosition(i, p);
         }
-        StartCoroutine(FadeAndDestroy(go, lr, 0.15f));
+        StartCoroutine(FadeAndDestroy(go, lr, sec));
     }
 
     // ─────────────────────────────────────────
@@ -266,9 +292,12 @@ public class AttackVFX : MonoBehaviour
         return go;
     }
 
+    private static Material lineMat;   // v1.2: 선 재질 하나를 같이 쓴다 (색은 LineRenderer 의 startColor/endColor 라 공유해도 된다)
+
     private void SetupLine(LineRenderer lr, Color color, float width)
     {
-        lr.material = new Material(Shader.Find("Sprites/Default"));
+        if (lineMat == null) lineMat = new Material(Shader.Find("Sprites/Default"));
+        lr.sharedMaterial = lineMat;
         lr.startColor = color;
         lr.endColor = color;
         lr.startWidth = width;
@@ -284,7 +313,7 @@ public class AttackVFX : MonoBehaviour
         {
             t += Time.deltaTime;
             Color c = start;
-            c.a = 1f - (t / duration);
+            c.a = start.a * (1f - (t / duration));   // v1.2: 시작 알파에서 (잔광·두 번째 줄은 옅게 시작한다)
             lr.startColor = c;
             lr.endColor = c;
             yield return null;

@@ -4,7 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 /// <summary>
-/// [ItemSystem.cs] v1.5 (v9.25 2026-10-16 B5 - 5차 피드백 4번 "유물 개구림 의미없음": 조리 판정·사고 쪽 8 (보험·부채·매트·숫돌·온도계·뒤집개·밸브·고글)을 싸움 유물 8 로 - 녹슨 탄창·굶주린 화덕·짝꿍 숟가락·탐욕의 국자·무거운 냄비·선대의 식탁보·독한 소스·빈 접시. 09 월 "증강 = 싸움 / 유물 = 주방 일" 나누기를 바꾸는 것이라 GameBalance.RelicCombatSet = false 면 예전 15종. 새 값은 ItemManager 의 v1.5 칸, 피해 배율은 RelicDamageMul) / v1.4 (v9.18 2026-10-06: 유물 획득 알림 카드 RelicToast - 이름·효과·"[V] 로 다시 본다" 를 4.5초 띄운다. 상자로 주운 유물은 알림 줄에 이름만 나와 무슨 효과인지 알 수 없었다) / v1.3 (v9.16 2026-09-29 손맛 2차 - 소리: 유물 획득 sfx_relic) / v1.2 (v9.14 2026-09-28: 유물 15종 설명을 일상어로 - 테스터 "황금 조리 기구가 뭔지 모르겠음": "판정 구간" -> "맞춰야 하는 구간이 넓어진다") / v1.1 (2026-09-14: IsItemUsable 스위치 연동) / v1 (신규 파일) - Phase 2-3: 아이템(유물) 시스템
+/// [ItemSystem.cs] v1.6 (v9.29 2026-10-21 손맛 3차 B8: 획득(Acquire = 효과·소유)과 드러내기(Reveal = 알림 줄·카드·소리)를 나눴다 - 갑판 상자는 GrantRandom(label, deferReveal, out item) 으로 효과만 먼저 걸고 상자가 날아와 닿을 때 Reveal. GrantRandom 이 "유물을 줬나" 를 돌려준다 (못 주면 골드). RelicToast.FlightTarget = 날아갈 캔버스·카드 자리, 씬이 바뀌면 날아가던 상자도 지운다) / v1.5 (v9.25 2026-10-16 B5 - 5차 피드백 4번 "유물 개구림 의미없음": 조리 판정·사고 쪽 8 (보험·부채·매트·숫돌·온도계·뒤집개·밸브·고글)을 싸움 유물 8 로 - 녹슨 탄창·굶주린 화덕·짝꿍 숟가락·탐욕의 국자·무거운 냄비·선대의 식탁보·독한 소스·빈 접시. 09 월 "증강 = 싸움 / 유물 = 주방 일" 나누기를 바꾸는 것이라 GameBalance.RelicCombatSet = false 면 예전 15종. 새 값은 ItemManager 의 v1.5 칸, 피해 배율은 RelicDamageMul) / v1.4 (v9.18 2026-10-06: 유물 획득 알림 카드 RelicToast - 이름·효과·"[V] 로 다시 본다" 를 4.5초 띄운다. 상자로 주운 유물은 알림 줄에 이름만 나와 무슨 효과인지 알 수 없었다) / v1.3 (v9.16 2026-09-29 손맛 2차 - 소리: 유물 획득 sfx_relic) / v1.2 (v9.14 2026-09-28: 유물 15종 설명을 일상어로 - 테스터 "황금 조리 기구가 뭔지 모르겠음": "판정 구간" -> "맞춰야 하는 구간이 넓어진다") / v1.1 (2026-09-14: IsItemUsable 스위치 연동) / v1 (신규 파일) - Phase 2-3: 아이템(유물) 시스템
 ///
 /// 설계 (사용자 결정 - 증강/아이템 이원화):
 ///  - 증강 = 포탑 강화 + 기차 유틸 (전투 출력에 관여)
@@ -171,22 +171,30 @@ public static class ItemManager
     /// 아이템 획득 (효과 즉시 발동 + 알림).
     /// sourceLabel이 있으면 "[전리품] {출처}: ..." 형태로 표시 (드랍 획득용)
     /// </summary>
-    public static void Acquire(ItemData item, string sourceLabel = null)
+    public static void Acquire(ItemData item, string sourceLabel = null) { Acquire(item, sourceLabel, false); }
+
+    /// <summary>v1.6: deferReveal = 효과·소유만 지금, 알림 줄·카드·소리는 부르는 쪽이 Reveal 할 때 (갑판 상자가 날아와 닿을 때)</summary>
+    public static void Acquire(ItemData item, string sourceLabel, bool deferReveal)
     {
         if (item == null || HasItem(item.id)) return;
 
         Owned.Add(item);
         if (item.apply != null) item.apply();
+        Debug.Log("[아이템] 획득: " + item.name + " (" + item.RarityName() + ")"
+            + (sourceLabel != null ? " / 출처: " + sourceLabel : "") + (deferReveal ? " / 드러내기는 상자가 닿을 때" : ""));
+        if (!deferReveal) Reveal(item, sourceLabel);
+    }
 
+    /// <summary>v1.6: 드러내기 - 알림 줄 + 카드 + 유물 소리 (획득 자체는 Acquire 가 먼저 한다)</summary>
+    public static void Reveal(ItemData item, string sourceLabel)
+    {
+        if (item == null) return;
         if (string.IsNullOrEmpty(sourceLabel))
             UIManager.Instance?.ShowStatChange("[유물] " + item.name + " - " + item.desc);
         else
             UIManager.Instance?.ShowStatChange("[전리품] " + sourceLabel + " - " + item.name + "!  ([V] 로 효과 보기)");
         RelicToast.Show(item);   // v1.4: 무엇을 얻었고 뭐가 좋아지는지 - 왼쪽 위 HP 판 아래 카드
-
         SoundManager.Play("sfx_relic");   // v1.3: 유물 전용 획득음
-        Debug.Log("[아이템] 획득: " + item.name + " (" + item.RarityName() + ")"
-            + (sourceLabel != null ? " / 출처: " + sourceLabel : ""));
     }
 
     /// <summary>미보유 아이템이 남아 있는가 (Special 제외 - 행상인/드랍 공용 체크)</summary>
@@ -209,8 +217,12 @@ public static class ItemManager
         return true;
     }
 
-    public static void GrantRandom(string sourceLabel)
+    public static bool GrantRandom(string sourceLabel) { ItemData dummy; return GrantRandom(sourceLabel, false, out dummy); }
+
+    /// <summary>미보유 유물 하나를 무작위로 (없으면 골드 60). 돌려주는 값 = 유물을 줬나. v1.6: deferReveal 이면 효과만 걸고 알림·카드·소리는 Reveal 때 (갑판 상자)</summary>
+    public static bool GrantRandom(string sourceLabel, bool deferReveal, out ItemData granted)
     {
+        granted = null;
         List<ItemData> pool = new List<ItemData>();
         List<ItemData> all = ItemDatabase.All;
         for (int i = 0; i < all.Count; i++)
@@ -224,9 +236,11 @@ public static class ItemManager
         {
             GameManager.Instance?.AddGold(60);
             UIManager.Instance?.ShowStatChange("[전리품] 행낭이 가득 찼다... 대신 골드 +60");
-            return;
+            return false;
         }
-        Acquire(pool[Random.Range(0, pool.Count)], sourceLabel);
+        granted = pool[Random.Range(0, pool.Count)];
+        Acquire(granted, sourceLabel, deferReveal);
+        return true;
     }
 
     /// <summary>구리 소화기: 화재 자동 진압 시도 (웨이브당 1회). 성공하면 true</summary>
@@ -488,27 +502,38 @@ public class RelicToast : MonoBehaviour
     private Text captionText, nameText, descText, footText;
     private readonly Queue<ItemData> queue = new Queue<ItemData>();
     private Coroutine showCo;
+    private Canvas canvas;                    // v1.6: 날아오는 상자가 쓰는 캔버스
+
+    /// <summary>v1.6 (B8): 갑판 상자가 날아갈 캔버스와 카드 자리 (카드가 꺼져 있어도 자리는 있다)</summary>
+    public static void FlightTarget(out Canvas c, out RectTransform card)
+    {
+        Ensure();
+        c = instance.canvas; card = instance.root;
+    }
+
+    private static void Ensure()
+    {
+        if (instance != null) return;
+        GameObject go = new GameObject("RelicToast");
+        DontDestroyOnLoad(go);
+        instance = go.AddComponent<RelicToast>();
+        instance.Build();
+        // 장면이 다시 불리면(운행 포기·재출발) 줄 서 있던 카드를 비운다 - 지난 운행의 유물 카드가 다음 판 위에 뜨지 않게
+        UnityEngine.SceneManagement.SceneManager.sceneLoaded += delegate { if (instance != null) instance.ClearAll(); };
+    }
 
     /// <summary>획득 카드를 띄운다 (이미 떠 있으면 줄을 선다)</summary>
     public static void Show(ItemData item)
     {
         if (item == null) return;
-        if (instance == null)
-        {
-            GameObject go = new GameObject("RelicToast");
-            DontDestroyOnLoad(go);
-            instance = go.AddComponent<RelicToast>();
-            instance.Build();
-            // 장면이 다시 불리면(운행 포기·재출발) 줄 서 있던 카드를 비운다 - 지난 운행의 유물 카드가 다음 판 위에 뜨지 않게
-            UnityEngine.SceneManagement.SceneManager.sceneLoaded += delegate { if (instance != null) instance.ClearAll(); };
-        }
+        Ensure();
         instance.queue.Enqueue(item);
         if (instance.showCo == null) instance.showCo = instance.StartCoroutine(instance.Run());
     }
 
     private void Build()
     {
-        Canvas canvas = UIFactory.CreateCanvas("RelicToastCanvas", 458);   // 알림 로그(455) 위, 속성 줄(470) 아래
+        canvas = UIFactory.CreateCanvas("RelicToastCanvas", 458);   // 알림 로그(455) 위, 속성 줄(470) 아래
         canvas.transform.SetParent(transform, false);
         GraphicRaycaster ray = canvas.GetComponent<GraphicRaycaster>();
         if (ray != null) ray.enabled = false;   // 클릭을 가로채지 않는다
@@ -570,6 +595,10 @@ public class RelicToast : MonoBehaviour
         queue.Clear();
         if (showCo != null) { StopCoroutine(showCo); showCo = null; }
         if (root != null) root.gameObject.SetActive(false);
+        // v1.6: 날아가던 상자(UIFeel.FlyTo 의 Image)가 캔버스에 남지 않게
+        if (canvas != null)
+            for (int i = canvas.transform.childCount - 1; i >= 0; i--)
+                if (canvas.transform.GetChild(i).name == "Fly") Destroy(canvas.transform.GetChild(i).gameObject);
     }
 
     /// <summary>카드 안 글자 한 줄 (왼쪽 위 기준 자리, 폭은 카드 안쪽 전체)</summary>
