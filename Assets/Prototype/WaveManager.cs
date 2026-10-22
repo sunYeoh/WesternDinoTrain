@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// [WaveManager.cs] v6.30 (v9.31 2026-10-21 급식 조리: 인분이 늘어나는 지역(기본 2 · 3)의 첫 웨이브에 지역 카드 뒤로 스피노 카드 BriefingTexts.BatchCook - 한 번만) / v6.29 (v9.28 2026-10-20 하드 모드: 머릿수 x HardCountMul - 크기별 배율(AddUnits)과 조각 크기(BeatSize)에) / v6.28 (v9.26 2026-10-16 마감 정리: 편성 이름 줄(ShowFormationLine·FORMATION_HINTS)과 방향 예고 화살표(CueAt·CueArrow·sfx_cue_approach) 코드 삭제 - 10-07 유저 결정으로 값을 0 으로 꺼 두었던 것. 하던 일은 그대로) / v6.27 (v9.24 2026-10-15 갈림길 D2: 가지로 출발했으면 첫 손님은 꼬리까지 갈림길을 다 넘은 뒤에 (ParallaxBackground.ForkFollowActive, 최대 GameBalance.ForkHoldMaxSec) - 칸이 꺾인 동안은 그림과 판정 자리가 달라서. 웨이브 예고는 그대로) / v6.26 (v9.23 2026-10-14 보스 새 패턴: SpawnBossUnits - 보스가 정한 자리마다 한 마리씩 (부관 발톱·새끼 테라노돈·하차 랩터·편대 플라이, 데이터를 바꿔 끼울 수 있다) / SpawnBossFormation - 호령이 편성 조각(포위·양동)으로 온다 (화살표 없음, 제 힘 그대로) / 최종전 동안 북쪽 스폰을 남쪽으로 돌린다 (BossEnemy.NorthBlocked - 맞수 열차 몸이 북쪽을 막고 있다)) / v6.25 (v9.22.2 2026-10-14 유저 "튜토리얼 말투가 번역체·AI 같고 딱딱하다": 안내 글 말투를 반말 해체로 - 명령형 ~라·설명 ~다 끝맺음, 문장 속 기호, 어려운 말(투입·재가동·곁·유인)를 걷어냈다. 규칙 = 문구원칙 10-14 저녁 "말투" 절) / v6.24 (v9.22.1 2026-10-14 유저 "튜토리얼에 드래그가 반영 안 됐다": 프롤로그 조리 게이트 안내 3줄을 끌어다 놓기·재료 중심 조리 창 기준으로) / v6.23 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v6.22 (v9.20 2026-10-07: 보스가 부른 증원이 보스 등 뒤에서 뛰쳐나온다 - SpawnReinforcements 에 부른 자리·등 뒤 여부·보상 몫, 자리로 스폰하는 SpawnEnemyAtPos) / v6.21 (v9.19.2 2026-10-07 유저 확인 뒤: 머릿수를 늘린 손님이 제 힘으로 온다 - AddUnits 가 한 마리를 나눠 약하게 하지 않고 크기별 HP 배율(TierHpMul*)과 초반 배율(EarlyBodyStart)만 건다. Enemy.Share 는 보상·도구 부식 같은 "한 번에 얼마"에만 / 편성 이름 줄과 방향 예고 화살표는 GameBalance 값으로 꺼졌다(FormationLineShows 0·SpawnCueSec 0 - 코드는 그대로)) / v6.20 (v9.19.1 2026-10-07 유저 소감: 손님이 생기는 테두리가 "지금 보이는 화면"을 따라간다(SpawnBounds - 휠로 넓게 보면 화면 가운데에서 생기던 것. 구 방식 스폰·보스 증원·보스 등장도 같은 테두리) / 머릿수 대폭 증가: 손님 크기별 배율 CountMulSmall·Mid·Big + 무리 세기 GroupPower*, 조각 크기 FormationSizeMul. 손님에게 한 마리의 몫(Enemy.Share)을 건다 - 보상·기차 방어력·연속 피격 완충·고정량 효과가 몫만큼만 먹게) /
+/// [WaveManager.cs] v6.31 (v9.32 2026-10-22 노선: 구성표 = 그 자리에 놓인 맵의 제 손님만 (MapConfig - 협곡은 하늘 맵, 광산은 강철 랩터가 무리, 종착역은 세 맵의 정예), 세기는 지금 순서의 같은 웨이브(LegacyConfig)에 맞춘 한 마리 배율 (SumRoster -> hpNorm·atkNorm·goldNorm·dropNorm, Enemy 가 MapNorms 로 읽는다), 지역 전환·예고·지역 카드·편성 가중치·협곡의 낙뢰·재료 보장·보스 카드가 맵(MapRoute)을 따른다, BuildRoster 와 세기 합이 한 표(VisitRoster)) / v6.30 (v9.31 2026-10-21 급식 조리: 인분이 늘어나는 지역(기본 2 · 3)의 첫 웨이브에 지역 카드 뒤로 스피노 카드 BriefingTexts.BatchCook - 한 번만) / v6.29 (v9.28 2026-10-20 하드 모드: 머릿수 x HardCountMul - 크기별 배율(AddUnits)과 조각 크기(BeatSize)에) / v6.28 (v9.26 2026-10-16 마감 정리: 편성 이름 줄(ShowFormationLine·FORMATION_HINTS)과 방향 예고 화살표(CueAt·CueArrow·sfx_cue_approach) 코드 삭제 - 10-07 유저 결정으로 값을 0 으로 꺼 두었던 것. 하던 일은 그대로) / v6.27 (v9.24 2026-10-15 갈림길 D2: 가지로 출발했으면 첫 손님은 꼬리까지 갈림길을 다 넘은 뒤에 (ParallaxBackground.ForkFollowActive, 최대 GameBalance.ForkHoldMaxSec) - 칸이 꺾인 동안은 그림과 판정 자리가 달라서. 웨이브 예고는 그대로) / v6.26 (v9.23 2026-10-14 보스 새 패턴: SpawnBossUnits - 보스가 정한 자리마다 한 마리씩 (부관 발톱·새끼 테라노돈·하차 랩터·편대 플라이, 데이터를 바꿔 끼울 수 있다) / SpawnBossFormation - 호령이 편성 조각(포위·양동)으로 온다 (화살표 없음, 제 힘 그대로) / 최종전 동안 북쪽 스폰을 남쪽으로 돌린다 (BossEnemy.NorthBlocked - 맞수 열차 몸이 북쪽을 막고 있다)) / v6.25 (v9.22.2 2026-10-14 유저 "튜토리얼 말투가 번역체·AI 같고 딱딱하다": 안내 글 말투를 반말 해체로 - 명령형 ~라·설명 ~다 끝맺음, 문장 속 기호, 어려운 말(투입·재가동·곁·유인)를 걷어냈다. 규칙 = 문구원칙 10-14 저녁 "말투" 절) / v6.24 (v9.22.1 2026-10-14 유저 "튜토리얼에 드래그가 반영 안 됐다": 프롤로그 조리 게이트 안내 3줄을 끌어다 놓기·재료 중심 조리 창 기준으로) / v6.23 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v6.22 (v9.20 2026-10-07: 보스가 부른 증원이 보스 등 뒤에서 뛰쳐나온다 - SpawnReinforcements 에 부른 자리·등 뒤 여부·보상 몫, 자리로 스폰하는 SpawnEnemyAtPos) / v6.21 (v9.19.2 2026-10-07 유저 확인 뒤: 머릿수를 늘린 손님이 제 힘으로 온다 - AddUnits 가 한 마리를 나눠 약하게 하지 않고 크기별 HP 배율(TierHpMul*)과 초반 배율(EarlyBodyStart)만 건다. Enemy.Share 는 보상·도구 부식 같은 "한 번에 얼마"에만 / 편성 이름 줄과 방향 예고 화살표는 GameBalance 값으로 꺼졌다(FormationLineShows 0·SpawnCueSec 0 - 코드는 그대로)) / v6.20 (v9.19.1 2026-10-07 유저 소감: 손님이 생기는 테두리가 "지금 보이는 화면"을 따라간다(SpawnBounds - 휠로 넓게 보면 화면 가운데에서 생기던 것. 구 방식 스폰·보스 증원·보스 등장도 같은 테두리) / 머릿수 대폭 증가: 손님 크기별 배율 CountMulSmall·Mid·Big + 무리 세기 GroupPower*, 조각 크기 FormationSizeMul. 손님에게 한 마리의 몫(Enemy.Share)을 건다 - 보상·기차 방어력·연속 피격 완충·고정량 효과가 몫만큼만 먹게) /
 /// v6.19 (v9.19 2026-10-06 웨이브 편성: 웨이브 2 부터 손님을 편성 조각으로 내보낸다(RunFormations - 추격·파상·매복·호위 행렬·양동·포위·공중 편대 + 산개, GameBalance.WaveFormationsOn). 조각마다 오는 쪽 예고(WarningFX.SpawnCue)가 먼저, 조각 사이엔 쉼(BeatGap). 손님은 화면 바로 밖 테두리(EdgePoint)에서 생긴다. 구 방식 본문은 SpawnWaveClassic 으로 / 웨이브 예고 카드의 "주의" 문구는 알림 줄로) /
 /// v6.23 (v9.21 2026-10-12 보스 1단계: 정식 보스는 서는 자리(GameBalance.BossStandX, 북쪽) 위 BossHideDY 만큼 떨어진 곳에 생기고 등장 연출(BossEnemy.EntranceV2)이 자리에 놓는다 - 걸어오지 않는다. BossEntranceV2 가 꺼져 있으면 예전처럼 화면 밖 테두리에서) /
 /// v6.18 (v9.18 2026-10-06: 보스는 기차 북쪽(화면 위)에서만 온다(GameBalance.BossSpawnNorthOnly - 남쪽은 하단 HUD 에 가려진다), 예습 보스는 포탑 칸 B 위에서 / 웨이브가 끝났을 때 사고가 진행 중이면 사고가 끝난 뒤에 증강·선로 선택을 연다(PostWaveHold, WaitEventBeforeChoiceSec) / 코드 폴백 손님의 그림 고르기를 EnemySkin.SpriteFor 한 곳으로) /
@@ -78,6 +78,10 @@ public class WaveManager : MonoBehaviour
         public bool hasBoss;
         public float spawnInterval;
         public float difficultyL;         // 난이도 계수 (Easy=2.0, Hard=1.0)
+
+        // v6.31 (v9.32): 이 웨이브의 맵 (MapRoute.Desert ~ Final) + 맵 손님 한 마리 배율 (GenerateDefaultWaveConfigs 가 채운다. 0 은 1 로 읽는다 - MapNorms)
+        public int map;
+        public float hpNorm, atkNorm, goldNorm, dropNorm;
     }
 
     // ─────────────────────────────────────────────
@@ -162,6 +166,8 @@ public class WaveManager : MonoBehaviour
 
     // 프롤로그 (1회차 한정 - 설계: 튜토리얼_온보딩_설계 4절)
     private const string PROLOGUE_KEY = "WDT_PrologueSeen";
+    /// <summary>v6.31 (v9.32): 다음 운행의 웨이브 1 이 프롤로그인가 - MapRoute.NewRun 이 프롤로그 운행은 지금 순서로 둔다</summary>
+    public static bool ProloguePending { get { return GameBalance.PrologueEnabled && PlayerPrefs.GetInt(PROLOGUE_KEY, 0) == 0; } }
     private bool prologueRun = false;       // 이번 웨이브가 프롤로그 무대인가
     private Transform trainTransform;
 
@@ -354,10 +360,10 @@ public class WaveManager : MonoBehaviour
         if (!regionChanged)
             ShowWaveAttributeNotice(config);
 
-        // v6.13: 협곡의 낙뢰 예약 (지역 AmbientLightningRegion 의 일반 웨이브, 프롤로그·견습 제외)
+        // v6.13: 협곡의 낙뢰 예약 (맵 AmbientLightningMap = 협곡의 일반 웨이브, 프롤로그·견습 제외). v6.31: 협곡이 몇 번째 자리에 오든
         ambientLightningDone = true; ambientLightningAt = 0f;
         if (GameBalance.AmbientLightningOn && !TutorialDirector.Active && !(prologueRun && waveNumber == 1)
-            && GameBalance.RegionOf(waveNumber) == GameBalance.AmbientLightningRegion && !GameBalance.IsBossWave(waveNumber))
+            && MapRoute.MapOfWave(waveNumber) == GameBalance.AmbientLightningMap && !GameBalance.IsBossWave(waveNumber))
         {
             ambientLightningDone = false;
             ambientLightningAt = Time.time + Random.Range(GameBalance.AmbientLightningDelayMin, GameBalance.AmbientLightningDelayMax);
@@ -380,10 +386,11 @@ public class WaveManager : MonoBehaviour
     {
         if (!GameBalance.FirstEncounterBriefings || TutorialDirector.Active) return;
 
-        int region = GameBalance.RegionOf(waveNumber);
+        int region = GameBalance.RegionOf(waveNumber);   // 자리 (1·2·3, 최종전 4)
+        int map = MapRoute.MapOfWave(waveNumber);        // v6.31 (v9.32): 그 자리에 놓인 맵 - 지역 카드는 맵마다 한 장 (id region_1 ~ 4 = 사막·협곡·광산·종착역 - 예전 지역 번호와 같다)
         bool regionStart = waveNumber == 1 || waveNumber >= GameBalance.FinalWave
             || (waveNumber - 1) % GameBalance.RegionLength == 0;
-        if (regionStart) BriefingUI.ShowOnce("region_" + region, BriefingTexts.Region(region));
+        if (regionStart) BriefingUI.ShowOnce("region_" + map, BriefingTexts.Region(map, region));
 
         // v6.30 (v9.31): 급식 조리 - 이 지역부터 인분이 늘면 지역 카드 뒤에 스피노 카드 (지역 1 은 없음. 최종전도 지역 3 과 같은 값이라 없음. 자유 연습은 인분이 안 열리니 카드도 없음 - 리뷰 1)
         if (regionStart && GameBalance.BatchCookOn && !TutorialDirector.SandboxActive && region >= 2 && GameBalance.BatchPortionsByRegion != null
@@ -395,9 +402,9 @@ public class WaveManager : MonoBehaviour
         if (regionStart && waveNumber >= GameBalance.FinalWave && GameBalance.SpinoFinalCard)
             BriefingUI.Show(BriefingTexts.SpinoFinal());
 
-        // v6.15: 지역 3 첫 웨이브 - 스피노가 낡은 기적 소리를 알아듣고 말을 멈춘다 (중후반 단서, 최종전에서 되돌아온다)
+        // v6.15: 지역 3 첫 웨이브 - 스피노가 낡은 기적 소리를 알아듣고 말을 멈춘다 (중후반 단서, 최종전에서 되돌아온다). v6.31: 그 자리의 맵 이름으로
         if (regionStart && region == 3 && GameBalance.SpinoRegion3Hint)
-            UIManager.Instance?.ShowStatChange("[스피노] ...광산 너머에서 기적 소리가 들렸어. 아니, 아무것도 아냐.");
+            UIManager.Instance?.ShowStatChange("[스피노] ..." + MapRoute.Short(map) + " 너머에서 기적 소리가 들렸어. 아니, 아무것도 아냐.");
 
         if (config.steamRaptorCount > 0) BriefingUI.ShowOnce("enemy_raptor", BriefingTexts.Enemy(Enemy.SteamRaptor));
         if (config.springAnkyloCount > 0) BriefingUI.ShowOnce("enemy_ankylo", BriefingTexts.Enemy(Enemy.SpringAnkylo));
@@ -454,42 +461,19 @@ public class WaveManager : MonoBehaviour
 
     private bool ApplyRegionTransition(int waveNumber)
     {
-        int region = GameBalance.RegionOf(waveNumber);
+        int region = GameBalance.RegionOf(waveNumber);   // 자리 (1·2·3, 최종전 4) - 자리가 바뀔 때만 연출
         if (region == lastRegion) return false;
+        bool firstOfRun = lastRegion == 0;   // v6.31: 운행의 첫 지역 - 오프닝(전체 화면)이 가리는 동안 땅을 바로 바꾼다
         lastRegion = region;
 
-        // 지역별 배경색 (스팀펑크 톤 유지, 지역 정체성만 살짝)
-        Color bg;
-        string regionTitle;
-        string regionLine;
-
-        if (region == 1)
-        {
-            bg = new Color(0.24f, 0.16f, 0.10f);   // 구리빛 사막
-            regionTitle = "지역 1 - 구리 사막";
-            regionLine = "녹슨 모래는 굶주림을 기억한다.";
-        }
-        else if (region == 2)
-        {
-            bg = new Color(0.12f, 0.13f, 0.22f);   // 번개 낀 협곡의 밤
-            regionTitle = "지역 2 - 테슬라 협곡";
-            regionLine = "번개가 둥지를 트는 곳. 하늘을 조심해.";
-        }
-        else if (region == 3)
-        {
-            bg = new Color(0.08f, 0.15f, 0.20f);   // 코발트 광산의 냉기
-            regionTitle = "지역 3 - 코발트 광산";
-            regionLine = "대붕괴가 가장 깊이 남은 곳. 여기부터는 놈들도 정예다.";
-        }
-        else
-        {
-            bg = new Color(0.15f, 0.06f, 0.06f);   // 황야의 끝
-            regionTitle = "황야의 끝";
-            regionLine = "대륙에서 가장 오래 굶은 손님이 기다린다.";
-        }
+        // v6.31 (v9.32): 색·문구·땅 그림은 그 자리에 놓인 맵을 따른다 (노선 - MapRoute). 문구는 순서와 상관없는 말로 (광산의 "여기부터는 정예다" 를 뺐다)
+        int map = MapRoute.MapOfWave(waveNumber);
+        string regionTitle = map == MapRoute.Final ? MapRoute.Name(map) : "지역 " + region + " - " + MapRoute.Name(map);
+        string regionLine = MapRoute.TransitionLine(map);
 
         if (Camera.main != null)
-            Camera.main.backgroundColor = bg;
+            Camera.main.backgroundColor = MapRoute.BgColor(map);
+        ParallaxBackground.SetMap(map, firstOfRun);   // 맵 그림(ground_<맵>)이 있으면 겹치며 바뀐다 (운행의 첫 지역은 바로). 없으면 지금 모래에 위 색만
 
         UIManager.Instance?.ShowWaveNotice(regionTitle, regionLine);
         Debug.Log("[WaveManager] 지역 전환 -> " + regionTitle);
@@ -502,18 +486,18 @@ public class WaveManager : MonoBehaviour
     /// </summary>
     private void ShowWaveAttributeNotice(WaveConfig config)
     {
-        int region = GameBalance.RegionOf(config.waveNumber);
+        int map = config.map > 0 ? config.map : MapRoute.MapOfWave(config.waveNumber);   // v6.31: 맵의 손님 기준 (프롤로그 구성은 map 이 비어 있다)
         string notice = "Wave " + config.waveNumber;
         string warning = "";
         List<string> cautions = new List<string>();
 
-        if (region == 1)
+        if (map == MapRoute.Desert)
         {
             notice += " - 물리 속성";
             warning = "질긴 고기류 드롭!";
             if (config.scorpionCount > 0) cautions.Add("전갈 주의(도구 부식)!");
         }
-        else if (region == 2)
+        else if (map == MapRoute.Canyon)
         {
             if (config.boltTeranodonCount > 0 || config.overloadFlyCount > 0)
             {
@@ -525,6 +509,12 @@ public class WaveManager : MonoBehaviour
         }
         else
         {
+            // v6.31: 광산이 1지역이면 앞 웨이브는 강철 랩터뿐이다 - 예고가 비지 않게 (물리 방어 50: 물리 요리는 피해가 절반)
+            if (config.steelRaptorCount > 0 && config.iceMosaCount <= 0 && config.magmaCarnoCount <= 0)
+            {
+                notice += " - 물리 방어!";
+                warning = "강철 비늘 드롭 - 속성 요리로 대응!";
+            }
             if (config.iceMosaCount > 0)
             {
                 notice += " - 냉기 속성!";
@@ -756,29 +746,41 @@ public class WaveManager : MonoBehaviour
     /// <summary>머릿수 배율의 크기 구분: 작은 손님(스팀 랩터·사막 전갈·과부하 플라이) / 중간(강철 랩터·비행 손님 3종·오일 캑터스) / 큰 손님(큰 손님·힐러·지원형)</summary>
     private enum SizeTier { Small, Mid, Big }
 
+    /// <summary>v6.31 (v9.32): 구성표의 손님 종류를 한 번씩 부른다 - 펼치기(BuildRoster)와 세기 합(SumRoster)이 같은 표를 쓴다. 종류를 더하면 여기 한 곳만</summary>
+    private delegate void RosterVisit(GameObject prefab, Enemy.EnemyData data, int count, UnitClass cls, SizeTier tier, SizeTier hpTier, bool vip);
+
+    private void VisitRoster(WaveConfig c, RosterVisit visit)
+    {
+        // 달리는 손님 (작고 빠르다)
+        visit(steamRaptorPrefab, Enemy.SteamRaptor, c.steamRaptorCount, UnitClass.Runner, SizeTier.Small, SizeTier.Small, false);
+        visit(scorpionPrefab, Enemy.DesertScorpion, c.scorpionCount, UnitClass.Runner, SizeTier.Small, SizeTier.Small, false);
+        visit(steelRaptorPrefab, Enemy.SteelRaptor, c.steelRaptorCount, UnitClass.Runner, SizeTier.Mid, SizeTier.Big, false);   // 머릿수는 중간, HP 는 큰 손님 취급 (기본 HP 150 + 방어 50)
+        // 큰 손님 (느리고 단단하다)
+        visit(springAnkyloPrefab, Enemy.SpringAnkylo, c.springAnkyloCount, UnitClass.Heavy, SizeTier.Big, SizeTier.Big, false);
+        visit(tortoisePrefab, Enemy.CopperTortoise, c.tortoiseCount, UnitClass.Heavy, SizeTier.Big, SizeTier.Big, false);
+        visit(iceMosaPrefab, Enemy.IceMosa, c.iceMosaCount, UnitClass.Heavy, SizeTier.Big, SizeTier.Big, false);
+        visit(crystalPachyPrefab, Enemy.CrystalPachy, c.crystalPachyCount, UnitClass.Heavy, SizeTier.Big, SizeTier.Big, false);
+        visit(magmaCarnoPrefab, Enemy.MagmaCarno, c.magmaCarnoCount, UnitClass.Heavy, SizeTier.Big, SizeTier.Big, false);
+        visit(frostMammothPrefab, Enemy.FrostMammoth, c.frostMammothCount, UnitClass.Heavy, SizeTier.Big, SizeTier.Big, false);
+        // 비행 손님
+        visit(boltTeranodonPrefab, Enemy.BoltTeranodon, c.boltTeranodonCount, UnitClass.Flyer, SizeTier.Mid, SizeTier.Mid, false);
+        visit(poisonPteraPrefab, Enemy.PoisonPtera, c.poisonPteraCount, UnitClass.Flyer, SizeTier.Mid, SizeTier.Mid, false);
+        visit(flamePteroPrefab, Enemy.FlamePterosaur, c.flamePteroCount, UnitClass.Flyer, SizeTier.Mid, SizeTier.Mid, false);
+        visit(overloadFlyPrefab, Enemy.OverloadFly, c.overloadFlyCount, UnitClass.Flyer, SizeTier.Small, SizeTier.Small, false);
+        // 그 밖: 원거리(선인장)는 따로 걸어오고, 지원형·힐러는 호위 행렬의 가운데에 서기도 한다
+        visit(oilCactusPrefab, Enemy.OilCactus, c.oilCactusCount, UnitClass.Other, SizeTier.Mid, SizeTier.Mid, false);
+        visit(magnetParasaurPrefab, Enemy.MagnetParasaur, c.magnetParasaurCount, UnitClass.Other, SizeTier.Big, SizeTier.Big, true);
+        visit(necroSpinoPrefab, Enemy.NecroSpino, c.necroSpinoCount, UnitClass.Other, SizeTier.Big, SizeTier.Big, true);
+    }
+
     private List<SpawnUnit> BuildRoster(WaveConfig c)
     {
         List<SpawnUnit> r = new List<SpawnUnit>();
-        // 달리는 손님 (작고 빠르다)
-        AddUnits(r, steamRaptorPrefab, Enemy.SteamRaptor, c.steamRaptorCount, UnitClass.Runner, SizeTier.Small, SizeTier.Small, false, c.waveNumber);
-        AddUnits(r, scorpionPrefab, Enemy.DesertScorpion, c.scorpionCount, UnitClass.Runner, SizeTier.Small, SizeTier.Small, false, c.waveNumber);
-        AddUnits(r, steelRaptorPrefab, Enemy.SteelRaptor, c.steelRaptorCount, UnitClass.Runner, SizeTier.Mid, SizeTier.Big, false, c.waveNumber);   // 머릿수는 중간, HP 는 큰 손님 취급 (기본 HP 150 + 방어 50 - 중간 배율까지 받으면 모사만큼 단단해진다)
-        // 큰 손님 (느리고 단단하다)
-        AddUnits(r, springAnkyloPrefab, Enemy.SpringAnkylo, c.springAnkyloCount, UnitClass.Heavy, SizeTier.Big, SizeTier.Big, false, c.waveNumber);
-        AddUnits(r, tortoisePrefab, Enemy.CopperTortoise, c.tortoiseCount, UnitClass.Heavy, SizeTier.Big, SizeTier.Big, false, c.waveNumber);
-        AddUnits(r, iceMosaPrefab, Enemy.IceMosa, c.iceMosaCount, UnitClass.Heavy, SizeTier.Big, SizeTier.Big, false, c.waveNumber);
-        AddUnits(r, crystalPachyPrefab, Enemy.CrystalPachy, c.crystalPachyCount, UnitClass.Heavy, SizeTier.Big, SizeTier.Big, false, c.waveNumber);
-        AddUnits(r, magmaCarnoPrefab, Enemy.MagmaCarno, c.magmaCarnoCount, UnitClass.Heavy, SizeTier.Big, SizeTier.Big, false, c.waveNumber);
-        AddUnits(r, frostMammothPrefab, Enemy.FrostMammoth, c.frostMammothCount, UnitClass.Heavy, SizeTier.Big, SizeTier.Big, false, c.waveNumber);
-        // 비행 손님
-        AddUnits(r, boltTeranodonPrefab, Enemy.BoltTeranodon, c.boltTeranodonCount, UnitClass.Flyer, SizeTier.Mid, SizeTier.Mid, false, c.waveNumber);
-        AddUnits(r, poisonPteraPrefab, Enemy.PoisonPtera, c.poisonPteraCount, UnitClass.Flyer, SizeTier.Mid, SizeTier.Mid, false, c.waveNumber);
-        AddUnits(r, flamePteroPrefab, Enemy.FlamePterosaur, c.flamePteroCount, UnitClass.Flyer, SizeTier.Mid, SizeTier.Mid, false, c.waveNumber);
-        AddUnits(r, overloadFlyPrefab, Enemy.OverloadFly, c.overloadFlyCount, UnitClass.Flyer, SizeTier.Small, SizeTier.Small, false, c.waveNumber);
-        // 그 밖: 원거리(선인장)는 따로 걸어오고, 지원형·힐러는 호위 행렬의 가운데에 서기도 한다
-        AddUnits(r, oilCactusPrefab, Enemy.OilCactus, c.oilCactusCount, UnitClass.Other, SizeTier.Mid, SizeTier.Mid, false, c.waveNumber);
-        AddUnits(r, magnetParasaurPrefab, Enemy.MagnetParasaur, c.magnetParasaurCount, UnitClass.Other, SizeTier.Big, SizeTier.Big, true, c.waveNumber);
-        AddUnits(r, necroSpinoPrefab, Enemy.NecroSpino, c.necroSpinoCount, UnitClass.Other, SizeTier.Big, SizeTier.Big, true, c.waveNumber);
+        int wave = c.waveNumber;
+        VisitRoster(c, delegate (GameObject prefab, Enemy.EnemyData data, int count, UnitClass cls, SizeTier tier, SizeTier hpTier, bool vip)
+        {
+            AddUnits(r, prefab, data, count, cls, tier, hpTier, vip, wave);
+        });
         return r;
     }
 
@@ -791,26 +793,117 @@ public class WaveManager : MonoBehaviour
     private void AddUnits(List<SpawnUnit> list, GameObject prefab, Enemy.EnemyData data, int count, UnitClass cls, SizeTier tier, SizeTier hpTier, bool vip, int wave)
     {
         if (count <= 0) return;
+        float hpMul, atkMul, share;
+        count = Expand(count, tier, hpTier, wave, out hpMul, out atkMul, out share);   // v6.31: 펼치는 식은 세기 합(SumRoster)과 같은 곳
+        for (int i = 0; i < count; i++)
+        {
+            SpawnUnit u = new SpawnUnit();
+            u.prefab = prefab; u.data = data; u.cls = cls; u.vip = vip;
+            u.hpMul = hpMul; u.atkMul = atkMul; u.share = share;
+            list.Add(u);
+        }
+    }
+
+    /// <summary>
+    /// v6.31: 구성표 count 마리를 펼친 마릿수와 한 마리 배율 (AddUnits 와 SumRoster 가 같은 식을 쓴다).
+    /// 초반 웨이브는 덜 건다: 편성이 시작되는 웨이브에 머릿수는 늘어나는 몫의 CountRampStart 만큼, 한 마리의 HP·공격력은 EarlyBodyStart 배 - CountRampWaves 웨이브에 걸쳐 끝까지
+    /// (포탑이 한두 기뿐인 웨이브 2 에 다 자란 손님 30마리가 오지 않게 - 웨이브 2 = 머릿수 2배·힘 0.7배, 웨이브 6 부터 3배·제 힘)
+    /// </summary>
+    private static int Expand(int count, SizeTier tier, SizeTier hpTier, int wave, out float hpMul, out float atkMul, out float share)
+    {
         float countMul = (tier == SizeTier.Small ? GameBalance.CountMulSmall : (tier == SizeTier.Mid ? GameBalance.CountMulMid : GameBalance.CountMulBig)) * HardMode.Mul(GameBalance.HardCountMul);   // v6.29: 하드 모드
         float tierHp = hpTier == SizeTier.Small ? GameBalance.TierHpMulSmall : (hpTier == SizeTier.Mid ? GameBalance.TierHpMulMid : GameBalance.TierHpMulBig);   // HP 등급은 머릿수 등급과 따로 받는다 (강철 랩터)
-        // 초반 웨이브는 덜 건다: 편성이 시작되는 웨이브에 머릿수는 늘어나는 몫의 CountRampStart 만큼, 한 마리의 HP·공격력은 EarlyBodyStart 배 - CountRampWaves 웨이브에 걸쳐 끝까지
-        // (포탑이 한두 기뿐인 웨이브 2 에 다 자란 손님 30마리가 오지 않게 - 웨이브 2 = 머릿수 2배·힘 0.7배, 웨이브 6 부터 3배·제 힘)
         float ramp = GameBalance.CountRampWaves > 0 ? Mathf.Clamp01((wave - GameBalance.WaveFormationFromWave) / (float)GameBalance.CountRampWaves) : 1f;
         countMul = 1f + (countMul - 1f) * Mathf.Lerp(Mathf.Clamp01(GameBalance.CountRampStart), 1f, ramp);
         float early = Mathf.Lerp(Mathf.Clamp(GameBalance.EarlyBodyStart, 0.1f, 1f), 1f, ramp);
-        float share = 1f;
+        share = 1f;
         if (countMul > 1.001f)
         {
             int more = Mathf.Max(count, Mathf.FloorToInt(count * countMul + 0.5f));
             share = Mathf.Max(0.05f, GameBalance.SwarmRewardMul) * count / (float)more;   // 보상·도구 부식의 합 = 구성표 x SwarmRewardMul
             count = more;
         }
-        for (int i = 0; i < count; i++)
+        hpMul = Mathf.Max(0.05f, tierHp) * early;
+        atkMul = early;
+        return count;
+    }
+
+    /// <summary>v6.31: 한 웨이브 손님 전체의 합 - 체력(물리 기준), 공격력, 처치 골드, 마릿수(구성표 - 재료·유물 기대값)</summary>
+    private class RosterSum { public float hp, atk, gold, count; }
+
+    /// <summary>
+    /// v6.31: 구성표 c 가 실제로 내보낼 손님의 합. StartWave 가 곱하는 전역 물량(WaveCountMul, ApplyRouteCounts 와 같은 반올림)과
+    /// 편성 웨이브의 펼치기(Expand)까지 그대로 - 체력은 물리 포탑이 깎아야 하는 양 = HP x (50 + 방어 x EnemyDefMul) / 50 (px/sim_map_route.py 와 같은 식)
+    /// </summary>
+    private RosterSum SumRoster(WaveConfig c)
+    {
+        RosterSum s = new RosterSum();
+        int wave = c.waveNumber;
+        bool formations = GameBalance.WaveFormationsOn && wave >= GameBalance.WaveFormationFromWave;
+        float defMul = GameBalance.EnemyDefMul * HardMode.Mul(GameBalance.HardEnemyDefMul);
+        VisitRoster(c, delegate (GameObject prefab, Enemy.EnemyData data, int count, UnitClass cls, SizeTier tier, SizeTier hpTier, bool vip)
         {
-            SpawnUnit u = new SpawnUnit();
-            u.prefab = prefab; u.data = data; u.cls = cls; u.vip = vip;
-            u.hpMul = Mathf.Max(0.05f, tierHp) * early; u.atkMul = early; u.share = share;
-            list.Add(u);
+            int n = ScaleCount(count, GameBalance.WaveCountMul);
+            if (n <= 0) return;
+            float hpMul = 1f, atkMul = 1f, share;
+            int units = formations ? Expand(n, tier, hpTier, wave, out hpMul, out atkMul, out share) : n;
+            float def, res;
+            Enemy.DefResOf(data.enemyName, out def, out res);
+            s.hp += data.baseHP * hpMul * (50f + def * defMul) / 50f * units;
+            s.atk += data.baseATK * atkMul * units;
+            s.gold += data.goldReward * n;
+            s.count += n;
+        });
+        return s;
+    }
+
+    /// <summary>
+    /// v6.31: 맵 구성표 config 의 한 마리 배율 - 지금 순서의 같은 웨이브(legacy)를 기준으로 그 합이 기준 x MapStronger* 가 되게 (범위 MapNorm*).
+    /// MapStronger* 는 섞은 운행에만 (첫 보스 전·프롤로그·섞기 꺼짐은 지금 순서 그대로의 세기). 체력·공격은 MapStatNormOn, 골드·재료는 MapRewardNormOn 이 따로 켠다
+    /// </summary>
+    private void SetMapNorms(ref WaveConfig config, WaveConfig legacy)
+    {
+        RosterSum want = SumRoster(legacy), have = SumRoster(config);
+        float moreHp = MapRoute.Shuffled ? GameBalance.MapStrongerHp : 1f;
+        float moreAtk = MapRoute.Shuffled ? GameBalance.MapStrongerAtk : 1f;
+        int w = config.waveNumber;
+        config.hpNorm = GameBalance.MapStatNormOn ? NormRatio(w, "체력", want.hp * moreHp, have.hp, GameBalance.MapNormHpMin, GameBalance.MapNormHpMax) : 1f;
+        config.atkNorm = GameBalance.MapStatNormOn ? NormRatio(w, "공격", want.atk * moreAtk, have.atk, GameBalance.MapNormAtkMin, GameBalance.MapNormAtkMax) : 1f;
+        config.goldNorm = GameBalance.MapRewardNormOn ? NormRatio(w, "골드", want.gold, have.gold, 0.1f, 10f) : 1f;
+        config.dropNorm = GameBalance.MapRewardNormOn ? NormRatio(w, "재료", want.count, have.count, 0.2f, 5f) : 1f;
+    }
+
+    private string normClampLog = "";   // 구성표 생성 로그 - 배율이 범위(MapNorm*)에 걸려 기준과 달라진 웨이브
+
+    private float NormRatio(int wave, string what, float want, float have, float lo, float hi)
+    {
+        if (have <= 0.0001f) return 1f;
+        float raw = want / have;
+        float v = Mathf.Clamp(raw, lo, hi);
+        if (v != raw) normClampLog += "  웨이브 " + wave + " " + what + " " + raw.ToString("0.00") + " -> " + v.ToString("0.##");
+        return v;
+    }
+
+    /// <summary>
+    /// v6.31 (v9.32): 웨이브 wave 손님 한 마리에 곱하는 맵 배율 - 체력 / 공격력 / 처치 골드 / 재료·유물 확률. Enemy.InitializeWithWaveScaling 이 부른다
+    /// (보스가 부른 손님도 그 웨이브 값을 받는다 - 녹슨 발톱이 3지역에 오면 부르는 랩터도 3지역 세기). 견습 운행·훈련장·프롤로그 웨이브는 전부 1,
+    /// MapStatNormOn false 면 체력·공격 1, MapRewardNormOn false 면 골드·재료 1 (SetMapNorms 가 그렇게 채운다)
+    /// </summary>
+    public static void MapNorms(int wave, out float hp, out float atk, out float gold, out float drop)
+    {
+        hp = 1f; atk = 1f; gold = 1f; drop = 1f;
+        if ((!GameBalance.MapStatNormOn && !GameBalance.MapRewardNormOn) || Instance == null || Instance.waveConfigs == null) return;
+        if (TutorialDirector.Active || TutorialDirector.SandboxActive) return;
+        if (Instance.prologueRun && wave == 1) return;
+        for (int i = 0; i < Instance.waveConfigs.Count; i++)
+        {
+            WaveConfig c = Instance.waveConfigs[i];
+            if (c.waveNumber != wave) continue;
+            if (c.hpNorm > 0f) hp = c.hpNorm;
+            if (c.atkNorm > 0f) atk = c.atkNorm;
+            if (c.goldNorm > 0f) gold = c.goldNorm;
+            if (c.dropNorm > 0f) drop = c.dropNorm;
+            return;
         }
     }
 
@@ -885,7 +978,7 @@ public class WaveManager : MonoBehaviour
         }
         Shuffle(runners); Shuffle(heavies); Shuffle(flyers); Shuffle(others);
 
-        int region = GameBalance.RegionOf(waveNumber);
+        int map = MapRoute.MapOfWave(waveNumber);   // v6.31: 편성 가중치는 맵의 성격 (사막 = 달리는 무리 / 협곡 = 하늘 / 광산 = 호위·포위)
         List<Beat> beats = new List<Beat>();
         Formation last = Formation.Scatter;
         int[] used = new int[8];                    // 이 웨이브에서 편성마다 몇 번 골랐나 (많이 고른 편성은 덜 고른다)
@@ -893,7 +986,7 @@ public class WaveManager : MonoBehaviour
         while (runners.Count + heavies.Count + flyers.Count + others.Count > 0 && guard++ < 120)
         {
             int vips = CountVip(others);
-            Formation f = PickFormation(region, waveNumber, runners.Count, heavies.Count, flyers.Count, others.Count, vips, last, used);
+            Formation f = PickFormation(map, waveNumber, runners.Count, heavies.Count, flyers.Count, others.Count, vips, last, used);
             Beat beat = new Beat();
             beat.formation = f;
             switch (f)
@@ -1010,16 +1103,17 @@ public class WaveManager : MonoBehaviour
     /// (구리 사막 = 파상·추격·매복 / 테슬라 협곡 = 공중 편대·양동 / 코발트 광산 = 호위 행렬·포위).
     /// 바로 앞에 고른 편성은 1/4 로, 이 웨이브에서 이미 n 번 고른 편성은 1/(1+n) 로 덜 고른다 (한 웨이브가 매복만 네 번 나오지 않게)
     /// </summary>
-    private Formation PickFormation(int region, int wave, int runners, int heavies, int flyers, int others, int vips, Formation last, int[] used)
+    private Formation PickFormation(int map, int wave, int runners, int heavies, int flyers, int others, int vips, Formation last, int[] used)
     {
+        bool desert = map == MapRoute.Desert, canyon = map == MapRoute.Canyon, mine = map == MapRoute.Mine;   // v6.31: 예전 지역 1 · 2 · 3 의 가중치를 맵이 가져간다
         float[] w = new float[7];
-        if (Unlocked(Formation.Chase, wave) && runners >= 4) w[(int)Formation.Chase] = region == 1 ? 3f : 2f;
-        if (Unlocked(Formation.Lines, wave) && (runners >= 6 || heavies >= 3 || flyers >= 6)) w[(int)Formation.Lines] = region == 1 ? 4f : 2f;
-        if (Unlocked(Formation.Ambush, wave) && runners >= 3) w[(int)Formation.Ambush] = region == 1 ? 3f : 2f;
-        if (Unlocked(Formation.Escort, wave) && (heavies >= 1 || vips >= 1) && runners >= 3) w[(int)Formation.Escort] = region == 3 ? 8f : 3f;
-        if (Unlocked(Formation.Pincer, wave) && (runners + heavies >= 4 || flyers >= 4)) w[(int)Formation.Pincer] = region == 2 ? 4f : 2f;
-        if (Unlocked(Formation.Encircle, wave) && (runners + heavies >= 6 || flyers >= 6)) w[(int)Formation.Encircle] = region == 3 ? 4f : 2f;
-        if (Unlocked(Formation.VFlight, wave) && flyers >= 3) w[(int)Formation.VFlight] = region == 2 ? 5f : 3f;
+        if (Unlocked(Formation.Chase, wave) && runners >= 4) w[(int)Formation.Chase] = desert ? 3f : 2f;
+        if (Unlocked(Formation.Lines, wave) && (runners >= 6 || heavies >= 3 || flyers >= 6)) w[(int)Formation.Lines] = desert ? 4f : 2f;
+        if (Unlocked(Formation.Ambush, wave) && runners >= 3) w[(int)Formation.Ambush] = desert ? 3f : 2f;
+        if (Unlocked(Formation.Escort, wave) && (heavies >= 1 || vips >= 1) && runners >= 3) w[(int)Formation.Escort] = mine ? 8f : 3f;
+        if (Unlocked(Formation.Pincer, wave) && (runners + heavies >= 4 || flyers >= 4)) w[(int)Formation.Pincer] = canyon ? 4f : 2f;
+        if (Unlocked(Formation.Encircle, wave) && (runners + heavies >= 6 || flyers >= 6)) w[(int)Formation.Encircle] = mine ? 4f : 2f;
+        if (Unlocked(Formation.VFlight, wave) && flyers >= 3) w[(int)Formation.VFlight] = canyon ? 5f : 3f;
 
         float total = 0f;
         for (int i = 0; i < w.Length; i++)
@@ -2145,11 +2239,11 @@ public class WaveManager : MonoBehaviour
         aliveEnemyCount++;
         Debug.Log("[WaveManager] 보스 메카 티렉스 등장!");
 
-        // v6.9: 보스 첫 등장 카드 (HP 바가 뜨는 순간 = 스폰. 종류는 BossEnemy.Start 와 같은 지역 규칙)
+        // v6.9: 보스 첫 등장 카드 (HP 바가 뜨는 순간 = 스폰. 종류는 BossEnemy.Start 와 같은 맵 규칙 - v6.31 노선)
         if (GameBalance.FirstEncounterBriefings && !TutorialDirector.Active)
         {
-            int region = GameBalance.RegionOf(currentWaveNumber);
-            BriefingUI.ShowOnce("boss_" + region, BriefingTexts.Boss(region));
+            int kindNo = (int)MapRoute.BossOf(MapRoute.MapOfWave(currentWaveNumber)) + 1;   // 1 녹슨 발톱 · 2 천둥 둥지 · 3 동면자 · 4 디 오리지널 (id 는 예전과 같다)
+            BriefingUI.ShowOnce("boss_" + kindNo, BriefingTexts.Boss(kindNo));
         }
     }
 
@@ -2637,15 +2731,19 @@ public class WaveManager : MonoBehaviour
             UIManager.Instance?.ShowStatChange("[비상 식량 창고] 무작위 재료 +" + AugmentManager.ClearMatBonus);
         }
 
-        // v6: 지역 기반 우선순위 목록 구성
-        int region = GameBalance.RegionOf(waveNum);
+        // v6: 지역 기반 우선순위 목록 구성. v6.31 (v9.32): 다음 웨이브의 맵 기준 - 노선이 섞이면 사막이 아닌 맵에선 고기가 안 떨어지니 끝에 고기
+        int map = MapRoute.MapOfWave(waveNum + 1);
         MaterialType[] priority;
-        if (region == 1)
+        if (map == MapRoute.Desert)
             priority = new MaterialType[] { MaterialType.Meat, MaterialType.Fire };
-        else if (region == 2)
+        else if (map == MapRoute.Canyon)
             priority = new MaterialType[] { MaterialType.Elec, MaterialType.Poison, MaterialType.Meat };
+        else if (map == MapRoute.Mine)
+            priority = GameBalance.IsBossWave(waveNum + 1)   // 동면자 앞 정차: 빙하 갑주를 녹일 화염꽃부터 (광산이 1지역이면 사막의 화염꽃을 못 모았다)
+                ? new MaterialType[] { MaterialType.Fire, MaterialType.Ice, MaterialType.Armor, MaterialType.Meat }
+                : new MaterialType[] { MaterialType.Ice, MaterialType.Armor, MaterialType.Fire, MaterialType.Meat };
         else
-            priority = new MaterialType[] { MaterialType.Ice, MaterialType.Armor, MaterialType.Fire };
+            priority = new MaterialType[] { MaterialType.Fire, MaterialType.Poison, MaterialType.Meat };
 
         for (int i = 0; i < priority.Length; i++)
         {
@@ -2701,66 +2799,136 @@ public class WaveManager : MonoBehaviour
     private void GenerateDefaultWaveConfigs(int totalWaves)
     {
         waveConfigs = new List<WaveConfig>();
+        normClampLog = "";
 
         for (int i = 1; i <= totalWaves; i++)
         {
-            WaveConfig config = new WaveConfig();
-            config.waveNumber = i;
-            config.spawnInterval = Mathf.Max(0.3f, 1.0f - (i * 0.03f));
-            config.difficultyL = GameBalance.EnemyDifficultyL; // 난이도 계수 (GameBalance에서 조정)
-            config.hasBoss = GameBalance.IsBossWave(i);        // 각 지역 마지막 + 최종전
-
-            int region = GameBalance.RegionOf(i);
-            float p = GameBalance.RegionProgress(i);           // 지역 내 진행도 0~1
-
-            if (region == 1)
-            {
-                // 지역 1: 구리 사막 - 물리 물량 + 러시. 도구 파괴꾼(전갈)로 정비 압박
-                config.steamRaptorCount = 3 + Mathf.RoundToInt(p * 12f);       // 4~15 (6+ 시 무리 러시)
-                config.springAnkyloCount = p >= 0.4f ? Mathf.RoundToInt(p * 4f) : 0;
-                config.oilCactusCount = p >= 0.6f ? Mathf.RoundToInt(p * 3f) : 0;
-                config.scorpionCount = p >= 0.5f ? Mathf.RoundToInt(p * 2f) : 0;
-                config.tortoiseCount = p >= 0.85f ? 1 : 0;
-            }
-            else if (region == 2)
-            {
-                // 지역 2: 테슬라 협곡 - 전기/독/공중. 조리 방해(프테라)와 원거리전 강제
-                config.steamRaptorCount = 4;
-                config.boltTeranodonCount = 1 + Mathf.RoundToInt(p * 5f);
-                config.poisonPteraCount = p >= 0.3f ? Mathf.RoundToInt(p * 3f) : 0;
-                config.overloadFlyCount = p >= 0.5f ? Mathf.RoundToInt(p * 4f) : 0;
-                config.magnetParasaurCount = p >= 0.75f ? 1 : 0;
-                config.steelRaptorCount = p >= 0.4f ? Mathf.RoundToInt(p * 2f) : 0;
-                config.flamePteroCount = p >= 0.6f ? Mathf.RoundToInt(p * 2f) : 0;
-            }
-            else if (region == 3)
-            {
-                // 지역 3: 코발트 광산 - 냉기/장갑 정예 + 힐러. 속성 대응과 집중 사격 강제
-                config.steamRaptorCount = 3;
-                config.boltTeranodonCount = 2;
-                config.iceMosaCount = 1 + Mathf.RoundToInt(p * 3f);
-                config.crystalPachyCount = p >= 0.35f ? Mathf.RoundToInt(p * 2f) : 0;
-                config.magmaCarnoCount = p >= 0.55f ? Mathf.RoundToInt(p * 2f) : 0;
-                config.frostMammothCount = p >= 0.85f ? 1 : 0;
-                config.steelRaptorCount = 2;
-                config.necroSpinoCount = p >= 0.5f ? (p >= 0.9f ? 2 : 1) : 0;
-            }
-            else
-            {
-                // 최종전: 정예 호위 소수 + 최종 보스
-                config.iceMosaCount = 2;
-                config.magmaCarnoCount = 2;
-                config.steelRaptorCount = 2;
-                config.necroSpinoCount = 1;
-            }
-
+            // v6.31 (v9.32): 이 자리에 놓인 맵의 제 손님만 (MapConfig). 세기는 지금 순서의 같은 웨이브(LegacyConfig)에 맞춘다 (SetMapNorms)
+            WaveConfig config = MapConfig(MapRoute.MapOfWave(i), i);
+            if (GameBalance.MapStatNormOn || GameBalance.MapRewardNormOn) SetMapNorms(ref config, LegacyConfig(i));
             waveConfigs.Add(config);
         }
 
         Debug.Log("[WaveManager] " + totalWaves + "웨이브 구성 생성 완료 (지역 길이 "
             + GameBalance.RegionLength + ", 보스 " + GameBalance.RegionLength + "/"
             + (GameBalance.RegionLength * 2) + "/" + (GameBalance.RegionLength * 3)
-            + ", 최종전 " + GameBalance.FinalWave + ")");
+            + ", 최종전 " + GameBalance.FinalWave + ", 노선 " + MapRoute.RouteText() + (MapRoute.Shuffled ? " 무작위" : " 지금 순서") + ")");
+        if (normClampLog.Length > 0)   // 이 웨이브들은 기준과 세기가 다르다 - 값 맞출 때 GameBalance.MapNorm* 범위나 구성표를 본다
+            Debug.Log("[WaveManager] 맵 배율이 범위에 걸린 곳:" + normClampLog);
+    }
+
+    /// <summary>v6.31: 웨이브 기본값 (손님 수는 0)</summary>
+    private static WaveConfig NewConfig(int i)
+    {
+        WaveConfig config = new WaveConfig();
+        config.waveNumber = i;
+        config.spawnInterval = Mathf.Max(0.3f, 1.0f - (i * 0.03f));
+        config.difficultyL = GameBalance.EnemyDifficultyL; // 난이도 계수 (GameBalance에서 조정)
+        config.hasBoss = GameBalance.IsBossWave(i);        // 각 지역 마지막 + 최종전
+        config.map = MapRoute.MapOfWave(i);
+        return config;
+    }
+
+    /// <summary>
+    /// v6.31 (v9.32): 맵 map 의 구성표 - 그 맵의 손님만 나온다 (유저 10-22 "맵별로 나오는 기본 몬스터들도 다 다르게"). p = 그 자리 안의 진행도 (0 ~ 1).
+    /// 같은 맵은 몇 번째 자리에 오든 같은 구성이고 세기만 자리를 따른다 (SetMapNorms). 숫자는 px/sim_map_route.py 와 같다
+    /// </summary>
+    private static WaveConfig MapConfig(int map, int i)
+    {
+        WaveConfig config = NewConfig(i);
+        config.map = map;
+        float p = GameBalance.RegionProgress(i);           // 자리 안 진행도 0~1
+        if (map == MapRoute.Desert)
+        {
+            // 구리 사막 (녹슨 발톱) - 물리 물량 + 러시. 도구 파괴꾼(전갈)로 정비 압박. 예전 지역 1 그대로
+            config.steamRaptorCount = 3 + Mathf.RoundToInt(p * 12f);       // 4~15 (6+ 시 무리 러시)
+            config.springAnkyloCount = p >= 0.4f ? Mathf.RoundToInt(p * 4f) : 0;
+            config.oilCactusCount = p >= 0.6f ? Mathf.RoundToInt(p * 3f) : 0;
+            config.scorpionCount = p >= 0.5f ? Mathf.RoundToInt(p * 2f) : 0;
+            config.tortoiseCount = p >= 0.85f ? 1 : 0;
+        }
+        else if (map == MapRoute.Canyon)
+        {
+            // 테슬라 협곡 (천둥 둥지) - 하늘 맵: 날개 달린 손님 + 지원형. 예전 지역 2 에서 스팀 랩터·강철 랩터를 빼고 볼트 테라노돈이 그 자리를 채운다
+            config.boltTeranodonCount = 2 + Mathf.RoundToInt(p * 6f);
+            config.poisonPteraCount = p >= 0.3f ? Mathf.RoundToInt(p * 3f) : 0;
+            config.overloadFlyCount = p >= 0.45f ? Mathf.RoundToInt(p * 4f) : 0;
+            config.flamePteroCount = p >= 0.55f ? Mathf.RoundToInt(p * 3f) : 0;
+            config.magnetParasaurCount = p >= 0.75f ? 1 : 0;
+        }
+        else if (map == MapRoute.Mine)
+        {
+            // 코발트 광산 (동면자) - 장갑 맵: 강철 랩터가 무리, 냉기·장갑 정예 + 힐러. 예전 지역 3 에서 스팀 랩터·볼트 테라노돈을 빼고, 첫 웨이브는 강철 랩터만
+            config.steelRaptorCount = 3 + Mathf.RoundToInt(p * 4f);       // 3~7 (첫 웨이브도 무리가 된다)
+            config.iceMosaCount = p >= 0.25f ? 1 + Mathf.RoundToInt(p * 3f) : 0;
+            config.crystalPachyCount = p >= 0.35f ? Mathf.RoundToInt(p * 2f) : 0;
+            config.magmaCarnoCount = p >= 0.55f ? Mathf.RoundToInt(p * 2f) : 0;
+            config.frostMammothCount = p >= 0.85f ? 1 : 0;
+            config.necroSpinoCount = p >= 0.5f ? (p >= 0.9f ? 2 : 1) : 0;
+        }
+        else
+        {
+            // 최종전 (황야의 끝) - 세 맵의 정예가 하나씩 + 최종 보스
+            config.springAnkyloCount = 2;
+            config.flamePteroCount = 2;
+            config.magmaCarnoCount = 2;
+            config.steelRaptorCount = 2;
+            config.necroSpinoCount = 1;
+        }
+        return config;
+    }
+
+    /// <summary>
+    /// v6.31: 지금 순서(v9.31 까지)의 구성표 - 세기의 기준으로만 쓴다 (스폰하지 않는다). 지역 길이가 바뀌어도(테스트 3 / 정식 8) 물량 곡선이 유지되도록
+    /// "지역 내 진행도 p(0~1)" 기준으로 계산한다. 다음 지역에도 앞 지역 손님이 섞여 나왔다 (스팀 랩터 · 볼트 테라노돈 · 강철 랩터)
+    /// </summary>
+    private static WaveConfig LegacyConfig(int i)
+    {
+        WaveConfig config = NewConfig(i);
+        int region = GameBalance.RegionOf(i);
+        float p = GameBalance.RegionProgress(i);           // 지역 내 진행도 0~1
+
+        if (region == 1)
+        {
+            // 지역 1: 구리 사막 - 물리 물량 + 러시. 도구 파괴꾼(전갈)로 정비 압박
+            config.steamRaptorCount = 3 + Mathf.RoundToInt(p * 12f);       // 4~15 (6+ 시 무리 러시)
+            config.springAnkyloCount = p >= 0.4f ? Mathf.RoundToInt(p * 4f) : 0;
+            config.oilCactusCount = p >= 0.6f ? Mathf.RoundToInt(p * 3f) : 0;
+            config.scorpionCount = p >= 0.5f ? Mathf.RoundToInt(p * 2f) : 0;
+            config.tortoiseCount = p >= 0.85f ? 1 : 0;
+        }
+        else if (region == 2)
+        {
+            // 지역 2: 테슬라 협곡 - 전기/독/공중. 조리 방해(프테라)와 원거리전 강제
+            config.steamRaptorCount = 4;
+            config.boltTeranodonCount = 1 + Mathf.RoundToInt(p * 5f);
+            config.poisonPteraCount = p >= 0.3f ? Mathf.RoundToInt(p * 3f) : 0;
+            config.overloadFlyCount = p >= 0.5f ? Mathf.RoundToInt(p * 4f) : 0;
+            config.magnetParasaurCount = p >= 0.75f ? 1 : 0;
+            config.steelRaptorCount = p >= 0.4f ? Mathf.RoundToInt(p * 2f) : 0;
+            config.flamePteroCount = p >= 0.6f ? Mathf.RoundToInt(p * 2f) : 0;
+        }
+        else if (region == 3)
+        {
+            // 지역 3: 코발트 광산 - 냉기/장갑 정예 + 힐러. 속성 대응과 집중 사격 강제
+            config.steamRaptorCount = 3;
+            config.boltTeranodonCount = 2;
+            config.iceMosaCount = 1 + Mathf.RoundToInt(p * 3f);
+            config.crystalPachyCount = p >= 0.35f ? Mathf.RoundToInt(p * 2f) : 0;
+            config.magmaCarnoCount = p >= 0.55f ? Mathf.RoundToInt(p * 2f) : 0;
+            config.frostMammothCount = p >= 0.85f ? 1 : 0;
+            config.steelRaptorCount = 2;
+            config.necroSpinoCount = p >= 0.5f ? (p >= 0.9f ? 2 : 1) : 0;
+        }
+        else
+        {
+            // 최종전: 정예 호위 소수 + 최종 보스
+            config.iceMosaCount = 2;
+            config.magmaCarnoCount = 2;
+            config.steelRaptorCount = 2;
+            config.necroSpinoCount = 1;
+        }
+        return config;
     }
 
     // ─────────────────────────────────────────────

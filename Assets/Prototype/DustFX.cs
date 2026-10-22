@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// [DustFX.cs] v1.2 (v9.24 2026-10-15: 바퀴 먼지가 갈림길에서 꺾인 칸 자리에서 핀다 - TrainDeck.RidePos (덜컹임 없이)) / v1.1 (v9.19.1 2026-10-07: 손님 수가 두세 배로 늘었다 - 풀 48 -> 96, 움직이는 손님이 많으면 번갈아 가며 먼지를 낸다(한 번에 16마리쯤). 안 그러면 손님 먼지가 풀을 다 써서 바퀴 먼지가 끊긴다) / v1 (신규 파일) - 탑다운 먼지 퍼프 연출 (2026-09-07, Apocalypse Express 문법)
+/// [DustFX.cs] v1.3 (v9.32 2026-10-22 노선: 먼지 = 지금 땅의 맵 것 (ParallaxBackground.CurrentMap) - dust_canyon·mine·final_0 ~ 3 (px/dust_maps.py 로 그린 잿빛 남색·눈·재), 없으면 dust_0 ~ 3 에 MapRoute.DustTint 를 곱한다. 퍼프마다 제 그림 묶음을 들고 끝까지) / v1.2 (v9.24 2026-10-15: 바퀴 먼지가 갈림길에서 꺾인 칸 자리에서 핀다 - TrainDeck.RidePos (덜컹임 없이)) / v1.1 (v9.19.1 2026-10-07: 손님 수가 두세 배로 늘었다 - 풀 48 -> 96, 움직이는 손님이 많으면 번갈아 가며 먼지를 낸다(한 번에 16마리쯤). 안 그러면 손님 먼지가 풀을 다 써서 바퀴 먼지가 끊긴다) / v1 (신규 파일) - 탑다운 먼지 퍼프 연출 (2026-09-07, Apocalypse Express 문법)
 ///
 /// Resources/Sprites/WDT/dust_0 ~ dust_3 (24x24, 작고 진함 -> 크고 옅음) 4프레임을 짧게 재생하는 퍼프를 풀에서 꺼내 쓴다.
 ///   1) 기차 바퀴 먼지: 지면이 흐르는 동안(ParallaxBackground.CurrentSpeed > 0.5) 기차 위아래 바퀴선(y = ±WHEEL_Y)에
@@ -40,6 +40,7 @@ public class DustFX : MonoBehaviour
         public float life;
         public Vector3 vel;
         public bool active;
+        public Sprite[] set;       // v1.3: 이 퍼프의 그림 4장 (생길 때 맵 것 - 맵이 바뀌어도 끝까지 같은 묶음)
     }
 
     private readonly List<PuffItem> pool = new List<PuffItem>();
@@ -74,9 +75,34 @@ public class DustFX : MonoBehaviour
         if (instance != null && instance != this) { Destroy(gameObject); return; }
         instance = this;
         frames = new Sprite[4];
-        for (int i = 0; i < 4; i++) frames[i] = SpriteBank.Get("dust_" + i);
+        for (int i = 0; i < 4; i++) frames[i] = SpriteBank.Get("dust_" + i);   // 사막 (기본)
         SceneManager.sceneLoaded += OnSceneLoaded;
         Debug.Log("[DustFX] 먼지 퍼프 연출 준비 (풀 " + MAX_PUFFS + ")");
+    }
+
+    // ── v1.3 (v9.32): 맵마다 먼지 그림 ──
+    private readonly Dictionary<int, Sprite[]> mapFrames = new Dictionary<int, Sprite[]>();
+
+    /// <summary>맵 map 의 먼지 4장. own = 그 맵 그림이 있다 (색을 안 곱한다). 없으면 사막 그림</summary>
+    private Sprite[] FramesFor(int map, out bool own)
+    {
+        own = false;
+        if (map != MapRoute.Canyon && map != MapRoute.Mine && map != MapRoute.Final) return frames;
+        Sprite[] set;
+        if (!mapFrames.TryGetValue(map, out set))
+        {
+            set = null;
+            string key = "dust_" + MapRoute.Key(map) + "_";
+            if (SpriteBank.Has(key + "0"))
+            {
+                set = new Sprite[4];
+                for (int i = 0; i < 4; i++) { Sprite sp = SpriteBank.Get(key + i); set[i] = sp != null ? sp : frames[i]; }   // 유니티 오브젝트는 ?? 로 비교하지 않는다
+            }
+            mapFrames[map] = set;
+        }
+        if (set == null) return frames;
+        own = true;
+        return set;
     }
 
     private void OnDestroy()
@@ -199,8 +225,12 @@ public class DustFX : MonoBehaviour
         p.sr.transform.position = pos;
         p.sr.transform.localScale = new Vector3(scale, scale, 1f);
         p.sr.flipX = Random.value < 0.5f;
-        p.sr.sprite = frames[0];
-        p.sr.color = new Color(1f, 1f, 1f, 0.9f);
+        int map = ParallaxBackground.CurrentMap;   // v1.3: 맵마다 먼지
+        bool own;
+        p.set = FramesFor(map, out own);
+        p.sr.sprite = p.set[0];
+        Color dustTint = own ? Color.white : MapRoute.DustTint(map);
+        p.sr.color = new Color(dustTint.r, dustTint.g, dustTint.b, 0.9f);
         p.sr.enabled = true;
     }
 
@@ -214,7 +244,7 @@ public class DustFX : MonoBehaviour
             if (p.age >= p.life) { p.active = false; p.sr.enabled = false; continue; }
             float t = p.age / p.life;
             int f = Mathf.Min(3, Mathf.FloorToInt(t * 4f));
-            p.sr.sprite = frames[f];
+            p.sr.sprite = (p.set != null ? p.set : frames)[f];
             p.sr.transform.position += p.vel * dt;
             Color c = p.sr.color; c.a = 0.9f * (1f - t * t); p.sr.color = c;
         }

@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// [StationStop.cs] v1 - 정차역 라이트 (감사 3-C: "마을에 들렀다는 감각이 없다")
+/// [StationStop.cs] v1.1 (v9.32 2026-10-22 노선: 간이역 이름은 그 웨이브의 맵을 따른다 - MapRoute) / v1 - 정차역 라이트 (감사 3-C: "마을에 들렀다는 감각이 없다")
 ///
 /// 웨이브 사이의 마을(Town)을 '간이역 정차'로 연출한다. 새 시스템 없이
 /// 이미 있는 것들(배경 스크롤 / 기적 / 배너 / 정비소 / 행상인)을 정차 리듬으로 묶는다.
@@ -126,12 +126,12 @@ public class StationStop : MonoBehaviour
     private string PickStationName()
     {
         int wave = GameManager.Instance != null ? GameManager.Instance.currentWave : 1;
-        int region = GameBalance.RegionOf(wave);
+        int map = MapRoute.MapOfWave(wave);   // v1.1: 자리가 아니라 맵 (노선이 섞인다)
 
         string[] pool;
-        if (region <= 1) pool = REGION1_STATIONS;
-        else if (region == 2) pool = REGION2_STATIONS;
-        else pool = REGION3_STATIONS;
+        if (map == MapRoute.Canyon) pool = REGION2_STATIONS;
+        else if (map == MapRoute.Mine || map == MapRoute.Final) pool = REGION3_STATIONS;
+        else pool = REGION1_STATIONS;
 
         int idx = (stopCount - 1) % pool.Length;
         if (idx < 0) idx = 0;

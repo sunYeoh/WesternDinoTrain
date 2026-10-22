@@ -4,7 +4,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 /// <summary>
-/// [KitchenPanel.cs] v3.2 (v9.31 2026-10-21 급식 조리: 되는 요리 상자 아래 [1] 1인분 [2] 2인분 [3] 3인분 칩 (키 1~3, 최대 인분 CookingBridge.MaxPortions - 지역 2 부터 2, 지역 3 부터 3. 1 이면 칩 없음). 고른 인분만큼 재료를 쓰고 "2개 나온다 (PERFECT 4개)", 모자란 재료 수도 인분으로. 창을 열면 1인분부터) / v3.1 (v9.26 2026-10-16 마감 정리: Tab 키 · 합성 탭(BuildFuseTab) · 옛 요리 카드 격자 조리 탭(BuildCookTab · BuildRecipeGrid) 코드 삭제 - 스위치로 꺼 두었던 것. 탭 = 조리 · 도감, 번호 0 · 1) / v3.0 (v9.22 2026-10-14 조작 팩 2-1 ~ 2-3: 조리 탭을 재료 중심으로(BuildMaterialTab - 재료 6칸을 끌어다(또는 눌러) 두 칸에 올리면 되는 요리·역할·조리법이 뜨고 정해진 조리법 하나만 불이 들어온다, 아래 "이 조리대에서 되는 요리" 목록은 누르면 두 칸이 채워진다, GameBalance.KitchenMaterialFirst) /
+/// [KitchenPanel.cs] v3.3 (v9.32 2026-10-22 노선: "3인분은 지역 3부터" - 지역마다 맵이 바뀌니 맵 이름을 뺐다) / v3.2 (v9.31 2026-10-21 급식 조리: 되는 요리 상자 아래 [1] 1인분 [2] 2인분 [3] 3인분 칩 (키 1~3, 최대 인분 CookingBridge.MaxPortions - 지역 2 부터 2, 지역 3 부터 3. 1 이면 칩 없음). 고른 인분만큼 재료를 쓰고 "2개 나온다 (PERFECT 4개)", 모자란 재료 수도 인분으로. 창을 열면 1인분부터) / v3.1 (v9.26 2026-10-16 마감 정리: Tab 키 · 합성 탭(BuildFuseTab) · 옛 요리 카드 격자 조리 탭(BuildCookTab · BuildRecipeGrid) 코드 삭제 - 스위치로 꺼 두었던 것. 탭 = 조리 · 도감, 번호 0 · 1) / v3.0 (v9.22 2026-10-14 조작 팩 2-1 ~ 2-3: 조리 탭을 재료 중심으로(BuildMaterialTab - 재료 6칸을 끌어다(또는 눌러) 두 칸에 올리면 되는 요리·역할·조리법이 뜨고 정해진 조리법 하나만 불이 들어온다, 아래 "이 조리대에서 되는 요리" 목록은 누르면 두 칸이 채워진다, GameBalance.KitchenMaterialFirst) /
 ///   [Tab] 전체 보기는 KitchenTabKey(false) 로 끔 - 조리 창은 조리대 [E] 로만 / 합성 탭은 KitchenFuseTab(false) 로 뺌 - 요리끼리는 하단 카드 끌어다 놓기 / 키 커서 [WASD]+[E] 는 목록에서) / v2.12 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v2.11 (v9.21.1 2026-10-13 4차 피드백 2번: 합성 탭의 접시 합성이 진화 조리 미니게임을 거친다 - 시작하면 창을 닫는다(미니게임이 보이게), 진화 조리 중엔 Tab 토글 금지. 버튼 "합성!" -> "진화 조리") / v2.10 (v9.18 2026-10-06: 창(1240x900)이 기준 화면보다 크면 화면 안으로 줄인다 - UIFactory.FitScale. UI 배율 1.2 에서 창 높이가 화면 높이와 같아져 테가 잘렸다) / v2.9 (v9.16 2026-09-29 손맛 2차 - 소리: 닫힘 sfx_ui_close. 열림은 ModalFeel) / v2.8 (v9.15 2026-09-29 2차 피드백 "마우스와 WASD 혼용": 조리 탭 카드 격자에 키 커서 - [WASD]/방향키로 고르고 [E]/[Enter] 로 조리 시작. 마우스는 그대로 (GameBalance.KitchenKeyCursor)) / v2.7 (v9.14 2026-09-28: 설명에서 맛 문구 제외) / v2.6 (v9.11.1 2026-09-22 문구: 기본/전설 요리) / v2.5 (v9.11 2026-09-22: 등장 연출 ModalFeel) / v2.4 (v9.10.1 2026-09-21: 재료 이름 MaterialNames 한 곳 / 안내줄에 정차 조리 남은 횟수(CookingBridge.StopCookHint)) / v2.3 (v9.10 2026-09-17 테스터 피드백: [ESC] 로도 닫힘(단축키로 열고 ESC 로 닫기) / 행상인·베팅·선로 창 중 Tab 금지 / 도감 카드 클릭 = 오른쪽 상세(무엇을 하나·어떤 손님에·언제, RecipeText)) / v2.2 (v9.8 재료 아이콘) / v2.1
 /// 주방 창 (uGUI 코드 생성) - 조리 / 도감 2탭. 조리대 앞 [E] 로 연다 (그 조리대 요리만 - OpenForStation)
 /// GameSystems 오브젝트에 부착
@@ -130,14 +130,14 @@ public class KitchenPanel : MonoBehaviour
         if (matDragging < 0) Refresh();
     }
 
-    /// <summary>n 인분이 처음 되는 지역 이름 (BatchPortionsByRegion 에서) - "코발트 광산(지역 3)"</summary>
+    /// <summary>n 인분이 처음 되는 자리 (BatchPortionsByRegion 에서) - "지역 3". v3.3: 노선이 섞여 자리마다 맵이 바뀌니 이름은 안 쓴다</summary>
     private static string PortionRegionWord(int n)
     {
         int[] table = GameBalance.BatchPortionsByRegion;
         if (table != null)
             for (int r = 0; r < table.Length; r++)
                 if (table[r] >= n)
-                    return (r == 0 ? "구리 사막" : r == 1 ? "테슬라 협곡" : r == 2 ? "코발트 광산" : "최종전") + "(지역 " + (r + 1) + ")";
+                    return r >= 3 ? "최종전" : "지역 " + (r + 1);
         return "다음 지역";
     }
 

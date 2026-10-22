@@ -1,8 +1,9 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// [ParallaxBackground.cs] v4.4 (v9.24 2026-10-15 갈림길 칸 꺾임 - 테스터피드백3 D1~D3 + 클라이맥스 B4: 세계를 미는 기준을 두상 앞 -> 기차 가운데(주방 칸, GameBalance.ForkWorldRefX)로 옮기고 TrackYAt 으로 기차 x 밑 선로 높이를 내준다 - TrainDeck 이 칸마다 앞뒤 바퀴가 밟은 높이로 칸을 꺾는다 / ForkFollowActive = 분기점 출발부터 마지막 칸 뒷바퀴까지 평행이 될 때까지 (WaveManager 가 첫 손님을 기다린다) / 넘는 동안 배경 ForkDepartBoost 배 (34u 를 3.2u/s 로 가면 12초라서) / 칸마다 앞바퀴가 분기점을 밟으면 sfx_fork_clank + 작은 흔들림 / 칸이 직접 꺾이니 화면 기울임은 ForkRollMul(0) / SetClimaxBoost - 클라이맥스 배경 가속) / v4.3 (v9.21 2026-10-12 보스 1단계: SideRail - 디 오리지널(맞수 열차)이 달릴 두 번째 선로. rails_ae 한 줄을 본선과 같은 오프셋으로 y 자리에 깔고(본선과 같이 흐른다) 위에서 미끄러져 내려와 자리 잡는다, SideRailOff 로 흐려지며 걷는다) / v4.2 (v9.13 2026-09-23: 선로 v2 갈림길 + 세계 밀림) / v4.1 - 완전 탑다운 지면 (2026-09-07) / v3 고퀄 PNG 지면 / v2 탑뷰 지면 스크롤
+/// [ParallaxBackground.cs] v4.5 (v9.32 2026-10-22 맵 그림 자리 (그림은 유저가 만든다 - claude/맵_그림_프롬프트_2026-10-22.md): SetMap(맵) - Resources/Sprites/WDT/ground_(desert·canyon·mine·final).png 가 있으면 땅 타일마다 다음 그림을 겹쳐 MapGroundFadeSec 에 걸쳐 바꾸고 그 그림엔 지역 색을 안 입힌다 (없으면 ground_ae + 지역 색 그대로, 운행의 첫 지역은 바로, 같은 맵이면 그대로). deco_(맵)_1 ~ 6.png 가 있으면 땅 타일마다 MapDecoPerTile 개를 깔아 땅과 같이 흐른다 (같은 열은 같은 배치 - 세로로 감겨도 안 튄다). 기차가 달리는 선로(월드 y 0)와 보스전 두 번째 선로의 위아래 MapDecoClearY 에 든 소품은 매 프레임 숨긴다 - 갈림길에서 땅이 세로로 밀려도 (PaintDeco). 소품 색은 땅을 따른다. CurrentMap = 먼지 그림) / v4.4 (v9.24 2026-10-15 갈림길 칸 꺾임 - 테스터피드백3 D1~D3 + 클라이맥스 B4: 세계를 미는 기준을 두상 앞 -> 기차 가운데(주방 칸, GameBalance.ForkWorldRefX)로 옮기고 TrackYAt 으로 기차 x 밑 선로 높이를 내준다 - TrainDeck 이 칸마다 앞뒤 바퀴가 밟은 높이로 칸을 꺾는다 / ForkFollowActive = 분기점 출발부터 마지막 칸 뒷바퀴까지 평행이 될 때까지 (WaveManager 가 첫 손님을 기다린다) / 넘는 동안 배경 ForkDepartBoost 배 (34u 를 3.2u/s 로 가면 12초라서) / 칸마다 앞바퀴가 분기점을 밟으면 sfx_fork_clank + 작은 흔들림 / 칸이 직접 꺾이니 화면 기울임은 ForkRollMul(0) / SetClimaxBoost - 클라이맥스 배경 가속) / v4.3 (v9.21 2026-10-12 보스 1단계: SideRail - 디 오리지널(맞수 열차)이 달릴 두 번째 선로. rails_ae 한 줄을 본선과 같은 오프셋으로 y 자리에 깔고(본선과 같이 흐른다) 위에서 미끄러져 내려와 자리 잡는다, SideRailOff 로 흐려지며 걷는다) / v4.2 (v9.13 2026-09-23: 선로 v2 갈림길 + 세계 밀림) / v4.1 - 완전 탑다운 지면 (2026-09-07) / v3 고퀄 PNG 지면 / v2 탑뷰 지면 스크롤
 ///
 /// v4.2 (선로 v2 - 목업 v2 그대로. 도트 px/route.py v2.1: rails_fork / rails_fork_up / rails_fork_hi_up·down·straight):
 ///   - 정차(선로 선택)에 두상 앞에 갈림길(전철기 스프라이트)을 띠(rails_ae) 위에 놓는다 - PlaceFork(위 가지, 아래 가지)
@@ -118,6 +119,32 @@ public class ParallaxBackground : MonoBehaviour
     private float railsY = 0f;                   // 띠 층(옛 곧은 선로)·갈림길의 세로 오프셋 = -sign * f(d)
     private float groundY = 0f;                  // 모래 층 세로 오프셋 (누적 - 32u 로 감아 쓴다, 무늬라 이음이 안 보인다)
     private float railsAlpha = 1f;               // 옛 곧은 띠 알파 (페이드)
+
+    // ── v4.5 (v9.32): 맵 그림 (MapRoute) ──
+    /// <summary>지금 땅이 그리는 맵 (MapRoute.Desert ~ Final, 0 = 아직 없음 - 사막으로 본다). DustFX 가 먼지 그림을 고른다</summary>
+    public static int CurrentMap { get; private set; }
+    private const int ORDER_GROUND_NEXT = -29;   // 겹쳐 들어오는 다음 맵 땅 (땅 -30 위)
+    private const int ORDER_DECO = -27;          // 소품 (땅 위, 선로 -10 · 바위 -8 아래)
+    private const int MAX_DECO_KINDS = 6;        // deco_(맵)_1 ~ 6
+    private const float DECO_EDGE = 1f;          // 선로 띠 바깥 이만큼(u) 동안 소품이 흐려지며 나타난다 (띠 경계에서 툭 끊기지 않게)
+    private int appliedMap = 0;                  // 이 배경에 실제로 깔린 맵 (CurrentMap 은 정적이라 배경이 생기기 전에도 바뀐다)
+    private bool groundOwnColor = false;         // 땅이 맵 그림이다 - 지역 색을 안 입힌다
+    private SpriteRenderer[] groundNext;         // 땅 타일마다 겹쳐 그리는 다음 맵 그림 (겹치는 동안만)
+    private DecoSet decoNow, decoNext;           // 지금 소품 / 겹쳐 들어오는 소품 (겹치기가 끝나면 서로 바꾼다)
+    private float mapFadeT = -1f;                // 0 -> 1 겹쳐 바꾸는 중 (-1 = 아님)
+    private Sprite pendingGround;                // 겹치기가 끝나면 타일에 넣을 그림
+    private bool pendingOwnColor;
+    private bool fadingGround;                   // 땅 그림도 바뀌는 중 (같은 그림이면 소품만)
+    private Color fadeTint = Color.white;        // 겹쳐 들어오는 땅의 색 (마지막 프레임) - 끝날 때 타일 색을 이 값으로 바로
+
+    /// <summary>v4.5: 소품 한 벌 - 땅 타일마다 묶음 루트(타일의 자식이라 땅과 같이 흐른다) + 깔린 소품 전부. 겹쳐 바꾸는 동안만 두 벌이 같이 보인다</summary>
+    private class DecoSet
+    {
+        public readonly Transform[] roots;
+        public readonly List<SpriteRenderer> items = new List<SpriteRenderer>();
+        public float alpha = 1f;
+        public DecoSet(int tileCount) { roots = new Transform[tileCount]; }
+    }
 
     // ── v4.4 (v9.24): 갈림길 칸 꺾임 (테스터피드백3 D1~D3) ──
     private float laneU0 = 0f;                   // 고른 가지의 분기점 월드 x (지난 LateUpdate). TrackYAt 이 이번 프레임 자리를 미리 셈한다
@@ -259,7 +286,7 @@ public class ParallaxBackground : MonoBehaviour
         instance = this;
 
         topdown = SpriteBank.Has("ground_ae") && SpriteBank.Has("rails_ae");
-        if (topdown) BuildTopdownLayers();
+        if (topdown) { BuildTopdownLayers(); ApplyMap(MapRoute.Desert, true); }   // v4.5: 처음 땅은 사막 (맵 그림이 있으면 그것)
         else BuildLegacyLayers();
         DisableLegacyBackground();
         SceneManager.sceneLoaded += OnSceneLoaded;
@@ -281,6 +308,7 @@ public class ParallaxBackground : MonoBehaviour
     {
         DisableLegacyBackground();
         ClearFork();   // v4.2: 런 포기·다시 굽기로 씬이 바뀌면 갈림길·밀림 상태를 버린다 (모래 오프셋은 무늬라 그대로 둬도 된다)
+        ApplyMap(MapRoute.Desert, true);   // v4.5: 새 씬은 로비·견습부터 - 사막 땅 (운행이 시작되면 웨이브 1 의 지역 전환이 그 노선의 맵으로 바꾼다)
     }
 
     /// <summary>구 BackgroundScroll 배경이 씬에 남아 있으면 끈다 (겹침 방지, 컴파일 의존 없음)</summary>
@@ -307,6 +335,184 @@ public class ParallaxBackground : MonoBehaviour
         MakeLayer(0, SpriteBank.Get("ground_ae"), GROUND_TILE_W, GROUND_COLS, GROUND_ROWS, 0f, ORDER_GROUND);
         MakeLayer(1, null, 1f, 0, 1, 0f, 0);
         MakeLayer(2, SpriteBank.Get("rails_ae"), RAILS_TILE_W, RAILS_TILES, 1, 0f, ORDER_RAILS);
+    }
+
+    // ─────────────────────────────────────────────
+    // v4.5 (v9.32): 맵 그림 - 땅 겹쳐 바꾸기 + 소품
+    // ─────────────────────────────────────────────
+    /// <summary>땅을 맵 map 의 그림으로 (WaveManager 지역 전환 · GameManager 로비). instant = 겹치지 않고 바로</summary>
+    public static void SetMap(int map, bool instant)
+    {
+        if (instance != null) instance.ApplyMap(map, instant);
+        else CurrentMap = map;
+    }
+
+    private void ApplyMap(int map, bool instant)
+    {
+        CurrentMap = map;
+        if (!topdown || tiles[0] == null || tiles[0].Length == 0) return;
+        // 이미 그 맵이 깔려 있거나 그 맵으로 겹치는 중이면 그대로 - 같은 소품 두 벌을 겹쳐 바꾸면 한가운데서 반투명해진다
+        if (!instant && map == appliedMap) return;
+        EnsureMapChildren();
+        FinishMapFade();   // 겹치던 것이 있으면 끝내 놓고
+        appliedMap = map;
+
+        string key = "ground_" + MapRoute.Key(map);
+        bool own = SpriteBank.Has(key);
+        Sprite next = own ? SpriteBank.Get(key) : SpriteBank.Get("ground_ae");
+        BuildDeco(decoNext, map);
+        decoNext.alpha = 0f;
+
+        pendingGround = next; pendingOwnColor = own;
+        fadingGround = next != null && tiles[0][0].sprite != next;
+        for (int i = 0; i < groundNext.Length; i++)
+        {
+            groundNext[i].sprite = fadingGround ? next : null;
+            groundNext[i].color = new Color(1f, 1f, 1f, 0f);
+        }
+        fadeTint = own ? Color.white : tintNow[0];
+        mapFadeT = 0f;
+        if (instant || GameBalance.MapGroundFadeSec <= 0f) FinishMapFade();
+        PaintDeco();
+    }
+
+    /// <summary>겹쳐 바꾸기 한 프레임 (실시간 - 히트스탑·정지에도 끝난다). regionTint = 지금 지역 색 (맵 그림이 없는 땅에 입힐 색)</summary>
+    private void TickMapFade(Color regionTint)
+    {
+        mapFadeT = Mathf.Min(1f, mapFadeT + Time.unscaledDeltaTime / Mathf.Max(0.05f, GameBalance.MapGroundFadeSec));
+        float a = mapFadeT;
+        fadeTint = pendingOwnColor ? Color.white : regionTint;
+        Color g = fadeTint; g.a = a;
+        if (fadingGround)
+            for (int i = 0; i < groundNext.Length; i++) groundNext[i].color = g;
+        decoNext.alpha = a;          // 들어오는 소품
+        decoNow.alpha = 1f - a;      // 나가는 소품
+        if (mapFadeT >= 1f) FinishMapFade();
+    }
+
+    /// <summary>겹쳐 바꾸기를 끝낸다 - 타일에 새 그림, 나가던 소품은 지우고 들어오던 소품이 지금 것</summary>
+    private void FinishMapFade()
+    {
+        if (mapFadeT < 0f || groundNext == null) return;
+        mapFadeT = -1f;
+        if (pendingGround != null)
+            for (int i = 0; i < tiles[0].Length; i++) tiles[0][i].sprite = pendingGround;
+        groundOwnColor = pendingOwnColor;
+        if (fadingGround)
+        {
+            // 겹친 그림과 같은 색으로 바로 (안 그러면 겹친 뒤에 땅 색이 한 번 더 바뀐다)
+            tintNow[0] = fadeTint;
+            for (int i = 0; i < tiles[0].Length; i++) tiles[0][i].color = fadeTint;
+        }
+        for (int i = 0; i < groundNext.Length; i++) { groundNext[i].sprite = null; groundNext[i].color = new Color(1f, 1f, 1f, 0f); }
+        ClearDeco(decoNow);
+        DecoSet swap = decoNow; decoNow = decoNext; decoNext = swap;
+        decoNow.alpha = 1f;
+        decoNext.alpha = 0f;
+        pendingGround = null;
+        fadingGround = false;
+    }
+
+    /// <summary>땅 타일마다 "다음 그림" 겹침 렌더러 + 소품 묶음 두 벌 (한 번만)</summary>
+    private void EnsureMapChildren()
+    {
+        if (groundNext != null && groundNext.Length == tiles[0].Length) return;
+        int n = tiles[0].Length;
+        groundNext = new SpriteRenderer[n];
+        decoNow = new DecoSet(n);
+        decoNext = new DecoSet(n);
+        for (int i = 0; i < n; i++)
+        {
+            Transform tile = tiles[0][i].transform;
+            GameObject g = new GameObject("NextMap");
+            g.transform.SetParent(tile, false);
+            groundNext[i] = g.AddComponent<SpriteRenderer>();
+            groundNext[i].sortingOrder = ORDER_GROUND_NEXT;
+            groundNext[i].color = new Color(1f, 1f, 1f, 0f);
+            decoNow.roots[i] = new GameObject("DecoA").transform; decoNow.roots[i].SetParent(tile, false);
+            decoNext.roots[i] = new GameObject("DecoB").transform; decoNext.roots[i].SetParent(tile, false);
+        }
+    }
+
+    /// <summary>맵 map 의 소품 그림 (deco_(맵)_1 ~ 6 중 있는 것)</summary>
+    private static List<Sprite> DecoSprites(int map)
+    {
+        List<Sprite> list = new List<Sprite>();
+        for (int k = 1; k <= MAX_DECO_KINDS; k++)
+        {
+            Sprite s = SpriteBank.Get("deco_" + MapRoute.Key(map) + "_" + k);
+            if (s != null) list.Add(s);
+        }
+        return list;
+    }
+
+    /// <summary>소품 한 벌(set)을 맵 map 의 것으로 깐다. 같은 열(세로 줄)은 같은 배치 - 갈림길에서 땅이 세로로 32u 감겨도 소품이 튀지 않는다. 선로 띠는 PaintDeco 가 매 프레임 비운다</summary>
+    private void BuildDeco(DecoSet set, int map)
+    {
+        ClearDeco(set);
+        List<Sprite> sprites = DecoSprites(map);
+        if (sprites.Count == 0 || GameBalance.MapDecoPerTile <= 0) return;
+        float half = tileW[0] * 0.5f - 1f;
+        for (int i = 0; i < set.roots.Length; i++)
+        {
+            int col = i % Mathf.Max(1, cols[0]);
+            System.Random rng = new System.Random(map * 7919 + col * 104729);
+            for (int k = 0; k < GameBalance.MapDecoPerTile; k++)
+            {
+                float x = (float)(rng.NextDouble() * 2.0 - 1.0) * half;
+                float y = (float)(rng.NextDouble() * 2.0 - 1.0) * half;
+                GameObject go = new GameObject("Deco");
+                go.transform.SetParent(set.roots[i], false);
+                go.transform.localPosition = new Vector3(x, y, 0f);
+                SpriteRenderer sr = go.AddComponent<SpriteRenderer>();
+                sr.sprite = sprites[rng.Next(sprites.Count)];
+                sr.sortingOrder = ORDER_DECO;
+                sr.flipX = rng.Next(2) == 1;
+                sr.color = new Color(1f, 1f, 1f, 0f);   // 색·알파는 PaintDeco 가 정한다
+                set.items.Add(sr);
+            }
+        }
+    }
+
+    private static void ClearDeco(DecoSet set)
+    {
+        if (set == null) return;
+        for (int i = 0; i < set.items.Count; i++) if (set.items[i] != null) Destroy(set.items[i].gameObject);
+        set.items.Clear();
+    }
+
+    /// <summary>
+    /// 소품 색 (매 프레임 - LateUpdate 의 땅 배치·겹치기 뒤, 그리고 맵을 바꾼 직후). 땅이 맵 그림이 아니면 땅과 같은 지역 색을 입힌다.
+    /// 선로 띠: 기차가 달리는 선로는 늘 월드 y 0 이다 (갈림길에선 세계가 밀려 가지가 0 으로 온다). 땅은 groundY 만큼 밀려 있어 타일 안 자리로는 못 비우니
+    /// 소품의 월드 y 가 MapDecoClearY 안이면 숨기고, 그 밖 DECO_EDGE 동안 흐려지게 한다. 보스전 두 번째 선로(SideRail)도 그 선로가 또렷해지는 만큼 같이 비운다
+    /// </summary>
+    private void PaintDeco()
+    {
+        if (decoNow == null) return;
+        float sideK = 0f, sideAt = 0f;
+        if (sideTiles != null)
+        {
+            sideK = sideT * sideT * (3f - 2f * sideT);   // LayoutSideRail 과 같은 진행 곡선
+            sideAt = sideY + 3f * (1f - sideK);
+        }
+        PaintDecoSet(decoNow, groundOwnColor ? Color.white : tintNow[0], sideK, sideAt);
+        if (mapFadeT >= 0f) PaintDecoSet(decoNext, fadeTint, sideK, sideAt);
+    }
+
+    private static void PaintDecoSet(DecoSet set, Color tint, float sideK, float sideAt)
+    {
+        float clear = GameBalance.MapDecoClearY;
+        for (int i = 0; i < set.items.Count; i++)
+        {
+            SpriteRenderer sr = set.items[i];
+            if (sr == null) continue;
+            float y = sr.transform.position.y;
+            float k = Mathf.Clamp01((Mathf.Abs(y) - clear) / DECO_EDGE);
+            if (sideK > 0f) k = Mathf.Min(k, Mathf.Lerp(1f, Mathf.Clamp01((Mathf.Abs(y - sideAt) - clear) / DECO_EDGE), sideK));
+            Color c = tint; c.a = set.alpha * k;
+            sr.color = c;
+            sr.enabled = c.a > 0.004f;   // 숨은 소품은 안 그린다
+        }
     }
 
     private void MakeLayer(int L, Sprite sprite, float w, int colCount, int rowCount, float y, int order)
@@ -401,7 +607,8 @@ public class ParallaxBackground : MonoBehaviour
         Color want = Color.Lerp(Color.white, Color.Lerp(bg, Color.white, 0.5f), REGION_TINT);
         for (int L = 0; L < 3; L++)
         {
-            tintNow[L] = Color.Lerp(tintNow[L], want, TINT_LERP * Time.unscaledDeltaTime);
+            Color wantL = (L == 0 && groundOwnColor) ? Color.white : want;   // v4.5: 맵 그림 땅은 제 색 그대로
+            tintNow[L] = Color.Lerp(tintNow[L], wantL, TINT_LERP * Time.unscaledDeltaTime);
             Color c = tintNow[L];
             if (L == 2) c.a = railsAlpha;
             for (int i = 0; i < tiles[L].Length; i++)
@@ -411,6 +618,8 @@ public class ParallaxBackground : MonoBehaviour
             for (int i = 0; i < branchTiles.Length; i++)
                 if (branchTiles[i] != null) branchTiles[i].color = tintNow[2];
         if (forkSr != null) forkSr.color = tintNow[2];
+        if (mapFadeT >= 0f) TickMapFade(want);   // v4.5: 맵 그림 겹쳐 바꾸기
+        PaintDeco();                             // v4.5: 소품 색·선로 띠 (땅을 다 옮긴 뒤)
 
         // 4) 카메라 추종. 탑다운 모드(v4.2): x 도 y 도 세계에 고정 - 정차 카메라가 앞으로 가도 침목이 기차 밑에서 안 미끄러진다. 띠 160u 라 카메라 이동 한계 안에서 빈 데 없음
         //    레거시 모드: 카메라를 따라가고 줌 배율만큼 스케일 (구 지평선 구도 유지)

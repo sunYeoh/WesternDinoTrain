@@ -4,7 +4,7 @@ using UnityEngine.UI;
 using TMPro;
 
 /// <summary>
-/// [UIManager.cs] v3.7 (v9.28 2026-10-20 하드 모드: 우상단 웨이브 글자 뒤에 "· 하드") / v3.6 (v9.26 2026-10-16 마감 정리: 씬에 연결 안 된 옛 버튼 함수(OnClickStartBattle · OnClickGoToTown · OnClickRestart) · ShowNextWaveButton 삭제) / v3.5 (v9.23 2026-10-14: B2 피해 예고 빗금 PreviewTrainDamage - 보스 패턴 예고 동안 기차 HP 바의 지금 끝에서 맞을 양만큼 흰 빗금이 깜빡인다 (도약·눈사태·측면 충돌) / 기차 HP 위기 표시 (요구사항 점검 1절 2번, GameBalance.TrainCrisisOn) - TrainCrisisRatio 아래 = 가장자리 붉은 맥동(WarningFX.CrisisPulse) + 기관차 굴뚝 검은 연기 + HP 숫자 깜빡 + 들어설 때 경보 한 번 / TrainCrisisRatio2 아래 = 맥동이 빨라진다. 전투 중에만) / v3.4 (v9.18 2026-10-06: 견습 목표 카드가 떠 있으면 알림 줄을 카드 아래로(카드 뒤에 가려지던 것) / 씬 HUD 손질(FixSceneHud) - 씬 캔버스 [HUD Canvas] 도 UI 배율(GameBalance.UIScale)을 따른다(HP·골드·라운드·예고 글자가 코드로 만든 창보다 작던 것) + 씬에 "New Text" 로 남아 있는 글자를 비우고 포만감 잔재를 끈다 / 골드 글자가 다른 값으로 바뀌어 있으면 바로 다시 쓴다) / v3.3 (v9.17 2026-10-06 화면 손맛 2차 - B7: 골드가 0.4초 동안 세어 올라가고(줄 땐 0.2초) 한 번에 50 이상 벌면 금색 반짝 + 튐 / 알림 통합: 같은 문구가 2초 안에 또 오면 새 줄 대신 "x2" / 위험 알림은 2.5초 동안 일반 알림에 안 밀린다 / 가운데 예고는 같은 문구 2초 무시 + 앞 문구가 1초는 떠 있게) / v3.2 (v9.15 2026-09-29 HUD 재배치 GameBalance.HudRegroup: 우상단 정보 2줄(UISkin.InfoLine1/2 - 손님 남음·보스까지 / 지역·예고) 0.25초마다, 알림 로그 스택을 우상단 판 아래(앵커 (1,1))로) / v3.1 (v9.11 2026-09-22 타격감: 기차 HP 바 지연 잔량(빨간 띠가 0.5초 뒤 따라 내려온다, 회복은 즉시) / 웨이브 예고·클리어 문구 위에서 내려오며 팝, 새 문구가 오면 이전 문구 즉시 교체) / v3
+/// [UIManager.cs] v3.8 (v9.32 2026-10-22 노선: 우상단 둘째 줄 "지역 n <그 자리의 맵 이름>" (MapRoute.Name), 낙뢰 표시는 협곡 맵) / v3.7 (v9.28 2026-10-20 하드 모드: 우상단 웨이브 글자 뒤에 "· 하드") / v3.6 (v9.26 2026-10-16 마감 정리: 씬에 연결 안 된 옛 버튼 함수(OnClickStartBattle · OnClickGoToTown · OnClickRestart) · ShowNextWaveButton 삭제) / v3.5 (v9.23 2026-10-14: B2 피해 예고 빗금 PreviewTrainDamage - 보스 패턴 예고 동안 기차 HP 바의 지금 끝에서 맞을 양만큼 흰 빗금이 깜빡인다 (도약·눈사태·측면 충돌) / 기차 HP 위기 표시 (요구사항 점검 1절 2번, GameBalance.TrainCrisisOn) - TrainCrisisRatio 아래 = 가장자리 붉은 맥동(WarningFX.CrisisPulse) + 기관차 굴뚝 검은 연기 + HP 숫자 깜빡 + 들어설 때 경보 한 번 / TrainCrisisRatio2 아래 = 맥동이 빨라진다. 전투 중에만) / v3.4 (v9.18 2026-10-06: 견습 목표 카드가 떠 있으면 알림 줄을 카드 아래로(카드 뒤에 가려지던 것) / 씬 HUD 손질(FixSceneHud) - 씬 캔버스 [HUD Canvas] 도 UI 배율(GameBalance.UIScale)을 따른다(HP·골드·라운드·예고 글자가 코드로 만든 창보다 작던 것) + 씬에 "New Text" 로 남아 있는 글자를 비우고 포만감 잔재를 끈다 / 골드 글자가 다른 값으로 바뀌어 있으면 바로 다시 쓴다) / v3.3 (v9.17 2026-10-06 화면 손맛 2차 - B7: 골드가 0.4초 동안 세어 올라가고(줄 땐 0.2초) 한 번에 50 이상 벌면 금색 반짝 + 튐 / 알림 통합: 같은 문구가 2초 안에 또 오면 새 줄 대신 "x2" / 위험 알림은 2.5초 동안 일반 알림에 안 밀린다 / 가운데 예고는 같은 문구 2초 무시 + 앞 문구가 1초는 떠 있게) / v3.2 (v9.15 2026-09-29 HUD 재배치 GameBalance.HudRegroup: 우상단 정보 2줄(UISkin.InfoLine1/2 - 손님 남음·보스까지 / 지역·예고) 0.25초마다, 알림 로그 스택을 우상단 판 아래(앵커 (1,1))로) / v3.1 (v9.11 2026-09-22 타격감: 기차 HP 바 지연 잔량(빨간 띠가 0.5초 뒤 따라 내려온다, 회복은 즉시) / 웨이브 예고·클리어 문구 위에서 내려오며 팝, 새 문구가 오면 이전 문구 즉시 교체) / v3
 /// 게임 HUD 전체를 담당하는 UI 관리 스크립트입니다.
 /// - v3 변경점 (P1: 알림 채널 2분리 - 기술감사 처방):
 ///   1) ShowStatChange가 "우측 로그 스택"으로 개조 - 여러 알림이 겹쳐도 씹히지 않고
@@ -500,7 +500,6 @@ public class UIManager : MonoBehaviour
 
     // ── v3.2: 우상단 정보 2줄 (HUD 재배치) ──
     private float infoRefreshAt = 0f;
-    private static readonly string[] REGION_NAMES = { "", "구리 사막", "테슬라 협곡", "코발트 광산", "황야의 끝" };
 
     /// <summary>손님 남음·보스까지 / 지역·예고. 0.25초마다 (손님 수는 FindObjectsByType). 견습·로비에선 비운다</summary>
     private void RefreshInfoLines()
@@ -531,9 +530,10 @@ public class UIManager : MonoBehaviour
         string toBoss = GameBalance.IsBossWave(wave) ? (boss ? "보스와 싸우는 중" : "보스 라운드") : "보스까지 " + (nextBoss - wave) + " 라운드";
         UISkin.InfoLine1.text = (gameManager.currentState == GameManager.GameState.Town ? "정차 중" : "손님 남음 " + alive) + "  /  " + toBoss;
 
-        int region = Mathf.Clamp(GameBalance.RegionOf(wave), 1, 4);
-        string hazard = region == GameBalance.AmbientLightningRegion && !GameBalance.IsBossWave(wave) ? " - 낙뢰가 친다" : "";
-        UISkin.InfoLine2.text = "지역 " + region + " " + REGION_NAMES[region] + hazard;
+        int region = Mathf.Clamp(GameBalance.RegionOf(wave), 1, 4);   // 자리
+        int map = MapRoute.MapOfWave(wave);                           // v3.8 (v9.32): 그 자리에 놓인 맵
+        string hazard = map == GameBalance.AmbientLightningMap && !GameBalance.IsBossWave(wave) ? " - 낙뢰가 친다" : "";
+        UISkin.InfoLine2.text = "지역 " + region + " " + MapRoute.Name(map) + hazard;
     }
 
     // ─────────────────────────────────────────────
