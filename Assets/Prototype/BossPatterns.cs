@@ -4,7 +4,7 @@ using UnityEngine;
 using TMPro;
 
 /// <summary>
-/// [BossPatterns.cs] v1 (v9.23 2026-10-14 신규) - 보스 새 패턴. BossEnemy 의 나머지 반쪽이다 (partial class - BossEnemy.cs 와 같은 클래스)
+/// [BossPatterns.cs] v1.1 (v9.33 2026-10-25 소리: 눈사태 예고 울음 = 경고 버스 (울음이 경고 역할 - 한 번만), 눈사태·칸 분리 폭음 = 보스 버스 - SoundManager.PlayIn) / v1 (v9.23 2026-10-14 신규) - 보스 새 패턴. BossEnemy 의 나머지 반쪽이다 (partial class - BossEnemy.cs 와 같은 클래스)
 /// 스펙 = claude/보스개편_스펙_2026-10-07.md 3-1 ~ 3-4절. 값과 스위치 = GameBalance 맨 아래 v9.23 섹션 (BossNewPatterns = false 면 v9.22 까지의 보스)
 ///
 ///  녹슨 발톱  R1 부관 둘 (등장 전조 때 좌우에서 달려와 붙는다, 쓰러지면 왕이 울고 곧 호령) / R2 삼단 도약 (그림자 원 + 숫자 -> 북 남 북 착지) / R3 호령 -> 편성 (BossEnemy.PatternHowl)
@@ -883,7 +883,7 @@ public partial class BossEnemy
         float sec = Mathf.Max(3f, GameBalance.HibAvalancheSec);
         float raw = (trainManager != null ? trainManager.currentMaxHP : 1000f) * Mathf.Clamp01(GameBalance.HibAvalancheDamageRatio);
         BossGimmickSystem.Instance?.ShowPatternTelegraph("눈사태가 내려온다. [F] 독샘 요리나 해동포로 멈춰", sec);
-        SoundManager.Play(SoundKeys.BossRoar(kind.ToString()), 1f, -1f);
+        SoundManager.PlayIn(SfxBus.Warning, SoundKeys.BossRoar(kind.ToString()), 1f);   // v1.1 (v9.33): 눈사태 예고 - 울음이 경고 역할 (경고 버스로 한 번만)
         SoundManager.PlayDelayed("sfx_ground_crack", 0.5f);
         if (PatternFx) WorldFeel.Ring(MouthPos(), new Color(0.9f, 0.97f, 1f, 0.8f), FxRadius() * 1.4f, 0.5f);
         avalanche = AvalancheWall.Create(TrainY + 1.9f);
@@ -924,7 +924,7 @@ public partial class BossEnemy
         avalanche = null;
         GameFeel.Hitstop(0.08f);
         GameFeel.Shake(GameBalance.ShakeBoss);
-        SoundManager.Play("sfx_explosion", 0.9f, -1f);
+        SoundManager.PlayIn(SfxBus.Boss, "sfx_explosion", 0.9f);   // v1.1: 눈사태가 지붕에 닿는 폭음 = 보스 버스
         SoundManager.Play("sfx_freeze", 1f, -1f);
         trainManager?.TakeDamageIgnoringDef(raw);
         int cars = GameBalance.CarEdgesX.Length - 1;
@@ -1108,7 +1108,7 @@ public partial class BossEnemy
                 WorldFeel.Ring(joint, EMBER[3], 2.2f, 0.3f);
                 SparkPool.Emit(joint, EMBER[3], 10, 0.09f, 5f);
                 GameFeel.Shake(GameBalance.ShakeBoss * 0.45f);
-                SoundManager.Play("sfx_explosion", 0.7f, 0.06f);
+                SoundManager.PlayIn(SfxBus.Boss, "sfx_explosion", 0.7f);   // v1.1: 칸이 떨어져 나가는 폭음 = 보스 버스
                 prev = cut;
                 float t = 0f;
                 while (t < gap) { t += Time.deltaTime; yield return null; }

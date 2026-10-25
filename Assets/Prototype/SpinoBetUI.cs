@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [SpinoBetUI.cs] v1.5 (v9.17 2026-10-06 C3·C4: 카드 2장이 0.06초 간격으로 나타난다 / 고른 카드가 튀고 다른 카드는 흐려진다 / 닫힐 때 판이 0.95배로 줄며 사라진다) / v1.4 (v9.11.1 2026-09-22 문구: 첫 인사는 프롤로그에서 만난 뒤) / v1.3 (v9.11 2026-09-22: 등장 연출 ModalFeel) / v1.2 (v9.10 2026-09-17: 거절 안내 [ESC] + 카드 뜻 한 줄) / v1.1 (v9.9.2 2026-09-16: 첫 등장 카드 "베팅" 을 창이 뜨기 직전 1회 + 카드가 떠 있는 동안 숫자키 무시 + 창 머리에 스피노 실루엣) / v1 (신규 파일) - Phase 2-1: 도박사 스피노 등장/베팅 UI
+/// [SpinoBetUI.cs] v1.6 (v9.33 2026-10-25 소리: 스피노 등장 = sfx_spino - 예전엔 기적을 빌려 썼다) / v1.5 (v9.17 2026-10-06 C3·C4: 카드 2장이 0.06초 간격으로 나타난다 / 고른 카드가 튀고 다른 카드는 흐려진다 / 닫힐 때 판이 0.95배로 줄며 사라진다) / v1.4 (v9.11.1 2026-09-22 문구: 첫 인사는 프롤로그에서 만난 뒤) / v1.3 (v9.11 2026-09-22: 등장 연출 ModalFeel) / v1.2 (v9.10 2026-09-17: 거절 안내 [ESC] + 카드 뜻 한 줄) / v1.1 (v9.9.2 2026-09-16: 첫 등장 카드 "베팅" 을 창이 뜨기 직전 1회 + 카드가 떠 있는 동안 숫자키 무시 + 창 머리에 스피노 실루엣) / v1 (신규 파일) - Phase 2-1: 도박사 스피노 등장/베팅 UI
 ///
 /// 세계관: 스피노는 디 오리지널의 마지막 기관사. 우리에게 베팅을 거는 진짜 이유는
 /// "이번 요리사는 끝까지 가는지 판돈을 걸어보는 것" (스토리바이블 3절).
@@ -55,7 +55,7 @@ public class SpinoBetUI : MonoBehaviour
 
         speechText.text = PickGreeting();
         MetaProgress.AddSpinoMeeting();
-        SoundManager.Play("sfx_train_whistle");   // 임시: 오토바이 소리 클립(sfx_spino) 생기면 교체
+        SoundManager.Play("sfx_spino");   // v1.6 (v9.33): 스피노 등장 (파일이 없으면 기적 - SoundKeys.Parent)
 
         Debug.Log("[SpinoBetUI] 스피노 등장 (만남 " + MetaProgress.SpinoMeetings + "회차)");
     }

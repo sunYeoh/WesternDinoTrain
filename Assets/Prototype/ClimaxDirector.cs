@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using System.Collections;
 
 /// <summary>
-/// [ClimaxDirector.cs] v1 (신규, v9.24 2026-10-15) - 클라이맥스 (claude/테스터피드백3_2026-10-06.md 의 B 스펙 표, 3차 피드백 5번 "보스 때 뽕차고 웅장한 구간")
+/// [ClimaxDirector.cs] v1.1 (v9.33 2026-10-25 소리 팩: 층은 bgm_main 위에서만 - 맵·보스 곡이 도는 운행에서는 숨(배경음 끊김)·긴 기적·전조등·전속만. 로그 문구) / v1 (신규, v9.24 2026-10-15) - 클라이맥스 (claude/테스터피드백3_2026-10-06.md 의 B 스펙 표, 3차 피드백 5번 "보스 때 뽕차고 웅장한 구간")
 ///
 /// 최종 보스 디 오리지널의 P3 (해치가 열려 기관심장이 드러나는 순간)에 한 번 - 음악이 "버틴다"에서 "이긴다"로 바뀌는 순간을 숨 -> 층 -> 전속으로.
 ///   1) 숨 (B2): P3 전환 순간의 히트스톱 (BossEnemy 가 ClimaxHitstop 으로 건다) + 화면 흰 번쩍 (클릭은 막지 않는다) + 배경음이 다음 박까지 끊긴다 (76BPM 이면 0.4 ~ 1.2초)
@@ -75,7 +75,7 @@ public class ClimaxDirector : MonoBehaviour
         ClimaxDirector d = Create(boss, false);
         float wait = SoundManager.SecondsToNextBeat(0.05f);
         if (!SoundManager.LayerIn(SoundManager.LayerLite, GameBalance.ClimaxLiteVol, wait))
-            Debug.Log("[Climax] 가벼운 층을 쓸 수 없다 (bgm_climax_lite 없음 또는 길이가 안 맞음) - 발악은 소리 층 없이");
+            Debug.Log("[Climax] 가벼운 층 없음 (bgm_main 위에서만 얹는다 - 지금 곡 " + SoundManager.CurrentMusic + ") - 발악은 소리 층 없이");
     }
 
     /// <summary>B5: 끝. cut = 처치 히트스톱 프레임에 바로 끊김 / false = 식사 엔딩 - ClimaxMealFadeSec 에 잦아든다</summary>
@@ -113,7 +113,7 @@ public class ClimaxDirector : MonoBehaviour
         SoundManager.BgmCut(breath - early);
         bool layered = SoundManager.LayerIn(SoundManager.LayerClimax, GameBalance.ClimaxLayerVol, breath - early);
         if (FeelOn) StartFlash();
-        Debug.Log("[Climax] 숨 " + breath.ToString("F2") + "초 -> 다음 박에 " + (layered ? "클라이맥스 층" : "층 없이 (bgm_climax 없음)"));
+        Debug.Log("[Climax] 숨 " + breath.ToString("F2") + "초 -> 다음 박에 " + (layered ? "클라이맥스 층" : "층 없이 (bgm_main 위에서만 - 지금 곡 " + SoundManager.CurrentMusic + ")"));
 
         float t = 0f;
         while (t < breath) { t += Time.unscaledDeltaTime; yield return null; }   // 실시간 - 히트스톱과 무관하게 박에 맞춘다

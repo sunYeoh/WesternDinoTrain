@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 
 /// <summary>
-/// [BossEnemy.cs] v7.19 (v9.32 2026-10-22 노선: 보스 종류 = 그 웨이브의 맵 (MapRoute.BossOf - 자리가 섞인다, 예습 보스는 늘 녹슨 발톱의 새끼). 정식 지역 보스의 HP 배율은 종류가 아니라 자리 (GameBalance.BossHPStageMul 4 / 6 / 6 - 지금 순서면 같은 숫자, 디 오리지널은 BossHPKindMul 그대로)) / v7.18 (v9.28 2026-10-20 하드 모드: 정식 보스 HP x HardBossHpMul (hpScale 에 - 폭식 회복·해동포 피해도 같이), 무는 양 x HardBossMeleeMul. 예습 보스는 아님) / v7.17 (v9.27 2026-10-20 튜토리얼 개편: 예습 보스(새끼 발톱)도 HP 75 / 50 / 25% 에서 무방비가 된다 - GameBalance.BossPracticeGroggy. 견습 카드 12 가 무방비 [F] 던지기를 가르친다. HP 바 눈금은 그대로 없음) / v7.16 (v9.25 2026-10-16 B3 지역 곡선: 정식 보스 HP x GameBalance.BossHpCurveMul (종류별 배율 hpScale 위에 - 폭식 회복·해동포 피해처럼 HP 에 맞춘 고정값도 같이 커진다. 예습 보스 제외)) / v7.15 (v9.24 2026-10-15 클라이맥스 훅 - 테스터피드백3 B: 디 오리지널 P3 전환 순간에 ClimaxDirector.BeginFinal (히트스톱은 ClimaxHitstop 0.12) / 지역 보스 발악에 BeginLite (가벼운 층) / 처치 히트스톱 프레임에 End(true) - 층이 끊긴다 / 마지막 식사에 End(false) - 잦아든다 / Collapsing - 칸이 떨어져 나가는 중 (클라이맥스가 아직 끊기지 않는다)) / v7.14 (v9.23 2026-10-14 보스 새 패턴: partial 로 나눴다 - 새 패턴은 BossPatterns.cs (같은 클래스의 나머지 반쪽). 여기서 바뀐 것: 패턴 고르기(PickPattern) / 기본 공격 고르기(StartBasicAttack - 동면자 꼬리·디 오리지널 측면 충돌·천둥 둥지 없음) / 등장 전조에 부관 둘(SpawnLieutenants) / 호령이 편성 조각으로(R3) / 디 오리지널 페이즈마다 앞뒤로(OnOriginalPhase) / 몸 배율 poseScale·고개 lookOffset·붉은 열 heatGlow / 갑주가 생길 때 해동포 창 깜빡임 / 해동포가 눈사태를 멈춘다 / 쓰러질 때 남은 손님이 달아난다(RoutMinions)·디 오리지널은 칸이 떨어져 나간 뒤에(CollapseThenDie) / 보스전 글 말투를 튜토리얼과 같게 (반말 해체, 사건은 ~했다)) / v7.13 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v7.12 (v9.21 2026-10-12 보스 1단계 큰 몸 - 보스개편 스펙 1·4·5절: 그림을 목표 크기(GameBalance.BossBodyLen x Wide)에 맞춘다(SetupSkin, 불투명 부분을 잰다 OpaqueSize) / 정식 보스는 서는 자리(BossStandX, 북쪽 BossStandOff)에 등장 연출이 놓고 제자리에 선다 - 걸어오지 않는다, 미끼에 끌려도 제자리 / 천둥 둥지는 상공에서 기차를 내려다본다(270도) + 땅 그림자 / 등장 연출 2판 EntranceV2: 전조 -> 보스전 카메라(CameraZoom.BossFraming) -> 보스별 길(EnterRust 떨어져 내림 · EnterThunder 날개 그림자와 번쩍 · EnterHibernator 땅 금과 떠오름 · EnterOriginal 평행 선로와 추월) -> 도착(Arrive) -> 이름판 -> HP 바 -> 밝아짐. 그동안 공격·패턴 없음 / 범위 판정은 몸 가장자리까지(DistanceFrom) / 쓰러지면 카메라·평행 선로 복귀) / v7.11 (v9.20 2026-10-07 유저 "패턴이 눈에 안 띔" - 스펙 3-0: 패턴의 준비(몸이 부푼다 + 보스 울음 + 패턴별 표시) -> 발동(눌렸다 돌아온다 + 충격 고리) -> 결과가 화면에서 보인다. 호령·포효 = 입에서 퍼지는 소리 고리 + 무리가 보스 등 뒤에서 / 낙뢰 = 맞을 포탑을 미리 정해 예고 줄과 발밑 고리(PickBoltTargets·BossMark.Bolt) + 번개 줄기(BoltStrike) + 패링하면 병으로(BoltsToBottle) / 갑주 = 모이는 냉기·서리 원·껍질 고리 / 물기 = 웅크림(그사이 무방비가 되면 물지 않는다. 공격 간격은 그대로) + 문 자리의 불똥·칸 튐·이빨 자국(BiteFx). GameBalance.BossPatternFxOn) / v7.10 (v9.19.2 2026-10-07: 보스 HP 에 종류별 배율 GameBalance.BossHPKindMul (예습 보스 제외) - 뒤 지역 보스가 제 웨이브의 큰 손님 한 마리보다 약했다. 폭식 회복·해동포 피해도 같은 배율 hpScale 을 따라간다) / v7.9 (v9.19 2026-10-06 보스 페이즈 모습 - A1 상태 그림: _rage_groggy(발악 중 무방비)·_p2_groggy 추가, 디 오리지널은 페이즈 그림이 먼저(WantedSkin, GameBalance.BossStateSkins) / A2 전환 순간(PhaseShift): 히트스톱 -> 흰 번쩍 아래에서 그림 교체 -> 장갑 파편·링·폭음 -> 몸이 커졌다 제자리. 지역 보스 발악과 디 오리지널 P2·P3 / A3 상태 유지: 발악 = 김·불티, 무방비 = 불똥·연기 + 몸이 기울어 흔들린다(SkinPivot) / A4 알림 자리: 보스 쪽 알림은 HP 바 밑 띠로(BossNotice), 발악의 화면 가운데 큰 글자는 가장자리 맥동으로) /
+/// [BossEnemy.cs] v7.20 (v9.33 2026-10-25 소리 팩: 등장 = 그 보스 곡 (0.6초) / 처치 = 곡 끄기 (지역 보스 0.6초 · 디 오리지널 0.7초 - 지역 곡을 되살리지 않는다) / 마지막 식사 = 곡 끄기 (셋 다 MusicByMapOn 일 때만) / 패턴 준비 = 전용 경고음 sfx_boss_cast (예전 = 등장 울음을 작게) / 낙뢰 착탄 = sfx_bolt_strike (연쇄 번개 sfx_chain 과 나눴다) / 전환·준비 폭음 = 보스 버스 (PlayIn)) / v7.19 (v9.32 2026-10-22 노선: 보스 종류 = 그 웨이브의 맵 (MapRoute.BossOf - 자리가 섞인다, 예습 보스는 늘 녹슨 발톱의 새끼). 정식 지역 보스의 HP 배율은 종류가 아니라 자리 (GameBalance.BossHPStageMul 4 / 6 / 6 - 지금 순서면 같은 숫자, 디 오리지널은 BossHPKindMul 그대로)) / v7.18 (v9.28 2026-10-20 하드 모드: 정식 보스 HP x HardBossHpMul (hpScale 에 - 폭식 회복·해동포 피해도 같이), 무는 양 x HardBossMeleeMul. 예습 보스는 아님) / v7.17 (v9.27 2026-10-20 튜토리얼 개편: 예습 보스(새끼 발톱)도 HP 75 / 50 / 25% 에서 무방비가 된다 - GameBalance.BossPracticeGroggy. 견습 카드 12 가 무방비 [F] 던지기를 가르친다. HP 바 눈금은 그대로 없음) / v7.16 (v9.25 2026-10-16 B3 지역 곡선: 정식 보스 HP x GameBalance.BossHpCurveMul (종류별 배율 hpScale 위에 - 폭식 회복·해동포 피해처럼 HP 에 맞춘 고정값도 같이 커진다. 예습 보스 제외)) / v7.15 (v9.24 2026-10-15 클라이맥스 훅 - 테스터피드백3 B: 디 오리지널 P3 전환 순간에 ClimaxDirector.BeginFinal (히트스톱은 ClimaxHitstop 0.12) / 지역 보스 발악에 BeginLite (가벼운 층) / 처치 히트스톱 프레임에 End(true) - 층이 끊긴다 / 마지막 식사에 End(false) - 잦아든다 / Collapsing - 칸이 떨어져 나가는 중 (클라이맥스가 아직 끊기지 않는다)) / v7.14 (v9.23 2026-10-14 보스 새 패턴: partial 로 나눴다 - 새 패턴은 BossPatterns.cs (같은 클래스의 나머지 반쪽). 여기서 바뀐 것: 패턴 고르기(PickPattern) / 기본 공격 고르기(StartBasicAttack - 동면자 꼬리·디 오리지널 측면 충돌·천둥 둥지 없음) / 등장 전조에 부관 둘(SpawnLieutenants) / 호령이 편성 조각으로(R3) / 디 오리지널 페이즈마다 앞뒤로(OnOriginalPhase) / 몸 배율 poseScale·고개 lookOffset·붉은 열 heatGlow / 갑주가 생길 때 해동포 창 깜빡임 / 해동포가 눈사태를 멈춘다 / 쓰러질 때 남은 손님이 달아난다(RoutMinions)·디 오리지널은 칸이 떨어져 나간 뒤에(CollapseThenDie) / 보스전 글 말투를 튜토리얼과 같게 (반말 해체, 사건은 ~했다)) / v7.13 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v7.12 (v9.21 2026-10-12 보스 1단계 큰 몸 - 보스개편 스펙 1·4·5절: 그림을 목표 크기(GameBalance.BossBodyLen x Wide)에 맞춘다(SetupSkin, 불투명 부분을 잰다 OpaqueSize) / 정식 보스는 서는 자리(BossStandX, 북쪽 BossStandOff)에 등장 연출이 놓고 제자리에 선다 - 걸어오지 않는다, 미끼에 끌려도 제자리 / 천둥 둥지는 상공에서 기차를 내려다본다(270도) + 땅 그림자 / 등장 연출 2판 EntranceV2: 전조 -> 보스전 카메라(CameraZoom.BossFraming) -> 보스별 길(EnterRust 떨어져 내림 · EnterThunder 날개 그림자와 번쩍 · EnterHibernator 땅 금과 떠오름 · EnterOriginal 평행 선로와 추월) -> 도착(Arrive) -> 이름판 -> HP 바 -> 밝아짐. 그동안 공격·패턴 없음 / 범위 판정은 몸 가장자리까지(DistanceFrom) / 쓰러지면 카메라·평행 선로 복귀) / v7.11 (v9.20 2026-10-07 유저 "패턴이 눈에 안 띔" - 스펙 3-0: 패턴의 준비(몸이 부푼다 + 보스 울음 + 패턴별 표시) -> 발동(눌렸다 돌아온다 + 충격 고리) -> 결과가 화면에서 보인다. 호령·포효 = 입에서 퍼지는 소리 고리 + 무리가 보스 등 뒤에서 / 낙뢰 = 맞을 포탑을 미리 정해 예고 줄과 발밑 고리(PickBoltTargets·BossMark.Bolt) + 번개 줄기(BoltStrike) + 패링하면 병으로(BoltsToBottle) / 갑주 = 모이는 냉기·서리 원·껍질 고리 / 물기 = 웅크림(그사이 무방비가 되면 물지 않는다. 공격 간격은 그대로) + 문 자리의 불똥·칸 튐·이빨 자국(BiteFx). GameBalance.BossPatternFxOn) / v7.10 (v9.19.2 2026-10-07: 보스 HP 에 종류별 배율 GameBalance.BossHPKindMul (예습 보스 제외) - 뒤 지역 보스가 제 웨이브의 큰 손님 한 마리보다 약했다. 폭식 회복·해동포 피해도 같은 배율 hpScale 을 따라간다) / v7.9 (v9.19 2026-10-06 보스 페이즈 모습 - A1 상태 그림: _rage_groggy(발악 중 무방비)·_p2_groggy 추가, 디 오리지널은 페이즈 그림이 먼저(WantedSkin, GameBalance.BossStateSkins) / A2 전환 순간(PhaseShift): 히트스톱 -> 흰 번쩍 아래에서 그림 교체 -> 장갑 파편·링·폭음 -> 몸이 커졌다 제자리. 지역 보스 발악과 디 오리지널 P2·P3 / A3 상태 유지: 발악 = 김·불티, 무방비 = 불똥·연기 + 몸이 기울어 흔들린다(SkinPivot) / A4 알림 자리: 보스 쪽 알림은 HP 바 밑 띠로(BossNotice), 발악의 화면 가운데 큰 글자는 가장자리 맥동으로) /
 /// v7.8 (v9.18 2026-10-06 - 서는 자세: 기차 옆에 이르면 나란히(머리가 기차 진행 방향) 돌아서서 선다 - 몸 전체가 지붕과 HP 바 사이에 보이게(GameBalance.BossFaceAlongTrain·BossStandOff·BossTurnZone, MoveTowardsTrain 재정의 + HoldStance) / 그림: boss_<종류>.png 를 입힌다(없으면 프리팹의 색 사각형 그대로), 상태 그림 _groggy·_rage·_p2·_p3 는 있으면 자동, 상태 발광 = 그림 위 흰 실루엣(예고 흰빛 / 무방비 금빛 / 발악 붉은 맥동) / 등장: 포효와 함께 경고 띠(WarningFX.BossIntro) + HP 바가 차오른다, 대응법 안내는 띠가 걷힌 뒤 / 발악 신호: 붉은 경고 + 흔들림 + 포효 / 버그: 공격 거리를 기차 "중심"에서 재서 옆에서 온 보스는 기차 위에 올라앉아 물지도 않았다 -> 가장 가까운 몸통에서 잰다, 돌진 방향도. 무는 양은 BossMeleeMul) / v7.7 (v9.17 2026-10-06 화면 손맛 2차 - D2 등장: 첫 등장 카드가 닫힌 뒤 배경이 0.5초 어두워졌다가 흔들림 + 포효 + 이름 예고가 같이 나온다 / A11 처치: 히트스톱 뒤 0.25초 슬로모션 + 줌 당김 / 식사 엔딩의 Die 는 히트스톱·흔들림·킬 버스트 없이 조용히 / EndingWhistled - 엔딩 쪽에서 기적을 울렸으면 승리 화면이 또 울리지 않는다) / v7.6 (v9.16 2026-09-29 손맛 2차 - 소리: 등장 포효 = 종류별(SoundKeys.BossRoar - 녹슨 발톱 무리 울음 / 천둥 둥지 번개 / 동면자 얼음 / 디 오리지널 기본 포효 + 낮은 기적 sfx_whistle_low, 예습 보스는 작게) / 엔딩 B 두 번째 기적 = 낮은 기적 / 공격음은 Enemy.AttackTrain 이 종류별로) / v7.5 (v9.15.1 2026-09-29 스토리 개정: 디 오리지널 = 급식 열차 1호였던 것 - 등장에 낡은 기적 + 안내 문구, 폭식 = 원료 삼키기, 해치 = 기관심장이 드러남 / 마지막 식사 장면 LastSupperRoutine - 포탑 정지(LastSupperServing)·남은 손님 물러남·천천히 씹기(LastSupperChewSec)·두 대의 기적 -> 엔딩 B 글 / 격파 엔딩 = 기적 한 번 + "철길이 열렸다") / v7.4 (v9.12 2026-09-22: practice = 견습 구간 7 "새끼 발톱" - 녹슨 발톱 고정, HP·공격력 배율(GameBalance.BossPractice*), 0.7배 크기, 패턴·무방비·발악 없음(돌진만), 처치해도 재료·베팅·"승리" 없음(ClearBossUI) / TutorialDirector.InlineFreeze 동안 정지) / v7.3 (v9.11.1 2026-09-22 문구: 무방비, 실행 가능한 예고) / v7.2 (v9.10.1 2026-09-21: 재료 이름 전기알) / v7.1 (교수 피드백 C3: 디 오리지널 추가 그로기 / A8: 재가동 문구) / v6 - 보스 패턴 C단계 1차 (보스패턴설계 문서)
 /// - v6 변경점:
 ///   1) 미끼 도발 대응: 도발 중엔 미끼를 쫓아가고 물어뜯는다 (기차 무피해)
@@ -223,6 +223,7 @@ public partial class BossEnemy : Enemy
         // ── 보스 종류 = 이 웨이브의 맵 (v7.19 노선 - MapRoute. 예습 보스는 늘 녹슨 발톱의 새끼) ──
         int region = GameBalance.RegionOf(wave);   // 자리 (1·2·3, 최종전 4) - HP 배율은 자리를 따른다 (아래 hpScale)
         kind = practice ? BossKind.RustClaw : MapRoute.BossOf(MapRoute.MapOfWave(wave));
+        if (!practice && GameBalance.MusicByMapOn) SoundManager.MusicTo(SoundKeys.BossMusic(kind), GameBalance.MusicBossFadeSec, false);   // v7.20 (v9.33): 보스 곡 (디 오리지널은 웨이브 25 시작부터 돌고 있다 - 그대로)
 
         // ── 공통 웨이브 비례 스탯 ──
         bossMaxHP = GameBalance.BossHPBase + wave * GameBalance.BossHPPerWave;
@@ -718,7 +719,7 @@ public partial class BossEnemy : Enemy
         int k = Mathf.Clamp((int)kind, 0, SHARD_A.Length - 1);
         ArmorShard.Burst(transform.position, SHARD_A[k], SHARD_B[k], GameBalance.BossPhaseShiftShards);
         WorldFeel.Ring(transform.position, Color.Lerp(EMBER[k], Color.white, 0.3f), 3.4f, 0.35f);
-        SoundManager.Play("sfx_explosion", 0.6f, 0.03f);
+        SoundManager.PlayIn(SfxBus.Boss, "sfx_explosion", 0.6f);   // v7.20 (v9.33): 보스 전환의 폭음 = 보스 버스 (포탄 착탄과 같은 파일, 다른 예산)
     }
 
     /// <summary>
@@ -1787,7 +1788,7 @@ public partial class BossEnemy : Enemy
         castAge = 0f;
         castFxTimer = 0f;
         if (!PatternFx) return;
-        SoundManager.Play(SoundKeys.BossRoar(kind.ToString()), 0.55f, -1f);
+        SoundManager.Play("sfx_boss_cast");   // v7.20 (v9.33): 패턴 준비 = 전용 경고음 (경고 버스 - 배경음·전투음이 잠깐 낮아진다). 파일이 없으면 울음 (SoundKeys.Parent)
         // 갑주 재전개: 냉기가 뭉치는 자리 - 바닥의 서리가 준비 시간 동안 몸 크기까지 커진다
         // v7.14: 동면자의 새 패턴(입김·눈사태)은 frostDisc = false 로 부른다 - 서리 원은 갑주 재전개만
         if (kind == BossKind.Hibernator && frostDisc)
@@ -1830,7 +1831,7 @@ public partial class BossEnemy : Enemy
         int k = Mathf.Clamp((int)kind, 0, EMBER.Length - 1);
         if (bodyRing) WorldFeel.Ring(transform.position, Color.Lerp(EMBER[k], Color.white, 0.4f), FxRadius() * 1.6f, 0.3f);   // v7.12: 몸 폭 기준
         GameFeel.Shake(GameBalance.BossEntranceShake * GameBalance.BossReleaseShake);
-        SoundManager.Play("sfx_explosion", 0.3f, 0.05f);
+        SoundManager.PlayIn(SfxBus.Boss, "sfx_explosion", 0.3f);   // v7.20 (v9.33): 패턴 발동의 폭음 = 보스 버스
         if (statePuffs == null) statePuffs = StatePuffs.Create(this);
         Vector3 drift = new Vector3(ParallaxBackground.CurrentSpeed * 0.35f, 0.55f, 0f);
         statePuffs.Emit(MouthPos(), STEAM[k], 0.9f, 0.7f, drift);
@@ -1931,7 +1932,7 @@ public partial class BossEnemy : Enemy
         }
         WorldFeel.Ring(pos, BOLT_CORE, 1.2f, 0.25f);
         SparkPool.Emit(pos, SPARK, 8, 0.08f, 5f);
-        SoundManager.PlayAt("sfx_chain", pos);
+        SoundManager.PlayAt("sfx_bolt_strike", pos);   // v7.20 (v9.33): 보스 낙뢰 착탄 전용 (보스 버스). 연쇄 번개 sfx_chain 과 같은 착탄에 겹치지 않는다
     }
 
     /// <summary>패링 성공: 줄기가 포탑이 아니라 셰프의 병으로 꺾여 들어간다 (예고했던 수만큼)</summary>
@@ -2119,7 +2120,8 @@ public partial class BossEnemy : Enemy
         }
         boltTargets.Clear();
 
-        // v7.11: 발동(몸이 눌렸다 돌아온다 + 고리). 번개 소리 뒤에 부른다 - 발동의 낮은 폭음은 "큰 소리"라 먼저 나면 뒤따르는 번개 소리를 눌러 버린다(SoundManager 덕킹).
+        // v7.11: 발동(몸이 눌렸다 돌아온다 + 고리). 번개 소리 뒤에 부른다 - v7.20: 보스 버스가 차 있으면 나중에 온 작은 발동 폭음이 번개를 끊지 않고 빠진다
+        //        (처음 이유였던 "큰 소리 뒤 덕킹" 은 SoundManager v3 에서 뗐다).
         //        맞을 포탑이 하나도 없었으면(예고 줄도 없었다) 조용히 끝낸다 - 결과 없는 발동은 소음이다
         if (anyTarget) CastRelease();
         else castAge = -1f;
@@ -2433,6 +2435,7 @@ public partial class BossEnemy : Enemy
         if (PickupFX.FeedingBoss == this) PickupFX.FeedingBoss = null;
 
         ClimaxDirector.End(false);   // v7.15 (v9.24 B5): 식사 엔딩 - 클라이맥스 층이 ClimaxMealFadeSec 에 잦아든다 (싸움이 아니라 식탁이다)
+        if (GameBalance.MusicByMapOn) SoundManager.MusicStop(GameBalance.MusicVictoryFadeSec);   // v7.20 (v9.33): 엔딩 - 전투 곡을 끈다 (기적 두 번이 조용한 데서 울린다)
         Debug.Log("[BossEnemy] 마지막 식사 - 디 오리지널이 정찬을 받았다");
         StartCoroutine(LastSupperRoutine());
     }
@@ -2525,6 +2528,8 @@ public partial class BossEnemy : Enemy
             BossGimmickSystem.Instance?.ClearBossUI();
             return;
         }
+        // v7.20 (v9.33): 보스 곡을 끈다 - 지역 곡을 잠깐 되살리지 않는다 (정차하면 정비 곡, 다음 지역이면 그 곡)
+        if (GameBalance.MusicByMapOn) SoundManager.MusicStop(kind == BossKind.Original ? GameBalance.MusicVictoryFadeSec : GameBalance.MusicBossEndFadeSec);
 
         if (isServing)
         {

@@ -4,7 +4,7 @@ using UnityEditor;
 using UnityEngine;
 
 /// <summary>
-/// [WDTCleanup.cs] v1 (신규, v9.26 2026-10-16 마감 정리) - 메뉴 WDT > 마감 정리 (안 쓰는 파일 지우기)
+/// [WDTCleanup.cs] v1.1 (v9.33 2026-10-25 소리 팩: 옛 소리도 - Resources/Sounds 에서 새 변형 키_v01 이 생긴 키의 맨 이름 파일 (키.wav · .ogg · .mp3). SoundManager 가 _v01 을 먼저 읽어서 이제 안 쓴다) / v1 (신규, v9.26 2026-10-16 마감 정리) - 메뉴 WDT > 마감 정리 (안 쓰는 파일 지우기)
 /// 마감 빌드 전에 저장소에 남은 옛 파일을 한 번에 지운다. 목록은 아래 TARGETS 에 박혀 있다
 /// (2026-10-16 저장소 v9.25 를 씬·프리팹·코드와 대조해서 고른 것 - 어디서도 안 쓴다):
 ///   - 옛 스크립트 6 (v9.26 에서 내용을 비웠다 - 지우기 전에도 컴파일·실행에 영향 없음)
@@ -50,7 +50,8 @@ public static class WDTCleanup
         foreach (string path in TARGETS)
             if (File.Exists(path) || Directory.Exists(path)) found.Add(path);
 
-        if (found.Count == 0)
+        List<string> oldSounds = OldSoundFiles();   // v1.1 (v9.33)
+        if (found.Count == 0 && oldSounds.Count == 0)
         {
             EditorUtility.DisplayDialog("마감 정리", "지울 게 없어 - 이미 정리됐어.", "확인");
             return;
@@ -59,7 +60,7 @@ public static class WDTCleanup
         // 2. 목록을 보여 주고 한 번 묻는다
         string list = string.Join("\n", found.ToArray());
         bool go = EditorUtility.DisplayDialog("마감 정리",
-            "아래 " + found.Count + "개를 지울게 (.meta 도 같이). 씬·코드 어디서도 안 쓰는 것들이야.\n\n" + list,
+            "아래 " + (found.Count + oldSounds.Count) + "개를 지울게 (.meta 도 같이). 씬·코드 어디서도 안 쓰는 것들이야.\n\n" + list + OldSoundsLine(oldSounds),
             "지우기", "취소");
         if (!go) return;
 
@@ -69,6 +70,8 @@ public static class WDTCleanup
         try
         {
             foreach (string path in found)
+                if (!AssetDatabase.DeleteAsset(path)) failed.Add(path);
+            foreach (string path in oldSounds)
                 if (!AssetDatabase.DeleteAsset(path)) failed.Add(path);
         }
         finally
@@ -82,12 +85,40 @@ public static class WDTCleanup
                 AssetDatabase.DeleteAsset(folder);
         AssetDatabase.Refresh();
 
-        int deleted = found.Count - failed.Count;
+        int deleted = found.Count + oldSounds.Count - failed.Count;
         Debug.Log("[WDTCleanup] 지움 " + deleted + "개" + (failed.Count > 0 ? " / 못 지움: " + string.Join(", ", failed.ToArray()) : ""));
         EditorUtility.DisplayDialog("마감 정리",
             failed.Count == 0
                 ? deleted + "개 지웠어. Play 로 한 번 확인하고 커밋하면 끝."
                 : "못 지운 게 있어 (콘솔 참고):\n" + string.Join("\n", failed.ToArray()),
             "확인");
+    }
+
+    /// <summary>v1.1 (v9.33): 새 변형(키_v01)이 생긴 키의 옛 맨 이름 파일 - SoundManager v3 는 키_v01 ~ _v09 를 먼저 읽어서 이제 안 쓴다 (빌드 용량에만 들어간다)</summary>
+    private static List<string> OldSoundFiles()
+    {
+        List<string> list = new List<string>();
+        const string dir = "Assets/Resources/Sounds";
+        if (!Directory.Exists(dir)) return list;
+        string[] exts = { ".wav", ".ogg", ".mp3" };
+        foreach (string f in Directory.GetFiles(dir))
+        {
+            string ext = Path.GetExtension(f).ToLowerInvariant();
+            if (System.Array.IndexOf(exts, ext) < 0) continue;
+            string name = Path.GetFileNameWithoutExtension(f);
+            if (System.Text.RegularExpressions.Regex.IsMatch(name, "_v[0-9][0-9]$")) continue;   // 새 변형 자신
+            foreach (string e in exts)
+                if (File.Exists(Path.Combine(dir, name + "_v01" + e))) { list.Add(dir + "/" + Path.GetFileName(f)); break; }
+        }
+        return list;
+    }
+
+    /// <summary>옛 소리는 개수와 앞의 몇 개만 (목록이 백 줄을 넘는다)</summary>
+    private static string OldSoundsLine(List<string> oldSounds)
+    {
+        if (oldSounds.Count == 0) return "";
+        List<string> names = new List<string>();
+        for (int i = 0; i < oldSounds.Count && i < 4; i++) names.Add(Path.GetFileName(oldSounds[i]));
+        return "\n+ 옛 소리 " + oldSounds.Count + "개 (Resources/Sounds 에서 새 _v01 이 생긴 키의 옛 파일 - " + string.Join(", ", names.ToArray()) + (oldSounds.Count > 4 ? " ..." : "") + ")";
     }
 }
