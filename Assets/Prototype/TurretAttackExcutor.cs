@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 
 /// <summary>
-/// [TurretAttackExecutor.cs] v5.13 (v9.33 2026-10-25 소리: 주석만 - 착탄음이 잦은 소리를 낮추던 덕킹은 SoundManager v3 에서 뗐다) / v5.12 (v9.25 2026-10-16: DealDamage 에 싸움 유물 배율 ItemManager.RelicDamageMul (굶주린 화덕·짝꿍 숟가락·빈 접시) + 단골 주문 버프 OrderSystem.DamageMulFor (그 계열 +40%) / 폭발 반경 x ItemManager.ExplodeRadiusMul (무거운 냄비) / 화상·독 x ItemManager.DotMul (독한 소스)) / v5.11 (v9.24.1 2026-10-16 5차 피드백 5번 "탄환 증발": 탄이 손님을 따라간다 (GameBalance.ProjectileHoming - 예전엔 쏜 순간의 자리로 날아가 손님이 움직이면 빈자리에 떨어졌다). 날아가는 동안 표적이 죽으면 직격 탄은 탄 자리에서 가장 가까운 손님(ProjectileRetargetRadius 4u)으로 방향을 틀고, 폭발·장판은 마지막 자리에 떨어진다. 떨어진 자리의 판정은 LandShot 하나로) / v5.10 (v9.23 2026-10-14 보스 새 패턴: 탄·관통·부채꼴이 손님의 AimPoint 를 겨눈다 - 디 오리지널은 페이즈마다 약점 칸(머리 / 맨 뒤 화물칸 / 심장 칸)으로 탄이 모인다) / v5.9 (v9.21 2026-10-12 보스 1단계: 범위 판정(폭발·장판·동상 파편·마지막 서비스·대체 표적)의 거리를 Enemy.DistanceFrom 으로 - 큰 보스는 몸 가장자리까지 재서 9 ~ 20u 몸의 끝에 떨어진 폭발이 비껴가지 않는다) / v5.8 (v9.19.3 2026-10-07: 증강의 타격당 회복을 1초에 GameBalance.LifestealHitsPerSec 번까지만 센다 - LifestealReady. 타격마다 전부 세면 손님이 늘고 단단해진 만큼 회복이 불어나 기차 HP 가 닳지 않았다) / v5.7 (v9.19.2 2026-10-07: v5.6 의 "타격당 회복 x 손님의 몫"을 되돌렸다 - 손님이 제 힘으로 오니 때린 만큼 그대로 회복한다) / v5.6 (v9.19.1: 증강의 타격당 회복에 맞은 손님의 몫을 곱했다) / v5.5 (v9.18 2026-10-06: 피해 출처(CurrentSource = 쏜 포탑) - 데미지 숫자를 포탑별로 합산하게 HitFeel 에 같이 넘긴다. 날아가는 탄은 도착할 때 출처를 다시 건다) / v5.4 (v9.17 2026-10-06: v9.14 머리말에 적고 본문에 빠져 있던 것을 실제로 넣음 - 투사체가 날아가는 동안 Enemy.IncomingDamage 예약·도착 때 해제 / 도착했을 때 표적이 죽었으면 ProjectileRetargetRadius 안의 다른 손님을 맞힌다. + A5: 물리 단발이 맞으면 HitFeel.Knock(그림만 움찔)) / v5.3 (v9.16 2026-09-29 손맛 2차 - 소리: 발사음 = 요리 속성·티어·모양별(SoundKeys.Shot, 포탑 위치에서 PlayAt) / 폭발 착탄 sfx_explosion / 장판 sfx_field / 연쇄 번개 튈 때마다 sfx_chain / 증강 폭발(동상 파편·마지막 서비스)도 폭발음 / HitFeel.NextHit 에 요리 속성을 같이 넘겨 명중음에 속성 겹침이 얹힌다) / v5.2 (v9.14 2026-09-28 테스터 "하나 점사해서 잡으면 나머지가 다 빗나감": 투사체가 도착했을 때 표적이 이미 죽었으면 그 자리 근처의 다른 손님을 맞힌다(ProjectileRetargetRadius) + 날아가는 동안 Enemy.IncomingDamage 예약 - 포탑이 곧 죽을 손님을 건너뛴다) / v5.1 (v9.11 2026-09-22 타격감: DealDamage 가 HitFeel.NextHit(속성색·크리) 를 걸고 때린다) / v5
+/// [TurretAttackExecutor.cs] v5.14 (v9.35.2 2026-10-26 설명대로: 장판이 남아 있는 GameBalance.FieldLingerSec 동안 그 위 손님에게 감속을 다시 건다 (FieldLinger - 예전엔 떨어질 때 한 번, 그림만 4초) / 독 장판(fieldPoison)이 떨어질 때와 장판 위에서 독 1겹 - 장판이 겹쳐도 한 손님 1초 한 겹 (예전엔 독이 아예 안 들어갔다) / 부채꼴 거리 = GameBalance.ConeReach, 부채꼴 판단 FiresCone 한 곳 (TurretSlot 조준 · 카드 줄과 같이) / 관통 줄기는 노리는 거리만큼 (PierceFollowsAim)) / v5.13 (v9.33 2026-10-25 소리: 주석만 - 착탄음이 잦은 소리를 낮추던 덕킹은 SoundManager v3 에서 뗐다) / v5.12 (v9.25 2026-10-16: DealDamage 에 싸움 유물 배율 ItemManager.RelicDamageMul (굶주린 화덕·짝꿍 숟가락·빈 접시) + 단골 주문 버프 OrderSystem.DamageMulFor (그 계열 +40%) / 폭발 반경 x ItemManager.ExplodeRadiusMul (무거운 냄비) / 화상·독 x ItemManager.DotMul (독한 소스)) / v5.11 (v9.24.1 2026-10-16 5차 피드백 5번 "탄환 증발": 탄이 손님을 따라간다 (GameBalance.ProjectileHoming - 예전엔 쏜 순간의 자리로 날아가 손님이 움직이면 빈자리에 떨어졌다). 날아가는 동안 표적이 죽으면 직격 탄은 탄 자리에서 가장 가까운 손님(ProjectileRetargetRadius 4u)으로 방향을 틀고, 폭발·장판은 마지막 자리에 떨어진다. 떨어진 자리의 판정은 LandShot 하나로) / v5.10 (v9.23 2026-10-14 보스 새 패턴: 탄·관통·부채꼴이 손님의 AimPoint 를 겨눈다 - 디 오리지널은 페이즈마다 약점 칸(머리 / 맨 뒤 화물칸 / 심장 칸)으로 탄이 모인다) / v5.9 (v9.21 2026-10-12 보스 1단계: 범위 판정(폭발·장판·동상 파편·마지막 서비스·대체 표적)의 거리를 Enemy.DistanceFrom 으로 - 큰 보스는 몸 가장자리까지 재서 9 ~ 20u 몸의 끝에 떨어진 폭발이 비껴가지 않는다) / v5.8 (v9.19.3 2026-10-07: 증강의 타격당 회복을 1초에 GameBalance.LifestealHitsPerSec 번까지만 센다 - LifestealReady. 타격마다 전부 세면 손님이 늘고 단단해진 만큼 회복이 불어나 기차 HP 가 닳지 않았다) / v5.7 (v9.19.2 2026-10-07: v5.6 의 "타격당 회복 x 손님의 몫"을 되돌렸다 - 손님이 제 힘으로 오니 때린 만큼 그대로 회복한다) / v5.6 (v9.19.1: 증강의 타격당 회복에 맞은 손님의 몫을 곱했다) / v5.5 (v9.18 2026-10-06: 피해 출처(CurrentSource = 쏜 포탑) - 데미지 숫자를 포탑별로 합산하게 HitFeel 에 같이 넘긴다. 날아가는 탄은 도착할 때 출처를 다시 건다) / v5.4 (v9.17 2026-10-06: v9.14 머리말에 적고 본문에 빠져 있던 것을 실제로 넣음 - 투사체가 날아가는 동안 Enemy.IncomingDamage 예약·도착 때 해제 / 도착했을 때 표적이 죽었으면 ProjectileRetargetRadius 안의 다른 손님을 맞힌다. + A5: 물리 단발이 맞으면 HitFeel.Knock(그림만 움찔)) / v5.3 (v9.16 2026-09-29 손맛 2차 - 소리: 발사음 = 요리 속성·티어·모양별(SoundKeys.Shot, 포탑 위치에서 PlayAt) / 폭발 착탄 sfx_explosion / 장판 sfx_field / 연쇄 번개 튈 때마다 sfx_chain / 증강 폭발(동상 파편·마지막 서비스)도 폭발음 / HitFeel.NextHit 에 요리 속성을 같이 넘겨 명중음에 속성 겹침이 얹힌다) / v5.2 (v9.14 2026-09-28 테스터 "하나 점사해서 잡으면 나머지가 다 빗나감": 투사체가 도착했을 때 표적이 이미 죽었으면 그 자리 근처의 다른 손님을 맞힌다(ProjectileRetargetRadius) + 날아가는 동안 Enemy.IncomingDamage 예약 - 포탑이 곧 죽을 손님을 건너뛴다) / v5.1 (v9.11 2026-09-22 타격감: DealDamage 가 HitFeel.NextHit(속성색·크리) 를 걸고 때린다) / v5
 /// 포탑 공격 형태(8종)별 판정 및 이펙트 실행기
 /// - v3: 모든 TakeDamage에 r.damageType 적용 (DEF/RES 계산)
 /// - v4: 증강 시스템(AugmentManager) 연동
@@ -242,9 +242,12 @@ public static class TurretAttackExecutor
         if (r.shape == AttackShape.Field)
         {
             float radius = (r.fieldBig ? 130f : 90f) * 0.06f;
-            vfx.Field(hitPos, col, radius, 4f);
+            float life = GameBalance.FieldLingerSec > 0f ? GameBalance.FieldLingerSec : 4f;   // v5.14: 그림 = 장판이 일하는 시간
+            vfx.Field(hitPos, col, radius, life);
             SoundManager.PlayAt("sfx_field", hitPos);   // v5.3: 장판 깔림
             HitFieldArea(r, hitPos, radius);
+            // v5.14 (v9.35.2): 장판이 남아 있는 동안 그 위 손님에게 계속 (설명 "그 위를 지나는 손님이 계속")
+            if (GameBalance.FieldLingerSec > 0f) vfx.StartCoroutine(FieldLinger(r, hitPos, radius, GameBalance.FieldLingerSec));
         }
     }
 
@@ -606,8 +609,79 @@ public static class TurretAttackExecutor
         {
             if (!all[i].IsAlive) continue;
             if (all[i].DistanceFrom(center) <= radius)   // v5.9
+            {
                 ApplyEffects(r, all[i]);
+                // v5.14 (v9.35.2): 독 장판은 떨어질 때 독 1겹 (예전엔 fieldPoison 을 아무도 안 읽어 독이 안 들어갔다)
+                if (GameBalance.FieldPoisonOn && r.fieldPoison && !AugmentManager.PrimalPower) FieldPoison(all[i]);
+            }
         }
+    }
+
+    /// <summary>
+    /// v5.14 (v9.35.2): 장판이 남아 있는 life 초 동안 GameBalance.FieldTickSec 마다 그 위 손님에게 덤 효과를 다시 건다.
+    /// 감속은 다시 건다 (나가도 감속 시간만큼 남는다). 얼음 심장이면 장판에 처음 들어온 손님만 한 번 얼린다 (매 틱 얼리면 4초 내내 멈춘다).
+    /// 독 장판(영구동토 진액)은 장판 위 손님에게 독 1겹 - 장판이 여러 개 겹쳐도 한 손님에게 FieldPoisonEverySec 마다 한 겹 (FieldPoison).
+    /// 감속은 Enemy v3.24 의 상태 방식이라 다시 걸어도 쌓이지 않고 시간만 늘어난다. 피해는 없다 (직격 한 발만 - 예전 그대로). 원시 화력이면 아무것도 안 한다
+    /// </summary>
+    private static System.Collections.IEnumerator FieldLinger(RecipeData r, Vector3 center, float radius, float life)
+    {
+        float tick = Mathf.Max(0.1f, GameBalance.FieldTickSec);
+
+        // 얼음 심장: 이미 얼린 손님 - 떨어질 때(HitFieldArea) 범위 안에 있던 손님은 벌써 얼었다
+        HashSet<Enemy> touched = new HashSet<Enemy>();
+        Enemy[] first = EnemiesThisFrame();
+        for (int i = 0; i < first.Length; i++)
+            if (first[i] != null && first[i].IsAlive && first[i].DistanceFrom(center) <= radius) touched.Add(first[i]);
+
+        float t = 0f;
+        WaitForSeconds wait = new WaitForSeconds(tick);
+        while (t + tick <= life + 0.001f)
+        {
+            yield return wait;
+            t += tick;
+            if (AugmentManager.PrimalPower) continue;   // 원시 화력: 덤 효과 없음 (장판 그림만)
+
+            Enemy[] all = EnemiesThisFrame();
+            for (int i = 0; i < all.Length; i++)
+            {
+                Enemy en = all[i];
+                if (en == null || !en.IsAlive || en.DistanceFrom(center) > radius) continue;
+                FieldTouch(r, en, touched.Add(en));
+            }
+        }
+    }
+
+    /// <summary>v5.14: 독 장판 한 겹 - 장판이 여러 개 겹쳐도 한 손님에게 FieldPoisonEverySec 마다 한 겹 (리뷰: 겹치면 장판 수만큼 쌓였다)</summary>
+    private static void FieldPoison(Enemy en)
+    {
+        if (Time.time - en.lastFieldPoisonTime < GameBalance.FieldPoisonEverySec - 0.05f) return;
+        en.lastFieldPoisonTime = Time.time;
+        en.ApplyPoison(1, AugmentManager.DotMul * ItemManager.DotMul);
+        AugmentHooks.RegisterDot(en, 5f);
+    }
+
+    /// <summary>v5.14: 장판 위 손님 한 틱 - ApplyEffects 의 감속·독 부분만 (마비 · 깎기 · 회복은 직격 때만)</summary>
+    private static void FieldTouch(RecipeData r, Enemy en, bool firstTouch)
+    {
+        if (r.slowLevel >= 1)
+        {
+            if (AugmentManager.IceHeart)
+            {
+                if (firstTouch) { en.ApplyStun(0.8f); AugmentHooks.RegisterControl(en, 0.8f); }
+            }
+            else if (r.slowLevel >= 2) { en.ApplySpeedDebuff(0.3f, 3f); AugmentHooks.RegisterControl(en, 3f); }
+            else { en.ApplySpeedDebuff(0.5f, 2f); AugmentHooks.RegisterControl(en, 2f); }
+        }
+        if (GameBalance.FieldPoisonOn && r.fieldPoison) FieldPoison(en);
+    }
+
+    /// <summary>v5.14 (v9.35.2): 이 요리가 지금 부채꼴로 나가나 - 부채꼴 요리, 또는 산탄 셰프로 바뀐 단일 요리 (Execute 의 변환과 같은 판단 - 열차포 개조가 먼저).
+    /// TurretSlot(조준 거리)과 AugmentTargets(망원 조준경 카드 줄)가 같이 쓴다 - 둘이 갈라지지 않게 한 곳</summary>
+    public static bool FiresCone(RecipeData r)
+    {
+        if (r == null) return false;
+        if (r.shape == AttackShape.Cone) return true;
+        return r.shape == AttackShape.Projectile && !AugmentManager.PierceConversion && AugmentManager.ConeConversion;
     }
 
     /// <summary>관통(레일) 공격: 직선 경로상의 적 전부 풀 데미지</summary>
@@ -615,6 +689,9 @@ public static class TurretAttackExecutor
     {
         Vector3 dir = (target.AimPoint - origin).normalized;   // v5.10 (v9.23)
         float railLength = 20f;
+        // v5.14 (v9.35.2): 노리는 거리(TurretSlot.FindNearestEnemy 와 같은 셈)가 20 을 넘으면 줄기도 그만큼 - 늘어난 거리의 손님을 노리고 못 닿던 헛방
+        if (GameBalance.PierceFollowsAim)
+            railLength = Mathf.Max(railLength, GameBalance.TurretRange * AugmentManager.RangeMul * ItemManager.RangeMul);
         float railWidth = 1.2f;
 
         if (AttackVFX.Instance != null)
@@ -640,7 +717,7 @@ public static class TurretAttackExecutor
     private static void HitCone(RecipeData r, Vector3 origin, Enemy target, float damage, Color col)
     {
         Vector3 dir = (target.AimPoint - origin).normalized;   // v5.10 (v9.23)
-        float coneRange = 7f;
+        float coneRange = GameBalance.ConeReach;   // v5.14: 부채꼴 포탑의 조준(TurretSlot.FindNearestEnemy)과 같은 값
         float coneHalfAngle = 26f;
 
         if (AttackVFX.Instance != null)

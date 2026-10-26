@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// [FoodStock.cs] v2.5 (v9.25 2026-10-16 B4 단골 주문: OnCooked - 조리를 하나 마칠 때마다 (일반 조리·접시 진화 조리·포탑 진화 조리, CountCook 첫 줄) 요리 키를 알린다. OrderSystem 이 듣는다) / v2.4 (v9.23 2026-10-14 점검 수정: 숙련 알림 말을 튜토리얼과 같게 - "조리 판정 칸" -> "초록·노란 구간", 이름 뒤 을/를을 받침으로 고른다 (예전엔 "을(를)") / 진화 조리 성공도 숙련으로 센다 - 부르는 곳은 CookingBridge·TurretSlotManager) / v2.3 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v2.2 (v9.11 2026-09-22: 방금 늘어난 요리 LastAddedId/Frame - HUD 카드 날아가기·튀기 연출용) / v2.1 (v9.10 2026-09-17: 숙련 알림을 일상어로 - "이 요리를 N번 만들었다 - 손에 익어 ..." 테스터 "숙련도 어쩌구 설명 필요") / v2
+/// [FoodStock.cs] v2.6 (v9.34 2026-10-25: 숙련 50회 알림에서 "새로 놓으면 레벨 2부터"를 뗐다 - 새 포탑은 늘 Lv1 (GameBalance.StartLevelBonusOn)) / v2.5 (v9.25 2026-10-16 B4 단골 주문: OnCooked - 조리를 하나 마칠 때마다 (일반 조리·접시 진화 조리·포탑 진화 조리, CountCook 첫 줄) 요리 키를 알린다. OrderSystem 이 듣는다) / v2.4 (v9.23 2026-10-14 점검 수정: 숙련 알림 말을 튜토리얼과 같게 - "조리 판정 칸" -> "초록·노란 구간", 이름 뒤 을/를을 받침으로 고른다 (예전엔 "을(를)") / 진화 조리 성공도 숙련으로 센다 - 부르는 곳은 CookingBridge·TurretSlotManager) / v2.3 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v2.2 (v9.11 2026-09-22: 방금 늘어난 요리 LastAddedId/Frame - HUD 카드 날아가기·튀기 연출용) / v2.1 (v9.10 2026-09-17: 숙련 알림을 일상어로 - "이 요리를 N번 만들었다 - 손에 익어 ..." 테스터 "숙련도 어쩌구 설명 필요") / v2
 /// 완성된 요리 보관소 + 도감(발견) 관리 (싱글톤)
 /// - 조리 성공 -> Add / 슬롯 투입, T2 합성 -> TryConsume
 /// - v2 변경점 (도감 영구화):
@@ -70,7 +70,7 @@ public class FoodStock : MonoBehaviour
         string msg = "이 요리 포탑 공격력 +" + Mathf.RoundToInt(GameBalance.MasteryAtkBonus[tier] * 100f) + "%";
         if (GameBalance.MasteryJudgeBonus[tier] > 0f)
             msg += ", 초록·노란 구간 +" + Mathf.RoundToInt(GameBalance.MasteryJudgeBonus[tier] * 100f) + "%";
-        if (tier == GameBalance.MasteryStartLevelTier)
+        if (GameBalance.StartLevelBonusOn && tier == GameBalance.MasteryStartLevelTier)   // v2.6: 시작 레벨 보너스를 끈 동안은 말하지 않는다
             msg += ", 새로 놓으면 레벨 2부터";
         if (tier >= GameBalance.MasteryPerfectTier)
             msg += ", PERFECT면 하나 더";

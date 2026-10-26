@@ -4,7 +4,7 @@ using UnityEngine.TextCore.LowLevel;
 using TMPro;
 
 /// <summary>
-/// [TMPFontFixer.cs] v1 (신규 파일) - TMP 폰트 자동 복구/통일
+/// [TMPFontFixer.cs] v1.1 (v9.35.2 2026-10-26 NewWorldText - 월드 글자는 글꼴이 든 꺼진 본을 복제해 만든다. 켜진 오브젝트에 그냥 AddComponent 하면 Awake 가 TMP 기본 글꼴을 찾다 경고 (Player.log 10-26: 2,215줄)) / v1 (신규 파일) - TMP 폰트 자동 복구/통일
 ///
 /// 배경: 씬의 HUD 텍스트(GoldText/WaveText 등 19개)는 TextMeshPro(TMP)로 만들어져
 /// 있었고, 삭제된 NotoSans SDF 폰트를 참조하고 있었다. 그 결과 "LiberationSans SDF
@@ -95,6 +95,36 @@ public class TMPFontFixer : MonoBehaviour
                 + "Assets/Resources/Fonts/GameFont.ttf 존재 여부와 "
                 + "Window > TextMeshPro > Import TMP Essential Resources 를 확인");
         return koreanFont;
+    }
+
+    // ─────────────────────────────────────────────
+    // v1.1 (v9.35.2): 월드 글자(TextMeshPro)를 글꼴이 든 채로 만든다
+    // ─────────────────────────────────────────────
+    private static GameObject worldTextTemplate;   // 글꼴이 든 꺼진 본 (DontDestroyOnLoad)
+
+    /// <summary>
+    /// v1.1 (v9.35.2): 글꼴이 이미 든 월드 TMP 를 만든다 - 본(꺼진 오브젝트)을 복제해 켠다.
+    /// 켜진 오브젝트에 그냥 AddComponent&lt;TextMeshPro&gt;() 하면 그 자리에서 Awake 가 TMP 기본 글꼴(LiberationSans SDF)을 찾다가
+    /// "Font Asset was not found" 경고를 남긴다 (Player.log 10-26: 피해 숫자 · 글자 팝마다 2,215줄). 이제 본을 만들 때 한 번뿐.
+    /// 사용법: TextMeshPro t = TMPFontFixer.NewWorldText("TextPop", pos);  (DamagePopup · HitFeel.TextPop · BossPatterns 숫자 원이 쓴다)
+    /// </summary>
+    public static TextMeshPro NewWorldText(string name, Vector3 pos)
+    {
+        if (worldTextTemplate == null)
+        {
+            GameObject t = new GameObject("TMPWorldTextTemplate");
+            DontDestroyOnLoad(t);
+            TextMeshPro tt = t.AddComponent<TextMeshPro>();   // 글꼴 없는 Awake 는 여기 한 번
+            Apply(tt);
+            t.SetActive(false);
+            worldTextTemplate = t;
+        }
+        GameObject go = Instantiate(worldTextTemplate, pos, Quaternion.identity);   // 꺼진 채로 나온다 - 글꼴은 본에서 복사됨
+        go.name = name;
+        go.SetActive(true);                                                       // 여기서 Awake - 글꼴이 있으니 경고 없음
+        TextMeshPro tmp = go.GetComponent<TextMeshPro>();
+        Apply(tmp);   // 본을 만들 때 글꼴을 못 만들었으면 지금 다시 (같은 글꼴이면 아무 일 없다)
+        return tmp;
     }
 
     /// <summary>런타임 생성 TMP 텍스트용: 통일 폰트 배정 (DamagePopup 등에서 호출)</summary>

@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 
 /// <summary>
-/// [KitchenEvents.cs] v2.3 (v9.20 2026-10-07: 글 속 화살표를 게임 글꼴에 있는 세모로(게임 글꼴에 화살표 글리프가 없어 PC 의 다른 글꼴로 그려졌다 - 모양이 따로 놀고, 대신할 글꼴이 없는 빌드에선 빈칸)) / v2.2 (v9.18 2026-10-06: 화재가 타는 동안의 틱은 DamageTrainTick - 표의 값 그대로, 방어력 무시. 실패 한 방(DamageTrain)만 최대 HP 에 비례한다) / v2.1 (v9.14 2026-09-28: 흘림 조각 자리가 사고 배너와 겹치지 않게) / v2 / v9.10.1 2026-09-21: 재료 이름 MaterialNames
+/// [KitchenEvents.cs] v2.4 (v9.35.1 2026-10-26 유저 "불붙는 방해 이벤트 이펙트가 가끔 안 나온다": 화재의 현장 그림(그을음·불길·연기)은 KitchenEventManager.SiteArtRoot 에 - 위치 먼저여도 처음부터 보인다. 명판 "화재"·[E] 칩(단색이면 "화재" 글자)만 셰프가 닿은 뒤 (AwaitingArrival). 배너·불의 벽·처음 보는 사고 카드는 예전처럼 닿을 때) / v2.3 (v9.20 2026-10-07: 글 속 화살표를 게임 글꼴에 있는 세모로(게임 글꼴에 화살표 글리프가 없어 PC 의 다른 글꼴로 그려졌다 - 모양이 따로 놀고, 대신할 글꼴이 없는 빌드에선 빈칸)) / v2.2 (v9.18 2026-10-06: 화재가 타는 동안의 틱은 DamageTrainTick - 표의 값 그대로, 방어력 무시. 실패 한 방(DamageTrain)만 최대 HP 에 비례한다) / v2.1 (v9.14 2026-09-28: 흘림 조각 자리가 사고 배너와 겹치지 않게) / v2 / v9.10.1 2026-09-21: 재료 이름 MaterialNames
 /// 주방 돌발 이벤트 인터페이스 + 4종 구현체 (기획 B-4)
 ///
 /// 새 조작키를 만들지 않고 기존 조작만 재활용한다
@@ -503,6 +503,7 @@ public class KitchenFireEvent : IKitchenEvent
     private float burnTickTimer;      // 도트 적용 주기 누적기 (0.5초 묶음)
     private RectTransform fireBox;
     private Text fireLabel;
+    private RectTransform sitePlate, siteChip;   // v2.4 (v9.35.1): 명판 "화재"·[E] 칩 - 셰프가 현장에 닿은 뒤에만 (불길 그림은 처음부터)
 
     // v2 스킨
     private bool skin;
@@ -536,7 +537,7 @@ public class KitchenFireEvent : IKitchenEvent
         }
 
         // B-1: 불길이 앵커 지점에서 타오른다 (달려갈 곳이 보이게)
-        fireBox = KitchenEventManager.MakeBox(mgr.CustomRoot, "Fire", new Color(1f, 0.35f, 0.1f, 0.35f));
+        fireBox = KitchenEventManager.MakeBox(mgr.SiteArtRoot, "Fire", new Color(1f, 0.35f, 0.1f, 0.35f));
         fireBox.anchorMin = new Vector2(0.5f, 0.5f);
         fireBox.anchorMax = new Vector2(0.5f, 0.5f);
         fireBox.anchoredPosition = new Vector2(mgr.AnchorCanvasX(), -40f);
@@ -549,9 +550,10 @@ public class KitchenFireEvent : IKitchenEvent
         lrt.anchorMax = Vector2.one;
         lrt.offsetMin = Vector2.zero;
         lrt.offsetMax = Vector2.zero;
+        ShowSiteWords(!mgr.AwaitingArrival);   // v2.4: "화재" 글자는 닿은 뒤 (불 상자는 처음부터)
     }
 
-    /// <summary>v2: 불의 벽 + 연기 (오버레이) / 현장 그을음 + 불길 3 + 연기 2 + 명판 + 칩 (커스텀, fireBox 가 묶음)</summary>
+    /// <summary>v2: 불의 벽 + 연기 (오버레이) / 현장 그을음 + 불길 3 + 연기 2 + 명판 + 칩 (v2.4: 현장 그림 층 SiteArtRoot, fireBox 가 묶음)</summary>
     private void BuildSkin(KitchenEventManager mgr)
     {
         mgr.SetAlarm(KitchenEventSkin.RED, 0.7f);
@@ -581,7 +583,7 @@ public class KitchenFireEvent : IKitchenEvent
         }
 
         // 현장 묶음 (300x190, 앵커 X 를 매 프레임 따라간다). 자식 좌표 = 목업 v2 의 상자 기준 좌표를 중앙 원점으로 옮긴 값
-        fireBox = KitchenEventManager.MakeBox(mgr.CustomRoot, "Fire", new Color(0f, 0f, 0f, 0f));
+        fireBox = KitchenEventManager.MakeBox(mgr.SiteArtRoot, "Fire", new Color(0f, 0f, 0f, 0f));
         fireBox.anchorMin = new Vector2(0.5f, 0.5f);
         fireBox.anchorMax = new Vector2(0.5f, 0.5f);
         fireBox.anchoredPosition = new Vector2(mgr.AnchorCanvasX(), -40f);
@@ -595,8 +597,9 @@ public class KitchenFireEvent : IKitchenEvent
         markerSmoke[0] = KitchenEventManager.MakeSprite(fireBox, "Smoke0", SpriteBank.Get("ui_ev_smoke_0"), new Vector2(-90f, 65f), new Vector2(48f, 48f));
         markerSmoke[1] = KitchenEventManager.MakeSprite(fireBox, "Smoke1", SpriteBank.Get("ui_ev_smoke_1"), new Vector2(40f, 75f), new Vector2(48f, 48f));
 
-        UISkin.Nameplate(fireBox, "Fire", "화재", 14, new Vector2(0.5f, 0.5f), new Vector2(-26f, 89f), 52f);
-        KitchenEventManager.MakeChip(fireBox, "Hint", "[E] 꾹 누르기", new Vector2(0f, -117f), KitchenEventSkin.RED);
+        sitePlate = UISkin.Nameplate(fireBox, "Fire", "화재", 14, new Vector2(0.5f, 0.5f), new Vector2(-26f, 89f), 52f);
+        siteChip = KitchenEventManager.MakeChip(fireBox, "Hint", "[E] 꾹 누르기", new Vector2(0f, -117f), KitchenEventSkin.RED);
+        ShowSiteWords(!mgr.AwaitingArrival);   // v2.4: 할 일 글자는 닿은 뒤 - 그 전엔 현장 위 이름표 "화재 n초" 가 대신한다
     }
 
     public bool OnUpdate(float dt, out bool success)
@@ -607,6 +610,7 @@ public class KitchenFireEvent : IKitchenEvent
         // 플레이테스트 픽스: 화재 박스를 현장 월드 좌표에 매 프레임 재고정
         if (fireBox != null)
             fireBox.anchoredPosition = new Vector2(manager.AnchorCanvasX(), -40f);
+        ShowSiteWords(!manager.AwaitingArrival);   // v2.4: 셰프가 처음 닿는 프레임에 명판·칩이 켜진다
 
         // 불이 꺼질 때까지 기차가 피해를 입는다
         // [수정] 매 프레임 잘게 넣으면 TrainManager 최소데미지(1) 보정 때문에
@@ -643,6 +647,14 @@ public class KitchenFireEvent : IKitchenEvent
             return true;
         }
         return false;
+    }
+
+    /// <summary>v2.4 (v9.35.1): 현장의 할 일 글자(명판 "화재"·[E] 칩, 단색이면 "화재" 글자)를 켜고 끈다 - 불길 그림은 늘 보인다</summary>
+    private void ShowSiteWords(bool on)
+    {
+        if (sitePlate != null && sitePlate.gameObject.activeSelf != on) sitePlate.gameObject.SetActive(on);
+        if (siteChip != null && siteChip.gameObject.activeSelf != on) siteChip.gameObject.SetActive(on);
+        if (fireLabel != null && fireLabel.gameObject.activeSelf != on) fireLabel.gameObject.SetActive(on);
     }
 
     /// <summary>v2: 불의 벽 프레임/높이, 연기 상승, 현장 불길 3 -> 2 -> 1</summary>

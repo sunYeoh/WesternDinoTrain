@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// [Enemy.cs] v3.22 (v9.33 2026-10-25 소리: 주석만 - 큰 처치음이 잦은 소리를 낮추던 덕킹은 SoundManager v3 에서 뗐다) / v3.21 (v9.32 2026-10-22 노선: 웨이브의 맵 배율 - 체력·공격력·처치 골드·재료·유물 확률 (WaveManager.MapNorms - 맵이 다른 자리에 와도 세기는 자리를 따른다, 보스 제외) / 이름별 방어·저항 표를 정적 DefResOf 로 (WaveManager 가 세기 합에 쓴다)) / v3.20 (v9.28 2026-10-20 하드 모드: HP·공격·방어·저항 x HardEnemy* (전체 강화·지역 곡선 위에), 일반 손님 처치 골드 x HardKillGoldMul · 재료 확률 x HardMaterialMul. 견습 운행은 아님 - HardMode.Active 가 본다) / v3.19 (v9.26 2026-10-16 마감 정리: 부르는 곳 없는 HasDot · ApplyKnockback 삭제) / v3.18 (v9.25 2026-10-16 B3 지역 곡선: 지역 2·3 손님 HP·공격력에 GameBalance.RegionHpMulAt·RegionAtkMulAt (견습 운행 제외) / B5 유물 '탐욕의 국자': 처치 골드 x ItemManager.KillGoldMul (보스 포함)) / v3.17 (v9.23 2026-10-14 보스 새 패턴: AimPoint - 포탑이 겨누는 자리 (보통은 몸 가운데, 디 오리지널은 약점 칸 - BossEnemy 재정의) / AimX - 노릴 칸의 x (편대 발진의 플라이가 표시된 칸으로 내리꽂힌다) / LuredByBait - 랩터 무리가 아니어도 미끼에 끌린다 (부관 발톱) / OnDied - 쓰러질 때 부르는 곳 하나 (부관이 쓰러지면 왕이 운다) / Rout - 보스가 쓰러졌다: 먼지를 끌며 달아난다, 처치 골드는 그 자리에서 (재료·유물 없음, 표적이 안 된다)) / v3.16 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v3.15 (v9.21.1 2026-10-13 4차 피드백 7번: 처치 골드를 반올림하지 않고 소수를 모아 둔다 GoldCarry - 머릿수를 늘린 작은 손님(몫 0.43)이 "최소 1 + 반올림"으로 구성표의 1.7배를 주던 것. GameBalance.GoldCarryOn) / v3.14 (v9.21 2026-10-12 보스 1단계: DistanceFrom(점) - 범위 판정(폭발·장판·대체 표적)이 쓰는 거리. 손님은 중심까지, 보스(BossEnemy 재정의)는 몸(돌아간 사각형)의 가장자리까지 - 9 ~ 20u 몸의 끝에 떨어진 폭발이 비껴가지 않게) / v3.13 (v9.19.2 2026-10-07 유저 확인 뒤: 머릿수를 늘린 손님이 제 힘으로 온다 - 기차를 물 때 몫을 안 넘기고(TrainManager 가 예전 식 + 방어력 바닥), 받는 회복도 그대로. Share 는 보상·도구 부식·빙결 확률·힐러가 주는 회복에만 / 전체 강화: 방어·저항 x EnemyDefMul, 견습 운행은 TutorialEnemy* 로 예전 값) / v3.12 (v9.19.1 2026-10-07: Share - 머릿수를 늘린 손님 한 마리의 몫 (v3.11 의 RewardMul 을 대신한다). 처치 보상에 더해, 기차를 물 때 방어력·연속 피격 완충을 몫만큼만 쓰게 TrainManager 에 넘기고 전갈의 도구 부식·모사 빙결 확률·힐러 회복에도 곱한다) / v3.11 (v9.19 2026-10-06 웨이브 편성: PaceMul - 호위 행렬의 작은 손님이 큰 손님 걸음에 맞출 때 WaveManager 가 거는 걸음 배율. 둔화·기절(scaledSPD)과 따로 곱해진다 / RewardMul - 머릿수를 늘린 작은 손님의 처치 보상(골드·재료 확률·상자 확률)을 그만큼 나눈다) / v3.10 (v9.18 2026-10-06: 숫자 팝업에 쏜 포탑을 같이 넘긴다(포탑별 합산) / 견습 운행 중에는 쓰러지면 재료를 반드시 떨어뜨린다 - "고기 2개" 단계에서 1개만 나오던 것) / v3.9 (v9.17 2026-10-06 화면 손맛 2차: quietDeath - 식사 엔딩의 보스는 처치음·킬 버스트 없이 흐려진다 / A4: 숫자 팝업을 DamagePopup.CreateFor(크기 비례·0.1초 합산)로, 크리 표시는 진짜 치명타만(HitFeel.ConsumeCrit) - 예전엔 피해가 손님 공격력의 2배 이상이면 크리로 찍혀 치명타 증강이 없어도 "!" 가 떴다) / v3.8 (v9.16 2026-09-29 손맛 2차 - 소리: 공격음 = 손님 종류별(SoundKeys.Attack, 제자리에서 PlayAt) / 처치음 = 재질별(SoundKeys.Die) - 큰 손님은 sfx_kill_big / 명중음은 HitFeel.OnHit 이 재질별로 내고, 방어에 크게 깎인 물리는 튕김음(resisted 전달)) / v3.7 (v9.15 2026-09-29: 방어·저항으로 피해가 GameBalance.ResistShowBelow 이하로 깎이면 팝업에 "저항" - 하나만 키우면 왜 안 통하는지 화면에서) / v3.6 (v9.14 2026-09-28: IncomingDamage - 과잉 집중 방지용 예약 피해) / v3.5 (v9.12 2026-09-22: TutorialDirector.InlineFreeze 동안 정지 / 용어 "지속 피해") / v3.4 (v9.11.1 2026-09-22 문구: 특기 설명 일상어, 강철 = 방어 50) / v3.3 (v9.11 2026-09-22 타격감: 직접 명중 때 HitFeel.OnHit(플래시·찌그러짐·딜 비례 스파크), 죽을 때 HitFeel.OnKill(킬 버스트) - 도트 틱은 제외) / v3.2 (v9.10.1 2026-09-21: 물량 1.6배에 맞춘 처치 보상 배율 - 일반 손님 골드 GameBalance.KillGoldMul, 재료 드랍 확률 KillMaterialChance(보스는 항상). 드랍 이름을 재료 이름표(전기알·화염꽃·독샘)에 맞춤) / v3.1 (2026-09-14: 해빙 문구 / 전갈 마모 대체 스위치) / v3
+/// [Enemy.cs] v3.24 (v9.35.2 2026-10-26 둔화·기절 = 지금 걸린 것의 상태 (ControlMul - 기절이면 0, 아니면 걸린 둔화 중 가장 센 것. 이동 속도 SpeedMul 에 곱한다). 예전 코루틴은 걸 때의 속도를 기억했다가 되돌려, 겹치면 곱으로 쌓이고 끝나는 순서에 따라 영영 느리거나 멈춘 채로 남았다 (빙벽 스튜 오라·마비 둘이 겹칠 때부터 - 리뷰 v9.35.2) / 깎기 겹 상한 = GameBalance.ShredMaxStacks + 증강 '부식성 위산' (AugmentManager.ShredCapAdd) - 예전 3 고정이라 실버·골드 깎기 증강이 같은 효과였다 / 독 장판 한 손님 1초 한 겹 (lastFieldPoisonTime)) / v3.23 (v9.35 2026-10-25 성장·구조: 세기는 옛 25웨이브 자 (GameBalance.EqWave - 지역 5 의 W5 = 옛 8) / 하드 = 웨이브마다 곱으로 (HardMode.Growth - HP x1.05 · 공격 x1.02 씩) /
+///   처치 골드·재료·유물 확률 x 웨이브 한 판의 몫 (GameBalance.WaveWorth - 견습·훈련장 제외). 재료 확률이 1 을 넘으면 넘는 만큼 한 개 더) / v3.22 (v9.33 2026-10-25 소리: 주석만 - 큰 처치음이 잦은 소리를 낮추던 덕킹은 SoundManager v3 에서 뗐다) / v3.21 (v9.32 2026-10-22 노선: 웨이브의 맵 배율 - 체력·공격력·처치 골드·재료·유물 확률 (WaveManager.MapNorms - 맵이 다른 자리에 와도 세기는 자리를 따른다, 보스 제외) / 이름별 방어·저항 표를 정적 DefResOf 로 (WaveManager 가 세기 합에 쓴다)) / v3.20 (v9.28 2026-10-20 하드 모드: HP·공격·방어·저항 x HardEnemy* (전체 강화·지역 곡선 위에), 일반 손님 처치 골드 x HardKillGoldMul · 재료 확률 x HardMaterialMul. 견습 운행은 아님 - HardMode.Active 가 본다) / v3.19 (v9.26 2026-10-16 마감 정리: 부르는 곳 없는 HasDot · ApplyKnockback 삭제) / v3.18 (v9.25 2026-10-16 B3 지역 곡선: 지역 2·3 손님 HP·공격력에 GameBalance.RegionHpMulAt·RegionAtkMulAt (견습 운행 제외) / B5 유물 '탐욕의 국자': 처치 골드 x ItemManager.KillGoldMul (보스 포함)) / v3.17 (v9.23 2026-10-14 보스 새 패턴: AimPoint - 포탑이 겨누는 자리 (보통은 몸 가운데, 디 오리지널은 약점 칸 - BossEnemy 재정의) / AimX - 노릴 칸의 x (편대 발진의 플라이가 표시된 칸으로 내리꽂힌다) / LuredByBait - 랩터 무리가 아니어도 미끼에 끌린다 (부관 발톱) / OnDied - 쓰러질 때 부르는 곳 하나 (부관이 쓰러지면 왕이 운다) / Rout - 보스가 쓰러졌다: 먼지를 끌며 달아난다, 처치 골드는 그 자리에서 (재료·유물 없음, 표적이 안 된다)) / v3.16 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v3.15 (v9.21.1 2026-10-13 4차 피드백 7번: 처치 골드를 반올림하지 않고 소수를 모아 둔다 GoldCarry - 머릿수를 늘린 작은 손님(몫 0.43)이 "최소 1 + 반올림"으로 구성표의 1.7배를 주던 것. GameBalance.GoldCarryOn) / v3.14 (v9.21 2026-10-12 보스 1단계: DistanceFrom(점) - 범위 판정(폭발·장판·대체 표적)이 쓰는 거리. 손님은 중심까지, 보스(BossEnemy 재정의)는 몸(돌아간 사각형)의 가장자리까지 - 9 ~ 20u 몸의 끝에 떨어진 폭발이 비껴가지 않게) / v3.13 (v9.19.2 2026-10-07 유저 확인 뒤: 머릿수를 늘린 손님이 제 힘으로 온다 - 기차를 물 때 몫을 안 넘기고(TrainManager 가 예전 식 + 방어력 바닥), 받는 회복도 그대로. Share 는 보상·도구 부식·빙결 확률·힐러가 주는 회복에만 / 전체 강화: 방어·저항 x EnemyDefMul, 견습 운행은 TutorialEnemy* 로 예전 값) / v3.12 (v9.19.1 2026-10-07: Share - 머릿수를 늘린 손님 한 마리의 몫 (v3.11 의 RewardMul 을 대신한다). 처치 보상에 더해, 기차를 물 때 방어력·연속 피격 완충을 몫만큼만 쓰게 TrainManager 에 넘기고 전갈의 도구 부식·모사 빙결 확률·힐러 회복에도 곱한다) / v3.11 (v9.19 2026-10-06 웨이브 편성: PaceMul - 호위 행렬의 작은 손님이 큰 손님 걸음에 맞출 때 WaveManager 가 거는 걸음 배율. 둔화·기절(scaledSPD)과 따로 곱해진다 / RewardMul - 머릿수를 늘린 작은 손님의 처치 보상(골드·재료 확률·상자 확률)을 그만큼 나눈다) / v3.10 (v9.18 2026-10-06: 숫자 팝업에 쏜 포탑을 같이 넘긴다(포탑별 합산) / 견습 운행 중에는 쓰러지면 재료를 반드시 떨어뜨린다 - "고기 2개" 단계에서 1개만 나오던 것) / v3.9 (v9.17 2026-10-06 화면 손맛 2차: quietDeath - 식사 엔딩의 보스는 처치음·킬 버스트 없이 흐려진다 / A4: 숫자 팝업을 DamagePopup.CreateFor(크기 비례·0.1초 합산)로, 크리 표시는 진짜 치명타만(HitFeel.ConsumeCrit) - 예전엔 피해가 손님 공격력의 2배 이상이면 크리로 찍혀 치명타 증강이 없어도 "!" 가 떴다) / v3.8 (v9.16 2026-09-29 손맛 2차 - 소리: 공격음 = 손님 종류별(SoundKeys.Attack, 제자리에서 PlayAt) / 처치음 = 재질별(SoundKeys.Die) - 큰 손님은 sfx_kill_big / 명중음은 HitFeel.OnHit 이 재질별로 내고, 방어에 크게 깎인 물리는 튕김음(resisted 전달)) / v3.7 (v9.15 2026-09-29: 방어·저항으로 피해가 GameBalance.ResistShowBelow 이하로 깎이면 팝업에 "저항" - 하나만 키우면 왜 안 통하는지 화면에서) / v3.6 (v9.14 2026-09-28: IncomingDamage - 과잉 집중 방지용 예약 피해) / v3.5 (v9.12 2026-09-22: TutorialDirector.InlineFreeze 동안 정지 / 용어 "지속 피해") / v3.4 (v9.11.1 2026-09-22 문구: 특기 설명 일상어, 강철 = 방어 50) / v3.3 (v9.11 2026-09-22 타격감: 직접 명중 때 HitFeel.OnHit(플래시·찌그러짐·딜 비례 스파크), 죽을 때 HitFeel.OnKill(킬 버스트) - 도트 틱은 제외) / v3.2 (v9.10.1 2026-09-21: 물량 1.6배에 맞춘 처치 보상 배율 - 일반 손님 골드 GameBalance.KillGoldMul, 재료 드랍 확률 KillMaterialChance(보스는 항상). 드랍 이름을 재료 이름표(전기알·화염꽃·독샘)에 맞춤) / v3.1 (2026-09-14: 해빙 문구 / 전갈 마모 대체 스위치) / v3
 /// 모든 적 유닛의 기본 동작 + 전투 스탯(DEF/RES) + 상태이상(도트/방깎/마깎)
 /// - v3 변경점: 행동 패턴 시스템 (이름 기반 자동 배정 - 프리팹 설정 불필요)
 ///   1) 무리 사냥꾼(랩터): 주변 랩터가 많을수록 이동 속도 증가
@@ -368,6 +369,8 @@ public class Enemy : MonoBehaviour
     public float scaledSPD;
     /// <summary>v3.11: 걸음 맞춤 배율 (1 = 평소). 호위 행렬에서 WaveManager.EscortLeash 가 건다 - scaledSPD 를 직접 바꾸면 둔화·기절이 끝날 때 되돌리는 값과 엉킨다</summary>
     [System.NonSerialized] public float PaceMul = 1f;
+    /// <summary>v3.24 (v9.35.2): 독 장판이 이 손님에게 마지막으로 독을 넣은 때 - 장판이 겹쳐도 FieldPoisonEverySec 마다 한 겹 (TurretAttackExecutor.FieldPoison)</summary>
+    [System.NonSerialized] public float lastFieldPoisonTime = -99f;
     /// <summary>
     /// v3.12 / v3.13: "한 번에 얼마"의 몫 (1 = 평소). 편성에서 머릿수를 늘린 손님은 SwarmRewardMul x 원래 수 / 늘린 수 (작은 손님 0.43 안팎) - WaveManager.SpawnUnitAt 이 건다.
     /// 손님은 제 힘(HP·공격력)으로 온다. 이 몫은 머릿수만큼 불어나면 안 되는 것에만 곱한다 - 그 합이 구성표 x SwarmRewardMul 이 되게:
@@ -493,15 +496,18 @@ public class Enemy : MonoBehaviour
 
     public void InitializeWithWaveScaling(int waveNumber, int playerLevel, float difficultyL = 2.0f)
     {
-        float multiplier = 1f + (waveNumber * 0.15f) / difficultyL;
         // 전역 밸런스 배율 (GameBalance에서 조정). v3.13: 견습 운행은 예전 배율 (TutorialEnemy*)
         bool tutorial = TutorialRules();
+        // v3.23 (v9.35): 웨이브는 옛 25웨이브 자 - 지역 5 로 웨이브가 줄어도 보스 앞 손님은 옛 보스 앞 손님만큼 세다 (견습 운행은 번호 그대로 - 예전 값)
+        float scaleWave = tutorial ? waveNumber : GameBalance.EqWave(waveNumber);
+        float multiplier = 1f + (scaleWave * 0.15f) / difficultyL;
+        scaledWave = waveNumber;   // 처치 보상의 한 판 몫 (WaveWorthNow)
         // v3.18 (v9.25 B3): 지역 곡선 - 지역 2·3 손님은 더 단단하고 세다 (5차 피드백 "너무 쉬움". 견습 운행은 예전 값)
         float regionHp = tutorial ? 1f : GameBalance.RegionHpMulAt(waveNumber);
         float regionAtk = tutorial ? 1f : GameBalance.RegionAtkMulAt(waveNumber);
-        currentHP = data.baseHP * multiplier * (tutorial ? GameBalance.TutorialEnemyHPMul : GameBalance.EnemyHPMul) * regionHp * HardMode.Mul(GameBalance.HardEnemyHpMul);   // v3.20: 하드 모드
+        currentHP = data.baseHP * multiplier * (tutorial ? GameBalance.TutorialEnemyHPMul : GameBalance.EnemyHPMul) * regionHp * HardMode.Growth(GameBalance.HardEnemyHpMul, GameBalance.HardEnemyHpGrowth, waveNumber);   // v3.20: 하드 모드. v3.23: 웨이브마다 곱으로
         scaledMaxHP = currentHP;
-        scaledATK = data.baseATK * multiplier * (tutorial ? GameBalance.TutorialEnemyATKMul : GameBalance.EnemyATKMul) * regionAtk * HardMode.Mul(GameBalance.HardEnemyAtkMul);
+        scaledATK = data.baseATK * multiplier * (tutorial ? GameBalance.TutorialEnemyATKMul : GameBalance.EnemyATKMul) * regionAtk * HardMode.Growth(GameBalance.HardEnemyAtkMul, GameBalance.HardEnemyAtkGrowth, waveNumber);
         scaledSPD = data.baseSPD;
 
         // v3.21 (v9.32): 맵 배율 - 노선이 섞여 이 맵이 다른 자리에 와도 세기는 자리를 따른다 (지금 순서의 같은 웨이브 손님 전체에 맞춘 한 마리 배율. 견습·훈련장·프롤로그는 1)
@@ -651,7 +657,7 @@ public class Enemy : MonoBehaviour
     /// <summary>버프 반영 이동 배율</summary>
     private float SpeedMul()
     {
-        float mul = (IsBuffed ? 1.3f : 1f) * PaceMul;
+        float mul = (IsBuffed ? 1.3f : 1f) * PaceMul * ControlMul();   // v3.24: 둔화·기절은 여기서 (scaledSPD 는 손대지 않는다)
 
         // 무리 사냥꾼: 주변 5칸 내 같은 랩터 1마리당 +8% (최대 +40%)
         // v3.6 (기술감사): 매 프레임 전체 스캔이 O(n^2)라서 0.5초 캐시로 완화
@@ -936,19 +942,22 @@ public class Enemy : MonoBehaviour
         dots.Add(d);
     }
 
-    /// <summary>방깎: 스택당 DEF -15, 5초 (최대 3스택, 시간 갱신)</summary>
+    /// <summary>v3.24 (v9.35.2): 깎기 겹 상한 = GameBalance.ShredMaxStacks (3) + 증강 '부식성 위산' (+2)</summary>
+    private static int ShredCap { get { return Mathf.Max(1, GameBalance.ShredMaxStacks + AugmentManager.ShredCapAdd); } }
+
+    /// <summary>방깎: 스택당 DEF -15, 5초 (최대 ShredCap 스택, 시간 갱신)</summary>
     public void ApplyShredDef(int stack)
     {
         if (!isAlive) return;
-        shredDefStack = Mathf.Min(3, shredDefStack + stack);
+        shredDefStack = Mathf.Min(ShredCap, shredDefStack + stack);
         shredTimer = 5f;
     }
 
-    /// <summary>마깎: 스택당 RES -15, 5초 (최대 3스택, 시간 갱신)</summary>
+    /// <summary>마깎: 스택당 RES -15, 5초 (최대 ShredCap 스택, 시간 갱신)</summary>
     public void ApplyShredRes(int stack)
     {
         if (!isAlive) return;
-        shredResStack = Mathf.Min(3, shredResStack + stack);
+        shredResStack = Mathf.Min(ShredCap, shredResStack + stack);
         shredTimer = 5f;
     }
 
@@ -989,7 +998,7 @@ public class Enemy : MonoBehaviour
         // Phase 2-3: 아주 낮은 확률로 아이템(유물) 드랍 - 보스는 확률 대폭 상향
         // B-2: 즉시 지급 대신 갑판 상자로 떨어진다 (죽은 자리 방향의 갑판 - 밟아서 회수)
         float itemChance = (this is BossEnemy)
-            ? GameBalance.ItemDropChanceBoss : GameBalance.ItemDropChance * Share * mapDropMul;   // v3.21: 맵 배율
+            ? GameBalance.ItemDropChanceBoss : GameBalance.ItemDropChance * Share * mapDropMul * WaveWorthNow();   // v3.21: 맵 배율. v3.23: 웨이브 한 판의 몫
         if (Random.value < itemChance)
             DeckLoot.SpawnItemCrate(transform.position.x, data.enemyName + " 잔해에서 발견");
         // (감사 3-B: XP 시스템 절단 - AddXP 호출 제거)
@@ -998,11 +1007,14 @@ public class Enemy : MonoBehaviour
         // v3.2: 일반 손님은 KillMaterialChance 확률로만 재료를 떨어뜨린다 (물량 1.6배 상쇄). 보스는 항상
         // v3.10: 견습 운행(자유 연습 제외)에서는 반드시 떨어뜨린다 - 단계 목표가 "고기 2개" 인데 60% 라 1개만 나오곤 했다
         bool sureDrop = isBoss || (GameBalance.TutorialFixedRules && TutorialDirector.Active && !TutorialDirector.SandboxActive);
-        if (MaterialInventory.Instance != null && (sureDrop || Random.value < GameBalance.KillMaterialChance * Share * mapDropMul * HardMode.Mul(GameBalance.HardMaterialMul)))   // v3.20: 하드 모드. v3.21: 맵 배율
+        // v3.23 (v9.35): 웨이브 한 판의 몫(WaveWorth)까지 곱하면 확률이 1 을 넘을 수 있다 - 넘는 만큼은 한 개 더 (기대값 = 확률)
+        float dropChance = GameBalance.KillMaterialChance * Share * mapDropMul * HardMode.Mul(GameBalance.HardMaterialMul) * WaveWorthNow();   // v3.20: 하드 모드. v3.21: 맵 배율
+        int drops = sureDrop ? 1 : Mathf.FloorToInt(dropChance) + (Random.value < dropChance - Mathf.Floor(dropChance) ? 1 : 0);
+        if (MaterialInventory.Instance != null && drops > 0)
         {
             MaterialType matType = GetDropMaterialType();
-            int amount = 1;
-            float extra = AugmentManager.MaterialDropMul - 1f;
+            int amount = drops;
+            float extra = (AugmentManager.MaterialDropMul - 1f) * drops;   // 증강 '자석 흡입기 개조' - 떨어진 한 개마다
             while (extra >= 1f) { amount++; extra -= 1f; }
             if (extra > 0f && Random.value < extra) amount++;
             PickupFX.Spawn(transform.position, matType, amount);
@@ -1010,6 +1022,14 @@ public class Enemy : MonoBehaviour
 
         StartCoroutine(DestroyAfterDelay(0.5f));
     }
+
+    /// <summary>v3.23 (v9.35): 일반 손님 처치 보상(골드·재료·유물 확률)에 곱하는 웨이브 한 판의 몫 (GameBalance.WaveWorth - 지역 5 = 1.6, 운행 전체 합이 옛 운행과 같게).
+    /// 견습 운행·훈련장·자유 연습은 1 (그쪽 보상은 따로 맞춰 놨다). 보스 처치 골드·보스 재료는 안 곱한다 (보스 수는 그대로다)</summary>
+    private float WaveWorthNow()
+    {
+        return TutorialDirector.Active || TutorialDirector.SandboxActive ? 1f : GameBalance.WaveWorthAt(scaledWave);   // 최종전 손님은 1 (옛 25 한 판)
+    }
+    private int scaledWave = 1;   // v3.23: InitializeWithWaveScaling 이 받은 웨이브
 
     /// <summary>
     /// 처치 골드 (Die 와 Rout 가 같이 쓴다).
@@ -1026,11 +1046,11 @@ public class Enemy : MonoBehaviour
             if (GameBalance.GoldCarryOn)
             {
                 // v3.15: 소수 누적 - 한 마리 1.5 골드면 두 마리에 3 (예전엔 2 + 2). 새 운행마다 0 에서 (CookingBridge.ResetRunStats)
-                float exact = gold * GameBalance.KillGoldMul * ItemManager.KillGoldMul * HardMode.Mul(GameBalance.HardKillGoldMul) * Share * mapGoldMul + goldCarry;   // v3.18: 유물 탐욕의 국자. v3.20: 하드 모드. v3.21: 맵 배율
+                float exact = gold * GameBalance.KillGoldMul * ItemManager.KillGoldMul * HardMode.Mul(GameBalance.HardKillGoldMul) * Share * mapGoldMul * WaveWorthNow() + goldCarry;   // v3.23: 웨이브 한 판의 몫.   // v3.18: 유물 탐욕의 국자. v3.20: 하드 모드. v3.21: 맵 배율
                 gold = Mathf.FloorToInt(exact);
                 goldCarry = exact - gold;
             }
-            else gold = Mathf.Max(1, Mathf.RoundToInt(gold * GameBalance.KillGoldMul * ItemManager.KillGoldMul * HardMode.Mul(GameBalance.HardKillGoldMul) * Share * mapGoldMul));
+            else gold = Mathf.Max(1, Mathf.RoundToInt(gold * GameBalance.KillGoldMul * ItemManager.KillGoldMul * HardMode.Mul(GameBalance.HardKillGoldMul) * Share * mapGoldMul * WaveWorthNow()));
         }
         else if (ItemManager.KillGoldMul != 1f) gold = Mathf.RoundToInt(gold * ItemManager.KillGoldMul);   // v3.18: 보스 처치 골드도 유물 배율
         if (gold > 0) GameManager.Instance?.AddGold(gold);
@@ -1116,18 +1136,37 @@ public class Enemy : MonoBehaviour
     // 디버프 메서드 (포탑/투척에서 호출)
     // ─────────────────────────────────────────────
 
+    // ── v3.24 (v9.35.2): 둔화·기절 = '지금 걸린 것' 상태 ──
+    //   예전: 걸 때의 속도(scaledSPD)를 기억했다가 끝날 때 그 값으로 되돌리는 코루틴. 겹치면 둔화가 곱으로 쌓이고 (0.5 위에 0.5 = 0.25),
+    //   먼저 건 것이 먼저 끝나 원래 속도로 돌린 뒤 나중 것이 '둔화된 속도'로 되돌려 영영 느리거나 (기절이면) 멈춘 채로 남았다.
+    //   빙벽 스튜 오라(0.5초마다 0.6초)·마비 둘이 겹칠 때부터 있던 일 - v9.35.2 장판이 0.5초마다 다시 걸면서 크게 드러난다 (리뷰).
+    //   이제: 이동 = scaledSPD x SpeedMul(), SpeedMul 에 ControlMul() 을 곱한다. 같은 세기는 시간만 늘리고, 다른 세기는 칸을 따로 쓴다 (가장 센 것이 이긴다)
+    private const int SLOW_SLOTS = 4;
+    private readonly float[] slowMul = new float[SLOW_SLOTS];
+    private readonly float[] slowEnd = new float[SLOW_SLOTS];
+    private float stunEnd = -1f;
+
     public void ApplySpeedDebuff(float speedMultiplier, float duration)
     {
-        if (!isAlive) return;
-        StartCoroutine(SpeedDebuffCoroutine(speedMultiplier, duration));
-    }
-
-    private IEnumerator SpeedDebuffCoroutine(float multiplier, float duration)
-    {
-        float originalSpeed = scaledSPD;
-        scaledSPD = originalSpeed * multiplier;
-        yield return new WaitForSeconds(duration);
-        if (isAlive) scaledSPD = originalSpeed;
+        if (!isAlive || duration <= 0f) return;
+        float now = Time.time, end = now + duration;
+        int free = -1;
+        for (int i = 0; i < SLOW_SLOTS; i++)
+        {
+            if (slowEnd[i] > now && Mathf.Abs(slowMul[i] - speedMultiplier) < 0.001f)
+            {
+                if (end > slowEnd[i]) slowEnd[i] = end;   // 같은 세기 - 시간만 늘린다
+                return;
+            }
+            if (free < 0 && slowEnd[i] <= now) free = i;
+        }
+        if (free < 0)   // 칸이 다 찼다 - 가장 먼저 끝나는 칸에
+        {
+            free = 0;
+            for (int i = 1; i < SLOW_SLOTS; i++) if (slowEnd[i] < slowEnd[free]) free = i;
+        }
+        slowMul[free] = speedMultiplier;
+        slowEnd[free] = end;
     }
 
     // v3.4: 마지막 스턴 명중 시각 (보스 '사냥 호령' 파훼 판정용)
@@ -1137,14 +1176,18 @@ public class Enemy : MonoBehaviour
     {
         if (!isAlive) return;
         LastStunTime = Time.time;
-        StartCoroutine(StunCoroutine(duration));
+        float end = Time.time + duration;
+        if (end > stunEnd) stunEnd = end;   // 겹치면 긴 쪽까지 (v3.24)
     }
 
-    private IEnumerator StunCoroutine(float duration)
+    /// <summary>v3.24 (v9.35.2): 지금 이동 배율 - 기절 중이면 0, 아니면 걸린 둔화 중 가장 센 것 (없으면 1)</summary>
+    public float ControlMul()
     {
-        float originalSpeed = scaledSPD;
-        scaledSPD = 0f;
-        yield return new WaitForSeconds(duration);
-        if (isAlive) scaledSPD = originalSpeed;
+        float now = Time.time;
+        if (now < stunEnd) return 0f;
+        float mul = 1f;
+        for (int i = 0; i < SLOW_SLOTS; i++)
+            if (slowEnd[i] > now && slowMul[i] < mul) mul = slowMul[i];
+        return mul;
     }
 }

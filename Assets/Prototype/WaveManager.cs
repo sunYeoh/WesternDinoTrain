@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// [WaveManager.cs] v6.32 (v9.33 2026-10-25 소리 팩: 지역 진입 = 그 맵 곡 (SoundKeys.MapMusic, 1.2초 교차) / 같은 지역으로 출발 = 정차 곡에서 그 지역 곡으로 멈춘 자리부터 (1초)) / v6.31 (v9.32 2026-10-22 노선: 구성표 = 그 자리에 놓인 맵의 제 손님만 (MapConfig - 협곡은 하늘 맵, 광산은 강철 랩터가 무리, 종착역은 세 맵의 정예), 세기는 지금 순서의 같은 웨이브(LegacyConfig)에 맞춘 한 마리 배율 (SumRoster -> hpNorm·atkNorm·goldNorm·dropNorm, Enemy 가 MapNorms 로 읽는다), 지역 전환·예고·지역 카드·편성 가중치·협곡의 낙뢰·재료 보장·보스 카드가 맵(MapRoute)을 따른다, BuildRoster 와 세기 합이 한 표(VisitRoster)) / v6.30 (v9.31 2026-10-21 급식 조리: 인분이 늘어나는 지역(기본 2 · 3)의 첫 웨이브에 지역 카드 뒤로 스피노 카드 BriefingTexts.BatchCook - 한 번만) / v6.29 (v9.28 2026-10-20 하드 모드: 머릿수 x HardCountMul - 크기별 배율(AddUnits)과 조각 크기(BeatSize)에) / v6.28 (v9.26 2026-10-16 마감 정리: 편성 이름 줄(ShowFormationLine·FORMATION_HINTS)과 방향 예고 화살표(CueAt·CueArrow·sfx_cue_approach) 코드 삭제 - 10-07 유저 결정으로 값을 0 으로 꺼 두었던 것. 하던 일은 그대로) / v6.27 (v9.24 2026-10-15 갈림길 D2: 가지로 출발했으면 첫 손님은 꼬리까지 갈림길을 다 넘은 뒤에 (ParallaxBackground.ForkFollowActive, 최대 GameBalance.ForkHoldMaxSec) - 칸이 꺾인 동안은 그림과 판정 자리가 달라서. 웨이브 예고는 그대로) / v6.26 (v9.23 2026-10-14 보스 새 패턴: SpawnBossUnits - 보스가 정한 자리마다 한 마리씩 (부관 발톱·새끼 테라노돈·하차 랩터·편대 플라이, 데이터를 바꿔 끼울 수 있다) / SpawnBossFormation - 호령이 편성 조각(포위·양동)으로 온다 (화살표 없음, 제 힘 그대로) / 최종전 동안 북쪽 스폰을 남쪽으로 돌린다 (BossEnemy.NorthBlocked - 맞수 열차 몸이 북쪽을 막고 있다)) / v6.25 (v9.22.2 2026-10-14 유저 "튜토리얼 말투가 번역체·AI 같고 딱딱하다": 안내 글 말투를 반말 해체로 - 명령형 ~라·설명 ~다 끝맺음, 문장 속 기호, 어려운 말(투입·재가동·곁·유인)를 걷어냈다. 규칙 = 문구원칙 10-14 저녁 "말투" 절) / v6.24 (v9.22.1 2026-10-14 유저 "튜토리얼에 드래그가 반영 안 됐다": 프롤로그 조리 게이트 안내 3줄을 끌어다 놓기·재료 중심 조리 창 기준으로) / v6.23 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v6.22 (v9.20 2026-10-07: 보스가 부른 증원이 보스 등 뒤에서 뛰쳐나온다 - SpawnReinforcements 에 부른 자리·등 뒤 여부·보상 몫, 자리로 스폰하는 SpawnEnemyAtPos) / v6.21 (v9.19.2 2026-10-07 유저 확인 뒤: 머릿수를 늘린 손님이 제 힘으로 온다 - AddUnits 가 한 마리를 나눠 약하게 하지 않고 크기별 HP 배율(TierHpMul*)과 초반 배율(EarlyBodyStart)만 건다. Enemy.Share 는 보상·도구 부식 같은 "한 번에 얼마"에만 / 편성 이름 줄과 방향 예고 화살표는 GameBalance 값으로 꺼졌다(FormationLineShows 0·SpawnCueSec 0 - 코드는 그대로)) / v6.20 (v9.19.1 2026-10-07 유저 소감: 손님이 생기는 테두리가 "지금 보이는 화면"을 따라간다(SpawnBounds - 휠로 넓게 보면 화면 가운데에서 생기던 것. 구 방식 스폰·보스 증원·보스 등장도 같은 테두리) / 머릿수 대폭 증가: 손님 크기별 배율 CountMulSmall·Mid·Big + 무리 세기 GroupPower*, 조각 크기 FormationSizeMul. 손님에게 한 마리의 몫(Enemy.Share)을 건다 - 보상·기차 방어력·연속 피격 완충·고정량 효과가 몫만큼만 먹게) /
+/// [WaveManager.cs] v6.34 (v9.35.2 2026-10-26 호위 행렬은 가운데 손님의 '지금 속도'(scaledSPD x Enemy.ControlMul - 둔화·기절)에 맞춘다. Enemy v3.24 부터 둔화가 scaledSPD 를 안 바꿔, 그대로면 가운데 손님이 느려질 때 호위가 앞서 나갔다 멈췄다 했다) / v6.33 (v9.35 2026-10-25 성장·구조: 지역 5 웨이브 - 편성이 풀리는 때·초반 머릿수 오름·스폰 간격·베팅·행상인 문턱은 옛 25웨이브 자 (GameBalance.EqWave), 선로 고르기는 GameBalance.RouteChoiceAt) / v6.32 (v9.33 2026-10-25 소리 팩: 지역 진입 = 그 맵 곡 (SoundKeys.MapMusic, 1.2초 교차) / 같은 지역으로 출발 = 정차 곡에서 그 지역 곡으로 멈춘 자리부터 (1초)) / v6.31 (v9.32 2026-10-22 노선: 구성표 = 그 자리에 놓인 맵의 제 손님만 (MapConfig - 협곡은 하늘 맵, 광산은 강철 랩터가 무리, 종착역은 세 맵의 정예), 세기는 지금 순서의 같은 웨이브(LegacyConfig)에 맞춘 한 마리 배율 (SumRoster -> hpNorm·atkNorm·goldNorm·dropNorm, Enemy 가 MapNorms 로 읽는다), 지역 전환·예고·지역 카드·편성 가중치·협곡의 낙뢰·재료 보장·보스 카드가 맵(MapRoute)을 따른다, BuildRoster 와 세기 합이 한 표(VisitRoster)) / v6.30 (v9.31 2026-10-21 급식 조리: 인분이 늘어나는 지역(기본 2 · 3)의 첫 웨이브에 지역 카드 뒤로 스피노 카드 BriefingTexts.BatchCook - 한 번만) / v6.29 (v9.28 2026-10-20 하드 모드: 머릿수 x HardCountMul - 크기별 배율(AddUnits)과 조각 크기(BeatSize)에) / v6.28 (v9.26 2026-10-16 마감 정리: 편성 이름 줄(ShowFormationLine·FORMATION_HINTS)과 방향 예고 화살표(CueAt·CueArrow·sfx_cue_approach) 코드 삭제 - 10-07 유저 결정으로 값을 0 으로 꺼 두었던 것. 하던 일은 그대로) / v6.27 (v9.24 2026-10-15 갈림길 D2: 가지로 출발했으면 첫 손님은 꼬리까지 갈림길을 다 넘은 뒤에 (ParallaxBackground.ForkFollowActive, 최대 GameBalance.ForkHoldMaxSec) - 칸이 꺾인 동안은 그림과 판정 자리가 달라서. 웨이브 예고는 그대로) / v6.26 (v9.23 2026-10-14 보스 새 패턴: SpawnBossUnits - 보스가 정한 자리마다 한 마리씩 (부관 발톱·새끼 테라노돈·하차 랩터·편대 플라이, 데이터를 바꿔 끼울 수 있다) / SpawnBossFormation - 호령이 편성 조각(포위·양동)으로 온다 (화살표 없음, 제 힘 그대로) / 최종전 동안 북쪽 스폰을 남쪽으로 돌린다 (BossEnemy.NorthBlocked - 맞수 열차 몸이 북쪽을 막고 있다)) / v6.25 (v9.22.2 2026-10-14 유저 "튜토리얼 말투가 번역체·AI 같고 딱딱하다": 안내 글 말투를 반말 해체로 - 명령형 ~라·설명 ~다 끝맺음, 문장 속 기호, 어려운 말(투입·재가동·곁·유인)를 걷어냈다. 규칙 = 문구원칙 10-14 저녁 "말투" 절) / v6.24 (v9.22.1 2026-10-14 유저 "튜토리얼에 드래그가 반영 안 됐다": 프롤로그 조리 게이트 안내 3줄을 끌어다 놓기·재료 중심 조리 창 기준으로) / v6.23 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v6.22 (v9.20 2026-10-07: 보스가 부른 증원이 보스 등 뒤에서 뛰쳐나온다 - SpawnReinforcements 에 부른 자리·등 뒤 여부·보상 몫, 자리로 스폰하는 SpawnEnemyAtPos) / v6.21 (v9.19.2 2026-10-07 유저 확인 뒤: 머릿수를 늘린 손님이 제 힘으로 온다 - AddUnits 가 한 마리를 나눠 약하게 하지 않고 크기별 HP 배율(TierHpMul*)과 초반 배율(EarlyBodyStart)만 건다. Enemy.Share 는 보상·도구 부식 같은 "한 번에 얼마"에만 / 편성 이름 줄과 방향 예고 화살표는 GameBalance 값으로 꺼졌다(FormationLineShows 0·SpawnCueSec 0 - 코드는 그대로)) / v6.20 (v9.19.1 2026-10-07 유저 소감: 손님이 생기는 테두리가 "지금 보이는 화면"을 따라간다(SpawnBounds - 휠로 넓게 보면 화면 가운데에서 생기던 것. 구 방식 스폰·보스 증원·보스 등장도 같은 테두리) / 머릿수 대폭 증가: 손님 크기별 배율 CountMulSmall·Mid·Big + 무리 세기 GroupPower*, 조각 크기 FormationSizeMul. 손님에게 한 마리의 몫(Enemy.Share)을 건다 - 보상·기차 방어력·연속 피격 완충·고정량 효과가 몫만큼만 먹게) /
 /// v6.19 (v9.19 2026-10-06 웨이브 편성: 웨이브 2 부터 손님을 편성 조각으로 내보낸다(RunFormations - 추격·파상·매복·호위 행렬·양동·포위·공중 편대 + 산개, GameBalance.WaveFormationsOn). 조각마다 오는 쪽 예고(WarningFX.SpawnCue)가 먼저, 조각 사이엔 쉼(BeatGap). 손님은 화면 바로 밖 테두리(EdgePoint)에서 생긴다. 구 방식 본문은 SpawnWaveClassic 으로 / 웨이브 예고 카드의 "주의" 문구는 알림 줄로) /
 /// v6.23 (v9.21 2026-10-12 보스 1단계: 정식 보스는 서는 자리(GameBalance.BossStandX, 북쪽) 위 BossHideDY 만큼 떨어진 곳에 생기고 등장 연출(BossEnemy.EntranceV2)이 자리에 놓는다 - 걸어오지 않는다. BossEntranceV2 가 꺼져 있으면 예전처럼 화면 밖 테두리에서) /
 /// v6.18 (v9.18 2026-10-06: 보스는 기차 북쪽(화면 위)에서만 온다(GameBalance.BossSpawnNorthOnly - 남쪽은 하단 HUD 에 가려진다), 예습 보스는 포탑 칸 B 위에서 / 웨이브가 끝났을 때 사고가 진행 중이면 사고가 끝난 뒤에 증강·선로 선택을 연다(PostWaveHold, WaitEventBeforeChoiceSec) / 코드 폴백 손님의 그림 고르기를 EnemySkin.SpriteFor 한 곳으로) /
@@ -743,7 +743,7 @@ public class WaveManager : MonoBehaviour
     {
         int[] table = GameBalance.FormationUnlockWave;
         int idx = (int)f;
-        return table == null || idx >= table.Length || wave >= table[idx];
+        return table == null || idx >= table.Length || GameBalance.EqWave(wave) >= table[idx] - 0.001f;   // v6.33: 옛 자 (지역 5 = 웨이브 2·2·3·3·4·4·6)
     }
 
     // ── 1. 구성표를 손님 목록으로 펼친다 ──
@@ -817,7 +817,8 @@ public class WaveManager : MonoBehaviour
     {
         float countMul = (tier == SizeTier.Small ? GameBalance.CountMulSmall : (tier == SizeTier.Mid ? GameBalance.CountMulMid : GameBalance.CountMulBig)) * HardMode.Mul(GameBalance.HardCountMul);   // v6.29: 하드 모드
         float tierHp = hpTier == SizeTier.Small ? GameBalance.TierHpMulSmall : (hpTier == SizeTier.Mid ? GameBalance.TierHpMulMid : GameBalance.TierHpMulBig);   // HP 등급은 머릿수 등급과 따로 받는다 (강철 랩터)
-        float ramp = GameBalance.CountRampWaves > 0 ? Mathf.Clamp01((wave - GameBalance.WaveFormationFromWave) / (float)GameBalance.CountRampWaves) : 1f;
+        // v6.33 (v9.35): 오름은 옛 자 - 지역 5 = 웨이브 2 는 0.19, 3 은 0.62, 4 부터 다 자란다 (옛 웨이브 6 자리)
+        float ramp = GameBalance.CountRampWaves > 0 ? Mathf.Clamp01((GameBalance.EqWave(wave) - GameBalance.WaveFormationFromWave) / GameBalance.CountRampWaves) : 1f;
         countMul = 1f + (countMul - 1f) * Mathf.Lerp(Mathf.Clamp01(GameBalance.CountRampStart), 1f, ramp);
         float early = Mathf.Lerp(Mathf.Clamp(GameBalance.EarlyBodyStart, 0.1f, 1f), 1f, ramp);
         share = 1f;
@@ -1592,7 +1593,8 @@ public class WaveManager : MonoBehaviour
             }
 
             float ahead = Vector3.Dot(self.transform.position - leader.transform.position, dir) - slotAlong;
-            float match = Mathf.Clamp(leader.scaledSPD / Mathf.Max(0.1f, self.scaledSPD), 0.05f, 1f);
+            // v6.34 (v9.35.2): 둘 다 '지금 속도'로 (Enemy.ControlMul = 둔화·기절) - 가운데가 느려지면 호위도 같이 느려진다
+            float match = Mathf.Clamp(leader.scaledSPD * leader.ControlMul() / Mathf.Max(0.1f, self.scaledSPD * self.ControlMul()), 0.05f, 1f);
             self.PaceMul = ahead > 0.25f ? match * 0.3f : (ahead < -0.35f ? 1f : match);
         }
 
@@ -2615,10 +2617,11 @@ public class WaveManager : MonoBehaviour
             // Phase 2-3: 그 외 정차에는 등짐장수 안킬로가 확률 등장 (아이템 행상인)
             //  - 스피노와 안킬로는 같은 역에 절대 같이 서지 않는다 ("그 도마뱀 옆엔 안 앉수다")
             // v6.10: 첫 보스는 베팅 없이 (BetMinWave), 첫 정차들은 상점 없이 (MerchantMinWave) - "초반부터 우겨 넣지 말고 하나씩"
+            float nextEq = GameBalance.EqWave(nextWave);   // v6.33 (v9.35): 문턱은 옛 25웨이브 자 - 지역 5 = 베팅 웨이브 10·15 / 행상인 웨이브 4 부터
             bool finalStop = GameBalance.SpinoNoBetAtFinal && nextWave >= GameBalance.FinalWave;   // v6.15: 최종전 직전엔 판을 접는다 (고백 카드는 최종전 시작에)
-            if (GameBalance.IsBossWave(nextWave) && nextWave >= GameBalance.BetMinWave && !finalStop)
+            if (GameBalance.IsBossWave(nextWave) && nextEq >= GameBalance.BetMinWave - 0.001f && !finalStop)
                 SpinoBetUI.Show(nextWave, delegate { ProceedRouteChoice(nextWave); });
-            else if (nextWave >= GameBalance.MerchantMinWave && MerchantUI.ShouldAppear(nextWave))
+            else if (nextEq >= GameBalance.MerchantMinWave - 0.001f && MerchantUI.ShouldAppear(nextWave))
                 MerchantUI.Show(nextWave, delegate { ProceedRouteChoice(nextWave); });
             else
                 ProceedRouteChoice(nextWave);
@@ -2630,9 +2633,8 @@ public class WaveManager : MonoBehaviour
     {
         // v6.5 (감사 2-A): 선로 선택 빈도 1/2 - 메뉴 피로 완화
         // 짝수 웨이브 앞 + 보스 직전에만 선택, 나머지는 자동 '곧은 선로'
-        bool routeChoice = BranchRouteUI.Instance != null
-            && nextWave >= GameBalance.RouteChoiceMinWave   // v6.10: 첫 지역은 곧은 선로 고정 (개정안 §7)
-            && (nextWave % 2 == 0 || GameBalance.IsBossWave(nextWave));
+        // v6.33 (v9.35): 옛 규칙(웨이브 9 부터 짝수 웨이브 앞 + 보스 앞)을 옛 자로 - 지역 5 = 웨이브 7·8·9·10 / 12 ~ 15 앞 + 최종전 앞. 첫 지역은 곧은 선로 고정 (v6.10, 개정안 §7)
+        bool routeChoice = BranchRouteUI.Instance != null && GameBalance.RouteChoiceAt(nextWave);
 
         if (routeChoice)
         {
@@ -2826,7 +2828,7 @@ public class WaveManager : MonoBehaviour
     {
         WaveConfig config = new WaveConfig();
         config.waveNumber = i;
-        config.spawnInterval = Mathf.Max(0.3f, 1.0f - (i * 0.03f));
+        config.spawnInterval = Mathf.Max(0.3f, 1.0f - GameBalance.EqWave(i) * 0.03f);   // v6.33: 옛 자
         config.difficultyL = GameBalance.EnemyDifficultyL; // 난이도 계수 (GameBalance에서 조정)
         config.hasBoss = GameBalance.IsBossWave(i);        // 각 지역 마지막 + 최종전
         config.map = MapRoute.MapOfWave(i);

@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [TrainingGroundUI.cs] v1.4 (v9.27 2026-10-20 튜토리얼 개편: 구간 8 + 자유 연습 = 9줄, 줄 높이 62 -> 58, 판 672 -> 700, 키 안내 [1~9]) / v1.3 (v9.26 2026-10-16 마감 정리: 열림 소리 중복 호출(ModalFeel 이 낸다) · 안 쓰는 CloseStatic 삭제) / v1.2 (v9.22.2 2026-10-14 유저 "튜토리얼 말투가 번역체·AI 같고 딱딱하다": 안내 글 말투를 반말 해체로 - 명령형 ~라·설명 ~다 끝맺음, 문장 속 기호, 어려운 말(투입·재가동·곁·유인)를 걷어냈다. 규칙 = 문구원칙 10-14 저녁 "말투" 절) / v1.1 (v9.15 2026-09-29: 8번째 줄 "자유 연습" - TutorialDirector.SANDBOX. 카드 600 -> 672, [1~8]) / v1 (신규, v9.12 2026-09-22) - 로비 [T] 훈련장: 견습 운행을 구간별로 다시 연습하는 목록 창 (목업 v4.2 (A))
+/// [TrainingGroundUI.cs] v1.5 (v9.34 2026-10-25: [ESC] 로 닫을 때 공용 스탬프(CookingMinigame.EscConsumedFrame)를 찍는다 - Update 순서에 따라 같은 ESC 로 일시정지가 열리거나 로비 명성 상점까지 닫히던 것) / v1.4 (v9.27 2026-10-20 튜토리얼 개편: 구간 8 + 자유 연습 = 9줄, 줄 높이 62 -> 58, 판 672 -> 700, 키 안내 [1~9]) / v1.3 (v9.26 2026-10-16 마감 정리: 열림 소리 중복 호출(ModalFeel 이 낸다) · 안 쓰는 CloseStatic 삭제) / v1.2 (v9.22.2 2026-10-14 유저 "튜토리얼 말투가 번역체·AI 같고 딱딱하다": 안내 글 말투를 반말 해체로 - 명령형 ~라·설명 ~다 끝맺음, 문장 속 기호, 어려운 말(투입·재가동·곁·유인)를 걷어냈다. 규칙 = 문구원칙 10-14 저녁 "말투" 절) / v1.1 (v9.15 2026-09-29: 8번째 줄 "자유 연습" - TutorialDirector.SANDBOX. 카드 600 -> 672, [1~8]) / v1 (신규, v9.12 2026-09-22) - 로비 [T] 훈련장: 견습 운행을 구간별로 다시 연습하는 목록 창 (목업 v4.2 (A))
 ///
 /// 처음 실행(구간 기록이 하나도 없음)에는 [T] 가 이 창을 열지 않고 견습 운행 전부(1~7)를 바로 연다 (LobbyUI). 한 번이라도 돌린 뒤엔 이 목록.
 /// 창: 어둡게 + 가운데 카드 680x600 - 명판 "훈련장  -  구간별 연습" / 안내 한 줄 + 오른쪽 "완료 n / 7" / 구간 7줄(번호·배울 행동·한 줄·단계·예상·기록) /
@@ -107,7 +107,12 @@ public class TrainingGroundUI : MonoBehaviour
         if (!lobby) { Close(); return; }
         if (Time.unscaledTime - openedAt < 0.15f) return;   // 연 키가 바로 닫지 않게
 
-        if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.T)) { Close(); return; }
+        if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.T))
+        {
+            if (Input.GetKeyDown(KeyCode.Escape)) CookingMinigame.EscConsumedFrame = Time.frameCount;   // v1.5: 이 ESC 는 여기서 썼다 (일시정지·로비 상점이 양보)
+            Close();
+            return;
+        }
         for (int i = 1; i <= ROWS; i++)   // v1.1: 마지막 = 자유 연습 ([9])
             if (Input.GetKeyDown(KeyCode.Alpha0 + i) || Input.GetKeyDown(KeyCode.Keypad0 + i)) { selected = i; Refresh(); }
         if (Input.GetKeyDown(KeyCode.Alpha0) || Input.GetKeyDown(KeyCode.Keypad0)) { StartSegment(0); return; }

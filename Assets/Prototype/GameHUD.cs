@@ -4,7 +4,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 /// <summary>
-/// [GameHUD.cs] v3.12 (v9.23 2026-10-14 점검 수정: 칼·팬 칩 밑 안내를 튜토리얼과 같은 말로 - "조리 판정이 빡빡해져") / v3.11 (v9.22.1 2026-10-14 유저 확인 "카드 위 카드가 교체로 빠진다": 카드 구역 = 하단 바 전체(bottomBarRt - 전엔 카드 스크롤 영역만이라 그 테두리 밖에서 포탑 칸 판정이 걸렸다) + 바 위쪽 여백까지 포함 / 끌기 시작하면 합칠 수 있는 카드에 분홍 테(MarkFusableCards)·못 합치는 카드는 흐리게 - 어디에 놓으면 되는지 보이게 / 카드 위 판정은 카드 rect 에 여유 6px) / v3.10 (v9.22 2026-10-14 조작 팩 1-2 ~ 1-4: 카드를 다른 요리가 든 칸에 놓으면 교체(ReplaceTurret - 폐기 환급 + 투입, GameBalance.DragReplaceOn) / 카드를 다른 기본 요리 카드 위에 놓으면 진화 조리(CardUnderPointer·FuseCheck -> CookingBridge.FuseFoods, DragFuseOn) / 놓을 곳의 종류 DragHoverKind 를 SlotMarkerUI 가 읽어 이름표를 "놓으면 Lv2 (2/3)"·"폐기 - 재료 N개 환급"·"못 놓는다"로 / 고스트 글 "놓으면 투입 / Lv2 / 교체 / 진화 조리 / 못 놓는다" + 테 색) / v3.9 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v3.8 (v9.18 2026-10-06: 재료 칸 이름 글자 11 -> 13 (최소 글자 크기), 칸 높이 34 -> 36 으로 이름과 개수가 안 겹치게) / v3.7 (v9.17 2026-10-06 B6: 재료 개수가 늘면 그 숫자가 1.3배에서 제자리로 튄다 - 숫자 왼쪽 아래를 축으로) / v3.6 (v9.15 2026-09-29 2차 피드백: 요리 카드 드래그 투입(FoodCardDrag - 고스트 카드가 커서를 따라가고 SlotMarkerUI.NearestMarker 로 놓을 슬롯 금색, 놓으면 투입. 클릭->클릭도 그대로) / HUD 재배치 GameBalance.HudRegroup: 칼·팬 명판을 하단 바에서 좌상단 HP 판(UISkin SkinPanel_TL)으로) / v3.5 (v9.11 2026-09-22 타격감: 조리 완료 접시 날아가기 + 카드 튀기 / 요리 카드 ButtonFeel) / v3.4 (v9.10.1 2026-09-21: 재료 이름 MaterialNames 한 곳(전기알·화염꽃·얼음꽃·독샘) - 칸 폭 102 에 세 글자 이름이 안 들어가 이름(11px, 위)·개수(20px, 아래) 두 줄) / v3.3 (v9.9 2026-09-16: 로비에서는 하단 바 숨김 - 로비 버튼이 바 위에 겹쳐 있던 것) / v3.2 (v9.8 재료 아이콘) / v3.1 (교수 피드백 A9 반영 2026-09-14) / v3 - 전투 중 핵심 HUD (전부 코드 생성 - Canvas 세팅 불필요)
+/// [GameHUD.cs] v3.14 (v9.35.2 2026-10-26 OnDestroy 에서 재고·재료 구독을 끊는다 - 씬을 다시 실을 때 줍던 재료가 씬과 같이 지워지며 MaterialInventory.Add -> 지워진 HUD 의 RefreshMaterials -> NullReference 2번 (Player.log 10-26, 로비 왼쪽 아래 빨간 줄)) / v3.13 (v9.35.1 2026-10-26 유저 "요리 하는 방식에 따라 갑자기 2레벨 포탑으로 나온다": 카드를 누르고 칸을 누르는 투입은 한 번에 요리 하나 - 넣고 나면 투입 모드가 끝난다 (GameBalance.PlaceOnePerPick). 예전엔 재고가 남으면 모드가 이어져, 넣은 포탑을 보려고 한 번 더 누르면 요리가 또 들어갔다 - PERFECT 로 둘을 받은 때만 그래서 "가끔") / v3.12 (v9.23 2026-10-14 점검 수정: 칼·팬 칩 밑 안내를 튜토리얼과 같은 말로 - "조리 판정이 빡빡해져") / v3.11 (v9.22.1 2026-10-14 유저 확인 "카드 위 카드가 교체로 빠진다": 카드 구역 = 하단 바 전체(bottomBarRt - 전엔 카드 스크롤 영역만이라 그 테두리 밖에서 포탑 칸 판정이 걸렸다) + 바 위쪽 여백까지 포함 / 끌기 시작하면 합칠 수 있는 카드에 분홍 테(MarkFusableCards)·못 합치는 카드는 흐리게 - 어디에 놓으면 되는지 보이게 / 카드 위 판정은 카드 rect 에 여유 6px) / v3.10 (v9.22 2026-10-14 조작 팩 1-2 ~ 1-4: 카드를 다른 요리가 든 칸에 놓으면 교체(ReplaceTurret - 폐기 환급 + 투입, GameBalance.DragReplaceOn) / 카드를 다른 기본 요리 카드 위에 놓으면 진화 조리(CardUnderPointer·FuseCheck -> CookingBridge.FuseFoods, DragFuseOn) / 놓을 곳의 종류 DragHoverKind 를 SlotMarkerUI 가 읽어 이름표를 "놓으면 Lv2 (2/3)"·"폐기 - 재료 N개 환급"·"못 놓는다"로 / 고스트 글 "놓으면 투입 / Lv2 / 교체 / 진화 조리 / 못 놓는다" + 테 색) / v3.9 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v3.8 (v9.18 2026-10-06: 재료 칸 이름 글자 11 -> 13 (최소 글자 크기), 칸 높이 34 -> 36 으로 이름과 개수가 안 겹치게) / v3.7 (v9.17 2026-10-06 B6: 재료 개수가 늘면 그 숫자가 1.3배에서 제자리로 튄다 - 숫자 왼쪽 아래를 축으로) / v3.6 (v9.15 2026-09-29 2차 피드백: 요리 카드 드래그 투입(FoodCardDrag - 고스트 카드가 커서를 따라가고 SlotMarkerUI.NearestMarker 로 놓을 슬롯 금색, 놓으면 투입. 클릭->클릭도 그대로) / HUD 재배치 GameBalance.HudRegroup: 칼·팬 명판을 하단 바에서 좌상단 HP 판(UISkin SkinPanel_TL)으로) / v3.5 (v9.11 2026-09-22 타격감: 조리 완료 접시 날아가기 + 카드 튀기 / 요리 카드 ButtonFeel) / v3.4 (v9.10.1 2026-09-21: 재료 이름 MaterialNames 한 곳(전기알·화염꽃·얼음꽃·독샘) - 칸 폭 102 에 세 글자 이름이 안 들어가 이름(11px, 위)·개수(20px, 아래) 두 줄) / v3.3 (v9.9 2026-09-16: 로비에서는 하단 바 숨김 - 로비 버튼이 바 위에 겹쳐 있던 것) / v3.2 (v9.8 재료 아이콘) / v3.1 (교수 피드백 A9 반영 2026-09-14) / v3 - 전투 중 핵심 HUD (전부 코드 생성 - Canvas 세팅 불필요)
 /// - v3.2: 재료 칸의 16px 계열색 판을 ui_mat_*.png 아이콘(32px)으로. 칸 폭 96 -> 102, 간격 100 -> 106 (3열 318 <= 재료 구역 326).
 ///   PNG 가 없으면 v3.1 그대로(계열색 판 + 글자). 이벤트 "재료 흘림" 칩과 같은 그림이라 재료 = 한 그림으로 통일
 /// - 하단 바: 재료 6종 카운트 + 보유 요리 카드 목록 (2줄 그리드, 휠 가로 스크롤)
@@ -111,6 +111,13 @@ public class GameHUD : MonoBehaviour
 
         RefreshMaterials();
         RebuildFoodList();
+    }
+
+    /// <summary>v3.14 (v9.35.2): 씬이 바뀌어 이 HUD 가 지워질 때 구독을 끊는다 - 재고·재료(씬이 바뀌어도 남는 것)가 지워진 HUD 를 부르지 않게</summary>
+    void OnDestroy()
+    {
+        if (FoodStock.Instance != null) FoodStock.Instance.OnChanged -= RebuildFoodList;
+        if (MaterialInventory.Instance != null) MaterialInventory.Instance.OnChanged -= RefreshMaterials;
     }
 
     void Update()
@@ -786,6 +793,7 @@ public class GameHUD : MonoBehaviour
         foreach (MaterialType t in System.Enum.GetValues(typeof(MaterialType)))
         {
             int have = MaterialInventory.Instance.Get(t);
+            if (i >= matTexts.Length || matTexts[i] == null) { i++; continue; }   // v3.14: 지워진 글자 (씬을 다시 싣는 중)
             matTexts[i].text = have.ToString();
             matTexts[i].color = have > 0 ? UIFactory.CREAM : UIFactory.DIM;   // 0개는 흐리게
             // v3.7 (B6): 늘었으면 튄다 (처음 그릴 때와 줄어들 때는 그대로)
@@ -969,8 +977,8 @@ public class GameHUD : MonoBehaviour
         if (slot.TryInsertFood(placingRecipeId))
         {
             FoodStock.Instance.TryConsume(placingRecipeId, 1);
-            // 재고 전부 소진되면 모드 해제
-            if (FoodStock.Instance.Get(placingRecipeId) <= 0)
+            // v3.13 (v9.35.1): 한 번 넣으면 투입 모드를 끝낸다 (카드 한 번 + 칸 한 번 = 요리 하나, 끌어다 놓기와 같다). 스위치를 끄면 예전처럼 재고가 바닥날 때까지
+            if (GameBalance.PlaceOnePerPick || FoodStock.Instance.Get(placingRecipeId) <= 0)
                 SetPlacing("");
         }
         else

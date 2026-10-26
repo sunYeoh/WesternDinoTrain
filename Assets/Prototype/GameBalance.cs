@@ -1,7 +1,8 @@
 using UnityEngine;
 
 /// <summary>
-/// [GameBalance.cs] v9.33 (2026-10-25 소리 팩: 효과음 버스 예산·경고 덕킹·피치 - Sound*, 배경음을 맵·보스·정차마다 - Music*) / v9.32 (2026-10-22 노선: 1·2·3 지역 자리에 맵(사막·협곡·광산)을 무작위로 - MapShuffle*, 맵마다 제 손님만, 세기는 자리를 따라 지금보다 조금 더 - MapStatNorm*·MapStronger*, 보스 HP 배율은 자리 - BossHpByStage, 맵 그림 자리 - MapGround*·MapDeco*. 낙뢰는 맵 AmbientLightningMap) / v9.31 (2026-10-21 급식 조리: 지역 2 부터 2인분 · 지역 3 부터 3인분 - 재료를 인분만큼 넣고 요리도 인분만큼, 대신 불이 세다 (Batch*) / 작살 바위는 카메라 밖에서 생기고 사라진다 (RockOffscreenMargin)) / v9.30 (2026-10-21 포탑 칸: 시작 BaseSlotCount 6 -> 4, 지역 보스를 잡을 때마다 하나씩 BossSlotUnlockMax 2 - 유저 "합성·스왑이 되니 초반 칸이 많이 필요 없다") / v9.29 (2026-10-21 손맛 3차 - 나중 디테일: 맨 아래 v9.29 섹션 - 유물 상자 열림·날아가기 LootOpenFx·LootOpenSec·LootFlySec / 크리 처치 히트스탑 CritKillHitstopSec·Gap / 관통 잔광 BeamAfterglow·BeamGlow* / 연쇄 2중 줄 LightningDouble) / v9.28 (2026-10-20 하드 모드 = 2회차: 맨 아래 v9.28 섹션 - HardModeOn / 손님 HardEnemyHpMul·AtkMul·DefMul / 머릿수 HardCountMul / 보스 HardBossHpMul·MeleeMul / 사고 HardEventIntervalMul·FailMul / 수급 HardKillGoldMul·MaterialMul / 기차 HardTrainHpMul / 주문 HardOrderTimeMul / 명성 HardFameMul·HardClearFame. 쓰는 쪽은 HardMode.Mul) / v9.27 (2026-10-20 튜토리얼 개편: 맨 아래 v9.27 섹션 - 견습 과열 TutorialOverheatOn / 주문 TutorialOrderOn·TutorialOrderSec / 사고 제한 시간 TutorialEventTimeMul / 실전 한도 TutorialDefenseSec / 예습 처치 한도 TutorialBossKillSec / 예습 보스 무방비 BossPracticeGroggy / 새 빌드 첫 실행 기록 리셋 FreshRecordsOnNewBuild · 빌드 F4 ResetKeyInBuild) / v9.26 (2026-10-16 마감 정리: 꺼 둔 값을 지금 값으로 굳히고 지웠다 - 편성 이름 줄 FormationLineShows · 예고 화살표 SpawnCueSec · 주방 창 KitchenMaterialFirst · KitchenTabKey · KitchenFuseTab. 동작 변경 없음) / v9.25 (2026-10-16 밸런스·성장 - claude/테스터피드백5_2026-10-16.md 의 v9.25 스펙 표: 맨 아래 v9.25 섹션. 증강 덧셈 AugmentLinear / 지역 곡선 RegionCurveOn·RegionHpMul·RegionAtkMul·BossHpCurveMul / 단골 주문 OrderOn·OrderFirstWave·OrderDelaySec·OrderCount·OrderTimeSec·OrderBuffPct·OrderBuffSec·OrderGold / 싸움 유물 RelicCombatSet (B2 손님 입맛은 뺐다 - 09-29 "센 빌드를 틀어막지 말고 밸런스로")) / v9.24.1 (2026-10-16 5차 피드백 픽스 - claude/테스터피드백5_2026-10-16.md: 맨 아래 v9.24.1 섹션. 합체 넘침 = 요리로 돌려받기 MergeOverflowRefund / 탄이 손님을 따라간다 ProjectileHoming · ProjectileMaxFlight, 대체 표적 반경 3 -> 4 / 공속 증강 점증 없음 AugmentNoEscalate · 합계 상한 AugmentAspdCap / 주방 사고 위치 먼저 EventLocationFirst) / v9.24 (2026-10-15 클라이맥스·갈림길 - 테스터피드백3 B·D 스펙 표: 맨 아래 v9.24 섹션. 갈림길 = 칸이 선로를 따라 꺾임 ForkCarFollow·회전 ForkCarRotate·손님 대기 ForkHoldOn·출발 가속 ForkDepartBoost·덜컹 소리 / 클라이맥스 = ClimaxOn - 숨(히트스톱·흰 번쩍·음악 끊김) -> 다음 박에 BGM 층 -> 기적·전조등·배경 가속·호박색 -> 처치에 끊김. 지역 보스 발악은 가벼운 층만 ClimaxLiteOn) / v9.23 (2026-10-14 보스 새 패턴 - 보스개편 스펙 3-1 ~ 3-4절 + B2 피해 예고 바 + 기차 HP 위기 표시 + 명성 상점 실루엣: 맨 아래 v9.23 섹션. 패턴마다 스위치가 있다 - 하나가 이상하면 그것만 끈다. BossNewPatterns = false 면 v9.22 까지의 보스) / v9.22.1 (2026-10-14 유저 확인 7번 "판 앞에 멈춰 있는 게 더 불편": 진화 조리 읽을 시간 InfuseReadSec 1.0 -> 0 - 안내는 커서가 움직이는 채로 읽는다) / v9.22 (2026-10-14 조작 팩 - 4차 피드백 5·6번 + 1번의 화면: 맨 아래 v9.22 섹션 - 카드 끌어다 놓기 교체 DragReplaceOn / 카드 위 카드 진화 조리 DragFuseOn / 재료 중심 조리대 창 KitchenMaterialFirst / Tab 키 KitchenTabKey false / 합성 탭 KitchenFuseTab false / 진화 조리 화면 InfuseCookLook) / v9.21.1 (2026-10-13 4차 피드백 픽스: 창이 떠 있는 동안 조리·진화 조리 보류 CookHoldWhileWindow / 진화 조리 읽을 시간 InfuseReadSec / 접시 합성도 진화 조리 InfuseStockOn·InfuseStockBonusPlates / 골드 소수 누적 GoldCarryOn / 수급 SwarmRewardMul 1.3 -> 1.0 · KillMaterialChance 0.6 -> 0.5) / v9.21 (2026-10-12 보스 1단계 큰 몸 - 보스개편 스펙 1·4·5절: 맨 아래 v9.21 섹션 - 보스전 카메라 BossCam* / 새 크기 BossBodyLen·Wide (그림을 맞춘다) / 서는 자리 BossStandOff 새 값·BossStandX / 등장 연출 2판 BossEntranceV2·BossEntranceSec / 이름판 BossNamePlateBottom / 등장 때 대응법 줄 BossEntranceLine / 미끼 때 제자리 BossHoldWhenTaunted) / v9.20 (2026-10-07 유저 "패턴이 눈에 안 띔": 보스 패턴의 준비·발동·결과를 몸과 전장에 그린다 BossPatternFxOn·BossCastSwell·BossReleaseSquash·BossLunge*·BossBite* / 부른 무리는 보스 등 뒤에서 BossSummonBehind·SpreadX·StatMul·Share, HowlSummonCount 5 -> 10 · OriginalRoarCount 4 -> 10) / v9.19.4 (2026-10-07 유저 "포탑 설명이 너무 길다 - 필요한 것만 남기고 폰트를 키워라": 포탑 정보창 글자 크기 SlotInfoFontSize·TitleSize·HintSize, 조작 줄 SlotInfoShowControls) / v9.19.3 (2026-10-07 유저 확인 "체력 회복 증강을 먹으니 HP 가 거의 90% 넘게 남는다": 타격당 회복을 1초에 LifestealHitsPerSec 번까지만 센다) / v9.19.2 (2026-10-07 유저 확인 뒤: 머릿수를 늘린 손님을 약하게 하지 않는다 - GroupPower* 삭제, 크기별 HP 배율 TierHpMul*·초반 배율 EarlyBodyStart·보상 SwarmRewardMul / 손님 전체 강화 EnemyHPMul 1.3·EnemyATKMul 1.2·EnemyDefMul 1.2 (견습 운행은 TutorialEnemy* 로 예전 값) / 기차 방어력 바닥 TrainDefFloor / 보스 HP 종류별 배율 BossHPKindMul / 편성 이름 줄·방향 예고 화살표 끔 FormationLineShows 0·SpawnCueSec 0) / v9.19.1 (2026-10-07 유저 소감: 스폰 테두리가 보이는 화면을 따라간다 SpawnEdgeFollowView·ViewMargin·BossSpawnExtra / 머릿수 대폭 증가 CountMulSmall·Mid·Big + GroupPower* + FormationSizeMul - SwarmCountMul 을 대신한다) / v9.19 (2026-10-06 웨이브 편성·보스 페이즈 모습: 맨 아래 v9.19 섹션 - 편성 스위치·풀리는 웨이브·예고 시간·조각 사이 쉼·스폰 테두리·작은 손님 머릿수·호위 행렬 / 보스 상태 그림·전환 순간·상태 유지 효과·알림 자리) / v9.18 (2026-10-06 테스터 피드백 3 - 버그·밸런스·새 기차 그림: 맨 아래 v9.18 섹션 - 보행 바닥 표 / 슬롯·꼬리 좌표 / 레벨 상한 복구 / 같은 레벨끼리만 진화 / 폐기 환급 / 사고 실패 피해 / 과열 무작위 / 칸 덜컹임 / 보스 그림·HP 바·등장 띠 / UI 배율) / v9.17 (2026-10-06 화면 손맛 2차: 맨 아래 v9.17 섹션 - 발사 반동·섬광 / 데미지 숫자 크기·합산 / 넉백 / 셰프 찌그러짐 / HUD 수치 / 카드 순차 등장·퇴장 / 보스 등장·처치 / 패배·승리 순서 / 장면 전환 / 알림 중복) / v9.16 (2026-09-29 소리 v2: BuildTag 만 - 소리 표는 SoundManager 에) / v9.15.1 (2026-09-29 스토리 개정 스위치: 최종전 베팅 없음·스피노 고백 카드·마지막 식사 장면 시간) / v9.15 (2026-09-29 2차 피드백: 레벨 상한 해제 -> 접시 곡선·레벨 체감·저항 표시 / 훈련장 반복·자유 연습 / 드래그 투입 / 사고 해결 연출 / 포탑 파손 / HUD 재배치 / 설정창) / v9.12 (2026-09-22 튜토리얼 구간화·인라인 연습·협곡 낙뢰·미니 보스 예습 섹션 추가) / v1 (v9.11 2026-09-22: 타격감 섹션 - 피격 플래시·찌그러짐·스파크·킬 버스트·기차 피격·버튼·모달·웨이브 띠 스위치 / v9.10.1 2026-09-21: 유저 플레이 소감 섹션 - 웨이브 물량·길이, 정차 조리 제한, 행상인 자동 퇴장, 처치 보상 배율 / v9.9 2026-09-16: 포탑 4모서리 배치 SlotPosition + 견습 운행/브리핑 스위치 섹션)
+/// [GameBalance.cs] v9.35.2 (2026-10-26 설명·밸런스 표: 맨 아래 v9.35.2 섹션 - 장판 4초 · 독 장판 · 오라 불 = 화상 · 부식의 정수 깎기 · 깎기 겹 상한 · 부채꼴 조준 · 왕 미끼 3초 · 증강 카드 아래 줄) / v9.35.1 (2026-10-26 버그·첫 보스: 맨 아래 v9.35.1 섹션 - 작살·레버 안내 순서 EngineCabHintSort / 지역 보스 무는 힘 BossBiteStageMul, 지역 1 보스 HP BossHPStageMul 4 -> 6) / v9.35 (2026-10-25 성장·구조: 지역 8 -> 5 웨이브 (보스 5·10·15, 최종전 16) - 세기·수급은 옛 25웨이브 자 EqWave·WaveWorth 로 그대로 / 레벨 상한 80 LevelCurve80On (Lv80 = 옛 Lv6) /
+///   하드 = 손님이 웨이브마다 곱으로 HardEnemyHpGrowth·AtkGrowth / 하드 명성 상점 화덕 증축 HardCap*) / v9.34 (2026-10-25 규칙·편의: 단골 주문이 정차에 안 끊김 OrderKeepThroughStops / 진화 = 재료 레벨 그대로 FusionKeepLevel·FusionBonusDishes / 새 포탑은 늘 Lv1 StartLevelBonusOn) / v9.33 (2026-10-25 소리 팩: 효과음 버스 예산·경고 덕킹·피치 - Sound*, 배경음을 맵·보스·정차마다 - Music*) / v9.32 (2026-10-22 노선: 1·2·3 지역 자리에 맵(사막·협곡·광산)을 무작위로 - MapShuffle*, 맵마다 제 손님만, 세기는 자리를 따라 지금보다 조금 더 - MapStatNorm*·MapStronger*, 보스 HP 배율은 자리 - BossHpByStage, 맵 그림 자리 - MapGround*·MapDeco*. 낙뢰는 맵 AmbientLightningMap) / v9.31 (2026-10-21 급식 조리: 지역 2 부터 2인분 · 지역 3 부터 3인분 - 재료를 인분만큼 넣고 요리도 인분만큼, 대신 불이 세다 (Batch*) / 작살 바위는 카메라 밖에서 생기고 사라진다 (RockOffscreenMargin)) / v9.30 (2026-10-21 포탑 칸: 시작 BaseSlotCount 6 -> 4, 지역 보스를 잡을 때마다 하나씩 BossSlotUnlockMax 2 - 유저 "합성·스왑이 되니 초반 칸이 많이 필요 없다") / v9.29 (2026-10-21 손맛 3차 - 나중 디테일: 맨 아래 v9.29 섹션 - 유물 상자 열림·날아가기 LootOpenFx·LootOpenSec·LootFlySec / 크리 처치 히트스탑 CritKillHitstopSec·Gap / 관통 잔광 BeamAfterglow·BeamGlow* / 연쇄 2중 줄 LightningDouble) / v9.28 (2026-10-20 하드 모드 = 2회차: 맨 아래 v9.28 섹션 - HardModeOn / 손님 HardEnemyHpMul·AtkMul·DefMul / 머릿수 HardCountMul / 보스 HardBossHpMul·MeleeMul / 사고 HardEventIntervalMul·FailMul / 수급 HardKillGoldMul·MaterialMul / 기차 HardTrainHpMul / 주문 HardOrderTimeMul / 명성 HardFameMul·HardClearFame. 쓰는 쪽은 HardMode.Mul) / v9.27 (2026-10-20 튜토리얼 개편: 맨 아래 v9.27 섹션 - 견습 과열 TutorialOverheatOn / 주문 TutorialOrderOn·TutorialOrderSec / 사고 제한 시간 TutorialEventTimeMul / 실전 한도 TutorialDefenseSec / 예습 처치 한도 TutorialBossKillSec / 예습 보스 무방비 BossPracticeGroggy / 새 빌드 첫 실행 기록 리셋 FreshRecordsOnNewBuild · 빌드 F4 ResetKeyInBuild) / v9.26 (2026-10-16 마감 정리: 꺼 둔 값을 지금 값으로 굳히고 지웠다 - 편성 이름 줄 FormationLineShows · 예고 화살표 SpawnCueSec · 주방 창 KitchenMaterialFirst · KitchenTabKey · KitchenFuseTab. 동작 변경 없음) / v9.25 (2026-10-16 밸런스·성장 - claude/테스터피드백5_2026-10-16.md 의 v9.25 스펙 표: 맨 아래 v9.25 섹션. 증강 덧셈 AugmentLinear / 지역 곡선 RegionCurveOn·RegionHpMul·RegionAtkMul·BossHpCurveMul / 단골 주문 OrderOn·OrderFirstWave·OrderDelaySec·OrderCount·OrderTimeSec·OrderBuffPct·OrderBuffSec·OrderGold / 싸움 유물 RelicCombatSet (B2 손님 입맛은 뺐다 - 09-29 "센 빌드를 틀어막지 말고 밸런스로")) / v9.24.1 (2026-10-16 5차 피드백 픽스 - claude/테스터피드백5_2026-10-16.md: 맨 아래 v9.24.1 섹션. 합체 넘침 = 요리로 돌려받기 MergeOverflowRefund / 탄이 손님을 따라간다 ProjectileHoming · ProjectileMaxFlight, 대체 표적 반경 3 -> 4 / 공속 증강 점증 없음 AugmentNoEscalate · 합계 상한 AugmentAspdCap / 주방 사고 위치 먼저 EventLocationFirst) / v9.24 (2026-10-15 클라이맥스·갈림길 - 테스터피드백3 B·D 스펙 표: 맨 아래 v9.24 섹션. 갈림길 = 칸이 선로를 따라 꺾임 ForkCarFollow·회전 ForkCarRotate·손님 대기 ForkHoldOn·출발 가속 ForkDepartBoost·덜컹 소리 / 클라이맥스 = ClimaxOn - 숨(히트스톱·흰 번쩍·음악 끊김) -> 다음 박에 BGM 층 -> 기적·전조등·배경 가속·호박색 -> 처치에 끊김. 지역 보스 발악은 가벼운 층만 ClimaxLiteOn) / v9.23 (2026-10-14 보스 새 패턴 - 보스개편 스펙 3-1 ~ 3-4절 + B2 피해 예고 바 + 기차 HP 위기 표시 + 명성 상점 실루엣: 맨 아래 v9.23 섹션. 패턴마다 스위치가 있다 - 하나가 이상하면 그것만 끈다. BossNewPatterns = false 면 v9.22 까지의 보스) / v9.22.1 (2026-10-14 유저 확인 7번 "판 앞에 멈춰 있는 게 더 불편": 진화 조리 읽을 시간 InfuseReadSec 1.0 -> 0 - 안내는 커서가 움직이는 채로 읽는다) / v9.22 (2026-10-14 조작 팩 - 4차 피드백 5·6번 + 1번의 화면: 맨 아래 v9.22 섹션 - 카드 끌어다 놓기 교체 DragReplaceOn / 카드 위 카드 진화 조리 DragFuseOn / 재료 중심 조리대 창 KitchenMaterialFirst / Tab 키 KitchenTabKey false / 합성 탭 KitchenFuseTab false / 진화 조리 화면 InfuseCookLook) / v9.21.1 (2026-10-13 4차 피드백 픽스: 창이 떠 있는 동안 조리·진화 조리 보류 CookHoldWhileWindow / 진화 조리 읽을 시간 InfuseReadSec / 접시 합성도 진화 조리 InfuseStockOn·InfuseStockBonusPlates / 골드 소수 누적 GoldCarryOn / 수급 SwarmRewardMul 1.3 -> 1.0 · KillMaterialChance 0.6 -> 0.5) / v9.21 (2026-10-12 보스 1단계 큰 몸 - 보스개편 스펙 1·4·5절: 맨 아래 v9.21 섹션 - 보스전 카메라 BossCam* / 새 크기 BossBodyLen·Wide (그림을 맞춘다) / 서는 자리 BossStandOff 새 값·BossStandX / 등장 연출 2판 BossEntranceV2·BossEntranceSec / 이름판 BossNamePlateBottom / 등장 때 대응법 줄 BossEntranceLine / 미끼 때 제자리 BossHoldWhenTaunted) / v9.20 (2026-10-07 유저 "패턴이 눈에 안 띔": 보스 패턴의 준비·발동·결과를 몸과 전장에 그린다 BossPatternFxOn·BossCastSwell·BossReleaseSquash·BossLunge*·BossBite* / 부른 무리는 보스 등 뒤에서 BossSummonBehind·SpreadX·StatMul·Share, HowlSummonCount 5 -> 10 · OriginalRoarCount 4 -> 10) / v9.19.4 (2026-10-07 유저 "포탑 설명이 너무 길다 - 필요한 것만 남기고 폰트를 키워라": 포탑 정보창 글자 크기 SlotInfoFontSize·TitleSize·HintSize, 조작 줄 SlotInfoShowControls) / v9.19.3 (2026-10-07 유저 확인 "체력 회복 증강을 먹으니 HP 가 거의 90% 넘게 남는다": 타격당 회복을 1초에 LifestealHitsPerSec 번까지만 센다) / v9.19.2 (2026-10-07 유저 확인 뒤: 머릿수를 늘린 손님을 약하게 하지 않는다 - GroupPower* 삭제, 크기별 HP 배율 TierHpMul*·초반 배율 EarlyBodyStart·보상 SwarmRewardMul / 손님 전체 강화 EnemyHPMul 1.3·EnemyATKMul 1.2·EnemyDefMul 1.2 (견습 운행은 TutorialEnemy* 로 예전 값) / 기차 방어력 바닥 TrainDefFloor / 보스 HP 종류별 배율 BossHPKindMul / 편성 이름 줄·방향 예고 화살표 끔 FormationLineShows 0·SpawnCueSec 0) / v9.19.1 (2026-10-07 유저 소감: 스폰 테두리가 보이는 화면을 따라간다 SpawnEdgeFollowView·ViewMargin·BossSpawnExtra / 머릿수 대폭 증가 CountMulSmall·Mid·Big + GroupPower* + FormationSizeMul - SwarmCountMul 을 대신한다) / v9.19 (2026-10-06 웨이브 편성·보스 페이즈 모습: 맨 아래 v9.19 섹션 - 편성 스위치·풀리는 웨이브·예고 시간·조각 사이 쉼·스폰 테두리·작은 손님 머릿수·호위 행렬 / 보스 상태 그림·전환 순간·상태 유지 효과·알림 자리) / v9.18 (2026-10-06 테스터 피드백 3 - 버그·밸런스·새 기차 그림: 맨 아래 v9.18 섹션 - 보행 바닥 표 / 슬롯·꼬리 좌표 / 레벨 상한 복구 / 같은 레벨끼리만 진화 / 폐기 환급 / 사고 실패 피해 / 과열 무작위 / 칸 덜컹임 / 보스 그림·HP 바·등장 띠 / UI 배율) / v9.17 (2026-10-06 화면 손맛 2차: 맨 아래 v9.17 섹션 - 발사 반동·섬광 / 데미지 숫자 크기·합산 / 넉백 / 셰프 찌그러짐 / HUD 수치 / 카드 순차 등장·퇴장 / 보스 등장·처치 / 패배·승리 순서 / 장면 전환 / 알림 중복) / v9.16 (2026-09-29 소리 v2: BuildTag 만 - 소리 표는 SoundManager 에) / v9.15.1 (2026-09-29 스토리 개정 스위치: 최종전 베팅 없음·스피노 고백 카드·마지막 식사 장면 시간) / v9.15 (2026-09-29 2차 피드백: 레벨 상한 해제 -> 접시 곡선·레벨 체감·저항 표시 / 훈련장 반복·자유 연습 / 드래그 투입 / 사고 해결 연출 / 포탑 파손 / HUD 재배치 / 설정창) / v9.12 (2026-09-22 튜토리얼 구간화·인라인 연습·협곡 낙뢰·미니 보스 예습 섹션 추가) / v1 (v9.11 2026-09-22: 타격감 섹션 - 피격 플래시·찌그러짐·스파크·킬 버스트·기차 피격·버튼·모달·웨이브 띠 스위치 / v9.10.1 2026-09-21: 유저 플레이 소감 섹션 - 웨이브 물량·길이, 정차 조리 제한, 행상인 자동 퇴장, 처치 보상 배율 / v9.9 2026-09-16: 포탑 4모서리 배치 SlotPosition + 견습 운행/브리핑 스위치 섹션)
 /// 게임 전체 밸런스 수치를 한 곳에 모은 설정 파일.
 ///
 /// 여기 값을 바꾸면 Inspector 값과 상관없이 게임에 적용된다
@@ -57,7 +58,7 @@ public static class GameBalance
 
     /// <summary>처음부터 열린 포탑 칸 수 (총 8칸 중). v9.30: 6 -> 4 (유저 10-21 "인벤토리 합성·드래그 스왑이 되니 초반 칸이 많이 필요 없다"). 그다음은 지역 보스 격파마다 하나(BossSlotUnlockMax), 그다음은 증강 '증축된 주방 칸'. 견습 운행은 0·1 번 + 빈 칸 하나면 된다 (3 이상)</summary>
     public static int BaseSlotCount = 4;
-    /// <summary>v9.30: 지역 보스(웨이브 8·16 - 최종전 제외)를 잡고 정차할 때마다 포탑 칸 하나가 열린다 - 운행당 이만큼까지. 0 = 예전처럼 처음부터 전부. 4 + 2 = 옛 6칸, 증강 2 로 8칸</summary>
+    /// <summary>v9.30: 지역 보스(최종전 제외 - v9.35 지역 5 = 웨이브 5·10)를 잡고 정차할 때마다 포탑 칸 하나가 열린다 - 운행당 이만큼까지. 0 = 예전처럼 처음부터 전부. 4 + 2 = 옛 6칸, 증강 2 로 8칸</summary>
     public static int BossSlotUnlockMax = 2;
 
     // ==================================================================
@@ -82,12 +83,18 @@ public static class GameBalance
     //  각 지역 마지막 웨이브에 보스, 최종 웨이브(FinalWave)에 최종 보스
     // ==================================================================
 
+    /// <summary>v9.35: 옛 지역 길이 (8웨이브 - 보스 8/16/24, 최종전 25). 세기·수급·문턱 값은 전부 이 자로 맞춰져 있다 - EqWave 가 새 웨이브를 이 자로 옮긴다</summary>
+    public const int LegacyRegionLength = 8;
+    /// <summary>v9.35 (유저 10-25 "웨이브 좀 줄이자 5웨이브당 보스 하나"): 정식 지역 길이 - 보스 5/10/15, 최종전 16. DevCheat [F3] 짧은 런을 끄면 이 값으로 돌아온다</summary>
+    public const int DefaultRegionLength = 5;
     /// <summary>
-    /// 지역 하나의 웨이브 수. 정식 8 -> 보스 8/16/24, 최종전 25 (정식 25웨이브 런).
-    /// 교수 피드백(09-14) 반영: 정식 길이를 기본값으로 복구하고, 빠른 확인은 로비에서
+    /// 지역 하나의 웨이브 수. v9.35: 정식 5 -> 보스 5/10/15, 최종전 16 (구: 8 -> 25웨이브 런). 손님·보스 세기와 수급은 옛 25웨이브 곡선 그대로다 (EqWave · WaveWorth).
+    /// 교수 피드백(09-14) 반영: 정식 길이를 기본값으로 두고, 빠른 확인은 로비에서
     /// DevCheat [F3] '짧은 런' 토글(ShortRunRegionLength)로 한다. 이 값은 런 시작 시 WaveManager가 읽는다.
     /// </summary>
-    public static int RegionLength = 8;
+    public static int RegionLength = DefaultRegionLength;
+    /// <summary>v9.35: 웨이브를 줄여도 곡선을 옛 25웨이브 그대로 (EqWave · WaveWorth). false = 웨이브 번호를 그대로 써서 짧은 운행이 그만큼 약하고 가난해진다 (치트 짧은 런의 예전 동작)</summary>
+    public static bool WaveCompressOn = true;
 
     /// <summary>[치트] 짧은 런 모드의 지역 길이 (F3 토글, 보스 3/6/9, 최종전 10)</summary>
     public static int ShortRunRegionLength = 3;
@@ -103,10 +110,12 @@ public static class GameBalance
         return Mathf.Clamp(r, 1, 3);
     }
 
-    /// <summary>지역 안에서의 진행도 0.0~1.0 (적 물량 계산용)</summary>
+    /// <summary>지역 안에서의 진행도 0.0~1.0 (적 물량 계산용). v9.35: 옛 지역(8웨이브) 안의 진행도 - 지역 5 의 W1 = 1/8 · W3 = 4.5/8 · 보스 W5 = 8/8 (물량이 옛 곡선을 따른다)</summary>
     public static float RegionProgress(int wave)
     {
         if (wave >= FinalWave) return 1f;
+        if (WaveCompressOn)
+            return Mathf.Clamp01((EqWave(wave) - (RegionOf(wave) - 1) * LegacyRegionLength) / LegacyRegionLength);   // 지역 8 이면 아래와 같다
         int t = (wave - 1) % RegionLength + 1;           // 지역 내 1~RegionLength
         return (float)t / RegionLength;
     }
@@ -115,6 +124,63 @@ public static class GameBalance
     public static bool IsBossWave(int wave)
     {
         return (wave % RegionLength == 0 && wave <= RegionLength * 3) || wave == FinalWave;
+    }
+
+    // ── v9.35: 옛 25웨이브 자 - 웨이브를 줄여도(지역 5) 세기·수급·문턱은 옛 곡선 그대로 ──
+    /// <summary>v9.35: 새 웨이브 wave 를 옛 25웨이브 자로 옮긴 값 (소수). 지역마다 첫 웨이브 = 옛 지역 첫 웨이브, 보스 = 옛 보스, 그 사이는 고르게.
+    /// 지역 5: W1 = 1 · W2 = 2.75 · W3 = 4.5 · W4 = 6.25 · W5 = 8 / W6 = 9 ... W10 = 16 / W11 = 17 ... W15 = 24 / 최종전 W16 = 25.
+    /// 손님·보스 세기, 머릿수·스폰 간격, 편성이 풀리는 때, 증강·선로·베팅·행상인이 오는 때, 정차 골드·명성이 이 값을 쓴다. WaveCompressOn false 면 wave 그대로</summary>
+    public static float EqWave(int wave)
+    {
+        return WaveCompressOn ? EqWaveAt(wave, RegionLength) : wave;
+    }
+
+    /// <summary>v9.35: EqWave 의 식 (지역 길이 len 으로). 지역 8 이면 wave 그대로. 최고 기록 옮기기(RescaleWave)도 쓴다</summary>
+    public static float EqWaveAt(int wave, int len)
+    {
+        if (wave <= 0) return 0f;
+        len = Mathf.Max(1, len);
+        if (len == LegacyRegionLength) return wave;
+        int final = len * 3 + 1;
+        if (wave >= final) return LegacyRegionLength * 3 + 1 + (wave - final);   // 최종전 = 옛 25 (치트로 넘어가면 하나씩)
+        int r = (wave - 1) / len;            // 지역 (0부터)
+        int t = (wave - 1) % len;            // 지역 안 자리 (0부터)
+        if (len == 1) return r * LegacyRegionLength + LegacyRegionLength;
+        return r * LegacyRegionLength + 1f + t * (LegacyRegionLength - 1f) / (len - 1f);
+    }
+
+    /// <summary>v9.35: 웨이브 한 판의 몫 = 옛 웨이브 몇 판어치 (8 / 지역 길이 - 지역 5 = 1.6). 웨이브가 줄어도 운행 전체의 골드·재료·명성이 옛 운행과 같게
+    /// 처치 골드·처치 재료·유물 확률, 정차 골드, 웨이브 명성, '야전 정비반' 최대 HP 에 곱한다. 웨이브마다 붙는 회복(응급 정비·선대의 식탁보)은 안 곱한다 - 한 판에 받는 피해가 옛 한 판과 같다</summary>
+    public static float WaveWorth
+    {
+        get { return WaveCompressOn ? (float)LegacyRegionLength / Mathf.Max(1, RegionLength) : 1f; }
+    }
+
+    /// <summary>v9.35: 웨이브 wave 한 판의 몫 - 최종전은 옛 25 한 판 그대로라 1, 지역 1~3 은 WaveWorth (지역 셋의 합 = 옛 지역 셋)</summary>
+    public static float WaveWorthAt(int wave)
+    {
+        return wave >= FinalWave ? 1f : WaveWorth;
+    }
+
+    /// <summary>v9.35: 새 웨이브 wave 가 덮는 옛 웨이브 lo ~ hi (옛 웨이브 1 ~ 25 는 새 웨이브 하나에 꼭 하나씩 든다). 지역 5: W2 = 2 · W3 = 3~4 · W4 = 5~6 · W5 = 7~8 · W6 = 9 ...</summary>
+    public static void LegacySpan(int wave, out int lo, out int hi)
+    {
+        lo = Mathf.FloorToInt(EqWave(wave - 1) + 0.001f) + 1;
+        hi = Mathf.FloorToInt(EqWave(wave) + 0.001f);
+    }
+
+    /// <summary>v9.35: 지역 길이 fromLen 의 웨이브 번호를 지역 길이 toLen 의 웨이브 번호로 - 옛 자로 같은 곳까지 닿은 마지막 웨이브 (지역 8 의 25 = 지역 5 의 16, 8 = 5, 7 = 4). 최고 기록을 옮길 때</summary>
+    public static int RescaleWave(int wave, int fromLen, int toLen)
+    {
+        if (wave <= 0 || fromLen == toLen) return wave;
+        float eq = EqWaveAt(wave, fromLen);
+        int best = 0;
+        for (int w = 1; w <= Mathf.Max(1, toLen) * 3 + 60; w++)
+        {
+            if (EqWaveAt(w, toLen) <= eq + 0.001f) best = w;
+            else break;
+        }
+        return best;
     }
 
     // ==================================================================
@@ -314,7 +380,7 @@ public static class GameBalance
     // 인퓨징 (P1, 감사 1-A 처방 2): T2 진화 미니게임 - InfusingMinigame.cs가 사용
     // 실패해도 진화는 성공 (보너스만 없음). 지역 난이도는 적용하지 않음 (이미 고부담 순간)
     public static int InfuseBonusScoreNeed = 3;  // 판정 합계(라운드당 PERFECT 2/Good 1) 이 이상 = 보너스
-    public static int InfuseBonusLevel = 1;      // 보너스 레벨 (+1로 탄생)
+    public static int InfuseBonusLevel = 1;      // 보너스 레벨 (+1로 탄생). v9.34: FusionKeepLevel 이면 안 쓴다 (레벨 대신 FusionBonusDishes)
     public static float InfuseGrillSpeed = 70f;  // 1라운드(정수 추출) 커서 속도
     public static float InfuseBoilTime = 4f;     // 2라운드(융합 안정화) 유지 시간(초)
 
@@ -908,7 +974,7 @@ public static class GameBalance
     public static bool DepartConfirm = true;
     /// <summary>증강 선택을 매 웨이브가 아니라 AugmentPickAt(wave) 규칙으로 (구 동작 false = 매 웨이브)</summary>
     public static bool AugmentSparse = true;
-    /// <summary>분기 선로 선택이 시작되는 웨이브 (첫 지역은 곧은 선로 고정). 구 동작 = 2</summary>
+    /// <summary>분기 선로 선택이 시작되는 웨이브 (첫 지역은 곧은 선로 고정). 구 동작 = 2. v9.35: 이 문턱 셋은 옛 25웨이브 자 (EqWave) - 지역 5 = 선로 웨이브 7 앞 / 베팅 10·15 / 행상인 4 부터</summary>
     public static int RouteChoiceMinWave = 9;
     /// <summary>도박꾼 스피노 베팅이 시작되는 보스 웨이브 (첫 보스는 베팅 없음). 구 동작 = 첫 보스(8)</summary>
     public static int BetMinWave = 16;
@@ -919,12 +985,62 @@ public static class GameBalance
     /// <summary>웨이브 3 시작 때 화염 재료를 이만큼 보장 (범위 요리 "용암 폭탄밥" 학습용, §5 W3). 0 = 없음</summary>
     public static int FireGuaranteeAtWave3 = 2;
 
-    /// <summary>증강 선택 여부: 지역 1 = 웨이브 2·4·8, 그 뒤 = 짝수 웨이브 + 보스 웨이브. (AugmentSparse 가 false 면 항상 true)</summary>
+    /// <summary>증강 선택 여부: 지역 1 = 웨이브 2·4·8, 그 뒤 = 짝수 웨이브 + 보스 웨이브. (AugmentSparse 가 false 면 항상 true)
+    /// v9.35: 지역이 8 이 아니면 옛 증강 웨이브가 든 새 웨이브 + 보스 (LegacySpan) - 지역 5 = 웨이브 2·3·5 / 7·8·9·10 / 12·13·14·15 (옛 운행과 같은 11번)</summary>
     public static bool AugmentPickAt(int wave)
     {
         if (!AugmentSparse) return true;
+        if (WaveCompressOn && RegionLength != LegacyRegionLength)
+        {
+            if (IsBossWave(wave)) return true;
+            int lo, hi;
+            LegacySpan(wave, out lo, out hi);
+            for (int n = lo; n <= hi; n++)
+                if (LegacyAugmentPick(n)) return true;
+            return false;
+        }
         if (wave <= RegionLength) return wave == 2 || wave == 4 || IsBossWave(wave);
         return wave % 2 == 0 || IsBossWave(wave);
+    }
+
+    /// <summary>v9.35: 옛 25웨이브 운행의 증강 웨이브 (지역 1 = 2·4·8, 그 뒤 짝수 + 최종전 25)</summary>
+    private static bool LegacyAugmentPick(int old)
+    {
+        if (old <= LegacyRegionLength) return old == 2 || old == 4 || old == LegacyRegionLength;
+        return old % 2 == 0 || old == LegacyRegionLength * 3 + 1;
+    }
+
+    /// <summary>v9.35: 지역 region(1~3) 에서 증강을 고르는 웨이브 글 ("2·3·5") - 안내 카드가 쓴다 (지역 길이·규칙이 바뀌어도 글이 따라간다)</summary>
+    public static string AugmentWavesText(int region)
+    {
+        string s = "";
+        int len = Mathf.Max(1, RegionLength);
+        for (int w = (region - 1) * len + 1; w <= region * len; w++)
+            if (AugmentPickAt(w)) s += (s.Length > 0 ? "·" : "") + w;
+        return s;
+    }
+
+    /// <summary>v9.35: 지역 region 에서 증강을 고르는 횟수 (지역 5 의 지역 2·3 = 4번)</summary>
+    public static int AugmentCountInRegion(int region)
+    {
+        int n = 0, len = Mathf.Max(1, RegionLength);
+        for (int w = (region - 1) * len + 1; w <= region * len; w++)
+            if (AugmentPickAt(w)) n++;
+        return n;
+    }
+
+    /// <summary>v9.35: 웨이브 nextWave 앞 정차에서 선로를 고르나 - 옛 규칙(RouteChoiceMinWave 부터 짝수 웨이브 앞 + 보스 앞)을 옛 자로.
+    /// 지역 5 = 웨이브 7·8·9·10 / 12·13·14·15 앞 + 최종전 앞 (옛 운행과 같은 횟수). 첫 지역은 곧은 선로 고정</summary>
+    public static bool RouteChoiceAt(int nextWave)
+    {
+        if (EqWave(nextWave) < RouteChoiceMinWave - 0.001f) return false;
+        if (IsBossWave(nextWave)) return true;
+        if (!WaveCompressOn || RegionLength == LegacyRegionLength) return nextWave % 2 == 0;
+        int lo, hi;
+        LegacySpan(nextWave, out lo, out hi);
+        for (int n = Mathf.Max(lo, RouteChoiceMinWave); n <= hi; n++)
+            if (n % 2 == 0) return true;
+        return false;
     }
 
     // ── 가독성 (§6) ──
@@ -1071,14 +1187,14 @@ public static class GameBalance
 
     // ── (v9.13.1 2026-09-24) 3인 테스트 준비 ──
     /// <summary>빌드 표시 - 로비 오른쪽 아래에 찍힌다 (테스터 시트에 어느 빌드였는지 적기 위해). 팩마다 올린다</summary>
-    public const string BuildTag = "v9.33 (2026-10-25)";   // v9.33: 소리 팩 (맵·보스·정차 배경음 + 효과음 새로) / v9.32: 노선 무작위 + 맵마다 제 손님 / v9.31: 급식 조리 + 바위 맵 밖 / v9.30: 포탑 칸 4 로 시작, 보스마다 하나 / v9.29: 손맛 3차 - 유물 상자 연출·크리 히트스탑·잔광 / v9.28: 하드 모드 (2회차) / v9.27: 견습 8구간 13카드 (요리 심화·주방 사고 새로) / v9.26: 마감 정리 (안 쓰는 코드·파일 정리 - 동작 변경 없음) / v9.25: 밸런스·성장 / v9.20: 보스 패턴이 화면에서 보인다 + 화살표 글자 / v9.19.4: 포탑 정보창을 네 줄로 + 글자 크게 / v9.19.3: 타격당 회복 증강은 1초에 한 번만 / v9.19.2: 손님이 제 힘으로 + 전체 강화 / 예고 화살표·편성 이름 줄 끔
+    public const string BuildTag = "v9.35.2 (2026-10-26)";   // v9.35.2: 증강 설명 · 장판·오라가 설명대로 · 왕은 미끼 3초 / v9.35.1: 작살 안내 · 불 그림 · 첫 보스 강화 / v9.35: 5웨이브마다 보스 · 레벨 상한 80 · 하드 지수 성장 · 화덕 증축 / v9.34: 주문 이어가기 · ESC · 진화 레벨 그대로 · 새 포탑 Lv1 / v9.33: 소리 팩 (맵·보스·정차 배경음 + 효과음 새로) / v9.32: 노선 무작위 + 맵마다 제 손님 / v9.31: 급식 조리 + 바위 맵 밖 / v9.30: 포탑 칸 4 로 시작, 보스마다 하나 / v9.29: 손맛 3차 - 유물 상자 연출·크리 히트스탑·잔광 / v9.28: 하드 모드 (2회차) / v9.27: 견습 8구간 13카드 (요리 심화·주방 사고 새로) / v9.26: 마감 정리 (안 쓰는 코드·파일 정리 - 동작 변경 없음) / v9.25: 밸런스·성장 / v9.20: 보스 패턴이 화면에서 보인다 + 화살표 글자 / v9.19.4: 포탑 정보창을 네 줄로 + 글자 크게 / v9.19.3: 타격당 회복 증강은 1초에 한 번만 / v9.19.2: 손님이 제 힘으로 + 전체 강화 / 예고 화살표·편성 이름 줄 끔
 
     // ── (v9.14 2026-09-28) 3인 테스트 반영 1차 - 버그·밸런스·읽기 ──
     // ── 포탑 (테스터 "더블 육포만 올려도 됨 / 전설이 더 약함 / 하나 점사하면 나머지가 빗나감") ──
     /// <summary>기본 요리(T1) 포탑 최대 레벨 - 같은 접시를 더 넣어도 여기서 멈춘다 (전설로 진화시켜야 더 세진다). 0 = 제한 없음(구 동작)</summary>
-    public static int T1MaxLevel = 3;   // v9.18: 0 -> 3 (유저 10-06 "그냥 레벨 상한을 두는 게 낫겠다" - 포탑 하나로 다 깨져서 합성·시너지를 쓸 이유가 없었다). v9.15 에서 0(해제)
+    public static int T1MaxLevel = 80;   // v9.35: 3 -> 80 (유저 10-25 "80렙까지 제한을 풀어버리는 대신 80레벨이 지금 포탑 6레벨 정도 - 아주 천천히". 곡선은 맨 아래 LevelCurve80On) / v9.18: 0 -> 3 (유저 10-06 "그냥 레벨 상한을 두는 게 낫겠다" - 포탑 하나로 다 깨져서 합성·시너지를 쓸 이유가 없었다). v9.15 에서 0(해제)
     /// <summary>전설 요리(T2) 포탑 최대 레벨. 0 = 제한 없음</summary>
-    public static int T2MaxLevel = 6;   // v9.18: 0 -> 6 (위와 같은 결정)
+    public static int T2MaxLevel = 80;   // v9.35: 6 -> 80 (위와 같은 결정 - 전설은 여기에 T2DamageMul 을 또 곱한다) / v9.18: 0 -> 6 (위와 같은 결정)
     /// <summary>전설 요리 공격력 배율 (레벨 배율과 별도로 곱한다). 1 = 구 동작</summary>
     public static float T2DamageMul = 1.5f;
     /// <summary>진화 조리 결과 레벨 = 재료 둘 중 높은 쪽 (구 동작 false = 평균)</summary>
@@ -1113,15 +1229,42 @@ public static class GameBalance
     public static int LevelSoftFrom = 3;
     /// <summary>LevelSoftFrom 을 넘는 레벨의 증가분 (계속 세지긴 한다)</summary>
     public static float LevelGainAfter = 0.35f;
-    /// <summary>레벨 -> 공격 배율. Lv1 = 1.0 / Lv3 = 2.2 / Lv5 = 2.9 / Lv7 = 3.6 / Lv10 = 4.65 (구: Lv10 = 6.4)</summary>
+    /// <summary>레벨 -> 공격 배율. Lv1 = 1.0 / Lv3 = 2.2 / Lv5 = 2.9 / Lv7 = 3.6 / Lv10 = 4.65 (구: Lv10 = 6.4).
+    /// v9.35: LevelCurve80On 이면 Lv80 까지 천천히 - Lv10 x1.61 · Lv20 x1.96 · Lv40 x2.47 · Lv60 x2.89 · Lv80 x3.25 (= 옛 Lv6). 80 을 넘으면(하드 화덕 증축) 같은 식으로 조금씩 (Lv100 x3.58 · Lv160 x4.42)</summary>
     public static float LevelMultOf(int level)
+    {
+        if (level <= 1) return 1f;
+        if (LevelCurve80On)
+        {
+            // 1 + (꼭대기 배율 - 1) x ((Lv - 1) / (꼭대기 - 1))^지수 - 지수가 1 보다 작아 앞 레벨이 조금 더 오르고, 뒤로 갈수록 한 레벨이 작다
+            float k = (level - 1f) / Mathf.Max(1f, LevelCurveTop - 1f);
+            return 1f + (LevelCurveTopMul - 1f) * Mathf.Pow(k, Mathf.Max(0.05f, LevelCurvePow));
+        }
+        return LegacyLevelMultOf(level);
+    }
+
+    /// <summary>v9.35: 옛 곡선 (Lv3 까지 +0.6, 그 뒤 +0.35 - 상한 3 / 6 시절). 견습 운행·훈련장이 쓴다 (TurretSlot.LevelMult - 그쪽 손님도 예전 값이다). LegacyLevelOf 의 자</summary>
+    public static float LegacyLevelMultOf(int level)
     {
         if (level <= 1) return 1f;
         if (LevelSoftFrom <= 0 || level <= LevelSoftFrom) return 1f + LevelGainBase * (level - 1);
         return 1f + LevelGainBase * (LevelSoftFrom - 1) + LevelGainAfter * (level - LevelSoftFrom);
     }
+
+    /// <summary>v9.35: 이 레벨의 배율이 옛 곡선(상한 3 / 6 시절 - LevelGainBase·LevelSoftFrom·LevelGainAfter)에서 몇 레벨인가 (소수, 1 이상). Lv80 = 6 · Lv40 = 3.8 · Lv10 = 2.0.
+    /// 레벨에 묶인 다른 값(과열 임계·등급 글자·포탑 그림 크기)이 옛 Lv1 ~ 6 폭을 그대로 쓰게. LevelCurve80On false 면 level 그대로</summary>
+    public static float LegacyLevelOf(int level)
+    {
+        if (level <= 1) return 1f;
+        if (!LevelCurve80On) return level;
+        float m = LevelMultOf(level);
+        float soft = 1f + LevelGainBase * (LevelSoftFrom - 1);   // 옛 Lv(LevelSoftFrom) 의 배율
+        if (LevelSoftFrom <= 0 || m <= soft) return 1f + (m - 1f) / Mathf.Max(0.01f, LevelGainBase);
+        return LevelSoftFrom + (m - soft) / Mathf.Max(0.01f, LevelGainAfter);
+    }
+
     /// <summary>접시 곡선: 같은 접시를 넣어 다음 레벨로 가는 데 드는 접시 수. false = 항상 1장(구 동작)</summary>
-    public static bool PlatesCurveOn = true;
+    public static bool PlatesCurveOn = false;   // v9.35: true -> false (레벨 상한 80 - 요리 하나 = 레벨 하나. 오르는 폭은 LevelCurve80On 이 줄인다)
     /// <summary>현재 레벨이 이 값 이상이면 다음 레벨까지 접시 2장 (Lv3 -> Lv4 부터)</summary>
     public static int PlatesTwoFrom = 3;
     /// <summary>현재 레벨이 이 값 이상이면 접시 3장 (Lv6 -> Lv7 부터)</summary>
@@ -1366,7 +1509,8 @@ public static class GameBalance
     public static bool WaveFormationsOn = true;
     /// <summary>이 웨이브부터 편성을 쓴다 (그 앞은 구 동작 - 웨이브 1 은 첫 판 안내 무대라 그대로 둔다)</summary>
     public static int WaveFormationFromWave = 2;
-    /// <summary>편성이 풀리는 웨이브: 추격 / 파상 / 매복 / 호위 행렬 / 양동 / 포위 / 공중 편대 순 (공중 편대는 비행 손님이 나오는 테슬라 협곡부터)</summary>
+    /// <summary>편성이 풀리는 웨이브: 추격 / 파상 / 매복 / 호위 행렬 / 양동 / 포위 / 공중 편대 순 (공중 편대는 비행 손님이 나오는 테슬라 협곡부터).
+    /// v9.35: 옛 25웨이브 자 (EqWave) - 지역 5 = 웨이브 2 · 2 · 3 · 3 · 4 · 4 · 6. 아래 EarlyBodyStart·CountRampWaves 의 웨이브 번호도 옛 자다 (지역 5 = 웨이브 4 에 다 자란다)</summary>
     public static int[] FormationUnlockWave = { 2, 2, 3, 4, 5, 6, 9 };
     /// <summary>매복: 바닥 고리가 뜨고 손님이 튀어나오기까지 (초)</summary>
     public static float AmbushCueSec = 1.2f;
@@ -1773,7 +1917,7 @@ public static class GameBalance
     /// <summary>하드 모드 자체. false = 로비 칩이 안 보이고 해금도 없다</summary>
     public static bool HardModeOn = true;
     /// <summary>손님 HP / 공격 / 방어·저항 배율 (전체 강화 EnemyHPMul·지역 곡선 위에 한 번 더. 견습 운행은 아님)</summary>
-    public static float HardEnemyHpMul = 1.35f;
+    public static float HardEnemyHpMul = 1.4f;   // v9.35: 1.35 -> 1.4 (유저 "아예 몬스터들을 강하게") + 웨이브마다 곱으로 - 맨 아래 HardEnemyHpGrowth
     public static float HardEnemyAtkMul = 1.25f;
     public static float HardEnemyDefMul = 1.2f;
     /// <summary>머릿수 - 크기별 배율(CountMul*)과 조각 크기(FormationSizeMul)에 곱한다</summary>
@@ -1853,9 +1997,10 @@ public static class GameBalance
     public static float MapNormAtkMin = 0.3f, MapNormAtkMax = 2.5f;
     /// <summary>처치 골드·재료·유물 확률도 같은 식으로 맞춘다 (골드 = 처치 골드 합, 재료·유물 = 마릿수 합). 안 맞추면 광산이 1지역일 때 큰 손님 골드로 네 배를 번다</summary>
     public static bool MapRewardNormOn = true;
-    /// <summary>지역 보스 셋의 HP 배율을 종류(BossHPKindMul)가 아니라 자리로 - 노선이 섞여도 1·2·3 지역 보스가 순서대로 세다. 지금 순서면 같은 숫자</summary>
+    /// <summary>지역 보스 셋의 HP 배율을 종류(BossHPKindMul)가 아니라 자리로 - 노선이 섞여도 1·2·3 지역 보스가 순서대로 세다.
+    /// v9.35.1: 지역 1 4 -> 6 (유저 "첫 보스가 너무 약해, 체력도 낮은 것 같다" - 웨이브 5 녹슨 발톱 왕 11,880 + 부관 2 x 2,970 -> 17,820 + 2 x 4,455). 무는 힘은 맨 아래 BossBiteStageMul</summary>
     public static bool BossHpByStage = true;
-    public static float[] BossHPStageMul = { 4f, 6f, 6f };
+    public static float[] BossHPStageMul = { 6f, 6f, 6f };
     /// <summary>맵 그림: Resources/Sprites/WDT/ground_(desert·canyon·mine·final).png 가 있으면 지역이 바뀔 때 이만큼(초) 겹치며 바뀐다 (그 그림엔 지역 색을 안 입힌다). 없으면 ground_ae + 지역 색 그대로</summary>
     public static float MapGroundFadeSec = 1.2f;
     /// <summary>소품: deco_(맵)_1 ~ 6.png 를 땅 한 장(32 x 32u)에 몇 개 (0 = 안 깐다). 기차가 달리는 선로(월드 y 0)와 보스전 두 번째 선로의 위아래 MapDecoClearY(u) 안에 든 소품은 숨긴다 (갈림길에서 땅이 세로로 밀려도)</summary>
@@ -1888,4 +2033,97 @@ public static class GameBalance
     /// <summary>배경음 전환 (초): 지역 진입 · 보스 등장 · 보스 처치(꺼짐) · 정차 · 같은 지역으로 출발(멈춘 자리부터) · 승리(꺼짐) · 패배(꺼짐) · 로비</summary>
     public static float MusicRegionFadeSec = 1.2f, MusicBossFadeSec = 0.6f, MusicBossEndFadeSec = 0.6f, MusicMaintenanceFadeSec = 1.0f;
     public static float MusicResumeFadeSec = 1.0f, MusicVictoryFadeSec = 0.7f, MusicDefeatFadeSec = 0.4f, MusicLobbyFadeSec = 1.5f;
+
+    // ── (v9.34 2026-10-25) 규칙·편의 - 유저 10-25 ──
+    /// <summary>단골 주문이 정차(Town)에 안 끊긴다 (유저 "미션 같은 게 나왔을 때 정차역에 안 끊기게"): 주문 시간·완료 버프는 손님과 싸우는 동안만 흐른다 -
+    /// 웨이브 끝 사고 수습·증강·일지·정차·선로 고르기엔 멈췄다가 다음 웨이브에 이어진다. 그동안에도 조리는 센다. 패배·승리·로비에서 접는다 (견습 주문은 예전처럼 정차에서도).
+    /// false = 예전 (정차하면 조용히 접힘)</summary>
+    public static bool OrderKeepThroughStops = true;
+    /// <summary>보스전엔 앞 웨이브에서 이어 온 주문의 시간이 멈춘다 (카드 "보스전 멈춤" - 보스 패턴이 할 일을 준다. 조리는 세고, 완료 버프는 보스에게도 흐른다).
+    /// 새 주문은 원래 보스 웨이브에 안 나온다. false = 보스전에도 주문 시간이 흐른다</summary>
+    public static bool OrderHoldInBoss = true;
+    /// <summary>진화(다른 기본 요리 둘 -> 전설) 결과 레벨 = 재료 레벨 그대로 (유저 "2레벨 요리끼리 합치면 2레벨 전설"). 진화 조리 판정이 좋으면 레벨 대신 그 전설 요리 FusionBonusDishes 개를 하단 카드로
+    /// (카드끼리 진화 조리의 InfuseStockBonusPlates 와 같은 보너스), 숙련 +1 도 없다. false = 예전 (판정 +InfuseBonusLevel · 숙련 50회 +1)</summary>
+    public static bool FusionKeepLevel = true;
+    public static int FusionBonusDishes = 1;
+    /// <summary>새 포탑의 시작 레벨 보너스 (요리 숙련 50회 '장인의 감각' +1 · 증강 '선대의 기본기' +1). false = 새 포탑은 늘 Lv1
+    /// (유저 "왜 1레벨이 아니라 2레벨로 시작하지 - 버그면 1레벨로": 버그가 아니라 알림 없이 붙던 보너스였다. 숙련의 공격·판정 보너스와 기본기의 피해 +65% 는 그대로)</summary>
+    public static bool StartLevelBonusOn = false;
+
+    // ── (v9.35 2026-10-25) 성장·구조 - 유저 10-25 (지역 길이·옛 자는 맨 위 RegionLength · EqWave · WaveWorth) ──
+    /// <summary>레벨 곡선 80 (유저 "그 여러 개 넣어서 6레벨 만들기보다는 80렙까지 제한을 풀어버리는 대신 80레벨이 지금 포탑 6레벨 정도 되게끔 아주 천천히 - 지속적인 요리"):
+    /// 요리 하나 = 레벨 하나 (PlatesCurveOn false), 배율 = 1 + (LevelCurveTopMul - 1) x ((Lv-1)/(LevelCurveTop-1))^LevelCurvePow. Lv80 = x3.25 = 옛 Lv6 (전설은 T2DamageMul 1.5 를 또 곱한다).
+    /// 0.6 = Lv5 x1.38 · Lv10 x1.61 · Lv20 x1.96 · Lv40 x2.47 · Lv60 x2.89. 지수가 작을수록 앞 레벨이 빨리 오른다 (0.5 = Lv10 x1.76 · Lv20 x2.10). false = 옛 곡선</summary>
+    public static bool LevelCurve80On = true;
+    public static int LevelCurveTop = 80;
+    public static float LevelCurveTopMul = 3.25f;
+    public static float LevelCurvePow = 0.6f;
+    /// <summary>견습 운행·훈련장·자유 연습의 레벨 상한 (기본 / 전설) - 그쪽은 옛 곡선이라 상한도 옛 값 (TurretSlot.MaxLevelOf). 옛 곡선에 80 을 주면 Lv80 x29 가 된다</summary>
+    public static int TutorialT1MaxLevel = 3, TutorialT2MaxLevel = 6;
+    /// <summary>옛 곡선의 꼭대기 레벨 (옛 전설 상한 6). 레벨에 묶인 값(과열 임계·등급·그림 크기)은 Lv80 을 넘어도(하드 화덕 증축) 여기서 멈춘다 - 산 단계가 과열 벌이 되지 않게</summary>
+    public const float LegacyTopLevel = 6f;
+    /// <summary>하드 = 손님이 웨이브마다 곱으로 세진다 (유저 "아예 몬스터들을 강하게 만들고, 지수함수 형식으로"): HP x HardEnemyHpMul x HardEnemyHpGrowth^(웨이브-1), 공격 x HardEnemyAtkMul x HardEnemyAtkGrowth^(웨이브-1).
+    /// 보스 HP 는 HardBossHpMul x HardEnemyHpGrowth^(웨이브-1), 무는 힘은 HardBossMeleeMul x HardEnemyAtkGrowth^(웨이브-1). 손님 HP = 웨이브 1 x1.4 · 5 x1.70 · 10 x2.17 · 최종전 16 x2.91 (옛 하드 x1.35 고정).
+    /// 웨이브 번호는 지금 웨이브 그대로 (옛 자 아님 - 웨이브마다 같은 비율). 1 = 고정 배율만 (v9.34 까지)</summary>
+    public static float HardEnemyHpGrowth = 1.05f;
+    public static float HardEnemyAtkGrowth = 1.02f;
+    /// <summary>하드 명성 상점 '화덕 증축' (유저 "하드모드에는 새로운 명성상점 같은 거 도입해서 조금씩 포탑 레벨 제한을 올려도"): 한 단계마다 하드 운행의 포탑 최대 레벨 +HardCapStep (80 -> 100 -> ... -> 160).
+    /// HardCapMaxSteps 단계까지, 값 = HardCapCost x (단계 + 1) = 300 / 600 / 900 / 1200 명성 (상점 공식). 하드가 열리면(종착역 1회) 상점 맨 아래 잠긴 줄 자리에 보인다. 노말 운행엔 안 걸린다.
+    /// false = 줄 없음 (산 단계도 안 걸린다)</summary>
+    public static bool HardShopOn = true;
+    public static int HardCapStep = 20;
+    public static int HardCapMaxSteps = 4;
+    public static int HardCapCost = 300;
+
+    // ── (v9.35.1 2026-10-26) 버그·첫 보스 - 유저 10-26 ──
+    /// <summary>작살·레버 [E] 안내 캔버스의 그리는 순서: HUD(10)·슬롯 마커의 투입 안내 띠(9) 위, 클라이맥스 번쩍(15)·출발 창(20) 아래. 조작 지점 앞에 섰을 때만 뜬다.
+    /// 예전 8 (슬롯 마커 아래). 캔버스는 EngineCab(씬이 바뀌어도 남는 오브젝트) 밑 - 예전엔 씬 루트라 씬을 다시 실으면 지워져 다음 판부터 안내가 안 떴다</summary>
+    public static int EngineCabHintSort = 11;
+    /// <summary>지역 자리(1·2·3)별 보스 무는 힘 배율 - 물기·꼬리치기·측면 충돌·부관·삼단 도약 (BossEnemy.BiteMul). 최종전·예습 보스는 1.
+    /// 유저 "첫 보스가 너무 약해 - 공격력이 낮게 느껴지고 보스전 같지 않아, 그냥 좀 더 큰 몬스터 느낌": 웨이브 5 녹슨 발톱 물기 56 (같은 웨이브 태엽 아르마딜로 한 대 61) -> 112,
+    /// 부관 28 -> 56, 도약 착지 39 -> 79. 천둥 둥지는 물지 않는다 (지역 1 에 오면 HP 만 오른다).
+    /// 자리 순서대로 세게: 보스 공격력 = 40 + 웨이브(옛 자) x 8 이라 1지역만 x2 면 2지역 보스가 1지역보다 덜 문다 (녹슨 발톱 112 > 91) - 2지역 x1.3 (118 · 동면자 131), 3지역 그대로 (125 · 139).
+    /// 첫 칸을 바꾸면 둘째 칸도 같이 볼 것 (둘째 x 168 > 첫째 x 104). 세면 1.5 / 1.0 / 1.0, 약하면 2.5 / 1.6 / 1.2</summary>
+    public static float[] BossBiteStageMul = { 2f, 1.3f, 1f };
+    /// <summary>카드를 누르고 칸을 누르는 투입(클릭 투입)은 한 번에 요리 하나 - 넣고 나면 투입 모드가 끝난다 (끌어다 놓기와 같게).
+    /// 유저 "요리 하는 방식에 따라 갑자기 2레벨 포탑": 예전엔 재고가 남으면 모드가 이어져, 넣은 포탑을 보려고 한 번 더 누르면 요리가 또 들어갔다 (PERFECT 로 둘을 받으면 Lv2). false = 예전 (재고가 바닥날 때까지 이어짐)</summary>
+    public static bool PlaceOnePerPick = true;
+
+    // ── (v9.35.2 2026-10-26) 설명대로 - 밸런스 표(balance/WDT_밸런스표)를 만들다 찾은 설명-코드 불일치 · 첫 보스 미끼 - 유저 10-26 ──
+    /// <summary>장판이 남아 있는 시간(초). 그동안 FieldTickSec 마다 장판 위 손님에게 감속을 다시 건다 (TurretAttackExecutor.FieldLinger).
+    /// 설명은 "그 위를 지나는 손님이 계속" 인데 예전엔 떨어질 때 한 번이었고 그림만 4초 남았다. 0 = 예전 (떨어질 때 한 번)</summary>
+    public static float FieldLingerSec = 4f;
+    public static float FieldTickSec = 0.5f;
+    /// <summary>독 장판(영구동토 진액): 떨어질 때 범위 안 손님에게 독 1겹, 그 뒤 장판 위 손님에게 이 초마다 1겹.
+    /// 예전엔 독이 아예 안 들어갔다 - 독을 켜는 값(RecipeData.fieldPoison)을 전투 코드가 안 읽었다</summary>
+    public static float FieldPoisonEverySec = 1f;
+    /// <summary>독 장판(fieldPoison)을 켠다 - false = 예전 (독이 안 들어간다). 장판이 겹쳐도 한 손님에게 FieldPoisonEverySec 마다 한 겹 (Enemy.lastFieldPoisonTime)</summary>
+    public static bool FieldPoisonOn = true;
+    /// <summary>화염 방벽의 오라 불을 화상으로 친다 - 화상·독 배율(증강 매운 양념 · 매운맛 중독 · 붉은 주방, 유물 독한 소스)을 받고,
+    /// 약점 파고들기가 '화상 붙은 손님'으로 본다. false = 예전 (0.5초마다 순수 피해, 화상·독 증강이 하나도 안 붙음)</summary>
+    public static bool AuraBurnIsDot = true;
+    /// <summary>부식의 정수 오라가 설명대로 방어·저항 깎기 1겹 (+ 깎기 증강) - 0.5초마다. false = 예전 (임시로 이동 속도 -15%)</summary>
+    public static bool AuraShredReal = true;
+    /// <summary>빙벽 스튜 오라 감속 · 축전 장갑 되받기 마비도 '느려지거나 마비된 손님'으로 친다 (사냥꾼의 본능 · 동상 파편). false = 예전</summary>
+    public static bool TrainCcCounts = true;
+    /// <summary>방어·저항 깎기 겹 상한 (한 겹 -15 -> 3겹 -45). 증강 '부식성 위산'은 여기에 GoldShredCapAdd 를 더한다 (-75).
+    /// 예전: 상한이 3 이라 '구리 도금 탄환'(겹 +5)과 '부식성 위산'(겹 +12)이 둘 다 '첫 발에 끝까지'로 같은 효과였다</summary>
+    public static int ShredMaxStacks = 3;
+    public static int GoldShredCapAdd = 2;
+    /// <summary>부채꼴 불길이 닿는 거리 (TurretAttackExecutor.HitCone). ConeAimWithinReach 면 부채꼴 포탑은 이 안의 손님만 노린다 (TurretSlot.FindNearestEnemy).
+    /// 예전엔 노리는 거리 20 의 손님을 겨누고 7 까지만 뿜어 헛방이 났다 (산탄 셰프로 바뀐 단일 요리도 같다)</summary>
+    public static float ConeReach = 7f;
+    public static bool ConeAimWithinReach = true;
+    /// <summary>부채꼴 조준은 닿는 거리보다 이만큼 안쪽까지만 - 조준은 포탑 칸 자리에서, 불길은 포신 끝에서 재서 경계에서 가끔 헛방 (리뷰 v9.35.2)</summary>
+    public static float ConeAimMargin = 0.3f;
+    /// <summary>관통 줄기 길이가 노리는 거리를 따라간다 (망원 조준경 · 녹슨 탄창으로 20 을 넘으면 줄기도 그만큼). false = 예전 (20 고정 - 늘어난 거리의 손님을 노리면 줄기가 못 닿아 헛방)</summary>
+    public static bool PierceFollowsAim = true;
+    /// <summary>미끼가 왕(보스 본체 - 예습의 새끼 발톱 포함)을 붙잡는 최대 초. 무리·부관은 굽기 판정 시간 그대로 (4 ~ 8초).
+    /// Player.log 10-26: PERFECT 미끼(8초)를 쿨(6초)마다 던지면 왕이 싸움 내내 미끼만 물고 기차를 한 번도 안 물었다 - 첫 보스가 '큰 손님' 같던 까닭.
+    /// 0 = 예전 (왕도 판정 시간 그대로). 왕이 너무 세면 5, 아직 약하면 2</summary>
+    public static float BaitBossLureSec = 3f;
+    /// <summary>왕이 미끼를 무리보다 짧게 보나 - 화덕 설명 · 던질 때 알림 · 브리핑 · 예습 카드가 이것 하나로 같은 말을 한다 (BaitBossLureSec 를 0 으로 끄면 예전 말로)</summary>
+    public static bool BaitKingShort { get { return BaitBossLureSec > 0f && BaitBossLureSec < BaitDurationPerfect; } }
+    /// <summary>증강 카드 맨 아래 "[지금 내 포탑 중 n기에 걸린다]" 줄 (AugmentTargets.Note). false = 줄 없음</summary>
+    public static bool AugmentTargetNoteOn = true;
 }

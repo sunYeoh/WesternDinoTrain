@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 
 /// <summary>
-/// [AugmentSystem.cs] v4.11 (v9.25 2026-10-16 B1 증강 덧셈 - 5차 피드백 3·10·11번 "너무 쉬움 / 명예도 안 쓰고 깸 / 무기 하나로 깸": 피해·화상독·폭발 반경·사거리·재료·공격속도 증강은 같은 종류끼리 % 를 더해 배율을 만든다 (AddAtk 등 - 피해 +12% 다섯 장 = +60%, 예전엔 곱 + 점증으로 x3.9). 같은 증강을 또 집어도 같은 만큼만 (StackTimes = 1). 증강 카드·중첩 알림에 그 종류의 지금 합계 (StackSummary). GameBalance.AugmentLinear = false 면 예전) / v4.10 (v9.24.1 2026-10-16 5차 피드백 6번 "실버 공속증강 사기": 고속 회전 모터는 점증 없이 집을 때마다 x1.12 (GameBalance.AugmentNoEscalate - StackTimes), 증강으로 붙는 공격속도는 합쳐서 GameBalance.AugmentAspdCap 배까지 (오버차지 엔진 포함 - 상한 없이 곱이 쌓여 다섯 번이면 x3.9 였다)) / v4.9 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v4.8 (v9.19.3 2026-10-07: 육수 한 국자·회복의 만찬 설명에 "(1초에 N번까지)" - 타격당 회복을 1초에 GameBalance.LifestealHitsPerSec 번까지만 센다. LifestealDesc) / v4.7 (v9.19.2 2026-10-07: 육수 한 국자·회복의 만찬 설명에서 v4.6 의 "최대 … (떼로 온 손님은 덜)"을 뺐다 - 때릴 때마다 적힌 만큼 회복한다) / v4.6 (v9.19.1: 그 문구를 넣었다) / v4.5 (v9.18 2026-10-06: 선대의 기본기 설명에 "기본 요리 최대 레벨" - 레벨 상한이 돌아오면서 이 증강은 기본 요리 상한을 올려 준다(GameBalance.BasicsT1MaxLevel)) / v4.4 (v9.13 2026-09-23: AugmentDatabase.ForceGrade - 선로 보상 "증강 1회 더" 의 등급 고정) / v4.3 (v9.11.1 2026-09-22 문구: 이번 운행·유물·진화) / v4.2 (v9.10 2026-09-17 테스터 피드백 "증강에 모르겠는 말": 첫 지역은 바로 이해되는 증강만 후보(EARLY_SIMPLE, GameBalance.AugmentSimpleEarly) / 설명 낱말 일상어 - 도트·스택·인접 버프·공명·DEF·감쇄) / v4.1 (2026-09-14: 중첩 배수 상한 AugmentStackMulCap) / v4
+/// [AugmentSystem.cs] v4.14 (v9.35.2 2026-10-26 유저 "증강설명 폭발반경이나 이런거 좀 더 친절하게 - 어떤 종류에 적용이 되는지 알아야 집든말든하지": 설명 66개를 '어디에 걸리나'가 보이게 새로 (밸런스 표 '증강' 시트) / 카드 맨 아래 줄 AugmentTargets.Note - 지금 내 포탑 중 몇 기에 걸리나 / '부식성 위산'은 깎기 겹 상한 +2 (ShredCapAdd - 예전엔 실버와 같은 효과), 깎기 증강 둘은 겹쳐 집기 없음, 부식성 위산 뒤엔 구리 도금 탄환이 후보에 안 나온다 / AugmentHooks 장부 정리는 1초에 한 번 / 공격속도 -> 공격 속도) / v4.13 (v9.35 2026-10-25 성장·구조: 증강 등급 확률은 옛 25웨이브 자 (GameBalance.EqWave) / '야전 정비반' 웨이브마다 최대 HP x 웨이브 한 판의 몫 (지역 5 = +50 -> +80)) / v4.12 (v9.34 2026-10-25: '선대의 기본기' 글의 "새로 놓으면 레벨 2 부터"는 GameBalance.StartLevelBonusOn 일 때만 - 새 포탑은 늘 Lv1. 피해 % 는 BasicsT1Bonus 에서 읽는다) / v4.11 (v9.25 2026-10-16 B1 증강 덧셈 - 5차 피드백 3·10·11번 "너무 쉬움 / 명예도 안 쓰고 깸 / 무기 하나로 깸": 피해·화상독·폭발 반경·사거리·재료·공격속도 증강은 같은 종류끼리 % 를 더해 배율을 만든다 (AddAtk 등 - 피해 +12% 다섯 장 = +60%, 예전엔 곱 + 점증으로 x3.9). 같은 증강을 또 집어도 같은 만큼만 (StackTimes = 1). 증강 카드·중첩 알림에 그 종류의 지금 합계 (StackSummary). GameBalance.AugmentLinear = false 면 예전) / v4.10 (v9.24.1 2026-10-16 5차 피드백 6번 "실버 공속증강 사기": 고속 회전 모터는 점증 없이 집을 때마다 x1.12 (GameBalance.AugmentNoEscalate - StackTimes), 증강으로 붙는 공격속도는 합쳐서 GameBalance.AugmentAspdCap 배까지 (오버차지 엔진 포함 - 상한 없이 곱이 쌓여 다섯 번이면 x3.9 였다)) / v4.9 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v4.8 (v9.19.3 2026-10-07: 육수 한 국자·회복의 만찬 설명에 "(1초에 N번까지)" - 타격당 회복을 1초에 GameBalance.LifestealHitsPerSec 번까지만 센다. LifestealDesc) / v4.7 (v9.19.2 2026-10-07: 육수 한 국자·회복의 만찬 설명에서 v4.6 의 "최대 … (떼로 온 손님은 덜)"을 뺐다 - 때릴 때마다 적힌 만큼 회복한다) / v4.6 (v9.19.1: 그 문구를 넣었다) / v4.5 (v9.18 2026-10-06: 선대의 기본기 설명에 "기본 요리 최대 레벨" - 레벨 상한이 돌아오면서 이 증강은 기본 요리 상한을 올려 준다(GameBalance.BasicsT1MaxLevel)) / v4.4 (v9.13 2026-09-23: AugmentDatabase.ForceGrade - 선로 보상 "증강 1회 더" 의 등급 고정) / v4.3 (v9.11.1 2026-09-22 문구: 이번 운행·유물·진화) / v4.2 (v9.10 2026-09-17 테스터 피드백 "증강에 모르겠는 말": 첫 지역은 바로 이해되는 증강만 후보(EARLY_SIMPLE, GameBalance.AugmentSimpleEarly) / 설명 낱말 일상어 - 도트·스택·인접 버프·공명·DEF·감쇄) / v4.1 (2026-09-14: 중첩 배수 상한 AugmentStackMulCap) / v4
 /// 로그라이크 증강 시스템 (기획 C) - 창의적 증강 재설계판
 ///
 /// 설계 철학
@@ -91,6 +91,7 @@ public static class AugmentManager
     public static int ChainCountAdd = 0;         // 연쇄 전이 횟수 가산
     public static float DotMul = 1f;             // 화상/중독 도트 배율
     public static int ShredAdd = 0;              // 방깎/마깎 수치 가산
+    public static int ShredCapAdd = 0;           // v4.14: 부식성 위산 - 깎기 겹 상한 가산 (Enemy: GameBalance.ShredMaxStacks + 이것)
     public static float LifestealPerHit = 0f;    // 타격당 기차 회복량
     public static float HealPerWave = 0f;        // 웨이브 클리어 시 회복량
 
@@ -208,7 +209,7 @@ public static class AugmentManager
         AtkMul = 1f; CritChanceAdd = 0f; CritDamageAdd = 0f;
         atkPct = 0f; dotPct = 0f; explodePct = 0f; rangePct = 0f; dropPct = 0f; aspdPct = 0f;   // v4.11: 덧셈 합
         ExplodeRadiusMul = 1f; ChainCountAdd = 0;
-        DotMul = 1f; ShredAdd = 0;
+        DotMul = 1f; ShredAdd = 0; ShredCapAdd = 0;
         LifestealPerHit = 0f; HealPerWave = 0f;
 
         DotTargetBonus = 0f; ControlTargetBonus = 0f; StaticNth = 0;
@@ -329,7 +330,7 @@ public static class AugmentManager
     {
         float gain = AspdGainNow(id);
         if (gain < 0f || gain >= AspdNominal(id) - 1f - 0.005f) return "";
-        return "[지금 집으면 공격속도 +" + Mathf.RoundToInt(gain * 100f) + "%]";
+        return "[지금 집으면 공격 속도 +" + Mathf.RoundToInt(gain * 100f) + "%]";
     }
 
     /// <summary>v4.10: 공속 증강인데 남은 몫이 원래 효과의 절반도 안 되나 - 증강 후보에서 뺀다 (집어도 거의 안 붙는다. 오버차지는 사거리 -15% 만 남는다)</summary>
@@ -396,7 +397,7 @@ public static class AugmentManager
     public static string AspdCapNote()
     {
         if (GameBalance.AugmentAspdCap <= 1f) return "";
-        return ". 증강 공격속도는 합쳐서 +" + Mathf.RoundToInt((GameBalance.AugmentAspdCap - 1f) * 100f) + "% 까지";
+        return ". 증강 공격 속도는 합쳐서 +" + Mathf.RoundToInt((GameBalance.AugmentAspdCap - 1f) * 100f) + "% 까지";
     }
 
     /// <summary>해당 증강을 이미 갖고 있는지</summary>
@@ -451,10 +452,16 @@ public static class AugmentHooks
     private static Dictionary<Enemy, float> controlUntil = new Dictionary<Enemy, float>();
     private static Dictionary<Enemy, float> dotUntil = new Dictionary<Enemy, float>();
 
+    // v4.14 (v9.35.2): 정리는 장부마다 1초에 한 번, 지울 목록은 하나를 돌려 쓴다 (장판이 0.5초마다 손님 전부를 기록한다)
+    private static readonly List<Enemy> removeBuf = new List<Enemy>();
+    private static float nextControlCleanup, nextDotCleanup;
+
     public static void Clear()
     {
         controlUntil.Clear();
         dotUntil.Clear();
+        nextControlCleanup = 0f;
+        nextDotCleanup = 0f;
     }
 
     /// <summary>슬로우/스턴을 걸었을 때 호출</summary>
@@ -465,7 +472,7 @@ public static class AugmentHooks
         float old;
         if (controlUntil.TryGetValue(en, out old) && old > until) return;
         controlUntil[en] = until;
-        CleanupIfBig(controlUntil);
+        CleanupIfBig(controlUntil, ref nextControlCleanup);
     }
 
     /// <summary>화상/중독을 걸었을 때 호출</summary>
@@ -476,7 +483,7 @@ public static class AugmentHooks
         float old;
         if (dotUntil.TryGetValue(en, out old) && old > until) return;
         dotUntil[en] = until;
-        CleanupIfBig(dotUntil);
+        CleanupIfBig(dotUntil, ref nextDotCleanup);
     }
 
     /// <summary>지금 슬로우/스턴 상태인가</summary>
@@ -495,15 +502,17 @@ public static class AugmentHooks
         return dotUntil.TryGetValue(en, out until) && until > Time.time;
     }
 
-    /// <summary>장부가 커지면 만료된 항목 정리</summary>
-    private static void CleanupIfBig(Dictionary<Enemy, float> dict)
+    /// <summary>장부가 커지면 만료된 항목 정리 - v4.14: 장부마다 1초에 한 번 (nextTime)</summary>
+    private static void CleanupIfBig(Dictionary<Enemy, float> dict, ref float nextTime)
     {
-        if (dict.Count < 64) return;
-        List<Enemy> removeList = new List<Enemy>();
+        if (dict.Count < 64 || Time.time < nextTime) return;
+        nextTime = Time.time + 1f;
+        removeBuf.Clear();
         foreach (KeyValuePair<Enemy, float> pair in dict)
-            if (pair.Key == null || pair.Value <= Time.time) removeList.Add(pair.Key);
-        for (int i = 0; i < removeList.Count; i++)
-            dict.Remove(removeList[i]);
+            if (pair.Key == null || pair.Value <= Time.time) removeBuf.Add(pair.Key);
+        for (int i = 0; i < removeBuf.Count; i++)
+            dict.Remove(removeBuf[i]);
+        removeBuf.Clear();
     }
 }
 
@@ -525,15 +534,32 @@ public static class AugmentDatabase
     }
 
     /// <summary>
-    /// v4.8: 타격당 회복 카드의 설명. 제한(GameBalance.LifestealHitsPerSec)이 켜져 있으면 "(1초에 N번까지)"를 붙인다
-    /// - 값을 바꿔도 카드가 실제 동작과 같은 말을 하게 여기서 만든다
+    /// v4.8: 타격당 회복 카드의 설명. v4.14 (v9.35.2): 1초에 실제로 차는 양으로 - "1초에 0.5 까지 (포탑이 몇 기든 합쳐서)".
+    /// 제한(GameBalance.LifestealHitsPerSec)을 끄면(0) "맞힐 때마다 +n". 값을 바꿔도 카드가 실제 동작과 같은 말을 하게 여기서 만든다
     /// </summary>
-    private static string LifestealDesc(string amount)
+    private static string LifestealDesc(float amount)
     {
-        string desc = "포탑이 손님을 때릴 때마다 기차 HP " + amount + " 회복";
         float perSec = GameBalance.LifestealHitsPerSec;
-        if (perSec > 0f) desc += " (1초에 " + perSec.ToString("0.#") + "번까지)";
-        return desc;
+        if (perSec <= 0f) return "포탑이 손님을 맞힐 때마다 기차 HP +" + amount.ToString("0.#");
+        return "포탑이 손님을 맞히면 기차 HP 회복 - 1초에 " + (amount * perSec).ToString("0.#") + " 까지 (포탑이 몇 기든 합쳐서)";
+    }
+
+    // ── v4.14 (v9.35.2): 설명 숫자 도우미 - 카드 글이 GameBalance 값과 같은 말을 하게 ──
+    /// <summary>0.12 -> "12" (퍼센트 숫자)</summary>
+    private static string P(float v) { return Mathf.RoundToInt(v * 100f).ToString(); }
+    /// <summary>노리는 거리 x 배율 -> "23" (GameBalance.TurretRange 20 기준)</summary>
+    private static string R(float mul) { return Mathf.RoundToInt(GameBalance.TurretRange * mul).ToString(); }
+    /// <summary>초 -> "2.4"</summary>
+    private static string S(float sec) { return sec.ToString("0.#"); }
+    /// <summary>화상·독 증강이 붙는 곳 (화염 방벽 오라 불을 화상으로 치면 그것도)</summary>
+    private static string DotWhere()
+    {
+        return GameBalance.AuraBurnIsDot ? "화상·독 요리와 화염 방벽에 붙는다" : "화상·독 요리에 붙는다 (화염 방벽 불은 그대로)";
+    }
+    /// <summary>깎기 증강이 붙는 곳 (부식의 정수 오라가 진짜 깎으면 그것도)</summary>
+    private static string ShredWhere()
+    {
+        return GameBalance.AuraShredReal ? "깎기 요리와 부식의 정수에 붙는다" : "깎기 요리(독침 육포 · 마비독 꼬치 등)에 붙는다";
     }
 
     private static void Build()
@@ -544,127 +570,132 @@ public static class AugmentDatabase
         //  실버 - 무난한 수치 강화 (안전픽)
         // ==========================================================
         all.Add(new AugmentData("silver_atk", "기름칠한 포신",
-            "모든 포탑 피해 +12%", AugmentGrade.Silver, true,
+            "쏘는 포탑 피해 +12% (쏘지 않는 요리와 화상·독엔 안 붙는다)", AugmentGrade.Silver, true,
             delegate { AugmentManager.AddAtk(0.12f); }));
 
         all.Add(new AugmentData("silver_hp", "강철 리벳 보강",
-            "기차 최대 HP +250 (즉시 회복)", AugmentGrade.Silver, true,
+            "기차 최대 HP +250, 그만큼 바로 찬다", AugmentGrade.Silver, true,
             delegate { AugmentManager.AddTrainMaxHP(250f); AugmentManager.HealTrain(250f); }));
 
         all.Add(new AugmentData("silver_crit", "정밀 렌즈",
-            "치명타 확률 +8%", AugmentGrade.Silver, true,
+            "쏘는 포탑 한 발이 8% 확률로 치명타 - 피해 1.5배 (치명타는 증강으로만 생긴다)", AugmentGrade.Silver, true,
             delegate { AugmentManager.CritChanceAdd += 0.08f; }));
 
         all.Add(new AugmentData("silver_dot", "매운 양념 한 스푼",
-            "화상·독으로 계속 들어가는 피해 +25%", AugmentGrade.Silver, true,
+            "화상·독으로 계속 들어가는 피해 +25% - " + DotWhere(), AugmentGrade.Silver, true,
             delegate { AugmentManager.AddDot(0.25f); }));
 
         all.Add(new AugmentData("silver_explode", "화약 추가 배합",
-            "폭발 반경 +15%", AugmentGrade.Silver, true,
+            "폭발 요리의 폭발 범위 +15% (용암 폭탄밥 · 증기 폭발처럼 터지는 요리만)", AugmentGrade.Silver, true,
             delegate { AugmentManager.AddExplode(0.15f); }));
 
         all.Add(new AugmentData("silver_shred", "구리 도금 탄환",
-            "손님의 방어·저항을 깎는 요리가 +5 만큼 더 깎는다", AugmentGrade.Silver, true,
+            "방어·저항 깎기가 첫 발에 바로 끝까지 (-" + (GameBalance.ShredMaxStacks * 15) + ") - " + ShredWhere(), AugmentGrade.Silver, false,
             delegate { AugmentManager.ShredAdd += 5; }));
 
         all.Add(new AugmentData("silver_lifesteal", "육수 한 국자",
-            LifestealDesc("0.5"), AugmentGrade.Silver, true,
+            LifestealDesc(0.5f), AugmentGrade.Silver, true,
             delegate { AugmentManager.LifestealPerHit += 0.5f; }));
 
         all.Add(new AugmentData("silver_wavehal", "응급 정비",
-            "웨이브 클리어마다 기차 HP 60 회복", AugmentGrade.Silver, true,
+            "웨이브를 넘길 때마다 기차 HP 60 회복", AugmentGrade.Silver, true,
             delegate { AugmentManager.HealPerWave += 60f; }));
 
         all.Add(new AugmentData("silver_aspd", "고속 회전 모터",
-            "모든 포탑 공격속도 +12%" + AugmentManager.AspdCapNote(), AugmentGrade.Silver, true,
+            "쏘는 포탑이 12% 더 자주 쏜다 (화상·독도 그만큼 자주 붙는다)" + AugmentManager.AspdCapNote(), AugmentGrade.Silver, true,
             delegate { AugmentManager.AddAspd(AugmentManager.AspdMotorMul - 1f); }));   // v4.11: 덧셈 + 상한 (v4.10: 점증 없음)
 
         all.Add(new AugmentData("silver_range", "망원 조준경",
-            "모든 포탑 사거리 +15%", AugmentGrade.Silver, true,
+            "포탑이 노리는 거리 +15% (" + R(1f) + " -> " + R(1.15f) + ")"
+                + (GameBalance.PierceFollowsAim ? ", 관통 줄기도 같이 길어진다" : "")
+                + (GameBalance.ConeAimWithinReach ? ". 부채꼴 요리엔 안 붙는다 (불길이 닿는 " + Mathf.RoundToInt(GameBalance.ConeReach) + " 안만 노린다)" : ". 부채꼴 불길은 그대로")
+                + ". 오라 거리는 그대로", AugmentGrade.Silver, true,
             delegate { AugmentManager.AddRange(0.15f); }));
 
         // (Phase 2-3: '잘 드는 식칼'은 아이템으로 이관 - ItemSystem.cs 참고)
 
         all.Add(new AugmentData("silver_magnet", "자석 흡입기 개조",
-            "손님 처치 시 재료 드롭 +25%", AugmentGrade.Silver, true,
+            "손님을 잡으면 떨어지는 재료 +25%", AugmentGrade.Silver, true,
             delegate { AugmentManager.AddDrop(0.25f); }));
 
         // ==========================================================
         //  골드 - 조건부 시너지 ("이걸 먹었으니 이렇게 운영하자")
         // ==========================================================
         all.Add(new AugmentData("gold_atk", "볼케이노 압축기",
-            "모든 포탑 피해 +30%", AugmentGrade.Gold, true,
+            "쏘는 포탑 피해 +30% (쏘지 않는 요리와 화상·독엔 안 붙는다)", AugmentGrade.Gold, true,
             delegate { AugmentManager.AddAtk(0.30f); }));
 
         all.Add(new AugmentData("gold_dot", "매운맛 중독",
-            "화상·독으로 계속 들어가는 피해 +60%", AugmentGrade.Gold, true,
+            "화상·독으로 계속 들어가는 피해 +60% - " + DotWhere(), AugmentGrade.Gold, true,
             delegate { AugmentManager.AddDot(0.60f); }));
 
         all.Add(new AugmentData("gold_chain", "전격의 협곡",
-            "번개가 튀는 손님 수 +2", AugmentGrade.Gold, true,
+            "연쇄 번개 요리(과부하 코일 · 테슬라 갓 핑거 · 신경독 코일)의 번개가 2마리 더 튄다", AugmentGrade.Gold, true,
             delegate { AugmentManager.ChainCountAdd += 2; }));
 
         all.Add(new AugmentData("gold_explode", "화염의 포효",
-            "폭발 반경 +35%", AugmentGrade.Gold, true,
+            "폭발 요리의 폭발 범위 +35% (터지는 요리만)", AugmentGrade.Gold, true,
             delegate { AugmentManager.AddExplode(0.35f); }));
 
         all.Add(new AugmentData("gold_shred", "부식성 위산",
-            "손님의 방어·저항을 깎는 요리가 +12 만큼 더 깎는다", AugmentGrade.Gold, true,
-            delegate { AugmentManager.ShredAdd += 12; }));
+            "방어·저항을 더 깊이 깎는다 - 끝 -" + (GameBalance.ShredMaxStacks * 15) + " -> -" + ((GameBalance.ShredMaxStacks + GameBalance.GoldShredCapAdd) * 15) + ", 첫 발에 바로 끝까지. " + ShredWhere(), AugmentGrade.Gold, false,
+            delegate { AugmentManager.ShredAdd += 12; AugmentManager.ShredCapAdd = Mathf.Max(AugmentManager.ShredCapAdd, GameBalance.GoldShredCapAdd); }));
 
         all.Add(new AugmentData("gold_crit", "헤드샷 프로토콜",
-            "치명타 확률 +15%, 치명타 피해 +50%", AugmentGrade.Gold, true,
+            "쏘는 포탑 치명타 확률 +15%, 치명타 피해 1.5배 -> 2배", AugmentGrade.Gold, true,
             delegate { AugmentManager.CritChanceAdd += 0.15f; AugmentManager.CritDamageAdd += 0.50f; }));
 
         all.Add(new AugmentData("gold_lifesteal", "회복의 만찬",
-            LifestealDesc("2"), AugmentGrade.Gold, true,
+            LifestealDesc(2f), AugmentGrade.Gold, true,
             delegate { AugmentManager.LifestealPerHit += 2f; }));
 
         all.Add(new AugmentData("gold_fortress", "강철의 요새",
-            "기차 최대 HP +1000 (즉시 회복)", AugmentGrade.Gold, false,
+            "기차 최대 HP +1000, 그만큼 바로 찬다", AugmentGrade.Gold, false,
             delegate { AugmentManager.AddTrainMaxHP(1000f); AugmentManager.HealTrain(1000f); }));
 
         all.Add(new AugmentData("gold_nanoarmor", "나노 수복 장갑",
-            "기차가 받는 피해 15% 감소", AugmentGrade.Gold, true,
+            "기차가 받는 피해 -15%", AugmentGrade.Gold, true,
             delegate { AugmentManager.DamageReductionAdd += 0.15f; }));
 
         // (Phase 2-3: '황금 조리 기구'는 아이템으로 이관 - ItemSystem.cs 참고)
 
         // --- 여기부터 시너지형 골드 ---
         all.Add(new AugmentData("gold_static", "정전기 축적",
-            "모든 포탑의 4번째 타격이 손님을 0.4초 멈춘다", AugmentGrade.Gold, false,
+            "같은 요리 포탑이 손님을 4번 맞힐 때마다 0.4초 마비 (폭발 파편 · 번개 튐도 센다)", AugmentGrade.Gold, false,
             delegate { AugmentManager.StaticNth = 4; }));
 
         all.Add(new AugmentData("gold_weakpoint", "약점 파고들기",
-            "불붙었거나 독에 걸린 손님에게 피해 +25%", AugmentGrade.Gold, true,
+            "화상·독이 붙은 손님에게 쏘는 포탑 피해 +25% - 화상·독을 거는 포탑이 있어야 한다", AugmentGrade.Gold, true,
             delegate { AugmentManager.DotTargetBonus += 0.25f; }));
 
         all.Add(new AugmentData("gold_hunter", "사냥꾼의 본능",
-            "느려졌거나 멈춘 손님에게 피해 +30%", AugmentGrade.Gold, true,
+            "느려지거나 마비된 손님에게 쏘는 포탑 피해 +30% - 감속·마비를 거는 포탑이 있어야 한다", AugmentGrade.Gold, true,
             delegate { AugmentManager.ControlTargetBonus += 0.30f; }));
 
         // (Phase 2-3: '보험 계약'/'부채질 장인'은 아이템으로 이관 - ItemSystem.cs 참고)
 
         all.Add(new AugmentData("gold_fullsplash", "폭발 전문가",
-            "폭발에 휘말린 주변 손님도 100% 피해 (원래 80%)", AugmentGrade.Gold, false,
+            "폭발 요리의 폭발에 휘말린 손님도 100% 피해 (원래 80%)", AugmentGrade.Gold, false,
             delegate { AugmentManager.FullSplash = true; }));
 
         all.Add(new AugmentData("gold_doubletap", "2연장 개조",
-            "모든 단일 타격이 25% 확률로 즉시 한 발 더 나간다 (피해 50%)", AugmentGrade.Gold, false,
+            "한 손님을 맞히는 탄이 25% 확률로 한 발 더 (피해 50%) - 단일 · 폭발 · 장판 요리만 (관통 · 번개 · 부채꼴은 안 된다)", AugmentGrade.Gold, false,
             delegate { AugmentManager.DoubleTapChance = 0.25f; }));
 
+        // v4.13 (v9.35): 웨이브가 줄어든 만큼(GameBalance.WaveWorth) 한 번에 더 - 같은 웨이브 자에서 옛 운행과 같은 최대 HP (지역 5 = +80). 응급 정비·식탁보의 회복은 그대로 (한 판의 피해가 옛 한 판과 같다)
+        int fieldRepairHp = Mathf.RoundToInt(50f * GameBalance.WaveWorth);
         all.Add(new AugmentData("gold_fieldrepair", "야전 정비반",
-            "웨이브 클리어마다 기차 최대 HP +50 (이번 운행 동안, 겹칠수록 더)", AugmentGrade.Gold, true,
-            delegate { AugmentManager.MaxHPPerWave += 50f; }));
+            "웨이브를 넘길 때마다 기차 최대 HP +" + fieldRepairHp + " (이번 운행 동안 쌓인다)", AugmentGrade.Gold, true,
+            delegate { AugmentManager.MaxHPPerWave += fieldRepairHp; }));
 
         all.Add(new AugmentData("gold_luckycharm", "행운의 부적",
-            "앞으로 증강 선택지가 1장 더 나온다 (최대 +2)", AugmentGrade.Gold, true,
+            "앞으로 증강 후보가 1장 더 나온다 (최대 +2)", AugmentGrade.Gold, true,
             delegate { AugmentManager.ExtraCards = Mathf.Min(2, AugmentManager.ExtraCards + 1); },
             "prism_curation", "도박"));
 
         // --- 하이리스크 / 도박 패밀리 골드 ---
         all.Add(new AugmentData("gold_usurer", "고리대금업자",
-            "즉시 골드 +800. 대신 앞으로 웨이브 골드 보상 -50%", AugmentGrade.Gold, false,
+            "바로 골드 +800. 대신 앞으로 웨이브 골드 -50%", AugmentGrade.Gold, false,
             delegate
             {
                 if (GameManager.Instance != null) GameManager.Instance.AddGold(800);
@@ -673,12 +704,12 @@ public static class AugmentDatabase
             null, "도박"));
 
         all.Add(new AugmentData("gold_bloodbet", "출혈 베팅",
-            "웨이브가 시작될 때마다 기차 HP -80. 대신 모든 포탑 피해 +35%", AugmentGrade.Gold, false,
+            "쏘는 포탑 피해 +35%. 대신 웨이브가 시작될 때마다 기차 HP -80", AugmentGrade.Gold, false,
             delegate { AugmentManager.BloodBet = true; AugmentManager.AddAtk(0.35f); },
             null, "도박"));
 
         all.Add(new AugmentData("gold_chalice", "도박사의 성배",
-            "보유한 [도박] 증강 1개당 모든 포탑 피해 +10% (이 증강 포함, 이후 획득분도 반영)",
+            "[도박] 증강 1개마다 쏘는 포탑 피해 +10% (이 증강도 세고, 나중에 집는 것도 센다)",
             AugmentGrade.Gold, false,
             delegate { AugmentManager.HasChalice = true; },
             null, "도박"));
@@ -687,90 +718,90 @@ public static class AugmentDatabase
         //  프리즘 - 공격 방식 자체를 비튼다 (빌드의 축)
         // ==========================================================
         all.Add(new AugmentData("prism_rail", "열차포 개조",
-            "모든 투사체 공격이 직선 관통 레일건으로 변한다", AugmentGrade.Prismatic, false,
+            "단일 요리가 직선 관통 줄기로 바뀐다 - 한 줄의 손님이 전부 같은 피해 (폭발 · 장판 · 번개 · 부채꼴 요리는 그대로)", AugmentGrade.Prismatic, false,
             delegate { AugmentManager.PierceConversion = true; },
             "prism_shotgun"));
 
         all.Add(new AugmentData("prism_shotgun", "산탄 셰프",
-            "모든 투사체 공격이 부채꼴 산탄으로 변한다 (피해 -25%)", AugmentGrade.Prismatic, false,
+            "단일 요리가 앞쪽 부채꼴로 바뀐다 - 피해 -25%, 닿는 거리 " + Mathf.RoundToInt(GameBalance.ConeReach) + (GameBalance.ConeAimWithinReach ? " (가까이 온 손님만 노린다)" : " (먼 손님은 못 맞힌다)"), AugmentGrade.Prismatic, false,
             delegate { AugmentManager.ConeConversion = true; },
             "prism_rail"));
 
         all.Add(new AugmentData("prism_redkitchen", "붉은 주방",
-            "모든 타격이 손님에게 불을 붙인다. 계속 들어가는 피해 +50%", AugmentGrade.Prismatic, false,
+            "쏘는 포탑의 모든 타격이 화상을 붙인다. 화상·독 피해 +50% (빨리 쏘는 요리일수록 세다)", AugmentGrade.Prismatic, false,
             delegate { AugmentManager.RedKitchen = true; AugmentManager.AddDot(0.50f); },
             "prism_primal"));
 
         all.Add(new AugmentData("prism_iceheart", "얼음 심장",
-            "느리게 만드는 효과가 전부 0.8초 얼려 멈추기로 바뀐다", AugmentGrade.Prismatic, false,
+            "감속 요리의 감속이 0.8초 얼려 멈추기로 바뀐다 (강감속 요리는 오히려 짧아진다" + (GameBalance.FieldLingerSec > 0f ? " · 장판은 처음 밟을 때 한 번" : "") + " · 빙벽 스튜 오라는 그대로)", AugmentGrade.Prismatic, false,
             delegate { AugmentManager.IceHeart = true; }));
 
         all.Add(new AugmentData("prism_gambler", "도박사 스피노의 탄환",
-            "모든 피해가 50% 확률로 2배, 아니면 절반이 된다. [도박] 증강 1개당 2배 확률 +4%p (최대 70%)",
+            "쏘는 포탑 한 발이 50% 확률로 2배, 아니면 절반. [도박] 증강 1개마다 2배 확률 +4% (최대 70%)",
             AugmentGrade.Prismatic, false,
             delegate { AugmentManager.GamblerBullet = true; },
             null, "도박"));
 
         all.Add(new AugmentData("prism_chainproc", "번개 계승",
-            "모든 타격이 20% 확률로 작은 번개를 옆 손님에게 튀긴다", AugmentGrade.Prismatic, false,
+            "쏘는 포탑의 타격이 20% 확률로 작은 번개를 튀긴다 - 곁 손님 둘에게 60%", AugmentGrade.Prismatic, false,
             delegate { AugmentManager.ChainProcChance = 0.20f; }));
 
         all.Add(new AugmentData("prism_echo", "메아리치는 폭발",
-            "폭발이 한 번 더 터진다 (피해 60%, 반경 1.2배)", AugmentGrade.Prismatic, false,
+            "폭발 요리의 폭발이 한 번 더 터진다 (피해 60%, 범위 1.2배)", AugmentGrade.Prismatic, false,
             delegate { AugmentManager.DoubleExplosion = true; }));
 
         all.Add(new AugmentData("prism_chainamp", "증폭 전이",
-            "번개가 다음 손님으로 튈 때마다 +20% 세진다", AugmentGrade.Prismatic, false,
+            "연쇄 번개 요리의 번개가 튈 때마다 +20% 세진다 (원래는 튈 때마다 80%)", AugmentGrade.Prismatic, false,
             delegate { AugmentManager.ChainAmplify = true; }));
 
         all.Add(new AugmentData("prism_ramp", "과열 기관",
-            "포탑이 사격을 이어갈수록 피해가 오른다 (타격당 +5%, 최대 +75%, 2.5초 쉬면 초기화)",
+            "쉬지 않고 쏘면 피해가 오른다 - 맞힐 때마다 +5%, 최대 +75%. 2.5초 쉬면 처음부터",
             AugmentGrade.Prismatic, false,
             delegate { AugmentManager.RampAttack = true; }));
 
         all.Add(new AugmentData("prism_shatter", "동상 파편",
-            "느려졌거나 멈춘 손님을 때리면 30% 확률로 서리가 터진다 (피해 50%)",
+            "느려지거나 마비된 손님을 맞히면 30% 확률로 서리가 터진다 - 곁 손님에게 50% (감속·마비를 거는 포탑이 있어야)",
             AugmentGrade.Prismatic, false,
             delegate { AugmentManager.FrostShatter = true; }));
 
         all.Add(new AugmentData("prism_opening", "개전 포격",
-            "웨이브 시작 후 8초 동안 모든 포탑 피해 2배",
+            "웨이브 시작 뒤 8초 동안 쏘는 포탑 피해 2배",
             AugmentGrade.Prismatic, false,
             delegate { AugmentManager.OpeningBarrage = true; }));
 
         // --- 하이리스크 프리즘 ---
         all.Add(new AugmentData("prism_primal", "원시 화력",
-            "포탑의 덤 효과(불·독·감속·멈춤·방어 깎기)가 전부 사라진다. 대신 맨 피해 +80%",
+            "쏘는 포탑 피해 +80%. 대신 요리의 덤 효과(화상 · 독 · 감속 · 마비 · 깎기)가 전부 사라진다",
             AugmentGrade.Prismatic, false,
             delegate { AugmentManager.PrimalPower = true; },
             "prism_redkitchen"));
 
         all.Add(new AugmentData("prism_ninelives", "아홉 개의 목숨",
-            "기차가 완파될 때 1회 부활한다 (HP 800 회복)", AugmentGrade.Prismatic, true,
+            "기차가 완파되면 한 번 되살아난다 (HP 800)", AugmentGrade.Prismatic, true,
             delegate { AugmentManager.ReviveCharges += 1; }));
 
         all.Add(new AugmentData("prism_glasscannon", "유리 대포",
-            "모든 포탑 피해 +70%. 대신 기차가 받는 피해 +25%", AugmentGrade.Prismatic, false,
+            "쏘는 포탑 피해 +70%. 대신 기차가 받는 피해 +25%", AugmentGrade.Prismatic, false,
             delegate { AugmentManager.AddAtk(0.70f); AugmentManager.DamageReductionAdd -= 0.25f; }));
 
         all.Add(new AugmentData("prism_overdrive", "오버차지 엔진",
-            "모든 포탑 공격속도 +45%. 대신 사거리 -15%" + AugmentManager.AspdCapNote(), AugmentGrade.Prismatic, false,
+            "쏘는 포탑이 45% 더 자주 쏜다. 대신 노리는 거리 -15% (" + R(1f) + " -> " + R(0.85f) + ")" + AugmentManager.AspdCapNote(), AugmentGrade.Prismatic, false,
             delegate { AugmentManager.AddAspd(AugmentManager.AspdOverdriveMul - 1f); AugmentManager.AddRange(-0.15f); }));   // v4.11: 덧셈 + 공격속도 상한
 
         all.Add(new AugmentData("prism_extraslot", "증축된 주방 칸",
-            "포탑 칸 1개 추가 해금 (최대 8칸)", AugmentGrade.Prismatic, true,
+            "포탑 칸 1개를 더 연다 (최대 8칸)", AugmentGrade.Prismatic, true,
             delegate { AugmentManager.ExtraSlotUnlock = Mathf.Min(2, AugmentManager.ExtraSlotUnlock + 1); }));
 
         all.Add(new AugmentData("gold_adjacent", "주방 동선 최적화",
-            "이웃 포탑을 강화하는 요리의 효과 +50%", AugmentGrade.Gold, false,
+            "이웃 강화 요리(지휘관의 만찬 · 축포의 연회 · 마법사의 만찬 - 셋 다 전설)의 강화 폭 1.5배", AugmentGrade.Gold, false,
             delegate { AugmentManager.AdjacentBuffMul *= 1.5f; }));
 
         all.Add(new AugmentData("gold_resonance", "속성 공명 증폭기",
-            "같은 속성 포탑 3문 보너스(공명)가 20% 에서 35% 로", AugmentGrade.Gold, true,
+            "같은 계열 포탑 " + GameBalance.ResonanceCount + "기 보너스(공명) +" + P(GameBalance.ResonanceBonus) + "% -> +" + P(GameBalance.ResonanceBonus + 0.15f) + "% (방어 계열 공명은 그대로)", AugmentGrade.Gold, true,
             delegate { AugmentManager.ResonanceBonusAdd += 0.15f; }));
 
         all.Add(new AugmentData("prism_allin", "올인",
-            "지금 가진 골드를 전부 잃는다. 잃은 골드 100당 모든 포탑 피해 +4% (최대 +100%)",
+            "지금 골드를 전부 잃는다. 잃은 골드 100마다 쏘는 포탑 피해 +4% (최대 +100%)",
             AugmentGrade.Prismatic, false,
             delegate
             {
@@ -793,32 +824,32 @@ public static class AugmentDatabase
         // (Phase 2-3: '미끄럼 방지 매트'는 아이템으로 이관 - ItemSystem.cs 참고)
 
         all.Add(new AugmentData("silver_regular", "단골 장부",
-            "많이 만든 요리(단골 요리)의 공격력 보너스가 1.5배", AugmentGrade.Silver, true,
+            "단골 요리(많이 만든 요리)의 피해 보너스 1.5배 - 예: +8% -> +12%", AugmentGrade.Silver, true,
             delegate { AugmentManager.MasteryAmp += 0.5f; }));
 
         all.Add(new AugmentData("silver_armorpad", "질긴 장갑",
-            "기차가 받는 피해 5% 감소", AugmentGrade.Silver, true,
+            "기차가 받는 피해 -5%", AugmentGrade.Silver, true,
             delegate { AugmentManager.DamageReductionAdd += 0.05f; }));
 
         all.Add(new AugmentData("gold_antifreeze", "부동액 배관",
-            "낙뢰·빙결로 포탑이 멈춰 있는 시간 -60%", AugmentGrade.Gold, false,
+            "포탑이 감전·빙결로 멈춰 있는 시간 -60% (감전 " + S(GameBalance.LightningStunSec) + " -> " + S(GameBalance.LightningStunSec * 0.4f) + "초, 빙결 " + S(GameBalance.FreezeSlotSec) + " -> " + S(GameBalance.FreezeSlotSec * 0.4f) + "초). 과열은 그대로", AugmentGrade.Gold, false,
             delegate { AugmentManager.SlotStunDurMul *= 0.4f; }));
 
         all.Add(new AugmentData("gold_pantry", "비상 식량 창고",
-            "웨이브 클리어마다 무작위 재료 +2", AugmentGrade.Gold, true,
+            "웨이브를 넘길 때마다 무작위 재료 +2", AugmentGrade.Gold, true,
             delegate { AugmentManager.ClearMatBonus += 2; }));
 
         all.Add(new AugmentData("gold_stakes", "판돈 두 배",
-            "스피노 베팅의 판돈 / 성공 보상 / 실패 대가가 전부 2배가 된다", AugmentGrade.Gold, false,
+            "스피노 베팅의 판돈 · 성공 보상 · 실패 대가가 전부 2배", AugmentGrade.Gold, false,
             delegate { AugmentManager.BetStakesMul *= 2f; },
             null, "도박"));
 
         all.Add(new AugmentData("prism_resonance", "공명 폭주",
-            "같은 속성 포탑 3문 보너스(공명)가 2문부터 붙는다", AugmentGrade.Prismatic, false,
+            "같은 계열 포탑 보너스(공명)가 3기가 아니라 2기부터 붙는다", AugmentGrade.Prismatic, false,
             delegate { AugmentManager.ResonanceNeedOverride = 2; }));
 
         all.Add(new AugmentData("prism_lastsupper", "최후의 만찬",
-            "기차 HP 40% 이하일 때 모든 포탑 공격속도 +50%", AugmentGrade.Prismatic, false,
+            "기차 HP " + P(GameBalance.LastSupperHPRatio) + "% 이하일 때 쏘는 포탑 공격 속도 x" + GameBalance.LastSupperAspdMul.ToString("0.#") + " (증강 공격 속도 상한과 따로)", AugmentGrade.Prismatic, false,
             delegate { AugmentManager.LastSupperRush = true; }));
 
         // ==========================================================
@@ -828,16 +859,16 @@ public static class AugmentDatabase
 
         // --- 골드 5종 ---
         all.Add(new AugmentData("gold_apprentice", "견습 셰프 고용",
-            "웨이브가 시작될 때 견습 셰프가 발견한 요리 1개를 만들어 둔다", AugmentGrade.Gold, true,
+            "웨이브가 시작될 때 찾아낸 요리 중 하나를 1개 만들어 둔다", AugmentGrade.Gold, true,
             delegate { AugmentManager.ApprenticeCooks += 1; }));
 
         all.Add(new AugmentData("gold_lastservice", "마지막 서비스",
-            "쓰러진 손님이 터지며 주변 손님에게 처치 피해의 25%를 나눠 준다",
+            "쓰러진 손님이 터진다 - 곁 손님에게 마지막 한 발 피해의 " + P(GameBalance.CorpseServiceRatio) + "%",
             AugmentGrade.Gold, false,
             delegate { AugmentManager.CorpseService = true; }));
 
         all.Add(new AugmentData("gold_overkill", "옆 테이블 계산서",
-            "처치하고 남은 피해가 가장 가까운 손님에게 넘어간다", AugmentGrade.Gold, false,
+            "손님을 잡고 남은 피해가 가까운 손님에게 넘어간다 (한 방이 큰 요리일수록 좋다)", AugmentGrade.Gold, false,
             delegate { AugmentManager.OverkillCarry = true; }));
 
         all.Add(new AugmentData("gold_barbedwire", "가시철조망 도금",
@@ -851,34 +882,36 @@ public static class AugmentDatabase
             }));
 
         all.Add(new AugmentData("gold_collector", "골동품 감정가",
-            "보유한 유물 1개당 모든 포탑 피해 +6% (이후 획득분도 반영)",
+            "가진 유물 1개마다 쏘는 포탑 피해 +" + P(GameBalance.CollectorPerItem) + "% (나중에 얻는 유물도 센다)",
             AugmentGrade.Gold, false,
             delegate { AugmentManager.HasCollector = true; }));
 
         // --- 프리즘 5종 ---
         all.Add(new AugmentData("prism_steelheart", "강철의 심장",
-            "기차 최대 HP 100당 모든 포탑 피해 +2% (HP를 쌓을수록 강해진다)",
+            "기차 최대 HP 100마다 쏘는 포탑 피해 +" + P(GameBalance.SteelHeartPer100) + "% (최대 +100%)",
             AugmentGrade.Prismatic, false,
             delegate { AugmentManager.SteelHeart = true; }));
 
         all.Add(new AugmentData("prism_basics", "선대의 기본기",
-            "전설 요리 진화(다른 기본 포탑 둘 합치기)가 막힌다 (이미 있는 건 유지). 대신 기본 요리 포탑 피해 +65%, 새로 놓으면 레벨 2 부터"
+            "전설 요리 진화가 막힌다 (이미 있는 건 그대로). 대신 기본 요리 포탑 피해 +" + P(GameBalance.BasicsT1Bonus) + "%"
+                + (GameBalance.StartLevelBonusOn ? ", 새로 놓으면 레벨 2 부터" : "")
                 + (GameBalance.T1MaxLevel > 0 && GameBalance.BasicsT1MaxLevel > GameBalance.T1MaxLevel ? ", 최대 레벨 " + GameBalance.BasicsT1MaxLevel + " 까지 오른다" : ""),
             AugmentGrade.Prismatic, false,
             delegate { AugmentManager.BasicsDoctrine = true; }));
 
         all.Add(new AugmentData("prism_onechef", "주방장은 하나다",
-            "가장 레벨 높은 포탑이 주방장이 된다: 피해 +50%, 처치마다 +2% 누적. 다른 포탑은 피해 -20%",
+            "가장 레벨 높은 포탑이 주방장 - 피해 +" + P(GameBalance.OneChefBonus) + "%, 그 포탑이 잡을 때마다 +" + P(GameBalance.OneChefPerKill)
+                + "% (최대 +" + P(GameBalance.OneChefPerKill * GameBalance.OneChefMaxStacks) + "% 더). 다른 포탑은 피해 -" + P(GameBalance.OneChefOthersPenalty) + "%",
             AugmentGrade.Prismatic, false,
             delegate { AugmentManager.OneChef = true; }));
 
         all.Add(new AugmentData("prism_overflow", "넘치는 솥",
-            "회복이 최대 HP를 넘으면 초과분이 증기 보호막으로 쌓인다 (최대 HP의 25%까지, 피해를 먼저 막는다)",
+            "최대 HP를 넘는 회복은 증기 보호막으로 쌓인다 (최대 HP의 25%까지, 피해를 먼저 막는다)",
             AugmentGrade.Prismatic, false,
             delegate { AugmentManager.OverflowShield = true; }));
 
         all.Add(new AugmentData("prism_curation", "엄선된 메뉴판",
-            "증강 후보가 2장으로 준다. 대신 높은 등급이 훨씬 잘 나온다",
+            "증강 후보가 2장으로 준다. 대신 골드 · 프리즘 증강이 훨씬 잘 나온다",
             AugmentGrade.Prismatic, false,
             delegate { AugmentManager.CurationBoost = true; },
             "gold_luckycharm"));
@@ -906,6 +939,7 @@ public static class AugmentDatabase
             if (a.conflictId != null && AugmentManager.HasAugment(a.conflictId)) continue;
             if (simpleOnly && System.Array.IndexOf(EARLY_SIMPLE, a.id) < 0) continue;
             if (AugmentManager.AspdNearCap(a.id)) continue;   // v4.10 (v9.24.1): 증강 공격속도가 상한 가까이면 공속 증강은 안 나온다
+            if (a.id == "silver_shred" && AugmentManager.ShredCapAdd > 0) continue;   // v4.14 (v9.35.2): 부식성 위산 뒤엔 구리 도금 탄환이 더 하는 게 없다
             pool.Add(a);
         }
         if (pool.Count < count) { pool.Clear(); for (int i = 0; i < All.Count; i++) if ((All[i].stackable || !AugmentManager.HasAugment(All[i].id))) pool.Add(All[i]); }
@@ -948,8 +982,9 @@ public static class AugmentDatabase
         if (ForceGrade >= 0) return (AugmentGrade)ForceGrade;
 
         float roll = Random.value;
-        float prismChance = Mathf.Clamp(0.05f + waveNumber * 0.015f, 0.05f, 0.30f);
-        float goldChance = Mathf.Clamp(0.25f + waveNumber * 0.020f, 0.25f, 0.50f);
+        float eqWave = GameBalance.EqWave(waveNumber);   // v4.13 (v9.35): 옛 25웨이브 자 - 지역 5 의 웨이브 10 = 옛 16
+        float prismChance = Mathf.Clamp(0.05f + eqWave * 0.015f, 0.05f, 0.30f);
+        float goldChance = Mathf.Clamp(0.25f + eqWave * 0.020f, 0.25f, 0.50f);
 
         // Phase 2-3 '엄선된 메뉴판': 선택지가 줄어드는 대신 상위 등급 확률 급상승
         if (AugmentManager.CurationBoost)
@@ -962,4 +997,238 @@ public static class AugmentDatabase
         if (roll < prismChance + goldChance) return AugmentGrade.Gold;
         return AugmentGrade.Silver;
     }
+}
+
+
+/// <summary>
+/// v4.14 (v9.35.2 2026-10-26): 증강 카드 맨 아래 한 줄 - 이 증강이 지금 내 기차의 어느 포탑에 걸리나.
+/// 유저 10-26 "증강설명 폭발반경이나 이런거 좀 더 친절하게 - 어떤 종류에 적용이 되는지 알아야 집든말든하지".
+/// 걸리는 종류는 밸런스 표(balance/WDT_밸런스표) '증강' 시트의 '걸리는 곳'과 같다. AugmentPickUI 가 설명 밑에 붙인다.
+///   AugmentTargets.Note(aug)
+///     -> 걸리는 수   "[지금 내 포탑 중 2기에 걸린다]" (금색) / "[지금은 걸리는 포탑이 없다]" (주황)
+///     -> 조건형      "[조건: 화상·독을 거는 포탑 지금 2기]" (약점 파고들기 · 사냥꾼의 본능 · 동상 파편)
+///     -> 지금 값형   "[지금 유물 3개 -> 피해 +18%]" (골동품 감정가 · 도박사의 성배 · 강철의 심장 · 올인 · 주방장 · 공명 · 단골)
+///     -> 기차 · 골드 · 재료처럼 포탑과 상관없는 증강은 "" (줄 없음)
+/// 스위치: GameBalance.AugmentTargetNoteOn
+/// </summary>
+public static class AugmentTargets
+{
+    private const string GOOD = "#FFD24D";   // 걸린다 - 공명 설명 상자와 같은 금색
+    private const string WARN = "#F08A5D";   // 없다 - 집기 전에 한 번 더 보라는 주황
+
+    /// <summary>걸리는 포탑 종류 (밸런스 표의 '걸리는 곳')</summary>
+    private enum Kind { None, Shoot, Range, Explode, Chain, Dot, Slow, Control, Shred, Single, Direct, Buff, BasicShoot }
+
+    /// <summary>카드 맨 아래 한 줄 (색 글자). 셀 포탑이 없는 곳(전투 밖)이나 포탑과 상관없는 증강이면 ""</summary>
+    public static string Note(AugmentData a)
+    {
+        if (a == null || !GameBalance.AugmentTargetNoteOn) return "";
+        TurretSlotManager m = TurretSlotManager.Instance;
+        if (m == null || m.slots == null) return "";
+
+        switch (a.id)
+        {
+            case "gold_weakpoint": return NeedLine(Kind.Dot, "화상·독을 거는");
+            case "gold_hunter":
+            case "prism_shatter": return NeedLine(Kind.Control, "감속·마비를 거는");
+            case "prism_primal": return PrimalLine();
+            case "silver_regular": return MasteryLine();
+            case "gold_resonance": return ResonanceLine(false);
+            case "prism_resonance": return ResonanceLine(true);
+            case "prism_onechef": return ChefLine();
+            case "gold_collector":
+                {
+                    int n = ItemManager.OwnedCount;
+                    string line = "[지금 유물 " + n + "개 -> 피해 +" + Mathf.RoundToInt(n * GameBalance.CollectorPerItem * 100f) + "%]";
+                    return n > 0 ? Good(line) : Warn(line);
+                }
+            case "gold_chalice":
+                {
+                    // 이 증강도 [도박] 이라 집으면 하나 더 센다 (AugmentManager.ChaliceMul = 1 + 0.10 x 도박 수)
+                    int n = AugmentManager.GamblerFamilyCount + (AugmentManager.HasAugment(a.id) ? 0 : 1);
+                    return Good("[이것까지 도박 증강 " + n + "개 -> 피해 +" + (n * 10) + "%]");
+                }
+            case "prism_steelheart":
+                {
+                    float hp = TrainManager.Instance != null ? TrainManager.Instance.currentMaxHP : 0f;
+                    int pct = Mathf.RoundToInt(Mathf.Min(1f, hp / 100f * GameBalance.SteelHeartPer100) * 100f);
+                    return Good("[지금 최대 HP " + Mathf.RoundToInt(hp) + " -> 피해 +" + pct + "%]");
+                }
+            case "prism_allin":
+                {
+                    int gold = GameManager.Instance != null ? GameManager.Instance.playerGold : 0;
+                    int pct = Mathf.RoundToInt(Mathf.Min(1f, (gold / 100) * 0.04f) * 100f);   // 증강 효과와 같은 셈 (100 단위로 내림)
+                    return gold >= 100 ? Good("[지금 골드 " + gold + " -> 피해 +" + pct + "%]")
+                                       : Warn("[지금 골드 " + gold + " - 피해가 거의 안 오른다]");
+                }
+        }
+
+        Kind k = KindOf(a.id);
+        if (k == Kind.None) return "";
+        int count = Count(k);
+        return count > 0 ? Good("[지금 내 포탑 중 " + count + "기에 걸린다]") : Warn("[지금은 걸리는 포탑이 없다]");
+    }
+
+    /// <summary>증강 id -> 걸리는 포탑 종류 (조건형 · 지금 값형은 Note 가 따로 다룬다)</summary>
+    private static Kind KindOf(string id)
+    {
+        switch (id)
+        {
+            case "silver_atk": case "silver_crit": case "silver_aspd":
+            case "gold_atk": case "gold_crit": case "gold_static": case "gold_bloodbet":
+            case "gold_lastservice": case "gold_overkill":
+            case "prism_redkitchen": case "prism_gambler": case "prism_chainproc": case "prism_ramp":
+            case "prism_opening": case "prism_glasscannon": case "prism_overdrive": case "prism_lastsupper":
+                return Kind.Shoot;
+            case "silver_range":
+                return Kind.Range;
+            case "silver_explode": case "gold_explode": case "gold_fullsplash": case "prism_echo":
+                return Kind.Explode;
+            case "gold_chain": case "prism_chainamp":
+                return Kind.Chain;
+            case "silver_dot": case "gold_dot":
+                return Kind.Dot;
+            case "silver_shred": case "gold_shred":
+                return Kind.Shred;
+            case "prism_iceheart":
+                return Kind.Slow;
+            case "prism_rail": case "prism_shotgun":
+                return Kind.Single;
+            case "gold_doubletap":
+                return Kind.Direct;
+            case "gold_adjacent":
+                return Kind.Buff;
+            case "prism_basics":
+                return Kind.BasicShoot;
+            default:
+                return Kind.None;
+        }
+    }
+
+    /// <summary>쏘는 포탑인가 (이웃 강화 · 상시 · 오라는 쏘지 않는다)</summary>
+    private static bool IsShooter(RecipeData r)
+    {
+        return r != null && string.IsNullOrEmpty(r.buffType) && r.shape != AttackShape.Aura && r.shape != AttackShape.Passive;
+    }
+
+    /// <summary>요리 r 이 종류 k 에 드나 - 지금 가진 증강(원시 화력 · 붉은 주방 · 정전기 축적 · 열차포/산탄)까지 본다</summary>
+    private static bool Matches(Kind k, RecipeData r)
+    {
+        if (r == null) return false;
+        bool shoots = IsShooter(r);
+        bool effects = shoots && !AugmentManager.PrimalPower;   // 원시 화력이면 쏘는 요리의 덤 효과가 없다
+        switch (k)
+        {
+            case Kind.Shoot: return shoots;
+            case Kind.Range: return shoots && !TurretAttackExecutor.FiresCone(r);   // 부채꼴은 불길이 닿는 거리만 노린다 - 노리는 거리 증강이 안 붙는다
+            case Kind.Explode: return r.shape == AttackShape.Explode;
+            case Kind.Chain: return r.shape == AttackShape.Chain;
+            case Kind.Dot:
+                return (effects && (r.burnStack > 0 || r.poisonStack > 0 || (GameBalance.FieldPoisonOn && r.fieldPoison)))
+                    || (shoots && AugmentManager.RedKitchen)
+                    || (GameBalance.AuraBurnIsDot && r.passiveType == "auraBurn");
+            case Kind.Slow: return effects && r.slowLevel > 0;
+            case Kind.Control:
+                return (effects && (r.slowLevel > 0 || r.stunSec > 0f))
+                    || (shoots && AugmentManager.StaticNth > 0)
+                    || (GameBalance.TrainCcCounts && (r.passiveType == "auraSlow" || r.passiveType == "thorns"));
+            case Kind.Shred:
+                return (effects && (r.shredDef > 0 || r.shredRes > 0))
+                    || (GameBalance.AuraShredReal && r.passiveType == "auraShred");
+            case Kind.Single: return shoots && r.shape == AttackShape.Projectile;
+            case Kind.Direct:
+                return shoots && (r.shape == AttackShape.Explode || r.shape == AttackShape.Field
+                    || (r.shape == AttackShape.Projectile && !AugmentManager.PierceConversion && !AugmentManager.ConeConversion));
+            case Kind.Buff: return !string.IsNullOrEmpty(r.buffType);
+            case Kind.BasicShoot: return shoots && r.tier == 1;
+            default: return false;
+        }
+    }
+
+    /// <summary>지금 기차에 놓인 포탑 중 종류 k 에 드는 수 (빈 칸 · 잠긴 칸 빼고)</summary>
+    private static int Count(Kind k)
+    {
+        int n = 0;
+        TurretSlot[] slots = TurretSlotManager.Instance.slots;
+        for (int i = 0; i < slots.Length; i++)
+        {
+            TurretSlot s = slots[i];
+            if (s == null || s.IsEmpty || s.isLocked) continue;
+            if (Matches(k, s.Recipe)) n++;
+        }
+        return n;
+    }
+
+    /// <summary>조건형: 조건을 채워 주는 포탑 수</summary>
+    private static string NeedLine(Kind k, string what)
+    {
+        int n = Count(k);
+        return n > 0 ? Good("[조건: " + what + " 포탑 지금 " + n + "기]") : Warn("[지금은 " + what + " 포탑이 없다]");
+    }
+
+    /// <summary>원시 화력: 덤 효과를 잃는 포탑 수 (없으면 잃는 게 없다)</summary>
+    private static string PrimalLine()
+    {
+        int n = 0;
+        TurretSlot[] slots = TurretSlotManager.Instance.slots;
+        for (int i = 0; i < slots.Length; i++)
+        {
+            TurretSlot s = slots[i];
+            if (s == null || s.IsEmpty || s.isLocked) continue;
+            RecipeData r = s.Recipe;
+            if (!IsShooter(r)) continue;
+            if (r.burnStack > 0 || r.poisonStack > 0 || (GameBalance.FieldPoisonOn && r.fieldPoison) || r.slowLevel > 0 || r.stunSec > 0f || r.shredDef > 0 || r.shredRes > 0) n++;
+        }
+        return n > 0 ? Warn("[덤 효과를 잃는 포탑: 지금 " + n + "기]") : Good("[지금 포탑엔 잃을 덤 효과가 없다]");
+    }
+
+    /// <summary>단골 장부: 숙련 보너스가 있는 요리 포탑 수</summary>
+    private static string MasteryLine()
+    {
+        int n = 0;
+        TurretSlot[] slots = TurretSlotManager.Instance.slots;
+        for (int i = 0; i < slots.Length; i++)
+        {
+            TurretSlot s = slots[i];
+            if (s == null || s.IsEmpty || s.isLocked) continue;
+            if (MetaProgress.GetMasteryAtk(s.recipeId) > 0f) n++;
+        }
+        return n > 0 ? Good("[지금 단골 요리 포탑 " + n + "기]") : Warn("[지금은 단골 요리 포탑이 없다]");
+    }
+
+    /// <summary>공명 증강: 지금 공명 중인 계열 (fromTwo = 공명 폭주 - 2기 넘는 계열). 방어 공명은 피해 감소라 뺀다</summary>
+    private static string ResonanceLine(bool fromTwo)
+    {
+        if (ItemManager.NoResonance) return Warn("[짝꿍 숟가락 때문에 공명이 꺼져 있다]");
+        TurretSlotManager m = TurretSlotManager.Instance;
+        int need = fromTwo ? 2 : (AugmentManager.ResonanceNeedOverride > 0 ? AugmentManager.ResonanceNeedOverride : GameBalance.ResonanceCount);
+        string list = "";
+        foreach (FoodTag tag in System.Enum.GetValues(typeof(FoodTag)))
+        {
+            if (tag == FoodTag.Def) continue;
+            int c = m.GetTagCount(tag);
+            if (c >= need) list += (list.Length > 0 ? " · " : "") + m.TagName(tag) + " " + c + "기";
+        }
+        if (list.Length > 0) return Good(fromTwo ? "[집으면 바로 공명: " + list + "]" : "[지금 공명 중: " + list + "]");
+        return Warn(fromTwo ? "[지금은 2기 넘는 계열이 없다]" : "[지금은 공명 중인 계열이 없다]");
+    }
+
+    /// <summary>주방장은 하나다: 지금 주방장이 될 포탑 (가장 레벨 높은 포탑 - TurretSlotManager.GetChefRecipeId)</summary>
+    private static string ChefLine()
+    {
+        TurretSlotManager m = TurretSlotManager.Instance;
+        string id = m.GetChefRecipeId();
+        if (string.IsNullOrEmpty(id)) return Warn("[지금은 주방장이 될 포탑이 없다]");
+        int best = 0;
+        for (int i = 0; i < m.slots.Length; i++)
+        {
+            TurretSlot s = m.slots[i];
+            if (s != null && !s.IsEmpty && !s.isLocked && s.recipeId == id) best = Mathf.Max(best, s.level);
+        }
+        RecipeData r = RecipeDatabase.Get(id);
+        return Good("[지금 주방장: " + (r != null ? r.displayName : id) + " Lv" + best + "]");
+    }
+
+    private static string Good(string s) { return "<color=" + GOOD + ">" + s + "</color>"; }
+    private static string Warn(string s) { return "<color=" + WARN + ">" + s + "</color>"; }
 }

@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [BaitStationUI.cs] v1.2 (v9.23 2026-10-14: 부관 발톱도 미끼에 끌린다 (Enemy.LuredByBait) / 점검 수정: 판정 자리 말을 튜토리얼과 같게 - 초록 구간·노란 구간·꾀어내기, 글 말투 반말 해체) / v1.1 (v9.12 2026-09-22: 판 340x190 - 무엇을 하나 두 줄 + 굽기 버튼 + 판정 안내 한 줄(목업 v4.2 (C)) / 유인 횟수 LuresThisScene·TimingActive (견습 구간 7 미니 보스 예습이 완료 판정에 쓴다) / 문구 일상어)
+/// [BaitStationUI.cs] v1.3 (v9.35.2 2026-10-26 왕(보스 본체 - 예습 새끼 포함)은 미끼에 GameBalance.BaitBossLureSec(3초)만 - 무리·부관은 판정 시간 그대로. Player.log 10-26: PERFECT 미끼를 쿨마다 던지면 왕이 기차를 한 번도 안 물었다 / 화덕 설명 둘째 줄과 던질 때 알림도 같은 말) / v1.2 (v9.23 2026-10-14: 부관 발톱도 미끼에 끌린다 (Enemy.LuredByBait) / 점검 수정: 판정 자리 말을 튜토리얼과 같게 - 초록 구간·노란 구간·꾀어내기, 글 말투 반말 해체) / v1.1 (v9.12 2026-09-22: 판 340x190 - 무엇을 하나 두 줄 + 굽기 버튼 + 판정 안내 한 줄(목업 v4.2 (C)) / 유인 횟수 LuresThisScene·TimingActive (견습 구간 7 미니 보스 예습이 완료 판정에 쓴다) / 문구 일상어)
 /// / v1 (신규 파일) - 보스 패턴 C단계
 /// 미끼 화덕 - 녹슨 발톱(지역 1 보스) 전용 시그니처 기믹.
 ///
@@ -131,7 +131,10 @@ public class BaitStationUI : MonoBehaviour
         else { duration = GameBalance.BaitDurationMiss; grade = "탄 미끼"; }
 
         DeployBait(duration);
-        UIManager.Instance?.ShowStatChange("[" + grade + "] 미끼를 던졌다. " + duration + "초 동안 무리가 미끼 쪽으로 가");
+        // v1.3 (v9.35.2): 왕은 잠깐만 - 알림도 같은 말 (화덕 설명 둘째 줄 · 브리핑 · 튜토리얼과 같다)
+        string kingPart = (boss != null && boss.IsAlive && GameBalance.BaitBossLureSec > 0f && GameBalance.BaitBossLureSec < duration)
+            ? ", 왕은 " + Mathf.RoundToInt(GameBalance.BaitBossLureSec) + "초만 돌아봐" : "";
+        UIManager.Instance?.ShowStatChange("[" + grade + "] 미끼를 던졌다. " + duration + "초 동안 무리가 미끼 쪽으로 가" + kingPart);
         Debug.Log("[BaitStation] 미끼 굽기 " + grade + " -> 유인 " + duration + "초");
     }
 
@@ -164,7 +167,10 @@ public class BaitStationUI : MonoBehaviour
             if (!all[i].IsAlive) continue;
             if (all[i] == boss || all[i].behavior == Enemy.BehaviorPattern.Pack || all[i].LuredByBait)   // v1.2 (v9.23): 부관 발톱도
             {
-                all[i].Taunt(bait.transform, duration);
+                // v1.3 (v9.35.2): 왕은 BaitBossLureSec 만 돌아본다 - 무리·부관은 굽기 판정 시간 그대로
+                float lureSec = duration;
+                if (all[i] == boss && GameBalance.BaitBossLureSec > 0f) lureSec = Mathf.Min(duration, GameBalance.BaitBossLureSec);
+                all[i].Taunt(bait.transform, lureSec);
                 lured++;
             }
         }
@@ -174,6 +180,19 @@ public class BaitStationUI : MonoBehaviour
 
         Destroy(bait, duration);
         Debug.Log("[BaitStation] 미끼 설치 - " + lured + "마리 유인 (" + duration + "초) / 누적 성공 " + LuresThisScene);
+    }
+
+    /// <summary>
+    /// v1.1: 화덕 설명 두 줄 (처음 보는 사람도 읽고 바로 한다). v1.3 (v9.35.2): 왕은 BaitBossLureSec 만 돌아본다 - 둘째 줄이 그 말.
+    /// 브리핑(BriefingTexts) · 예습 카드(TutorialDirector 12) · 던질 때 알림과 같은 말
+    /// </summary>
+    private string HowText()
+    {
+        bool lieutenants = boss != null && !boss.practice && GameBalance.BossNewPatterns && GameBalance.RustLieutenantsOn;
+        string range = Mathf.RoundToInt(GameBalance.BaitDurationMiss) + "~" + Mathf.RoundToInt(GameBalance.BaitDurationPerfect) + "초";
+        if (GameBalance.BaitKingShort)
+            return "고기 1개를 구워 던지면 무리" + (lieutenants ? "와 부관이" : "가") + " 미끼로 몰려\n무리는 " + range + ", 왕은 " + Mathf.RoundToInt(GameBalance.BaitBossLureSec) + "초만 돌아봐";
+        return "고기 1개를 구워 던지면 무리가 미끼로 몰려\n" + (lieutenants ? "왕과 부관도" : "왕도") + " 따라와 (" + range + ")";
     }
 
     /// <summary>미끼가 침 흘리게 맥동하는 연출용 보조 컴포넌트</summary>
@@ -235,7 +254,7 @@ public class BaitStationUI : MonoBehaviour
 
         // v1.1: 무엇을 하나 (두 줄) - 처음 보는 사람도 읽고 바로 한다
         Text how = KitchenEventManager.MakeText(panel, "How",
-            "고기 1개를 구워 던지면 무리가 미끼로 몰려\n" + (boss != null && !boss.practice && GameBalance.BossNewPatterns && GameBalance.RustLieutenantsOn ? "왕과 부관도" : "왕도") + " 따라와 (" + Mathf.RoundToInt(GameBalance.BaitDurationMiss) + "~" + Mathf.RoundToInt(GameBalance.BaitDurationPerfect) + "초)", 14,
+            HowText(), 14,
             new Color(0.969f, 0.910f, 0.776f));
         RectTransform hRt = how.rectTransform;
         hRt.anchorMin = new Vector2(0f, 1f); hRt.anchorMax = new Vector2(1f, 1f);

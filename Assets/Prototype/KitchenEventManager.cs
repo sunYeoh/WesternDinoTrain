@@ -4,7 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 /// <summary>
-/// [KitchenEventManager.cs] v4.17 (v9.33 2026-10-25 소리: 사고 시작 = 종류별 현장음 하나 (경고 버스). 경보 + 0.25초 뒤 현장음 두 겹을 그만둔다 - 현장음 파일이 없으면 경보가 대신 난다) / v4.16 (v9.28 2026-10-20 하드 모드: 다음 사고까지 간격 x HardEventIntervalMul, 실패 한 방 피해 x HardEventFailMul) / v4.15 (v9.27 2026-10-20 튜토리얼 개편 - 견습 구간 4 "주방 사고 막기": TutorialDirector.ForcedEventsOnly 동안 견습 중에도 디렉터가 ForceEvent 로 일으킨 사고를 돌린다 (무작위 사고는 없음), 끝난 사고 수·결과를 공개 (EventsEnded · LastEventSuccess - 디렉터가 성공·실패를 센다), 첫 등장 카드는 견습 전체에서 기록 없이 (자유 연습과 같게 - 정식 운행에서 다시 뜬다), 견습에선 제한 시간 x GameBalance.TutorialEventTimeMul) / v4.14 (v9.24.1 2026-10-16 5차 피드백 8번: 위치형 사고(침입·고장·화재)는 위치 먼저 (GameBalance.EventLocationFirst) - 현장 고리·화살표를 키우고(EventSiteScaleAway) 현장 위에 "화재 12초", 셰프 머리 위에 현장 쪽 세모. 배너·현장 카드·전체 화면 그림·처음 보는 사고의 설명 카드는 셰프가 현장에 처음 닿는 순간에 뜬다. 경보음·가장자리 붉은빛·배경음 낮춤은 처음부터. 현장을 벗어나면 안내 줄 "현장으로 돌아가". 사고 종류 키를 EventKey 하나로) / v4.13 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v4.12 (v9.20 2026-10-07: 글 속 화살표를 게임 글꼴에 있는 세모로(게임 글꼴에 화살표 글리프가 없어 PC 의 다른 글꼴로 그려졌다 - 모양이 따로 놀고, 대신할 글꼴이 없는 빌드에선 빈칸)) / v4.11 (v9.18 2026-10-06: 경광등 2개를 기차 상황판 양옆으로(구 자리는 커진 좌우 판 위) / 실패 피해를 기차 최대 HP 에 맞춰 키우고 방어력으로 깎지 않는다(EventFailScaleOn - "HP 2800 에 19 닳던 것") / 웨이브가 끝나 사고 수습을 기다리는 동안(WaveManager.PostWaveHold) 새 사고를 시작하지 않는다 / MakeText 최소 글자 크기 / AnchorCanvasX 를 캔버스 실제 폭으로 - 1920 고정이라 현장 그림이 바깥으로 밀려 있었다) / v4.10 (v9.16 2026-09-29 손맛 2차 - 소리: 사고 시작 = 경보 + 종류별 소리(SoundKeys.Event: 침입 발소리 / 고장 쇠 삐걱 / 화재 불붙음 / 흘림 쏟아짐) + 배경음 덕킹 / 끝나면 덕킹 해제 / 결과 sfx_event_resolve·sfx_event_fail) / v4.9 (v9.15 2026-09-29 2차 피드백: 사고 해결 연출 - 현장 초록 링 2겹 + "해결!" + 화면 테두리 초록 한 번 + 배너가 초록 "해결 - 기차 HP +n"으로 바뀌고 EventResolveHoldSec 뒤 내려감 / 실패는 붉은 "실패" + "[사고 실패] ... 기차 HP -n" 한 줄 (훈련장에서 결과를 알게) / ForceEvent(kind) - 자유 연습 [2]~[5] / 자유 연습 중 첫 등장 카드는 세션당 1회) / v4.8 (v9.14 2026-09-28 테스터 반영: 사고 현장에 월드 마커(붉은 화살표 + 링) - "직접 가야 한다는 인식 부족" / 흘림 조각이 사고 배너 뒤에 가려지던 것 - 커스텀 층을 배너 위로) / v4.7 (v9.12 2026-09-22: 인라인 연습 중 사고 타이머 정지) / v4.6 (v9.11 2026-09-22: MakeButton 에 ButtonFeel) / v4.5 (v9.10 2026-09-17 테스터 피드백 "사고 중에 증강 선택이 뜨면 사고가 끝난다": 웨이브가 끝나 정차로 넘어가며 사고가 취소될 때 "정차 정비로 사고가 정리됐다 (벌점 없음)" 알림 - 조용히 사라지던 것) / v4.4 (v9.9.2 2026-09-16: 사고 종류별 첫 등장 카드 - StartEvent 에서 BriefingUI.ShowOnce("event_<종류>"), 카드가 뜨면 시간이 멈춰 제한 시간은 그 뒤 흐른다) / v4.3 (v9.9 2026-09-16: 견습 운행 중 F11 무시 - 이벤트 자체는 WaveManager.TutorialGateActive 로 쉰다) / v4.2 (v9.8.1: F11 강제 발생은 GameBalance.CheatsAllowed 일 때만) / v4.1 (2026-09-14: 마모 off 가중치 / 프롤로그 게이트 차단) / v4
+/// [KitchenEventManager.cs] v4.18 (v9.35.1 2026-10-26 유저 "불붙는 방해 이벤트 이펙트가 가끔 안 나온다": 현장 그림 층 SiteArtRoot - 위치 먼저(EventLocationFirst)에도 숨기지 않는다. 셰프가 멀리 있을 때 불이 나면 불길이 셰프가 닿을 때까지 안 보여 "가끔 안 나온다"로 보였다. AwaitingArrival 공개 - 사고가 명판·칩을 닿은 뒤에만 켠다) / v4.17 (v9.33 2026-10-25 소리: 사고 시작 = 종류별 현장음 하나 (경고 버스). 경보 + 0.25초 뒤 현장음 두 겹을 그만둔다 - 현장음 파일이 없으면 경보가 대신 난다) / v4.16 (v9.28 2026-10-20 하드 모드: 다음 사고까지 간격 x HardEventIntervalMul, 실패 한 방 피해 x HardEventFailMul) / v4.15 (v9.27 2026-10-20 튜토리얼 개편 - 견습 구간 4 "주방 사고 막기": TutorialDirector.ForcedEventsOnly 동안 견습 중에도 디렉터가 ForceEvent 로 일으킨 사고를 돌린다 (무작위 사고는 없음), 끝난 사고 수·결과를 공개 (EventsEnded · LastEventSuccess - 디렉터가 성공·실패를 센다), 첫 등장 카드는 견습 전체에서 기록 없이 (자유 연습과 같게 - 정식 운행에서 다시 뜬다), 견습에선 제한 시간 x GameBalance.TutorialEventTimeMul) / v4.14 (v9.24.1 2026-10-16 5차 피드백 8번: 위치형 사고(침입·고장·화재)는 위치 먼저 (GameBalance.EventLocationFirst) - 현장 고리·화살표를 키우고(EventSiteScaleAway) 현장 위에 "화재 12초", 셰프 머리 위에 현장 쪽 세모. 배너·현장 카드·전체 화면 그림·처음 보는 사고의 설명 카드는 셰프가 현장에 처음 닿는 순간에 뜬다. 경보음·가장자리 붉은빛·배경음 낮춤은 처음부터. 현장을 벗어나면 안내 줄 "현장으로 돌아가". 사고 종류 키를 EventKey 하나로) / v4.13 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v4.12 (v9.20 2026-10-07: 글 속 화살표를 게임 글꼴에 있는 세모로(게임 글꼴에 화살표 글리프가 없어 PC 의 다른 글꼴로 그려졌다 - 모양이 따로 놀고, 대신할 글꼴이 없는 빌드에선 빈칸)) / v4.11 (v9.18 2026-10-06: 경광등 2개를 기차 상황판 양옆으로(구 자리는 커진 좌우 판 위) / 실패 피해를 기차 최대 HP 에 맞춰 키우고 방어력으로 깎지 않는다(EventFailScaleOn - "HP 2800 에 19 닳던 것") / 웨이브가 끝나 사고 수습을 기다리는 동안(WaveManager.PostWaveHold) 새 사고를 시작하지 않는다 / MakeText 최소 글자 크기 / AnchorCanvasX 를 캔버스 실제 폭으로 - 1920 고정이라 현장 그림이 바깥으로 밀려 있었다) / v4.10 (v9.16 2026-09-29 손맛 2차 - 소리: 사고 시작 = 경보 + 종류별 소리(SoundKeys.Event: 침입 발소리 / 고장 쇠 삐걱 / 화재 불붙음 / 흘림 쏟아짐) + 배경음 덕킹 / 끝나면 덕킹 해제 / 결과 sfx_event_resolve·sfx_event_fail) / v4.9 (v9.15 2026-09-29 2차 피드백: 사고 해결 연출 - 현장 초록 링 2겹 + "해결!" + 화면 테두리 초록 한 번 + 배너가 초록 "해결 - 기차 HP +n"으로 바뀌고 EventResolveHoldSec 뒤 내려감 / 실패는 붉은 "실패" + "[사고 실패] ... 기차 HP -n" 한 줄 (훈련장에서 결과를 알게) / ForceEvent(kind) - 자유 연습 [2]~[5] / 자유 연습 중 첫 등장 카드는 세션당 1회) / v4.8 (v9.14 2026-09-28 테스터 반영: 사고 현장에 월드 마커(붉은 화살표 + 링) - "직접 가야 한다는 인식 부족" / 흘림 조각이 사고 배너 뒤에 가려지던 것 - 커스텀 층을 배너 위로) / v4.7 (v9.12 2026-09-22: 인라인 연습 중 사고 타이머 정지) / v4.6 (v9.11 2026-09-22: MakeButton 에 ButtonFeel) / v4.5 (v9.10 2026-09-17 테스터 피드백 "사고 중에 증강 선택이 뜨면 사고가 끝난다": 웨이브가 끝나 정차로 넘어가며 사고가 취소될 때 "정차 정비로 사고가 정리됐다 (벌점 없음)" 알림 - 조용히 사라지던 것) / v4.4 (v9.9.2 2026-09-16: 사고 종류별 첫 등장 카드 - StartEvent 에서 BriefingUI.ShowOnce("event_<종류>"), 카드가 뜨면 시간이 멈춰 제한 시간은 그 뒤 흐른다) / v4.3 (v9.9 2026-09-16: 견습 운행 중 F11 무시 - 이벤트 자체는 WaveManager.TutorialGateActive 로 쉰다) / v4.2 (v9.8.1: F11 강제 발생은 GameBalance.CheatsAllowed 일 때만) / v4.1 (2026-09-14: 마모 off 가중치 / 프롤로그 게이트 차단) / v4
 /// 주방 돌발 이벤트 총괄 매니저 (기획 B-4)
 /// - v4 (v9.6, 2026-09-09): "화면 전체 경보" - 기차 안 작은 아이콘은 조리하다 놓친다는 피드백
 ///   * 경보 글로우: 화면 가장자리 붉은(이벤트별 색) 비네트가 0.6초 주기로 맥동 (삐뽀삐뽀). SetAlarm(color, strength)
@@ -71,6 +71,7 @@ public class KitchenEventManager : MonoBehaviour
     private RectTransform gaugeFill;          // 진행도 게이지 (초록)
     private RectTransform timeFill;           // 남은 시간 게이지 (주황)
     private RectTransform customRoot;         // 각 이벤트가 자유롭게 쓰는 영역
+    private RectTransform siteArtRoot;        // v4.18 (v9.35.1): 현장 그림 영역 (화재의 불길·그을음·연기) - 위치 먼저여도 숨기지 않는다
     private TrainManager cachedTrain;         // HP 표시용 캐시
 
     // ---------- v4 경보 레이어 ----------
@@ -119,6 +120,13 @@ public class KitchenEventManager : MonoBehaviour
 
     /// <summary>이벤트별 커스텀 오브젝트를 붙일 부모 (전체 화면 크기)</summary>
     public RectTransform CustomRoot { get { return customRoot; } }
+
+    /// <summary>v4.18 (v9.35.1): 현장 그림(불길·그을음·연기)을 붙일 부모 (전체 화면 크기, 배너 아래 층). 위치 먼저(EventLocationFirst)에도 숨기지 않는다 -
+    /// 배너·현장 카드(CustomRoot)·전체 화면 그림(OverlayRoot)은 셰프가 닿을 때. 아직 없으면 CustomRoot</summary>
+    public RectTransform SiteArtRoot { get { return siteArtRoot != null ? siteArtRoot : customRoot; } }
+
+    /// <summary>v4.18 (v9.35.1): 위치 먼저 - 셰프가 아직 현장에 한 번도 안 닿았나 (사고가 할 일 글자(명판·칩)를 닿은 뒤에만 켠다)</summary>
+    public bool AwaitingArrival { get { return awaitingArrival; } }
 
     // ==================================================================
     //  B-1: 이벤트 위치 앵커 (방향결정 2026-08-31)
@@ -909,6 +917,12 @@ public class KitchenEventManager : MonoBehaviour
         overlayRoot.offsetMin = Vector2.zero; overlayRoot.offsetMax = Vector2.zero;
         overlayRoot.GetComponent<Image>().raycastTarget = false;
 
+        // v4.18 (v9.35.1): 현장 그림 영역 (화재 불길 등) - 전체 화면 그림 위, 배너·커스텀 아래. SetEventVisualsActive 가 건드리지 않는다 (위치 먼저여도 불은 멀리서 보인다)
+        siteArtRoot = MakeBox(canvasGo.transform, "SiteArtRoot", new Color(0f, 0f, 0f, 0f));
+        siteArtRoot.anchorMin = Vector2.zero; siteArtRoot.anchorMax = Vector2.one;
+        siteArtRoot.offsetMin = Vector2.zero; siteArtRoot.offsetMax = Vector2.zero;
+        siteArtRoot.GetComponent<Image>().raycastTarget = false;
+
         // 이벤트별 커스텀 오브젝트 영역 (전체 화면)
         customRoot = MakeBox(canvasGo.transform, "CustomRoot", new Color(0f, 0f, 0f, 0f));
         customRoot.anchorMin = Vector2.zero;
@@ -928,6 +942,7 @@ public class KitchenEventManager : MonoBehaviour
         panelRoot.sizeDelta = new Vector2(760f, BANNER_H);
         Image panelImg = panelRoot.GetComponent<Image>();
         panelImg.raycastTarget = false;
+        siteArtRoot.SetAsLastSibling();   // v4.18 (v9.35.1): 현장 그림도 배너 위 (화재 [E] 칩이 배너 밑에 깔리지 않게 - 예전 CustomRoot 자리와 같은 높이)
         customRoot.SetAsLastSibling();   // v4.8: 흘림 조각·이벤트 부품이 배너 뒤에 가려지지 않게 (테스터 "떨어진 재료가 창에 가려 안 보임")
         if (SkinReady)
         {
@@ -1088,6 +1103,10 @@ public class KitchenEventManager : MonoBehaviour
         if (customRoot == null) return;
         for (int i = customRoot.childCount - 1; i >= 0; i--)
             Destroy(customRoot.GetChild(i).gameObject);
+        // v4.18 (v9.35.1): 현장 그림 층도 같이 (사고가 끝나거나 취소될 때 · 새 사고 직전)
+        if (siteArtRoot != null)
+            for (int i = siteArtRoot.childCount - 1; i >= 0; i--)
+                Destroy(siteArtRoot.GetChild(i).gameObject);
     }
 
     // ---------- 이벤트 클래스들이 같이 쓰는 UI 헬퍼 ----------

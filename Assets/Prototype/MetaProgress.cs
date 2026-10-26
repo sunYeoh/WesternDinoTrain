@@ -2,7 +2,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// [MetaProgress.cs] v1.4 (v9.28 2026-10-20 하드 모드: 종착역 기록 ClearCount·HardClears (RecordClear - 승리 때 GameManager 가 부른다, 하드 첫 종착역 = 명성 HardClearFame + 칭호 "황야의 베테랑" VeteranTitle) / 웨이브 명성 x HardFameMul / 요약 줄 앞에 [하드]) / v1.3 (v9.14 2026-09-28: 명성 상점 "출발 증강" StartAugment) / v1.2 (2026-09-14: 이번 런 클리어 웨이브 + 런 통계 한 줄 RunStatsLine) / v1.1 (마스터 셰프 칭호 + 도감 완성 보너스) / v1
+/// [MetaProgress.cs] v1.5 (v9.35 2026-10-25 성장·구조: 웨이브 명성 = 옛 25웨이브 자 x 웨이브 한 판의 몫 (운행 전체 명성은 옛 운행과 같다) / 옛 저장의 최고 기록(지역 8 의 웨이브)을 지금 지역 길이의 웨이브로 한 번 옮긴다 (옛 25 = 새 16) /
+///   하드 명성 상점 '화덕 증축' HardLevelCapBonus) / v1.4 (v9.28 2026-10-20 하드 모드: 종착역 기록 ClearCount·HardClears (RecordClear - 승리 때 GameManager 가 부른다, 하드 첫 종착역 = 명성 HardClearFame + 칭호 "황야의 베테랑" VeteranTitle) / 웨이브 명성 x HardFameMul / 요약 줄 앞에 [하드]) / v1.3 (v9.14 2026-09-28: 명성 상점 "출발 증강" StartAugment) / v1.2 (2026-09-14: 이번 런 클리어 웨이브 + 런 통계 한 줄 RunStatsLine) / v1.1 (마스터 셰프 칭호 + 도감 완성 보너스) / v1
 /// 런이 끝나도 사라지지 않는 "메타 진행" 저장소.
 ///
 /// - PlayerPrefs 기반 static 클래스라서 씬 배치, 오브젝트 연결이 전혀 필요 없다.
@@ -40,7 +41,28 @@ public static class MetaProgress
     // ─────────────────────────────────────────────
     public static int Fame { get { return PlayerPrefs.GetInt(PREFIX + "Fame", 0); } }
     public static int RunsPlayed { get { return PlayerPrefs.GetInt(PREFIX + "RunsPlayed", 0); } }
-    public static int BestWave { get { return PlayerPrefs.GetInt(PREFIX + "BestWave", 0); } }
+    public static int BestWave { get { MigrateWaveScale(); return PlayerPrefs.GetInt(PREFIX + "BestWave", 0); } }
+
+    // v1.5 (v9.35): 최고 기록을 잰 지역 길이. 키가 없으면 옛 저장 (지역 8 - 25웨이브 운행)
+    private const string WAVE_LEN_KEY = PREFIX + "WaveRegionLen";
+    private static bool waveScaleChecked = false;
+
+    /// <summary>v1.5 (v9.35): 지역 길이가 8 -> 5 로 줄었다 - 옛 저장의 최고 기록을 지금 길이의 웨이브로 한 번 옮긴다 (옛 25 = 새 16 종착역, 옛 8 = 새 5 첫 보스).
+    /// 하드 해금(최고 기록 >= 최종전)·노선 섞기(첫 보스를 잡았나)가 새 웨이브로 읽는다. 치트 짧은 런(F3)은 기록 자를 바꾸지 않는다 (정식 길이 기준)</summary>
+    private static void MigrateWaveScale()
+    {
+        if (waveScaleChecked) return;
+        waveScaleChecked = true;
+        int savedLen = PlayerPrefs.GetInt(WAVE_LEN_KEY, GameBalance.LegacyRegionLength);
+        int nowLen = GameBalance.DefaultRegionLength;
+        if (savedLen == nowLen) return;
+        int best = PlayerPrefs.GetInt(PREFIX + "BestWave", 0);
+        int moved = GameBalance.RescaleWave(best, savedLen, nowLen);
+        if (moved != best) PlayerPrefs.SetInt(PREFIX + "BestWave", moved);
+        PlayerPrefs.SetInt(WAVE_LEN_KEY, nowLen);
+        PlayerPrefs.Save();
+        if (best > 0) Debug.Log("[MetaProgress] 최고 기록을 지역 " + savedLen + " -> " + nowLen + " 웨이브로 옮김: " + best + " -> " + moved);
+    }
     public static int TotalWavesCleared { get { return PlayerPrefs.GetInt(PREFIX + "TotalWaves", 0); } }
 
     // ─────────────────────────────────────────────
@@ -87,15 +109,18 @@ public static class MetaProgress
     /// <summary>웨이브 클리어 시 호출. 명성 적립 + 기록 갱신 + 즉시 저장.</summary>
     public static void OnWaveCleared(int wave)
     {
-        int gain = Mathf.CeilToInt((10 + wave) * HardMode.Mul(GameBalance.HardFameMul));   // v1.4: 하드 모드는 더 (올림 - 반올림은 .5 를 짝수로 보내 들쭉날쭉)
+        // v1.5 (v9.35): 웨이브는 옛 자 x 한 판의 몫 - 지역 5 로 웨이브가 줄어도 운행 전체 명성은 옛 운행과 같다
+        int gain = Mathf.CeilToInt((10 + GameBalance.EqWave(wave)) * GameBalance.WaveWorthAt(wave) * HardMode.Mul(GameBalance.HardFameMul));   // v1.4: 하드 모드는 더 (올림 - 반올림은 .5 를 짝수로 보내 들쭉날쭉)
         RunFame += gain;
         if (wave > WaveClearedThisRun) WaveClearedThisRun = wave;
         // v1.2: 웨이브마다 통계 한 줄 (런을 포기하면 요약 창이 안 뜨므로 Console/Player.log 의 이 줄이 기록이 된다)
         Debug.Log("[MetaProgress] 웨이브 " + wave + " 클리어 | " + RunStatsLine());
         PlayerPrefs.SetInt(PREFIX + "Fame", Fame + gain);
         PlayerPrefs.SetInt(PREFIX + "TotalWaves", TotalWavesCleared + 1);
-        if (wave > BestWave)
-            PlayerPrefs.SetInt(PREFIX + "BestWave", wave);
+        // v1.5 (v9.35): 기록은 정식 지역 길이의 웨이브로 적는다 (치트 짧은 런이면 옛 자로 옮겨서 - 정식 길이면 그대로)
+        int rec = GameBalance.RescaleWave(wave, GameBalance.RegionLength, GameBalance.DefaultRegionLength);
+        if (rec > BestWave)
+            PlayerPrefs.SetInt(PREFIX + "BestWave", rec);
         PlayerPrefs.Save();
     }
 
@@ -189,6 +214,12 @@ public static class MetaProgress
 
     /// <summary>v1.3 (v9.14): "출발 증강" - 운행 시작 때 은 증강 1회 (GameManager 가 웨이브 1 에서 연다)</summary>
     public static bool StartAugment { get { return UpgradeLevel("augment") > 0; } }
+
+    /// <summary>v1.5 (v9.35): 하드 명성 상점 '화덕 증축' - 하드 운행의 포탑 최대 레벨에 더하는 값 (단계 x GameBalance.HardCapStep). TurretSlot.MaxLevelOf 가 하드일 때만 더한다. HardShopOn false 면 0</summary>
+    public static int HardLevelCapBonus
+    {
+        get { return GameBalance.HardShopOn ? Mathf.Clamp(UpgradeLevel("hardcap"), 0, Mathf.Max(0, GameBalance.HardCapMaxSteps)) * GameBalance.HardCapStep : 0; }
+    }
 
     // ─────────────────────────────────────────────
     // 도감 영구화 (발견한 레시피 목록)
@@ -570,7 +601,7 @@ public static class MetaProgress
         masterFamedCache = null;
 
         // 명성 상점 업그레이드도 초기화
-        string[] upgradeIds = { "gold", "hp", "food", "mat", "judge", "augment" };
+        string[] upgradeIds = { "gold", "hp", "food", "mat", "judge", "augment", "hardcap" };   // v1.5: 화덕 증축
         for (int i = 0; i < upgradeIds.Length; i++)
             PlayerPrefs.DeleteKey(PREFIX + "Up_" + upgradeIds[i]);
 

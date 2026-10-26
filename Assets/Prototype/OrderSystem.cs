@@ -4,11 +4,14 @@ using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 
 /// <summary>
-/// [OrderSystem.cs] v1.2 (v9.28 2026-10-20 하드 모드: 주문 시간 x HardOrderTimeMul. 눈금은 그 주문의 제 시간(timeMax)으로 - 견습 주문(60초)의 눈금도 이제 맞다) / v1.1 (v9.27 2026-10-20 튜토리얼 개편: 견습 카드 10 에 주문 하나 - TutorialOrder(계열, 개수, 초) 로 디렉터가 직접 낸다 (견습에선 자동 주문 없음), TutorialDone / TutorialEnd) / v1 (신규, v9.25 2026-10-16 5차 피드백 7·9번 "6렙 4개 찍으면 이제 뭐함 - 재료 개많이 남음" / "1라운드 중반부터 할 게 없음" -> 스펙 B4 단골 주문)
+/// [OrderSystem.cs] v1.3 (v9.34 2026-10-25 유저 "미션 같은 게 나왔을 때 정차역에 안 끊기게": 주문 시간·완료 버프는 손님과 싸우는 동안만 흐른다 - 웨이브 끝 사고 수습·증강·일지·정차·선로 고르기엔
+///   멈췄다가 (카드 오른쪽 위 "멈춤") 다음 웨이브에 이어진다. 보스전엔 이어 온 주문의 시간만 멈춘다 ("보스전 멈춤" - 버프는 보스에게도 흐른다). 멈춘 동안에도 조리는 세고, 다 채우면 그 자리에서 완료.
+///   이어진 웨이브엔 새 주문을 내지 않는다. 패배·승리·로비에서 접는다 (견습 주문은 예전처럼 정차에서도). GameBalance.OrderKeepThroughStops·OrderHoldInBoss) /
+/// v1.2 (v9.28 2026-10-20 하드 모드: 주문 시간 x HardOrderTimeMul. 눈금은 그 주문의 제 시간(timeMax)으로 - 견습 주문(60초)의 눈금도 이제 맞다) / v1.1 (v9.27 2026-10-20 튜토리얼 개편: 견습 카드 10 에 주문 하나 - TutorialOrder(계열, 개수, 초) 로 디렉터가 직접 낸다 (견습에선 자동 주문 없음), TutorialDone / TutorialEnd) / v1 (신규, v9.25 2026-10-16 5차 피드백 7·9번 "6렙 4개 찍으면 이제 뭐함 - 재료 개많이 남음" / "1라운드 중반부터 할 게 없음" -> 스펙 B4 단골 주문)
 /// 웨이브마다 한 번 (첫 주문은 GameBalance.OrderFirstWave 부터, 보스 웨이브는 쉰다) 왼쪽에 주문 카드가 들어온다: "냉기 요리 2개 - 40초".
 ///   - 조리를 마칠 때마다 (FoodStock.OnCooked - 일반 조리·접시 진화 조리·포탑 진화 조리) 그 계열 요리면 +1. 다 채운 처리는 자기 Update 에서 (조리 콜스택 밖)
 ///   - 다 채우면 그 계열 포탑 피해 +40% 20초 (TurretAttackExecutor.DealDamage 가 DamageMulFor 를 곱한다) + 골드 30. 버프 중엔 그 포탑 위에 "+40%"
-///   - 못 채우면 회색 "[주문 놓침]" 으로 흐려진다 - 벌칙 없음. 정차하면 조용히 접힌다
+///   - 못 채우면 회색 "[주문 놓침]" 으로 흐려진다 - 벌칙 없음. 정차하면 멈췄다가 다음 웨이브에 이어진다 (v1.3 - 패배·승리·로비에서 접힌다)
 ///   - 주문 계열 = 지금 가진 재료로 만들 수 있는 기본 요리가 있는 계열 중 무작위 (방어 계열 제외). 카드 넷째 줄에 만들 수 있는 요리 둘
 /// 화면 = 목업 px/user_pack_1005/sheets/ui_mock_v925.png (왼쪽 HP 판·유물 카드 아래 300 x 140 - 목업에 보상 줄을 더했다). 연출은 짧게 (들어옴 0.25초 / 완료 0.3초 / 놓침 1.5초)
 /// 글은 바뀔 때만 쓴다 (매 프레임 문자열을 만들지 않는다). 포탑 위 "+40%" 는 LateUpdate 에서 (카메라가 움직인 뒤 자리를 잡는다)
@@ -36,6 +39,7 @@ public class OrderSystem : MonoBehaviour
     private float hintRefreshAt;     // 넷째 줄(만들 수 있는 요리) 다시 고를 시각
     private bool tutorialOrder;      // v1.1: 견습 운행이 낸 주문 (Update 의 견습 가드를 지나간다)
     private bool tutorialOrderDone;  // v1.1: 견습 주문을 다 채운 적이 있나 (카드 10 재시작 때 또 내지 않게)
+    private string holdWord;         // v1.3: 시간이 멈춘 까닭 - 카드 오른쪽 위에 초 대신 ("멈춤" / "보스전 멈춤", null = 흐른다)
 
     // ---------- 화면 ----------
     private Canvas canvas;
@@ -121,18 +125,35 @@ public class OrderSystem : MonoBehaviour
         if (!battle)
         {
             wasBattle = false;
-            // 정차·게임오버: 진행 중이던 주문은 조용히 접고(벌칙 없음) 버프도 끝낸다 - 싸움이 없으니
-            if (state == State.Active || state == State.Done) BeginClose();
+            holdWord = null;
+            if (state == State.Active || state == State.Done)
+            {
+                // v1.3: 정차(Town)에선 주문을 접지 않는다 - 시간·버프는 멈춰 있다 (Update 가 아래로 안 내려가 줄지 않는다). 조리는 센다 (OnCooked).
+                //   그 밖(패배·승리·로비)·견습 주문·스위치 끔은 예전처럼 조용히 접는다 (벌칙 없음)
+                if (!KeepAtStop()) BeginClose();
+                else
+                {
+                    holdWord = "멈춤";
+                    if (state == State.Active && made >= need) Complete();   // 정차 중 조리로 다 채웠다 - 골드는 지금, 버프는 다음 웨이브부터 흐른다
+                    else if (state == State.Active && Time.time >= hintRefreshAt) RefreshHint();   // 정차에서 장을 보면 만들 수 있는 요리가 바뀐다
+                }
+            }
             TickVisuals();
             return;
         }
 
         // 새 웨이브(GameManager 가 전투에 들어갈 때 웨이브 번호를 올린다)이거나 전투로 막 들어왔으면 대기를 새로 센다
         int wave = GameManager.Instance.currentWave;
-        if (wave != lastWave) { lastWave = wave; orderedThisWave = false; wasBattle = false; }
+        // v1.3: 앞 웨이브에서 이어진 주문(진행·버프 중)이 있으면 그게 이번 웨이브 몫이다 - 하나 더 내지 않는다
+        if (wave != lastWave) { lastWave = wave; orderedThisWave = state == State.Active || state == State.Done; wasBattle = false; }
         if (!wasBattle) { waveSeenAt = Time.time; wasBattle = true; }
 
         float dt = Time.deltaTime;
+        // v1.3: 손님과 싸우지 않는 동안은 멈춘다 - 웨이브 끝 사고 수습(PostWaveHold)·증강·일지·카드 창 (창이 뜨면 시간도 멈춰 dt 가 0 이지만 카드에 "멈춤"을 보인다).
+        //   보스전엔 이어 온 주문의 시간만 멈춘다 (보스 패턴이 할 일을 준다 - 새 주문은 보스 웨이브에 안 낸다). 완료 버프는 보스에게도 흐른다
+        bool keep = GameBalance.OrderKeepThroughStops;
+        bool waveHold = keep && (WaveManager.PostWaveHold || AugmentPickUI.IsOpen || AugmentListUI.ReadingOpen);
+        bool bossHold = keep && GameBalance.OrderHoldInBoss && !tutorialOrder && GameBalance.IsBossWave(wave);
         switch (state)
         {
             case State.Idle:
@@ -140,15 +161,17 @@ public class OrderSystem : MonoBehaviour
                 break;
             case State.Active:
                 if (made >= need) { Complete(); break; }   // 다 채운 처리는 조리 콜스택 밖에서
-                timeLeft -= dt;
+                if (!waveHold && !bossHold) timeLeft -= dt;
                 if (Time.time >= hintRefreshAt) RefreshHint();
                 if (timeLeft <= 0f) Miss();
                 break;
             case State.Done:
-                buffLeft -= dt;
+                if (!waveHold) buffLeft -= dt;
                 if (buffLeft <= 0f) BeginClose();
                 break;
         }
+        // 카드 오른쪽 위 글 (switch 뒤 - 이번 프레임에 완료됐으면 버프 초가 보이게)
+        holdWord = waveHold ? "멈춤" : (state == State.Active && bossHold ? "보스전 멈춤" : null);
         TickVisuals();
     }
 
@@ -165,6 +188,7 @@ public class OrderSystem : MonoBehaviour
         if (wave < GameBalance.OrderFirstWave || GameBalance.IsBossWave(wave)) return false;   // 보스 웨이브는 보스 패턴이 할 일을 준다
         if (Time.time - waveSeenAt < GameBalance.OrderDelaySec) return false;                   // 웨이브가 자리 잡은 뒤에
         if (WaveManager.PostWaveHold) return false;                                             // 웨이브가 끝나 사고 수습만 기다리는 중
+        if (AugmentPickUI.IsOpen || AugmentListUI.ReadingOpen) return false;                   // v1.3: 증강·일지·카드 창 - 웨이브가 끝나 뜬 창 사이에 낸 주문이 정차로 새지 않게
         // 주방 사고가 나 있으면 기다린다 (한꺼번에 두 가지를 시키지 않는다)
         if (KitchenEventManager.Instance != null && KitchenEventManager.Instance.EventRunning) return false;
         return true;
@@ -295,6 +319,7 @@ public class OrderSystem : MonoBehaviour
         lastWave = -1;
         wasBattle = false;
         orderedThisWave = false;
+        holdWord = null;
         if (card != null) card.gameObject.SetActive(false);
         HideTags();
     }
@@ -542,13 +567,20 @@ public class OrderSystem : MonoBehaviour
         if (state != State.Done) HideTags();   // 버프 중 꼬리표는 LateUpdate 가
     }
 
-    /// <summary>오른쪽 위 남은 초 - 초가 바뀔 때만 글을 쓴다</summary>
+    /// <summary>오른쪽 위 남은 초 - 초가 바뀔 때만 글을 쓴다. v1.3: 시간이 멈춰 있으면 초 대신 그 까닭 ("멈춤" / "보스전 멈춤")</summary>
     private void SetSeconds(float sec)
     {
-        int s = Mathf.Max(0, Mathf.CeilToInt(sec));
-        if (s == shownSec) return;
+        int s = holdWord != null ? -2 : Mathf.Max(0, Mathf.CeilToInt(sec));   // -2 = 멈춤 (-1 은 "아직 안 썼다")
+        if (s == shownSec && (s != -2 || timeText.text == holdWord)) return;
         shownSec = s;
-        timeText.text = s + "초";
+        timeText.text = holdWord != null ? holdWord : s + "초";
+    }
+
+    /// <summary>v1.3: 주문을 접지 않고 멈춰 둘 정차인가 - 정차(Town)에서만. 패배·승리·로비, 견습 주문(디렉터 대본이 정차에서 접히는 걸 전제로 짜였다), 스위치 끔이면 접는다</summary>
+    private bool KeepAtStop()
+    {
+        if (!GameBalance.OrderKeepThroughStops || tutorialOrder) return false;
+        return GameManager.Instance != null && GameManager.Instance.currentState == GameManager.GameState.Town;
     }
 
     private void SetGauge(float ratio, Color color)

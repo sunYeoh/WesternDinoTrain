@@ -2,7 +2,7 @@ using UnityEngine;
 using TMPro;
 
 /// <summary>
-/// [DamagePopup.cs] v1.3 (v9.18 2026-10-06: 합산은 같은 포탑이 낸 것끼리만 - CreateFor(..., source). 구: 포탑이 달라도 한 손님에게 0.1초 안에 들어오면 한 숫자 -> 약한 포탑의 숫자가 센 포탑 것과 합쳐져 보였다) /
+/// [DamagePopup.cs] v1.4 (v9.35.2 2026-10-26 숫자 오브젝트는 TMPFontFixer.NewWorldText 로 - 글꼴이 든 본을 복제 (매번 AddComponent 하면 TMP 가 기본 글꼴을 찾다 경고 - Player.log 10-26 2,148줄)) / v1.3 (v9.18 2026-10-06: 합산은 같은 포탑이 낸 것끼리만 - CreateFor(..., source). 구: 포탑이 달라도 한 손님에게 0.1초 안에 들어오면 한 숫자 -> 약한 포탑의 숫자가 센 포탑 것과 합쳐져 보였다) /
 /// v1.2 (v9.17 2026-10-06 화면 손맛 2차 A4: CreateFor(손님) - 숫자 크기 = 기본 x (1 + 피해 / 손님 최대 HP), 최대 2배 /
 ///   같은 손님이 0.1초 안에 또 맞으면 새 숫자 대신 앞 숫자에 더한다 / 등장할 때 1.25배에서 제자리로, 크리는 굵게 + 1.6배에서 0.1초 더 길게 + 더 높이 /
 ///   크리 여부는 Enemy 가 진짜 치명타만 넘긴다) / v1.1 (v9.15 2026-09-29: resisted 팝업 - 회청색 "n 저항")
@@ -67,8 +67,8 @@ public class DamagePopup : MonoBehaviour
         Vector3 spawnPos = worldPos + new Vector3(Random.Range(-0.8f, 0.8f), Random.Range(0.2f, 0.7f), 0f);
 
         GameObject obj;
-        if (prefab != null) obj = Instantiate(prefab, spawnPos, Quaternion.identity);
-        else { obj = new GameObject("DamagePopup"); obj.transform.position = spawnPos; }
+        if (prefab != null && prefab.GetComponent<TextMeshPro>() != null) obj = Instantiate(prefab, spawnPos, Quaternion.identity);
+        else obj = TMPFontFixer.NewWorldText("DamagePopup", spawnPos).gameObject;   // v1.4: 글꼴이 든 본을 복제 (경고 없음)
 
         DamagePopup popup = obj.GetComponent<DamagePopup>();
         if (popup == null) popup = obj.AddComponent<DamagePopup>();

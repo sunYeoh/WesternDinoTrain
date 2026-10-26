@@ -3,7 +3,7 @@ using UnityEngine;
 using TMPro;
 
 /// <summary>
-/// [HitFeel.cs] v1.4 (v9.29 2026-10-21 손맛 3차 A10: 치명타로 처치하면 GameBalance.CritKillHitstopSec 히트스탑 - CritKillHitstopGap 에 한 번, 보스 제외. 마지막 치명타 명중을 ConsumeCrit 과 따로 기억한다(lastCrit*) - 숫자 팝업이 먼저 읽어 지우기 때문) / v1.3 (v9.18 2026-10-06: NextHit 에 쏜 포탑(source) - ConsumeHit 이 치명타 여부와 같이 돌려준다, 데미지 숫자를 포탑별로 합산하는 데 쓴다) / v1.2 (v9.17 2026-10-06 화면 손맛 2차: MuzzlePool(포신 끝 섬광 - 풀 24) / Knock(물리 단발 넉백 - 그림만 밀렸다 돌아온다) / ConsumeCrit(숫자 팝업이 진짜 치명타만 크리로 찍게)) / v1.1 (v9.16 2026-09-29 손맛 2차 - 소리: 명중음이 여기서 난다 - 손님 재질별(SoundKeys.Hit: 비늘·무쇠·결정·날개·용암) + 요리 속성 겹침(SoundKeys.Accent) + 크리 sfx_hit_crit / 물리가 방어에 크게 깎이면 재질음 대신 sfx_ricochet(튕김) / 처치음은 Enemy.Die 가 재질별로) / v1 (신규, v9.11 2026-09-22) - 타격감 계층: 손님이 맞는다 / 죽는다 / 월드 팝 (스펙 표 A1 A2 A3 A6 + 월드 공용)
+/// [HitFeel.cs] v1.5 (v9.35.2 2026-10-26 TextPop 은 TMPFontFixer.NewWorldText - 글꼴이 든 본을 복제 (TMP 기본 글꼴 경고 없이)) / v1.4 (v9.29 2026-10-21 손맛 3차 A10: 치명타로 처치하면 GameBalance.CritKillHitstopSec 히트스탑 - CritKillHitstopGap 에 한 번, 보스 제외. 마지막 치명타 명중을 ConsumeCrit 과 따로 기억한다(lastCrit*) - 숫자 팝업이 먼저 읽어 지우기 때문) / v1.3 (v9.18 2026-10-06: NextHit 에 쏜 포탑(source) - ConsumeHit 이 치명타 여부와 같이 돌려준다, 데미지 숫자를 포탑별로 합산하는 데 쓴다) / v1.2 (v9.17 2026-10-06 화면 손맛 2차: MuzzlePool(포신 끝 섬광 - 풀 24) / Knock(물리 단발 넉백 - 그림만 밀렸다 돌아온다) / ConsumeCrit(숫자 팝업이 진짜 치명타만 크리로 찍게)) / v1.1 (v9.16 2026-09-29 손맛 2차 - 소리: 명중음이 여기서 난다 - 손님 재질별(SoundKeys.Hit: 비늘·무쇠·결정·날개·용암) + 요리 속성 겹침(SoundKeys.Accent) + 크리 sfx_hit_crit / 물리가 방어에 크게 깎이면 재질음 대신 sfx_ricochet(튕김) / 처치음은 Enemy.Die 가 재질별로) / v1 (신규, v9.11 2026-09-22) - 타격감 계층: 손님이 맞는다 / 죽는다 / 월드 팝 (스펙 표 A1 A2 A3 A6 + 월드 공용)
 ///
 /// 원칙 (타격감 스펙 표): 일반 사건(매초 수십 번인 명중)은 플래시·찌그러짐·작은 스파크·숫자까지만.
 /// 중요 사건(처치·크리·큰 손님)은 킬 버스트 + 채널 쿨타임 흔들림. 흔들림·히트스탑·줌은 여기서 늘리지 않는다.
@@ -623,10 +623,8 @@ public static class WorldFeel
     public static void TextPop(Vector3 pos, string text, Color c, float size)
     {
         if (GameBalance.GameFeelMaster <= 0f) return;
-        GameObject go = new GameObject("TextPop");
-        go.transform.position = pos;
-        TextMeshPro tmp = go.AddComponent<TextMeshPro>();
-        TMPFontFixer.Apply(tmp);
+        TextMeshPro tmp = TMPFontFixer.NewWorldText("TextPop", pos);   // v1.5: 글꼴이 든 본을 복제 (AddComponent 경고 없이)
+        GameObject go = tmp.gameObject;
         tmp.text = text; tmp.fontSize = size; tmp.color = c; tmp.alignment = TextAlignmentOptions.Center;
         tmp.fontStyle = FontStyles.Bold; tmp.sortingOrder = 101;
         Runner().StartCoroutine(Runner().TextRoutine(go.transform, tmp, c));

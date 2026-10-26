@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// [TurretSlotManager.cs] v2.12 (v9.30 2026-10-21 포탑 칸: 시작 4칸(GameBalance.BaseSlotCount), 지역 보스를 잡고 정차할 때 하나씩 더 (BossSlotUnlocks - 운행 단위, GameManager 가 부른다 UnlockByBoss - 열린 칸에 금빛 고리 + 알림), 그다음 증강. 잠긴 칸 글은 SlotMarkerUI) / v2.11 (v9.26 2026-10-16 마감 정리: 어디서도 안 부르는 RepairOne 삭제) / v2.10 (v9.25 2026-10-16 B5 싸움 유물: CountRecipe · EmptyUnlockedCount (짝꿍 숟가락·빈 접시가 읽는다) / 짝꿍 숟가락을 가지면 공명이 꺼진다 (ItemManager.NoResonance - 피해·방어 공명·발동 알림·속성 줄)) / v2.9 (v9.24.1 2026-10-16 5차 피드백 1·2번: 같은 요리 합체가 상한을 넘치면 넘친 레벨만큼 그 요리를 하단 카드로 돌려준다 (4 + 4 = Lv6 + 요리 2개 - 예전엔 말없이 사라졌다, GameBalance.MergeOverflowRefund). 진화 결과 글에 레벨이 나온 까닭 (높은 쪽 Lv + 판정 보너스 + 숙련). 손댄 안내 글은 10-14 말투로) / v2.8 (v9.23 2026-10-14 점검 수정: 포탑 진화 조리 성공 = 그 전설 요리 숙련 1회 - FoodStock.CountCook) / v2.7 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v2.6 (v9.18 2026-10-06: 진화 조리는 같은 레벨끼리만(FusionSameLevelOnly) + 결과 레벨도 상한까지 / 합체·진화 때 들어간 접시 수를 넘겨받는다(폐기 환급) / 과열은 조건이 된 포탑 중 무작위 / 정비 거리 = 슬롯 앞 바닥(TrainDeck.NearestWalkPoint)까지 / 속성 줄에 마우스를 올리면 공명·옆자리 효과 설명) /
+/// [TurretSlotManager.cs] v2.14 (v9.35.2 2026-10-26 오라가 설명대로: 화염 방벽 불 = 화상 (화상·독 배율 + 약점 파고들기 기록, GameBalance.AuraBurnIsDot) / 부식의 정수 = 방어·저항 깎기 1겹 (AuraShredReal - 예전엔 임시 감속 -15%) / 빙벽 스튜 감속 · 축전 장갑 마비도 '느려지거나 마비된 손님'으로 (TrainCcCounts - 사냥꾼의 본능 · 동상 파편)) / v2.13 (v9.34 2026-10-25 유저 "2레벨 요리끼리 합치면 2레벨 전설": 진화 결과 레벨 = 재료 레벨 그대로. 진화 조리 판정이 좋으면 레벨 대신 그 전설 요리 1개를 하단 카드로, 숙련 +1 없음 - GameBalance.FusionKeepLevel·FusionBonusDishes) / v2.12 (v9.30 2026-10-21 포탑 칸: 시작 4칸(GameBalance.BaseSlotCount), 지역 보스를 잡고 정차할 때 하나씩 더 (BossSlotUnlocks - 운행 단위, GameManager 가 부른다 UnlockByBoss - 열린 칸에 금빛 고리 + 알림), 그다음 증강. 잠긴 칸 글은 SlotMarkerUI) / v2.11 (v9.26 2026-10-16 마감 정리: 어디서도 안 부르는 RepairOne 삭제) / v2.10 (v9.25 2026-10-16 B5 싸움 유물: CountRecipe · EmptyUnlockedCount (짝꿍 숟가락·빈 접시가 읽는다) / 짝꿍 숟가락을 가지면 공명이 꺼진다 (ItemManager.NoResonance - 피해·방어 공명·발동 알림·속성 줄)) / v2.9 (v9.24.1 2026-10-16 5차 피드백 1·2번: 같은 요리 합체가 상한을 넘치면 넘친 레벨만큼 그 요리를 하단 카드로 돌려준다 (4 + 4 = Lv6 + 요리 2개 - 예전엔 말없이 사라졌다, GameBalance.MergeOverflowRefund). 진화 결과 글에 레벨이 나온 까닭 (높은 쪽 Lv + 판정 보너스 + 숙련). 손댄 안내 글은 10-14 말투로) / v2.8 (v9.23 2026-10-14 점검 수정: 포탑 진화 조리 성공 = 그 전설 요리 숙련 1회 - FoodStock.CountCook) / v2.7 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v2.6 (v9.18 2026-10-06: 진화 조리는 같은 레벨끼리만(FusionSameLevelOnly) + 결과 레벨도 상한까지 / 합체·진화 때 들어간 접시 수를 넘겨받는다(폐기 환급) / 과열은 조건이 된 포탑 중 무작위 / 정비 거리 = 슬롯 앞 바닥(TrainDeck.NearestWalkPoint)까지 / 속성 줄에 마우스를 올리면 공명·옆자리 효과 설명) /
 /// v2.5 (v9.16 2026-09-29 손맛 2차 - 소리: 진화 완료 sfx_fusion, 완벽 판정이면 판정음이 뒤따른다 / 오라 화염 틱은 Enemy.TakeTickDamage - 명중음 없이) / v2.4 (v9.15 2026-09-29: 파손 슬롯 - RepairAllBroken(새 운행)·BrokenCount·RepairOne(정비소) / 동종 병합 레벨 배율 표기 GameBalance.LevelMultOf) / v2.3 (v9.14 레벨 상한) / v2.1 (v9.9 2026-09-16: 슬롯 4모서리 배치 GameBalance.SlotPosition + 근접 판정 "가까운 벽 쪽 거리") / v2
 /// 포탑 슬롯 8개를 자동 생성/관리하는 매니저 (싱글톤)
 /// - v2.1: 슬롯 위치는 GameBalance.SlotPosition(i) 한 곳에서 (모서리 4 = 북 2 지붕선 위 / 남 2 섀시 위).
@@ -393,11 +393,28 @@ public class TurretSlotManager : MonoBehaviour
                 if (d > auraRange) continue;
 
                 if (r.passiveType == "auraBurn")
-                    all[e].TakeTickDamage(3f * s.LevelMult, true); // 0.5초마다 화염 틱 (v2.5: 틱은 명중음·플래시 없이 - 0.5초 메트로놈 방지)
+                {
+                    // 0.5초마다 화염 틱 (v2.5: 틱은 명중음·플래시 없이 - 0.5초 메트로놈 방지)
+                    // v2.14 (v9.35.2): 화상으로 친다 - 화상·독 배율(증강·유물)을 받고 '화상 붙은 손님'으로 기록 (약점 파고들기). 예전: 순수 피해, 증강 안 붙음
+                    float burnMul = GameBalance.AuraBurnIsDot ? AugmentManager.DotMul * ItemManager.DotMul : 1f;
+                    all[e].TakeTickDamage(3f * s.LevelMult * burnMul, true);
+                    if (GameBalance.AuraBurnIsDot) AugmentHooks.RegisterDot(all[e], 0.6f);
+                }
                 else if (r.passiveType == "auraSlow")
+                {
                     all[e].ApplySpeedDebuff(0.5f, 0.6f);
+                    if (GameBalance.TrainCcCounts) AugmentHooks.RegisterControl(all[e], 0.6f);   // v2.14: '느려진 손님' (사냥꾼의 본능 · 동상 파편)
+                }
                 else if (r.passiveType == "auraShred")
-                    all[e].ApplySpeedDebuff(0.85f, 0.6f); // 방깎/마깎은 5단계에서, 임시로 이속 감속
+                {
+                    // v2.14 (v9.35.2): 설명대로 방어·저항 깎기 1겹 (+ 깎기 증강). 예전: 임시로 이동 속도 -15%
+                    if (GameBalance.AuraShredReal)
+                    {
+                        all[e].ApplyShredDef(1 + AugmentManager.ShredAdd);
+                        all[e].ApplyShredRes(1 + AugmentManager.ShredAdd);
+                    }
+                    else all[e].ApplySpeedDebuff(0.85f, 0.6f);
+                }
             }
         }
     }
@@ -576,6 +593,7 @@ public class TurretSlotManager : MonoBehaviour
             {
                 all[e].TakeDamage(12f * mult);
                 all[e].ApplyStun(0.3f);
+                if (GameBalance.TrainCcCounts) AugmentHooks.RegisterControl(all[e], 0.3f);   // v2.14: '마비된 손님' (사냥꾼의 본능 · 동상 파편)
             }
         }
     }
@@ -825,12 +843,17 @@ public class TurretSlotManager : MonoBehaviour
 
         // 레벨은 완료 시점의 실제 레벨로 계산 (미니게임 중 동종 병합으로 올랐다면 반영). 기준 레벨 = FusionBaseLevel (미리보기 SlotMarkerUI 와 같은 셈 하나)
         int baseLevel = FusionBaseLevel(a.level, b.level);
-        bool masteryUp = FusionMasteryUp(fusion.recipeId);
-        int newLevel = baseLevel + bonusLevel + (masteryUp ? 1 : 0);
+        // v2.13 (v9.34): 레벨은 재료 레벨 그대로 (Lv2 + Lv2 = 전설 Lv2). 판정 보너스(bonusLevel > 0 = 판정이 좋았다)는 레벨 대신 그 전설 요리 몇 개 - 카드끼리 진화 조리와 같은 보너스. 숙련 +1 없음
+        bool keep = GameBalance.FusionKeepLevel;
+        bool sameLevel = a.level == b.level;   // 진화 전 재료 레벨 (아래 SetTurret·ClearSlot 뒤엔 바뀐다)
+        bool masteryUp = !keep && FusionMasteryUp(fusion.recipeId);
+        int levelBonus = keep ? 0 : bonusLevel;
+        int bonusDishes = keep && bonusLevel > 0 ? Mathf.Max(0, GameBalance.FusionBonusDishes) : 0;
+        int newLevel = baseLevel + levelBonus + (masteryUp ? 1 : 0);
 
         // v2.9: 결과 글에 레벨이 나온 까닭 (5차 피드백 2번 "2렙 2렙 합쳤는데 3렙" - 진화는 기준 레벨에 판정 보너스가 붙는 규칙인데 글에 없었다). 위 셈에 쓴 값 그대로
         string why = FusionBaseWord(a.level, b.level) + baseLevel
-            + (bonusLevel > 0 ? " + 판정 보너스 " + bonusLevel : "") + (masteryUp ? " + 숙련 1" : "");
+            + (levelBonus > 0 ? " + 판정 보너스 " + levelBonus : "") + (masteryUp ? " + 숙련 1" : "");
 
         // v2.6: 전설 상한 (보너스가 겹쳐도 넘지 않는다) + 폐기 환급용 접시 수 넘겨받기
         int fusionCap = TurretSlot.MaxLevelOf(fusion);
@@ -844,12 +867,17 @@ public class TurretSlotManager : MonoBehaviour
         // 도감 발견 처리 (수량 0으로 등록 - FoodStock.Add는 0이어도 발견 처리)
         if (FoodStock.Instance != null && !FoodStock.Instance.IsDiscovered(fusion.recipeId))
             FoodStock.Instance.Add(fusion.recipeId, 0);
+        // v2.13: 판정 보너스 요리 (하단 카드 - 이 포탑에 놓으면 레벨이 오르고, 빈 칸에 놓으면 새 포탑)
+        if (bonusDishes > 0 && FoodStock.Instance != null) FoodStock.Instance.Add(fusion.recipeId, bonusDishes);
 
+        // v2.13: 같은 레벨 그대로면 "= Lv2" 풀이는 군더더기 - 판정 보너스 요리만 덧붙인다 (레벨이 다른 채 진화한 경우·스위치를 끈 경우만 풀이)
+        string tail = keep && sameLevel && newLevel == baseLevel ? "" : " = " + why;   // 상한에 걸려 깎였으면 ", 최대 Lv" 풀이는 남긴다
+        if (bonusDishes > 0) tail += " + 이 요리 " + bonusDishes + "개 더";
         string msg;
         if (perfect)
-            msg = "완벽한 융합! " + fusion.displayName + " [전설] Lv" + newLevel + " = " + why;
+            msg = "완벽한 융합! " + fusion.displayName + " [전설] Lv" + newLevel + tail;
         else
-            msg = fusion.displayName + " [전설] 진화! Lv" + newLevel + " = " + why;
+            msg = fusion.displayName + " [전설] 진화! Lv" + newLevel + tail;
 
         UIManager.Instance?.ShowStatChange(msg);
         SoundManager.Play("sfx_fusion");   // v2.5: 전설 탄생 - 쇳물 붓는 소리

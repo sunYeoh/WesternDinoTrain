@@ -4,7 +4,7 @@ using UnityEngine;
 using TMPro;
 
 /// <summary>
-/// [BossPatterns.cs] v1.1 (v9.33 2026-10-25 소리: 눈사태 예고 울음 = 경고 버스 (울음이 경고 역할 - 한 번만), 눈사태·칸 분리 폭음 = 보스 버스 - SoundManager.PlayIn) / v1 (v9.23 2026-10-14 신규) - 보스 새 패턴. BossEnemy 의 나머지 반쪽이다 (partial class - BossEnemy.cs 와 같은 클래스)
+/// [BossPatterns.cs] v1.3 (v9.35.2 2026-10-26 숫자 원 글자는 TMPFontFixer.NewWorldText - 글꼴이 든 본을 복제 (TMP 기본 글꼴 경고 없이)) / v1.2 (v9.35.1 2026-10-26: 부관 무는 힘·삼단 도약 착지·측면 충돌 예고가 BossEnemy.BiteMul 하나를 쓴다 - 자리 배율(1지역 x2)과 하드 배율이 같이 걸린다) / v1.1 (v9.33 2026-10-25 소리: 눈사태 예고 울음 = 경고 버스 (울음이 경고 역할 - 한 번만), 눈사태·칸 분리 폭음 = 보스 버스 - SoundManager.PlayIn) / v1 (v9.23 2026-10-14 신규) - 보스 새 패턴. BossEnemy 의 나머지 반쪽이다 (partial class - BossEnemy.cs 와 같은 클래스)
 /// 스펙 = claude/보스개편_스펙_2026-10-07.md 3-1 ~ 3-4절. 값과 스위치 = GameBalance 맨 아래 v9.23 섹션 (BossNewPatterns = false 면 v9.22 까지의 보스)
 ///
 ///  녹슨 발톱  R1 부관 둘 (등장 전조 때 좌우에서 달려와 붙는다, 쓰러지면 왕이 울고 곧 호령) / R2 삼단 도약 (그림자 원 + 숫자 -> 북 남 북 착지) / R3 호령 -> 편성 (BossEnemy.PatternHowl)
@@ -335,7 +335,7 @@ public partial class BossEnemy
         scaledMaxHP = bossMaxHP;
         currentHP = Mathf.Min(currentHP, bossMaxHP);
         float hp = Mathf.Max(1f, bossMaxHP * GameBalance.RustLieutenantHPRatio);
-        float bite = scaledATK * GameBalance.BossMeleeMul * GameBalance.RustLieutenantBiteRatio;
+        float bite = scaledATK * BiteMul * GameBalance.RustLieutenantBiteRatio;   // v1.2: 왕과 같은 무는 힘 배율 (자리·하드)
         for (int i = 0; i < made.Count; i++)
         {
             Enemy e = made[i];
@@ -449,7 +449,7 @@ public partial class BossEnemy
         List<PatternMark> marks = new List<PatternMark>();
         for (int i = 0; i < spots.Count; i++)
             marks.Add(PatternMark.Ellipse(spots[i], BodyHalfLength() * 0.72f, halfW * 0.5f, LEAP_COL, marksLife, (i + 1).ToString()));
-        float dmgEach = scaledATK * GameBalance.BossMeleeMul * GameBalance.RustLeapDamageMul;
+        float dmgEach = scaledATK * BiteMul * GameBalance.RustLeapDamageMul;   // v1.2: 자리·하드 배율까지
         PreviewTrainDamage(dmgEach, leaps - (baitFirst ? 1 : 0), false, tele + leaps * (air + rest));
 
         yield return StartCoroutine(TelegraphFor("녹슨 발톱이 뛰어오른다. 놈이 숫자 순서대로 덮쳐", tele, false, null));
@@ -1010,7 +1010,7 @@ public partial class BossEnemy
         isLunging = true;
         float started = Time.time;
         Vector3 startPos = transform.position;
-        float dmg = scaledATK * GameBalance.BossMeleeMul * GameBalance.OrigRamDamageMul;
+        float dmg = scaledATK * BiteMul * GameBalance.OrigRamDamageMul;   // v1.2: 예고 바도 실제 피해(AttackTrain = BiteMul)와 같은 값
         float tele = Mathf.Max(0.1f, GameBalance.OrigRamTelegraphSec);
         PreviewTrainDamage(dmg, false, tele + 0.2f);
         SoundManager.Play("sfx_iron_groan", 0.7f, 0.05f);
@@ -1045,7 +1045,7 @@ public partial class BossEnemy
         if (IsAlive)
         {
             float keep = scaledATK;
-            scaledATK = keep * GameBalance.OrigRamDamageMul;   // AttackTrain 이 BossMeleeMul 을 곱한다
+            scaledATK = keep * GameBalance.OrigRamDamageMul;   // AttackTrain 이 BiteMul 을 곱한다
             AttackTrain();
             scaledATK = keep;
             GameFeel.Shake(GameBalance.ShakeBoss * 0.9f);
@@ -1595,10 +1595,8 @@ public partial class BossEnemy
             m.line.positionCount = SEG + 1;
             if (!string.IsNullOrEmpty(number))
             {
-                GameObject l = new GameObject("Label");
-                l.transform.SetParent(m.transform, false);
-                m.label = l.AddComponent<TextMeshPro>();
-                TMPFontFixer.Apply(m.label);
+                m.label = TMPFontFixer.NewWorldText("Label", Vector3.zero);   // v1.3: 글꼴이 든 본을 복제 (AddComponent 경고 없이)
+                m.label.transform.SetParent(m.transform, false);
                 m.label.text = number; m.label.fontSize = 9f; m.label.alignment = TextAlignmentOptions.Center;
                 m.label.fontStyle = FontStyles.Bold; m.label.sortingOrder = 58;
             }

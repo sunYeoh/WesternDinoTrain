@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// [PickupFX.cs] v1.1 (v9.23 2026-10-14: 폭식 조각은 디 오리지널의 입(BossEnemy.FeedPoint - 맨 뒤 화물칸)으로 빨려 들어간다. 먹힐 때 그 자리에 불티) / v1
+/// [PickupFX.cs] v1.2 (v9.35.2 2026-10-26 씬을 내릴 때(로비로 · 다시 하기) 같이 지워지는 조각은 재료를 주지 않는다 - 운행이 끝난 뒤 재료가 들어가 지워진 HUD 를 부르던 길 (Player.log 10-26 NullReference 의 시작, 리뷰)) / v1.1 (v9.23 2026-10-14: 폭식 조각은 디 오리지널의 입(BossEnemy.FeedPoint - 맨 뒤 화물칸)으로 빨려 들어간다. 먹힐 때 그 자리에 불티) / v1
 /// 적 처치 시 재료 조각이 튀어나와 기차로 빨려 들어가는 연출.
 /// 재료는 조각이 기차에 "도착하는 순간" 실제로 인벤토리에 들어간다.
 ///
@@ -135,6 +135,8 @@ public class PickupFX : MonoBehaviour
     /// <summary>혹시 수급 전에 파괴되면 재료는 보장 지급</summary>
     private void OnDestroy()
     {
+        // v1.2 (v9.35.2): 씬을 내리는 중이면 주지 않는다 (게임 중 Destroy 는 씬이 실린 채라 그대로 준다)
+        if (!gameObject.scene.isLoaded) return;
         if (!collected && MaterialInventory.Instance != null)
         {
             collected = true;

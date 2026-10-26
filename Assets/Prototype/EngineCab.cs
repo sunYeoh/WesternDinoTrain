@@ -4,7 +4,7 @@ using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 
 /// <summary>
-/// [EngineCab.cs] v4.5 (v9.31 2026-10-21 작살 바위 맵 밖: 바위가 카메라 왼쪽 끝 밖(GameBalance.RockOffscreenMargin)에서 생기고 오른쪽 끝 밖에서 사라진다 - 줌·보스전 줌·휠 줌아웃·카메라 위치를 그때그때 읽는다 (CamEdgeX). 전엔 x -20 / 16 고정. 견습 작살 카드의 SpawnRockNow(-13) 은 그대로) / v4.4 (v9.24 2026-10-15 갈림길 칸 꺾임: 작살포·레버 그림이 기관차 칸 자세를 따른다 - TrainDeck.RidePos 자리 + RideAngle 기울기 (레버 손잡이 ±25도·작살포 겨냥에 더한다)) / v4.3 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v4.2 (v9.18 2026-10-06, 10-05 그림 팩: 새 작살포 그림은 왼쪽을 보고 누워 있다 - 쏠 때 바위 쪽으로 돌았다가 0.6초에 제자리로, 빔은 촉 끝에서 / 작살포·레버 그림이 기관차 칸의 덜컹임을 따라간다) / v4.1 (v9.12 2026-09-22: 첫 바위 때 작살 인라인 연습 훅 / ForceCruise / 인라인 연습 중 작살 어그로 없음) / v4 (v9.9.2 2026-09-16: 견습 운행 8·9단계용 - HarpoonRetrievals/LeverPulls 카운터, RockCount, SpawnRockNow(x), TutorialDirector.EngineCabUnlocked 면 게이트 무시,
+/// [EngineCab.cs] v4.6 (v9.35.1 2026-10-26 유저 "작살 근처에서 [E] 표시가 안 나온다": 근접 안내 캔버스를 이 오브젝트(DontDestroyOnLoad) 밑에 - 씬 루트에 있어 씬을 다시 실을 때(견습 끝·런 포기·재출발) 같이 지워졌고 그 뒤 판부터 작살·레버 안내가 안 떴다. 그리는 순서 GameBalance.EngineCabHintSort 11 (HUD·슬롯 마커 띠 위). 씬이 바뀔 때 없으면 다시 만든다) / v4.5 (v9.31 2026-10-21 작살 바위 맵 밖: 바위가 카메라 왼쪽 끝 밖(GameBalance.RockOffscreenMargin)에서 생기고 오른쪽 끝 밖에서 사라진다 - 줌·보스전 줌·휠 줌아웃·카메라 위치를 그때그때 읽는다 (CamEdgeX). 전엔 x -20 / 16 고정. 견습 작살 카드의 SpawnRockNow(-13) 은 그대로) / v4.4 (v9.24 2026-10-15 갈림길 칸 꺾임: 작살포·레버 그림이 기관차 칸 자세를 따른다 - TrainDeck.RidePos 자리 + RideAngle 기울기 (레버 손잡이 ±25도·작살포 겨냥에 더한다)) / v4.3 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v4.2 (v9.18 2026-10-06, 10-05 그림 팩: 새 작살포 그림은 왼쪽을 보고 누워 있다 - 쏠 때 바위 쪽으로 돌았다가 0.6초에 제자리로, 빔은 촉 끝에서 / 작살포·레버 그림이 기관차 칸의 덜컹임을 따라간다) / v4.1 (v9.12 2026-09-22: 첫 바위 때 작살 인라인 연습 훅 / ForceCruise / 인라인 연습 중 작살 어그로 없음) / v4 (v9.9.2 2026-09-16: 견습 운행 8·9단계용 - HarpoonRetrievals/LeverPulls 카운터, RockCount, SpawnRockNow(x), TutorialDirector.EngineCabUnlocked 면 게이트 무시,
 ///   견습 중엔 작살 어그로 없음, 작살·레버 기둥 z -0.02 (튜토리얼 발밑 링이 그 밑에 깔리게)) / v3.1 (교수 피드백 A10: 열람 패널 중 레버/작살 입력 차단 2026-09-14) / v3 - B-3: 기관차 칸 = 기관사 페르소나 (방향결정 2026-08-31)
 ///
 /// - v3 (고퀄 PNG 적용 2026-09-03): 작살포/레버/바위가 Resources/Sprites/WDT/ 의 harpoon / leverpost / leverhandle /
@@ -127,6 +127,9 @@ public class EngineCab : MonoBehaviour
         chefTransform = null;
         if (leverHandle != null)
             leverHandle.localEulerAngles = new Vector3(0f, 0f, 25f);
+        if (hintCanvas == null) BuildHints();   // v4.6 (v9.35.1): 방어 - 안내 캔버스는 이 오브젝트 밑이라 안 지워지지만, 무엇이 지웠어도 다시 만든다
+        if (harpoonHint != null) harpoonHint.gameObject.SetActive(false);   // v4.6: 이제 씬을 넘어 남으니, 켜진 채 넘어온 안내는 끈다 (다음 프레임 TickHints 가 다시 정한다)
+        if (leverHint != null) leverHint.gameObject.SetActive(false);
     }
 
     // ─────────────────────────────────────────────
@@ -225,7 +228,10 @@ public class EngineCab : MonoBehaviour
     /// <summary>근접 힌트 라벨 2개 (SlotMarkerUI와 같은 화면 추종 방식)</summary>
     private void BuildHints()
     {
-        hintCanvas = UIFactory.CreateCanvas("EngineCab_Canvas", 8);   // 슬롯 마커(9)보다 아래
+        // v4.6 (v9.35.1): 이 오브젝트(DontDestroyOnLoad) 밑에 둔다. 예전엔 씬 루트라 씬을 다시 실을 때(견습 끝·런 포기·재출발) 같이 지워져 그 뒤 판부터 안내가 안 떴다.
+        //   그리는 순서는 HUD(10)·슬롯 마커의 투입 안내 띠(9) 위 - 작살·레버 앞에 섰을 때만 뜨는 안내라 가려지면 안 된다 (예전 8)
+        hintCanvas = UIFactory.CreateCanvas("EngineCab_Canvas", GameBalance.EngineCabHintSort);
+        hintCanvas.transform.SetParent(transform, false);
         harpoonHint = UIFactory.CreateText(hintCanvas.transform, "HarpoonHint", "", 16,
             new Color(0.95f, 0.9f, 0.8f), TextAnchor.MiddleCenter);
         harpoonHint.rectTransform.sizeDelta = new Vector2(240f, 44f);

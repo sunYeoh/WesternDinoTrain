@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [InfusingMinigame.cs] v1.3 (v9.22 2026-10-14 조작 팩 3-1: 화면을 조리 미니게임 그림으로 - 리벳 카드 + 황동 명판 / 1판 = 석쇠(ui_mg_grate)·판정 구간(ui_mg_zone 초록·황금)·꼬치 커서(ui_mg_cursor)·불꽃 띠 / 2판 = 눕힌 압력계(ui_gauge_bg·fill)·초록 구간·바늘·솥 엠블럼 / 오른쪽 위 고기 칩 2개 = 몇 판째. 판 자리·크기·판정·점수는 그대로. GameBalance.InfuseCookLook + UISkin + ui_mg_* 가 있을 때만, 아니면 v9.21.1 판) / v1.2 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v1.1 (v9.21.1 2026-10-13 4차 피드백 1·2·4번: 라운드마다 "읽을 시간"(커서 정지, [Space] 로 바로 시작) + 2라운드에 바늘을 그린다(구간 안이면 금색 - 예전엔 채움 바 끝이 바늘이라 뭘 어디에 두라는지 몰랐다) + 안내를 한 줄씩 크게 + 판 560x260 /
+/// [InfusingMinigame.cs] v1.4 (v9.34 2026-10-25: 포탑 진화의 보너스 글 = "요리 +1" - 레벨은 재료 그대로 (GameBalance.FusionKeepLevel) / 안내 끝맺음을 반말 해체로 ("두어라" -> "둬", "된다" -> "돼")) / v1.3 (v9.22 2026-10-14 조작 팩 3-1: 화면을 조리 미니게임 그림으로 - 리벳 카드 + 황동 명판 / 1판 = 석쇠(ui_mg_grate)·판정 구간(ui_mg_zone 초록·황금)·꼬치 커서(ui_mg_cursor)·불꽃 띠 / 2판 = 눕힌 압력계(ui_gauge_bg·fill)·초록 구간·바늘·솥 엠블럼 / 오른쪽 위 고기 칩 2개 = 몇 판째. 판 자리·크기·판정·점수는 그대로. GameBalance.InfuseCookLook + UISkin + ui_mg_* 가 있을 때만, 아니면 v9.21.1 판) / v1.2 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v1.1 (v9.21.1 2026-10-13 4차 피드백 1·2·4번: 라운드마다 "읽을 시간"(커서 정지, [Space] 로 바로 시작) + 2라운드에 바늘을 그린다(구간 안이면 금색 - 예전엔 채움 바 끝이 바늘이라 뭘 어디에 두라는지 몰랐다) + 안내를 한 줄씩 크게 + 판 560x260 /
 ///   접시 합성도 같은 미니게임(BeginForStock - 끝나면 CookingBridge.CompleteStockFusion, 보너스 = 접시 +1) / 창이 떠 있으면 보류(CookingMinigame.WindowOpen)) /
 /// v1 (신규 파일) - P1: T2 인퓨징 미니게임 (감사 1-A 처방 2)
 ///
@@ -12,7 +12,7 @@ using UnityEngine.UI;
 /// 흐름: 다른 T1 포탑 2개 합체 시도 -> 이 미니게임 자동 시작 (TurretSlotManager가 호출)
 ///  - 1라운드 [정수 추출] : 굽기 문법 - 타이밍 바 1회 (Space/클릭)
 ///  - 2라운드 [융합 안정화]: 끓이기 문법 - 움직이는 존에 게이지 유지 (Space 홀드)
-///  - 판정 합계(라운드당 PERFECT 2 / Good 1)가 기준 이상이면 T2가 +1레벨로 탄생
+///  - 판정 합계(라운드당 PERFECT 2 / Good 1)가 기준 이상이면 보너스 - v1.4: 그 전설 요리 1개 (레벨은 재료 그대로. FusionKeepLevel 을 끄면 예전처럼 T2 가 +1레벨로 탄생)
 ///  - 실패해도 진화는 성공 (보너스만 없음 - 벌점 없음, 도파민 보존)
 ///  - ESC = 인퓨징 중단 (포탑 2개 그대로, 아무 일 없음)
 ///
@@ -325,13 +325,14 @@ public class InfusingMinigame : MonoBehaviour
     /// <summary>v1.1: 안내 한 줄씩 크게 (무엇을 언제 누르나) + 둘째 줄에 점수와 보너스 규칙</summary>
     private void SetPhaseInfo()
     {
-        string bonusWord = stockMode ? "요리 +" + GameBalance.InfuseStockBonusPlates : "Lv+" + GameBalance.InfuseBonusLevel;
+        string bonusWord = stockMode ? "요리 +" + GameBalance.InfuseStockBonusPlates
+            : GameBalance.FusionKeepLevel ? "요리 +" + GameBalance.FusionBonusDishes : "Lv+" + GameBalance.InfuseBonusLevel;   // v1.4: 포탑 진화도 레벨 대신 요리
         if (phase == 0)
             infoText.text = "1/2 굽기 - 꼬치가 가운데 올 때 [Space]";
         else if (phase == 1)
-            infoText.text = "2/2 끓이기 - [Space] 꾹 = 바늘 오른쪽, 떼면 왼쪽. 흰 구간 안에 두어라";
+            infoText.text = "2/2 끓이기 - [Space] 꾹 = 바늘 오른쪽, 떼면 왼쪽. 흰 구간 안에 둬";
         else
-            infoText.text = "합계 " + score + "점" + (score >= GameBalance.InfuseBonusScoreNeed ? " - 잘 익었다! " + bonusWord : " - 진화는 된다 (보너스 없음)");
+            infoText.text = "합계 " + score + "점" + (score >= GameBalance.InfuseBonusScoreNeed ? " - 잘 익었다! " + bonusWord : " - 진화는 돼 (보너스 없음)");
         if (subText != null)
             subText.text = phase < 2 ? "지금 " + score + "점 / " + GameBalance.InfuseBonusScoreNeed + "점 이상이면 " + bonusWord + "  ·  [ESC] 그만두기 (잃는 것 없음)" : "";
     }

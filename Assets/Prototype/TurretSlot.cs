@@ -1,7 +1,8 @@
 using UnityEngine;
 
 /// <summary>
-/// [TurretSlot.cs] v6.17 (v9.25 2026-10-16 B5 싸움 유물: 공격속도 x ItemManager.AspdMul (녹슨 탄창·무거운 냄비 - 증강 공격속도 상한과 따로), 사거리 x ItemManager.RangeMul (녹슨 탄창)) / v6.16 (v9.24 2026-10-15 갈림길 칸 꺾임: 포탑 그림 자리를 TrainDeck.RidePos 로 - 덜컹임 + 칸 꺾임. 돌리지는 않는다 (받침·돔은 둥글고, 포신 겨냥이 칸 기울기에 끌려가지 않게). 슬롯 자리·판정은 그대로) / v6.15 (v9.23 2026-10-14 보스 새 패턴: 동면자의 백야의 입김을 맞은 칸이면 발사가 느려진다 (BossEnemy.FrostFireMulAt) / ShotDamage - 지금 한 발의 피해 어림 (천둥 둥지의 알 HP 를 포탑 몇 발로 맞춘다) / 포신은 손님의 AimPoint 를 겨눈다 (디 오리지널 약점 칸)) / v6.14 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v6.13 (v9.18 2026-10-06: 들어간 접시 수(platesTotal) -> 폐기 환급 ScrapRefund = 접시 x 0.5 (무한 제작 루프 차단) / 과열은 조건이 된 포탑 중 무작위(TurretSlotManager 가 고른다 - OverheatReady·TriggerOverheat) / 포탑 그림 높이 TurretVisualDY + 칸 덜컹임 따라가기 / 피해 출처 표시(TurretAttackExecutor.CurrentSource) / 견습 운행에선 숙련 시작 레벨 특전 없음) /
+/// [TurretSlot.cs] v6.20 (v9.35.2 2026-10-26 부채꼴 포탑(부채꼴 요리 · 산탄 셰프로 바뀐 단일 요리 - TurretAttackExecutor.FiresCone)은 불길이 닿는 거리 GameBalance.ConeReach 에서 ConeAimMargin 안쪽 손님만 노린다 - 예전엔 20 거리 손님을 겨누고 7 까지만 뿜어 헛방) / v6.19 (v9.35 2026-10-25 레벨 상한 80: 하드 운행의 최대 레벨 + 명성 상점 '화덕 증축' (MetaProgress.HardLevelCapBonus) /
+///   등급 글자·과열 임계·그림 크기는 옛 Lv1~6 폭으로 (GameBalance.LegacyLevelOf - Lv80 = 옛 Lv6: 등급 B 10 · A 29 · S 61 부터, 그림은 Lv44 에 다 자란다)) / v6.18 (v9.34 2026-10-25 유저 "왜 1레벨이 아니라 2레벨로 시작하지 - 버그면 1레벨로": 새 포탑은 늘 Lv1 - 숙련 50회 '장인의 감각'·증강 '선대의 기본기'의 시작 레벨 +1 을 뗐다 (알림 없이 붙던 보너스. GameBalance.StartLevelBonusOn)) / v6.17 (v9.25 2026-10-16 B5 싸움 유물: 공격속도 x ItemManager.AspdMul (녹슨 탄창·무거운 냄비 - 증강 공격속도 상한과 따로), 사거리 x ItemManager.RangeMul (녹슨 탄창)) / v6.16 (v9.24 2026-10-15 갈림길 칸 꺾임: 포탑 그림 자리를 TrainDeck.RidePos 로 - 덜컹임 + 칸 꺾임. 돌리지는 않는다 (받침·돔은 둥글고, 포신 겨냥이 칸 기울기에 끌려가지 않게). 슬롯 자리·판정은 그대로) / v6.15 (v9.23 2026-10-14 보스 새 패턴: 동면자의 백야의 입김을 맞은 칸이면 발사가 느려진다 (BossEnemy.FrostFireMulAt) / ShotDamage - 지금 한 발의 피해 어림 (천둥 둥지의 알 HP 를 포탑 몇 발로 맞춘다) / 포신은 손님의 AimPoint 를 겨눈다 (디 오리지널 약점 칸)) / v6.14 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v6.13 (v9.18 2026-10-06: 들어간 접시 수(platesTotal) -> 폐기 환급 ScrapRefund = 접시 x 0.5 (무한 제작 루프 차단) / 과열은 조건이 된 포탑 중 무작위(TurretSlotManager 가 고른다 - OverheatReady·TriggerOverheat) / 포탑 그림 높이 TurretVisualDY + 칸 덜컹임 따라가기 / 피해 출처 표시(TurretAttackExecutor.CurrentSource) / 견습 운행에선 숙련 시작 레벨 특전 없음) /
 /// v6.12 (v9.17 2026-10-06 화면 손맛 2차 A8: 발사 순간 PlayFireFeel - 포신이 표적을 바로 겨누고 포탑이 1.06배에서 제자리로 + 포신 끝 섬광(MuzzlePool), 전설은 크게 + 작은 링 / 투입 튀기가 끝나면 1.0 이 아니라 레벨 배율로 돌아온다 - 레벨이 올라도 포탑이 안 커지던 것) / v6.11 (v9.16 2026-09-29 손맛 2차 - 소리: 마비 소리는 StunSlot 이 종류별로 낸다(감전 sfx_stun / 빙결 sfx_freeze / 과열 sfx_overheat - 호출부의 과열음 제거) / 저절로 식으면 sfx_cool / 투입 sfx_insert(접시 쌓기는 작게)·레벨업 sfx_levelup / 파손 sfx_break) / v6.10 (v9.15.1 2026-09-29: 마지막 식사 장면 동안 사격 정지 BossEnemy.LastSupperServing) / v6.9 (v9.15 2026-09-29 2차 피드백: 레벨 상한 해제 - 접시 곡선(platesIn / GameBalance.PlatesToNext)·레벨 체감(GameBalance.LevelMultOf) / 마비 방치 파손(StunBreakSec - 경고 뒤 요리 소실 + 슬롯 봉인, isBroken / BreakWarning / Repair)) / v6.8 (v9.14 2026-09-28 테스터 반영: 레벨 상한 T1 3 / T2 6 (MaxLevelOf·AtMaxLevel), 전설 요리 공격력 x T2DamageMul, 표적 고르기에서 곧 죽을 손님 건너뜀(IncomingDamage)) / v6.7 (v9.12 2026-09-22: TutorialDirector.InlineFreeze 동안 사격 정지) / v6.6 (v9.11.1 2026-09-22 문구: 과열 복구법) / v6.5 (v9.11 2026-09-22 타격감: 투입·레벨업 때 접시 낙하 + 링 + "배치!/Lv N" 팝 + 포탑 1.25배 튀기 - GameBalance.CookFeelOn) / v6.4 (v9.9.2 2026-09-16: 마비 FX - 감전·빙결 = 스파크 3점(ui_ev_spark_0/1 교대, 빙결은 얼음색), 과열 = 연기(ui_ev_smoke_0/1). GameBalance.TurretStunFx) / v6.3 (v9.9 2026-09-16: 남쪽 슬롯 포신 기본 방향 -90 = 남쪽 - 4모서리 배치) / v6.2 (런 통계: 과열 횟수·정지 시간 2026-09-14) / v6.1 (교수 피드백 반영 2026-09-14) / v6 (고퀄 PNG 적용 2026-09-03)
 /// 포탑 슬롯 1개. 요리를 투입하면 포탑으로 가동한다.
 /// - v6.2 변경점 (스위치 실험 지표 - 반영계획 §5 관찰 시트):
@@ -158,10 +159,26 @@ public class TurretSlot : MonoBehaviour
 
     public bool IsEmpty { get { return string.IsNullOrEmpty(recipeId); } }
 
-    // 레벨 배율: v6.9 부터 GameBalance.LevelMultOf (Lv3 까지 +0.6, 그 뒤 +0.35 - 계속 세지되 체감. 구: 1 + 0.6 * (Lv-1))
+    // 레벨 배율: v6.9 부터 GameBalance.LevelMultOf (Lv3 까지 +0.6, 그 뒤 +0.35 - 계속 세지되 체감. 구: 1 + 0.6 * (Lv-1)). v6.19 (v9.35): 정식 운행은 레벨 80 곡선
     public float LevelMult
     {
-        get { return level <= 0 ? 1f : GameBalance.LevelMultOf(level); }
+        get
+        {
+            if (level <= 0) return 1f;
+            // 견습 운행·훈련장은 옛 곡선 (그쪽 손님도 예전 값 TutorialEnemy* 이고, 카드 단계가 그 숫자로 맞춰져 있다)
+            if (TutorialDirector.Active || TutorialDirector.SandboxActive) return GameBalance.LegacyLevelMultOf(level);
+            return GameBalance.LevelMultOf(level);
+        }
+    }
+
+    /// <summary>v6.19 (v9.35): 이 레벨이 옛 곡선(Lv1~6)에서 몇 레벨인가 (소수, 6 까지) - 등급 글자·과열 임계·그림 크기가 쓴다. 견습 운행·훈련장은 옛 곡선이라 레벨 그대로</summary>
+    private float LegacyLevel
+    {
+        get
+        {
+            float lv = TutorialDirector.Active || TutorialDirector.SandboxActive ? Mathf.Max(1, level) : GameBalance.LegacyLevelOf(level);
+            return Mathf.Min(lv, GameBalance.LegacyTopLevel);   // Lv80 을 넘어도(하드 화덕 증축) 옛 Lv6 에서 멈춘다 - 과열이 산 단계의 벌이 되지 않게
+        }
     }
 
     /// <summary>
@@ -188,11 +205,17 @@ public class TurretSlot : MonoBehaviour
     public static int MaxLevelOf(RecipeData r)
     {
         if (r == null) return 0;
-        if (r.tier >= 2) return GameBalance.T2MaxLevel;
+        // v6.19 (v9.35): 견습 운행·훈련장은 옛 상한 (그쪽은 옛 곡선 - LevelMult. 옛 곡선에 80 을 주면 Lv80 x29)
+        if (TutorialDirector.Active || TutorialDirector.SandboxActive)
+            return r.tier >= 2 ? GameBalance.TutorialT2MaxLevel : GameBalance.TutorialT1MaxLevel;
+        int cap;
+        if (r.tier >= 2) cap = GameBalance.T2MaxLevel;
         // v6.13: 증강 '선대의 기본기'(전설 진화 봉인)를 골랐으면 기본 요리가 더 높이 오른다 - 진화 길이 막힌 채 Lv3 에서 멈추면 고를 이유가 없다
-        if (GameBalance.T1MaxLevel > 0 && AugmentManager.BasicsDoctrine)
-            return Mathf.Max(GameBalance.T1MaxLevel, GameBalance.BasicsT1MaxLevel);
-        return GameBalance.T1MaxLevel;
+        else if (GameBalance.T1MaxLevel > 0 && AugmentManager.BasicsDoctrine) cap = Mathf.Max(GameBalance.T1MaxLevel, GameBalance.BasicsT1MaxLevel);
+        else cap = GameBalance.T1MaxLevel;
+        // v6.19 (v9.35): 하드 운행이면 명성 상점 '화덕 증축' 단계만큼 더 (상한 없음 0 은 그대로)
+        if (cap > 0 && HardMode.Active) cap += MetaProgress.HardLevelCapBonus;
+        return cap;
     }
 
     /// <summary>v6.8: 상한에 닿았나 (이름표 "Lv3 (최대)" 표시용)</summary>
@@ -206,9 +229,10 @@ public class TurretSlot : MonoBehaviour
     {
         get
         {
-            if (level >= 5) return "S";
-            if (level >= 3) return "A";
-            if (level >= 2) return "B";
+            float lv = LegacyLevel;   // v6.19: 옛 Lv1~6 폭 (Lv80 = 옛 6)
+            if (lv >= 5f) return "S";
+            if (lv >= 3f) return "A";
+            if (lv >= 2f) return "B";
             return "C";
         }
     }
@@ -273,20 +297,22 @@ public class TurretSlot : MonoBehaviour
         }
         else { platesIn = 0; platesTotal = 1; }   // v6.13: 새 포탑 = 접시 1장
 
+        string gradeBefore = wasEmpty ? "" : GradeName;   // v6.19 (v9.35): 등급이 바뀌는 레벨업만 크게 (요리 하나 = 레벨 하나라 매번 크게 하면 시끄럽다)
         recipeId = id;
         level += 1;
 
         // P1+: 요리 숙련 '장인의 감각'(50회) - 빈 슬롯에 새로 배치할 때 시작 레벨 +1
         // v6.13: 견습 운행에서는 끈다 - 안내는 "Lv1 에 한 접시 더 = Lv2" 인데 넣기도 전에 Lv2 로 서 있었다 (자유 연습은 그대로)
         bool tutorialPlain = GameBalance.TutorialFixedRules && TutorialDirector.Active && !TutorialDirector.SandboxActive;
-        if (wasEmpty && !tutorialPlain && MetaProgress.GetMasteryTier(id) >= GameBalance.MasteryStartLevelTier)
+        // v6.18 (v9.34): 새 포탑은 늘 Lv1 (GameBalance.StartLevelBonusOn false) - 숙련의 공격·판정 보너스는 그대로
+        if (GameBalance.StartLevelBonusOn && wasEmpty && !tutorialPlain && MetaProgress.GetMasteryTier(id) >= GameBalance.MasteryStartLevelTier)
         {
             level += 1;
             Debug.Log("[TurretSlot] 장인의 감각 - " + r.displayName + " 시작 Lv" + level);
         }
 
         // Phase 2-3 증강 '선대의 기본기': T1 새 배치 시작 레벨 +1 (숙련 보너스와 중첩 가능)
-        if (wasEmpty && AugmentManager.BasicsDoctrine && r.tier == 1)
+        if (GameBalance.StartLevelBonusOn && wasEmpty && AugmentManager.BasicsDoctrine && r.tier == 1)   // v6.18: 위와 같이 끔 (기본기의 피해 +65% 는 그대로)
         {
             level += 1;
             Debug.Log("[TurretSlot] 선대의 기본기 - " + r.displayName + " 시작 Lv" + level);
@@ -297,7 +323,9 @@ public class TurretSlot : MonoBehaviour
 
         LastInsertTime = Time.time;
         Debug.Log("[TurretSlot] " + r.displayName + " 투입! " + GradeName + "등급 Lv" + level);
-        PlayInsertFeel(r, wasEmpty);   // v6.5
+        bool bigLevelUp = !wasEmpty && (!GameBalance.LevelCurve80On || TutorialDirector.Active || TutorialDirector.SandboxActive
+            || GradeName != gradeBefore || AtMaxLevel);   // v6.19: 옛 곡선(견습)은 예전처럼 매번
+        PlayInsertFeel(r, wasEmpty, bigLevelUp);   // v6.5
         return true;
     }
 
@@ -330,18 +358,27 @@ public class TurretSlot : MonoBehaviour
         if (legend) WorldFeel.Ring(muzzle, c, 0.3f, 0.12f);
     }
 
-    /// <summary>투입·레벨업 연출: 접시 낙하 -> 링 -> "배치!" 또는 "Lv N" 팝 -> 포탑 1.25배에서 제자리</summary>
-    private void PlayInsertFeel(RecipeData r, bool wasEmpty)
+    /// <summary>투입·레벨업 연출: 접시 낙하 -> 링 -> "배치!" 또는 "Lv N" 팝 -> 포탑 1.25배에서 제자리.
+    /// v6.19 (v9.35): 요리 하나 = 레벨 하나라 보통 레벨업은 작게 (투입음 + 접시 + 작은 "Lv N" - 예전 접시 쌓기만큼), 크게(big)는 등급이 바뀔 때(B 10 · A 29 · S 61)와 최대에 닿을 때만
+    /// (상승음 + 링 + 튀기 + "Lv29 · A등급" / "Lv80 최대"). 견습 운행(옛 곡선)은 예전처럼 매번 크게</summary>
+    private void PlayInsertFeel(RecipeData r, bool wasEmpty, bool big)
     {
-        // v6.11: 배치 = 쇠 접시 "탁" / 레벨업 = 투입음 + 상승음 (연출 스위치와 무관하게 난다)
+        // v6.11: 배치 = 쇠 접시 "탁" / 레벨업 = 투입음 + 상승음 (연출 스위치와 무관하게 난다). v6.19: 상승음은 큰 레벨업만
         SoundManager.Play("sfx_insert");
-        if (!wasEmpty) SoundManager.PlayDelayed("sfx_levelup", 0.12f);
+        if (!wasEmpty && big) SoundManager.PlayDelayed("sfx_levelup", 0.12f);
         if (!GameBalance.CookFeelOn || GameBalance.GameFeelMaster <= 0f) return;
         Color c = UIFactory.TagColor(r.tag);
         Vector3 pos = transform.position;
         WorldFeel.PlateDrop(pos, c);
+        if (!wasEmpty && !big)
+        {
+            WorldFeel.TextPop(pos + Vector3.up * 0.45f, "Lv" + level, new Color(0.95f, 0.85f, 0.6f), 2.6f);   // 보통 레벨업 = 예전 접시 쌓기 글 크기
+            return;
+        }
         WorldFeel.Ring(pos, c, 0.75f, 0.28f);
-        WorldFeel.TextPop(pos + Vector3.up * 0.45f, wasEmpty ? "배치!" : "Lv" + level, new Color(1f, 0.88f, 0.45f), 3.2f);
+        bool newCurve = GameBalance.LevelCurve80On && !TutorialDirector.Active && !TutorialDirector.SandboxActive;
+        string word = wasEmpty ? "배치!" : !newCurve ? "Lv" + level : AtMaxLevel ? "Lv" + level + " 최대" : "Lv" + level + " · " + GradeName + "등급";
+        WorldFeel.TextPop(pos + Vector3.up * 0.45f, word, new Color(1f, 0.88f, 0.45f), 3.2f);
         popT = 0f;
     }
 
@@ -541,7 +578,7 @@ public class TurretSlot : MonoBehaviour
             if (overheatThreshold <= 0)
             {
                 int rolled = Random.Range(GameBalance.OverheatShotsMin, GameBalance.OverheatShotsMax + 1)
-                    - (level - 1) * GameBalance.OverheatPerLevel;
+                    - Mathf.RoundToInt((LegacyLevel - 1f) * GameBalance.OverheatPerLevel);   // v6.19: 옛 Lv1~6 폭 (Lv80 = 옛 Lv6 만큼 빨리)
                 // v6.1 (B2 실험): 발사 간격으로 보정하면 연사 포탑과 중포의 "시간당" 과열 빈도가 같아진다
                 if (GameBalance.OverheatTimeNormalized && r.cooldown > 0f)
                     rolled = Mathf.RoundToInt(rolled * Mathf.Clamp(1f / r.cooldown, 0.5f, 3f));
@@ -598,6 +635,9 @@ public class TurretSlot : MonoBehaviour
         // 플레이테스트 픽스: 사거리는 GameBalance.TurretRange가 단일 소스 (구 15는 4칸
         // 기차에서 반대편을 무는 적이 사각에 들어갔다 - targetRange 필드는 무시)
         float range = GameBalance.TurretRange * AugmentManager.RangeMul * ItemManager.RangeMul;   // v6.17: 유물 사거리 (녹슨 탄창)
+        // v6.20 (v9.35.2): 부채꼴은 불길이 닿는 거리 안의 손님만 노린다 (먼 손님을 노리면 헛방 - 쿨다운만 날린다)
+        if (GameBalance.ConeAimWithinReach && TurretAttackExecutor.FiresCone(Recipe))
+            range = Mathf.Min(range, Mathf.Max(1f, GameBalance.ConeReach - GameBalance.ConeAimMargin));
 
         // v6.1 (B5 실험): 힐러(네크로)·서포터(파라사우)·자폭(플라이)이 사거리 안에 있으면 먼저 노린다
         // - "힐러부터 잡아라"가 설명이 아니라 실제 조작 결과가 되게. 그 밖의 표적은 최근접
@@ -880,7 +920,7 @@ public class TurretSlot : MonoBehaviour
         bool tier2 = r != null && r.tier >= 2;
 
         // 레벨이 오를수록 조금씩 커진다 (C 1.0 ~ S급 언저리 1.27)
-        float grow = Mathf.Min(1.27f, 1f + 0.09f * (level - 1));
+        float grow = Mathf.Min(1.27f, 1f + 0.09f * (LegacyLevel - 1f));   // v6.19: 옛 Lv1~6 폭 (Lv44 쯤 다 자란다)
         visualGrow = grow;   // v6.12
         visualRoot.localScale = new Vector3(grow, grow, 1f);
 

@@ -3,7 +3,8 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// [FameShopUI.cs] v1.9 (v9.23 2026-10-14 요구사항 점검 1절 3번 (08-21 결정 4-A): 맨 아래 잠긴 줄 "심장이 아직 기억해내지 못한 것들" - 기차 실루엣 칸 + ??? 칸 (살 수 없다, 다음에 올 것의 자리). 줄 간격 82 -> 70 · 줄 높이 72 -> 64 로 줄여 패널 크기 그대로. GameBalance.FameShopSilhouette) / v1.8 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v1.7 (v9.18 2026-10-06: UI 배율 1.2 에서 결과 화면의 대사 띠와 패널 윗부분이 겹치던 것 - 패널·재출발 버튼을 모자란 여백만큼 내린다) / v1.6 (v9.17 2026-10-06 화면 손맛 2차 - 결과 화면: 운행이 끝나 열리면 머리글이 결과("기차가 멈췄다" / "종착역 도착!")로 바뀌고, 보유 명성이 이번 운행 몫만큼 세어 올라가고(C5), 상품 줄이 위에서부터 하나씩 나타난다(D4). 열릴 때 판 팝. 재출발은 검정 페이드 뒤(D6)) / v1.5 (v9.15.1 2026-09-29 스토리 개정: 재출발 버튼 "다시 굽는다" -> "다시 출발한다 - 비상 복구 끝" (셰프 재생 설정 삭제)) / v1.4 (v9.14 2026-09-28: 명성 사용처 "출발 증강" 줄 추가, 패널 680) / v1.3 (2026-09-14: 런 종료 화면에 이번 런 통계 한 줄) / v1.2 (즉시 재출발 버튼) / v1
+/// [FameShopUI.cs] v1.11 (v9.35 2026-10-25 유저 "하드모드에는 새로운 명성상점 같은 거 도입해서 조금씩 포탑레벨제한을 올려도": 하드가 열리면 맨 아래 잠긴 줄 자리에 '화덕 증축' -
+///   하드 운행의 포탑 최대 레벨 +20 씩 4단계 (80 -> 160), 값 300 / 600 / 900 / 1200 명성. 붉은 줄. GameBalance.HardShopOn·HardCap*) / v1.10 (v9.34 2026-10-25: 로비에서 펼친 상점은 [ESC] 로도 접는다 - 예전엔 ESC 에 일시정지 창이 대신 열렸다 (PauseMenu 가 LobbyOpen 을 본다). 결과 화면(패배·승리)의 상점은 결과 화면이라 그대로) / v1.9 (v9.23 2026-10-14 요구사항 점검 1절 3번 (08-21 결정 4-A): 맨 아래 잠긴 줄 "심장이 아직 기억해내지 못한 것들" - 기차 실루엣 칸 + ??? 칸 (살 수 없다, 다음에 올 것의 자리). 줄 간격 82 -> 70 · 줄 높이 72 -> 64 로 줄여 패널 크기 그대로. GameBalance.FameShopSilhouette) / v1.8 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v1.7 (v9.18 2026-10-06: UI 배율 1.2 에서 결과 화면의 대사 띠와 패널 윗부분이 겹치던 것 - 패널·재출발 버튼을 모자란 여백만큼 내린다) / v1.6 (v9.17 2026-10-06 화면 손맛 2차 - 결과 화면: 운행이 끝나 열리면 머리글이 결과("기차가 멈췄다" / "종착역 도착!")로 바뀌고, 보유 명성이 이번 운행 몫만큼 세어 올라가고(C5), 상품 줄이 위에서부터 하나씩 나타난다(D4). 열릴 때 판 팝. 재출발은 검정 페이드 뒤(D6)) / v1.5 (v9.15.1 2026-09-29 스토리 개정: 재출발 버튼 "다시 굽는다" -> "다시 출발한다 - 비상 복구 끝" (셰프 재생 설정 삭제)) / v1.4 (v9.14 2026-09-28: 명성 사용처 "출발 증강" 줄 추가, 패널 680) / v1.3 (2026-09-14: 런 종료 화면에 이번 런 통계 한 줄) / v1.2 (즉시 재출발 버튼) / v1
 /// 명성 상점 - 런 사이(로비/게임오버)에 명성을 소모해 영구 업그레이드를 사는 UI.
 ///
 /// - v1.3 변경점 (스위치 실험 관찰 시트): 게임오버/승리로 열렸을 때 보유 명성 줄 아래에
@@ -27,6 +28,12 @@ public class FameShopUI : MonoBehaviour
 {
     public static bool IsOpen { get; private set; }
 
+    /// <summary>v1.10 (v9.34): 로비에서 펼쳐져 있나 (결과 화면 상점은 아니다) - PauseMenu 가 이때 ESC 로 일시정지를 열지 않는다</summary>
+    public static bool LobbyOpen
+    {
+        get { return IsOpen && GameManager.Instance != null && GameManager.Instance.currentState == GameManager.GameState.Lobby; }
+    }
+
     // ─────────────────────────────────────────────
     // 상품 정의
     // 가격은 baseCost * (현재레벨 + 1) - 레벨이 오를수록 비싸진다
@@ -38,6 +45,7 @@ public class FameShopUI : MonoBehaviour
         public string desc;      // 효과 설명
         public int baseCost;     // 1레벨 가격
         public int maxLevel;     // 최대 레벨
+        public bool hardOnly;    // v1.11: 하드가 열린 뒤에만 보이는 줄 (화덕 증축 - 잠긴 줄 자리)
 
         public ShopItem(string id, string itemName, string desc, int baseCost, int maxLevel)
         {
@@ -64,6 +72,9 @@ public class FameShopUI : MonoBehaviour
     private bool fameCountWanted = false;
     private Text runText;      // v1.3: 이번 런 통계 (게임오버/승리에서만 내용 있음)
     private Text[] levelTexts;
+    private Text[] descTexts;            // v1.11: 줄 설명 (화덕 증축은 단계마다 글이 바뀐다)
+    private int hardIndex = -1;          // v1.11: 화덕 증축 줄 번호 (없으면 -1)
+    private RectTransform lockedRow;     // v1.11: 잠긴 줄 - 화덕 증축이 보이면 숨는다 (같은 자리)
     private Text[] buyLabels;
     private Button[] buyButtons;
     private GameObject restartButtonGo;   // v1.2: [다시 굽는다] - 게임오버/승리 시에만 표시
@@ -98,6 +109,14 @@ public class FameShopUI : MonoBehaviour
             new ShopItem("judge", "셰프의 감각",   "조리에서 맞춰야 하는 구간 +4% (다음 운행에도)",     150, 3),
             new ShopItem("augment", "출발 증강",   "운행을 시작할 때 은 증강을 하나 고른다 (매 운행)", GameBalance.FameStartAugmentCost, 1),   // v1.4 (v9.14): 명성 사용처
         };
+        // v1.11 (v9.35): 하드 명성 상점 '화덕 증축' - 맨 끝에 (BuildUI 가 잠긴 줄 자리에 놓고, Refresh 가 하드가 열렸을 때만 보인다)
+        if (GameBalance.HardShopOn)
+        {
+            ShopItem hard = new ShopItem("hardcap", "화덕 증축", HardCapDesc(0), Mathf.Max(1, GameBalance.HardCapCost), Mathf.Max(1, GameBalance.HardCapMaxSteps));
+            hard.hardOnly = true;
+            System.Array.Resize(ref items, items.Length + 1);
+            items[items.Length - 1] = hard;
+        }
 
         BuildUI();
         root.SetActive(false);
@@ -138,6 +157,15 @@ public class FameShopUI : MonoBehaviour
         // M 키로 접기/펼치기
         if (allowed && Input.GetKeyDown(KeyCode.M))
             userCollapsed = !userCollapsed;
+
+        // v1.10 (v9.34): 로비에서는 [ESC] 로도 접는다. 같은 프레임에 다른 창이 ESC 를 먼저 썼거나(공용 스탬프) 위에 다른 창(일시정지·설정·일지·훈련장·도감)이 떠 있으면 양보 - 한 번 누르면 하나만 닫힌다
+        if (allowed && !userCollapsed && GameManager.Instance.currentState == GameManager.GameState.Lobby
+            && Input.GetKeyDown(KeyCode.Escape) && CookingMinigame.EscConsumedFrame != Time.frameCount
+            && !LobbyUI.EscTakenAbove && !LobbyUI.CollectionOpen)
+        {
+            userCollapsed = true;
+            CookingMinigame.EscConsumedFrame = Time.frameCount;
+        }
 
         bool shouldShow = allowed && !userCollapsed;
         if (root.activeSelf != shouldShow)
@@ -231,7 +259,18 @@ public class FameShopUI : MonoBehaviour
                     if (rows[i] != null) CardFeel.Group(rows[i]).alpha = 1f;
             return;
         }
-        if (rows != null) CardFeel.StaggerIn(rows, GameBalance.ShopRowStaggerSec);
+        if (rows != null)
+        {
+            // v1.11: 꺼진 줄(하드 전의 화덕 증축 / 하드 뒤의 잠긴 줄)은 순차 등장에서 빼고 알파만 돌려 둔다 - 켜진 줄 사이에 빈 박자가 없게
+            System.Collections.Generic.List<RectTransform> shown = new System.Collections.Generic.List<RectTransform>();
+            for (int i = 0; i < rows.Length; i++)
+            {
+                if (rows[i] == null) continue;
+                if (rows[i].gameObject.activeSelf) shown.Add(rows[i]);
+                else CardFeel.Group(rows[i]).alpha = 1f;
+            }
+            CardFeel.StaggerIn(shown, GameBalance.ShopRowStaggerSec);
+        }
         if (fameCountWanted && MetaProgress.Fame == fameTo) fameCountT = 0f;
     }
 
@@ -309,27 +348,30 @@ public class FameShopUI : MonoBehaviour
         // 상품 목록
         int count = items.Length;
         levelTexts = new Text[count];
+        descTexts = new Text[count];   // v1.11
         buyLabels = new Text[count];
         buyButtons = new Button[count];
         rows = new RectTransform[count];   // v1.6
 
         // v1.9: 잠긴 줄이 들어갈 자리 - 줄 간격·높이를 줄여 패널 크기를 그대로 둔다 (첫 줄 윗변 168, 잠긴 줄 아랫변 -316 = 예전 마지막 줄 아랫변)
         bool silhouette = GameBalance.FameShopSilhouette;
-        float rowY = silhouette ? 136f : 130f;
-        float rowStep = silhouette ? 70f : 82f, rowH = silhouette ? 64f : 72f;
+        bool compact = silhouette || HasHardRow();   // v1.11: 화덕 증축 줄도 같은 일곱째 자리를 쓴다
+        float rowY = compact ? 136f : 130f;
+        float rowStep = compact ? 70f : 82f, rowH = compact ? 64f : 72f;
         for (int i = 0; i < count; i++)
         {
             // 클로저 캡처용 지역 변수 (for 변수 직접 캡처 금지)
             int index = i;
 
             RectTransform row = KitchenEventManager.MakeBox(panel, "Row_" + items[i].id,
-                new Color(0.16f, 0.13f, 0.1f, 0.9f));
+                items[i].hardOnly ? new Color(0.24f, 0.09f, 0.06f, 0.92f) : new Color(0.16f, 0.13f, 0.1f, 0.9f));   // v1.11: 화덕 증축 = 붉은 줄 (하드)
             row.anchorMin = new Vector2(0.5f, 0.5f);
             row.anchorMax = new Vector2(0.5f, 0.5f);
             row.pivot = new Vector2(0.5f, 0.5f);
             row.anchoredPosition = new Vector2(0f, rowY);
             row.sizeDelta = new Vector2(800f, rowH);
-            rowY -= rowStep;
+            if (items[i].hardOnly) hardIndex = i;   // v1.11: 화덕 증축은 잠긴 줄 자리 (맨 끝이라 아래 잠긴 줄과 같은 y) - 다음 줄로 안 내려간다
+            else rowY -= rowStep;
             rows[i] = row;
 
             // 이름 (좌측 상단)
@@ -347,6 +389,7 @@ public class FameShopUI : MonoBehaviour
             Text descText = KitchenEventManager.MakeText(row, "Desc", items[i].desc, 18,
                 new Color(0.75f, 0.72f, 0.65f));
             descText.alignment = TextAnchor.MiddleLeft;
+            descTexts[i] = descText;   // v1.11
             RectTransform dRt = descText.rectTransform;
             dRt.anchorMin = new Vector2(0f, 0.5f);
             dRt.anchorMax = new Vector2(0f, 0.5f);
@@ -375,6 +418,7 @@ public class FameShopUI : MonoBehaviour
         {
             // v1.9: 잠긴 줄도 운행 끝 연출(줄이 위에서부터 하나씩)에 같이 - 맨 끝에
             RectTransform locked = BuildLockedRow(panel, rowY, rowH);
+            lockedRow = locked;   // v1.11: 화덕 증축이 보이면 숨긴다 (Refresh)
             System.Array.Resize(ref rows, rows.Length + 1);
             rows[rows.Length - 1] = locked;
         }
@@ -455,6 +499,26 @@ public class FameShopUI : MonoBehaviour
         return row;
     }
 
+    /// <summary>v1.11: 화덕 증축 줄이 있나 (Start 가 items 에 넣었나 - BuildUI 의 줄 간격이 이걸 본다)</summary>
+    private bool HasHardRow()
+    {
+        for (int i = 0; i < items.Length; i++) if (items[i].hardOnly) return true;
+        return false;
+    }
+
+    /// <summary>v1.11: 화덕 증축 설명 - 지금 단계의 하드 포탑 최대 레벨 -> 다음 단계 (다 사면 지금 값만). 기본·전설 상한이 다르면 "+N" 으로</summary>
+    private static string HardCapDesc(int level)
+    {
+        int step = GameBalance.HardCapStep;
+        bool maxed = level >= GameBalance.HardCapMaxSteps;
+        if (GameBalance.T1MaxLevel == GameBalance.T2MaxLevel && GameBalance.T2MaxLevel > 0)
+        {
+            int now = GameBalance.T2MaxLevel + level * step;
+            return "하드에서 포탑 최대 레벨 " + now + (maxed ? "" : " -> " + (now + step));
+        }
+        return "하드에서 포탑 최대 레벨 +" + (level * step) + (maxed ? "" : " -> +" + ((level + 1) * step));
+    }
+
     /// <summary>상단에 가로로 붙는 텍스트 배치 헬퍼</summary>
     private void SetTopStretch(RectTransform rt, float y, float height)
     {
@@ -498,11 +562,19 @@ public class FameShopUI : MonoBehaviour
         if (runText != null)
             runText.text = runEnded ? "이번 운행:  " + MetaProgress.RunStatsLine() : "";
 
+        // v1.11 (v9.35): 화덕 증축 줄은 하드가 열린 뒤에만 - 같은 자리의 잠긴 줄과 번갈아 (둘 중 하나만 보인다)
+        bool hardShown = hardIndex >= 0 && HardMode.Unlocked;
+        if (hardIndex >= 0 && rows != null && rows[hardIndex] != null && rows[hardIndex].gameObject.activeSelf != hardShown)
+            rows[hardIndex].gameObject.SetActive(hardShown);
+        if (lockedRow != null && lockedRow.gameObject.activeSelf == hardShown)
+            lockedRow.gameObject.SetActive(!hardShown);
+
         for (int i = 0; i < items.Length; i++)
         {
             int level = MetaProgress.UpgradeLevel(items[i].id);
             bool maxed = level >= items[i].maxLevel;
             levelTexts[i].text = "Lv." + level + " / " + items[i].maxLevel;
+            if (items[i].hardOnly && descTexts != null && descTexts[i] != null) descTexts[i].text = HardCapDesc(level);   // v1.11: 단계마다 글
 
             if (maxed)
             {
