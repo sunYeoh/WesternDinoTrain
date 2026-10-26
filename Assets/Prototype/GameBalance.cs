@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// [GameBalance.cs] v9.35.2 (2026-10-26 설명·밸런스 표: 맨 아래 v9.35.2 섹션 - 장판 4초 · 독 장판 · 오라 불 = 화상 · 부식의 정수 깎기 · 깎기 겹 상한 · 부채꼴 조준 · 왕 미끼 3초 · 증강 카드 아래 줄) / v9.35.1 (2026-10-26 버그·첫 보스: 맨 아래 v9.35.1 섹션 - 작살·레버 안내 순서 EngineCabHintSort / 지역 보스 무는 힘 BossBiteStageMul, 지역 1 보스 HP BossHPStageMul 4 -> 6) / v9.35 (2026-10-25 성장·구조: 지역 8 -> 5 웨이브 (보스 5·10·15, 최종전 16) - 세기·수급은 옛 25웨이브 자 EqWave·WaveWorth 로 그대로 / 레벨 상한 80 LevelCurve80On (Lv80 = 옛 Lv6) /
+/// [GameBalance.cs] v9.35.3 (2026-10-26 피드백: 맨 아래 v9.35.3 섹션 - 견습 팬·솥 재료 · 부채꼴 몸 판정 · 부식 · 오라 범위 · 목표 카드 자리 · 이름표 줌) / v9.35.2 (2026-10-26 설명·밸런스 표: 맨 아래 v9.35.2 섹션 - 장판 4초 · 독 장판 · 오라 불 = 화상 · 부식의 정수 깎기 · 깎기 겹 상한 · 부채꼴 조준 · 왕 미끼 3초 · 증강 카드 아래 줄) / v9.35.1 (2026-10-26 버그·첫 보스: 맨 아래 v9.35.1 섹션 - 작살·레버 안내 순서 EngineCabHintSort / 지역 보스 무는 힘 BossBiteStageMul, 지역 1 보스 HP BossHPStageMul 4 -> 6) / v9.35 (2026-10-25 성장·구조: 지역 8 -> 5 웨이브 (보스 5·10·15, 최종전 16) - 세기·수급은 옛 25웨이브 자 EqWave·WaveWorth 로 그대로 / 레벨 상한 80 LevelCurve80On (Lv80 = 옛 Lv6) /
 ///   하드 = 손님이 웨이브마다 곱으로 HardEnemyHpGrowth·AtkGrowth / 하드 명성 상점 화덕 증축 HardCap*) / v9.34 (2026-10-25 규칙·편의: 단골 주문이 정차에 안 끊김 OrderKeepThroughStops / 진화 = 재료 레벨 그대로 FusionKeepLevel·FusionBonusDishes / 새 포탑은 늘 Lv1 StartLevelBonusOn) / v9.33 (2026-10-25 소리 팩: 효과음 버스 예산·경고 덕킹·피치 - Sound*, 배경음을 맵·보스·정차마다 - Music*) / v9.32 (2026-10-22 노선: 1·2·3 지역 자리에 맵(사막·협곡·광산)을 무작위로 - MapShuffle*, 맵마다 제 손님만, 세기는 자리를 따라 지금보다 조금 더 - MapStatNorm*·MapStronger*, 보스 HP 배율은 자리 - BossHpByStage, 맵 그림 자리 - MapGround*·MapDeco*. 낙뢰는 맵 AmbientLightningMap) / v9.31 (2026-10-21 급식 조리: 지역 2 부터 2인분 · 지역 3 부터 3인분 - 재료를 인분만큼 넣고 요리도 인분만큼, 대신 불이 세다 (Batch*) / 작살 바위는 카메라 밖에서 생기고 사라진다 (RockOffscreenMargin)) / v9.30 (2026-10-21 포탑 칸: 시작 BaseSlotCount 6 -> 4, 지역 보스를 잡을 때마다 하나씩 BossSlotUnlockMax 2 - 유저 "합성·스왑이 되니 초반 칸이 많이 필요 없다") / v9.29 (2026-10-21 손맛 3차 - 나중 디테일: 맨 아래 v9.29 섹션 - 유물 상자 열림·날아가기 LootOpenFx·LootOpenSec·LootFlySec / 크리 처치 히트스탑 CritKillHitstopSec·Gap / 관통 잔광 BeamAfterglow·BeamGlow* / 연쇄 2중 줄 LightningDouble) / v9.28 (2026-10-20 하드 모드 = 2회차: 맨 아래 v9.28 섹션 - HardModeOn / 손님 HardEnemyHpMul·AtkMul·DefMul / 머릿수 HardCountMul / 보스 HardBossHpMul·MeleeMul / 사고 HardEventIntervalMul·FailMul / 수급 HardKillGoldMul·MaterialMul / 기차 HardTrainHpMul / 주문 HardOrderTimeMul / 명성 HardFameMul·HardClearFame. 쓰는 쪽은 HardMode.Mul) / v9.27 (2026-10-20 튜토리얼 개편: 맨 아래 v9.27 섹션 - 견습 과열 TutorialOverheatOn / 주문 TutorialOrderOn·TutorialOrderSec / 사고 제한 시간 TutorialEventTimeMul / 실전 한도 TutorialDefenseSec / 예습 처치 한도 TutorialBossKillSec / 예습 보스 무방비 BossPracticeGroggy / 새 빌드 첫 실행 기록 리셋 FreshRecordsOnNewBuild · 빌드 F4 ResetKeyInBuild) / v9.26 (2026-10-16 마감 정리: 꺼 둔 값을 지금 값으로 굳히고 지웠다 - 편성 이름 줄 FormationLineShows · 예고 화살표 SpawnCueSec · 주방 창 KitchenMaterialFirst · KitchenTabKey · KitchenFuseTab. 동작 변경 없음) / v9.25 (2026-10-16 밸런스·성장 - claude/테스터피드백5_2026-10-16.md 의 v9.25 스펙 표: 맨 아래 v9.25 섹션. 증강 덧셈 AugmentLinear / 지역 곡선 RegionCurveOn·RegionHpMul·RegionAtkMul·BossHpCurveMul / 단골 주문 OrderOn·OrderFirstWave·OrderDelaySec·OrderCount·OrderTimeSec·OrderBuffPct·OrderBuffSec·OrderGold / 싸움 유물 RelicCombatSet (B2 손님 입맛은 뺐다 - 09-29 "센 빌드를 틀어막지 말고 밸런스로")) / v9.24.1 (2026-10-16 5차 피드백 픽스 - claude/테스터피드백5_2026-10-16.md: 맨 아래 v9.24.1 섹션. 합체 넘침 = 요리로 돌려받기 MergeOverflowRefund / 탄이 손님을 따라간다 ProjectileHoming · ProjectileMaxFlight, 대체 표적 반경 3 -> 4 / 공속 증강 점증 없음 AugmentNoEscalate · 합계 상한 AugmentAspdCap / 주방 사고 위치 먼저 EventLocationFirst) / v9.24 (2026-10-15 클라이맥스·갈림길 - 테스터피드백3 B·D 스펙 표: 맨 아래 v9.24 섹션. 갈림길 = 칸이 선로를 따라 꺾임 ForkCarFollow·회전 ForkCarRotate·손님 대기 ForkHoldOn·출발 가속 ForkDepartBoost·덜컹 소리 / 클라이맥스 = ClimaxOn - 숨(히트스톱·흰 번쩍·음악 끊김) -> 다음 박에 BGM 층 -> 기적·전조등·배경 가속·호박색 -> 처치에 끊김. 지역 보스 발악은 가벼운 층만 ClimaxLiteOn) / v9.23 (2026-10-14 보스 새 패턴 - 보스개편 스펙 3-1 ~ 3-4절 + B2 피해 예고 바 + 기차 HP 위기 표시 + 명성 상점 실루엣: 맨 아래 v9.23 섹션. 패턴마다 스위치가 있다 - 하나가 이상하면 그것만 끈다. BossNewPatterns = false 면 v9.22 까지의 보스) / v9.22.1 (2026-10-14 유저 확인 7번 "판 앞에 멈춰 있는 게 더 불편": 진화 조리 읽을 시간 InfuseReadSec 1.0 -> 0 - 안내는 커서가 움직이는 채로 읽는다) / v9.22 (2026-10-14 조작 팩 - 4차 피드백 5·6번 + 1번의 화면: 맨 아래 v9.22 섹션 - 카드 끌어다 놓기 교체 DragReplaceOn / 카드 위 카드 진화 조리 DragFuseOn / 재료 중심 조리대 창 KitchenMaterialFirst / Tab 키 KitchenTabKey false / 합성 탭 KitchenFuseTab false / 진화 조리 화면 InfuseCookLook) / v9.21.1 (2026-10-13 4차 피드백 픽스: 창이 떠 있는 동안 조리·진화 조리 보류 CookHoldWhileWindow / 진화 조리 읽을 시간 InfuseReadSec / 접시 합성도 진화 조리 InfuseStockOn·InfuseStockBonusPlates / 골드 소수 누적 GoldCarryOn / 수급 SwarmRewardMul 1.3 -> 1.0 · KillMaterialChance 0.6 -> 0.5) / v9.21 (2026-10-12 보스 1단계 큰 몸 - 보스개편 스펙 1·4·5절: 맨 아래 v9.21 섹션 - 보스전 카메라 BossCam* / 새 크기 BossBodyLen·Wide (그림을 맞춘다) / 서는 자리 BossStandOff 새 값·BossStandX / 등장 연출 2판 BossEntranceV2·BossEntranceSec / 이름판 BossNamePlateBottom / 등장 때 대응법 줄 BossEntranceLine / 미끼 때 제자리 BossHoldWhenTaunted) / v9.20 (2026-10-07 유저 "패턴이 눈에 안 띔": 보스 패턴의 준비·발동·결과를 몸과 전장에 그린다 BossPatternFxOn·BossCastSwell·BossReleaseSquash·BossLunge*·BossBite* / 부른 무리는 보스 등 뒤에서 BossSummonBehind·SpreadX·StatMul·Share, HowlSummonCount 5 -> 10 · OriginalRoarCount 4 -> 10) / v9.19.4 (2026-10-07 유저 "포탑 설명이 너무 길다 - 필요한 것만 남기고 폰트를 키워라": 포탑 정보창 글자 크기 SlotInfoFontSize·TitleSize·HintSize, 조작 줄 SlotInfoShowControls) / v9.19.3 (2026-10-07 유저 확인 "체력 회복 증강을 먹으니 HP 가 거의 90% 넘게 남는다": 타격당 회복을 1초에 LifestealHitsPerSec 번까지만 센다) / v9.19.2 (2026-10-07 유저 확인 뒤: 머릿수를 늘린 손님을 약하게 하지 않는다 - GroupPower* 삭제, 크기별 HP 배율 TierHpMul*·초반 배율 EarlyBodyStart·보상 SwarmRewardMul / 손님 전체 강화 EnemyHPMul 1.3·EnemyATKMul 1.2·EnemyDefMul 1.2 (견습 운행은 TutorialEnemy* 로 예전 값) / 기차 방어력 바닥 TrainDefFloor / 보스 HP 종류별 배율 BossHPKindMul / 편성 이름 줄·방향 예고 화살표 끔 FormationLineShows 0·SpawnCueSec 0) / v9.19.1 (2026-10-07 유저 소감: 스폰 테두리가 보이는 화면을 따라간다 SpawnEdgeFollowView·ViewMargin·BossSpawnExtra / 머릿수 대폭 증가 CountMulSmall·Mid·Big + GroupPower* + FormationSizeMul - SwarmCountMul 을 대신한다) / v9.19 (2026-10-06 웨이브 편성·보스 페이즈 모습: 맨 아래 v9.19 섹션 - 편성 스위치·풀리는 웨이브·예고 시간·조각 사이 쉼·스폰 테두리·작은 손님 머릿수·호위 행렬 / 보스 상태 그림·전환 순간·상태 유지 효과·알림 자리) / v9.18 (2026-10-06 테스터 피드백 3 - 버그·밸런스·새 기차 그림: 맨 아래 v9.18 섹션 - 보행 바닥 표 / 슬롯·꼬리 좌표 / 레벨 상한 복구 / 같은 레벨끼리만 진화 / 폐기 환급 / 사고 실패 피해 / 과열 무작위 / 칸 덜컹임 / 보스 그림·HP 바·등장 띠 / UI 배율) / v9.17 (2026-10-06 화면 손맛 2차: 맨 아래 v9.17 섹션 - 발사 반동·섬광 / 데미지 숫자 크기·합산 / 넉백 / 셰프 찌그러짐 / HUD 수치 / 카드 순차 등장·퇴장 / 보스 등장·처치 / 패배·승리 순서 / 장면 전환 / 알림 중복) / v9.16 (2026-09-29 소리 v2: BuildTag 만 - 소리 표는 SoundManager 에) / v9.15.1 (2026-09-29 스토리 개정 스위치: 최종전 베팅 없음·스피노 고백 카드·마지막 식사 장면 시간) / v9.15 (2026-09-29 2차 피드백: 레벨 상한 해제 -> 접시 곡선·레벨 체감·저항 표시 / 훈련장 반복·자유 연습 / 드래그 투입 / 사고 해결 연출 / 포탑 파손 / HUD 재배치 / 설정창) / v9.12 (2026-09-22 튜토리얼 구간화·인라인 연습·협곡 낙뢰·미니 보스 예습 섹션 추가) / v1 (v9.11 2026-09-22: 타격감 섹션 - 피격 플래시·찌그러짐·스파크·킬 버스트·기차 피격·버튼·모달·웨이브 띠 스위치 / v9.10.1 2026-09-21: 유저 플레이 소감 섹션 - 웨이브 물량·길이, 정차 조리 제한, 행상인 자동 퇴장, 처치 보상 배율 / v9.9 2026-09-16: 포탑 4모서리 배치 SlotPosition + 견습 운행/브리핑 스위치 섹션)
 /// 게임 전체 밸런스 수치를 한 곳에 모은 설정 파일.
 ///
@@ -1187,7 +1187,7 @@ public static class GameBalance
 
     // ── (v9.13.1 2026-09-24) 3인 테스트 준비 ──
     /// <summary>빌드 표시 - 로비 오른쪽 아래에 찍힌다 (테스터 시트에 어느 빌드였는지 적기 위해). 팩마다 올린다</summary>
-    public const string BuildTag = "v9.35.2 (2026-10-26)";   // v9.35.2: 증강 설명 · 장판·오라가 설명대로 · 왕은 미끼 3초 / v9.35.1: 작살 안내 · 불 그림 · 첫 보스 강화 / v9.35: 5웨이브마다 보스 · 레벨 상한 80 · 하드 지수 성장 · 화덕 증축 / v9.34: 주문 이어가기 · ESC · 진화 레벨 그대로 · 새 포탑 Lv1 / v9.33: 소리 팩 (맵·보스·정차 배경음 + 효과음 새로) / v9.32: 노선 무작위 + 맵마다 제 손님 / v9.31: 급식 조리 + 바위 맵 밖 / v9.30: 포탑 칸 4 로 시작, 보스마다 하나 / v9.29: 손맛 3차 - 유물 상자 연출·크리 히트스탑·잔광 / v9.28: 하드 모드 (2회차) / v9.27: 견습 8구간 13카드 (요리 심화·주방 사고 새로) / v9.26: 마감 정리 (안 쓰는 코드·파일 정리 - 동작 변경 없음) / v9.25: 밸런스·성장 / v9.20: 보스 패턴이 화면에서 보인다 + 화살표 글자 / v9.19.4: 포탑 정보창을 네 줄로 + 글자 크게 / v9.19.3: 타격당 회복 증강은 1초에 한 번만 / v9.19.2: 손님이 제 힘으로 + 전체 강화 / 예고 화살표·편성 이름 줄 끔
+    public const string BuildTag = "v9.35.5 (2026-10-26)";   // v9.35.5: 증강 카드 글 짧게 / v9.35.4: 맵 그림·소품 · 피해 숫자 글씨 / v9.35.3: 견습 팬·솥 · 부채꼴 헛방 · 부식의 정수 · UI 글씨 / v9.35.2: 증강 설명 · 장판·오라가 설명대로 · 왕은 미끼 3초 / v9.35.1: 작살 안내 · 불 그림 · 첫 보스 강화 / v9.35: 5웨이브마다 보스 · 레벨 상한 80 · 하드 지수 성장 · 화덕 증축 / v9.34: 주문 이어가기 · ESC · 진화 레벨 그대로 · 새 포탑 Lv1 / v9.33: 소리 팩 (맵·보스·정차 배경음 + 효과음 새로) / v9.32: 노선 무작위 + 맵마다 제 손님 / v9.31: 급식 조리 + 바위 맵 밖 / v9.30: 포탑 칸 4 로 시작, 보스마다 하나 / v9.29: 손맛 3차 - 유물 상자 연출·크리 히트스탑·잔광 / v9.28: 하드 모드 (2회차) / v9.27: 견습 8구간 13카드 (요리 심화·주방 사고 새로) / v9.26: 마감 정리 (안 쓰는 코드·파일 정리 - 동작 변경 없음) / v9.25: 밸런스·성장 / v9.20: 보스 패턴이 화면에서 보인다 + 화살표 글자 / v9.19.4: 포탑 정보창을 네 줄로 + 글자 크게 / v9.19.3: 타격당 회복 증강은 1초에 한 번만 / v9.19.2: 손님이 제 힘으로 + 전체 강화 / 예고 화살표·편성 이름 줄 끔
 
     // ── (v9.14 2026-09-28) 3인 테스트 반영 1차 - 버그·밸런스·읽기 ──
     // ── 포탑 (테스터 "더블 육포만 올려도 됨 / 전설이 더 약함 / 하나 점사하면 나머지가 빗나감") ──
@@ -2004,7 +2004,7 @@ public static class GameBalance
     /// <summary>맵 그림: Resources/Sprites/WDT/ground_(desert·canyon·mine·final).png 가 있으면 지역이 바뀔 때 이만큼(초) 겹치며 바뀐다 (그 그림엔 지역 색을 안 입힌다). 없으면 ground_ae + 지역 색 그대로</summary>
     public static float MapGroundFadeSec = 1.2f;
     /// <summary>소품: deco_(맵)_1 ~ 6.png 를 땅 한 장(32 x 32u)에 몇 개 (0 = 안 깐다). 기차가 달리는 선로(월드 y 0)와 보스전 두 번째 선로의 위아래 MapDecoClearY(u) 안에 든 소품은 숨긴다 (갈림길에서 땅이 세로로 밀려도)</summary>
-    public static int MapDecoPerTile = 4;
+    public static int MapDecoPerTile = 9;   // v9.35.4: 4 -> 9 (칸 16개 중 9개 - 화면(30u 폭, 선로 띠 밖)에 두셋 보인다). 유저 "맵만 계속 나오면 단조롭다"
     public static float MapDecoClearY = 3.5f;
 
     // ── (v9.33 2026-10-25) 소리 팩 - 유저 제작 오디오 (WDT_world_audio_2026-10-22) + 그 팩의 음악_전환과_재생규칙.md · routing_manifest.json. SoundManager v3 · SoundMix · tools/audio_v933.py ──
@@ -2126,4 +2126,50 @@ public static class GameBalance
     public static bool BaitKingShort { get { return BaitBossLureSec > 0f && BaitBossLureSec < BaitDurationPerfect; } }
     /// <summary>증강 카드 맨 아래 "[지금 내 포탑 중 n기에 걸린다]" 줄 (AugmentTargets.Note). false = 줄 없음</summary>
     public static bool AugmentTargetNoteOn = true;
+
+    // ── (v9.35.3 2026-10-26) 피드백 - 유저 10-26 16:36: 견습 팬·솥에서 막힘 / 부식의 정수 "그래도 좀 작아" / 부채꼴 헛방 "그럴 때가 있고 안 그럴 때가 있다" ──
+    /// <summary>견습 카드 5 (팬과 솥): 시작할 때 쓰는 재료(전기알 · 등심 · 독샘)를 이만큼까지 채운다. 카드가 떠 있는 동안 TutorialCookMatFloor 아래로 떨어지면
+    /// 조리 창이 열려 있어도 다시 이만큼 (창도 새로 그린다). 예전: 2개씩, 창이 닫혀 있을 때만 채워 다른 요리를 만들면 막혔다</summary>
+    public static int TutorialCookMats = 4;
+    public static int TutorialCookMatFloor = 2;
+    /// <summary>견습 카드 5: 할 일과 다른 요리를 이만큼 만들면 할 일 요리를 하나 만들어 주고 넘긴다 (실패 3회 출구와 같은 모양).
+    /// 재료는 넉넉 모드가 채워 마르지 않으니, 남은 막힘 길은 '계속 다른 요리만 나온다' 뿐이다. 0 = 끔 (계속 기다린다)</summary>
+    public static int TutorialWrongDishGift = 4;
+    /// <summary>주방 창이 열려 있으면 견습 목표 카드를 창 안 오른쪽 아래 빈 자리로 옮기고 키를 글에 맞춘다 (6번째 재료·미리보기를 가리던 것 - UI 목업 v1 의 1).
+    /// false = 예전 (우상단 그대로)</summary>
+    public static bool TutorialCardInKitchen = true;
+    /// <summary>부채꼴 판정을 손님 몸까지 (Enemy.BodyDistanceFrom - 손님은 그림 크기의 BodyRadiusFill 배, 보스는 몸 사각형).
+    /// 예전엔 손님 한가운데 점이 7 안이고 26도 안이어야 맞아, 불길이 몸에 닿아 보이는데 숫자가 안 뜨는 손님이 있었다. false = 예전</summary>
+    public static bool ConeHitsBody = true;
+    public static float BodyRadiusFill = 0.6f;      // 그림 반 크기(짧은 쪽) x 이것 = 몸 반경 (그림 둘레의 빈 칸을 빼고)
+    public static float BodyRadiusDefault = 0.35f;  // 그림을 아직 못 잰 손님 (스폰 직후)
+    /// <summary>부식의 정수 오라 안 손님은 '부식' - 포탑에 직접 맞는 피해 x (1 + 이것). 화상·독(지속 피해)은 그대로. 숫자가 연두색.
+    /// 예전: 방어·저항 깎기뿐이라 방어 0 인 손님(랩터 등)에겐 아무 일도 없었다 ("그래도 좀 작아"). 0 = 예전</summary>
+    public static float CorrodeVulnBonus = 0.2f;
+    /// <summary>오라 셋(화염 방벽 · 빙벽 스튜 · 부식의 정수)의 범위를 기차 몸(선로 방향 선분)에서 AuraReach 안으로.
+    /// 예전: 기차 가운데(0,0)에서 10 - 기차는 -6.5 ~ 11.5 라 오른쪽 끝(포탑 B 칸)을 무는 손님엔 안 닿았다. 덮는 넓이는 비슷 (예전 314 / 지금 329). false = 예전</summary>
+    public static bool AuraFromTrainBody = true;
+    public static float AuraReach = 6f;
+    /// <summary>카메라가 기본 줌보다 이만큼 이상 멀어지면 (기본 줌 / 지금 줌 이 이 값 아래) 포탑 이름표를 칸 폭에 맞춰 줄인다 - 이름 한 줄 + 레벨 (UI 목업 v1 의 2)</summary>
+    public static float SlotTagCompactBelow = 0.92f;
+    /// <summary>잠긴 칸 이름표를 작은 "잠김" 표로 (무엇으로 열리나는 마우스를 올리면). false = 예전 ("잠김 (보스 잡으면)" 큰 표)</summary>
+    public static bool LockedTagSmall = true;
+    /// <summary>칼·팬 상태가 이 % 아래일 때만 좌상단에 주황 안내 줄 ("칼이 무뎌졌어 - ... 정비소 [G]"). 0 = 예전 (회색 줄 늘 표시)</summary>
+    public static float ToolHintBelow = 50f;
+
+    // ── (v9.35.4 2026-10-26) 맵 그림·소품 (유저 그림 WDT_map_ground · WDT_map_props 10-25) + 피해 숫자 글씨 - 유저 10-26 19:10 "작다는 말이 폰트였어 - 눈에 잘 안 들어오네" ──
+    /// <summary>소품을 땅 한 장(32u)을 MapDecoGrid x MapDecoGrid 칸으로 나눠 한 칸에 하나씩 (섞은 칸 중 앞 MapDecoPerTile 개). 뭉치거나 비는 데가 없다. false = 예전 (아무 데나)</summary>
+    public static bool MapDecoStratified = true;
+    public static int MapDecoGrid = 4;
+    /// <summary>맵 그림 땅(ground_(맵))을 열마다 좌우로 뒤집어 깐다 - 32u 마다 같은 무늬가 지나가는 게 덜 보인다 (가장자리는 거울이라 이음은 그대로 맞는다). 예전 모래(ground_ae)엔 안 한다.
+    /// 상하 뒤집기는 안 한다 - 줄마다 다르면 갈림길에서 땅이 세로로 감기는 순간 화면이 펄럭이고, 열마다 다르면 옆 이음이 안 맞는다. 거울 무늬가 눈에 띄면 false</summary>
+    public static bool MapGroundFlipVariants = true;
+    /// <summary>피해 숫자 크기 (TMP 월드 글자, 예전 3.5 - 저항 숫자는 3). 0 = 예전</summary>
+    public static float DmgPopupFontSize = 4.4f;
+    /// <summary>피해 숫자 어두운 외곽선 = 같은 글을 어둡게 부풀린 뒷판 (SDF _FaceDilate 0 ~ 1, 0.7 = 화면에서 2px 쯤 - 글자 크기에 비례). 0 = 없음 (예전).
+    /// 0.7 이 사실상 상한 - 크리(굵게)는 굵기 몫이 더 붙어 글꼴 패딩(9)에 딱 찬다. 더 두껍게 하려면 TMPFontFixer 의 패딩을 늘려야 한다.
+    /// 셰이더 키워드(OUTLINE_ON·UNDERLAY_ON)를 켜는 외곽선은 빌드에서 그 변형이 잘려 나갈 수 있어(쓰는 재질이 프로젝트에 없으면) 안 쓴다</summary>
+    public static float DmgPopupShade = 0.7f;
+    /// <summary>피해 숫자가 떠 있는 시간(초, 크리는 +0.1). 0 = 예전 (0.8 / 0.9)</summary>
+    public static float DmgPopupLifeSec = 1.0f;
 }

@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 /// <summary>
-/// [TutorialDirector.cs] v2.8 (v9.35.2 2026-10-26 예습 카드 3번 줄 - 무리는 미끼에 붙고 왕은 잠깐 돌아본다 (GameBalance.BaitBossLureSec - 예습 새끼도 같다)) / v2.7 (v9.27 2026-10-20 유저 "5초면 끝나는 단계는 묶고, 새 기능 튜토리얼을 더하고, 바뀐 조작은 고쳐라": 8구간 13카드 - 구간 1 기본(옛 1·2 묶음 + 옛 3·4 묶음 + 굽기 + Lv) / 2 요리 심화(새 - 팬·솥 조리법 둘, 진화 조리, 교체, 지원 요리) / 3 멈춘 포탑 살리기(감전 + 과열) / 4 주방 사고(새 - 기구 고장·화재, KitchenEventManager.ForceEvent) / 5 기관실(옛 작살·레버 묶음) / 6 실전(+ 단골 주문 OrderSystem.TutorialOrder) / 7 정산 / 8 보스 예습(+ 무방비 [F] 독침 육포, 처치까지). 옛 구간 기록은 MigrateV3 가 새 번호로 옮긴다 (새 구간 2·4 는 "아직"). 인라인 연습(정식 운행 첫 낙뢰·바위·레버)은 그대로이고 기록만 구간과 따로(WDT_Tut_In2·3·4) - 묶인 구간이 통째로 완료로 찍히지 않게. 한 카드 안에서 할 일이 넘어가면 SetLines 로 본문만 바꾼다. 리뷰 반영: 조리 카드는 FoodStock.OnCooked 횟수로 판정(재고 아님) / 사고 카드는 취소·거부·미니게임을 기다린다 / 전설이 폐기되면 다시 준다 / 못 일으키거나 포기한 카드는 구간 기록을 "건너뜀"으로 - 훈련장에서 다시, 인라인 연습도 막히지 않게 / 인라인 연습 인자는 kind) / v2.6 (v9.22.2 2026-10-14 유저 "튜토리얼 말투가 번역체·AI 같고 딱딱하다": 안내 글 말투를 반말 해체로 - 명령형 ~라·설명 ~다 끝맺음, 문장 속 기호, 어려운 말(투입·재가동·곁·유인)를 걷어냈다. 규칙 = 문구원칙 10-14 저녁 "말투" 절) / v2.5 (v9.22.1 2026-10-14 유저 "튜토리얼에 드래그가 반영 안 됐다": 2·5·6단계 목표 글과 지연 힌트를 v9.22 조작(카드 끌어다 놓기 - 교체 / 재료 중심 조리 창) 기준으로. 클릭 ▶ 클릭도 된다고 덧붙임. 5단계에 20초 지연 힌트(고기 카드 두 번 누르기) 추가) / v2.4 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v2.3 (v9.20 2026-10-07: 글 속 화살표를 게임 글꼴에 있는 세모로(게임 글꼴에 화살표 글리프가 없어 PC 의 다른 글꼴로 그려졌다 - 모양이 따로 놀고, 대신할 글꼴이 없는 빌드에선 빈칸)) / v2.2 (v9.18 2026-10-06: 목표 카드의 아래 끝·왼쪽 끝을 밖에서 읽게(CardBottomY·CardLeftFromRight - 알림 줄과 예고 카드가 카드를 피한다) / [Enter] 건너뛰기 오작동 - 요리 창·카드가 닫히는 그 프레임의 Enter 가 단계 건너뛰기로 새던 것(직전 프레임에 창이 떠 있었으면 무시) / 4단계 고기: 손님이 재료를 반드시 떨어뜨리고(Enemy), 그래도 모자라면 10초 뒤 채운다(구 30초)) / v2.1 (v9.15 2026-09-29 2차 피드백 "훈련장 무한 반복·맨땅 연습": 구간 완료 카드 [R] 한 번 더(PendingSegment - 씬 리로드 뒤 자동 시작) / 자유 연습 Begin(SANDBOX=8) - 손님이 계속 오고(SandboxSpawn*) 재료가 안 떨어지고 기차가 안 죽는다, [1] 낙뢰 [2] 화재 [3] 흘림 [4] 고장 [5] 침입 을 직접 일으킨다, 나가기 = [ESC] 메뉴 그만두기. SandboxActive 동안 포탑 파손도 진짜로 일어난다) / v2 (v9.12 2026-09-22: 견습 운행 구간화 - 7구간(S1 이동과 첫 포탑 1~6 / S2 감전된 포탑 복구 7 / S3 작살로 재료 얻기 8 / S4 전속 주행 켜고 끄기 9 /
+/// [TutorialDirector.cs] v2.9 (v9.35.3 2026-10-26 유저 "끓이기 볶기 같이하는 구간 - 요리 잘못하면 재료가 부족해서 진행이 안 된다, 재료를 넉넉하게": 카드 5 솥 요리 = 해독 스튜 (예전 '철판 정식'은 그릴 요리라 솥에선 못 만들었다 - KitchenPanel.MethodOf) · 재료 넉넉히 (GameBalance.TutorialCookMats, 창이 열려 있어도 모자라면 채우고 창을 새로) · 다른 요리를 만들면 무엇을 만들었는지 알림 · 글의 '장갑' -> '등심' (화면 재료 이름) / 주방 창이 열려 있으면 목표 카드를 창 안 오른쪽 아래로, 키는 글만큼 (UI 목업 v1 의 1) / 리뷰: 다른 요리를 GameBalance.TutorialWrongDishGift 번 만들면 할 일 요리를 하나 만들어 주고 넘긴다 · 알림이 '재료 채워 놨어'에 묻히지 않게 · 재료를 채우면 열린 주방 창을 그릴 수 있을 때까지 다시 그린다 (kitchenStale) · 팬 차례에 해독 스튜를 먼저 하면 "그것도 할 일 맞아" + 진행 1/2 · 카드 키는 LayoutCard 한 곳에서 잰다 (상한 242, 조리 판이 떠 있으면 평소 자리) · 글 "굽기·볶기·끓이기는 요리마다 달라" "팬 끝" "[Space]로" "망쳤네") / v2.8 (v9.35.2 2026-10-26 예습 카드 3번 줄 - 무리는 미끼에 붙고 왕은 잠깐 돌아본다 (GameBalance.BaitBossLureSec - 예습 새끼도 같다)) / v2.7 (v9.27 2026-10-20 유저 "5초면 끝나는 단계는 묶고, 새 기능 튜토리얼을 더하고, 바뀐 조작은 고쳐라": 8구간 13카드 - 구간 1 기본(옛 1·2 묶음 + 옛 3·4 묶음 + 굽기 + Lv) / 2 요리 심화(새 - 팬·솥 조리법 둘, 진화 조리, 교체, 지원 요리) / 3 멈춘 포탑 살리기(감전 + 과열) / 4 주방 사고(새 - 기구 고장·화재, KitchenEventManager.ForceEvent) / 5 기관실(옛 작살·레버 묶음) / 6 실전(+ 단골 주문 OrderSystem.TutorialOrder) / 7 정산 / 8 보스 예습(+ 무방비 [F] 독침 육포, 처치까지). 옛 구간 기록은 MigrateV3 가 새 번호로 옮긴다 (새 구간 2·4 는 "아직"). 인라인 연습(정식 운행 첫 낙뢰·바위·레버)은 그대로이고 기록만 구간과 따로(WDT_Tut_In2·3·4) - 묶인 구간이 통째로 완료로 찍히지 않게. 한 카드 안에서 할 일이 넘어가면 SetLines 로 본문만 바꾼다. 리뷰 반영: 조리 카드는 FoodStock.OnCooked 횟수로 판정(재고 아님) / 사고 카드는 취소·거부·미니게임을 기다린다 / 전설이 폐기되면 다시 준다 / 못 일으키거나 포기한 카드는 구간 기록을 "건너뜀"으로 - 훈련장에서 다시, 인라인 연습도 막히지 않게 / 인라인 연습 인자는 kind) / v2.6 (v9.22.2 2026-10-14 유저 "튜토리얼 말투가 번역체·AI 같고 딱딱하다": 안내 글 말투를 반말 해체로 - 명령형 ~라·설명 ~다 끝맺음, 문장 속 기호, 어려운 말(투입·재가동·곁·유인)를 걷어냈다. 규칙 = 문구원칙 10-14 저녁 "말투" 절) / v2.5 (v9.22.1 2026-10-14 유저 "튜토리얼에 드래그가 반영 안 됐다": 2·5·6단계 목표 글과 지연 힌트를 v9.22 조작(카드 끌어다 놓기 - 교체 / 재료 중심 조리 창) 기준으로. 클릭 ▶ 클릭도 된다고 덧붙임. 5단계에 20초 지연 힌트(고기 카드 두 번 누르기) 추가) / v2.4 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v2.3 (v9.20 2026-10-07: 글 속 화살표를 게임 글꼴에 있는 세모로(게임 글꼴에 화살표 글리프가 없어 PC 의 다른 글꼴로 그려졌다 - 모양이 따로 놀고, 대신할 글꼴이 없는 빌드에선 빈칸)) / v2.2 (v9.18 2026-10-06: 목표 카드의 아래 끝·왼쪽 끝을 밖에서 읽게(CardBottomY·CardLeftFromRight - 알림 줄과 예고 카드가 카드를 피한다) / [Enter] 건너뛰기 오작동 - 요리 창·카드가 닫히는 그 프레임의 Enter 가 단계 건너뛰기로 새던 것(직전 프레임에 창이 떠 있었으면 무시) / 4단계 고기: 손님이 재료를 반드시 떨어뜨리고(Enemy), 그래도 모자라면 10초 뒤 채운다(구 30초)) / v2.1 (v9.15 2026-09-29 2차 피드백 "훈련장 무한 반복·맨땅 연습": 구간 완료 카드 [R] 한 번 더(PendingSegment - 씬 리로드 뒤 자동 시작) / 자유 연습 Begin(SANDBOX=8) - 손님이 계속 오고(SandboxSpawn*) 재료가 안 떨어지고 기차가 안 죽는다, [1] 낙뢰 [2] 화재 [3] 흘림 [4] 고장 [5] 침입 을 직접 일으킨다, 나가기 = [ESC] 메뉴 그만두기. SandboxActive 동안 포탑 파손도 진짜로 일어난다) / v2 (v9.12 2026-09-22: 견습 운행 구간화 - 7구간(S1 이동과 첫 포탑 1~6 / S2 감전된 포탑 복구 7 / S3 작살로 재료 얻기 8 / S4 전속 주행 켜고 끄기 9 /
 ///   S5 요리하며 기차 지키기 10 / S6 증강 선택과 정비 11 / S7 미끼로 첫 보스 상대하기 12(신규)) + 마지막 앞길 카드 13. Begin(segment) 로 한 구간만 (훈련장 TrainingGroundUI),
 ///   구간마다 PlayerPrefs WDT_Tut_S1..S7 = 1 완료 / 2 건너뜀. 정식 운행 인라인 연습 PlayInline(seg) - 새 기믹 첫 등장 순간(협곡 낙뢰 / 첫 바위 / 레버 웨이브) 손님·스폰·사고·포탑을 멈추고(InlineFreeze)
 ///   셰프만 움직여 그 행동을 해낸다. 30초 = 힌트 추가(자동 통과 없음), [Enter] = 건너뛰기(기록 2). 큰 카드 540x250 = 연습·예습, 목표 카드 330x156 은 그대로 (목업 v4.2).
@@ -444,6 +444,7 @@ public class TutorialDirector : MonoBehaviour
 
     private void LateUpdate()
     {
+        TickCardPlacement();   // v2.9 (v9.35.3): 주방 창이 열리고 닫힐 때 카드 자리 (견습이 끝난 뒤에도 돈다 - 주방 자리에 남지 않게)
         if (!Active && !InlineActive) return;
 
         UIManager um = UIManager.Instance;
@@ -547,6 +548,7 @@ public class TutorialDirector : MonoBehaviour
     /// </summary>
     private void SetupKit(int seg)
     {
+        cookKeepMats = null;   // v2.9
         TurretSlot first = SlotAt(0);
         if (first != null && first.IsEmpty && !first.isLocked) first.TryInsertFood(STARTER_RECIPE);
         if (seg == 6 || seg == 8)
@@ -562,7 +564,7 @@ public class TutorialDirector : MonoBehaviour
         }
         if ((seg == 0 || seg == 1 || seg == 2 || seg == 6) && FoodStock.Instance != null && FoodStock.Instance.Get(STARTER_RECIPE) < 1)
             FoodStock.Instance.Add(STARTER_RECIPE, 1);
-        if (seg == 2) { TopUpPair(MaterialType.Elec, MaterialType.Elec); TopUpPair(MaterialType.Armor, MaterialType.Armor); }
+        if (seg == 2) TopUpTo(PAN_POT_MATS, GameBalance.TutorialCookMats);   // v2.9: 팬·솥 재료 넉넉히 (카드 5 가 또 채운다)
         if (seg == 6 && MaterialInventory.Instance != null && MeatCount() < 2) MaterialInventory.Instance.Add(MaterialType.Meat, 2 - MeatCount());
         if (seg == 8)
         {
@@ -683,23 +685,74 @@ public class TutorialDirector : MonoBehaviour
     /// v2.7: 요리 하나를 만들 때까지 기다린다 (카드 3·5 공용). 성공 = 그 요리를 만들었다는 알림(FoodStock.OnCooked)이 기준치 since 보다 늘었다 -
     /// 재고 수로 세지 않는다 (만든 걸 바로 포탑에 넣어도, 앞 할 일에서 미리 만들어 뒀어도 인정). since = CookedCount(recipeId) 기준치 (-1 = 지금).
     /// 조리 창을 열고 20초 안에 미니게임에 못 들어가면 힌트 / BAD 로 재료를 잃으면 다시 준다 (3회) - 3회 다 태우면 요리를 주고 넘긴다 (막히지 않게) /
-    /// 재료를 다른 데 써 버렸거나 [ESC] 로 그만뒀으면 조리 창이 닫혀 있을 때 2초마다 채운다
+    /// 재료를 다른 데 써 버렸거나 [ESC] 로 그만뒀으면 조리 창이 닫혀 있을 때 2초마다 채운다.
+    /// v2.9: alsoOk = 이 카드의 다른 할 일 (카드 5 팬 차례의 해독 스튜 - 먼저 해도 된다) / wrongHint = 다른 요리를 만들었을 때 "지금은 ..." 뒤에 붙는 말.
+    ///   다른 요리를 GameBalance.TutorialWrongDishGift 번 만들면 이 요리를 하나 만들어 주고 넘긴다 (실패 3회와 같은 출구).
+    ///   재료를 채우면 열린 조리 창을 다시 그린다 - 지금 못 그리면 (끄는 중 · 조리 중) 그릴 수 있을 때까지 매 프레임 다시 (kitchenStale)
     /// </summary>
-    private IEnumerator CookOne(string recipeId, MaterialType a, MaterialType b, string openHint, string badHint, int since = -1)
+    private IEnumerator CookOne(string recipeId, MaterialType a, MaterialType b, string openHint, string badHint, int since = -1, string alsoOk = null, string wrongHint = null)
     {
         lastCookGifted = false;
         if (FoodStock.Instance == null) yield break;
         if (since < 0) since = CookedCount(recipeId);
         if (CookedCount(recipeId) > since) yield break;      // 앞 할 일에서 이미 만들었다
         int badsSeen = CookingBridge.BadsThisRun;
+        int cooksSeen = cookSerial;                          // v2.9: 다른 요리를 만들었나 (OnCookedForTutorial 이 올린다)
         int resupplies = 0;
+        int wrongMade = 0;                                   // v2.9: 할 일과 다른 요리를 만든 횟수 (TutorialWrongDishGift 번이면 넘긴다)
+        bool alsoOkTold = false;                             // v2.9: "그것도 할 일 맞아" 는 한 번만
         float hintAt = float.MaxValue;
         float topUpAt = Time.time + 2f;
+        float keepAt = 0f, keepNoticeAt = 0f;
         bool kitchenSeen = false;
-        TopUpPair(a, b);
+        if (TopUpPair(a, b)) kitchenStale = true;
         while (!skipRequested)
         {
             if (CookedCount(recipeId) > since) break;
+
+            // v2.9 (v9.35.3): 다른 요리를 만들었다 - 무엇을 만들었는지 + 지금 할 것 (재료는 아래 넉넉 모드가 채운다)
+            if (cookSerial != cooksSeen)
+            {
+                cooksSeen = cookSerial;
+                if (lastCookedId == alsoOk && !string.IsNullOrEmpty(wrongHint))
+                {
+                    // 이 카드의 다른 할 일을 먼저 했다 - 할 일 하나는 끝 (카드 5: 팬 차례에 해독 스튜를 먼저)
+                    if (!alsoOkTold)
+                    {
+                        alsoOkTold = true;
+                        SetProgress(1, progTotal);
+                        UIManager.Instance?.ShowStatChange("[견습] 그것도 할 일 맞아. 남은 건 " + wrongHint);
+                        keepNoticeAt = Time.time + 6f;
+                    }
+                }
+                else if (lastCookedId != recipeId && !string.IsNullOrEmpty(wrongHint))
+                {
+                    keepNoticeAt = Time.time + 6f;   // 바로 뒤 '재료 넉넉히 채워 놨어' 가 이 알림을 묻지 않게
+                    if (GameBalance.TutorialWrongDishGift > 0 && ++wrongMade >= GameBalance.TutorialWrongDishGift)
+                    {
+                        // 출구: 다른 요리만 계속 나온다 - 할 일 요리를 하나 만들어 주고 넘긴다 (막히지 않게. 실패 3회와 같다)
+                        FoodStock.Instance.Add(recipeId, 1);
+                        UIManager.Instance?.ShowStatChange("[견습] 요리 하나 만들어 놨어. 다음엔 " + wrongHint);
+                        lastCookGifted = true;
+                        break;
+                    }
+                    RecipeData made = RecipeDatabase.Get(lastCookedId);
+                    string madeName = made != null ? made.displayName : "다른 요리";
+                    UIManager.Instance?.ShowStatChange("[견습] 그건 " + madeName + IYa(madeName) + ". 지금은 " + wrongHint);
+                }
+            }
+
+            // v2.9 (v9.35.3): 넉넉 모드 (카드 5) - 이 카드의 재료가 바닥(TutorialCookMatFloor) 아래면 조리 창이 열려 있어도 채우고 창을 새로 그린다.
+            //   예전엔 창이 닫혀 있을 때만 채워, 창을 연 채로 다른 요리를 만들면 재료가 모자라 막혔다
+            if (cookKeepMats != null && Time.time > keepAt && !CookingMinigame.IsActive && !InfusingMinigame.IsActive)
+            {
+                keepAt = Time.time + 0.5f;
+                if (KeepStocked(cookKeepMats))
+                {
+                    kitchenStale = true;   // 창은 루프 끝에서 다시 그린다
+                    if (Time.time > keepNoticeAt) { keepNoticeAt = Time.time + 6f; UIManager.Instance?.ShowStatChange("[견습] 재료 넉넉히 채워 놨어"); }
+                }
+            }
             if (!kitchenSeen && KitchenPanel.IsOpenStatic) { kitchenSeen = true; hintAt = Time.time + 20f; }
             if (CookingMinigame.IsActive) hintAt = float.MaxValue;
             if (Time.time > hintAt) { hintAt = float.MaxValue; UIManager.Instance?.ShowStatChange(openHint); }
@@ -715,25 +768,39 @@ public class TutorialDirector : MonoBehaviour
                     lastCookGifted = true;
                     break;
                 }
-                TopUpPair(a, b);
+                if (TopUpPair(a, b)) kitchenStale = true;
                 UIManager.Instance?.ShowStatChange(badHint);
+                keepNoticeAt = Time.time + 6f;   // 바로 뒤 '재료 넉넉히 채워 놨어' 가 이 알림을 묻지 않게
             }
             else if (Time.time > topUpAt && !KitchenPanel.IsOpenStatic && !CookingMinigame.IsActive)
             {
                 topUpAt = Time.time + 2f;
-                TopUpPair(a, b);   // 창이 닫혀 있을 때만 - 창에 올려 둔 재료와 겹쳐 세지 않게
+                if (TopUpPair(a, b)) kitchenStale = true;   // 창이 닫혀 있을 때만 - 창에 올려 둔 재료와 겹쳐 세지 않게
             }
+
+            // v2.9: 재료를 바꿨으면 열린 조리 창을 지금 수로 다시 그린다. 지금 못 그리면 (재료 카드를 끄는 중 · 조리 중) 다음 프레임에 또 -
+            //   예전엔 한 번 놓치면 다음 틱엔 이미 넉넉해서 다시 안 그려, 창을 닫았다 열기 전까지 옛 수가 남았다
+            if (kitchenStale && KitchenPanel.RefreshIfOpen()) kitchenStale = false;
             yield return null;
         }
     }
 
-    /// <summary>재료 둘(같은 종류면 2개)이 모자라면 채운다</summary>
-    private static void TopUpPair(MaterialType a, MaterialType b)
+    /// <summary>재료 둘(같은 종류면 2개)이 모자라면 채운다. v2.9: 하나라도 늘었으면 true (열린 조리 창을 다시 그려야 한다)</summary>
+    private static bool TopUpPair(MaterialType a, MaterialType b)
     {
-        if (MaterialInventory.Instance == null) return;
-        if (a == b) { int have = MaterialInventory.Instance.Get(a); if (have < 2) MaterialInventory.Instance.Add(a, 2 - have); return; }
-        if (MaterialInventory.Instance.Get(a) < 1) MaterialInventory.Instance.Add(a, 1);
-        if (MaterialInventory.Instance.Get(b) < 1) MaterialInventory.Instance.Add(b, 1);
+        if (MaterialInventory.Instance == null) return false;
+        if (a == b) return TopUpOne(a, 2);
+        bool added = TopUpOne(a, 1);
+        return TopUpOne(b, 1) || added;
+    }
+
+    /// <summary>v2.9: 재료 하나를 need 개까지 채운다. 늘었으면 true</summary>
+    private static bool TopUpOne(MaterialType m, int need)
+    {
+        int have = MaterialInventory.Instance.Get(m);
+        if (have >= need) return false;
+        MaterialInventory.Instance.Add(m, need - have);
+        return MaterialInventory.Instance.Get(m) > have;
     }
 
     // ── 4. 투입 = 레벨업 ──
@@ -757,17 +824,17 @@ public class TutorialDirector : MonoBehaviour
         yield return EndStep();
     }
 
-    // ── 5. (v2.7 신규) 팬과 솥: 과부하 코일 볶기(커맨드) -> 철판 정식 끓이기(압력) ──
+    // ── 5. (v2.7 신규) 팬과 솥: 과부하 코일 볶기(커맨드) -> 해독 스튜 끓이기(압력). v2.9: 철판 정식은 그릴 요리라 솥 요리를 해독 스튜로 ──
     private IEnumerator Step5_PanPot()
     {
         CookingStation pan = FindStation(CookingStation.StationType.Saute);
         CookingStation pot = FindStation(CookingStation.StationType.Boiling);
         int panSince = CookedCount(PAN_RECIPE), potSince = CookedCount(POT_RECIPE);   // 카드 시작 기준치 - 팬 차례에 솥 요리를 먼저 만들어도 인정
         SetCardBig(true);
-        BeginStep(5, "팬과 솥에서 요리 둘", "팬 [E]: 전기알 둘로 과부하 코일. 뜨는 키를 순서대로\n솥 [E]: 장갑 둘로 철판 정식. [Space] 꾹으로 바늘을 구간에", "요리", 0, 2);
-        SetFooter("조리법은 요리마다 정해져 있어. 틀리면 재료는 다시 줘", "[Enter] 건너뛰기");
-        TopUpPair(MaterialType.Elec, MaterialType.Elec);
-        TopUpPair(MaterialType.Armor, MaterialType.Armor);
+        BeginStep(5, "팬과 솥에서 요리 둘", "팬 [E]: 전기알 둘로 과부하 코일. 뜨는 키를 순서대로\n솥 [E]: 등심·독샘으로 해독 스튜. [Space]로 바늘을 구간 안에", "요리", 0, 2);
+        SetFooter("굽기·볶기·끓이기는 요리마다 달라. 재료는 또 채워 줄게", "[Enter] 건너뛰기");
+        if (TopUpTo(PAN_POT_MATS, GameBalance.TutorialCookMats)) kitchenStale = true;   // v2.9: 넉넉히 - 다른 요리를 한두 번 만들어도 막히지 않게 (창이 열려 있으면 CookOne 이 다시 그린다)
+        cookKeepMats = PAN_POT_MATS;                            // CookOne 이 카드 내내 바닥(TutorialCookMatFloor) 아래로 안 떨어지게 지킨다
         if (pan != null) ShowMarkerFollow(pan.transform, 1.0f, RING_STATION);
         yield return Brief(BriefingTexts.Tutorial(6));
 
@@ -775,37 +842,40 @@ public class TutorialDirector : MonoBehaviour
         bool gifted = false;
         yield return CookOne(PAN_RECIPE, MaterialType.Elec, MaterialType.Elec,
             "[견습] 팬 앞에서 [E]. 전기알 카드 두 번, [볶기 시작]",
-            "[견습] 틀렸네. 전기알 다시 줬어. 뜨는 키를 차례로", panSince);
+            "[견습] 틀렸네. 전기알 다시 줬어. 뜨는 키를 순서대로", panSince, POT_RECIPE, "팬에서 전기알 둘로 과부하 코일");
         gifted |= lastCookGifted;
         SetProgress(1, 2);
 
         // 2) 솥 - 끓이기 (팬 차례에 먼저 끓여 뒀으면 바로 통과)
         if (!skipRequested)
         {
-            SetLines("볶았어. 이제 솥. 장갑 둘 올리고 [끓이기 시작]\n[Space] 꾹 = 바늘이 오른쪽, 떼면 왼쪽. 구간 안에 둬");
+            SetLines("팬 끝. 이제 솥. 등심·독샘 올리고 [끓이기 시작]\n[Space] 누르면 바늘이 오른쪽, 떼면 왼쪽. 구간 안에 둬");
             if (pot != null) ShowMarkerFollow(pot.transform, 1.0f, RING_STATION);
             if (CookedCount(POT_RECIPE) > potSince) UIManager.Instance?.ShowStatChange("[견습] 솥은 벌써 했네");
-            else UIManager.Instance?.ShowStatChange("[견습] 됐어. 이번엔 솥 - 장갑 둘로 철판 정식");
-            yield return CookOne(POT_RECIPE, MaterialType.Armor, MaterialType.Armor,
-                "[견습] 솥 앞에서 [E]. 장갑 카드 두 번, [끓이기 시작]",
-                "[견습] 넘쳤네. 장갑 다시 줬어. [Space]로 바늘을 구간 안에", potSince);
+            else UIManager.Instance?.ShowStatChange("[견습] " + (gifted ? "" : "됐어. ") + "이번엔 솥 - 등심·독샘으로 해독 스튜");   // 만들어 준 뒤면 "됐어" 없이
+            yield return CookOne(POT_RECIPE, MaterialType.Armor, MaterialType.Poison,
+                "[견습] 솥 앞에서 [E]. 등심 카드 하나, 독샘 카드 하나, [끓이기 시작]",
+                "[견습] 망쳤네. 재료 다시 줬어. [Space]로 바늘을 구간 안에", potSince, null, "솥에서 등심·독샘으로 해독 스튜");   // 팬 할 일은 끝 - 코일을 또 만들면 "그건 과부하 코일이야"
             gifted |= lastCookGifted;
         }
+        cookKeepMats = null;
         SetProgress(2, 2);
-        if (!skipRequested && !gifted) Spino("[스피노] 셋 다 해 봤네. 조리법은 요리마다 정해져 있어");
+        if (!skipRequested && !gifted) Spino("[스피노] 셋 다 해 봤네. 굽기·볶기·끓이기는 요리마다 달라");
         yield return EndStep();
         SetCardBig(false);
     }
 
     private const string PAN_RECIPE = "elec+elec";     // 과부하 코일 (볶기)
-    private const string POT_RECIPE = "armor+armor";   // 철판 정식 (끓이기 - 쏘지 않는 지원 요리)
+    private const string POT_RECIPE = "armor+poison";  // v2.9: 해독 스튜 (끓이기 - 쏘지 않는 지원 요리, 기차 HP 가 저절로 찬다). 예전 철판 정식(armor+armor)은 그릴 요리였다
+    /// <summary>v2.9: 카드 5 가 쓰는 재료 - 팬 전기알 둘 + 솥 등심·독샘</summary>
+    private static readonly MaterialType[] PAN_POT_MATS = { MaterialType.Elec, MaterialType.Armor, MaterialType.Poison };
 
-    // ── 6. (v2.7 신규) 진화 조리 + 교체: 더블 육포 카드를 과부하 코일 카드 위에 -> 전설 -> 육포 포탑에 교체 / 철판 정식은 빈 칸 ──
+    // ── 6. (v2.7 신규) 진화 조리 + 교체: 더블 육포 카드를 과부하 코일 카드 위에 -> 전설 -> 육포 포탑에 교체 / 해독 스튜(v2.9)는 빈 칸 ──
     private IEnumerator Step6_FuseReplace()
     {
         TurretSlot first = SlotAt(0);
         SetCardBig(true);
-        BeginStep(6, "진화 조리와 교체", "더블 육포 카드를 끌어서 과부하 코일 카드 위에 놔\n2판을 넘기면 전설 요리 카드가 나와\n전설은 육포 포탑에 놓아 교체, 철판 정식은 빈 칸에", "할 일", 0, 3);
+        BeginStep(6, "진화 조리와 교체", "더블 육포 카드를 끌어서 과부하 코일 카드 위에 놔\n2판을 넘기면 전설 요리 카드가 나와\n전설은 육포 포탑에 놓아 교체, 해독 스튜는 빈 칸에", "할 일", 0, 3);
         SetFooter("끌면 합칠 수 있는 카드에 분홍 테가 떠", "[Enter] 건너뛰기");
         HideMarker();
         EnsureFuseCards();
@@ -824,10 +894,10 @@ public class TutorialDirector : MonoBehaviour
         }
         SetProgress(1, 3);
 
-        // 2) 전설은 육포 포탑에 (교체) + 철판 정식은 빈 칸에 - 순서는 상관없다
+        // 2) 전설은 육포 포탑에 (교체) + 해독 스튜는 빈 칸에 - 순서는 상관없다
         if (!skipRequested)
         {
-            SetLines("전설 카드를 화살표 포탑에 놔 = 교체\n든 요리는 폐기되고 재료 일부가 돌아와\n철판 정식은 빈 칸에. 안 쏘지만 기차 최대 HP가 올라");
+            SetLines("전설 카드를 화살표 포탑에 놔 = 교체\n든 요리는 폐기되고 재료 일부가 돌아와\n해독 스튜는 빈 칸에. 안 쏘지만 기차 HP가 저절로 차");
             if (first != null) ShowMarkerFollow(first.transform, SlotArrowTip(0), RING_TURRET);
             RecipeData fusion = RecipeDatabase.GetFusion(FoodTag.Phys, FoodTag.Elec);   // 개틀링 티렉스 (더블 육포 + 과부하 코일)
             float hint2At = Time.time + 25f;
@@ -846,7 +916,7 @@ public class TutorialDirector : MonoBehaviour
                     {
                         FoodStock.Instance.Add(POT_RECIPE, 1);   // 폐기나 교체로 없어졌으면 다시
                         regiveAt = Time.time + 1f;
-                        UIManager.Instance?.ShowStatChange("[견습] 철판 정식 하나 더 줬어. 빈 칸에 놔");
+                        UIManager.Instance?.ShowStatChange("[견습] 해독 스튜 하나 더 줬어. 빈 칸에 놔");
                     }
                     else if (!legendaryIn && LegendaryStock() == 0)
                     {
@@ -856,7 +926,7 @@ public class TutorialDirector : MonoBehaviour
                         UIManager.Instance?.ShowStatChange("[견습] 전설이 없어졌네. 하나 더 줬어 - 육포 포탑에 놔");
                     }
                 }
-                if (Time.time > hint2At) { hint2At = float.MaxValue; UIManager.Instance?.ShowStatChange("[견습] 전설은 육포 포탑 이름표에, 철판 정식은 [+]에"); }
+                if (Time.time > hint2At) { hint2At = float.MaxValue; UIManager.Instance?.ShowStatChange("[견습] 전설은 육포 포탑 이름표에, 해독 스튜는 [+]에"); }
                 yield return null;
             }
         }
@@ -1365,10 +1435,13 @@ public class TutorialDirector : MonoBehaviour
         linesText.text = lines;
         linesText.color = UIFactory.CREAM;
         if (titleText != null) titleText.color = UIFactory.GOLD;
+        if (cardInKitchen) LayoutCard();   // v2.9: 주방 창 안이면 키를 새 글에 바로 맞춘다 (다음 프레임까지 옛 키로 두지 않게)
     }
 
     // ── v2.7: 조리 완료 알림 (FoodStock.OnCooked) 을 요리별로 센다 - 카드 3·5 의 "만들었다" 판정 (재고 수가 아니라 만든 횟수로) ──
     private static readonly Dictionary<string, int> cookedCounts = new Dictionary<string, int>();
+    private static int cookSerial = 0;              // v2.9: 조리 완료 알림이 올 때마다 +1 (CookOne 이 "다른 요리를 만들었다"를 본다)
+    private static string lastCookedId = "";        // v2.9: 마지막으로 만든 요리
 
     private static void OnCookedForTutorial(string recipeId)
     {
@@ -1376,6 +1449,42 @@ public class TutorialDirector : MonoBehaviour
         int n;
         cookedCounts.TryGetValue(recipeId, out n);
         cookedCounts[recipeId] = n + 1;
+        lastCookedId = recipeId;
+        cookSerial++;
+    }
+
+    /// <summary>v2.9: 넉넉 모드에서 지킬 재료 (카드 5 가 켜고 끈다). null = 끔</summary>
+    private MaterialType[] cookKeepMats = null;
+    /// <summary>v2.9: 재료를 채웠는데 열린 조리 창을 아직 다시 못 그렸다 (CookOne 이 그릴 수 있을 때 다시 그리고 끈다)</summary>
+    private bool kitchenStale = false;
+
+    /// <summary>v2.9: 재료마다 count 개까지 채운다. 하나라도 늘었으면 true (열린 조리 창을 다시 그려야 한다)</summary>
+    private static bool TopUpTo(MaterialType[] mats, int count)
+    {
+        if (MaterialInventory.Instance == null || mats == null) return false;
+        bool added = false;
+        for (int i = 0; i < mats.Length; i++)
+            if (TopUpOne(mats[i], count)) added = true;
+        return added;
+    }
+
+    /// <summary>v2.9: 하나라도 바닥(TutorialCookMatFloor) 아래면 전부 TutorialCookMats 까지 채운다. 채웠으면 true</summary>
+    private static bool KeepStocked(MaterialType[] mats)
+    {
+        if (MaterialInventory.Instance == null || mats == null) return false;
+        bool low = false;
+        for (int i = 0; i < mats.Length; i++)
+            if (MaterialInventory.Instance.Get(mats[i]) < GameBalance.TutorialCookMatFloor) low = true;
+        return low && TopUpTo(mats, GameBalance.TutorialCookMats);
+    }
+
+    /// <summary>v2.9: 받침 "이야/야" - 마지막 글자에 받침이 있으면 "이야" (해독 스튜야 / 맹독 진액이야)</summary>
+    private static string IYa(string word)
+    {
+        if (string.IsNullOrEmpty(word)) return "야";
+        char c = word[word.Length - 1];
+        if (c < '\uAC00' || c > '\uD7A3') return "야";
+        return (c - 0xAC00) % 28 != 0 ? "이야" : "야";
     }
 
     private static int CookedCount(string recipeId)
@@ -1834,6 +1943,7 @@ public class TutorialDirector : MonoBehaviour
         linesText.text = cardBig ? body + "\n" + hint : hint;
         linesText.color = cardBig ? UIFactory.CREAM : HINT_GOLD;
         if (titleText != null) titleText.color = HINT_GOLD;
+        if (cardInKitchen) LayoutCard();   // v2.9: 주방 창 안이면 키를 바로 다시 잰다
     }
 
     // ─────────────────────────────────────────────
@@ -1924,7 +2034,7 @@ public class TutorialDirector : MonoBehaviour
         get
         {
             TutorialDirector d = Instance;
-            if (d == null || d.cardRoot == null || !d.cardRoot.activeInHierarchy) return 0f;
+            if (d == null || d.cardRoot == null || !d.cardRoot.activeInHierarchy || d.cardInKitchen) return 0f;   // v2.9: 주방 창 안이면 우상단은 비었다
             return CARD_TOP + (d.cardBig ? BIG_H : CARD_H);
         }
     }
@@ -1938,7 +2048,7 @@ public class TutorialDirector : MonoBehaviour
         get
         {
             TutorialDirector d = Instance;
-            if (d == null || d.cardRoot == null || !d.cardRoot.activeInHierarchy) return 0f;
+            if (d == null || d.cardRoot == null || !d.cardRoot.activeInHierarchy || d.cardInKitchen) return 0f;   // v2.9
             return 8f + (d.cardBig ? BIG_W : CARD_W);
         }
     }
@@ -2005,23 +2115,94 @@ public class TutorialDirector : MonoBehaviour
         cardBig = big;
         lastProgDone = -1;   // 핍·진행 글 자리가 바뀐다 - 다음 SetProgress 가 다시 그린다
         if (cardRect == null) return;
-        float w = big ? BIG_W : CARD_W, h = big ? BIG_H : CARD_H;
-        cardRect.offsetMin = new Vector2(-8f - w, -CARD_TOP - h);
-        cardRect.offsetMax = new Vector2(-8f, -CARD_TOP);
         titleText.fontSize = big ? 22 : 18;
-        PlaceTopLeft(titleText.rectTransform, 26f, big ? -30f : -24f, w - 52f, big ? 30f : 26f);
         linesText.fontSize = big ? 17 : 15;
-        PlaceTopLeft(linesText.rectTransform, 26f, big ? -70f : -56f, w - 52f, big ? 130f : 48f);
         linesText.lineSpacing = big ? 1.2f : 1.15f;
-        float pipY = big ? -(h - 44f) : -102f;
-        for (int i = 0; i < pips.Count; i++)
-            pips[i].rectTransform.anchoredPosition = new Vector2(26f + i * 22f, pipY);
-        PlaceTopLeft(progressText.rectTransform, 26f, pipY + 2f, 300f, 20f);
         progressText.fontSize = big ? 16 : 15;
         footLeftText.fontSize = big ? 14 : 12;
         footRightText.fontSize = big ? 14 : 12;
         footLeftText.gameObject.SetActive(big);
         if (!big) { footLeftText.text = ""; footRightText.text = "[Enter] 건너뛰기"; }
+        LayoutCard();   // v2.9: 주방 창 안이면 새 폭·글자 크기로 본문 높이도 다시 잰다
+    }
+
+    // ── v2.9 (v9.35.3): 카드 자리 - 평소 우상단 / 주방 창이 열려 있으면 창 안 오른쪽 아래 (UI 목업 v1 의 1: 카드가 6번째 재료·미리보기를 가렸다) ──
+    private bool cardInKitchen = false;      // 지금 주방 창 안에 놓였나 (CardBottomY · CardLeftFromRight 가 0 을 돌려준다)
+    private const float KITCHEN_CARD_MAX_H = 242f;   // v2.9: 주방 창 안 큰 카드 키 상한 - 이보다 크면 요리 목록 2째 줄(팬 · 그릴)에 닿는다
+
+    /// <summary>
+    /// 카드 크기·자리 + 안의 글·핍 자리. 평소 = 우상단 (CARD_TOP 아래, 크기 고정).
+    /// 주방 창 안 = 창(1240x900, 가운데, KitchenPanel 과 같은 FitScale)의 오른쪽 아래 빈 자리 - 요리 목록(3줄까지) 아래, 설명 상자 위.
+    /// 그때 본문 높이는 글만큼 (가운데 빈 줄을 접는다) - 여기서 바로 잰다 (글 · 글자 크기 · 줄바꿈이 바뀌면 다시 부른다)
+    /// </summary>
+    private void LayoutCard()
+    {
+        if (cardRect == null || linesText == null) return;
+        bool big = cardBig;
+        float w = big ? BIG_W : CARD_W;
+        float linesTop = big ? 70f : 56f;
+        float linesMaxH = big ? 130f : 48f;
+        float pad = big ? 50f : 52f;             // 본문 아래 ~ 카드 아래 (핍 · 진행 글)
+        float linesH = linesMaxH;
+        float h = big ? BIG_H : CARD_H;
+
+        if (cardInKitchen)
+        {
+            // 본문 높이를 지금 글 · 글자 크기로 잰다 - 줄바꿈이 폭을 따르니 폭부터 놓고 (localScale 은 preferredHeight 에 안 든다)
+            PlaceTopLeft(linesText.rectTransform, 26f, -linesTop, w - 52f, linesMaxH);
+            linesH = Mathf.Min(linesMaxH, Mathf.Ceil(linesText.preferredHeight) + 4f);
+            h = Mathf.Min(KITCHEN_CARD_MAX_H, linesTop + linesH + pad);
+            linesH = h - linesTop - pad;
+            cardKitchenMeasured = linesText.text;
+            cardKitchenWrap = linesText.horizontalOverflow;
+
+            float fit = UIFactory.FitScale(1240f, 900f);   // KitchenPanel.BuildFrame 과 같은 배율
+            cardRect.anchorMin = new Vector2(0.5f, 0.5f); cardRect.anchorMax = new Vector2(0.5f, 0.5f);
+            cardRect.pivot = new Vector2(1f, 0f);
+            cardRect.sizeDelta = new Vector2(w, h);
+            cardRect.anchoredPosition = new Vector2((620f - 40f) * fit, (-450f + 30f + 130f + 14f) * fit);   // 오른쪽 테 안 40 / 설명 상자(130 + 테 30) 위 14
+            cardRect.localScale = new Vector3(fit, fit, 1f);
+        }
+        else
+        {
+            cardRect.anchorMin = new Vector2(1f, 1f); cardRect.anchorMax = new Vector2(1f, 1f);
+            cardRect.pivot = new Vector2(0.5f, 0.5f);
+            cardRect.localScale = Vector3.one;
+            cardRect.offsetMin = new Vector2(-8f - w, -CARD_TOP - h);
+            cardRect.offsetMax = new Vector2(-8f, -CARD_TOP);
+        }
+        PlaceTopLeft(titleText.rectTransform, 26f, big ? -30f : -24f, w - 52f, big ? 30f : 26f);
+        PlaceTopLeft(linesText.rectTransform, 26f, -linesTop, w - 52f, linesH);
+        float pipY = big ? -(h - 44f) : -(h - 54f);
+        for (int i = 0; i < pips.Count; i++)
+            pips[i].rectTransform.anchoredPosition = new Vector2(26f + i * 22f, pipY);
+        PlaceTopLeft(progressText.rectTransform, 26f, pipY + 2f, 300f, 20f);
+        lastProgDone = -1;   // 진행 글 자리가 핍을 따라간다
+    }
+
+    private string cardKitchenMeasured = null;   // 마지막으로 잰 본문 (같으면 다시 안 잰다)
+    private HorizontalWrapMode cardKitchenWrap = HorizontalWrapMode.Overflow;   // 잴 때의 줄바꿈 (TextFitGuard 가 Wrap 으로 바꾸면 다시 잰다)
+
+    /// <summary>v2.9: 매 프레임 - 주방 창이 열렸나 / 본문 · 줄바꿈이 바뀌었나를 보고 바뀌었을 때만 LayoutCard (재는 것은 LayoutCard)</summary>
+    private void TickCardPlacement()
+    {
+        if (cardRect == null || cardRoot == null || linesText == null) return;
+        bool want = GameBalance.TutorialCardInKitchen && cardRoot.activeSelf && KitchenPanel.IsOpenStatic
+                    && !CookingMinigame.IsActive && !InfusingMinigame.IsActive;   // 조리 · 진화 조리 판이 떠 있으면 평소 자리 (판을 가리지 않게)
+        if (want)
+        {
+            if (!cardInKitchen || linesText.text != cardKitchenMeasured || linesText.horizontalOverflow != cardKitchenWrap)
+            {
+                cardInKitchen = true;
+                LayoutCard();
+            }
+        }
+        else if (cardInKitchen)
+        {
+            cardInKitchen = false;
+            cardKitchenMeasured = null;
+            LayoutCard();
+        }
     }
 
     private void SetFooter(string left, string right)

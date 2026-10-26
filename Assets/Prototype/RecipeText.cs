@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 
 /// <summary>
-/// [RecipeText.cs] v1.6 (v9.35.2 2026-10-26 장판 줄 - n초 동안 그 위 손님이 계속 느려진다 (독 장판은 독도, GameBalance.FieldLingerSec) / 부식의 정수 줄 - 방어·저항이 깎인다 (AuraShredReal)) / v1.5 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v1.4 (v9.19.4 2026-10-07: 낱말 요약 Brief·ShapeWord·PassiveScales - 운행 중 포탑 정보창용. 유저 "포탑 설명이 너무 길다, 겜하면서 필요한 내용도 아니다") / v1.3 (v9.14 2026-09-28: 설명 짧게 - 재료 줄 제외, "잘 박힌다" 줄 간결 / RecipeHoverRelay.onClick) / v1.2 (v9.12 2026-09-22: 용어 "지속 피해") / v1.1 (v9.11.1 2026-09-22: 재료·조리대 줄(Source) 추가, 무방비 표현) / v1 (신규, v9.10 2026-09-17) - 요리(포탑) 설명을 일상어로 만드는 한 곳
+/// [RecipeText.cs] v1.7 (v9.35.3 2026-10-26 오라 셋이 하는 일대로 (AuraWord - 예전엔 셋 다 "가까이 온 손님이 계속 맞는다": 빙벽 스튜·부식의 정수는 안 때린다) / 부식의 정수 = 방어·저항 깎기 + 부식 (맞는 피해 +n%) / 부채꼴 = 닿는 거리 7, 멀면 기다린다 / 낱말 요약에 오라 효과) / v1.6 (v9.35.2 2026-10-26 장판 줄 - n초 동안 그 위 손님이 계속 느려진다 (독 장판은 독도, GameBalance.FieldLingerSec) / 부식의 정수 줄 - 방어·저항이 깎인다 (AuraShredReal)) / v1.5 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v1.4 (v9.19.4 2026-10-07: 낱말 요약 Brief·ShapeWord·PassiveScales - 운행 중 포탑 정보창용. 유저 "포탑 설명이 너무 길다, 겜하면서 필요한 내용도 아니다") / v1.3 (v9.14 2026-09-28: 설명 짧게 - 재료 줄 제외, "잘 박힌다" 줄 간결 / RecipeHoverRelay.onClick) / v1.2 (v9.12 2026-09-22: 용어 "지속 피해") / v1.1 (v9.11.1 2026-09-22: 재료·조리대 줄(Source) 추가, 무방비 표현) / v1 (신규, v9.10 2026-09-17) - 요리(포탑) 설명을 일상어로 만드는 한 곳
 ///
 /// 테스터 피드백: "도감에 요리를 눌렀을 때 뭔 요린지 모르니까 만들지 말지도 모르겠음", "포탑 효과를 읽을 시간이 없음",
 /// "모르겠는 말(공명·인퓨징·DPS) 쓰지 말기". RecipeData 의 수치 필드(형태·속성·도트·감속·폭발·체인·회복·버프·패시브)를 그대로 읽어
@@ -63,6 +63,7 @@ public static class RecipeText
             return string.IsNullOrEmpty(r.description) ? RoleWord(r) : r.description;
 
         string s = ShapeWord(r);
+        if (r.shape == AttackShape.Aura) return s + " · " + AuraBrief(r);   // v1.7: 오라는 하는 일 하나 (쏘지 않는다)
         if (r.damage > 0f) s += " · " + (r.damageType == DamageType.Magic ? "속성" : "물리");
         if (r.burnStack > 0) s += " · 화상";
         if (r.poisonStack > 0 || r.fieldPoison) s += " · 독";
@@ -95,11 +96,11 @@ public static class RecipeText
         switch (r.shape)
         {
             case AttackShape.Pierce: s = "직선으로 뚫고 지나간다 - 줄지어 오는 손님을 한꺼번에"; break;
-            case AttackShape.Cone: s = "앞쪽 부채꼴로 흩뿌린다 - 붙어 오는 손님 여럿"; break;
+            case AttackShape.Cone: s = ConeWord(); break;
             case AttackShape.Explode: s = "적중한 곳에서 터진다" + (r.explodeRadius > 0f ? "(반경 " + r.explodeRadius.ToString("F0") + ")" : "") + " - 주변 손님도 같이 맞는다"; break;
             case AttackShape.Chain: s = "맞은 손님에서 " + Mathf.Max(1, r.chainCount) + "마리로 튄다 - 몰려 있을수록 좋다"; break;
             case AttackShape.Field: s = FieldWord(r); break;
-            case AttackShape.Aura: s = "기차 주변 오라 - 가까이 온 손님이 계속 맞는다"; break;
+            case AttackShape.Aura: s = AuraWord(r); break;
             case AttackShape.Passive: s = PassiveWord(r); break;
             default: s = "가까운 손님 하나를 노려 쏜다"; break;
         }
@@ -196,6 +197,44 @@ public static class RecipeText
         string size = r.fieldBig ? "넓은" : "작은";
         if (GameBalance.FieldLingerSec <= 0f) return size + " 장판을 깐다 - 떨어진 자리의 손님에게 덤 효과";
         return size + " 장판을 깐다 - " + Mathf.RoundToInt(GameBalance.FieldLingerSec) + "초 동안 그 위를 지나는 손님이 계속 " + (r.fieldPoison && GameBalance.FieldPoisonOn ? "느려지고 독에 걸린다" : "느려진다");
+    }
+
+    /// <summary>v1.7 (v9.35.3): 부채꼴 한 줄 - 닿는 거리(GameBalance.ConeReach)를 쓴다. 조준이 그 안만 보면 "멀면 기다린다"</summary>
+    private static string ConeWord()
+    {
+        string reach = Mathf.RoundToInt(GameBalance.ConeReach).ToString();
+        if (GameBalance.ConeAimWithinReach) return "가까이 온 손님에게 부채꼴로 흩뿌린다 - 닿는 거리 " + reach + ", 멀면 기다린다";
+        return "앞쪽 부채꼴로 흩뿌린다 - 닿는 거리 " + reach;
+    }
+
+    /// <summary>v1.7 (v9.35.3): 오라 한 줄 - 오라마다 하는 일 (TurretSlotManager.TickAuras 와 같은 말). 예전엔 셋 다 "가까이 온 손님이 계속 맞는다"</summary>
+    private static string AuraWord(RecipeData r)
+    {
+        string where = GameBalance.AuraFromTrainBody ? "기차에서 " + Mathf.RoundToInt(GameBalance.AuraReach) + " 안에 들어온 손님" : "기차 가까이 온 손님";
+        switch (r.passiveType ?? "")
+        {
+            case "auraBurn": return "쏘지 않는다. " + where + "이 계속 불탄다 (0.5초마다, 레벨이 오르면 세진다)";
+            case "auraSlow": return "쏘지 않는다. " + where + "이 느려진다 (50%)";
+            case "auraShred":
+                if (!GameBalance.AuraShredReal) return "쏘지 않는다. " + where + "이 조금 느려진다";
+                return "쏘지 않는다. " + where + "의 방어·저항이 깎인다"
+                    + (GameBalance.CorrodeVulnBonus > 0f ? ". 부식된 손님은 포탑에 " + Mathf.RoundToInt(GameBalance.CorrodeVulnBonus * 100f) + "% 더 아프게 맞는다 (숫자가 연두색, 화상·독은 그대로)" : "");
+            default: return "쏘지 않는다. " + where + "에게 덤 효과";
+        }
+    }
+
+    /// <summary>v1.7: 오라 낱말 요약 (포탑 정보창) - "화상" / "감속 50%" / "방어·저항 깎기 + 부식 +20%"</summary>
+    private static string AuraBrief(RecipeData r)
+    {
+        switch (r.passiveType ?? "")
+        {
+            case "auraBurn": return "화상";
+            case "auraSlow": return "감속 50%";
+            case "auraShred":
+                if (!GameBalance.AuraShredReal) return "감속 15%";
+                return "방어·저항 깎기" + (GameBalance.CorrodeVulnBonus > 0f ? " + 부식 +" + Mathf.RoundToInt(GameBalance.CorrodeVulnBonus * 100f) + "%" : "");
+            default: return "덤 효과";
+        }
     }
 
     /// <summary>RecipeDatabase 의 passiveType 키: regen / maxhp / dr / thorns / auraBurn / auraSlow / auraShred / omega</summary>

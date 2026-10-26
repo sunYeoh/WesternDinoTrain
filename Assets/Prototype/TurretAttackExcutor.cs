@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 
 /// <summary>
-/// [TurretAttackExecutor.cs] v5.14 (v9.35.2 2026-10-26 설명대로: 장판이 남아 있는 GameBalance.FieldLingerSec 동안 그 위 손님에게 감속을 다시 건다 (FieldLinger - 예전엔 떨어질 때 한 번, 그림만 4초) / 독 장판(fieldPoison)이 떨어질 때와 장판 위에서 독 1겹 - 장판이 겹쳐도 한 손님 1초 한 겹 (예전엔 독이 아예 안 들어갔다) / 부채꼴 거리 = GameBalance.ConeReach, 부채꼴 판단 FiresCone 한 곳 (TurretSlot 조준 · 카드 줄과 같이) / 관통 줄기는 노리는 거리만큼 (PierceFollowsAim)) / v5.13 (v9.33 2026-10-25 소리: 주석만 - 착탄음이 잦은 소리를 낮추던 덕킹은 SoundManager v3 에서 뗐다) / v5.12 (v9.25 2026-10-16: DealDamage 에 싸움 유물 배율 ItemManager.RelicDamageMul (굶주린 화덕·짝꿍 숟가락·빈 접시) + 단골 주문 버프 OrderSystem.DamageMulFor (그 계열 +40%) / 폭발 반경 x ItemManager.ExplodeRadiusMul (무거운 냄비) / 화상·독 x ItemManager.DotMul (독한 소스)) / v5.11 (v9.24.1 2026-10-16 5차 피드백 5번 "탄환 증발": 탄이 손님을 따라간다 (GameBalance.ProjectileHoming - 예전엔 쏜 순간의 자리로 날아가 손님이 움직이면 빈자리에 떨어졌다). 날아가는 동안 표적이 죽으면 직격 탄은 탄 자리에서 가장 가까운 손님(ProjectileRetargetRadius 4u)으로 방향을 틀고, 폭발·장판은 마지막 자리에 떨어진다. 떨어진 자리의 판정은 LandShot 하나로) / v5.10 (v9.23 2026-10-14 보스 새 패턴: 탄·관통·부채꼴이 손님의 AimPoint 를 겨눈다 - 디 오리지널은 페이즈마다 약점 칸(머리 / 맨 뒤 화물칸 / 심장 칸)으로 탄이 모인다) / v5.9 (v9.21 2026-10-12 보스 1단계: 범위 판정(폭발·장판·동상 파편·마지막 서비스·대체 표적)의 거리를 Enemy.DistanceFrom 으로 - 큰 보스는 몸 가장자리까지 재서 9 ~ 20u 몸의 끝에 떨어진 폭발이 비껴가지 않는다) / v5.8 (v9.19.3 2026-10-07: 증강의 타격당 회복을 1초에 GameBalance.LifestealHitsPerSec 번까지만 센다 - LifestealReady. 타격마다 전부 세면 손님이 늘고 단단해진 만큼 회복이 불어나 기차 HP 가 닳지 않았다) / v5.7 (v9.19.2 2026-10-07: v5.6 의 "타격당 회복 x 손님의 몫"을 되돌렸다 - 손님이 제 힘으로 오니 때린 만큼 그대로 회복한다) / v5.6 (v9.19.1: 증강의 타격당 회복에 맞은 손님의 몫을 곱했다) / v5.5 (v9.18 2026-10-06: 피해 출처(CurrentSource = 쏜 포탑) - 데미지 숫자를 포탑별로 합산하게 HitFeel 에 같이 넘긴다. 날아가는 탄은 도착할 때 출처를 다시 건다) / v5.4 (v9.17 2026-10-06: v9.14 머리말에 적고 본문에 빠져 있던 것을 실제로 넣음 - 투사체가 날아가는 동안 Enemy.IncomingDamage 예약·도착 때 해제 / 도착했을 때 표적이 죽었으면 ProjectileRetargetRadius 안의 다른 손님을 맞힌다. + A5: 물리 단발이 맞으면 HitFeel.Knock(그림만 움찔)) / v5.3 (v9.16 2026-09-29 손맛 2차 - 소리: 발사음 = 요리 속성·티어·모양별(SoundKeys.Shot, 포탑 위치에서 PlayAt) / 폭발 착탄 sfx_explosion / 장판 sfx_field / 연쇄 번개 튈 때마다 sfx_chain / 증강 폭발(동상 파편·마지막 서비스)도 폭발음 / HitFeel.NextHit 에 요리 속성을 같이 넘겨 명중음에 속성 겹침이 얹힌다) / v5.2 (v9.14 2026-09-28 테스터 "하나 점사해서 잡으면 나머지가 다 빗나감": 투사체가 도착했을 때 표적이 이미 죽었으면 그 자리 근처의 다른 손님을 맞힌다(ProjectileRetargetRadius) + 날아가는 동안 Enemy.IncomingDamage 예약 - 포탑이 곧 죽을 손님을 건너뛴다) / v5.1 (v9.11 2026-09-22 타격감: DealDamage 가 HitFeel.NextHit(속성색·크리) 를 걸고 때린다) / v5
+/// [TurretAttackExecutor.cs] v5.15 (v9.35.3 2026-10-26 부채꼴 판정이 손님 몸까지 (ConeBodyHit - 거리는 Enemy.BodyDistanceFrom, 각도는 몸 반경만큼 여유. 보스는 몸 사각형) - 불길 그림이 몸에 닿는데 숫자가 안 뜨던 헛방 (유저 10-26 "그럴 때가 있고 안 그럴 때가 있다") / 부채꼴 포탑 조준이 같은 잣대 (ConeDistance)) / v5.14 (v9.35.2 2026-10-26 설명대로: 장판이 남아 있는 GameBalance.FieldLingerSec 동안 그 위 손님에게 감속을 다시 건다 (FieldLinger - 예전엔 떨어질 때 한 번, 그림만 4초) / 독 장판(fieldPoison)이 떨어질 때와 장판 위에서 독 1겹 - 장판이 겹쳐도 한 손님 1초 한 겹 (예전엔 독이 아예 안 들어갔다) / 부채꼴 거리 = GameBalance.ConeReach, 부채꼴 판단 FiresCone 한 곳 (TurretSlot 조준 · 카드 줄과 같이) / 관통 줄기는 노리는 거리만큼 (PierceFollowsAim)) / v5.13 (v9.33 2026-10-25 소리: 주석만 - 착탄음이 잦은 소리를 낮추던 덕킹은 SoundManager v3 에서 뗐다) / v5.12 (v9.25 2026-10-16: DealDamage 에 싸움 유물 배율 ItemManager.RelicDamageMul (굶주린 화덕·짝꿍 숟가락·빈 접시) + 단골 주문 버프 OrderSystem.DamageMulFor (그 계열 +40%) / 폭발 반경 x ItemManager.ExplodeRadiusMul (무거운 냄비) / 화상·독 x ItemManager.DotMul (독한 소스)) / v5.11 (v9.24.1 2026-10-16 5차 피드백 5번 "탄환 증발": 탄이 손님을 따라간다 (GameBalance.ProjectileHoming - 예전엔 쏜 순간의 자리로 날아가 손님이 움직이면 빈자리에 떨어졌다). 날아가는 동안 표적이 죽으면 직격 탄은 탄 자리에서 가장 가까운 손님(ProjectileRetargetRadius 4u)으로 방향을 틀고, 폭발·장판은 마지막 자리에 떨어진다. 떨어진 자리의 판정은 LandShot 하나로) / v5.10 (v9.23 2026-10-14 보스 새 패턴: 탄·관통·부채꼴이 손님의 AimPoint 를 겨눈다 - 디 오리지널은 페이즈마다 약점 칸(머리 / 맨 뒤 화물칸 / 심장 칸)으로 탄이 모인다) / v5.9 (v9.21 2026-10-12 보스 1단계: 범위 판정(폭발·장판·동상 파편·마지막 서비스·대체 표적)의 거리를 Enemy.DistanceFrom 으로 - 큰 보스는 몸 가장자리까지 재서 9 ~ 20u 몸의 끝에 떨어진 폭발이 비껴가지 않는다) / v5.8 (v9.19.3 2026-10-07: 증강의 타격당 회복을 1초에 GameBalance.LifestealHitsPerSec 번까지만 센다 - LifestealReady. 타격마다 전부 세면 손님이 늘고 단단해진 만큼 회복이 불어나 기차 HP 가 닳지 않았다) / v5.7 (v9.19.2 2026-10-07: v5.6 의 "타격당 회복 x 손님의 몫"을 되돌렸다 - 손님이 제 힘으로 오니 때린 만큼 그대로 회복한다) / v5.6 (v9.19.1: 증강의 타격당 회복에 맞은 손님의 몫을 곱했다) / v5.5 (v9.18 2026-10-06: 피해 출처(CurrentSource = 쏜 포탑) - 데미지 숫자를 포탑별로 합산하게 HitFeel 에 같이 넘긴다. 날아가는 탄은 도착할 때 출처를 다시 건다) / v5.4 (v9.17 2026-10-06: v9.14 머리말에 적고 본문에 빠져 있던 것을 실제로 넣음 - 투사체가 날아가는 동안 Enemy.IncomingDamage 예약·도착 때 해제 / 도착했을 때 표적이 죽었으면 ProjectileRetargetRadius 안의 다른 손님을 맞힌다. + A5: 물리 단발이 맞으면 HitFeel.Knock(그림만 움찔)) / v5.3 (v9.16 2026-09-29 손맛 2차 - 소리: 발사음 = 요리 속성·티어·모양별(SoundKeys.Shot, 포탑 위치에서 PlayAt) / 폭발 착탄 sfx_explosion / 장판 sfx_field / 연쇄 번개 튈 때마다 sfx_chain / 증강 폭발(동상 파편·마지막 서비스)도 폭발음 / HitFeel.NextHit 에 요리 속성을 같이 넘겨 명중음에 속성 겹침이 얹힌다) / v5.2 (v9.14 2026-09-28 테스터 "하나 점사해서 잡으면 나머지가 다 빗나감": 투사체가 도착했을 때 표적이 이미 죽었으면 그 자리 근처의 다른 손님을 맞힌다(ProjectileRetargetRadius) + 날아가는 동안 Enemy.IncomingDamage 예약 - 포탑이 곧 죽을 손님을 건너뛴다) / v5.1 (v9.11 2026-09-22 타격감: DealDamage 가 HitFeel.NextHit(속성색·크리) 를 걸고 때린다) / v5
 /// 포탑 공격 형태(8종)별 판정 및 이펙트 실행기
 /// - v3: 모든 TakeDamage에 r.damageType 적용 (DEF/RES 계산)
 /// - v4: 증강 시스템(AugmentManager) 연동
@@ -727,14 +727,40 @@ public static class TurretAttackExecutor
         for (int i = 0; i < all.Length; i++)
         {
             if (!all[i].IsAlive) continue;
-            Vector3 toEnemy = all[i].AimPoint - origin;   // v5.10: 겨눈 자리로 잰다
-            if (toEnemy.magnitude > coneRange) continue;
-            if (Vector3.Angle(dir, toEnemy) <= coneHalfAngle)
+            bool hit;
+            if (GameBalance.ConeHitsBody) hit = ConeBodyHit(all[i], origin, dir, coneRange, coneHalfAngle);   // v5.15: 몸까지 (겨눈 손님은 조준이 같은 잣대라 늘 안에 든다)
+            else
+            {
+                Vector3 toEnemy = all[i].AimPoint - origin;   // v5.10: 겨눈 자리로 잰다 (예전)
+                hit = toEnemy.magnitude <= coneRange && Vector3.Angle(dir, toEnemy) <= coneHalfAngle;
+            }
+            if (hit)
             {
                 DealDamage(r, all[i], damage, 1f);
                 ApplyEffects(r, all[i]);
             }
         }
+    }
+
+    /// <summary>
+    /// v5.15 (v9.35.3): 부채꼴 불길이 손님 몸에 닿나 - 거리는 몸 가장자리까지 (Enemy.BodyDistanceFrom - 보스는 몸 사각형),
+    /// 각도는 손님 한가운데 방향이 반각 + 몸 반경만큼의 여유 안. 불길 그림(AttackVFX.Cone)과 같은 모양이 몸에 걸치면 맞는다
+    /// </summary>
+    private static bool ConeBodyHit(Enemy e, Vector3 origin, Vector3 dir, float range, float halfAngleDeg)
+    {
+        if (e.BodyDistanceFrom(origin) > range) return false;
+        Vector3 to = e.AimPoint - origin; to.z = 0f;
+        float centerDist = to.magnitude;
+        if (centerDist < 0.05f) return true;
+        float slack = Mathf.Atan2(e.BodyRadius, centerDist) * Mathf.Rad2Deg;   // 몸이 걸치는 각도
+        return Vector3.Angle(dir, to) <= halfAngleDeg + slack;
+    }
+
+    /// <summary>v5.15 (v9.35.3): 부채꼴 포탑이 손님을 노릴 때 재는 거리 - 불길 판정(ConeBodyHit)과 같은 잣대 (몸까지). 스위치를 끄면 예전 (중심까지)</summary>
+    public static float ConeDistance(Enemy e, Vector3 from)
+    {
+        if (e == null) return float.MaxValue;
+        return GameBalance.ConeHitsBody ? e.BodyDistanceFrom(from) : Vector3.Distance(from, e.transform.position);
     }
 
     /// <summary>연쇄 번개: 인접 적으로 전이. 기본 80%, 증폭 전이 증강 시 튕길수록 강해짐</summary>

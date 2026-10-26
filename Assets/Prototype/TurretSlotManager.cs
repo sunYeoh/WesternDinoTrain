@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// [TurretSlotManager.cs] v2.14 (v9.35.2 2026-10-26 오라가 설명대로: 화염 방벽 불 = 화상 (화상·독 배율 + 약점 파고들기 기록, GameBalance.AuraBurnIsDot) / 부식의 정수 = 방어·저항 깎기 1겹 (AuraShredReal - 예전엔 임시 감속 -15%) / 빙벽 스튜 감속 · 축전 장갑 마비도 '느려지거나 마비된 손님'으로 (TrainCcCounts - 사냥꾼의 본능 · 동상 파편)) / v2.13 (v9.34 2026-10-25 유저 "2레벨 요리끼리 합치면 2레벨 전설": 진화 결과 레벨 = 재료 레벨 그대로. 진화 조리 판정이 좋으면 레벨 대신 그 전설 요리 1개를 하단 카드로, 숙련 +1 없음 - GameBalance.FusionKeepLevel·FusionBonusDishes) / v2.12 (v9.30 2026-10-21 포탑 칸: 시작 4칸(GameBalance.BaseSlotCount), 지역 보스를 잡고 정차할 때 하나씩 더 (BossSlotUnlocks - 운행 단위, GameManager 가 부른다 UnlockByBoss - 열린 칸에 금빛 고리 + 알림), 그다음 증강. 잠긴 칸 글은 SlotMarkerUI) / v2.11 (v9.26 2026-10-16 마감 정리: 어디서도 안 부르는 RepairOne 삭제) / v2.10 (v9.25 2026-10-16 B5 싸움 유물: CountRecipe · EmptyUnlockedCount (짝꿍 숟가락·빈 접시가 읽는다) / 짝꿍 숟가락을 가지면 공명이 꺼진다 (ItemManager.NoResonance - 피해·방어 공명·발동 알림·속성 줄)) / v2.9 (v9.24.1 2026-10-16 5차 피드백 1·2번: 같은 요리 합체가 상한을 넘치면 넘친 레벨만큼 그 요리를 하단 카드로 돌려준다 (4 + 4 = Lv6 + 요리 2개 - 예전엔 말없이 사라졌다, GameBalance.MergeOverflowRefund). 진화 결과 글에 레벨이 나온 까닭 (높은 쪽 Lv + 판정 보너스 + 숙련). 손댄 안내 글은 10-14 말투로) / v2.8 (v9.23 2026-10-14 점검 수정: 포탑 진화 조리 성공 = 그 전설 요리 숙련 1회 - FoodStock.CountCook) / v2.7 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v2.6 (v9.18 2026-10-06: 진화 조리는 같은 레벨끼리만(FusionSameLevelOnly) + 결과 레벨도 상한까지 / 합체·진화 때 들어간 접시 수를 넘겨받는다(폐기 환급) / 과열은 조건이 된 포탑 중 무작위 / 정비 거리 = 슬롯 앞 바닥(TrainDeck.NearestWalkPoint)까지 / 속성 줄에 마우스를 올리면 공명·옆자리 효과 설명) /
+/// [TurretSlotManager.cs] v2.15 (v9.35.3 2026-10-26 오라 범위 = 기차 몸에서 GameBalance.AuraReach (예전: 가운데에서 10 - 오른쪽 끝을 무는 손님에 안 닿았다) / 부식의 정수 = 부식 (Enemy.corrodedUntil - 직접 맞는 피해 +n%) / 속성 줄 = 어두운 판 + "물리 4기 · 공명 켜짐 +20%" + "?" 칩 (UI 목업 v1 의 3 - "4/3" 이 분수로 읽혔다)) / v2.14 (v9.35.2 2026-10-26 오라가 설명대로: 화염 방벽 불 = 화상 (화상·독 배율 + 약점 파고들기 기록, GameBalance.AuraBurnIsDot) / 부식의 정수 = 방어·저항 깎기 1겹 (AuraShredReal - 예전엔 임시 감속 -15%) / 빙벽 스튜 감속 · 축전 장갑 마비도 '느려지거나 마비된 손님'으로 (TrainCcCounts - 사냥꾼의 본능 · 동상 파편)) / v2.13 (v9.34 2026-10-25 유저 "2레벨 요리끼리 합치면 2레벨 전설": 진화 결과 레벨 = 재료 레벨 그대로. 진화 조리 판정이 좋으면 레벨 대신 그 전설 요리 1개를 하단 카드로, 숙련 +1 없음 - GameBalance.FusionKeepLevel·FusionBonusDishes) / v2.12 (v9.30 2026-10-21 포탑 칸: 시작 4칸(GameBalance.BaseSlotCount), 지역 보스를 잡고 정차할 때 하나씩 더 (BossSlotUnlocks - 운행 단위, GameManager 가 부른다 UnlockByBoss - 열린 칸에 금빛 고리 + 알림), 그다음 증강. 잠긴 칸 글은 SlotMarkerUI) / v2.11 (v9.26 2026-10-16 마감 정리: 어디서도 안 부르는 RepairOne 삭제) / v2.10 (v9.25 2026-10-16 B5 싸움 유물: CountRecipe · EmptyUnlockedCount (짝꿍 숟가락·빈 접시가 읽는다) / 짝꿍 숟가락을 가지면 공명이 꺼진다 (ItemManager.NoResonance - 피해·방어 공명·발동 알림·속성 줄)) / v2.9 (v9.24.1 2026-10-16 5차 피드백 1·2번: 같은 요리 합체가 상한을 넘치면 넘친 레벨만큼 그 요리를 하단 카드로 돌려준다 (4 + 4 = Lv6 + 요리 2개 - 예전엔 말없이 사라졌다, GameBalance.MergeOverflowRefund). 진화 결과 글에 레벨이 나온 까닭 (높은 쪽 Lv + 판정 보너스 + 숙련). 손댄 안내 글은 10-14 말투로) / v2.8 (v9.23 2026-10-14 점검 수정: 포탑 진화 조리 성공 = 그 전설 요리 숙련 1회 - FoodStock.CountCook) / v2.7 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v2.6 (v9.18 2026-10-06: 진화 조리는 같은 레벨끼리만(FusionSameLevelOnly) + 결과 레벨도 상한까지 / 합체·진화 때 들어간 접시 수를 넘겨받는다(폐기 환급) / 과열은 조건이 된 포탑 중 무작위 / 정비 거리 = 슬롯 앞 바닥(TrainDeck.NearestWalkPoint)까지 / 속성 줄에 마우스를 올리면 공명·옆자리 효과 설명) /
 /// v2.5 (v9.16 2026-09-29 손맛 2차 - 소리: 진화 완료 sfx_fusion, 완벽 판정이면 판정음이 뒤따른다 / 오라 화염 틱은 Enemy.TakeTickDamage - 명중음 없이) / v2.4 (v9.15 2026-09-29: 파손 슬롯 - RepairAllBroken(새 운행)·BrokenCount·RepairOne(정비소) / 동종 병합 레벨 배율 표기 GameBalance.LevelMultOf) / v2.3 (v9.14 레벨 상한) / v2.1 (v9.9 2026-09-16: 슬롯 4모서리 배치 GameBalance.SlotPosition + 근접 판정 "가까운 벽 쪽 거리") / v2
 /// 포탑 슬롯 8개를 자동 생성/관리하는 매니저 (싱글톤)
 /// - v2.1: 슬롯 위치는 GameBalance.SlotPosition(i) 한 곳에서 (모서리 4 = 북 2 지붕선 위 / 남 2 섀시 위).
@@ -121,23 +121,45 @@ public class TurretSlotManager : MonoBehaviour
         scaler.referenceResolution = UIFactory.RefResolution;   // v9.14: UI 전체 배율 (GameBalance.UIScale)
         scaler.matchWidthOrHeight = 0.5f;
 
-        resonanceText = KitchenEventManager.MakeText(canvasGo.transform, "ResonanceText", "", 19,
+        // v2.15 (v9.35.3): 어두운 판 - 글이 땅 그림에 묻히지 않게. 오른쪽 끝에 "?" 칩 (마우스를 올리면 설명 상자 - 예전 [마우스를 올리면 설명] 글 대신)
+        resonanceBar = KitchenEventManager.MakeBox(canvasGo.transform, "ResonanceBar", new Color(0.07f, 0.05f, 0.04f, 0.86f));
+        resonanceBar.anchorMin = new Vector2(1f, 0f);
+        resonanceBar.anchorMax = new Vector2(1f, 0f);
+        resonanceBar.pivot = new Vector2(1f, 0f);
+        resonanceBar.anchoredPosition = new Vector2(-16f, 190f);   // 하단 HUD(위 끝 190) 바로 위 (사고 배너 아래 끝 216 아래로 - 판 높이 26)
+        resonanceBar.sizeDelta = new Vector2(300f, 26f);
+        resonanceBar.GetComponent<UnityEngine.UI.Image>().raycastTarget = false;
+        resonanceBar.gameObject.SetActive(false);
+
+        resonanceText = KitchenEventManager.MakeText(resonanceBar, "ResonanceText", "", 17,
             new Color(0.85f, 0.85f, 0.8f));
         RectTransform rt = resonanceText.rectTransform;
-        rt.anchorMin = new Vector2(1f, 0f);
-        rt.anchorMax = new Vector2(1f, 0f);
-        rt.pivot = new Vector2(1f, 0f);
-        rt.anchoredPosition = new Vector2(-16f, 192f);   // 하단 HUD(위 끝 190) 바로 위. v2.6: 195 -> 192 (사고 배너 아래 끝 216 과 글자가 안 겹치게)
-        rt.sizeDelta = new Vector2(420f, 30f);
-        resonanceText.alignment = TextAnchor.LowerRight;
+        rt.anchorMin = new Vector2(0f, 0.5f);
+        rt.anchorMax = new Vector2(0f, 0.5f);
+        rt.pivot = new Vector2(0f, 0.5f);
+        rt.anchoredPosition = new Vector2(12f, 0f);
+        rt.sizeDelta = new Vector2(260f, 24f);
+        resonanceText.alignment = TextAnchor.MiddleLeft;
         resonanceText.supportRichText = true;
+
+        RectTransform chip = KitchenEventManager.MakeBox(resonanceBar, "HelpChip", new Color(0.36f, 0.27f, 0.16f, 1f));
+        chip.anchorMin = new Vector2(1f, 0.5f);
+        chip.anchorMax = new Vector2(1f, 0.5f);
+        chip.pivot = new Vector2(1f, 0.5f);
+        chip.anchoredPosition = new Vector2(-4f, 0f);
+        chip.sizeDelta = new Vector2(20f, 20f);
+        chip.GetComponent<UnityEngine.UI.Image>().raycastTarget = false;
+        UnityEngine.UI.Text q = KitchenEventManager.MakeText(chip, "Q", "?", 15, new Color(1f, 0.82f, 0.3f));
+        q.rectTransform.anchorMin = Vector2.zero; q.rectTransform.anchorMax = Vector2.one;
+        q.rectTransform.offsetMin = Vector2.zero; q.rectTransform.offsetMax = Vector2.zero;
+        q.raycastTarget = false;
 
         // v2.6: 속성 줄 설명 상자 (마우스를 올리면 뜬다 - 유저 "시너지가 어떤 버프인지 뜨게")
         resonanceTip = KitchenEventManager.MakeBox(canvasGo.transform, "ResonanceTip", new Color(0.08f, 0.06f, 0.05f, 0.95f));
         resonanceTip.anchorMin = new Vector2(1f, 0f);
         resonanceTip.anchorMax = new Vector2(1f, 0f);
         resonanceTip.pivot = new Vector2(1f, 0f);
-        resonanceTip.anchoredPosition = new Vector2(-16f, 229f);   // 속성 줄 바로 위
+        resonanceTip.anchoredPosition = new Vector2(-16f, 222f);   // 속성 줄 바로 위 (v2.15: 판 위 끝 216 + 6)
         resonanceTip.sizeDelta = new Vector2(560f, 60f);
         UnityEngine.UI.Image tipImg = resonanceTip.GetComponent<UnityEngine.UI.Image>();
         tipImg.raycastTarget = false;
@@ -164,6 +186,7 @@ public class TurretSlotManager : MonoBehaviour
     }
 
     // v2.6: 속성 줄 설명
+    private RectTransform resonanceBar;   // v2.15: 속성 줄 판 (글 + "?" 칩)
     private RectTransform resonanceTip;
     private UnityEngine.UI.Text resonanceTipText;
     private string resonanceLineShown = null;   // 마지막으로 찍은 속성 줄 (바뀔 때만 폭을 다시 잰다)
@@ -190,7 +213,7 @@ public class TurretSlotManager : MonoBehaviour
     {
         if (resonanceTip == null || resonanceText == null) return;
         bool over = !string.IsNullOrEmpty(resonanceText.text)
-            && RectTransformUtility.RectangleContainsScreenPoint(resonanceText.rectTransform, Input.mousePosition, null);
+            && RectTransformUtility.RectangleContainsScreenPoint(resonanceBar != null ? resonanceBar : resonanceText.rectTransform, Input.mousePosition, null);   // v2.15: 판 전체 (글 + ? 칩)
         if (!over)
         {
             if (resonanceTip.gameObject.activeSelf) resonanceTip.gameObject.SetActive(false);
@@ -376,7 +399,7 @@ public class TurretSlotManager : MonoBehaviour
     // 오라 슬롯 처리 (화염 방벽 / 빙벽 스튜 / 부식의 정수)
     private void TickAuras()
     {
-        float auraRange = 10f;
+        float auraRange = GameBalance.AuraFromTrainBody ? GameBalance.AuraReach : 10f;   // v2.15 (v9.35.3): 기차 몸에서 6 (예전: 가운데에서 10)
         Enemy[] all = FindObjectsByType<Enemy>(FindObjectsSortMode.None);
 
         for (int i = 0; i < 8; i++)
@@ -389,7 +412,8 @@ public class TurretSlotManager : MonoBehaviour
             for (int e = 0; e < all.Length; e++)
             {
                 if (!all[e].IsAlive) continue;
-                float d = Vector3.Distance(train.transform.position, all[e].transform.position);
+                float d = GameBalance.AuraFromTrainBody ? DistToTrainBody(all[e])
+                    : Vector3.Distance(train.transform.position, all[e].transform.position);
                 if (d > auraRange) continue;
 
                 if (r.passiveType == "auraBurn")
@@ -414,9 +438,24 @@ public class TurretSlotManager : MonoBehaviour
                         all[e].ApplyShredRes(1 + AugmentManager.ShredAdd);
                     }
                     else all[e].ApplySpeedDebuff(0.85f, 0.6f);
+                    // v2.15 (v9.35.3): 부식 - 직접 맞는 피해 +n% (깎기만으로는 방어가 낮은 손님에게 아무 일도 없었다). 0.5초 틱이라 0.6초씩
+                    if (GameBalance.CorrodeVulnBonus > 0f) all[e].corrodedUntil = Time.time + 0.6f;
                 }
             }
         }
+    }
+
+    /// <summary>
+    /// v2.15 (v9.35.3): 손님에서 기차 몸까지 거리 - 기차를 선로 방향 선분(GameBalance.CarEdgesX 첫 끝 ~ 마지막 끝, 기차 y)으로 보고 잰다 (Enemy.CurrentTargetPos 와 같은 끝).
+    /// 오라가 '기차 주변'이 되게 - 예전 (기차 가운데에서 10) 은 오른쪽 끝을 무는 손님에 안 닿았다
+    /// </summary>
+    private float DistToTrainBody(Enemy en)
+    {
+        float[] edges = GameBalance.CarEdgesX;
+        Vector3 p = en.transform.position;
+        float ty = train != null ? train.transform.position.y : 0f;
+        float x = Mathf.Clamp(p.x, edges[0], edges[edges.Length - 1]);
+        return Vector2.Distance(new Vector2(p.x, p.y), new Vector2(x, ty));
     }
 
     // ─────────────────────────────────────────────
@@ -458,28 +497,36 @@ public class TurretSlotManager : MonoBehaviour
         // 공명 현황 HUD 갱신: 배치된 태그만 "화염 2/3" 형태로, 발동 중이면 금색
         if (resonanceText != null)
         {
+            // v2.15 (v9.35.3): "물리 4/3 공명!" 이 분수로 읽혔다 -> "물리 4기 · 공명 켜짐 +20%" / 아직이면 "화염 2기 · 1기 더" (UI 목업 v1 의 3)
+            int bonusPct = Mathf.RoundToInt((GameBalance.ResonanceBonus + AugmentManager.ResonanceBonusAdd) * 100f);
             string line = "";
             foreach (FoodTag tag in System.Enum.GetValues(typeof(FoodTag)))
             {
                 int c = tagCounts[(int)tag];
                 if (c <= 0) continue;
-                if (line.Length > 0) line += "   ";
+                if (line.Length > 0) line += "    ";
 
                 int need = NeedFor(tag);
                 if (ItemManager.NoResonance)
-                    line += TagKor(tag) + " " + c;   // v2.10: 공명이 꺼져 있으면 개수만
+                    line += TagKor(tag) + " " + c + "기";   // v2.10: 공명이 꺼져 있으면 개수만
                 else if (c >= need)
-                    line += "<color=#FFD24D>" + TagKor(tag) + " " + c + "/" + need + " 공명!</color>";
+                    line += "<color=#FFD24D>" + TagKor(tag) + " " + c + "기 · 공명 켜짐 " + (tag == FoodTag.Def ? "받는 피해 -10%" : "+" + bonusPct + "%") + "</color>";
                 else
-                    line += TagKor(tag) + " " + c + "/" + need;
+                    line += TagKor(tag) + " " + c + "기 <color=#8C8068>· " + (need - c) + "기 더</color>";
             }
-            string shown = line.Length > 0 ? "속성:  " + line + (ItemManager.NoResonance ? "   <color=#8C8068>짝꿍 숟가락이 공명을 껐어</color>" : "   <color=#8C8068>[마우스를 올리면 설명]</color>") : "";
+            string shown = line.Length > 0 ? "<color=#A08C6E>속성</color>   " + line + (ItemManager.NoResonance ? "    <color=#8C8068>짝꿍 숟가락이 공명을 껐어</color>" : "") : "";
             if (shown != resonanceLineShown)
             {
                 resonanceLineShown = shown;
                 resonanceText.text = shown;
-                // 글자 길이에 맞춰 줄의 폭을 잡는다 (마우스 판정 범위 = 보이는 글자 범위)
-                resonanceText.rectTransform.sizeDelta = new Vector2(Mathf.Max(200f, resonanceText.preferredWidth + 12f), 30f);
+                // 판 폭 = 글 + 양옆 여백 + ? 칩 (마우스 판정 범위 = 판)
+                float textW = Mathf.Ceil(resonanceText.preferredWidth) + 4f;
+                resonanceText.rectTransform.sizeDelta = new Vector2(textW, 24f);
+                if (resonanceBar != null)
+                {
+                    resonanceBar.sizeDelta = new Vector2(12f + textW + 10f + 20f + 6f, 26f);
+                    resonanceBar.gameObject.SetActive(shown.Length > 0);
+                }
             }
         }
     }

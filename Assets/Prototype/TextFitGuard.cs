@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [TextFitGuard.cs] v1 (신규, v9.10.1 2026-09-21) - UI 글자가 칸 밖으로 튀어나오는 것을 자동으로 잡는다
+/// [TextFitGuard.cs] v1.1 (v9.35.3 2026-10-26: 코드가 글자 크기를 바꾸면 그 크기를 새 원래 크기로 - 처음 본 크기로 늘 되돌려서 견습 큰 카드(제목 22 · 본문 17)가 작은 카드 크기(18 · 15)로 돌아가 있었다) / v1 (신규, v9.10.1 2026-09-21) - UI 글자가 칸 밖으로 튀어나오는 것을 자동으로 잡는다
 ///
 /// 유저 소감: "증강이나 다른 창에서 글씨가 옆으로 튀어나오는 경우가 아직 너무 많다".
 /// 원인: UIFactory.CreateText / KitchenEventManager.MakeText 가 만드는 Text 는 기본이 Overflow(줄바꿈·축소 없음)라
@@ -15,6 +15,7 @@ using UnityEngine.UI;
 ///        - 아니면 -> 폰트를 1씩 줄인다 (원래 크기의 60% 또는 11px 까지)
 ///   2) 줄바꿈 글자(Wrap)가 칸 높이(24px 이상)를 넘으면 -> 폰트를 줄인다 (같은 하한)
 ///   3) 내용이 짧아지면 원래 크기로 되돌린다 (매 훑기마다 원래 크기에서 다시 판정)
+///   4) (v1.1) 원래 크기 = 처음 본 크기. 단 코드가 크기를 바꿨으면 (내가 마지막에 둔 크기와 다르면) 그 크기가 새 원래 크기
 ///   BestFit 을 이미 켠 Text 는 건드리지 않는다. GameBalance.TextFitGuardOn = false 면 아무것도 안 한다.
 /// 사용법: 없음! 파일만 넣으면 자동 생성 (DontDestroyOnLoad).
 /// VS 2017 (C# 7.3) 호환
@@ -29,6 +30,7 @@ public class TextFitGuard : MonoBehaviour
     private static TextFitGuard instance;
     private float nextScan = 0f;
     private readonly Dictionary<Text, int> originalSize = new Dictionary<Text, int>();
+    private readonly Dictionary<Text, int> appliedSize = new Dictionary<Text, int>();   // v1.1: 내가 마지막에 둔 크기 (이와 다르면 코드가 바꾼 것)
     private readonly List<Text> gone = new List<Text>();
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
@@ -53,7 +55,7 @@ public class TextFitGuard : MonoBehaviour
         gone.Clear();
         foreach (KeyValuePair<Text, int> kv in originalSize)
             if (kv.Key == null) gone.Add(kv.Key);
-        for (int i = 0; i < gone.Count; i++) originalSize.Remove(gone[i]);
+        for (int i = 0; i < gone.Count; i++) { originalSize.Remove(gone[i]); appliedSize.Remove(gone[i]); }
     }
 
     /// <summary>Text 하나를 칸에 맞춘다</summary>
@@ -62,11 +64,23 @@ public class TextFitGuard : MonoBehaviour
         if (t == null || !t.isActiveAndEnabled || t.resizeTextForBestFit) return;
         if (string.IsNullOrEmpty(t.text) || t.font == null) return;
 
-        RectTransform rt = t.rectTransform;
-        float w = rt.rect.width, h = rt.rect.height;
-
         int orig;
         if (!originalSize.TryGetValue(t, out orig)) { orig = t.fontSize; originalSize[t] = orig; }
+        else
+        {
+            // v1.1: 코드가 크기를 바꿨다 (내가 마지막에 둔 크기와 다르다) - 그 크기를 새 원래 크기로 (예전엔 처음 본 크기로 되돌렸다)
+            int applied;
+            if (appliedSize.TryGetValue(t, out applied) && t.fontSize != applied) { orig = t.fontSize; originalSize[t] = orig; }
+        }
+        FitFrom(t, orig);
+        appliedSize[t] = t.fontSize;
+    }
+
+    /// <summary>v1.1: 원래 크기 orig 에서 다시 판정해 칸에 맞춘다 (v1 의 Fit 본문 그대로)</summary>
+    private void FitFrom(Text t, int orig)
+    {
+        RectTransform rt = t.rectTransform;
+        float w = rt.rect.width, h = rt.rect.height;
         int floor = Mathf.Max(MIN_FONT, Mathf.RoundToInt(orig * 0.6f));
 
         // 3) 내용이 바뀌었을 수 있으니 원래 크기에서 다시 판정 (같은 값이면 Unity 가 다시 그리지 않는다)

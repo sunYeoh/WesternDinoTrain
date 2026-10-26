@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// [ParallaxBackground.cs] v4.5 (v9.32 2026-10-22 맵 그림 자리 (그림은 유저가 만든다 - claude/맵_그림_프롬프트_2026-10-22.md): SetMap(맵) - Resources/Sprites/WDT/ground_(desert·canyon·mine·final).png 가 있으면 땅 타일마다 다음 그림을 겹쳐 MapGroundFadeSec 에 걸쳐 바꾸고 그 그림엔 지역 색을 안 입힌다 (없으면 ground_ae + 지역 색 그대로, 운행의 첫 지역은 바로, 같은 맵이면 그대로). deco_(맵)_1 ~ 6.png 가 있으면 땅 타일마다 MapDecoPerTile 개를 깔아 땅과 같이 흐른다 (같은 열은 같은 배치 - 세로로 감겨도 안 튄다). 기차가 달리는 선로(월드 y 0)와 보스전 두 번째 선로의 위아래 MapDecoClearY 에 든 소품은 매 프레임 숨긴다 - 갈림길에서 땅이 세로로 밀려도 (PaintDeco). 소품 색은 땅을 따른다. CurrentMap = 먼지 그림) / v4.4 (v9.24 2026-10-15 갈림길 칸 꺾임 - 테스터피드백3 D1~D3 + 클라이맥스 B4: 세계를 미는 기준을 두상 앞 -> 기차 가운데(주방 칸, GameBalance.ForkWorldRefX)로 옮기고 TrackYAt 으로 기차 x 밑 선로 높이를 내준다 - TrainDeck 이 칸마다 앞뒤 바퀴가 밟은 높이로 칸을 꺾는다 / ForkFollowActive = 분기점 출발부터 마지막 칸 뒷바퀴까지 평행이 될 때까지 (WaveManager 가 첫 손님을 기다린다) / 넘는 동안 배경 ForkDepartBoost 배 (34u 를 3.2u/s 로 가면 12초라서) / 칸마다 앞바퀴가 분기점을 밟으면 sfx_fork_clank + 작은 흔들림 / 칸이 직접 꺾이니 화면 기울임은 ForkRollMul(0) / SetClimaxBoost - 클라이맥스 배경 가속) / v4.3 (v9.21 2026-10-12 보스 1단계: SideRail - 디 오리지널(맞수 열차)이 달릴 두 번째 선로. rails_ae 한 줄을 본선과 같은 오프셋으로 y 자리에 깔고(본선과 같이 흐른다) 위에서 미끄러져 내려와 자리 잡는다, SideRailOff 로 흐려지며 걷는다) / v4.2 (v9.13 2026-09-23: 선로 v2 갈림길 + 세계 밀림) / v4.1 - 완전 탑다운 지면 (2026-09-07) / v3 고퀄 PNG 지면 / v2 탑뷰 지면 스크롤
+/// [ParallaxBackground.cs] v4.6 (v9.35.4 2026-10-26 유저 맵 그림 4장 + 소품 24종 적용 (tools/map_art_v9354.py): 소품을 칸(32u / MapDecoGrid)에 하나씩 섞어 깐다 (MapDecoStratified - 뭉치거나 비는 데 없이), 종류는 섞은 주머니에서 (같은 소품이 안 몰린다), 납작한 소품(FLAT_DECO)은 선 소품 아래, 땅 타일을 열마다 좌우로 뒤집어 (MapGroundFlipVariants, 맵 그림일 때만 - 가장자리가 거울이라 이음은 맞는다. 상하는 안 뒤집는다 - 줄마다 다르면 세로 감김 순간 펄럭인다) 32u 반복이 덜 보이게) / v4.5 (v9.32 2026-10-22 맵 그림 자리 (그림은 유저가 만든다 - claude/맵_그림_프롬프트_2026-10-22.md): SetMap(맵) - Resources/Sprites/WDT/ground_(desert·canyon·mine·final).png 가 있으면 땅 타일마다 다음 그림을 겹쳐 MapGroundFadeSec 에 걸쳐 바꾸고 그 그림엔 지역 색을 안 입힌다 (없으면 ground_ae + 지역 색 그대로, 운행의 첫 지역은 바로, 같은 맵이면 그대로). deco_(맵)_1 ~ 6.png 가 있으면 땅 타일마다 MapDecoPerTile 개를 깔아 땅과 같이 흐른다 (같은 열은 같은 배치 - 세로로 감겨도 안 튄다). 기차가 달리는 선로(월드 y 0)와 보스전 두 번째 선로의 위아래 MapDecoClearY 에 든 소품은 매 프레임 숨긴다 - 갈림길에서 땅이 세로로 밀려도 (PaintDeco). 소품 색은 땅을 따른다. CurrentMap = 먼지 그림) / v4.4 (v9.24 2026-10-15 갈림길 칸 꺾임 - 테스터피드백3 D1~D3 + 클라이맥스 B4: 세계를 미는 기준을 두상 앞 -> 기차 가운데(주방 칸, GameBalance.ForkWorldRefX)로 옮기고 TrackYAt 으로 기차 x 밑 선로 높이를 내준다 - TrainDeck 이 칸마다 앞뒤 바퀴가 밟은 높이로 칸을 꺾는다 / ForkFollowActive = 분기점 출발부터 마지막 칸 뒷바퀴까지 평행이 될 때까지 (WaveManager 가 첫 손님을 기다린다) / 넘는 동안 배경 ForkDepartBoost 배 (34u 를 3.2u/s 로 가면 12초라서) / 칸마다 앞바퀴가 분기점을 밟으면 sfx_fork_clank + 작은 흔들림 / 칸이 직접 꺾이니 화면 기울임은 ForkRollMul(0) / SetClimaxBoost - 클라이맥스 배경 가속) / v4.3 (v9.21 2026-10-12 보스 1단계: SideRail - 디 오리지널(맞수 열차)이 달릴 두 번째 선로. rails_ae 한 줄을 본선과 같은 오프셋으로 y 자리에 깔고(본선과 같이 흐른다) 위에서 미끄러져 내려와 자리 잡는다, SideRailOff 로 흐려지며 걷는다) / v4.2 (v9.13 2026-09-23: 선로 v2 갈림길 + 세계 밀림) / v4.1 - 완전 탑다운 지면 (2026-09-07) / v3 고퀄 PNG 지면 / v2 탑뷰 지면 스크롤
 ///
 /// v4.2 (선로 v2 - 목업 v2 그대로. 도트 px/route.py v2.1: rails_fork / rails_fork_up / rails_fork_hi_up·down·straight):
 ///   - 정차(선로 선택)에 두상 앞에 갈림길(전철기 스프라이트)을 띠(rails_ae) 위에 놓는다 - PlaceFork(위 가지, 아래 가지)
@@ -126,6 +126,17 @@ public class ParallaxBackground : MonoBehaviour
     private const int ORDER_GROUND_NEXT = -29;   // 겹쳐 들어오는 다음 맵 땅 (땅 -30 위)
     private const int ORDER_DECO = -27;          // 소품 (땅 위, 선로 -10 · 바위 -8 아래)
     private const int MAX_DECO_KINDS = 6;        // deco_(맵)_1 ~ 6
+    /// <summary>v4.6: 납작한 소품 (기름 얼룩 · 낙뢰 자국 · 얼음 웅덩이 · 탄 구덩이) - 외곽선 없이 땅에 붙은 것. 선 소품(ORDER_DECO + 1) 아래에 그린다</summary>
+    private static readonly string[] FLAT_DECO = { "deco_desert_6", "deco_canyon_2", "deco_mine_4", "deco_final_4" };
+    private const float DECO_HALF_MAX = 1.6f;    // v4.6: 가장 큰 소품의 반폭 (쓰러진 전신주 3.06u) + 여유 - 칸 흔들기·타일 가장자리 여유가 이것을 쓴다. 더 큰 소품을 넣으면 올린다
+
+    /// <summary>v4.6: 납작한 소품인가 (이름이 FLAT_DECO 로 시작 - 잘린 스프라이트 이름 "deco_desert_6_0" 도)</summary>
+    private static bool IsFlatDeco(Sprite s)
+    {
+        if (s == null || string.IsNullOrEmpty(s.name)) return false;
+        for (int i = 0; i < FLAT_DECO.Length; i++) if (s.name.StartsWith(FLAT_DECO[i])) return true;
+        return false;
+    }
     private const float DECO_EDGE = 1f;          // 선로 띠 바깥 이만큼(u) 동안 소품이 흐려지며 나타난다 (띠 경계에서 툭 끊기지 않게)
     private int appliedMap = 0;                  // 이 배경에 실제로 깔린 맵 (CurrentMap 은 정적이라 배경이 생기기 전에도 바뀐다)
     private bool groundOwnColor = false;         // 땅이 맵 그림이다 - 지역 색을 안 입힌다
@@ -365,10 +376,12 @@ public class ParallaxBackground : MonoBehaviour
 
         pendingGround = next; pendingOwnColor = own;
         fadingGround = next != null && tiles[0][0].sprite != next;
+        bool variants = own && GameBalance.MapGroundFlipVariants;   // v4.6: 맵 그림 땅은 열마다 좌우로 뒤집어 깐다 (예전 모래엔 선로 띠가 그려져 있어 안 뒤집는다)
         for (int i = 0; i < groundNext.Length; i++)
         {
             groundNext[i].sprite = fadingGround ? next : null;
             groundNext[i].color = new Color(1f, 1f, 1f, 0f);
+            groundNext[i].flipX = variants && FlipX(i);
         }
         fadeTint = own ? Color.white : tintNow[0];
         mapFadeT = 0f;
@@ -398,6 +411,8 @@ public class ParallaxBackground : MonoBehaviour
         if (pendingGround != null)
             for (int i = 0; i < tiles[0].Length; i++) tiles[0][i].sprite = pendingGround;
         groundOwnColor = pendingOwnColor;
+        bool variants = groundOwnColor && GameBalance.MapGroundFlipVariants;   // v4.6: 겹치던 그림과 같은 뒤집기로
+        for (int i = 0; i < tiles[0].Length; i++) tiles[0][i].flipX = variants && FlipX(i);
         if (fadingGround)
         {
             // 겹친 그림과 같은 색으로 바로 (안 그러면 겹친 뒤에 땅 색이 한 번 더 바뀐다)
@@ -446,32 +461,84 @@ public class ParallaxBackground : MonoBehaviour
         return list;
     }
 
-    /// <summary>소품 한 벌(set)을 맵 map 의 것으로 깐다. 같은 열(세로 줄)은 같은 배치 - 갈림길에서 땅이 세로로 32u 감겨도 소품이 튀지 않는다. 선로 띠는 PaintDeco 가 매 프레임 비운다</summary>
+    /// <summary>
+    /// 소품 한 벌(set)을 맵 map 의 것으로 깐다. 같은 열(세로 줄)은 같은 배치 - 갈림길에서 땅이 세로로 32u 감겨도 소품이 튀지 않는다. 선로 띠는 PaintDeco 가 매 프레임 비운다.
+    /// v4.6: 땅 한 장을 MapDecoGrid x MapDecoGrid 칸으로 나눠 섞은 칸 중 앞 MapDecoPerTile 개에 하나씩 (칸 안에서 조금 흔든다 - 옆 칸 소품과 안 겹치는 폭) -
+    ///   아무 데나 뿌리면 뭉치는 데와 빈 데가 같이 생겼다. 종류는 섞은 주머니에서 차례로 (여섯 종이 다 나온 뒤에야 같은 것이 또). 납작한 소품은 선 소품 아래
+    /// </summary>
     private void BuildDeco(DecoSet set, int map)
     {
         ClearDeco(set);
         List<Sprite> sprites = DecoSprites(map);
-        if (sprites.Count == 0 || GameBalance.MapDecoPerTile <= 0) return;
-        float half = tileW[0] * 0.5f - 1f;
+        int per = GameBalance.MapDecoPerTile;
+        if (sprites.Count == 0 || per <= 0) return;
+        float tile = tileW[0];
+        float half = tile * 0.5f - DECO_HALF_MAX;              // 아무 데나 뿌릴 때도 타일 밖으로 안 삐지게
+        int grid = Mathf.Clamp(GameBalance.MapDecoGrid, 1, 10);   // 11 부터는 칸(2.9u)이 소품보다 좁아 겹친다
+        bool strat = GameBalance.MapDecoStratified && grid >= 2;
+        float cellW = tile / grid;
+        float jitter = Mathf.Max(0f, cellW * 0.5f - DECO_HALF_MAX);   // 칸 가운데에서 이만큼 흔든다 - 옆 칸 소품과 중심 거리가 최소 3.2u (가장 넓은 소품 3.1u), 타일 가장자리까지 1.6u
+        int cellCount = grid * grid;
+        int[] cells = new int[cellCount];
+        int[] bag = new int[sprites.Count];
         for (int i = 0; i < set.roots.Length; i++)
         {
             int col = i % Mathf.Max(1, cols[0]);
             System.Random rng = new System.Random(map * 7919 + col * 104729);
-            for (int k = 0; k < GameBalance.MapDecoPerTile; k++)
+            for (int c = 0; c < cellCount; c++) cells[c] = c;
+            Shuffle(cells, rng);
+            for (int b = 0; b < bag.Length; b++) bag[b] = b;
+            Shuffle(bag, rng);
+            int bagAt = 0;
+            int n = strat ? Mathf.Min(per, cellCount) : per;
+            for (int k = 0; k < n; k++)
             {
-                float x = (float)(rng.NextDouble() * 2.0 - 1.0) * half;
-                float y = (float)(rng.NextDouble() * 2.0 - 1.0) * half;
+                float x, y;
+                if (strat)
+                {
+                    int cx = cells[k] % grid, cy = cells[k] / grid;
+                    x = -tile * 0.5f + (cx + 0.5f) * cellW + (float)(rng.NextDouble() * 2.0 - 1.0) * jitter;
+                    y = -tile * 0.5f + (cy + 0.5f) * cellW + (float)(rng.NextDouble() * 2.0 - 1.0) * jitter;
+                }
+                else
+                {
+                    x = (float)(rng.NextDouble() * 2.0 - 1.0) * half;
+                    y = (float)(rng.NextDouble() * 2.0 - 1.0) * half;
+                }
+                if (bagAt >= bag.Length) { Shuffle(bag, rng); bagAt = 0; }
+                Sprite sp = sprites[bag[bagAt++]];
                 GameObject go = new GameObject("Deco");
                 go.transform.SetParent(set.roots[i], false);
                 go.transform.localPosition = new Vector3(x, y, 0f);
                 SpriteRenderer sr = go.AddComponent<SpriteRenderer>();
-                sr.sprite = sprites[rng.Next(sprites.Count)];
-                sr.sortingOrder = ORDER_DECO;
+                sr.sprite = sp;
+                sr.sortingOrder = IsFlatDeco(sp) ? ORDER_DECO : ORDER_DECO + 1;
                 sr.flipX = rng.Next(2) == 1;
                 sr.color = new Color(1f, 1f, 1f, 0f);   // 색·알파는 PaintDeco 가 정한다
                 set.items.Add(sr);
             }
         }
+    }
+
+    /// <summary>v4.6: 피셔-예이츠 섞기 (타일 열마다 같은 씨앗이라 같은 결과)</summary>
+    private static void Shuffle(int[] a, System.Random rng)
+    {
+        for (int i = a.Length - 1; i > 0; i--)
+        {
+            int j = rng.Next(i + 1);
+            int t = a[i]; a[i] = a[j]; a[j] = t;
+        }
+    }
+
+    /// <summary>
+    /// v4.6: 땅 타일 i 의 좌우 뒤집기 = 열(세로 줄)마다 번갈아 (흐르는 동안 안 바뀐다 - 열은 타일의 자리다). 위아래로 붙는 타일끼리 좌우 뒤집기가 같으니 위아래 이음이 맞고,
+    /// 옆으로 붙는 둘은 달라도 같은 열의 픽셀이 맞닿아 거울로 이어진다. 상하 뒤집기는 안 한다 - 줄마다 다르면 갈림길에서 땅이 세로로 32u 감기는 순간
+    /// (줄 1 자리에 줄 2 가 온다) 화면의 땅이 한 번에 뒤집혀 보이고, 열마다 다르면 옆 이음이 안 맞는다 (리뷰 c)
+    /// </summary>
+    private bool FlipX(int i)
+    {
+        int nc = Mathf.Max(1, cols[0]);
+        return (i % nc) % 2 == 1;
     }
 
     private static void ClearDeco(DecoSet set)

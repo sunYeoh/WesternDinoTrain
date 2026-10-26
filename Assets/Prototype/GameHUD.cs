@@ -4,7 +4,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 /// <summary>
-/// [GameHUD.cs] v3.14 (v9.35.2 2026-10-26 OnDestroy 에서 재고·재료 구독을 끊는다 - 씬을 다시 실을 때 줍던 재료가 씬과 같이 지워지며 MaterialInventory.Add -> 지워진 HUD 의 RefreshMaterials -> NullReference 2번 (Player.log 10-26, 로비 왼쪽 아래 빨간 줄)) / v3.13 (v9.35.1 2026-10-26 유저 "요리 하는 방식에 따라 갑자기 2레벨 포탑으로 나온다": 카드를 누르고 칸을 누르는 투입은 한 번에 요리 하나 - 넣고 나면 투입 모드가 끝난다 (GameBalance.PlaceOnePerPick). 예전엔 재고가 남으면 모드가 이어져, 넣은 포탑을 보려고 한 번 더 누르면 요리가 또 들어갔다 - PERFECT 로 둘을 받은 때만 그래서 "가끔") / v3.12 (v9.23 2026-10-14 점검 수정: 칼·팬 칩 밑 안내를 튜토리얼과 같은 말로 - "조리 판정이 빡빡해져") / v3.11 (v9.22.1 2026-10-14 유저 확인 "카드 위 카드가 교체로 빠진다": 카드 구역 = 하단 바 전체(bottomBarRt - 전엔 카드 스크롤 영역만이라 그 테두리 밖에서 포탑 칸 판정이 걸렸다) + 바 위쪽 여백까지 포함 / 끌기 시작하면 합칠 수 있는 카드에 분홍 테(MarkFusableCards)·못 합치는 카드는 흐리게 - 어디에 놓으면 되는지 보이게 / 카드 위 판정은 카드 rect 에 여유 6px) / v3.10 (v9.22 2026-10-14 조작 팩 1-2 ~ 1-4: 카드를 다른 요리가 든 칸에 놓으면 교체(ReplaceTurret - 폐기 환급 + 투입, GameBalance.DragReplaceOn) / 카드를 다른 기본 요리 카드 위에 놓으면 진화 조리(CardUnderPointer·FuseCheck -> CookingBridge.FuseFoods, DragFuseOn) / 놓을 곳의 종류 DragHoverKind 를 SlotMarkerUI 가 읽어 이름표를 "놓으면 Lv2 (2/3)"·"폐기 - 재료 N개 환급"·"못 놓는다"로 / 고스트 글 "놓으면 투입 / Lv2 / 교체 / 진화 조리 / 못 놓는다" + 테 색) / v3.9 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v3.8 (v9.18 2026-10-06: 재료 칸 이름 글자 11 -> 13 (최소 글자 크기), 칸 높이 34 -> 36 으로 이름과 개수가 안 겹치게) / v3.7 (v9.17 2026-10-06 B6: 재료 개수가 늘면 그 숫자가 1.3배에서 제자리로 튄다 - 숫자 왼쪽 아래를 축으로) / v3.6 (v9.15 2026-09-29 2차 피드백: 요리 카드 드래그 투입(FoodCardDrag - 고스트 카드가 커서를 따라가고 SlotMarkerUI.NearestMarker 로 놓을 슬롯 금색, 놓으면 투입. 클릭->클릭도 그대로) / HUD 재배치 GameBalance.HudRegroup: 칼·팬 명판을 하단 바에서 좌상단 HP 판(UISkin SkinPanel_TL)으로) / v3.5 (v9.11 2026-09-22 타격감: 조리 완료 접시 날아가기 + 카드 튀기 / 요리 카드 ButtonFeel) / v3.4 (v9.10.1 2026-09-21: 재료 이름 MaterialNames 한 곳(전기알·화염꽃·얼음꽃·독샘) - 칸 폭 102 에 세 글자 이름이 안 들어가 이름(11px, 위)·개수(20px, 아래) 두 줄) / v3.3 (v9.9 2026-09-16: 로비에서는 하단 바 숨김 - 로비 버튼이 바 위에 겹쳐 있던 것) / v3.2 (v9.8 재료 아이콘) / v3.1 (교수 피드백 A9 반영 2026-09-14) / v3 - 전투 중 핵심 HUD (전부 코드 생성 - Canvas 세팅 불필요)
+/// [GameHUD.cs] v3.15 (v9.35.3 2026-10-26 UI 목업 v1: 끌기 안내 "칸에 놓아라" -> "칸에 놔" (6) / 칼·팬 안내 줄 = GameBalance.ToolHintBelow(50%) 아래일 때만 주황으로 할 일과 같이 - "칼이 무뎌졌어 - 굽기 판정이 빡빡해져. 정비소 [G]" (4) / 로비에선 우상단 웨이브 판(SkinPanel_TR)을 숨긴다 (5)) / v3.14 (v9.35.2 2026-10-26 OnDestroy 에서 재고·재료 구독을 끊는다 - 씬을 다시 실을 때 줍던 재료가 씬과 같이 지워지며 MaterialInventory.Add -> 지워진 HUD 의 RefreshMaterials -> NullReference 2번 (Player.log 10-26, 로비 왼쪽 아래 빨간 줄)) / v3.13 (v9.35.1 2026-10-26 유저 "요리 하는 방식에 따라 갑자기 2레벨 포탑으로 나온다": 카드를 누르고 칸을 누르는 투입은 한 번에 요리 하나 - 넣고 나면 투입 모드가 끝난다 (GameBalance.PlaceOnePerPick). 예전엔 재고가 남으면 모드가 이어져, 넣은 포탑을 보려고 한 번 더 누르면 요리가 또 들어갔다 - PERFECT 로 둘을 받은 때만 그래서 "가끔") / v3.12 (v9.23 2026-10-14 점검 수정: 칼·팬 칩 밑 안내를 튜토리얼과 같은 말로 - "조리 판정이 빡빡해져") / v3.11 (v9.22.1 2026-10-14 유저 확인 "카드 위 카드가 교체로 빠진다": 카드 구역 = 하단 바 전체(bottomBarRt - 전엔 카드 스크롤 영역만이라 그 테두리 밖에서 포탑 칸 판정이 걸렸다) + 바 위쪽 여백까지 포함 / 끌기 시작하면 합칠 수 있는 카드에 분홍 테(MarkFusableCards)·못 합치는 카드는 흐리게 - 어디에 놓으면 되는지 보이게 / 카드 위 판정은 카드 rect 에 여유 6px) / v3.10 (v9.22 2026-10-14 조작 팩 1-2 ~ 1-4: 카드를 다른 요리가 든 칸에 놓으면 교체(ReplaceTurret - 폐기 환급 + 투입, GameBalance.DragReplaceOn) / 카드를 다른 기본 요리 카드 위에 놓으면 진화 조리(CardUnderPointer·FuseCheck -> CookingBridge.FuseFoods, DragFuseOn) / 놓을 곳의 종류 DragHoverKind 를 SlotMarkerUI 가 읽어 이름표를 "놓으면 Lv2 (2/3)"·"폐기 - 재료 N개 환급"·"못 놓는다"로 / 고스트 글 "놓으면 투입 / Lv2 / 교체 / 진화 조리 / 못 놓는다" + 테 색) / v3.9 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v3.8 (v9.18 2026-10-06: 재료 칸 이름 글자 11 -> 13 (최소 글자 크기), 칸 높이 34 -> 36 으로 이름과 개수가 안 겹치게) / v3.7 (v9.17 2026-10-06 B6: 재료 개수가 늘면 그 숫자가 1.3배에서 제자리로 튄다 - 숫자 왼쪽 아래를 축으로) / v3.6 (v9.15 2026-09-29 2차 피드백: 요리 카드 드래그 투입(FoodCardDrag - 고스트 카드가 커서를 따라가고 SlotMarkerUI.NearestMarker 로 놓을 슬롯 금색, 놓으면 투입. 클릭->클릭도 그대로) / HUD 재배치 GameBalance.HudRegroup: 칼·팬 명판을 하단 바에서 좌상단 HP 판(UISkin SkinPanel_TL)으로) / v3.5 (v9.11 2026-09-22 타격감: 조리 완료 접시 날아가기 + 카드 튀기 / 요리 카드 ButtonFeel) / v3.4 (v9.10.1 2026-09-21: 재료 이름 MaterialNames 한 곳(전기알·화염꽃·얼음꽃·독샘) - 칸 폭 102 에 세 글자 이름이 안 들어가 이름(11px, 위)·개수(20px, 아래) 두 줄) / v3.3 (v9.9 2026-09-16: 로비에서는 하단 바 숨김 - 로비 버튼이 바 위에 겹쳐 있던 것) / v3.2 (v9.8 재료 아이콘) / v3.1 (교수 피드백 A9 반영 2026-09-14) / v3 - 전투 중 핵심 HUD (전부 코드 생성 - Canvas 세팅 불필요)
 /// - v3.2: 재료 칸의 16px 계열색 판을 ui_mat_*.png 아이콘(32px)으로. 칸 폭 96 -> 102, 간격 100 -> 106 (3열 318 <= 재료 구역 326).
 ///   PNG 가 없으면 v3.1 그대로(계열색 판 + 글자). 이벤트 "재료 흘림" 칩과 같은 그림이라 재료 = 한 그림으로 통일
 /// - 하단 바: 재료 6종 카운트 + 보유 요리 카드 목록 (2줄 그리드, 휠 가로 스크롤)
@@ -113,6 +113,23 @@ public class GameHUD : MonoBehaviour
         RebuildFoodList();
     }
 
+    // ── v3.15 (v9.35.3): 로비에선 우상단 웨이브 판(UISkin 의 SkinPanel_TR - Wave 0 · 빈 상태 줄)을 숨긴다 (UI 목업 v1 의 5) ──
+    private GameObject wavePanelGo;
+    private float wavePanelLookAt = 0f;
+
+    /// <summary>UISkin 이 판을 만든 뒤 한 번 찾아 쥐고 (꺼진 오브젝트는 Find 로 못 찾는다), 로비면 끄고 아니면 켠다</summary>
+    private void TickLobbyWavePanel(bool lobby)
+    {
+        if (wavePanelGo == null)
+        {
+            if (Time.unscaledTime < wavePanelLookAt) return;
+            wavePanelLookAt = Time.unscaledTime + 0.5f;
+            wavePanelGo = GameObject.Find("SkinPanel_TR");
+            if (wavePanelGo == null) return;
+        }
+        if (wavePanelGo.activeSelf == lobby) wavePanelGo.SetActive(!lobby);
+    }
+
     /// <summary>v3.14 (v9.35.2): 씬이 바뀌어 이 HUD 가 지워질 때 구독을 끊는다 - 재고·재료(씬이 바뀌어도 남는 것)가 지워진 HUD 를 부르지 않게</summary>
     void OnDestroy()
     {
@@ -126,6 +143,7 @@ public class GameHUD : MonoBehaviour
         bool lobby = GameManager.Instance != null && GameManager.Instance.currentState == GameManager.GameState.Lobby;
         if (bottomBarRt != null && bottomBarRt.gameObject.activeSelf == lobby)
             bottomBarRt.gameObject.SetActive(!lobby);
+        TickLobbyWavePanel(lobby);   // v3.15: 로비에선 웨이브 판도
         if (lobby) return;
 
         // 우클릭 = 투입 모드 취소
@@ -386,7 +404,7 @@ public class GameHUD : MonoBehaviour
             chipsVisible = show;
             if (knifeChipGo != null) knifeChipGo.SetActive(show);
             if (panChipGo != null) panChipGo.SetActive(show);
-            if (toolHintGo != null) toolHintGo.SetActive(show);   // v3.6
+            if (toolHintGo != null) toolHintGo.SetActive(show && (GameBalance.ToolHintBelow <= 0f || !string.IsNullOrEmpty(toolHintShown)));   // v3.6. v3.15: 새 줄은 무뎌졌을 때만
         }
         if (!show) return;
 
@@ -395,6 +413,7 @@ public class GameHUD : MonoBehaviour
 
         int knife = Mathf.RoundToInt(chefRef.knifeSharpness);
         int pan = Mathf.RoundToInt(chefRef.panCondition);
+        UpdateToolHint(knife, pan);   // v3.15: 무뎌졌을 때만 할 일과 같이
         if (knife != lastKnifeShown)
         {
             lastKnifeShown = knife;
@@ -407,6 +426,28 @@ public class GameHUD : MonoBehaviour
             panText.text = "팬 " + pan + "%" + (pan <= 30 ? " !" : "");
             panText.color = ChipColor(pan);
         }
+    }
+
+    // ── v3.15 (v9.35.3): 칼·팬 안내 줄 (UI 목업 v1 의 4) ──
+    private Text toolHintText;
+    private string toolHintShown = null;
+    private static readonly Color TOOL_HINT_ORANGE = new Color(1f, 0.62f, 0.32f);
+
+    /// <summary>
+    /// v3.15: 칼·팬이 GameBalance.ToolHintBelow 아래일 때만 할 일과 같이 한 줄 (ChefController 경고와 같은 말 - 칼 = 굽기 판정, 팬 = 볶기·끓이기 시간).
+    /// 둘 다 괜찮으면 줄을 숨긴다. 스위치가 0 이면 예전 회색 줄 그대로 (손대지 않는다)
+    /// </summary>
+    private void UpdateToolHint(int knife, int pan)
+    {
+        if (toolHintText == null || GameBalance.ToolHintBelow <= 0f) return;
+        bool knifeLow = knife < GameBalance.ToolHintBelow, panLow = pan < GameBalance.ToolHintBelow;
+        string s = knifeLow && panLow ? "칼·팬이 낡았어 - 조리 판정이 빡빡해져. 정비소 [G]"
+            : knifeLow ? "칼이 무뎌졌어 - 굽기 판정이 빡빡해져. 정비소 [G]"
+            : panLow ? "팬이 눌어붙었어 - 볶기·끓이기 시간이 줄어. 정비소 [G]" : "";
+        if (s == toolHintShown) return;
+        toolHintShown = s;
+        toolHintText.text = s;
+        toolHintText.gameObject.SetActive(s.Length > 0 && chipsVisible);
     }
 
     /// <summary>
@@ -436,11 +477,16 @@ public class GameHUD : MonoBehaviour
         RectTransform panPlate = UISkin.Nameplate(tl.transform, "Pan", "팬 100%", 15, new Vector2(0f, 1f), new Vector2(318f, -98f), 96f);
         knifeChipGo = knifePlate.gameObject; panChipGo = panPlate.gameObject;
         knifeText = FindLabel(knifePlate); panText = FindLabel(panPlate);
-        Text hint = UIFactory.CreateText(tl.transform, "ToolHint", "칼·팬이 낡으면 조리 판정이 빡빡해져", 12, new Color(0.63f, 0.55f, 0.43f), TextAnchor.UpperLeft);
+        // v3.15 (v9.35.3): 늘 떠 있던 회색 12px 줄 -> 무뎌졌을 때만 주황 14px 로 할 일까지 (UpdateToolHint). 스위치 0 이면 예전 줄
+        bool oldHint = GameBalance.ToolHintBelow <= 0f;
+        Text hint = UIFactory.CreateText(tl.transform, "ToolHint", oldHint ? "칼·팬이 낡으면 조리 판정이 빡빡해져" : "", oldHint ? 12 : 14,
+            oldHint ? new Color(0.63f, 0.55f, 0.43f) : TOOL_HINT_ORANGE, TextAnchor.UpperLeft);
         hint.rectTransform.anchorMin = new Vector2(0f, 1f); hint.rectTransform.anchorMax = new Vector2(0f, 1f); hint.rectTransform.pivot = new Vector2(0f, 1f);
-        hint.rectTransform.anchoredPosition = new Vector2(26f, -140f); hint.rectTransform.sizeDelta = new Vector2(420f, 20f);
+        hint.rectTransform.anchoredPosition = new Vector2(26f, -140f); hint.rectTransform.sizeDelta = new Vector2(430f, 20f);
         hint.raycastTarget = false;
         toolHintGo = hint.gameObject;
+        toolHintText = hint;
+        toolHintShown = null;
         lastKnifeShown = -1; lastPanShown = -1;
         chipsVisible = true;
     }
@@ -489,7 +535,7 @@ public class GameHUD : MonoBehaviour
         Text name = UIFactory.CreateText(bgRt, "Name", r.displayName, 14, UIFactory.CREAM, TextAnchor.UpperCenter);
         name.rectTransform.offsetMin = new Vector2(2f, 18f); name.rectTransform.offsetMax = new Vector2(-2f, -3f);
         name.raycastTarget = false;
-        dragGhostSub = UIFactory.CreateText(bgRt, "Sub", "칸에 놓아라", 12, UIFactory.GOLD, TextAnchor.LowerCenter);
+        dragGhostSub = UIFactory.CreateText(bgRt, "Sub", "칸에 놔", 12, UIFactory.GOLD, TextAnchor.LowerCenter);
         dragGhostSub.rectTransform.offsetMin = new Vector2(2f, 2f); dragGhostSub.rectTransform.offsetMax = new Vector2(-2f, 18f);
         dragGhostSub.raycastTarget = false;
         MarkFusableCards(recipeId);   // v3.11
@@ -559,14 +605,14 @@ public class GameHUD : MonoBehaviour
             bool ok = FuseCheck(DragRecipeId, targetId, out fusion, out why);
             SetFuseHover(card, targetId, ok ? fusion : null);
             SetSlotHover(-1, ok ? 5 : 6);
-            SetGhostLook(ok ? "놓으면 진화 조리" : (string.IsNullOrEmpty(why) ? "못 놓는다" : why), ok ? UIFactory.T2PINK : UIFactory.DIM);   // 리뷰 3-3: 왜 못 놓는지 그대로
+            SetGhostLook(ok ? "놓으면 진화 조리" : (string.IsNullOrEmpty(why) ? "못 놔" : why), ok ? UIFactory.T2PINK : UIFactory.DIM);   // 리뷰 3-3: 왜 못 놓는지 그대로
             return;
         }
         ClearFuseHover();
         if (inBar)
         {
             SetSlotHover(-1, 0);
-            SetGhostLook(fusableAny ? "분홍 카드에 놓아라" : "칸에 놓아라", UIFactory.GOLD);   // 리뷰 1·8: 분홍 카드가 있을 때만
+            SetGhostLook(fusableAny ? "분홍 카드에 놔" : "칸에 놔", UIFactory.GOLD);   // 리뷰 1·8: 분홍 카드가 있을 때만
             return;
         }
 
@@ -588,8 +634,8 @@ public class GameHUD : MonoBehaviour
             case 1: SetGhostLook("놓으면 투입", UIFactory.GOLD); break;
             case 2: SetGhostLook("놓으면 " + LevelUpWord(hoverSlot), UIFactory.GOLD); break;
             case 3: SetGhostLook("놓으면 교체", REPLACE_ORANGE); break;
-            case 4: SetGhostLook("못 놓는다", UIFactory.DIM); break;
-            default: SetGhostLook("칸에 놓아라", UIFactory.GOLD); break;
+            case 4: SetGhostLook("못 놔", UIFactory.DIM); break;
+            default: SetGhostLook("칸에 놔", UIFactory.GOLD); break;
         }
     }
 
