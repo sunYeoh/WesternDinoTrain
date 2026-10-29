@@ -4,7 +4,8 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 /// <summary>
-/// [GameHUD.cs] v3.18 (v9.38 2026-10-29 튜토리얼 그림: "여기" 표시 PointCard · PointDock - 짚는 요리 카드나 조리 독 단추 둘레에 금색 테 + 위에 ▼ 가 깜빡인다 (캔버스 맨 위 층이라 카드 스크롤 가림막에 안 잘린다, 대상이 다시 그려지면 새 대상에 다시 붙는다, GameBalance.UiPointOn)) / v3.17 (v9.37 2026-10-29 유저 "조리 UI 를 구석에 박아서 클릭으로 · 정차 조리 횟수 잘 보이게 · 글 너무 많다": 하단 바 오른쪽 구석(게이지 · 밸브 · 배기 장식 자리 - 켜면 장식은 안 그린다)에 조리 독 - 그릴 · 팬 · 솥 단추 셋, 누르면 그 조리대 창이 바로 열린다 (CookingStation.OpenFromDock, 요리 카드 구역은 44px 만 좁아진다, GameBalance.KitchenDock*). 누른 뒤 선택을 놓는다 - [Enter]·[Space] 가 단추를 다시 누르지 않게 / 독 명판 = "조리" 또는 정차 땐 "조리 1번 남음" (다 쓰면 주황 "정차 조리 끝", StopCookBadgeOn) / 명판 "요리  (끌어다 놓기 / 클릭 = 투입, 휠 = 스크롤)" -> "요리" (HudTextDiet)) / v3.16 (v9.36 2026-10-29 그림 팩: 하단 요리 카드 = 요리 아이콘 44 + 이름(오른쪽, 두 줄) + x1 - 카드 116x56 -> GameBalance.DishCardW x DishCardH (140 x 64), "T2" 글자는 뺐다 (분홍 테가 말한다). 아이콘이 없는 요리는 예전 배치 / 조리 완성 날아가기 = 속성색 원 대신 그 요리 아이콘) / v3.15 (v9.35.3 2026-10-26 UI 목업 v1: 끌기 안내 "칸에 놓아라" -> "칸에 놔" (6) / 칼·팬 안내 줄 = GameBalance.ToolHintBelow(50%) 아래일 때만 주황으로 할 일과 같이 - "칼이 무뎌졌어 - 굽기 판정이 빡빡해져. 정비소 [G]" (4) / 로비에선 우상단 웨이브 판(SkinPanel_TR)을 숨긴다 (5)) / v3.14 (v9.35.2 2026-10-26 OnDestroy 에서 재고·재료 구독을 끊는다 - 씬을 다시 실을 때 줍던 재료가 씬과 같이 지워지며 MaterialInventory.Add -> 지워진 HUD 의 RefreshMaterials -> NullReference 2번 (Player.log 10-26, 로비 왼쪽 아래 빨간 줄)) / v3.13 (v9.35.1 2026-10-26 유저 "요리 하는 방식에 따라 갑자기 2레벨 포탑으로 나온다": 카드를 누르고 칸을 누르는 투입은 한 번에 요리 하나 - 넣고 나면 투입 모드가 끝난다 (GameBalance.PlaceOnePerPick). 예전엔 재고가 남으면 모드가 이어져, 넣은 포탑을 보려고 한 번 더 누르면 요리가 또 들어갔다 - PERFECT 로 둘을 받은 때만 그래서 "가끔") / v3.12 (v9.23 2026-10-14 점검 수정: 칼·팬 칩 밑 안내를 튜토리얼과 같은 말로 - "조리 판정이 빡빡해져") / v3.11 (v9.22.1 2026-10-14 유저 확인 "카드 위 카드가 교체로 빠진다": 카드 구역 = 하단 바 전체(bottomBarRt - 전엔 카드 스크롤 영역만이라 그 테두리 밖에서 포탑 칸 판정이 걸렸다) + 바 위쪽 여백까지 포함 / 끌기 시작하면 합칠 수 있는 카드에 분홍 테(MarkFusableCards)·못 합치는 카드는 흐리게 - 어디에 놓으면 되는지 보이게 / 카드 위 판정은 카드 rect 에 여유 6px) / v3.10 (v9.22 2026-10-14 조작 팩 1-2 ~ 1-4: 카드를 다른 요리가 든 칸에 놓으면 교체(ReplaceTurret - 폐기 환급 + 투입, GameBalance.DragReplaceOn) / 카드를 다른 기본 요리 카드 위에 놓으면 진화 조리(CardUnderPointer·FuseCheck -> CookingBridge.FuseFoods, DragFuseOn) / 놓을 곳의 종류 DragHoverKind 를 SlotMarkerUI 가 읽어 이름표를 "놓으면 Lv2 (2/3)"·"폐기 - 재료 N개 환급"·"못 놓는다"로 / 고스트 글 "놓으면 투입 / Lv2 / 교체 / 진화 조리 / 못 놓는다" + 테 색) / v3.9 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v3.8 (v9.18 2026-10-06: 재료 칸 이름 글자 11 -> 13 (최소 글자 크기), 칸 높이 34 -> 36 으로 이름과 개수가 안 겹치게) / v3.7 (v9.17 2026-10-06 B6: 재료 개수가 늘면 그 숫자가 1.3배에서 제자리로 튄다 - 숫자 왼쪽 아래를 축으로) / v3.6 (v9.15 2026-09-29 2차 피드백: 요리 카드 드래그 투입(FoodCardDrag - 고스트 카드가 커서를 따라가고 SlotMarkerUI.NearestMarker 로 놓을 슬롯 금색, 놓으면 투입. 클릭->클릭도 그대로) / HUD 재배치 GameBalance.HudRegroup: 칼·팬 명판을 하단 바에서 좌상단 HP 판(UISkin SkinPanel_TL)으로) / v3.5 (v9.11 2026-09-22 타격감: 조리 완료 접시 날아가기 + 카드 튀기 / 요리 카드 ButtonFeel) / v3.4 (v9.10.1 2026-09-21: 재료 이름 MaterialNames 한 곳(전기알·화염꽃·얼음꽃·독샘) - 칸 폭 102 에 세 글자 이름이 안 들어가 이름(11px, 위)·개수(20px, 아래) 두 줄) / v3.3 (v9.9 2026-09-16: 로비에서는 하단 바 숨김 - 로비 버튼이 바 위에 겹쳐 있던 것) / v3.2 (v9.8 재료 아이콘) / v3.1 (교수 피드백 A9 반영 2026-09-14) / v3 - 전투 중 핵심 HUD (전부 코드 생성 - Canvas 세팅 불필요)
+/// [GameHUD.cs] v3.19 (v9.39.2 2026-10-29 유저 "조리 독 버튼에 기구 그림": 독 단추 = 왼쪽에 기차 위 조리대 그림(st_grill · st_pan · st_pot) + 조리법 한 단어 "굽기 / 볶기 / 끓이기" ([E] 안내와 같은 말),
+///   못 누를 때 그림도 회색. GameBalance.DockIconOn false = 예전 "그릴 · 굽기" 글) / v3.18 (v9.38 2026-10-29 튜토리얼 그림: "여기" 표시 PointCard · PointDock - 짚는 요리 카드나 조리 독 단추 둘레에 금색 테 + 위에 ▼ 가 깜빡인다 (캔버스 맨 위 층이라 카드 스크롤 가림막에 안 잘린다, 대상이 다시 그려지면 새 대상에 다시 붙는다, GameBalance.UiPointOn)) / v3.17 (v9.37 2026-10-29 유저 "조리 UI 를 구석에 박아서 클릭으로 · 정차 조리 횟수 잘 보이게 · 글 너무 많다": 하단 바 오른쪽 구석(게이지 · 밸브 · 배기 장식 자리 - 켜면 장식은 안 그린다)에 조리 독 - 그릴 · 팬 · 솥 단추 셋, 누르면 그 조리대 창이 바로 열린다 (CookingStation.OpenFromDock, 요리 카드 구역은 44px 만 좁아진다, GameBalance.KitchenDock*). 누른 뒤 선택을 놓는다 - [Enter]·[Space] 가 단추를 다시 누르지 않게 / 독 명판 = "조리" 또는 정차 땐 "조리 1번 남음" (다 쓰면 주황 "정차 조리 끝", StopCookBadgeOn) / 명판 "요리  (끌어다 놓기 / 클릭 = 투입, 휠 = 스크롤)" -> "요리" (HudTextDiet)) / v3.16 (v9.36 2026-10-29 그림 팩: 하단 요리 카드 = 요리 아이콘 44 + 이름(오른쪽, 두 줄) + x1 - 카드 116x56 -> GameBalance.DishCardW x DishCardH (140 x 64), "T2" 글자는 뺐다 (분홍 테가 말한다). 아이콘이 없는 요리는 예전 배치 / 조리 완성 날아가기 = 속성색 원 대신 그 요리 아이콘) / v3.15 (v9.35.3 2026-10-26 UI 목업 v1: 끌기 안내 "칸에 놓아라" -> "칸에 놔" (6) / 칼·팬 안내 줄 = GameBalance.ToolHintBelow(50%) 아래일 때만 주황으로 할 일과 같이 - "칼이 무뎌졌어 - 굽기 판정이 빡빡해져. 정비소 [G]" (4) / 로비에선 우상단 웨이브 판(SkinPanel_TR)을 숨긴다 (5)) / v3.14 (v9.35.2 2026-10-26 OnDestroy 에서 재고·재료 구독을 끊는다 - 씬을 다시 실을 때 줍던 재료가 씬과 같이 지워지며 MaterialInventory.Add -> 지워진 HUD 의 RefreshMaterials -> NullReference 2번 (Player.log 10-26, 로비 왼쪽 아래 빨간 줄)) / v3.13 (v9.35.1 2026-10-26 유저 "요리 하는 방식에 따라 갑자기 2레벨 포탑으로 나온다": 카드를 누르고 칸을 누르는 투입은 한 번에 요리 하나 - 넣고 나면 투입 모드가 끝난다 (GameBalance.PlaceOnePerPick). 예전엔 재고가 남으면 모드가 이어져, 넣은 포탑을 보려고 한 번 더 누르면 요리가 또 들어갔다 - PERFECT 로 둘을 받은 때만 그래서 "가끔") / v3.12 (v9.23 2026-10-14 점검 수정: 칼·팬 칩 밑 안내를 튜토리얼과 같은 말로 - "조리 판정이 빡빡해져") / v3.11 (v9.22.1 2026-10-14 유저 확인 "카드 위 카드가 교체로 빠진다": 카드 구역 = 하단 바 전체(bottomBarRt - 전엔 카드 스크롤 영역만이라 그 테두리 밖에서 포탑 칸 판정이 걸렸다) + 바 위쪽 여백까지 포함 / 끌기 시작하면 합칠 수 있는 카드에 분홍 테(MarkFusableCards)·못 합치는 카드는 흐리게 - 어디에 놓으면 되는지 보이게 / 카드 위 판정은 카드 rect 에 여유 6px) / v3.10 (v9.22 2026-10-14 조작 팩 1-2 ~ 1-4: 카드를 다른 요리가 든 칸에 놓으면 교체(ReplaceTurret - 폐기 환급 + 투입, GameBalance.DragReplaceOn) / 카드를 다른 기본 요리 카드 위에 놓으면 진화 조리(CardUnderPointer·FuseCheck -> CookingBridge.FuseFoods, DragFuseOn) / 놓을 곳의 종류 DragHoverKind 를 SlotMarkerUI 가 읽어 이름표를 "놓으면 Lv2 (2/3)"·"폐기 - 재료 N개 환급"·"못 놓는다"로 / 고스트 글 "놓으면 투입 / Lv2 / 교체 / 진화 조리 / 못 놓는다" + 테 색) / v3.9 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v3.8 (v9.18 2026-10-06: 재료 칸 이름 글자 11 -> 13 (최소 글자 크기), 칸 높이 34 -> 36 으로 이름과 개수가 안 겹치게) / v3.7 (v9.17 2026-10-06 B6: 재료 개수가 늘면 그 숫자가 1.3배에서 제자리로 튄다 - 숫자 왼쪽 아래를 축으로) / v3.6 (v9.15 2026-09-29 2차 피드백: 요리 카드 드래그 투입(FoodCardDrag - 고스트 카드가 커서를 따라가고 SlotMarkerUI.NearestMarker 로 놓을 슬롯 금색, 놓으면 투입. 클릭->클릭도 그대로) / HUD 재배치 GameBalance.HudRegroup: 칼·팬 명판을 하단 바에서 좌상단 HP 판(UISkin SkinPanel_TL)으로) / v3.5 (v9.11 2026-09-22 타격감: 조리 완료 접시 날아가기 + 카드 튀기 / 요리 카드 ButtonFeel) / v3.4 (v9.10.1 2026-09-21: 재료 이름 MaterialNames 한 곳(전기알·화염꽃·얼음꽃·독샘) - 칸 폭 102 에 세 글자 이름이 안 들어가 이름(11px, 위)·개수(20px, 아래) 두 줄) / v3.3 (v9.9 2026-09-16: 로비에서는 하단 바 숨김 - 로비 버튼이 바 위에 겹쳐 있던 것) / v3.2 (v9.8 재료 아이콘) / v3.1 (교수 피드백 A9 반영 2026-09-14) / v3 - 전투 중 핵심 HUD (전부 코드 생성 - Canvas 세팅 불필요)
 /// - v3.2: 재료 칸의 16px 계열색 판을 ui_mat_*.png 아이콘(32px)으로. 칸 폭 96 -> 102, 간격 100 -> 106 (3열 318 <= 재료 구역 326).
 ///   PNG 가 없으면 v3.1 그대로(계열색 판 + 글자). 이벤트 "재료 흘림" 칩과 같은 그림이라 재료 = 한 그림으로 통일
 /// - 하단 바: 재료 6종 카운트 + 보유 요리 카드 목록 (2줄 그리드, 휠 가로 스크롤)
@@ -853,6 +854,8 @@ public class GameHUD : MonoBehaviour
     private RectTransform dockPlate;
     private Image dockPlateImg;
     private readonly Button[] dockButtons = new Button[3];
+    private readonly Image[] dockIcons = new Image[3];   // v3.19 (v9.39.2): 단추 왼쪽 조리대 그림 (없으면 null)
+    private static readonly string[] DOCK_ICON = { "st_grill", "st_pan", "st_pot" };   // 0 그릴 · 1 팬 · 2 솥 (StationSkin 이 기차 위 조리대에 쓰는 그림)
     private int dockStateShown = int.MinValue;   // 명판을 마지막으로 그린 상태 (같으면 글을 안 만든다)
     private Color dockPlateBase = Color.white;   // 명판 원래 색 (Nameplate 가 준 것)
     private static readonly Color DOCK_PLATE_LAST = new Color(1f, 0.93f, 0.62f, 1f);   // 한 번 남음 = 연노랑
@@ -885,8 +888,9 @@ public class GameHUD : MonoBehaviour
         for (int i = 0; i < 3; i++)
         {
             int method = i;   // 람다가 잡을 값 (반복 변수를 직접 잡지 않는다)
-            Button b = UIFactory.CreateButton(bar, "Dock" + i, CookingStation.StationShort(i) + " · " + KitchenPanel.MethodName(i), new Vector2(w, h),
-                new Color(0.35f, 0.23f, 0.13f), UIFactory.CREAM, 18);
+            Button b = UIFactory.CreateButton(bar, "Dock" + i, DockLabel(i), new Vector2(w, h),
+                new Color(0.35f, 0.23f, 0.13f), UIFactory.CREAM, GameBalance.DockIconOn ? 20 : 18);
+            dockIcons[i] = GameBalance.DockIconOn ? AddDockIcon(b, DOCK_ICON[i], h) : null;   // v3.19
             RectTransform rt = b.GetComponent<RectTransform>();
             rt.anchorMin = new Vector2(1f, 1f); rt.anchorMax = new Vector2(1f, 1f); rt.pivot = new Vector2(1f, 1f);
             rt.anchoredPosition = new Vector2(-right, -(top + i * (h + gap)));
@@ -903,6 +907,37 @@ public class GameHUD : MonoBehaviour
         }
     }
 
+    private static readonly Color DOCK_ICON_OFF = new Color(0.45f, 0.45f, 0.45f, 0.7f);   // v3.19: 단추 비활성 색(ButtonFeel)과 같은 회색
+
+    /// <summary>v3.19 (v9.39.2): 독 단추 글 - 그림이 있으면 조리법 한 단어 (그림이 기구를 말한다), 끄면 예전 "그릴 · 굽기". 튜토리얼 글도 이것과 같은 말을 쓴다</summary>
+    public static string DockLabel(int method)
+    {
+        bool pic = GameBalance.DockIconOn && SpriteBank.Has(DOCK_ICON[Mathf.Clamp(method, 0, 2)]);   // 그림을 못 불러오면 예전 글 (기구 이름이 빠지지 않게 - 리뷰)
+        return pic ? KitchenPanel.MethodName(method) : CookingStation.StationShort(method) + " · " + KitchenPanel.MethodName(method);
+    }
+
+    /// <summary>v3.19 (v9.39.2): 단추 왼쪽에 조리대 그림 (단추 높이 - 6, 비율 유지) + 글을 그림 오른쪽 남은 자리로. 그림이 없으면 null (글은 단추 가운데 그대로)</summary>
+    private static Image AddDockIcon(Button b, string sprite, float btnH)
+    {
+        Sprite sp = SpriteBank.Get(sprite);
+        if (sp == null) return null;
+        float size = Mathf.Max(16f, btnH - 6f);
+        GameObject go = new GameObject("DockIcon");
+        RectTransform rt = go.AddComponent<RectTransform>();
+        rt.SetParent(b.transform, false);
+        rt.anchorMin = rt.anchorMax = new Vector2(0f, 0.5f);
+        rt.pivot = new Vector2(0f, 0.5f);
+        rt.anchoredPosition = new Vector2(6f, 0f);
+        rt.sizeDelta = new Vector2(size, size);
+        Image img = go.AddComponent<Image>();
+        img.sprite = sp;
+        img.preserveAspect = true;
+        img.raycastTarget = false;   // 누르기는 단추가 받는다
+        Transform lt = b.transform.Find("Label");
+        if (lt != null) { RectTransform lrt = (RectTransform)lt; lrt.offsetMin = new Vector2(6f + size + 4f, lrt.offsetMin.y); }
+        return img;
+    }
+
     /// <summary>v3.17: 매 프레임 - 단추는 조리 창을 열 수 있을 때만 ([E] 와 같은 검사. 정차 조리를 다 써도 창은 열린다 - [E] 와 같게, 명판이 주황), 명판은 정차 조리 횟수 (바뀐 때만 다시 그린다)</summary>
     private void TickKitchenDock()
     {
@@ -912,6 +947,11 @@ public class GameHUD : MonoBehaviour
         {
             bool on = can && CookingStation.HasStation(i);   // 그 조리대가 기차에 있을 때만
             if (dockButtons[i] != null && dockButtons[i].interactable != on) dockButtons[i].interactable = on;
+            if (dockIcons[i] != null && dockButtons[i] != null)   // v3.19: 못 누르면 그림도 회색 (단추 상태와 매 프레임 맞춘다 - 리뷰)
+            {
+                Color want = dockButtons[i].interactable ? Color.white : DOCK_ICON_OFF;
+                if (dockIcons[i].color != want) dockIcons[i].color = want;
+            }
         }
         if (dockPlate == null || !GameBalance.StopCookBadgeOn) return;
         // 상태 = -1 달리는 중 / 0 다 씀 / n 남은 횟수 (정차 중에만)

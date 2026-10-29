@@ -2,7 +2,9 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [LobbyUI.cs] v1.15 (v9.36 2026-10-29 그림 팩: 요리 도감 줄 왼쪽 아이콘 22 (미발견은 실루엣) + 설명 상자 오른쪽 위 아이콘 64) / v1.14 (v9.35 2026-10-25: 하드가 열린 저장에 한 번 "[명성 상점] 화덕 증축" 알림 - 하드 운행의 포탑 최대 레벨을 올리는 줄이 생겼다) / v1.13 (v9.34 2026-10-25: 요리 도감을 [ESC] 로도 닫는다 - 예전엔 ESC 에 일시정지 창이 대신 열렸다 (CollectionOpen 을 PauseMenu 가 본다)) / v1.12 (v9.28 2026-10-20 하드 모드: 출발 버튼 오른쪽 [2] 하드 모드 칩 (종착역에 닿은 뒤에만, 켜면 황동 테 + 금색 글자 + 아래 한 줄) - 고른 것은 HardMode.Picked 에 남는다 / 칭호 줄에 "황야의 베테랑") / v1.11 (v9.26 2026-10-16 마감 정리: 안 쓰는 MatKorName · SetCorner 삭제) / v1.10 (v9.20 2026-10-07: 글 속 화살표를 게임 글꼴에 있는 세모로(게임 글꼴에 화살표 글리프가 없어 PC 의 다른 글꼴로 그려졌다 - 모양이 따로 놀고, 대신할 글꼴이 없는 빌드에선 빈칸)) / v1.9 (v9.17 2026-10-06 D6: 출발 때 검정 페이드 - 덮인 사이에 로비 -> 운행) / v1.8 (v9.15 2026-09-29: 왼쪽 아래 소리·화면 줄을 [설정] 버튼 하나로 - SettingsUI(화면·소리·언어). 화면 모드 코드는 SettingsUI 로 이동) / v1.7 (v9.14 2026-09-28 테스터 반영: 화면 설정 줄(전체화면 / 창 1920·1600·1280, PlayerPrefs WDT_ScreenMode, 시작 때 적용) / 도감은 클릭으로 고정(다시 클릭 = 닫기, 마우스 스침 무시) + 설명 짧게(맛 문구 제외)) / v1.6 (v9.13.1 2026-09-24: 오른쪽 아래 빌드 표시 GameBalance.BuildTag) / v1.5 (v9.12 2026-09-22: [T] = 견습 기록이 없으면 견습 운행 전부, 있으면 훈련장(TrainingGroundUI) 목록 / 처음 실행이면 [출발]·[Enter] 도 견습부터(GameBalance.TutorialForceFirst) / 버튼 글자 "훈련장") / v1.4 (v9.10.1 2026-09-21: 재료 이름 MaterialNames) / [LobbyUI.cs] v1.3 (v9.10 2026-09-17: 요리 도감에 설명 상자 - 이름에 마우스를 올리거나 클릭하면 무엇을 하나·어떤 손님에·언제 (RecipeText)) / v1.2 (v9.9 2026-09-16: [T] 견습 운행 버튼 + 첫 실행 강조) / v1.1 (v9.8: 칭호 표시) / v1 - 로비 개편 (튜토리얼_온보딩_설계 6절 + 화면 검수 "시작 버튼 묻힘")
+/// [LobbyUI.cs] v1.16 (v9.39.1 2026-10-29 타이틀 그림: 유저가 만든 메인 배경(ui_title_bg)이 로비 뒤를 덮고 (따로 캔버스 - 알림 줄(455) 아래라 해금 알림은 그 위에 뜬다),
+///   로고(ui_title_logo)가 글 제목 "WESTERN DINO TRAIN" 자리에 (들어올 때마다 0.35초 떠오름). 부제·칭호는 로고 밑으로, 그림 위 글은 검은 외곽선.
+///   그림이 없거나 GameBalance.LobbyTitleArtOn false 면 예전 그대로) / v1.15 (v9.36 2026-10-29 그림 팩: 요리 도감 줄 왼쪽 아이콘 22 (미발견은 실루엣) + 설명 상자 오른쪽 위 아이콘 64) / v1.14 (v9.35 2026-10-25: 하드가 열린 저장에 한 번 "[명성 상점] 화덕 증축" 알림 - 하드 운행의 포탑 최대 레벨을 올리는 줄이 생겼다) / v1.13 (v9.34 2026-10-25: 요리 도감을 [ESC] 로도 닫는다 - 예전엔 ESC 에 일시정지 창이 대신 열렸다 (CollectionOpen 을 PauseMenu 가 본다)) / v1.12 (v9.28 2026-10-20 하드 모드: 출발 버튼 오른쪽 [2] 하드 모드 칩 (종착역에 닿은 뒤에만, 켜면 황동 테 + 금색 글자 + 아래 한 줄) - 고른 것은 HardMode.Picked 에 남는다 / 칭호 줄에 "황야의 베테랑") / v1.11 (v9.26 2026-10-16 마감 정리: 안 쓰는 MatKorName · SetCorner 삭제) / v1.10 (v9.20 2026-10-07: 글 속 화살표를 게임 글꼴에 있는 세모로(게임 글꼴에 화살표 글리프가 없어 PC 의 다른 글꼴로 그려졌다 - 모양이 따로 놀고, 대신할 글꼴이 없는 빌드에선 빈칸)) / v1.9 (v9.17 2026-10-06 D6: 출발 때 검정 페이드 - 덮인 사이에 로비 -> 운행) / v1.8 (v9.15 2026-09-29: 왼쪽 아래 소리·화면 줄을 [설정] 버튼 하나로 - SettingsUI(화면·소리·언어). 화면 모드 코드는 SettingsUI 로 이동) / v1.7 (v9.14 2026-09-28 테스터 반영: 화면 설정 줄(전체화면 / 창 1920·1600·1280, PlayerPrefs WDT_ScreenMode, 시작 때 적용) / 도감은 클릭으로 고정(다시 클릭 = 닫기, 마우스 스침 무시) + 설명 짧게(맛 문구 제외)) / v1.6 (v9.13.1 2026-09-24: 오른쪽 아래 빌드 표시 GameBalance.BuildTag) / v1.5 (v9.12 2026-09-22: [T] = 견습 기록이 없으면 견습 운행 전부, 있으면 훈련장(TrainingGroundUI) 목록 / 처음 실행이면 [출발]·[Enter] 도 견습부터(GameBalance.TutorialForceFirst) / 버튼 글자 "훈련장") / v1.4 (v9.10.1 2026-09-21: 재료 이름 MaterialNames) / [LobbyUI.cs] v1.3 (v9.10 2026-09-17: 요리 도감에 설명 상자 - 이름에 마우스를 올리거나 클릭하면 무엇을 하나·어떤 손님에·언제 (RecipeText)) / v1.2 (v9.9 2026-09-16: [T] 견습 운행 버튼 + 첫 실행 강조) / v1.1 (v9.8: 칭호 표시) / v1 - 로비 개편 (튜토리얼_온보딩_설계 6절 + 화면 검수 "시작 버튼 묻힘")
 ///
 /// - v1.2: 출발 버튼 아래 [T] 견습 운행 (340x44, y 130). 미완료(TutorialDirector.Done == false)면 목업 v2 (C) 대로
 ///   위에 현장 마커 화살표(tut_arrow 2배)가 까딱이고, 버튼 양끝 경광등(ui_ev_beacon_0/1)이 0.3초마다 교대, 황동 테,
@@ -52,6 +54,14 @@ public class LobbyUI : MonoBehaviour
     private Image hardRing;
     private const float HARD_X = 170f + 12f + 105f, HARD_Y = 236f;
 
+    // v1.16 (v9.39.1): 타이틀 그림 - 배경은 따로 캔버스(GameBalance.LobbyBgSort)에서 화면을 덮고, 로고는 루트 안 제목 자리
+    private Canvas bgCanvas;            // 배경 캔버스 (로비에서만 켠다)
+    private RectTransform bgRt;         // 배경 그림 (화면을 덮게 비율 유지로 늘린다)
+    private Vector2 bgNative;           // 배경 그림 원래 크기 (px)
+    private Vector2 bgFitFor = new Vector2(-1f, -1f);   // 마지막으로 맞춘 캔버스 크기 (바뀔 때만 다시 잰다)
+    private Image logoImg;              // 로고
+    private float logoIntroT = 1f;      // 로고 떠오름 진행 (0 -> 1, 1 = 끝)
+
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void Bootstrap()
     {
@@ -78,8 +88,10 @@ public class LobbyUI : MonoBehaviour
 
         if (root != null && root.activeSelf != lobby)
             root.SetActive(lobby);
+        if (bgCanvas != null && bgCanvas.gameObject.activeSelf != lobby)   // v1.16: 배경도 로비에서만
+            bgCanvas.gameObject.SetActive(lobby);
         // v1.1: 로비에 들어오는 순간 칭호 갱신 (엔딩 B 직후 돌아왔을 때 바로 보이게)
-        if (lobby && !wasLobby) { RefreshTitleBadge(); RefreshTutorialButton(); RefreshHardChip(); NoticeHardUnlock(); }
+        if (lobby && !wasLobby) { RefreshTitleBadge(); RefreshTutorialButton(); RefreshHardChip(); NoticeHardUnlock(); logoIntroT = 0f; }   // v1.16: 들어올 때마다 로고 떠오름
         wasLobby = lobby;
         if (!lobby)
         {
@@ -89,6 +101,7 @@ public class LobbyUI : MonoBehaviour
         }
 
         TickTutorialHighlight();
+        TickTitleArt();   // v1.16
 
         // v1.9 (D6): 화면이 덮이는 중엔 로비 키([T]·[Enter])를 받지 않는다 (출발 페이드 0.3초 사이에 [T] 가 먹던 것 방지).
         //   아래 구 로비 패널 숨김은 덮이는 중에도 돌아야 한다 - 씬을 다시 실은 직후 페이드 사이로 구 패널이 비친다
@@ -230,18 +243,31 @@ public class LobbyUI : MonoBehaviour
         rootRt.offsetMin = Vector2.zero;
         rootRt.offsetMax = Vector2.zero;
 
+        // v1.16 (v9.39.1): 타이틀 그림 - 파일이 없으면 null 이고 아래는 전부 예전 그대로
+        Sprite titleBg = GameBalance.LobbyTitleArtOn ? SpriteBank.Get("ui_title_bg") : null;
+        Sprite titleLogo = GameBalance.LobbyTitleArtOn ? SpriteBank.Get("ui_title_logo") : null;
+        bool onArt = titleBg != null;   // 그림 위에 올라가는 글은 외곽선을 단다 (밝은 바위·모래에 묻히지 않게)
+        if (titleBg != null) BuildTitleBackground(titleBg);
+
         // ── 상단: 타이틀 ──
         Text title = UIFactory.CreateText(root.transform, "Title",
             "WESTERN DINO TRAIN", 46, UIFactory.GOLD, TextAnchor.MiddleCenter);
         SetTopStrip(title.rectTransform, -104f, -30f);
+        float underTitle = 104f;   // 제목 아래 끝 (화면 위에서) - 부제·칭호가 이 밑에 붙는다
+        if (titleLogo != null)
+        {
+            title.gameObject.SetActive(false);   // 글 제목 대신 로고
+            underTitle = BuildTitleLogo(titleLogo);
+        }
 
         Text subtitle = UIFactory.CreateText(root.transform, "Subtitle",
             "황야의 마스터 셰프 - 무장 조리 열차의 기록", 18, UIFactory.CREAM, TextAnchor.MiddleCenter);
-        SetTopStrip(subtitle.rectTransform, -138f, -104f);
+        SetTopStrip(subtitle.rectTransform, -(underTitle + 34f), -underTitle);
 
         // v1.1: 칭호 줄 (부제 아래) - 자격이 없으면 빈 글자
         titleBadge = UIFactory.CreateText(root.transform, "TitleBadge", "", 16, UIFactory.GOLD, TextAnchor.MiddleCenter);
-        SetTopStrip(titleBadge.rectTransform, -166f, -140f);
+        SetTopStrip(titleBadge.rectTransform, -(underTitle + 62f), -(underTitle + 36f));
+        if (onArt) { AddInk(subtitle); AddInk(titleBadge); }
         RefreshTitleBadge();
 
         // ── 하단: 출발 버튼 ──
@@ -290,6 +316,7 @@ public class LobbyUI : MonoBehaviour
         guide.rectTransform.anchorMax = new Vector2(1f, 0f);
         guide.rectTransform.offsetMin = new Vector2(0f, 28f);   // v1.2: 52~78 -> 28~50
         guide.rectTransform.offsetMax = new Vector2(0f, 50f);
+        if (onArt) AddInk(guide);
 
         // ── 좌하단: [설정] 버튼 - 화면 / 소리 / 언어 (v1.8: 줄 5개 -> 창 하나, SettingsUI) ──
         Button settingsBtn = UIFactory.CreateButton(root.transform, "SettingsBtn", "설정  (화면 · 소리 · 언어)", new Vector2(230f, 36f), UIFactory.PANEL, UIFactory.CREAM, 16);
@@ -315,6 +342,7 @@ public class LobbyUI : MonoBehaviour
         build.rectTransform.pivot = new Vector2(1f, 0f);
         build.rectTransform.sizeDelta = new Vector2(420f, 20f);
         build.rectTransform.anchoredPosition = new Vector2(-14f, 30f);
+        if (onArt) { AddInk(credit); AddInk(build); if (hardDesc != null) AddInk(hardDesc); if (tutorialHintFallback != null) AddInk(tutorialHintFallback); }
 
         root.SetActive(false);   // 상태 폴링이 로비에서 켠다
     }
@@ -616,6 +644,82 @@ public class LobbyUI : MonoBehaviour
     // 배치 헬퍼
     // ─────────────────────────────────────────────
     /// <summary>화면 상단 가로줄 (top 기준 offsetY0 ~ offsetY1)</summary>
+    /// <summary>
+    /// v1.16 (v9.39.1): 메인 배경 - 로비 캔버스(555)보다 아래, 알림 줄(455)보다 아래인 따로 캔버스 (GameBalance.LobbyBgSort 454).
+    /// 그 아래 것(세상 · 하단 HUD · 기차 띠)은 로비에서 가려지고, 해금 알림 · 명성 상점 · 도감 · 일지 · 카드는 그 위에 그대로 뜬다.
+    /// 크기는 TickTitleArt 가 화면을 덮게 (비율 유지 - 남는 쪽은 가운데 기준으로 잘린다)
+    /// </summary>
+    private void BuildTitleBackground(Sprite sp)
+    {
+        bgCanvas = UIFactory.CreateCanvas("LobbyBg_Canvas", GameBalance.LobbyBgSort);
+        bgCanvas.transform.SetParent(transform, false);   // 이 오브젝트(DontDestroyOnLoad) 밑 - 씬을 다시 실어도 남는다
+        GameObject go = new GameObject("TitleBg");
+        go.transform.SetParent(bgCanvas.transform, false);
+        bgRt = go.AddComponent<RectTransform>();
+        bgRt.anchorMin = bgRt.anchorMax = new Vector2(0.5f, 0.5f);
+        bgRt.pivot = new Vector2(0.5f, 0.5f);
+        Image img = go.AddComponent<Image>();
+        img.sprite = sp;
+        img.raycastTarget = false;
+        float b = GameBalance.LobbyBgBright;   // 1 = 그림 그대로. 버튼 · 글이 묻히면 조금 낮춘다
+        img.color = new Color(b, b, b, 1f);
+        bgNative = new Vector2(sp.rect.width, sp.rect.height);
+        Vector2 refRes = UIFactory.RefResolution;   // 첫 프레임 어림 (캔버스 크기가 잡히기 전 한 프레임 작게 보이지 않게) - 다음 프레임부터 TickTitleArt 가 실제 크기로
+        bgRt.sizeDelta = bgNative * Mathf.Max(refRes.x / Mathf.Max(1f, bgNative.x), refRes.y / Mathf.Max(1f, bgNative.y));
+        bgCanvas.gameObject.SetActive(false);   // Update 가 로비에서 켠다
+    }
+
+    /// <summary>v1.16 (v9.39.1): 로고 - 화면 위 가운데, 폭 GameBalance.LobbyLogoW (높이는 그림 비율). 돌려주는 값 = 로고 아래 끝 (화면 위에서 px)</summary>
+    private float BuildTitleLogo(Sprite sp)
+    {
+        GameObject go = new GameObject("TitleLogo");
+        go.transform.SetParent(root.transform, false);
+        RectTransform rt = go.AddComponent<RectTransform>();
+        rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 1f);
+        rt.pivot = new Vector2(0.5f, 0.5f);   // 떠오름 배율이 가운데에서 걸리게
+        float w = GameBalance.LobbyLogoW;
+        float h = w * sp.rect.height / Mathf.Max(1f, sp.rect.width);
+        rt.sizeDelta = new Vector2(w, h);
+        rt.anchoredPosition = new Vector2(0f, -GameBalance.LobbyLogoTop - h * 0.5f);
+        logoImg = go.AddComponent<Image>();
+        logoImg.sprite = sp;
+        logoImg.preserveAspect = true;
+        logoImg.raycastTarget = false;
+        return GameBalance.LobbyLogoTop + h + 2f;
+    }
+
+    /// <summary>v1.16 (v9.39.1): 매 프레임 (로비에서만) - 배경을 화면 크기에 맞추고, 로고 떠오름 (실시간 - 로비에서 시간이 멈춰 있어도 돈다)</summary>
+    private void TickTitleArt()
+    {
+        if (bgRt != null)
+        {
+            Vector2 view = ((RectTransform)bgCanvas.transform).rect.size;   // 캔버스 단위 화면 크기 (창 크기가 바뀌면 같이 바뀐다)
+            if (view != bgFitFor && view.x > 1f && view.y > 1f && bgNative.x > 0f && bgNative.y > 0f)   // 캔버스가 아직 0 이면 어림값 그대로
+            {
+                float cover = Mathf.Max(view.x / bgNative.x, view.y / bgNative.y);   // 화면을 빈틈 없이 덮는 배율
+                bgRt.sizeDelta = bgNative * cover;
+                bgFitFor = view;
+            }
+        }
+        if (logoImg != null && logoIntroT < 1f)
+        {
+            float dur = Mathf.Max(0.01f, GameBalance.LobbyLogoIntroSec);
+            logoIntroT = GameBalance.LobbyLogoIntroSec <= 0f ? 1f : Mathf.Min(1f, logoIntroT + Time.unscaledDeltaTime / dur);
+            float e = 1f - (1f - logoIntroT) * (1f - logoIntroT) * (1f - logoIntroT);   // ease-out (빨리 왔다가 천천히 앉는다)
+            logoImg.rectTransform.localScale = Vector3.one * Mathf.Lerp(GameBalance.LobbyLogoIntroScale, 1f, e);
+            logoImg.color = new Color(1f, 1f, 1f, e);
+        }
+    }
+
+    /// <summary>v1.16 (v9.39.1): 그림 위 글 - 검은 외곽선 (밝은 바위 · 모래 위에서도 읽히게)</summary>
+    private static void AddInk(Text t)
+    {
+        if (t == null || t.GetComponent<Outline>() != null) return;
+        Outline o = t.gameObject.AddComponent<Outline>();
+        o.effectColor = new Color(0f, 0f, 0f, 0.85f);
+        o.effectDistance = new Vector2(1.5f, -1.5f);
+    }
+
     private static void SetTopStrip(RectTransform rt, float yMin, float yMax)
     {
         rt.anchorMin = new Vector2(0f, 1f);

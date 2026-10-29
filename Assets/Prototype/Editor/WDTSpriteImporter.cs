@@ -6,6 +6,7 @@ using UnityEngine;
 /// <summary>
 /// [WDTSpriteImporter.cs] v5.0 (Editor 전용) - 스프라이트 PNG 자동 임포트 설정 (2026-09-07, v9 픽셀 팩 + UI 스킨)
 ///
+/// v5.1 (v9.39.1 2026-10-29, 타이틀 그림): ui_title_* (메인 배경 1672x941 · 로고 1000x332) 와 스토리 컷 story_* (일지 종이 빼고) = 최대 2048 + Bilinear (UI 규칙은 그대로)
 /// v5.0 (v9.36 2026-10-29, 그림 팩): fx_* (처치 fx_kill 48 · 상태 fx_status_* 16 · 등급 fx_levelup 64) = 32ppu 가운데 피벗 월드 스프라이트 / story_* (일지 종이 640x360, 스토리 컷) = ui_ 와 같은 UI 규칙 (PPU 100 단순 그림) /
 ///   ui_dish_* · ui_item_* · ui_npc_* 는 ui_ 규칙 그대로. 표 버전 5.0 (넣으면 스스로 재임포트)
 /// v4.9 (v9.35.4 2026-10-26, 맵 그림 팩): ground_(맵) 바닥 4장 (1024px = 32u) · deco_(맵)_1~6 소품 24종 - 접두어 규칙 32ppu 가운데 피벗 (표에 없어도 경고 없음). 표 버전 4.9 (넣으면 스스로 한 번 재임포트)
@@ -125,7 +126,7 @@ public class WDTSpriteImporter : AssetPostprocessor
     };
 
     /// <summary>v4.8: 표(피벗·배율)를 고칠 때마다 올린다. 값이 달라지면 에디터가 스크립트를 다시 읽은 직후 Sprites/WDT 를 한 번 재임포트한다</summary>
-    private const string TABLE_VERSION = "5.0";
+    private const string TABLE_VERSION = "5.1";
 
     /// <summary>
     /// v4.8: 표가 바뀐 팩을 넣으면 PNG 는 그대로인데 피벗만 옛 값으로 남는다 (PNG 가 먼저 임포트되고 이 스크립트가 나중에 컴파일되므로).
@@ -183,6 +184,13 @@ public class WDTSpriteImporter : AssetPostprocessor
             us.spriteMeshType = SpriteMeshType.FullRect;
             ti.SetTextureSettings(us);
             ti.spriteBorder = new Vector4(bd, bd, bd, bd);
+            // v5.1 (v9.39.1): 큰 그림 한 장 (메인 배경 · 로고 · 스토리 컷) = 2048 까지 + 부드러운 확대축소.
+            //   기본 1024 상한이면 1672 폭 배경이 1024 로 깎였다가 화면에서 1.6배로 늘어 뭉개진다. 화면 배율이 정수가 아니라 Point 는 줄이 빠진다
+            if (name.StartsWith("ui_title_") || (name.StartsWith("story_") && name != "story_journal_paper"))
+            {
+                ti.maxTextureSize = 2048;
+                ti.filterMode = FilterMode.Bilinear;
+            }
             return;
         }
         if (name.StartsWith("hero_"))
