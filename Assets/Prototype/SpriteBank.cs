@@ -2,60 +2,84 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// [SpriteBank.cs] v1.1 - ê³ í€„ ìŠ¤í”„ë¼ì´íŠ¸ PNG ë¡œë” (2026-09-03, ëª©ì—… v7d ì»¨íŒ)
-///   v1.1 (2026-09-07): UI ìŠ¤í‚¨ ui_*.png ëŠ” PPU 100 ì´ ì •ìƒì´ë¼ 'ì¬ì„í¬íŠ¸' ê²½ê³ ì—ì„œ ì œì™¸
+/// [SpriteBank.cs] v1.2 (v9.36 2026-10-29 ±×¸² ÆÑ: ¿ä¸® ui_dish_<Å°> ¡¤ À¯¹° ui_item_<id> ÀÌ¸§ ±ÔÄ¢ DishIcon ¡¤ ItemIcon / story_ µµ UI ±×¸²(PPU 100)ÀÌ¶ó ÀçÀÓÆ÷Æ® °æ°í¿¡¼­ Á¦¿Ü) / v1.1 - °íÄ÷ ½ºÇÁ¶óÀÌÆ® PNG ·Î´õ (2026-09-03, ¸ñ¾÷ v7d ÄÁÆß)
+///   v1.1 (2026-09-07): UI ½ºÅ² ui_*.png ´Â PPU 100 ÀÌ Á¤»óÀÌ¶ó 'ÀçÀÓÆ÷Æ®' °æ°í¿¡¼­ Á¦¿Ü
 ///
-/// Assets/Resources/Sprites/WDT/ í´ë”ì˜ PNGë¥¼ ì´ë¦„ìœ¼ë¡œ êº¼ë‚´ ì“´ë‹¤. í•œ ë²ˆ ì½ìœ¼ë©´ ìºì‹œ.
-///   ì˜ˆ) SpriteBank.Get("head") -> Resources/Sprites/WDT/head.png
-/// íŒŒì¼ì´ ì—†ìœ¼ë©´ nullì„ ëŒë ¤ì£¼ê³ , ê° ì‚¬ìš©ì²˜(TrainDeck/TurretSlot/WaveManager/EngineCab/ParallaxBackground)ëŠ”
-/// nullì´ë©´ ì˜ˆì „ì²˜ëŸ¼ ì½”ë“œ ë„íŠ¸(PixelPainter)ë¡œ ê·¸ë¦°ë‹¤ = PNG íŒ©ì´ ì—†ì–´ë„ ê²Œì„ì€ ëˆë‹¤.
+/// Assets/Resources/Sprites/WDT/ Æú´õÀÇ PNG¸¦ ÀÌ¸§À¸·Î ²¨³» ¾´´Ù. ÇÑ ¹ø ÀĞÀ¸¸é Ä³½Ã.
+///   ¿¹) SpriteBank.Get("head") -> Resources/Sprites/WDT/head.png
+/// ÆÄÀÏÀÌ ¾øÀ¸¸é nullÀ» µ¹·ÁÁÖ°í, °¢ »ç¿ëÃ³(TrainDeck/TurretSlot/WaveManager/EngineCab/ParallaxBackground)´Â
+/// nullÀÌ¸é ¿¹ÀüÃ³·³ ÄÚµå µµÆ®(PixelPainter)·Î ±×¸°´Ù = PNG ÆÑÀÌ ¾ø¾îµµ °ÔÀÓÀº µ·´Ù.
 ///
-/// ì„í¬íŠ¸ ì„¤ì •(í”½ì…€/ìœ ë‹›, í”¼ë²—, Point í•„í„°)ì€ Editor/WDTSpriteImporter.csê°€ ìë™ìœ¼ë¡œ ì¡ëŠ”ë‹¤.
-/// ì‚¬ìš©ë²•: ì—†ìŒ! íŒŒì¼ë§Œ ë„£ìœ¼ë©´ ëœë‹¤.
-/// VS 2017 (C# 7.3) í˜¸í™˜
+/// ÀÓÆ÷Æ® ¼³Á¤(ÇÈ¼¿/À¯´Ö, ÇÇ¹ş, Point ÇÊÅÍ)Àº Editor/WDTSpriteImporter.cs°¡ ÀÚµ¿À¸·Î Àâ´Â´Ù.
+/// »ç¿ë¹ı: ¾øÀ½! ÆÄÀÏ¸¸ ³ÖÀ¸¸é µÈ´Ù.
+/// VS 2017 (C# 7.3) È£È¯
 /// </summary>
 public static class SpriteBank
 {
-    /// <summary>Resources ì•„ë˜ ê²½ë¡œ (Resources.Load ê¸°ì¤€ì´ë¼ "Assets/Resources/"ëŠ” ëº€ë‹¤)</summary>
+    /// <summary>Resources ¾Æ·¡ °æ·Î (Resources.Load ±âÁØÀÌ¶ó "Assets/Resources/"´Â »«´Ù)</summary>
     public const string ROOT = "Sprites/WDT/";
 
     private static readonly Dictionary<string, Sprite> cache = new Dictionary<string, Sprite>();
     private static bool loggedMissing = false;
     private static bool loggedBadImport = false;
 
-    /// <summary>ì´ë¦„ìœ¼ë¡œ ìŠ¤í”„ë¼ì´íŠ¸ë¥¼ êº¼ë‚¸ë‹¤. ì—†ìœ¼ë©´ null (í˜¸ì¶œë¶€ê°€ ì½”ë“œ ë„íŠ¸ë¡œ í´ë°±)</summary>
+    /// <summary>ÀÌ¸§À¸·Î ½ºÇÁ¶óÀÌÆ®¸¦ ²¨³½´Ù. ¾øÀ¸¸é null (È£ÃâºÎ°¡ ÄÚµå µµÆ®·Î Æú¹é)</summary>
     public static Sprite Get(string name)
     {
         Sprite s;
         if (cache.TryGetValue(name, out s)) return s;
 
         s = Resources.Load<Sprite>(ROOT + name);
-        cache[name] = s;   // nullë„ ìºì‹œ (ë§¤ í”„ë ˆì„ Resources.Load ë°˜ë³µ ë°©ì§€)
+        cache[name] = s;   // nullµµ Ä³½Ã (¸Å ÇÁ·¹ÀÓ Resources.Load ¹İº¹ ¹æÁö)
 
-        // ì„í¬íŠ¸ ì„¤ì •ì´ ì•ˆ ì¡íŒ ì±„(ìœ ë‹ˆí‹° ê¸°ë³¸ 100px/ìœ ë‹›, ì¤‘ì•™ í”¼ë²—) ë“¤ì–´ì˜¤ë©´ í¬ê¸°/ìœ„ì¹˜ê°€ ë‹¤ í‹€ì–´ì§„ë‹¤ - í•œ ë²ˆë§Œ ê²½ê³ 
-        if (s != null && !loggedBadImport && !name.StartsWith("ui_") && Mathf.Abs(s.pixelsPerUnit - 100f) < 0.5f)
+        // ÀÓÆ÷Æ® ¼³Á¤ÀÌ ¾È ÀâÈù Ã¤(À¯´ÏÆ¼ ±âº» 100px/À¯´Ö, Áß¾Ó ÇÇ¹ş) µé¾î¿À¸é Å©±â/À§Ä¡°¡ ´Ù Æ²¾îÁø´Ù - ÇÑ ¹ø¸¸ °æ°í
+        if (s != null && !loggedBadImport && !name.StartsWith("ui_") && !name.StartsWith("story_") && Mathf.Abs(s.pixelsPerUnit - 100f) < 0.5f)
         {
             loggedBadImport = true;
-            Debug.LogWarning("[SpriteBank] '" + name + "' ì˜ Pixels Per Unitì´ 100 = ì„í¬íŠ¸ ì„¤ì • ë¯¸ì ìš©. ë©”ë‰´ WDT > ìŠ¤í”„ë¼ì´íŠ¸ ì¬ì„í¬íŠ¸ ë¥¼ í•œ ë²ˆ ì‹¤í–‰í•´ë¼");
+            Debug.LogWarning("[SpriteBank] '" + name + "' ÀÇ Pixels Per UnitÀÌ 100 = ÀÓÆ÷Æ® ¼³Á¤ ¹ÌÀû¿ë. ¸Ş´º WDT > ½ºÇÁ¶óÀÌÆ® ÀçÀÓÆ÷Æ® ¸¦ ÇÑ ¹ø ½ÇÇàÇØ¶ó");
         }
 
         if (s == null && !loggedMissing)
         {
             loggedMissing = true;
-            Debug.Log("[SpriteBank] '" + ROOT + name + "' ì—†ìŒ - ì½”ë“œ ë„íŠ¸ë¡œ í´ë°± (PNG íŒ©ì„ Assets/Resources/Sprites/WDT/ ì— ë„£ìœ¼ë©´ ê³ í€„ë¡œ ë°”ë€ë‹¤)");
+            Debug.Log("[SpriteBank] '" + ROOT + name + "' ¾øÀ½ - ÄÚµå µµÆ®·Î Æú¹é (PNG ÆÑÀ» Assets/Resources/Sprites/WDT/ ¿¡ ³ÖÀ¸¸é °íÄ÷·Î ¹Ù²ï´Ù)");
         }
         return s;
     }
 
-    /// <summary>í•´ë‹¹ ì´ë¦„ì˜ PNGê°€ ìˆëŠ”ê°€</summary>
+    /// <summary>ÇØ´ç ÀÌ¸§ÀÇ PNG°¡ ÀÖ´Â°¡</summary>
     public static bool Has(string name)
     {
         return Get(name) != null;
     }
 
+    /// <summary>v1.2 (v9.36): ¿ä¸® ¾ÆÀÌÄÜ ÀÌ¸§ - "armor+meat" -> ui_dish_armor_meat, "T2:elec+phys" -> ui_dish_t2_elec_phys (¿ä¸®_¾ÆÀÌÄÜ_ÇÁ·ÒÇÁÆ® 10-15 ÀÇ ÀÌ¸§ ±ÔÄ¢)</summary>
+    public static string DishIconName(string recipeId)
+    {
+        if (string.IsNullOrEmpty(recipeId)) return "";
+        return "ui_dish_" + recipeId.Replace("T2:", "t2_").Replace("+", "_");
+    }
+
+    /// <summary>v1.2: ¿ä¸® ¾ÆÀÌÄÜ (½ºÀ§Ä¡ GameBalance.DishIconOn, ¾øÀ¸¸é null)</summary>
+    public static Sprite DishIcon(string recipeId)
+    {
+        if (!GameBalance.DishIconOn || string.IsNullOrEmpty(recipeId)) return null;
+        return Get(DishIconName(recipeId));
+    }
+
+    /// <summary>v1.2: ¿ä¸® ¾ÆÀÌÄÜ ÆÑÀÌ µé¾î ÀÖ³ª (´õºí À°Æ÷ ÇÑ ÀåÀ¸·Î º»´Ù - ÇÏ´Ü Ä«µå Å©±â¸¦ Á¤ÇÒ ¶§. ½ºÀ§Ä¡°¡ ²¨Á® ÀÖÀ¸¸é false)</summary>
+    public static bool AnyDishIcon { get { return GameBalance.DishIconOn && Has("ui_dish_meat_meat"); } }
+
+    /// <summary>v1.2: À¯¹° ¾ÆÀÌÄÜ - "item_knife" -> ui_item_knife (½ºÀ§Ä¡ GameBalance.ItemIconOn, ¾øÀ¸¸é null)</summary>
+    public static Sprite ItemIcon(string itemId)
+    {
+        if (!GameBalance.ItemIconOn || string.IsNullOrEmpty(itemId)) return null;
+        return Get("ui_" + itemId);
+    }
+
     /// <summary>
-    /// ìŠ¤í”„ë¼ì´íŠ¸ ë Œë”ëŸ¬ 1ê°œë¥¼ ë¶™ì¸ë‹¤. PNGê°€ ìˆìœ¼ë©´ ê·¸ê²ƒì„, ì—†ìœ¼ë©´ fallback(ì½”ë“œ ë„íŠ¸)ì„ ì“´ë‹¤.
-    /// í”¼ë²—/í”½ì…€ ë‹¨ìœ„ëŠ” ì„í¬í„°ê°€ ì¡ì•„ë‘ë¯€ë¡œ ìœ„ì¹˜ë§Œ ë„˜ê¸°ë©´ ëœë‹¤.
+    /// ½ºÇÁ¶óÀÌÆ® ·»´õ·¯ 1°³¸¦ ºÙÀÎ´Ù. PNG°¡ ÀÖÀ¸¸é ±×°ÍÀ», ¾øÀ¸¸é fallback(ÄÚµå µµÆ®)À» ¾´´Ù.
+    /// ÇÇ¹ş/ÇÈ¼¿ ´ÜÀ§´Â ÀÓÆ÷ÅÍ°¡ Àâ¾ÆµÎ¹Ç·Î À§Ä¡¸¸ ³Ñ±â¸é µÈ´Ù.
     /// </summary>
     public static SpriteRenderer Attach(Transform parent, string objName, string spriteName, Sprite fallback,
         Vector3 localPos, int order)

@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [AugmentListUI.cs] v9.9 (2026-09-16: ReadingOpen 에 BriefingUI.IsOpen 포함) / v3 (교수 피드백 A10 반영 2026-09-14) / v2 - 감사 3-B 결정 사항 + Phase 2-3 아이템 표시
+/// [AugmentListUI.cs] v9.36 (2026-10-29 그림 팩: [V] 목록의 유물 줄 왼쪽에 ui_item_<id> 아이콘 40) / v9.9 (2026-09-16: ReadingOpen 에 BriefingUI.IsOpen 포함) / v3 (교수 피드백 A10 반영 2026-09-14) / v2 - 감사 3-B 결정 사항 + Phase 2-3 아이템 표시
 /// 보유 증강 + 아이템(유물) 목록 패널 - V키로 열고 닫는다.
 /// "내가 지금 뭘 골랐더라?"를 언제든 확인 (레벨 시스템 절단의 대체 정보창).
 /// - v2: 증강 목록 아래에 보유 아이템도 이어서 표시 (희귀도 색)
@@ -148,21 +148,22 @@ public class AugmentListUI : MonoBehaviour
             string label = a.name
                 + (a.family != null ? " [" + a.family + "]" : "")
                 + (counts[i] > 1 ? "  x" + counts[i] : "");
-            MakeRow(slot++, label, a.GradeColor(), a.desc);
+            MakeRow(slot++, label, a.GradeColor(), a.desc, null);
         }
 
         // Phase 2-3: 보유 아이템(유물) - 희귀도 색 + [아이템] 접두
         for (int i = 0; i < ItemManager.Owned.Count; i++)
         {
             ItemData it = ItemManager.Owned[i];
-            MakeRow(slot++, "[유물] " + it.name, it.RarityColor(), it.desc);
+            MakeRow(slot++, "[유물] " + it.name, it.RarityColor(), it.desc, SpriteBank.ItemIcon(it.id));   // v9.36: 아이콘
         }
     }
 
     /// <summary>목록 행 1개 생성 (증강/아이템 공용)</summary>
-    private void MakeRow(int index, string label, Color labelColor, string desc)
+    private void MakeRow(int index, string label, Color labelColor, string desc, Sprite icon)
     {
         float rowH = 58f;
+        float textLeft = icon != null ? 60f : 12f;   // v9.36: 아이콘이 있으면 글을 오른쪽으로
         int col = index % 2;
         int rowIdx = index / 2;
 
@@ -182,9 +183,10 @@ public class AugmentListUI : MonoBehaviour
         nRt.anchorMax = new Vector2(1f, 0.5f);
         nRt.pivot = new Vector2(0.5f, 0.5f);
         nRt.anchoredPosition = new Vector2(0f, 13f);
-        nRt.offsetMin = new Vector2(12f, nRt.offsetMin.y);
+        nRt.offsetMin = new Vector2(textLeft, nRt.offsetMin.y);
         nRt.offsetMax = new Vector2(-12f, nRt.offsetMax.y);
         nRt.sizeDelta = new Vector2(nRt.sizeDelta.x, 26f);
+        UIFactory.CreateIcon(row, "Icon", icon, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(10f, 0f), 40f);   // v9.36
 
         // 설명 (작게, 한 줄 잘림 허용)
         Text descTxt = KitchenEventManager.MakeText(row, "Desc", desc, 15,
@@ -196,7 +198,7 @@ public class AugmentListUI : MonoBehaviour
         dRt.anchorMax = new Vector2(1f, 0.5f);
         dRt.pivot = new Vector2(0.5f, 0.5f);
         dRt.anchoredPosition = new Vector2(0f, -13f);
-        dRt.offsetMin = new Vector2(12f, dRt.offsetMin.y);
+        dRt.offsetMin = new Vector2(textLeft, dRt.offsetMin.y);
         dRt.offsetMax = new Vector2(-12f, dRt.offsetMax.y);
         dRt.sizeDelta = new Vector2(dRt.sizeDelta.x, 24f);
     }

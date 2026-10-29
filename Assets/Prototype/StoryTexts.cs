@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [StoryTexts.cs] v2.3 (v9.32 2026-10-22 노선: 두 번째 운행부터 오프닝의 스피노 인사 뒤에 노선 한 줄 - MapRoute.OpeningLine) / v2.2 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v2.1 (v9.17 2026-10-06: 운행 실패·승리 문구를 결과 화면에서는 명성 상점 패널 위 띠에 - 가운데에 뜨면 같이 열리는 상점 줄과 겹쳤다) / v2 (v9.15.1 2026-09-29 스토리 개정 - 유저 검토 보고서 "손님이라는 표현과 전체 이야기의 수정 방향": 전투는 기차를 지키는 싸움(구제 주장 삭제), 현재 문제 = 끊긴 보급망과 망가진 기관심장, 출발 목적 = 막힌 종착역을 여는 것, 선대의 연료 희생·셰프 재생 삭제(게임오버 = 운행 실패·비상 복구, 심장은 손맛을 기억), 일지 12장 앞(급식 열차 1호가 뭐였나)·중(보급이 어떻게 무너졌나)·뒤(누가 남고 누가 떠났나), 스피노 = 1호의 기관사, 엔딩 B 첫 줄 = 포탑이 멈춘 장면) / v1.4 (v9.14 2026-09-28: 오프닝 두 줄 - "후자다" 같은 번역투 제거) / v1.3 (2026-09-14: 엔딩 B 도감 완성 추가 장면) / v1.2
+/// [StoryTexts.cs] v2.4 (v9.36 2026-10-29 그림 팩: 오프닝(첫 운행) story_opening · 엔딩 B story_ending_b 컷을 글 뒤에 깔고 페이드 - 그 위 어둠은 GameBalance.StoryCutDim. 파일이 없으면 예전 어두운 배경 그대로 (GameBalance.StoryCutOn)) / v2.3 (v9.32 2026-10-22 노선: 두 번째 운행부터 오프닝의 스피노 인사 뒤에 노선 한 줄 - MapRoute.OpeningLine) / v2.2 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v2.1 (v9.17 2026-10-06: 운행 실패·승리 문구를 결과 화면에서는 명성 상점 패널 위 띠에 - 가운데에 뜨면 같이 열리는 상점 줄과 겹쳤다) / v2 (v9.15.1 2026-09-29 스토리 개정 - 유저 검토 보고서 "손님이라는 표현과 전체 이야기의 수정 방향": 전투는 기차를 지키는 싸움(구제 주장 삭제), 현재 문제 = 끊긴 보급망과 망가진 기관심장, 출발 목적 = 막힌 종착역을 여는 것, 선대의 연료 희생·셰프 재생 삭제(게임오버 = 운행 실패·비상 복구, 심장은 손맛을 기억), 일지 12장 앞(급식 열차 1호가 뭐였나)·중(보급이 어떻게 무너졌나)·뒤(누가 남고 누가 떠났나), 스피노 = 1호의 기관사, 엔딩 B 첫 줄 = 포탑이 멈춘 장면) / v1.4 (v9.14 2026-09-28: 오프닝 두 줄 - "후자다" 같은 번역투 제거) / v1.3 (2026-09-14: 엔딩 B 도감 완성 추가 장면) / v1.2
 /// 스토리 텍스트 - 오프닝 / 귀환 인사 / 사망 / 부활 / 승리 / 도감 플레이버 / 선대의 일지.
 /// 스토리바이블(2026-08-18) Phase 1 물량.
 ///
@@ -101,7 +101,7 @@ public static class StoryTexts
 
         if (runs <= 1)
         {
-            ShowLines(OpeningLines, null, 2.2f, true);
+            ShowLines(OpeningLines, null, 2.2f, true, null, false, "story_opening");   // v2.4: 오프닝 컷
         }
         else if (runs == 2)
         {
@@ -192,7 +192,7 @@ public static class StoryTexts
             lines[EndingBLines.Length] = "요리책 " + GameBalance.TrueEndingRecipesNeeded + "/" + GameBalance.TrueEndingRecipesNeeded
                 + " - 심장이 모든 레시피를 기억해냈다. 옛 요리사가 남긴 빈 페이지가, 드디어 채워졌다.";
         }
-        ShowLines(lines, "선대의 일지, 마지막 장 뒤에 새 글씨가 적혔다", 3f, true, onClosed);
+        ShowLines(lines, "선대의 일지, 마지막 장 뒤에 새 글씨가 적혔다", 3f, true, onClosed, false, "story_ending_b");   // v2.4: 엔딩 B 컷
     }
 
     /// <summary>
@@ -241,7 +241,7 @@ public static class StoryTexts
     private const float RESULT_TOP_Y = -42f;
 
     private static void ShowLines(string[] lines, string speaker, float secondsPerLine, bool dimBackground,
-        System.Action onDone = null, bool topBand = false)
+        System.Action onDone = null, bool topBand = false, string cut = null)
     {
         GameObject canvasGo = new GameObject("StoryCanvas");
         Canvas canvas = canvasGo.AddComponent<Canvas>();
@@ -251,16 +251,29 @@ public static class StoryTexts
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
         scaler.referenceResolution = UIFactory.RefResolution;   // v9.14: UI 전체 배율 (GameBalance.UIScale)
 
-        // 배경 (오프닝만 화면 전체를 어둡게)
+        // v2.4: 스토리 컷 (그림이 있을 때만) - 글 뒤에 화면 가득, 러너가 페이드 인·아웃
+        Image cutImg = null, dimImg = null;
+        Sprite cutSprite = (dimBackground && GameBalance.StoryCutOn && !string.IsNullOrEmpty(cut)) ? SpriteBank.Get(cut) : null;
+        if (cutSprite != null)
+        {
+            RectTransform cutRt = KitchenEventManager.MakeBox(canvasGo.transform, "Cut", Color.white);
+            cutRt.anchorMin = Vector2.zero; cutRt.anchorMax = Vector2.one; cutRt.offsetMin = Vector2.zero; cutRt.offsetMax = Vector2.zero;
+            cutImg = cutRt.GetComponent<Image>();
+            cutImg.sprite = cutSprite; cutImg.type = Image.Type.Simple; cutImg.preserveAspect = false; cutImg.raycastTarget = false;
+            cutImg.color = new Color(1f, 1f, 1f, 0f);
+        }
+
+        // 배경 (오프닝만 화면 전체를 어둡게 - 컷이 있으면 그 위에 옅게)
         if (dimBackground)
         {
             RectTransform bg = KitchenEventManager.MakeBox(canvasGo.transform, "Dim",
-                new Color(0f, 0f, 0f, 0.78f));
+                new Color(0f, 0f, 0f, 0.78f));   // 컷이 있으면 러너가 컷 페이드 인과 같이 StoryCutDim 까지 옅힌다 (처음부터 옅으면 뒤 장면이 비친다)
             bg.anchorMin = Vector2.zero;
             bg.anchorMax = Vector2.one;
             bg.offsetMin = Vector2.zero;
             bg.offsetMax = Vector2.zero;
             bg.GetComponent<Image>().raycastTarget = false;
+            dimImg = bg.GetComponent<Image>();
         }
 
         // 본문 줄들 (가운데, 세로로 나열)
@@ -304,6 +317,7 @@ public static class StoryTexts
 
         // 러너가 페이드/스킵/자폭을 담당
         StoryRunner runner = canvasGo.AddComponent<StoryRunner>();
+        runner.cutImg = cutImg; runner.dimImg = dimImg;   // v2.4
         runner.Setup(lineTexts, speakerText, secondsPerLine, dimBackground);
         runner.onDone = onDone;
 
@@ -336,6 +350,10 @@ public static class StoryTexts
         // 연출 종료/스킵 시 호출할 콜백 (일지 -> 증강 선택 이어가기 등)
         public System.Action onDone = null;
 
+        // v2.4: 스토리 컷 (없으면 null) - 첫 줄 전에 0.8초 페이드 인, 끝에 글과 같이 페이드 아웃
+        public Image cutImg = null;
+        public Image dimImg = null;
+
         public void Setup(Text[] lineTexts, Text speakerText, float secondsPerLine, bool canSkip)
         {
             lines = lineTexts;
@@ -357,6 +375,23 @@ public static class StoryTexts
 
         private IEnumerator Play()
         {
+            // v2.4: 컷 페이드 인 (스킵되면 그대로 끝)
+            if (cutImg != null)
+            {
+                float ci = 0f;
+                while (ci < 0.8f)
+                {
+                    if (SkipPressed()) { Destroy(gameObject); yield break; }
+                    ci += Time.unscaledDeltaTime;
+                    float ck = Mathf.Clamp01(ci / 0.8f);
+                    cutImg.color = new Color(1f, 1f, 1f, ck);
+                    if (dimImg != null) dimImg.color = new Color(0f, 0f, 0f, Mathf.Lerp(0.78f, GameBalance.StoryCutDim, ck));
+                    yield return null;
+                }
+                cutImg.color = Color.white;
+                if (dimImg != null) dimImg.color = new Color(0f, 0f, 0f, GameBalance.StoryCutDim);
+            }
+
             // 줄 순차 페이드 인
             for (int i = 0; i < lines.Length; i++)
             {
@@ -413,6 +448,7 @@ public static class StoryTexts
                 float a = 1f - (f / 0.8f);
                 for (int i = 0; i < lines.Length; i++) SetA(lines[i], a);
                 if (speaker != null) SetA(speaker, a);
+                if (cutImg != null) cutImg.color = new Color(1f, 1f, 1f, a);   // v2.4
                 yield return null;
             }
 

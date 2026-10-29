@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// [BriefingTexts.cs] v3.15 (v9.35.3 2026-10-26 견습 카드 6·7 - 솥 요리 = 해독 스튜 (철판 정식은 그릴 요리였다), 재료 이름 '등심' (화면과 같게), "재료는 넉넉히 줬어" / 솥 = 스튜·수프 / 리뷰: "조리법은 요리마다" -> "굽기·볶기·끓이기는 요리마다" ('조리법'이 재료 조합으로 읽힌다), "[Space] 꾹이면" -> "[Space] 누르면") / v3.14 (v9.35.2 2026-10-26 미끼 - 무리는 붙고 왕은 잠깐만 돌아본다 (GameBalance.BaitBossLureSec) / 증강 카드 맨 아래 줄 안내 (견습 카드 14 · 첫 증강)) / v3.13 (v9.35 2026-10-25: 증강 웨이브 글을 지역 길이에서 - "웨이브 2·4·8" -> GameBalance.AugmentWavesText (지역 5 = 2·3·5), 그 뒤는 "지역마다 N번" / 견습 카드 5 의 상한 = "견습은 Lv3, 운행은 Lv80까지") / v3.12 (v9.32 2026-10-22 노선: 지역 카드 = 맵마다 한 장 Region(맵, 자리) - 웨이브 범위·보스 웨이브는 그 자리 것, 사막이 1지역이면 운행 첫 안내도 / 보스 카드는 종류 번호로 Boss(kindNo) / 급식 3인분 카드에서 광산을 뺐다) / v3.11 (v9.31 2026-10-21 급식 조리: 스피노 카드 BatchCook(2 · 3) - 지역 2 첫 웨이브 "2인분", 지역 3 "3인분" (WaveManager 가 지역 카드 뒤에 큐). 1회성 id batch_2 · batch_3) / v3.10 (v9.27 2026-10-20 튜토리얼 개편: 견습 브리핑을 16장으로 (카드 1 달려가서 넣기 / 5 Lv + 정보창·폐기 / 6 팬·솥 / 7 진화 조리·교체 / 9 과열 / 10 주방 사고 / 13 실전 + 단골 주문 / 14 정산 - 증강은 몇 웨이브마다 / 15 정차역 - 행상인·갈림길·베팅 / 16 앞길 - [V]·[J]·휠), 예습 카드에 무방비 [F] 줄, 지역 1 카드의 "웨이브를 넘기면 증강" 을 실제 규칙(2·4·8)으로, 보스 1 카드의 예습 판정 = TutorialDirector.BossPracticeDone) / v3.9 (v9.23 2026-10-14 보스 새 패턴: 보스 카드 4장 - 녹슨 발톱 부관·도약 / 천둥 둥지 알 / 동면자 입김·눈사태 / 디 오리지널 하차. 손님·보스가 하는 일엔 주어 "놈이") / v3.8 (v9.22.2 2026-10-14 유저 "튜토리얼 말투가 번역체·AI 같고 딱딱하다": 안내 글 말투를 반말 해체로 - 명령형 ~라·설명 ~다 끝맺음, 문장 속 기호, 어려운 말(투입·재가동·곁·유인)를 걷어냈다. 규칙 = 문구원칙 10-14 저녁 "말투" 절) / v3.7 (v9.22.1 2026-10-14 유저 "튜토리얼에 드래그가 반영 안 됐다": 견습 카드 2·5·6 = 끌어다 놓기(클릭 ▶ 클릭도 된다)·교체·카드 위 카드 진화 조리 / 13 = 명성 상점 [M] 한 줄) / v3.6 (v9.22 2026-10-14 조작 팩 2-1: 견습 5번 카드 "더블 육포 고르기" -> "고기 둘을 그릴에 올리고 [굽기 시작]" - 조리 창이 재료 중심으로 바뀌었다) / v3.5 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v3.4 (v9.20 2026-10-07: 글 속 화살표를 게임 글꼴에 있는 세모로(게임 글꼴에 화살표 글리프가 없어 PC 의 다른 글꼴로 그려졌다 - 모양이 따로 놀고, 대신할 글꼴이 없는 빌드에선 빈칸)) / v3.3 (v9.18 2026-10-06: 주방 사고 첫 등장 카드의 실패 피해를 "기차 최대 HP 의 N%" 로 - 실패 피해가 최대 HP 비례가 됐다(EventFailScaleOn). 끄면 예전 고정 숫자) / v3.2 (v9.15.1 2026-09-29 스토리 개정: 지역 1 카드에 스피노의 첫 손님 농담 + 목표 = 기차 방어 / 최종전·디 오리지널 카드 = 급식 열차 1호였던 것, 원료 삼키기와 식사의 구분, 해치가 열리면 식사 / 새 손님 카드 "지닌 배급품" / 새 카드 SpinoFinal - 최종전 직전 고백과 "이번엔 안 건다") / v3.1 (v9.15 2026-09-29: 자유 연습 카드 SandboxIntro / 구간 완료 카드 "[R] 한 번 더" / 6단계 문구 - 상한 대신 접시 곡선) / v3 (v9.14 2026-09-28 테스터 "설명이 길고 지루하고 현학적": 카드 전부 2~3줄로 - 지금 할 조작 먼저, 이야기·수치 나열 제거. 새 손님 카드 3줄) / v2.5 (v9.13 2026-09-23: 분기 선로 첫 등장 카드 - 갈림길·왼쪽 카드·새 보상) / v2.4 (v9.12 2026-09-22: 견습 구간화 - 미니 보스 예습 카드·구간 완료 카드·협곡 낙뢰 사고 카드, 첫 보스 카드는 예습 여부로 분기, 굽기 카드 제목 = 그릴만, 리롤 복원(유저 09-22)) / v2.3 (v9.11.1 2026-09-22 문구 검토 반영: 첫 카드는 지금 행동만·시간 정지 명시·수리 시점·실행 가능한 조언·이번 운행/다음 운행·공명 예외·그로기=무방비·디버프 요리=독샘 요리·리롤=다시 뽑기) / v2.2 (v9.10.1 2026-09-21: 재료 이름 MaterialNames - 전기알·화염꽃·얼음꽃·독샘) / [BriefingTexts.cs] v2.1 (v9.10 2026-09-17: RecipeIntro(레시피) 소개 카드 - 웨이브 3 용암 폭탄밥 / 숙련·베팅 문구 일상어) / v2 (v9.9.2 2026-09-16: 정식 런 첫 등장 카드 34장 - 지역 4 / 새 손님 16 / 주방 사고 4 / 베팅 1 / 보스 4 / 승격 5.
+/// [BriefingTexts.cs] v3.17 (v9.38 2026-10-29 유저 "튜토리얼이 텍스트로 가독성 떨어진다 - 다른 방식으로": 견습 1 ~ 5 = 한두 줄 + 그림 줄 (재료 + 재료 = 요리 등, GameBalance.TutorialShortBriefs) / 새 손님 카드 = 한 줄 + 잘 박히는 재료 · 떨구는 재료 그림 (EnemyCardShort) / 처음 견습(구간 1 만) 끝 카드 TutorialLightDone) / v3.16 (v9.37 2026-10-29 조리 독: 견습 4 브리핑에 "아래 바 [그릴 굽기] 단추를 눌러도 열려" 한 마디 - 기술이 바뀌면 튜토리얼도 (10-26 규칙)) / v3.15 (v9.35.3 2026-10-26 견습 카드 6·7 - 솥 요리 = 해독 스튜 (철판 정식은 그릴 요리였다), 재료 이름 '등심' (화면과 같게), "재료는 넉넉히 줬어" / 솥 = 스튜·수프 / 리뷰: "조리법은 요리마다" -> "굽기·볶기·끓이기는 요리마다" ('조리법'이 재료 조합으로 읽힌다), "[Space] 꾹이면" -> "[Space] 누르면") / v3.14 (v9.35.2 2026-10-26 미끼 - 무리는 붙고 왕은 잠깐만 돌아본다 (GameBalance.BaitBossLureSec) / 증강 카드 맨 아래 줄 안내 (견습 카드 14 · 첫 증강)) / v3.13 (v9.35 2026-10-25: 증강 웨이브 글을 지역 길이에서 - "웨이브 2·4·8" -> GameBalance.AugmentWavesText (지역 5 = 2·3·5), 그 뒤는 "지역마다 N번" / 견습 카드 5 의 상한 = "견습은 Lv3, 운행은 Lv80까지") / v3.12 (v9.32 2026-10-22 노선: 지역 카드 = 맵마다 한 장 Region(맵, 자리) - 웨이브 범위·보스 웨이브는 그 자리 것, 사막이 1지역이면 운행 첫 안내도 / 보스 카드는 종류 번호로 Boss(kindNo) / 급식 3인분 카드에서 광산을 뺐다) / v3.11 (v9.31 2026-10-21 급식 조리: 스피노 카드 BatchCook(2 · 3) - 지역 2 첫 웨이브 "2인분", 지역 3 "3인분" (WaveManager 가 지역 카드 뒤에 큐). 1회성 id batch_2 · batch_3) / v3.10 (v9.27 2026-10-20 튜토리얼 개편: 견습 브리핑을 16장으로 (카드 1 달려가서 넣기 / 5 Lv + 정보창·폐기 / 6 팬·솥 / 7 진화 조리·교체 / 9 과열 / 10 주방 사고 / 13 실전 + 단골 주문 / 14 정산 - 증강은 몇 웨이브마다 / 15 정차역 - 행상인·갈림길·베팅 / 16 앞길 - [V]·[J]·휠), 예습 카드에 무방비 [F] 줄, 지역 1 카드의 "웨이브를 넘기면 증강" 을 실제 규칙(2·4·8)으로, 보스 1 카드의 예습 판정 = TutorialDirector.BossPracticeDone) / v3.9 (v9.23 2026-10-14 보스 새 패턴: 보스 카드 4장 - 녹슨 발톱 부관·도약 / 천둥 둥지 알 / 동면자 입김·눈사태 / 디 오리지널 하차. 손님·보스가 하는 일엔 주어 "놈이") / v3.8 (v9.22.2 2026-10-14 유저 "튜토리얼 말투가 번역체·AI 같고 딱딱하다": 안내 글 말투를 반말 해체로 - 명령형 ~라·설명 ~다 끝맺음, 문장 속 기호, 어려운 말(투입·재가동·곁·유인)를 걷어냈다. 규칙 = 문구원칙 10-14 저녁 "말투" 절) / v3.7 (v9.22.1 2026-10-14 유저 "튜토리얼에 드래그가 반영 안 됐다": 견습 카드 2·5·6 = 끌어다 놓기(클릭 ▶ 클릭도 된다)·교체·카드 위 카드 진화 조리 / 13 = 명성 상점 [M] 한 줄) / v3.6 (v9.22 2026-10-14 조작 팩 2-1: 견습 5번 카드 "더블 육포 고르기" -> "고기 둘을 그릴에 올리고 [굽기 시작]" - 조리 창이 재료 중심으로 바뀌었다) / v3.5 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v3.4 (v9.20 2026-10-07: 글 속 화살표를 게임 글꼴에 있는 세모로(게임 글꼴에 화살표 글리프가 없어 PC 의 다른 글꼴로 그려졌다 - 모양이 따로 놀고, 대신할 글꼴이 없는 빌드에선 빈칸)) / v3.3 (v9.18 2026-10-06: 주방 사고 첫 등장 카드의 실패 피해를 "기차 최대 HP 의 N%" 로 - 실패 피해가 최대 HP 비례가 됐다(EventFailScaleOn). 끄면 예전 고정 숫자) / v3.2 (v9.15.1 2026-09-29 스토리 개정: 지역 1 카드에 스피노의 첫 손님 농담 + 목표 = 기차 방어 / 최종전·디 오리지널 카드 = 급식 열차 1호였던 것, 원료 삼키기와 식사의 구분, 해치가 열리면 식사 / 새 손님 카드 "지닌 배급품" / 새 카드 SpinoFinal - 최종전 직전 고백과 "이번엔 안 건다") / v3.1 (v9.15 2026-09-29: 자유 연습 카드 SandboxIntro / 구간 완료 카드 "[R] 한 번 더" / 6단계 문구 - 상한 대신 접시 곡선) / v3 (v9.14 2026-09-28 테스터 "설명이 길고 지루하고 현학적": 카드 전부 2~3줄로 - 지금 할 조작 먼저, 이야기·수치 나열 제거. 새 손님 카드 3줄) / v2.5 (v9.13 2026-09-23: 분기 선로 첫 등장 카드 - 갈림길·왼쪽 카드·새 보상) / v2.4 (v9.12 2026-09-22: 견습 구간화 - 미니 보스 예습 카드·구간 완료 카드·협곡 낙뢰 사고 카드, 첫 보스 카드는 예습 여부로 분기, 굽기 카드 제목 = 그릴만, 리롤 복원(유저 09-22)) / v2.3 (v9.11.1 2026-09-22 문구 검토 반영: 첫 카드는 지금 행동만·시간 정지 명시·수리 시점·실행 가능한 조언·이번 운행/다음 운행·공명 예외·그로기=무방비·디버프 요리=독샘 요리·리롤=다시 뽑기) / v2.2 (v9.10.1 2026-09-21: 재료 이름 MaterialNames - 전기알·화염꽃·얼음꽃·독샘) / [BriefingTexts.cs] v2.1 (v9.10 2026-09-17: RecipeIntro(레시피) 소개 카드 - 웨이브 3 용암 폭탄밥 / 숙련·베팅 문구 일상어) / v2 (v9.9.2 2026-09-16: 정식 런 첫 등장 카드 34장 - 지역 4 / 새 손님 16 / 주방 사고 4 / 베팅 1 / 보스 4 / 승격 5.
 ///   스피노 카드는 전부 실루엣 초상(ui_npc_spino) + 키, 정비소는 안킬로(ui_npc_ankylo). 12번 카드는 실제 베팅 창(카드 2장, [1] 일반 / [2] 도박 / [0] 거절)에 맞춤)
 ///   / v1 (신규, v9.9 2026-09-16) - 브리핑 카드 문구 표
 ///
@@ -68,6 +68,7 @@ public static class BriefingTexts
     /// </summary>
     public static BriefingUI.BriefDef Tutorial(int step)
     {
+        if (GameBalance.TutorialShortBriefs && step >= 1 && step <= 5) return TutorialShort(step);   // v3.17
         switch (step)
         {
             case 1:
@@ -87,7 +88,7 @@ public static class BriefingTexts
                     "재료 2", "= 요리 1");
             case 4:
                 return Make("스피노", "불 앞에 설 차례야. 그릴부터", new string[] {
-                    "그릴 앞에서 [E]. 고기 카드를 끌거나 눌러서 그릴 두 칸에 올리고 [굽기 시작]. 눈금이 초록 구간에 들어오면 [Space].",
+                    "그릴 앞에서 [E]. 고기 카드를 끌거나 눌러서 그릴 두 칸에 올리고 [굽기 시작]. 눈금이 초록 구간에 들어오면 [Space]." + (GameBalance.KitchenDockOn ? " 아래 바 오른쪽 구석 [그릴 · 굽기] 단추를 눌러도 열려." : ""),
                     "한가운데서 누르면 PERFECT, 요리 두 개. 구간 안이면 GOOD, 하나. 벗어나면 다 타." },
                     "[E]", "그릴 앞에서");
             case 5:
@@ -174,6 +175,52 @@ public static class BriefingTexts
                 stat,
                 "로비에서 [출발]을 누르면 돼." }, "완료", "[Enter] 로비로");
         return d;
+    }
+
+    /// <summary>
+    /// v3.17 (v9.38): 견습 1 ~ 5 짧은 판 - 한두 줄 + 그림 줄. 할 일은 목표 카드와 화면의 화살표 · 금색 테가 짚는다 (글로 다 말하지 않는다)
+    /// </summary>
+    private static BriefingUI.BriefDef TutorialShort(int step)
+    {
+        BriefingUI.BriefDef d;
+        switch (step)
+        {
+            case 1:
+                d = Make("스피노", "여기가 네 주방이자 포대야", new string[] {
+                    "[WASD]로 오른쪽 포탑 칸까지 달려가.",
+                    "아래 금색 테 카드를 [+] 이름표에 끌어다 놔." }, "[WASD]", "[Shift] 대시");
+                d.pics = new string[] { "ui_dish_meat_meat", "▶", "[+]", "=", "포탑" };
+                return d;
+            case 2:
+                d = Make("스피노", "손님 왔다! 포탑이 알아서 쏴", new string[] {
+                    "넌 구경만 해. 쓰러지면 재료를 떨궈." }, "자동", "포탑이 알아서 쏴");
+                d.pics = new string[] { "e_raptor", "▶", "ui_mat_meat" };
+                return d;
+            case 3:
+                d = Make("스피노", "재료 두 개면 요리 하나", new string[] {
+                    "재료는 화면 아래 왼쪽에 모여." }, "재료 2", "= 요리 1");
+                d.pics = new string[] { "ui_mat_meat", "+", "ui_mat_meat", "=", "ui_dish_meat_meat" };
+                return d;
+            case 4:
+                d = Make("스피노", "그릴에서 굽자", new string[] {
+                    GameBalance.KitchenDockOn ? "그릴 앞에서 [E], 아니면 아래 금색 테 [그릴 · 굽기]." : "그릴 앞에서 [E].",
+                    "바늘이 초록 구간일 때 [Space]. 가운데면 두 개." }, "[Space]", "초록 구간에서");
+                d.pics = new string[] { "ui_mat_meat", "+", "ui_mat_meat", "▶", "[Space]", "=", "ui_dish_meat_meat" };
+                return d;
+            default:
+                d = Make("스피노", "같은 요리를 또 넣으면 Lv 업", new string[] {
+                    "방금 구운 카드를 화살표 포탑에 놔." }, "끌어다 놓기", "요리 카드 ▶ 포탑");
+                d.pics = new string[] { "ui_dish_meat_meat", "+", "ui_dish_meat_meat", "=", "Lv2" };
+                return d;
+        }
+    }
+
+    /// <summary>v3.17 (v9.38): 처음 견습(구간 1 만) 끝 - 나머지는 운행하면서 하나씩</summary>
+    public static BriefingUI.BriefDef TutorialLightDone(bool firstTime, int reward)
+    {
+        return Make("견습 운행 완료", firstTime && reward > 0 ? "기본은 끝 - 명성 +" + reward : "기본은 끝", new string[] {
+            "나머지는 운행하면서 처음 만날 때 하나씩 알려줄게.",
+            "미리 해 보고 싶으면 로비 [T] 훈련장." }, "완료", "[Enter] 로비로");
     }
 
     /// <summary>v9.12 구간 8 시작 브리핑 - 왜 미끼인가 (목업 v4.2 (D)). v3.10: 무방비 [F] 줄</summary>
@@ -322,7 +369,22 @@ public static class BriefingTexts
         else if (name.Contains("테라노돈") || name.Contains("익룡")) tip = "포탑이랑 주방으로 내리꽂혀. 하늘도 사거리 안이야.";
         else tip = "떼로 와. 요리 수가 곧 답이야.";
 
-        BriefingUI.BriefDef d = Make("새 손님", name + " - " + ShortAbility(data.specialAbility), new string[] {
+        BriefingUI.BriefDef d;
+        if (GameBalance.EnemyCardShort)
+        {
+            // v3.17 (v9.38): 한 줄 (어떻게 상대하나) + 그림 줄 (잘 박히는 재료 · 떨구는 재료) - 방어·저항 숫자와 노리는 곳은 도감에
+            d = Make("새 손님", name + " - " + ShortAbility(data.specialAbility), new string[] { tip }, "", "");
+            System.Collections.Generic.List<string> pics = new System.Collections.Generic.List<string>();
+            pics.Add("잘 박혀");
+            if (def >= res + 10f) { pics.Add("ui_mat_elec"); pics.Add("ui_mat_fire"); pics.Add("ui_mat_ice"); pics.Add("ui_mat_poison"); }
+            else if (res >= def + 10f) { pics.Add("ui_mat_meat"); pics.Add("ui_mat_armor"); }
+            else pics.Add(def >= 30f ? "Lv · 공명" : "아무거나");
+            pics.Add("떨궈");
+            pics.Add(MatIconName(mat));
+            d.pics = pics.ToArray();
+        }
+        else
+            d = Make("새 손님", name + " - " + ShortAbility(data.specialAbility), new string[] {
             data.specialAbility + ". 노리는 곳은 " + data.targetPriority + ".",
             advice + " (방어 " + Mathf.RoundToInt(def) + " / 저항 " + Mathf.RoundToInt(res) + "). 지닌 배급품은 " + MatName(mat) + ", 쓰러지면 떨궈.",
             tip }, "", "");
@@ -372,6 +434,20 @@ public static class BriefingTexts
     }
 
     private static string MatName(MaterialType m) { return MaterialNames.Kor(m); }   // v2.2: 재료 이름 한 곳
+
+    /// <summary>v3.17: 재료 아이콘 이름 (UISkin.MaterialIcon 과 같은 규칙 ui_mat_*)</summary>
+    private static string MatIconName(MaterialType m)
+    {
+        switch (m)
+        {
+            case MaterialType.Armor: return "ui_mat_armor";
+            case MaterialType.Elec: return "ui_mat_elec";
+            case MaterialType.Fire: return "ui_mat_fire";
+            case MaterialType.Ice: return "ui_mat_ice";
+            case MaterialType.Poison: return "ui_mat_poison";
+            default: return "ui_mat_meat";
+        }
+    }
 
     private static Color MatColor(MaterialType m)
     {

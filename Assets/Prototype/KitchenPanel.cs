@@ -4,7 +4,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 /// <summary>
-/// [KitchenPanel.cs] v3.4 (v9.35.3 2026-10-26 UI 목업 v1 의 1·6: 창 글 말투를 해체로 ("끌어다 아래 솥에 놓아라" -> "아래 솥으로 끌어다 놔", "올려라 - 여기에 뜬다" -> "올려 - 여기 떠", 모자란다 -> 모자라 ...) · 받침 맞춤 (Ro · Eul - 솥으로 / 그릴로, 을 / 를) / RefreshIfOpen - 견습이 재료를 채우면 열린 창도 새 수로 (예전엔 창을 닫아야 보였다) / 리뷰: RefreshIfOpen 이 그렸나를 돌려준다 (못 그리면 부른 쪽이 다음 프레임에 다시) · 진화 조리 중에도 안 그린다 · "조리법은 요리마다" -> "굽기·볶기·끓이기는 요리마다" ('조리법'이 재료 조합으로 읽힌다)) / v3.3 (v9.32 2026-10-22 노선: "3인분은 지역 3부터" - 지역마다 맵이 바뀌니 맵 이름을 뺐다) / v3.2 (v9.31 2026-10-21 급식 조리: 되는 요리 상자 아래 [1] 1인분 [2] 2인분 [3] 3인분 칩 (키 1~3, 최대 인분 CookingBridge.MaxPortions - 지역 2 부터 2, 지역 3 부터 3. 1 이면 칩 없음). 고른 인분만큼 재료를 쓰고 "2개 나온다 (PERFECT 4개)", 모자란 재료 수도 인분으로. 창을 열면 1인분부터) / v3.1 (v9.26 2026-10-16 마감 정리: Tab 키 · 합성 탭(BuildFuseTab) · 옛 요리 카드 격자 조리 탭(BuildCookTab · BuildRecipeGrid) 코드 삭제 - 스위치로 꺼 두었던 것. 탭 = 조리 · 도감, 번호 0 · 1) / v3.0 (v9.22 2026-10-14 조작 팩 2-1 ~ 2-3: 조리 탭을 재료 중심으로(BuildMaterialTab - 재료 6칸을 끌어다(또는 눌러) 두 칸에 올리면 되는 요리·역할·조리법이 뜨고 정해진 조리법 하나만 불이 들어온다, 아래 "이 조리대에서 되는 요리" 목록은 누르면 두 칸이 채워진다, GameBalance.KitchenMaterialFirst) /
+/// [KitchenPanel.cs] v3.6 (v9.37 2026-10-29 유저 "텍스트가 너무 많다": 머리줄 "재료" · "솥에서 되는 요리" 만 (조작 괄호 뺌, 금색 17), 빈 상자 글 "재료 둘을 올려 봐", 위 오른쪽 줄 = 정차 조리 횟수(금색) + "[1~n] 인분  [E] 조리  [ESC] 닫기" ([WASD] 는 뺌) - GameBalance.KitchenHintDiet) / v3.5 (v9.36 2026-10-29 그림 팩: 되는 요리 목록 줄 왼쪽 아이콘 30 (미발견은 어둡게) / 되는 요리 상자 이름 옆 아이콘 56 / 도감 칸 아이콘 40 / 설명 상자 오른쪽 위 아이콘 72. 전부 GameBalance.DishIconOn + 그림이 있을 때만) / v3.4 (v9.35.3 2026-10-26 UI 목업 v1 의 1·6: 창 글 말투를 해체로 ("끌어다 아래 솥에 놓아라" -> "아래 솥으로 끌어다 놔", "올려라 - 여기에 뜬다" -> "올려 - 여기 떠", 모자란다 -> 모자라 ...) · 받침 맞춤 (Ro · Eul - 솥으로 / 그릴로, 을 / 를) / RefreshIfOpen - 견습이 재료를 채우면 열린 창도 새 수로 (예전엔 창을 닫아야 보였다) / 리뷰: RefreshIfOpen 이 그렸나를 돌려준다 (못 그리면 부른 쪽이 다음 프레임에 다시) · 진화 조리 중에도 안 그린다 · "조리법은 요리마다" -> "굽기·볶기·끓이기는 요리마다" ('조리법'이 재료 조합으로 읽힌다)) / v3.3 (v9.32 2026-10-22 노선: "3인분은 지역 3부터" - 지역마다 맵이 바뀌니 맵 이름을 뺐다) / v3.2 (v9.31 2026-10-21 급식 조리: 되는 요리 상자 아래 [1] 1인분 [2] 2인분 [3] 3인분 칩 (키 1~3, 최대 인분 CookingBridge.MaxPortions - 지역 2 부터 2, 지역 3 부터 3. 1 이면 칩 없음). 고른 인분만큼 재료를 쓰고 "2개 나온다 (PERFECT 4개)", 모자란 재료 수도 인분으로. 창을 열면 1인분부터) / v3.1 (v9.26 2026-10-16 마감 정리: Tab 키 · 합성 탭(BuildFuseTab) · 옛 요리 카드 격자 조리 탭(BuildCookTab · BuildRecipeGrid) 코드 삭제 - 스위치로 꺼 두었던 것. 탭 = 조리 · 도감, 번호 0 · 1) / v3.0 (v9.22 2026-10-14 조작 팩 2-1 ~ 2-3: 조리 탭을 재료 중심으로(BuildMaterialTab - 재료 6칸을 끌어다(또는 눌러) 두 칸에 올리면 되는 요리·역할·조리법이 뜨고 정해진 조리법 하나만 불이 들어온다, 아래 "이 조리대에서 되는 요리" 목록은 누르면 두 칸이 채워진다, GameBalance.KitchenMaterialFirst) /
 ///   [Tab] 전체 보기는 KitchenTabKey(false) 로 끔 - 조리 창은 조리대 [E] 로만 / 합성 탭은 KitchenFuseTab(false) 로 뺌 - 요리끼리는 하단 카드 끌어다 놓기 / 키 커서 [WASD]+[E] 는 목록에서) / v2.12 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v2.11 (v9.21.1 2026-10-13 4차 피드백 2번: 합성 탭의 접시 합성이 진화 조리 미니게임을 거친다 - 시작하면 창을 닫는다(미니게임이 보이게), 진화 조리 중엔 Tab 토글 금지. 버튼 "합성!" -> "진화 조리") / v2.10 (v9.18 2026-10-06: 창(1240x900)이 기준 화면보다 크면 화면 안으로 줄인다 - UIFactory.FitScale. UI 배율 1.2 에서 창 높이가 화면 높이와 같아져 테가 잘렸다) / v2.9 (v9.16 2026-09-29 손맛 2차 - 소리: 닫힘 sfx_ui_close. 열림은 ModalFeel) / v2.8 (v9.15 2026-09-29 2차 피드백 "마우스와 WASD 혼용": 조리 탭 카드 격자에 키 커서 - [WASD]/방향키로 고르고 [E]/[Enter] 로 조리 시작. 마우스는 그대로 (GameBalance.KitchenKeyCursor)) / v2.7 (v9.14 2026-09-28: 설명에서 맛 문구 제외) / v2.6 (v9.11.1 2026-09-22 문구: 기본/전설 요리) / v2.5 (v9.11 2026-09-22: 등장 연출 ModalFeel) / v2.4 (v9.10.1 2026-09-21: 재료 이름 MaterialNames 한 곳 / 안내줄에 정차 조리 남은 횟수(CookingBridge.StopCookHint)) / v2.3 (v9.10 2026-09-17 테스터 피드백: [ESC] 로도 닫힘(단축키로 열고 ESC 로 닫기) / 행상인·베팅·선로 창 중 Tab 금지 / 도감 카드 클릭 = 오른쪽 상세(무엇을 하나·어떤 손님에·언제, RecipeText)) / v2.2 (v9.8 재료 아이콘) / v2.1
 /// 주방 창 (uGUI 코드 생성) - 조리 / 도감 2탭. 조리대 앞 [E] 로 연다 (그 조리대 요리만 - OpenForStation)
 /// GameSystems 오브젝트에 부착
@@ -87,6 +87,7 @@ public class KitchenPanel : MonoBehaviour
     private readonly List<string> gridIds = new List<string>();
 
     private readonly List<GameObject> spawned = new List<GameObject>();
+    private Image detailIcon;            // v3.5 (v9.36): 설명 상자 아이콘
     private Text detailText;             // v2.3: 요리 설명 상자 (조리·도감 탭 아래) - 카드에 마우스를 올리거나 클릭하면 채워진다
     private Text hintText;               // v2.4: 오른쪽 위 안내줄 - 정차 중엔 남은 조리 횟수도
     private Button[] tabButtons = new Button[2];   // 0 조리 / 1 도감
@@ -386,7 +387,9 @@ public class KitchenPanel : MonoBehaviour
         string stationTitle = stationFilter >= 0 ? STATION_NAMES[stationFilter] + " (" + MethodName(stationFilter) + ")" : "조리대 (전체)";
 
         // ── 재료 6칸 (끌어다 놓거나 누른다) ──
-        Text matHead = UIFactory.CreateText(contentArea, "MatHead", "재료  -  아래 " + station + Ro(station) + " 끌어다 놔 (두 개). 눌러도 빈 칸에 들어가", 15, UIFactory.DIM, TextAnchor.UpperLeft);   // v3.4: 해체
+        Text matHead = GameBalance.KitchenHintDiet
+            ? UIFactory.CreateText(contentArea, "MatHead", "재료", 17, UIFactory.GOLD, TextAnchor.UpperLeft)   // v3.6: 글 줄이기 - 끌거나 누르는 건 견습이 가르친다
+            : UIFactory.CreateText(contentArea, "MatHead", "재료  -  아래 " + station + Ro(station) + " 끌어다 놔 (두 개). 눌러도 빈 칸에 들어가", 15, UIFactory.DIM, TextAnchor.UpperLeft);   // v3.4: 해체
         matHead.rectTransform.anchorMin = new Vector2(0f, 1f); matHead.rectTransform.anchorMax = new Vector2(1f, 1f);
         matHead.rectTransform.offsetMin = new Vector2(4f, -26f); matHead.rectTransform.offsetMax = new Vector2(0f, -4f);
         spawned.Add(matHead.gameObject);
@@ -486,8 +489,8 @@ public class KitchenPanel : MonoBehaviour
         RecipeData r = string.IsNullOrEmpty(selectedRecipe) ? null : RecipeDatabase.Get(selectedRecipe);
         if (r == null)
         {
-            string emptyMsg = potMat[0] < 0 && potMat[1] < 0 ? "재료 둘을 " + station + "에 올려 - 되는 요리가 여기 떠"
-                : (potMat[0] >= 0 && potMat[1] >= 0) ? "이 조합은 요리가 없어" : "재료 하나 더";   // 리뷰 5-3. v3.4: 해체
+            string emptyMsg = potMat[0] < 0 && potMat[1] < 0 ? (GameBalance.KitchenHintDiet ? "재료 둘을 올려 봐" : "재료 둘을 " + station + "에 올려 - 되는 요리가 여기 떠")
+                : (potMat[0] >= 0 && potMat[1] >= 0) ? "이 조합은 요리가 없어" : "재료 하나 더";   // 리뷰 5-3. v3.4: 해체. v3.6: 짧게
             Text t0 = UIFactory.CreateText(res, "Empty", emptyMsg, 18, UIFactory.DIM, TextAnchor.MiddleLeft);
             t0.rectTransform.offsetMin = new Vector2(20f, 0f); t0.rectTransform.offsetMax = new Vector2(-16f, 0f);
         }
@@ -497,7 +500,9 @@ public class KitchenPanel : MonoBehaviour
             bool afford = MaterialInventory.Instance != null && MaterialInventory.Instance.CanAfford((MaterialType)potMat[0], (MaterialType)potMat[1], portions);   // v3.2: 인분만큼
             int m = MethodOf(r);
             Text nm = UIFactory.CreateText(res, "Name", disc ? r.displayName : "???", 24, disc ? UIFactory.GOLD : UIFactory.DIM, TextAnchor.UpperLeft);
-            TopStrip(nm, 20f, 16f, 12f, 46f);
+            Image resIcon = UIFactory.CreateIcon(res, "Icon", SpriteBank.DishIcon(r.recipeId), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(16f, -8f), 56f);   // v3.5
+            if (resIcon != null && !disc) resIcon.color = UIFactory.SILHOUETTE;   // 아직 못 만든 요리 = 실루엣
+            TopStrip(nm, resIcon != null ? 82f : 20f, 16f, 12f, 46f);
             float nameW = disc ? r.displayName.Length * 25f + 12f : 70f;
             Text role = UIFactory.CreateText(res, "Role", disc ? RecipeText.RoleWord(r) + " · " + RecipeText.ShapeWord(r) + (afford ? " · " + portions + "개 나와 (PERFECT " + (portions * 2) + "개)" : "")
                 : "만들어 보면 알아", 15, UIFactory.CREAM, TextAnchor.UpperLeft);
@@ -530,7 +535,9 @@ public class KitchenPanel : MonoBehaviour
         BuildPortionChips(res);   // v3.2 (v9.31): 급식 조리 인분 칩 (지역 2 부터)
 
         // ── 이 조리대에서 되는 요리 목록 (누르면 두 칸이 채워진다) ──
-        Text listHead = UIFactory.CreateText(contentArea, "ListHead", station + "에서 되는 요리  (누르면 두 칸이 채워져  ·  ??? = 아직 못 만든 요리  ·  [WASD] 고르기 [E] 시작)", 15, UIFactory.DIM, TextAnchor.UpperLeft);
+        Text listHead = GameBalance.KitchenHintDiet
+            ? UIFactory.CreateText(contentArea, "ListHead", station + "에서 되는 요리", 17, UIFactory.GOLD, TextAnchor.UpperLeft)   // v3.6: 글 줄이기 (??? 는 보면 안다)
+            : UIFactory.CreateText(contentArea, "ListHead", station + "에서 되는 요리  (누르면 두 칸이 채워져  ·  ??? = 아직 못 만든 요리  ·  [WASD] 고르기 [E] 시작)", 15, UIFactory.DIM, TextAnchor.UpperLeft);
         listHead.rectTransform.anchorMin = new Vector2(0f, 1f); listHead.rectTransform.anchorMax = new Vector2(1f, 1f);
         listHead.rectTransform.offsetMin = new Vector2(4f, -314f); listHead.rectTransform.offsetMax = new Vector2(0f, -292f);
         spawned.Add(listHead.gameObject);
@@ -551,8 +558,11 @@ public class KitchenPanel : MonoBehaviour
                 new Vector2(cx, cy - 38f), new Vector2(cx + 280f, cy),
                 sel ? new Color(0.22f, 0.14f, 0.08f, 0.95f) : new Color(0.12f, 0.08f, 0.06f, 0.9f), ring, 2f);
             spawned.Add(card.gameObject);
+            Image rowIcon = UIFactory.CreateIcon(card, "Icon", SpriteBank.DishIcon(rr.recipeId), new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(4f, 0f), 30f);   // v3.5
+            if (rowIcon != null && !disc) rowIcon.color = UIFactory.SILHOUETTE;
+            float matsLeft = rowIcon != null ? 38f : 10f;
             Text mats = UIFactory.CreateText(card, "Mats", MaterialNames.PairKor(rr.recipeId), 13, afford ? UIFactory.DIM : new Color(0.5f, 0.42f, 0.36f), TextAnchor.MiddleLeft);
-            mats.rectTransform.offsetMin = new Vector2(10f, 0f); mats.rectTransform.offsetMax = new Vector2(-120f, 0f);
+            mats.rectTransform.offsetMin = new Vector2(matsLeft, 0f); mats.rectTransform.offsetMax = new Vector2(-120f, 0f);
             Text nmT = UIFactory.CreateText(card, "Name", disc ? rr.displayName : "???", 15, afford ? UIFactory.CREAM : UIFactory.DIM, TextAnchor.MiddleRight);
             nmT.rectTransform.offsetMin = new Vector2(120f, 0f); nmT.rectTransform.offsetMax = new Vector2(-10f, 0f);
             string key = rr.recipeId;
@@ -618,6 +628,16 @@ public class KitchenPanel : MonoBehaviour
     public void OpenForStation(int method)
     {
         Open(Mathf.Clamp(method, 0, 2));
+    }
+
+    /// <summary>v3.6: 정차 조리 횟수 배지 글 (리치 텍스트) - "정차 중 조리 1번 남음" 금색, 다 쓰면 주황 "정차 조리 끝 - 출발하면 다시 돼", 제한이 없으면 빈 글. 조리 독 명판도 같은 뜻을 쓴다</summary>
+    public static string StopCookBadge()
+    {
+        if (!CookingBridge.StopCookLimited) return "";
+        if (GameBalance.StopCookLimit == 0) return "<color=#F08A5D>정차 중엔 조리 못 해 - 출발하면 돼</color>";
+        int left = CookingBridge.StopCooksLeft;
+        if (left <= 0) return "<color=#F08A5D>정차 조리 끝 - 출발하면 다시 돼</color>";
+        return "<color=#FFD24D>정차 중 조리 " + left + "번 남음</color>";
     }
 
     public void Close()
@@ -755,7 +775,20 @@ public class KitchenPanel : MonoBehaviour
     // ─────────────────────────────────────────
     private void Refresh()
     {
-        if (hintText != null) hintText.text = CookingBridge.StopCookHint() + (GameBalance.KitchenKeyCursor && tabIndex == 0 ? "[WASD] 고르기  [E] 조리  " : "") + (tabIndex == 0 && CookingBridge.MaxPortions() > 1 ? "[1~" + CookingBridge.MaxPortions() + "] 인분  " : "") + "[ESC] 닫기";   // v2.8 / v3.0 / v3.2 인분
+        if (hintText != null)
+        {
+            if (GameBalance.KitchenHintDiet)
+            {
+                // v3.6: 정차 조리 횟수는 금색으로 앞에 크게, 조작은 셋만 ([WASD] 는 뺐다 - 마우스로 다 된다)
+                string stop = StopCookBadge();
+                hintText.text = (stop.Length > 0 ? stop + "      " : "")
+                    + (tabIndex == 0 && CookingBridge.MaxPortions() > 1 ? "[1~" + CookingBridge.MaxPortions() + "] 인분   " : "")
+                    + (GameBalance.KitchenKeyCursor && tabIndex == 0 ? "[E] 조리   " : "") + "[ESC] 닫기";
+                hintText.supportRichText = true;
+            }
+            else
+                hintText.text = CookingBridge.StopCookHint() + (GameBalance.KitchenKeyCursor && tabIndex == 0 ? "[WASD] 고르기  [E] 조리  " : "") + (tabIndex == 0 && CookingBridge.MaxPortions() > 1 ? "[1~" + CookingBridge.MaxPortions() + "] 인분  " : "") + "[ESC] 닫기";   // v2.8 / v3.0 / v3.2 인분
+        }
         // 탭 버튼 강조
         for (int i = 0; i < tabButtons.Length; i++)
         {
@@ -801,6 +834,16 @@ public class KitchenPanel : MonoBehaviour
     private void ShowRecipeDetail(RecipeData r)
     {
         if (detailText == null || r == null) return;
+        // v3.5 (v9.36): 설명 상자 오른쪽 위에 그 요리 아이콘 72 (미발견은 실루엣). 글은 아이콘 자리만큼 비운다
+        Sprite ds = SpriteBank.DishIcon(r.recipeId);
+        if (detailIcon == null && ds != null && detailText.transform.parent != null)   // 리뷰: 처음 그림이 있는 요리를 볼 때 만든다 (특정 파일에 안 기댄다)
+            detailIcon = UIFactory.CreateIcon(detailText.transform.parent, "Icon", ds, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-12f, -8f), 72f);
+        if (detailIcon != null)
+        {
+            detailIcon.gameObject.SetActive(ds != null);
+            if (ds != null) { detailIcon.sprite = ds; detailIcon.color = FoodStock.Instance != null && FoodStock.Instance.IsDiscovered(r.recipeId) ? Color.white : UIFactory.SILHOUETTE; }
+            detailText.rectTransform.offsetMax = new Vector2(ds != null ? -96f : -16f, -10f);
+        }
         bool disc = FoodStock.Instance != null && FoodStock.Instance.IsDiscovered(r.recipeId);
         string[] parts = r.recipeId.Replace("T2:", "").Split('+');
         string src = r.tier == 1 && parts.Length >= 2 ? MatKor(parts[0]) + " + " + MatKor(parts[1])
@@ -911,9 +954,11 @@ public class KitchenPanel : MonoBehaviour
                     txt = "???\n" + (r.tier == 2 ? "(전설 미발견)" : "(미발견)");
                 }
 
+                Image dexIcon = UIFactory.CreateIcon(card, "Icon", SpriteBank.DishIcon(r.recipeId), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(6f, -6f), 40f);   // v3.5
+                if (dexIcon != null && !disc) dexIcon.color = UIFactory.SILHOUETTE;
                 Text t = UIFactory.CreateText(card, "Txt", txt, 13,
                     disc ? UIFactory.CREAM : UIFactory.DIM, TextAnchor.UpperLeft);
-                t.rectTransform.offsetMin = new Vector2(8f, 4f);
+                t.rectTransform.offsetMin = new Vector2(dexIcon != null ? 50f : 8f, 4f);
                 t.rectTransform.offsetMax = new Vector2(-6f, -6f);
                 t.horizontalOverflow = HorizontalWrapMode.Wrap;
                 AttachDetailHover(card, r);   // v2.3: 올리거나 클릭 = 아래 설명 상자

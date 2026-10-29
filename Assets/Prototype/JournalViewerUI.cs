@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [JournalViewerUI.cs] v9.9 (2026-09-16: 브리핑 카드 위에서는 [J] 안 열림) / v1.1 (교수 피드백 A10 반영 2026-09-14) / v1 - P1: 선대의 일지 열람 패널 (감사 4-B)
+/// [JournalViewerUI.cs] v9.36 (2026-10-29 그림 팩: 본문 판 배경 = story_journal_paper (640x360 을 판 크기로 늘림), 글은 잉크색 - GameBalance.JournalPaperOn + 그림이 있을 때) / v9.9 (2026-09-16: 브리핑 카드 위에서는 [J] 안 열림) / v1.1 (교수 피드백 A10 반영 2026-09-14) / v1 - P1: 선대의 일지 열람 패널 (감사 4-B)
 ///
 /// 배경: 일지 12장을 수집은 하는데 다시 볼 곳이 없었다 - 수집형 메타의 보상 화면.
 /// [J] 키로 언제든 열고 닫는다. 수집한 장은 전문 재열람, 미수집 장은 ??? 로 표시되어
@@ -210,8 +210,15 @@ public class JournalViewerUI : MonoBehaviour
         bodyBox.offsetMin = new Vector2(212f, 16f);
         bodyBox.offsetMax = new Vector2(-16f, -54f);
 
+        // v9.36: 일지 종이 그림이 있으면 판을 종이로, 글은 잉크색
+        Sprite paper = GameBalance.JournalPaperOn ? SpriteBank.Get("story_journal_paper") : null;
+        if (paper != null)
+        {
+            Image paperImg = bodyBox.GetComponent<Image>();
+            paperImg.sprite = paper; paperImg.type = Image.Type.Simple; paperImg.preserveAspect = false; paperImg.color = Color.white;
+        }
         bodyText = KitchenEventManager.MakeText(bodyBox, "Body", "", 19,
-            new Color(0.92f, 0.87f, 0.78f));
+            paper != null ? new Color(0.22f, 0.15f, 0.09f) : new Color(0.92f, 0.87f, 0.78f));
         RectTransform bRt = bodyText.rectTransform;
         bRt.anchorMin = Vector2.zero; bRt.anchorMax = Vector2.one;
         bRt.offsetMin = new Vector2(18f, 14f);

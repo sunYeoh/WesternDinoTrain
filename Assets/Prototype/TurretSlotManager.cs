@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// [TurretSlotManager.cs] v2.15 (v9.35.3 2026-10-26 오라 범위 = 기차 몸에서 GameBalance.AuraReach (예전: 가운데에서 10 - 오른쪽 끝을 무는 손님에 안 닿았다) / 부식의 정수 = 부식 (Enemy.corrodedUntil - 직접 맞는 피해 +n%) / 속성 줄 = 어두운 판 + "물리 4기 · 공명 켜짐 +20%" + "?" 칩 (UI 목업 v1 의 3 - "4/3" 이 분수로 읽혔다)) / v2.14 (v9.35.2 2026-10-26 오라가 설명대로: 화염 방벽 불 = 화상 (화상·독 배율 + 약점 파고들기 기록, GameBalance.AuraBurnIsDot) / 부식의 정수 = 방어·저항 깎기 1겹 (AuraShredReal - 예전엔 임시 감속 -15%) / 빙벽 스튜 감속 · 축전 장갑 마비도 '느려지거나 마비된 손님'으로 (TrainCcCounts - 사냥꾼의 본능 · 동상 파편)) / v2.13 (v9.34 2026-10-25 유저 "2레벨 요리끼리 합치면 2레벨 전설": 진화 결과 레벨 = 재료 레벨 그대로. 진화 조리 판정이 좋으면 레벨 대신 그 전설 요리 1개를 하단 카드로, 숙련 +1 없음 - GameBalance.FusionKeepLevel·FusionBonusDishes) / v2.12 (v9.30 2026-10-21 포탑 칸: 시작 4칸(GameBalance.BaseSlotCount), 지역 보스를 잡고 정차할 때 하나씩 더 (BossSlotUnlocks - 운행 단위, GameManager 가 부른다 UnlockByBoss - 열린 칸에 금빛 고리 + 알림), 그다음 증강. 잠긴 칸 글은 SlotMarkerUI) / v2.11 (v9.26 2026-10-16 마감 정리: 어디서도 안 부르는 RepairOne 삭제) / v2.10 (v9.25 2026-10-16 B5 싸움 유물: CountRecipe · EmptyUnlockedCount (짝꿍 숟가락·빈 접시가 읽는다) / 짝꿍 숟가락을 가지면 공명이 꺼진다 (ItemManager.NoResonance - 피해·방어 공명·발동 알림·속성 줄)) / v2.9 (v9.24.1 2026-10-16 5차 피드백 1·2번: 같은 요리 합체가 상한을 넘치면 넘친 레벨만큼 그 요리를 하단 카드로 돌려준다 (4 + 4 = Lv6 + 요리 2개 - 예전엔 말없이 사라졌다, GameBalance.MergeOverflowRefund). 진화 결과 글에 레벨이 나온 까닭 (높은 쪽 Lv + 판정 보너스 + 숙련). 손댄 안내 글은 10-14 말투로) / v2.8 (v9.23 2026-10-14 점검 수정: 포탑 진화 조리 성공 = 그 전설 요리 숙련 1회 - FoodStock.CountCook) / v2.7 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v2.6 (v9.18 2026-10-06: 진화 조리는 같은 레벨끼리만(FusionSameLevelOnly) + 결과 레벨도 상한까지 / 합체·진화 때 들어간 접시 수를 넘겨받는다(폐기 환급) / 과열은 조건이 된 포탑 중 무작위 / 정비 거리 = 슬롯 앞 바닥(TrainDeck.NearestWalkPoint)까지 / 속성 줄에 마우스를 올리면 공명·옆자리 효과 설명) /
+/// [TurretSlotManager.cs] v2.16 (v9.39 2026-10-29 밸런스 가안 3 · 4 순위: 이웃 강화 · 수정 방패 성장 = SupportValue (Lv1 값 -> Lv80 SupportLv80Mul 배) / 같은 종류 이웃 강화는 큰 것 하나 (SupportSameTypeMax) / 수정 방패 + 방어 공명 상한 SlotDrCap) / v2.15 (v9.35.3 2026-10-26 오라 범위 = 기차 몸에서 GameBalance.AuraReach (예전: 가운데에서 10 - 오른쪽 끝을 무는 손님에 안 닿았다) / 부식의 정수 = 부식 (Enemy.corrodedUntil - 직접 맞는 피해 +n%) / 속성 줄 = 어두운 판 + "물리 4기 · 공명 켜짐 +20%" + "?" 칩 (UI 목업 v1 의 3 - "4/3" 이 분수로 읽혔다)) / v2.14 (v9.35.2 2026-10-26 오라가 설명대로: 화염 방벽 불 = 화상 (화상·독 배율 + 약점 파고들기 기록, GameBalance.AuraBurnIsDot) / 부식의 정수 = 방어·저항 깎기 1겹 (AuraShredReal - 예전엔 임시 감속 -15%) / 빙벽 스튜 감속 · 축전 장갑 마비도 '느려지거나 마비된 손님'으로 (TrainCcCounts - 사냥꾼의 본능 · 동상 파편)) / v2.13 (v9.34 2026-10-25 유저 "2레벨 요리끼리 합치면 2레벨 전설": 진화 결과 레벨 = 재료 레벨 그대로. 진화 조리 판정이 좋으면 레벨 대신 그 전설 요리 1개를 하단 카드로, 숙련 +1 없음 - GameBalance.FusionKeepLevel·FusionBonusDishes) / v2.12 (v9.30 2026-10-21 포탑 칸: 시작 4칸(GameBalance.BaseSlotCount), 지역 보스를 잡고 정차할 때 하나씩 더 (BossSlotUnlocks - 운행 단위, GameManager 가 부른다 UnlockByBoss - 열린 칸에 금빛 고리 + 알림), 그다음 증강. 잠긴 칸 글은 SlotMarkerUI) / v2.11 (v9.26 2026-10-16 마감 정리: 어디서도 안 부르는 RepairOne 삭제) / v2.10 (v9.25 2026-10-16 B5 싸움 유물: CountRecipe · EmptyUnlockedCount (짝꿍 숟가락·빈 접시가 읽는다) / 짝꿍 숟가락을 가지면 공명이 꺼진다 (ItemManager.NoResonance - 피해·방어 공명·발동 알림·속성 줄)) / v2.9 (v9.24.1 2026-10-16 5차 피드백 1·2번: 같은 요리 합체가 상한을 넘치면 넘친 레벨만큼 그 요리를 하단 카드로 돌려준다 (4 + 4 = Lv6 + 요리 2개 - 예전엔 말없이 사라졌다, GameBalance.MergeOverflowRefund). 진화 결과 글에 레벨이 나온 까닭 (높은 쪽 Lv + 판정 보너스 + 숙련). 손댄 안내 글은 10-14 말투로) / v2.8 (v9.23 2026-10-14 점검 수정: 포탑 진화 조리 성공 = 그 전설 요리 숙련 1회 - FoodStock.CountCook) / v2.7 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v2.6 (v9.18 2026-10-06: 진화 조리는 같은 레벨끼리만(FusionSameLevelOnly) + 결과 레벨도 상한까지 / 합체·진화 때 들어간 접시 수를 넘겨받는다(폐기 환급) / 과열은 조건이 된 포탑 중 무작위 / 정비 거리 = 슬롯 앞 바닥(TrainDeck.NearestWalkPoint)까지 / 속성 줄에 마우스를 올리면 공명·옆자리 효과 설명) /
 /// v2.5 (v9.16 2026-09-29 손맛 2차 - 소리: 진화 완료 sfx_fusion, 완벽 판정이면 판정음이 뒤따른다 / 오라 화염 틱은 Enemy.TakeTickDamage - 명중음 없이) / v2.4 (v9.15 2026-09-29: 파손 슬롯 - RepairAllBroken(새 운행)·BrokenCount·RepairOne(정비소) / 동종 병합 레벨 배율 표기 GameBalance.LevelMultOf) / v2.3 (v9.14 레벨 상한) / v2.1 (v9.9 2026-09-16: 슬롯 4모서리 배치 GameBalance.SlotPosition + 근접 판정 "가까운 벽 쪽 거리") / v2
 /// 포탑 슬롯 8개를 자동 생성/관리하는 매니저 (싱글톤)
 /// - v2.1: 슬롯 위치는 GameBalance.SlotPosition(i) 한 곳에서 (모서리 4 = 북 2 지붕선 위 / 남 2 섀시 위).
@@ -244,10 +244,11 @@ public class TurretSlotManager : MonoBehaviour
             if (r == null || string.IsNullOrEmpty(r.buffType)) continue;
             if (!anyBuff)
             {
-                sb.Append("<color=#FFD24D>이웃 강화</color>  같은 칸의 가로·세로 옆 포탑에만 닿는다\n"); lines++;
+                sb.Append("<color=#FFD24D>이웃 강화</color>  같은 칸의 가로·세로 옆 포탑에만 닿는다"
+                    + (GameBalance.SupportCurveOn && GameBalance.SupportSameTypeMax ? " · 같은 효과 둘이면 큰 것 하나" : "") + "\n"); lines++;   // v2.16 리뷰
                 anyBuff = true;
             }
-            float v = r.buffValue * s.LevelMult * AugmentManager.AdjacentBuffMul * GameBalance.AdjBuffScale;
+            float v = AdjBuffValue(r, s.LevelMult);   // v2.16: 실제 계산과 같은 한 곳
             string what = r.buffType == "as" ? "발사 속도" : r.buffType == "pd" ? "물리 공격력" : "속성 공격력";   // RecipeText 와 같은 낱말
             sb.Append(r.displayName + " (" + SlotPlaceName(i) + ")  옆 포탑 " + what + " +" + Mathf.RoundToInt(v * 100f) + "%\n");
             lines++;
@@ -361,6 +362,23 @@ public class TurretSlotManager : MonoBehaviour
         }
     }
 
+    /// <summary>v2.16 (v9.39): 지원 성장 - Lv1 = 1배, Lv80 = SupportLv80Mul 배를 레벨 배율(1 ~ 3.25)에 맞춰 고르게. 끄면 레벨 배율 그대로</summary>
+    public static float SupportGrowth(float levelMult)
+    {
+        if (!GameBalance.SupportCurveOn) return levelMult;
+        float top = GameBalance.LevelMultOf(80);
+        if (top <= 1.001f) return 1f;
+        return 1f + (Mathf.Max(1f, levelMult) - 1f) / (top - 1f) * (GameBalance.SupportLv80Mul - 1f);
+    }
+
+    /// <summary>v2.16 (v9.39): 이웃 강화 한 기가 옆 포탑에 주는 값 (설명 상자와 실제 계산이 같이 쓴다). 곡선을 끄면 예전 식 (x AdjBuffScale)</summary>
+    public static float AdjBuffValue(RecipeData r, float levelMult)
+    {
+        if (r == null) return 0f;
+        float scale = GameBalance.SupportCurveOn ? 1f : GameBalance.AdjBuffScale;
+        return r.buffValue * SupportGrowth(levelMult) * AugmentManager.AdjacentBuffMul * scale;
+    }
+
     // 인접 버프 합산 계산 (B-2: 가로 1열 재배치 - 인접 = 같은 포탑칸 안의 양옆 슬롯)
     private void GetBuffsFor(int index, out float atkSpeed, out float physDmg, out float magDmg)
     {
@@ -388,11 +406,11 @@ public class TurretSlotManager : MonoBehaviour
 
             // 증강 '주방 동선 최적화': 인접 버프 배율
             // 밸런스 1차: AdjBuffScale - 1열 재배치로 줄어든 수혜 폭 보정 (GameBalance 참고)
-            float v = r.buffValue * o.LevelMult * AugmentManager.AdjacentBuffMul
-                * GameBalance.AdjBuffScale;
-            if (r.buffType == "as") atkSpeed += v;
-            else if (r.buffType == "pd") physDmg += v;
-            else if (r.buffType == "md") magDmg += v;
+            float v = AdjBuffValue(r, o.LevelMult);   // v2.16
+            bool max = GameBalance.SupportCurveOn && GameBalance.SupportSameTypeMax;   // v2.16: 같은 종류 둘이면 큰 것 하나
+            if (r.buffType == "as") atkSpeed = max ? Mathf.Max(atkSpeed, v) : atkSpeed + v;
+            else if (r.buffType == "pd") physDmg = max ? Mathf.Max(physDmg, v) : physDmg + v;
+            else if (r.buffType == "md") magDmg = max ? Mathf.Max(magDmg, v) : magDmg + v;
         }
     }
 
@@ -604,7 +622,7 @@ public class TurretSlotManager : MonoBehaviour
             if (s == null || s.IsEmpty || s.isLocked) continue;
             RecipeData r = s.Recipe;
             if (r.passiveType == "dr")
-                dr += r.passiveValue * s.LevelMult;
+                dr += r.passiveValue * SupportGrowth(s.LevelMult);   // v2.16: 한 기 20% -> Lv80 40% (곡선을 끄면 레벨 배율 그대로)
         }
 
         // 방어 속성 공명: 받는 피해 -10% 추가 (v2.10: 짝꿍 숟가락이면 없다)
@@ -612,7 +630,7 @@ public class TurretSlotManager : MonoBehaviour
             tagCounts[(int)FoodTag.Def] >= GameBalance.ResonanceCount)
             dr += 0.10f;
 
-        return Mathf.Min(0.6f, dr);
+        return Mathf.Min(GameBalance.SupportCurveOn ? GameBalance.SlotDrCap : 0.6f, dr);   // v2.16: 상한 0.6 -> SlotDrCap
     }
 
     // 축전 장갑: 기차 피격 시 주변 감전 반격

@@ -3,7 +3,7 @@ using UnityEngine;
 using TMPro;
 
 /// <summary>
-/// [HitFeel.cs] v1.5 (v9.35.2 2026-10-26 TextPop 은 TMPFontFixer.NewWorldText - 글꼴이 든 본을 복제 (TMP 기본 글꼴 경고 없이)) / v1.4 (v9.29 2026-10-21 손맛 3차 A10: 치명타로 처치하면 GameBalance.CritKillHitstopSec 히트스탑 - CritKillHitstopGap 에 한 번, 보스 제외. 마지막 치명타 명중을 ConsumeCrit 과 따로 기억한다(lastCrit*) - 숫자 팝업이 먼저 읽어 지우기 때문) / v1.3 (v9.18 2026-10-06: NextHit 에 쏜 포탑(source) - ConsumeHit 이 치명타 여부와 같이 돌려준다, 데미지 숫자를 포탑별로 합산하는 데 쓴다) / v1.2 (v9.17 2026-10-06 화면 손맛 2차: MuzzlePool(포신 끝 섬광 - 풀 24) / Knock(물리 단발 넉백 - 그림만 밀렸다 돌아온다) / ConsumeCrit(숫자 팝업이 진짜 치명타만 크리로 찍게)) / v1.1 (v9.16 2026-09-29 손맛 2차 - 소리: 명중음이 여기서 난다 - 손님 재질별(SoundKeys.Hit: 비늘·무쇠·결정·날개·용암) + 요리 속성 겹침(SoundKeys.Accent) + 크리 sfx_hit_crit / 물리가 방어에 크게 깎이면 재질음 대신 sfx_ricochet(튕김) / 처치음은 Enemy.Die 가 재질별로) / v1 (신규, v9.11 2026-09-22) - 타격감 계층: 손님이 맞는다 / 죽는다 / 월드 팝 (스펙 표 A1 A2 A3 A6 + 월드 공용)
+/// [HitFeel.cs] v1.6 (v9.36 2026-10-29 그림 팩: OnKill 에 fx_kill 한 장 (WorldFeel.SpritePop - 커지며 흐려짐, 보스 제외, GameBalance.FxKillSprite) / WorldFeel.SpritePop 공용 - 포탑 등급 상승 fx_levelup 도 쓴다) / v1.5 (v9.35.2 2026-10-26 TextPop 은 TMPFontFixer.NewWorldText - 글꼴이 든 본을 복제 (TMP 기본 글꼴 경고 없이)) / v1.4 (v9.29 2026-10-21 손맛 3차 A10: 치명타로 처치하면 GameBalance.CritKillHitstopSec 히트스탑 - CritKillHitstopGap 에 한 번, 보스 제외. 마지막 치명타 명중을 ConsumeCrit 과 따로 기억한다(lastCrit*) - 숫자 팝업이 먼저 읽어 지우기 때문) / v1.3 (v9.18 2026-10-06: NextHit 에 쏜 포탑(source) - ConsumeHit 이 치명타 여부와 같이 돌려준다, 데미지 숫자를 포탑별로 합산하는 데 쓴다) / v1.2 (v9.17 2026-10-06 화면 손맛 2차: MuzzlePool(포신 끝 섬광 - 풀 24) / Knock(물리 단발 넉백 - 그림만 밀렸다 돌아온다) / ConsumeCrit(숫자 팝업이 진짜 치명타만 크리로 찍게)) / v1.1 (v9.16 2026-09-29 손맛 2차 - 소리: 명중음이 여기서 난다 - 손님 재질별(SoundKeys.Hit: 비늘·무쇠·결정·날개·용암) + 요리 속성 겹침(SoundKeys.Accent) + 크리 sfx_hit_crit / 물리가 방어에 크게 깎이면 재질음 대신 sfx_ricochet(튕김) / 처치음은 Enemy.Die 가 재질별로) / v1 (신규, v9.11 2026-09-22) - 타격감 계층: 손님이 맞는다 / 죽는다 / 월드 팝 (스펙 표 A1 A2 A3 A6 + 월드 공용)
 ///
 /// 원칙 (타격감 스펙 표): 일반 사건(매초 수십 번인 명중)은 플래시·찌그러짐·작은 스파크·숫자까지만.
 /// 중요 사건(처치·크리·큰 손님)은 킬 버스트 + 채널 쿨타임 흔들림. 흔들림·히트스탑·줌은 여기서 늘리지 않는다.
@@ -139,7 +139,10 @@ public static class HitFeel
         if (body != null) body.Kill(boss ? 0.45f : 0.28f, big);
 
         Vector3 pos = e.transform.position;
-        WorldFeel.Ring(pos, boss ? new Color(1f, 0.85f, 0.4f) : col, boss ? 2.2f : (big ? 1.4f : 0.9f), boss ? 0.5f : 0.25f);
+        // v1.6 (v9.36): 부품이 튀는 한 장 fx_kill (그림 1.5u 가 1배) - 있으면 고리는 뺀다 (같은 자리에 셋이 겹치지 않게). 보스는 제 연출
+        Sprite killSprite = (!boss && GameBalance.FxKillSprite) ? SpriteBank.Get("fx_kill") : null;
+        if (killSprite != null) WorldFeel.SpritePop(pos, killSprite, big ? 0.7f : 0.5f, big ? 1.2f : 0.9f, GameBalance.FxKillSec, 58);
+        else WorldFeel.Ring(pos, boss ? new Color(1f, 0.85f, 0.4f) : col, boss ? 2.2f : (big ? 1.4f : 0.9f), boss ? 0.5f : 0.25f);
         SparkPool.Emit(pos, col, big ? 14 : 8, big ? 0.15f : 0.12f, big ? 3.8f : 3f);
         SparkPool.Emit(pos, Color.white, big ? 6 : 3, 0.1f, 4.5f);
         if (big && !boss) GameFeel.Shake(GameBalance.ShakeBigKill, "kill", 0.3f);
@@ -192,7 +195,7 @@ public class HitFeelBody : MonoBehaviour
         {
             SpriteRenderer sr = all[i];
             if (sr == null || !sr.enabled || sr.sprite == null) continue;
-            if (sr.gameObject.name == "HpBarBg" || sr.gameObject.name == "HpBarFill" || sr.gameObject.name.StartsWith("Flash_")) continue;
+            if (sr.gameObject.name == "HpBarBg" || sr.gameObject.name == "HpBarFill" || sr.gameObject.name.StartsWith("Flash_") || sr.gameObject.name.StartsWith("fx_status_")) continue;   // v1.6: 상태 표시도 제외
             list.Add(sr);
         }
         bodies = list.ToArray();
@@ -619,6 +622,18 @@ public static class WorldFeel
         Runner().StartCoroutine(Runner().RingRoutine(go.transform, sr, radius, sec, c));
     }
 
+    /// <summary>v1.6 (v9.36): 스프라이트 한 장 팝 - fromScale 에서 toScale 로 커지며 sec 동안 흐려진다 (처치 fx_kill · 등급 상승 fx_levelup). sprite 가 null 이면 아무것도 안 한다</summary>
+    public static void SpritePop(Vector3 pos, Sprite sprite, float fromScale, float toScale, float sec, int order)
+    {
+        if (sprite == null || GameBalance.GameFeelMaster <= 0f) return;
+        GameObject go = new GameObject("SpritePop");
+        go.transform.position = pos;
+        go.transform.localScale = Vector3.one * fromScale;
+        SpriteRenderer sr = go.AddComponent<SpriteRenderer>();
+        sr.sprite = sprite; sr.sortingOrder = order;
+        Runner().StartCoroutine(Runner().SpritePopRoutine(go.transform, sr, fromScale, toScale, sec));
+    }
+
     /// <summary>월드 글자 팝 ("Lv3", "+1 접시"): 위로 0.6u 떠오르며 0.7초에 사라진다</summary>
     public static void TextPop(Vector3 pos, string text, Color c, float size)
     {
@@ -665,6 +680,22 @@ public static class WorldFeel
 
     public class WorldFeelRunner : MonoBehaviour
     {
+        /// <summary>v1.6: 스프라이트 팝 - easeOut 로 커지고 뒤 절반에서 흐려진다</summary>
+        public System.Collections.IEnumerator SpritePopRoutine(Transform t, SpriteRenderer sr, float from, float to, float sec)
+        {
+            float k = 0f;
+            while (k < 1f && t != null)
+            {
+                k += Time.deltaTime / Mathf.Max(0.01f, sec);
+                float e = 1f - (1f - k) * (1f - k);
+                t.localScale = Vector3.one * Mathf.Lerp(from, to, e);
+                float a = k < 0.4f ? 1f : 1f - (k - 0.4f) / 0.6f;
+                sr.color = new Color(1f, 1f, 1f, Mathf.Clamp01(a));
+                yield return null;
+            }
+            if (t != null) Object.Destroy(t.gameObject);
+        }
+
         public System.Collections.IEnumerator RingRoutine(Transform t, SpriteRenderer sr, float radius, float sec, Color c)
         {
             float k = 0f;

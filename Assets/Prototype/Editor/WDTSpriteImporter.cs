@@ -4,8 +4,10 @@ using UnityEditor;
 using UnityEngine;
 
 /// <summary>
-/// [WDTSpriteImporter.cs] v4.9 (Editor 전용) - 스프라이트 PNG 자동 임포트 설정 (2026-09-07, v9 픽셀 팩 + UI 스킨)
+/// [WDTSpriteImporter.cs] v5.0 (Editor 전용) - 스프라이트 PNG 자동 임포트 설정 (2026-09-07, v9 픽셀 팩 + UI 스킨)
 ///
+/// v5.0 (v9.36 2026-10-29, 그림 팩): fx_* (처치 fx_kill 48 · 상태 fx_status_* 16 · 등급 fx_levelup 64) = 32ppu 가운데 피벗 월드 스프라이트 / story_* (일지 종이 640x360, 스토리 컷) = ui_ 와 같은 UI 규칙 (PPU 100 단순 그림) /
+///   ui_dish_* · ui_item_* · ui_npc_* 는 ui_ 규칙 그대로. 표 버전 5.0 (넣으면 스스로 재임포트)
 /// v4.9 (v9.35.4 2026-10-26, 맵 그림 팩): ground_(맵) 바닥 4장 (1024px = 32u) · deco_(맵)_1~6 소품 24종 - 접두어 규칙 32ppu 가운데 피벗 (표에 없어도 경고 없음). 표 버전 4.9 (넣으면 스스로 한 번 재임포트)
 /// v4.8 (v9.18 2026-10-06, 10-05 그림 팩): 작살포 피벗 = 회전 중심 (0.5965, 0.5781 - 새 그림은 왼쪽을 보고 누워 있다) / 레버 손잡이 피벗 = 아래 둥근 뿌리 (0.5714, 0.1207) /
 ///   새 그림은 캔버스를 꽉 채워 그려서 e_ptera·e_tortoise 피벗을 가운데로 / e_venom·e_volt 2줄 / boss_*·e_* 는 표에 없어도 32ppu 가운데 피벗(경고 없음) /
@@ -123,7 +125,7 @@ public class WDTSpriteImporter : AssetPostprocessor
     };
 
     /// <summary>v4.8: 표(피벗·배율)를 고칠 때마다 올린다. 값이 달라지면 에디터가 스크립트를 다시 읽은 직후 Sprites/WDT 를 한 번 재임포트한다</summary>
-    private const string TABLE_VERSION = "4.9";
+    private const string TABLE_VERSION = "5.0";
 
     /// <summary>
     /// v4.8: 표가 바뀐 팩을 넣으면 PNG 는 그대로인데 피벗만 옛 값으로 남는다 (PNG 가 먼저 임포트되고 이 스크립트가 나중에 컴파일되므로).
@@ -169,7 +171,7 @@ public class WDTSpriteImporter : AssetPostprocessor
 
         string name = Path.GetFileNameWithoutExtension(path);
         Info info;
-        if (name.StartsWith("ui_"))
+        if (name.StartsWith("ui_") || name.StartsWith("story_"))   // v5.0: 스토리 컷·일지 종이도 UI 그림
         {
             // UI 스킨: 캔버스 픽셀 1:1 (PPU 100 = uGUI 기본), 중앙 피벗, 9-슬라이스 테두리
             ti.spritePixelsPerUnit = 100f;
@@ -193,7 +195,7 @@ public class WDTSpriteImporter : AssetPostprocessor
         {
             ApplyPivot(ti, info);
         }
-        else if (name.StartsWith("boss_") || name.StartsWith("e_") || name.StartsWith("ground_") || name.StartsWith("deco_"))
+        else if (name.StartsWith("boss_") || name.StartsWith("e_") || name.StartsWith("ground_") || name.StartsWith("deco_") || name.StartsWith("fx_"))
         {
             // v4.8: 보스(boss_rust, boss_original_groggy, 나중에 넣을 _rage·_p2·_p3 ...)와 표에 없는 손님 그림: 32px/유닛, 가운데 피벗
             // v4.9: 맵 바닥 ground_(desert·canyon·mine·final) 1024px = 32u 와 소품 deco_(맵)_1~6 도 같은 규칙 (ParallaxBackground 가 가운데 피벗으로 깐다)

@@ -4,7 +4,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 /// <summary>
-/// [GameHUD.cs] v3.15 (v9.35.3 2026-10-26 UI 목업 v1: 끌기 안내 "칸에 놓아라" -> "칸에 놔" (6) / 칼·팬 안내 줄 = GameBalance.ToolHintBelow(50%) 아래일 때만 주황으로 할 일과 같이 - "칼이 무뎌졌어 - 굽기 판정이 빡빡해져. 정비소 [G]" (4) / 로비에선 우상단 웨이브 판(SkinPanel_TR)을 숨긴다 (5)) / v3.14 (v9.35.2 2026-10-26 OnDestroy 에서 재고·재료 구독을 끊는다 - 씬을 다시 실을 때 줍던 재료가 씬과 같이 지워지며 MaterialInventory.Add -> 지워진 HUD 의 RefreshMaterials -> NullReference 2번 (Player.log 10-26, 로비 왼쪽 아래 빨간 줄)) / v3.13 (v9.35.1 2026-10-26 유저 "요리 하는 방식에 따라 갑자기 2레벨 포탑으로 나온다": 카드를 누르고 칸을 누르는 투입은 한 번에 요리 하나 - 넣고 나면 투입 모드가 끝난다 (GameBalance.PlaceOnePerPick). 예전엔 재고가 남으면 모드가 이어져, 넣은 포탑을 보려고 한 번 더 누르면 요리가 또 들어갔다 - PERFECT 로 둘을 받은 때만 그래서 "가끔") / v3.12 (v9.23 2026-10-14 점검 수정: 칼·팬 칩 밑 안내를 튜토리얼과 같은 말로 - "조리 판정이 빡빡해져") / v3.11 (v9.22.1 2026-10-14 유저 확인 "카드 위 카드가 교체로 빠진다": 카드 구역 = 하단 바 전체(bottomBarRt - 전엔 카드 스크롤 영역만이라 그 테두리 밖에서 포탑 칸 판정이 걸렸다) + 바 위쪽 여백까지 포함 / 끌기 시작하면 합칠 수 있는 카드에 분홍 테(MarkFusableCards)·못 합치는 카드는 흐리게 - 어디에 놓으면 되는지 보이게 / 카드 위 판정은 카드 rect 에 여유 6px) / v3.10 (v9.22 2026-10-14 조작 팩 1-2 ~ 1-4: 카드를 다른 요리가 든 칸에 놓으면 교체(ReplaceTurret - 폐기 환급 + 투입, GameBalance.DragReplaceOn) / 카드를 다른 기본 요리 카드 위에 놓으면 진화 조리(CardUnderPointer·FuseCheck -> CookingBridge.FuseFoods, DragFuseOn) / 놓을 곳의 종류 DragHoverKind 를 SlotMarkerUI 가 읽어 이름표를 "놓으면 Lv2 (2/3)"·"폐기 - 재료 N개 환급"·"못 놓는다"로 / 고스트 글 "놓으면 투입 / Lv2 / 교체 / 진화 조리 / 못 놓는다" + 테 색) / v3.9 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v3.8 (v9.18 2026-10-06: 재료 칸 이름 글자 11 -> 13 (최소 글자 크기), 칸 높이 34 -> 36 으로 이름과 개수가 안 겹치게) / v3.7 (v9.17 2026-10-06 B6: 재료 개수가 늘면 그 숫자가 1.3배에서 제자리로 튄다 - 숫자 왼쪽 아래를 축으로) / v3.6 (v9.15 2026-09-29 2차 피드백: 요리 카드 드래그 투입(FoodCardDrag - 고스트 카드가 커서를 따라가고 SlotMarkerUI.NearestMarker 로 놓을 슬롯 금색, 놓으면 투입. 클릭->클릭도 그대로) / HUD 재배치 GameBalance.HudRegroup: 칼·팬 명판을 하단 바에서 좌상단 HP 판(UISkin SkinPanel_TL)으로) / v3.5 (v9.11 2026-09-22 타격감: 조리 완료 접시 날아가기 + 카드 튀기 / 요리 카드 ButtonFeel) / v3.4 (v9.10.1 2026-09-21: 재료 이름 MaterialNames 한 곳(전기알·화염꽃·얼음꽃·독샘) - 칸 폭 102 에 세 글자 이름이 안 들어가 이름(11px, 위)·개수(20px, 아래) 두 줄) / v3.3 (v9.9 2026-09-16: 로비에서는 하단 바 숨김 - 로비 버튼이 바 위에 겹쳐 있던 것) / v3.2 (v9.8 재료 아이콘) / v3.1 (교수 피드백 A9 반영 2026-09-14) / v3 - 전투 중 핵심 HUD (전부 코드 생성 - Canvas 세팅 불필요)
+/// [GameHUD.cs] v3.18 (v9.38 2026-10-29 튜토리얼 그림: "여기" 표시 PointCard · PointDock - 짚는 요리 카드나 조리 독 단추 둘레에 금색 테 + 위에 ▼ 가 깜빡인다 (캔버스 맨 위 층이라 카드 스크롤 가림막에 안 잘린다, 대상이 다시 그려지면 새 대상에 다시 붙는다, GameBalance.UiPointOn)) / v3.17 (v9.37 2026-10-29 유저 "조리 UI 를 구석에 박아서 클릭으로 · 정차 조리 횟수 잘 보이게 · 글 너무 많다": 하단 바 오른쪽 구석(게이지 · 밸브 · 배기 장식 자리 - 켜면 장식은 안 그린다)에 조리 독 - 그릴 · 팬 · 솥 단추 셋, 누르면 그 조리대 창이 바로 열린다 (CookingStation.OpenFromDock, 요리 카드 구역은 44px 만 좁아진다, GameBalance.KitchenDock*). 누른 뒤 선택을 놓는다 - [Enter]·[Space] 가 단추를 다시 누르지 않게 / 독 명판 = "조리" 또는 정차 땐 "조리 1번 남음" (다 쓰면 주황 "정차 조리 끝", StopCookBadgeOn) / 명판 "요리  (끌어다 놓기 / 클릭 = 투입, 휠 = 스크롤)" -> "요리" (HudTextDiet)) / v3.16 (v9.36 2026-10-29 그림 팩: 하단 요리 카드 = 요리 아이콘 44 + 이름(오른쪽, 두 줄) + x1 - 카드 116x56 -> GameBalance.DishCardW x DishCardH (140 x 64), "T2" 글자는 뺐다 (분홍 테가 말한다). 아이콘이 없는 요리는 예전 배치 / 조리 완성 날아가기 = 속성색 원 대신 그 요리 아이콘) / v3.15 (v9.35.3 2026-10-26 UI 목업 v1: 끌기 안내 "칸에 놓아라" -> "칸에 놔" (6) / 칼·팬 안내 줄 = GameBalance.ToolHintBelow(50%) 아래일 때만 주황으로 할 일과 같이 - "칼이 무뎌졌어 - 굽기 판정이 빡빡해져. 정비소 [G]" (4) / 로비에선 우상단 웨이브 판(SkinPanel_TR)을 숨긴다 (5)) / v3.14 (v9.35.2 2026-10-26 OnDestroy 에서 재고·재료 구독을 끊는다 - 씬을 다시 실을 때 줍던 재료가 씬과 같이 지워지며 MaterialInventory.Add -> 지워진 HUD 의 RefreshMaterials -> NullReference 2번 (Player.log 10-26, 로비 왼쪽 아래 빨간 줄)) / v3.13 (v9.35.1 2026-10-26 유저 "요리 하는 방식에 따라 갑자기 2레벨 포탑으로 나온다": 카드를 누르고 칸을 누르는 투입은 한 번에 요리 하나 - 넣고 나면 투입 모드가 끝난다 (GameBalance.PlaceOnePerPick). 예전엔 재고가 남으면 모드가 이어져, 넣은 포탑을 보려고 한 번 더 누르면 요리가 또 들어갔다 - PERFECT 로 둘을 받은 때만 그래서 "가끔") / v3.12 (v9.23 2026-10-14 점검 수정: 칼·팬 칩 밑 안내를 튜토리얼과 같은 말로 - "조리 판정이 빡빡해져") / v3.11 (v9.22.1 2026-10-14 유저 확인 "카드 위 카드가 교체로 빠진다": 카드 구역 = 하단 바 전체(bottomBarRt - 전엔 카드 스크롤 영역만이라 그 테두리 밖에서 포탑 칸 판정이 걸렸다) + 바 위쪽 여백까지 포함 / 끌기 시작하면 합칠 수 있는 카드에 분홍 테(MarkFusableCards)·못 합치는 카드는 흐리게 - 어디에 놓으면 되는지 보이게 / 카드 위 판정은 카드 rect 에 여유 6px) / v3.10 (v9.22 2026-10-14 조작 팩 1-2 ~ 1-4: 카드를 다른 요리가 든 칸에 놓으면 교체(ReplaceTurret - 폐기 환급 + 투입, GameBalance.DragReplaceOn) / 카드를 다른 기본 요리 카드 위에 놓으면 진화 조리(CardUnderPointer·FuseCheck -> CookingBridge.FuseFoods, DragFuseOn) / 놓을 곳의 종류 DragHoverKind 를 SlotMarkerUI 가 읽어 이름표를 "놓으면 Lv2 (2/3)"·"폐기 - 재료 N개 환급"·"못 놓는다"로 / 고스트 글 "놓으면 투입 / Lv2 / 교체 / 진화 조리 / 못 놓는다" + 테 색) / v3.9 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v3.8 (v9.18 2026-10-06: 재료 칸 이름 글자 11 -> 13 (최소 글자 크기), 칸 높이 34 -> 36 으로 이름과 개수가 안 겹치게) / v3.7 (v9.17 2026-10-06 B6: 재료 개수가 늘면 그 숫자가 1.3배에서 제자리로 튄다 - 숫자 왼쪽 아래를 축으로) / v3.6 (v9.15 2026-09-29 2차 피드백: 요리 카드 드래그 투입(FoodCardDrag - 고스트 카드가 커서를 따라가고 SlotMarkerUI.NearestMarker 로 놓을 슬롯 금색, 놓으면 투입. 클릭->클릭도 그대로) / HUD 재배치 GameBalance.HudRegroup: 칼·팬 명판을 하단 바에서 좌상단 HP 판(UISkin SkinPanel_TL)으로) / v3.5 (v9.11 2026-09-22 타격감: 조리 완료 접시 날아가기 + 카드 튀기 / 요리 카드 ButtonFeel) / v3.4 (v9.10.1 2026-09-21: 재료 이름 MaterialNames 한 곳(전기알·화염꽃·얼음꽃·독샘) - 칸 폭 102 에 세 글자 이름이 안 들어가 이름(11px, 위)·개수(20px, 아래) 두 줄) / v3.3 (v9.9 2026-09-16: 로비에서는 하단 바 숨김 - 로비 버튼이 바 위에 겹쳐 있던 것) / v3.2 (v9.8 재료 아이콘) / v3.1 (교수 피드백 A9 반영 2026-09-14) / v3 - 전투 중 핵심 HUD (전부 코드 생성 - Canvas 세팅 불필요)
 /// - v3.2: 재료 칸의 16px 계열색 판을 ui_mat_*.png 아이콘(32px)으로. 칸 폭 96 -> 102, 간격 100 -> 106 (3열 318 <= 재료 구역 326).
 ///   PNG 가 없으면 v3.1 그대로(계열색 판 + 글자). 이벤트 "재료 흘림" 칩과 같은 그림이라 재료 = 한 그림으로 통일
 /// - 하단 바: 재료 6종 카운트 + 보유 요리 카드 목록 (2줄 그리드, 휠 가로 스크롤)
@@ -86,9 +86,11 @@ public class GameHUD : MonoBehaviour
     private const float BAR_H = 184f;          // v3: 하단 바 높이 (v2 158)
     private const float FRAME = 28f;           // 파이프 테 두께 (ui_pipe 테두리 = 28px @1080p)
     private const float MAT_W = 330f;          // 재료 구역 폭 (바 왼쪽)
-    private const float CARD_W = 116f;
-    private const float CARD_H = 56f;
     private const float CARD_GAP = 6f;
+    // v3.16: 카드 크기 - 아이콘이 켜져 있으면 GameBalance.DishCardW x H (140 x 64), 아니면 예전 116 x 56
+    private static float CARD_W { get { return SpriteBank.AnyDishIcon ? GameBalance.DishCardW : 116f; } }   // 리뷰: 그림이 없으면 예전 크기
+    private static float CARD_H { get { return SpriteBank.AnyDishIcon ? GameBalance.DishCardH : 56f; } }
+    private const float CARD_ICON = 44f;        // v3.16: 카드 안 요리 아이콘 한 변
 
     // v3.4: 재료 이름은 MaterialNames.KOR (한 곳). 여기선 이름(작게)·개수(크게) 두 줄로 놓는다
     private Text[] matNameTexts = new Text[6];
@@ -145,6 +147,8 @@ public class GameHUD : MonoBehaviour
             bottomBarRt.gameObject.SetActive(!lobby);
         TickLobbyWavePanel(lobby);   // v3.15: 로비에선 웨이브 판도
         if (lobby) return;
+        TickKitchenDock();   // v3.17
+        TickPoint();         // v3.18
 
         // 우클릭 = 투입 모드 취소
         if (!string.IsNullOrEmpty(placingRecipeId) && Input.GetMouseButtonDown(1))
@@ -185,7 +189,7 @@ public class GameHUD : MonoBehaviour
         if (skin)
         {
             UISkin.Nameplate(bottomBar, "Mat", "재료", 17, new Vector2(0f, 1f), new Vector2(34f, 4f), 76f);           // 파이프 위에 4px 걸림 (목업과 동일)
-            UISkin.Nameplate(bottomBar, "Food", GameBalance.DragInsertOn ? "요리  (끌어다 놓기 / 클릭 = 투입,  휠 = 스크롤)" : "요리  (클릭 = 투입,  휠 = 스크롤)", 16, new Vector2(0f, 1f), new Vector2(MAT_W + 56f, 4f));
+            UISkin.Nameplate(bottomBar, "Food", GameBalance.HudTextDiet ? "요리" : GameBalance.DragInsertOn ? "요리  (끌어다 놓기 / 클릭 = 투입,  휠 = 스크롤)" : "요리  (클릭 = 투입,  휠 = 스크롤)", GameBalance.HudTextDiet ? 17 : 16, new Vector2(0f, 1f), new Vector2(MAT_W + 56f, 4f), GameBalance.HudTextDiet ? 76f : 0f);   // v3.17: 글 줄이기
         }
         else
         {
@@ -270,7 +274,9 @@ public class GameHUD : MonoBehaviour
         scrollRt.anchorMin = new Vector2(0f, 0f);
         scrollRt.anchorMax = new Vector2(1f, 1f);
         scrollRt.offsetMin = new Vector2(inset + MAT_W + 24f, inset - 2f);
-        scrollRt.offsetMax = new Vector2(-(inset + (skin ? 150f : 8f)), -topInset + 2f);   // 오른쪽은 장식 자리
+        // v3.17: 조리 독을 켜면 오른쪽 = 독 (안 테 6 + 독 + 사이 8 + 구분 파이프 28 + 사이 8), 끄면 예전 장식 자리
+        float rightReserve = GameBalance.KitchenDockOn ? 6f + GameBalance.KitchenDockW + 44f : (skin ? 150f : 8f);
+        scrollRt.offsetMax = new Vector2(-(inset + rightReserve), -topInset + 2f);   // 오른쪽은 장식(또는 조리 독) 자리
 
         // 스크롤 판정용 투명 이미지 (휠 입력을 받으려면 레이캐스트 대상 필요)
         Image scrollBg = scrollGo.AddComponent<Image>();
@@ -324,10 +330,15 @@ public class GameHUD : MonoBehaviour
             divImg.raycastTarget = false;
             UISkin.PipeVertical(divImg);
 
-            UISkin.AddOrnament(bottomBar, "gauge", new Vector2(1f, 1f), new Vector2(-136f, -40f), new Vector2(56f, 56f));
-            UISkin.AddOrnament(bottomBar, "valve", new Vector2(1f, 1f), new Vector2(-72f, -48f), new Vector2(48f, 48f));
-            UISkin.AddOrnament(bottomBar, "vent", new Vector2(1f, 1f), new Vector2(-124f, -118f), new Vector2(64f, 24f));
+            if (!GameBalance.KitchenDockOn)   // v3.17: 조리 독이 이 자리를 쓴다
+            {
+                UISkin.AddOrnament(bottomBar, "gauge", new Vector2(1f, 1f), new Vector2(-136f, -40f), new Vector2(56f, 56f));
+                UISkin.AddOrnament(bottomBar, "valve", new Vector2(1f, 1f), new Vector2(-72f, -48f), new Vector2(48f, 48f));
+                UISkin.AddOrnament(bottomBar, "vent", new Vector2(1f, 1f), new Vector2(-124f, -118f), new Vector2(64f, 24f));
+            }
         }
+
+        if (GameBalance.KitchenDockOn) BuildKitchenDock(bottomBar, inset, topInset, skin);   // v3.17 (장식 셋 대신)
 
         // ── v3.1 (A9): 칼/팬 상태 칩 - 바 오른쪽 위 파이프에 걸린 작은 명판 2개 (장식 위, 겹치지 않음) ──
         // v3.6: HUD 재배치(GameBalance.HudRegroup)면 여기 안 만들고 좌상단 HP 판 안에 만든다 (DockChipsTopLeft - 판은 UISkin 이 2프레임 뒤에 만든다)
@@ -532,11 +543,15 @@ public class GameHUD : MonoBehaviour
         bgImg.color = new Color(tagC.r * 0.28f, tagC.g * 0.28f, tagC.b * 0.28f, 0.85f);
         bgImg.raycastTarget = false;
         if (UISkin.Available) UISkin.Plate(bgImg, new Color(1f, 1f, 1f, 0.85f));
-        Text name = UIFactory.CreateText(bgRt, "Name", r.displayName, 14, UIFactory.CREAM, TextAnchor.UpperCenter);
-        name.rectTransform.offsetMin = new Vector2(2f, 18f); name.rectTransform.offsetMax = new Vector2(-2f, -3f);
+        // v3.16: 고스트도 카드처럼 - 아이콘 + 이름 (아이콘이 있으면 글은 오른쪽)
+        Image ghostIcon = UIFactory.CreateIcon(bgRt, "Icon", SpriteBank.DishIcon(recipeId), new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(2f, 0f), CARD_ICON);
+        float ghostLeft = ghostIcon != null ? CARD_ICON + 6f : 2f;
+        Text name = UIFactory.CreateText(bgRt, "Name", r.displayName, ghostIcon != null ? 13 : 14, UIFactory.CREAM, ghostIcon != null ? TextAnchor.UpperLeft : TextAnchor.UpperCenter);
+        name.rectTransform.offsetMin = new Vector2(ghostLeft, 18f); name.rectTransform.offsetMax = new Vector2(-2f, -3f);
+        name.horizontalOverflow = HorizontalWrapMode.Wrap; name.verticalOverflow = VerticalWrapMode.Truncate;
         name.raycastTarget = false;
-        dragGhostSub = UIFactory.CreateText(bgRt, "Sub", "칸에 놔", 12, UIFactory.GOLD, TextAnchor.LowerCenter);
-        dragGhostSub.rectTransform.offsetMin = new Vector2(2f, 2f); dragGhostSub.rectTransform.offsetMax = new Vector2(-2f, 18f);
+        dragGhostSub = UIFactory.CreateText(bgRt, "Sub", "칸에 놔", 12, UIFactory.GOLD, ghostIcon != null ? TextAnchor.LowerRight : TextAnchor.LowerCenter);
+        dragGhostSub.rectTransform.offsetMin = new Vector2(ghostLeft, 2f); dragGhostSub.rectTransform.offsetMax = new Vector2(-4f, 18f);
         dragGhostSub.raycastTarget = false;
         MarkFusableCards(recipeId);   // v3.11
         MoveDrag(screenPos);
@@ -832,6 +847,184 @@ public class GameHUD : MonoBehaviour
     // ──────────────────────────────────────
     // 갱신
     // ──────────────────────────────────────
+    // ─────────────────────────────────────────
+    // v3.17 (v9.37): 조리 독 - 하단 바 오른쪽, 그릴 · 팬 · 솥 단추 셋 + 명판(정차 조리 횟수)
+    // ─────────────────────────────────────────
+    private RectTransform dockPlate;
+    private Image dockPlateImg;
+    private readonly Button[] dockButtons = new Button[3];
+    private int dockStateShown = int.MinValue;   // 명판을 마지막으로 그린 상태 (같으면 글을 안 만든다)
+    private Color dockPlateBase = Color.white;   // 명판 원래 색 (Nameplate 가 준 것)
+    private static readonly Color DOCK_PLATE_LAST = new Color(1f, 0.93f, 0.62f, 1f);   // 한 번 남음 = 연노랑
+    private static readonly Color DOCK_PLATE_WARN = new Color(0.95f, 0.62f, 0.45f, 1f); // 다 씀 = 주황
+
+    /// <summary>v3.17: 하단 바 오른쪽 구석 - 단추 셋 (위에서 아래 그릴 · 팬 · 솥), 왼쪽에 세로 파이프, 위 파이프에 명판</summary>
+    private void BuildKitchenDock(RectTransform bar, float inset, float topInset, bool skin)
+    {
+        float w = GameBalance.KitchenDockW, h = GameBalance.KitchenDockBtnH, gap = GameBalance.KitchenDockGap;
+        float right = inset + 6f;              // 오른쪽 파이프 테 안쪽 6
+        float left = right + w;                // 독 왼쪽 끝 (바 오른쪽에서)
+        float top = topInset + 6f;             // 명판(위 파이프에 걸린 32) 아래 끝과 안 겹치게 (리뷰 낮음 1)
+        dockStateShown = int.MinValue; dockPlate = null; dockPlateImg = null;   // 다시 만들면 명판도 새로 그린다
+        if (skin)
+        {
+            // 세로 파이프 구분선 (재료/요리 사이 것과 같은 꼴 - 폭 28, 독과 8 띄움)
+            GameObject divGo = new GameObject("DockDivider");
+            RectTransform divRt = divGo.AddComponent<RectTransform>();
+            divRt.SetParent(bar, false);
+            divRt.anchorMin = new Vector2(1f, 0f); divRt.anchorMax = new Vector2(1f, 1f); divRt.pivot = new Vector2(1f, 1f);
+            divRt.offsetMin = new Vector2(-(left + 36f), 20f);
+            divRt.offsetMax = new Vector2(-(left + 8f), -20f);
+            Image divImg = divGo.AddComponent<Image>();
+            divImg.raycastTarget = false;
+            UISkin.PipeVertical(divImg);
+            dockPlate = UISkin.Nameplate(bar, "Cook", "조리", 17, new Vector2(1f, 1f), new Vector2(-left, 0f), 76f);   // 위 끝을 바 위 끝에 맞춘다 - 4px 올리면 바로 위 공명 줄(바 위 190 부터)과 겹친다
+            dockPlateImg = dockPlate != null ? dockPlate.GetComponent<Image>() : null;
+            if (dockPlateImg != null) dockPlateBase = dockPlateImg.color;
+        }
+        for (int i = 0; i < 3; i++)
+        {
+            int method = i;   // 람다가 잡을 값 (반복 변수를 직접 잡지 않는다)
+            Button b = UIFactory.CreateButton(bar, "Dock" + i, CookingStation.StationShort(i) + " · " + KitchenPanel.MethodName(i), new Vector2(w, h),
+                new Color(0.35f, 0.23f, 0.13f), UIFactory.CREAM, 18);
+            RectTransform rt = b.GetComponent<RectTransform>();
+            rt.anchorMin = new Vector2(1f, 1f); rt.anchorMax = new Vector2(1f, 1f); rt.pivot = new Vector2(1f, 1f);
+            rt.anchoredPosition = new Vector2(-right, -(top + i * (h + gap)));
+            Navigation nav = b.navigation; nav.mode = Navigation.Mode.None; b.navigation = nav;   // 키보드 이동으로 선택되지 않게
+            b.onClick.AddListener(() =>
+            {
+                // 누른 단추를 선택에서 놓는다 - 남아 있으면 [Enter](출발·건너뛰기)·[Space](조리 판정)가 이 단추를 다시 누른다
+                if (UnityEngine.EventSystems.EventSystem.current != null)
+                    UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(null);
+                CookingStation.OpenFromDock(method);   // 여는 소리는 창이 낸다 (ModalFeel)
+                if (pointDock >= 0) StopPoint();       // v3.18: 짚던 단추를 눌렀다
+            });
+            dockButtons[i] = b;
+        }
+    }
+
+    /// <summary>v3.17: 매 프레임 - 단추는 조리 창을 열 수 있을 때만 ([E] 와 같은 검사. 정차 조리를 다 써도 창은 열린다 - [E] 와 같게, 명판이 주황), 명판은 정차 조리 횟수 (바뀐 때만 다시 그린다)</summary>
+    private void TickKitchenDock()
+    {
+        if (!GameBalance.KitchenDockOn || dockButtons[0] == null) return;
+        bool can = CookingStation.CanInteractNow();
+        for (int i = 0; i < 3; i++)
+        {
+            bool on = can && CookingStation.HasStation(i);   // 그 조리대가 기차에 있을 때만
+            if (dockButtons[i] != null && dockButtons[i].interactable != on) dockButtons[i].interactable = on;
+        }
+        if (dockPlate == null || !GameBalance.StopCookBadgeOn) return;
+        // 상태 = -1 달리는 중 / 0 다 씀 / n 남은 횟수 (정차 중에만)
+        int state = CookingBridge.StopCookLimited ? (GameBalance.StopCookLimit == 0 ? -2 : CookingBridge.StopCooksLeft) : -1;
+        if (state == dockStateShown) return;
+        bool first = dockStateShown == int.MinValue;
+        dockStateShown = state;
+        string label = state == -1 ? "조리" : state == -2 ? "조리는 출발 뒤" : state == 0 ? "정차 조리 끝" : "조리 " + state + "번 남음";
+        UISkin.Relabel(dockPlate, label, 17);
+        if (dockPlate.sizeDelta.x < 76f) dockPlate.sizeDelta = new Vector2(76f, dockPlate.sizeDelta.y);   // "재료" · "요리" 명판과 같은 최소 폭
+        if (dockPlateImg != null)
+            dockPlateImg.color = state == 0 || state == -2 ? DOCK_PLATE_WARN : state == 1 ? DOCK_PLATE_LAST : dockPlateBase;
+        if (!first && state >= 0) UIFeel.Bounce(dockPlate, 0.25f, 0.3f);   // 정차 중 횟수가 바뀌면 명판이 튄다 (눈에 띄게)
+    }
+
+    // ─────────────────────────────────────────
+    // v3.18 (v9.38): "여기" 표시 - 글 대신 짚는다. 대상(요리 카드 / 조리 독 단추) 둘레 금색 테 + 위 ▼ (깜빡임)
+    // ─────────────────────────────────────────
+    private string pointCardId = null;          // 짚는 요리 카드 (요리 id)
+    private int pointDock = -1;                 // 짚는 조리 독 단추 (0 그릴 · 1 팬 · 2 솥)
+    private float pointUntil = 0f;              // 이때까지 (실시간)
+    private RectTransform pointHost;            // 지금 붙은 대상
+    private RectTransform pointMark;            // 표시 (캔버스 맨 위 - 대상의 화면 자리를 매 프레임 따라간다)
+    private readonly Image[] pointBars = new Image[4];
+    private Text pointArrow;
+    private readonly Vector3[] pointCorners = new Vector3[4];   // 매 프레임 새로 만들지 않게
+
+    /// <summary>v3.18: 요리 카드를 sec 초 동안 짚는다 (카드가 없으면 생길 때까지 기다린다)</summary>
+    public void PointCard(string recipeId, float sec)
+    {
+        pointCardId = recipeId; pointDock = -1;
+        pointUntil = Time.unscaledTime + Mathf.Max(0f, sec);
+    }
+
+    /// <summary>v3.18: 조리 독 단추를 sec 초 동안 짚는다 (독이 꺼져 있으면 아무것도 안 한다)</summary>
+    public void PointDock(int method, float sec)
+    {
+        if (!GameBalance.KitchenDockOn) return;
+        pointDock = Mathf.Clamp(method, 0, 2); pointCardId = null;
+        pointUntil = Time.unscaledTime + Mathf.Max(0f, sec);
+    }
+
+    /// <summary>v3.18: 짚기 끝</summary>
+    public void StopPoint() { pointUntil = 0f; }
+
+    private void TickPoint()
+    {
+        RectTransform want = null;
+        if (GameBalance.UiPointOn && Time.unscaledTime < pointUntil)
+        {
+            if (!string.IsNullOrEmpty(pointCardId)) want = FindFoodCard(pointCardId);
+            else if (pointDock >= 0 && dockButtons[pointDock] != null) want = dockButtons[pointDock].GetComponent<RectTransform>();
+        }
+        if (want == null)
+        {
+            if (pointMark != null && pointMark.gameObject.activeSelf) pointMark.gameObject.SetActive(false);
+            pointHost = null;
+            return;
+        }
+        if (pointMark == null) BuildPointMark();
+        if (!pointMark.gameObject.activeSelf) pointMark.gameObject.SetActive(true);
+        pointHost = want;
+        // 대상 네 모서리 -> 캔버스 좌표 (같은 ScreenSpaceOverlay 캔버스 - 월드 좌표가 곧 캔버스 좌표)
+        RectTransform root = canvas.transform as RectTransform;
+        want.GetWorldCorners(pointCorners);
+        Vector2 a = root.InverseTransformPoint(pointCorners[0]), b = root.InverseTransformPoint(pointCorners[2]);
+        if (!string.IsNullOrEmpty(pointCardId) && foodViewport != null)
+        {
+            // 리뷰 M4: 카드가 스크롤 가림막 밖이면 테도 가림막 안쪽만 (다 가려지면 숨긴다)
+            foodViewport.GetWorldCorners(pointCorners);
+            Vector2 va = root.InverseTransformPoint(pointCorners[0]), vb = root.InverseTransformPoint(pointCorners[2]);
+            a = Vector2.Max(a, va); b = Vector2.Min(b, vb);
+            if (b.x <= a.x + 4f || b.y <= a.y + 4f) { pointMark.gameObject.SetActive(false); return; }
+        }
+        pointMark.anchoredPosition = (a + b) * 0.5f;
+        pointMark.sizeDelta = new Vector2(Mathf.Abs(b.x - a.x) + 8f, Mathf.Abs(b.y - a.y) + 8f);
+        float t = Mathf.Abs(Mathf.Sin(Time.unscaledTime * 4f));
+        Color col = new Color(1f, 0.84f, 0.3f, 0.35f + 0.65f * t);
+        for (int i = 0; i < 4; i++) if (pointBars[i] != null) pointBars[i].color = col;
+        if (pointArrow != null)
+        {
+            pointArrow.color = col;
+            pointArrow.rectTransform.anchoredPosition = new Vector2(0f, 4f + 6f * t);
+        }
+    }
+
+    /// <summary>v3.18: 표시 만들기 - 캔버스 가운데 앵커 판 + 테 네 줄 (3px) + 위 ▼</summary>
+    private void BuildPointMark()
+    {
+        GameObject go = new GameObject("PointMark");
+        pointMark = go.AddComponent<RectTransform>();
+        pointMark.SetParent(canvas.transform, false);
+        pointMark.anchorMin = new Vector2(0.5f, 0.5f); pointMark.anchorMax = new Vector2(0.5f, 0.5f); pointMark.pivot = new Vector2(0.5f, 0.5f);
+        pointMark.SetAsLastSibling();   // 카드 · 단추 위
+        Vector2[] aMin = { new Vector2(0f, 1f), new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(1f, 0f) };
+        Vector2[] aMax = { new Vector2(1f, 1f), new Vector2(1f, 0f), new Vector2(0f, 1f), new Vector2(1f, 1f) };
+        Vector2[] oMin = { new Vector2(0f, -3f), new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(-3f, 0f) };
+        Vector2[] oMax = { new Vector2(0f, 0f), new Vector2(0f, 3f), new Vector2(3f, 0f), new Vector2(0f, 0f) };
+        for (int i = 0; i < 4; i++)
+        {
+            GameObject bar = new GameObject("Bar" + i);
+            RectTransform rt = bar.AddComponent<RectTransform>();
+            rt.SetParent(pointMark, false);
+            rt.anchorMin = aMin[i]; rt.anchorMax = aMax[i]; rt.offsetMin = oMin[i]; rt.offsetMax = oMax[i];
+            pointBars[i] = bar.AddComponent<Image>();
+            pointBars[i].raycastTarget = false;
+        }
+        pointArrow = UIFactory.CreateText(pointMark, "Arrow", "▼", 26, UIFactory.GOLD, TextAnchor.LowerCenter);
+        RectTransform art = pointArrow.rectTransform;
+        art.anchorMin = new Vector2(0.5f, 1f); art.anchorMax = new Vector2(0.5f, 1f); art.pivot = new Vector2(0.5f, 0f);
+        art.sizeDelta = new Vector2(40f, 30f);
+    }
+
     private void RefreshMaterials()
     {
         if (MaterialInventory.Instance == null) return;
@@ -914,7 +1107,8 @@ public class GameHUD : MonoBehaviour
         RectTransform card = FindFoodCard(recipeId);
         if (card == null) return;
         string id = recipeId;
-        UIFeel.FlyTo(canvas, from, card, TrainDeck.GetCircleSprite(), UIFactory.TagColor(r.tag), 34f, 0.35f, delegate
+        Sprite flyIcon = SpriteBank.DishIcon(recipeId);   // v3.16: 그 요리 아이콘이 날아간다 (없으면 속성색 원)
+        UIFeel.FlyTo(canvas, from, card, flyIcon != null ? flyIcon : TrainDeck.GetCircleSprite(), flyIcon != null ? Color.white : UIFactory.TagColor(r.tag), flyIcon != null ? 48f : 34f, 0.35f, delegate
         {
             RectTransform c = FindFoodCard(id);   // 그 사이 목록이 다시 만들어졌을 수 있다
             if (c != null) UIFeel.Bounce(c, 0.25f, 0.25f);
@@ -972,18 +1166,35 @@ public class GameHUD : MonoBehaviour
         bgImg.raycastTarget = false;
         if (skin) UISkin.Plate(bgImg, Color.white);
 
+        // v3.16: 요리 아이콘이 있으면 왼쪽에 아이콘, 오른쪽에 이름(두 줄) + 수. 없으면 예전 배치 (이름 가운데 + "T2 x1")
+        Image icon = UIFactory.CreateIcon(bgRt, "Icon", SpriteBank.DishIcon(id), new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(2f, 0f), CARD_ICON);
+        if (icon != null)
+        {
+            float left = CARD_ICON + 6f;
+            Text nameText = UIFactory.CreateText(bgRt, "Name", r.displayName, 13, UIFactory.CREAM, TextAnchor.UpperLeft);
+            nameText.rectTransform.offsetMin = new Vector2(left, 16f);
+            nameText.rectTransform.offsetMax = new Vector2(-2f, -2f);
+            nameText.horizontalOverflow = HorizontalWrapMode.Wrap;
+            nameText.verticalOverflow = VerticalWrapMode.Truncate;
+            Text cntText = UIFactory.CreateText(bgRt, "Count", "x" + count, 14,
+                r.tier == 2 ? UIFactory.T2PINK : UIFactory.GOLD, TextAnchor.LowerRight);
+            cntText.rectTransform.offsetMin = new Vector2(left, 1f);
+            cntText.rectTransform.offsetMax = new Vector2(-4f, 17f);
+            return cardGo;
+        }
+
         // 이름
-        Text nameText = UIFactory.CreateText(bgRt, "Name", r.displayName, 14, UIFactory.CREAM, TextAnchor.UpperCenter);
-        nameText.rectTransform.offsetMin = new Vector2(2f, 18f);
-        nameText.rectTransform.offsetMax = new Vector2(-2f, -3f);
-        nameText.horizontalOverflow = HorizontalWrapMode.Wrap;
+        Text nameText0 = UIFactory.CreateText(bgRt, "Name", r.displayName, 14, UIFactory.CREAM, TextAnchor.UpperCenter);
+        nameText0.rectTransform.offsetMin = new Vector2(2f, 18f);
+        nameText0.rectTransform.offsetMax = new Vector2(-2f, -3f);
+        nameText0.horizontalOverflow = HorizontalWrapMode.Wrap;
 
         // 하단: 티어 + 수량
         string bottomStr = (r.tier == 2 ? "T2  " : "") + "x" + count;
-        Text cntText = UIFactory.CreateText(bgRt, "Count", bottomStr, 14,
+        Text cntText0 = UIFactory.CreateText(bgRt, "Count", bottomStr, 14,
             r.tier == 2 ? UIFactory.T2PINK : UIFactory.GOLD, TextAnchor.LowerCenter);
-        cntText.rectTransform.offsetMin = new Vector2(2f, 2f);
-        cntText.rectTransform.offsetMax = new Vector2(-2f, 18f);
+        cntText0.rectTransform.offsetMin = new Vector2(2f, 2f);
+        cntText0.rectTransform.offsetMax = new Vector2(-2f, 18f);
 
         return cardGo;
     }

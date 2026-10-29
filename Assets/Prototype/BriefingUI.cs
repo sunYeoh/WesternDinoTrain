@@ -49,6 +49,7 @@ public class BriefingUI : MonoBehaviour
         public KeyCode altKey = KeyCode.None;   // v1.4: 보조 키 (예: R) - 누르면 onAlt 를 부르고 닫는다 (onClose 는 안 부른다)
         public string altHint = "";             // v1.4: 닫힘 안내 줄 앞에 붙는 글 (예: "[R] 한 번 더")
         public System.Action onAlt;             // v1.4: 보조 키 콜백
+        public string[] pics;                   // v1.5 (v9.38): 본문 아래 그림 줄 - 스프라이트 이름이면 그림, 아니면 글자 ("+" "=" "▶" "Lv2" 같은). null = 없음
     }
 
     public static BriefingUI Instance { get; private set; }
@@ -280,6 +281,7 @@ public class BriefingUI : MonoBehaviour
             for (int i = 0; i < def.lines.Length; i++)
                 body += (i > 0 ? "\n" : "") + def.lines[i];
         bodyText.text = body;
+        FillPics(def.pics);   // v1.5
 
         // 초상 / 키 카드 - v1.1 규칙: 초상 + 키 = 초상 1배(위) + 키 아래 / 초상만 = 2배 / 키만 = 큰 키 글자
         Sprite p = string.IsNullOrEmpty(def.portrait) ? null : SpriteBank.Get(def.portrait);
@@ -322,6 +324,65 @@ public class BriefingUI : MonoBehaviour
 
         pauseNote.text = GameBalance.BriefingPausesTime ? "시간 정지 중" : "";
         closeHint.text = (!string.IsNullOrEmpty(def.altHint) ? def.altHint + "     " : "") + "[Enter] 알겠어";   // v1.4
+    }
+
+    // ── v1.5 (v9.38): 그림 줄 - 본문 아래 (그림이 있으면 본문은 위 두 줄 자리만) ──
+    private RectTransform picsRow;
+    private readonly List<GameObject> picItems = new List<GameObject>();
+    private const float PIC_SIZE = 56f, PIC_GAP = 10f;
+
+    private void FillPics(string[] pics)
+    {
+        for (int i = 0; i < picItems.Count; i++) if (picItems[i] != null) Destroy(picItems[i]);
+        picItems.Clear();
+        bool on = GameBalance.BriefPicsOn && pics != null && pics.Length > 0 && picsRow != null;
+        // 리뷰 L6: 그림 파일이 하나라도 없으면 줄을 통째로 끈다 ("+ =" 만 남지 않게)
+        if (on)
+            for (int i = 0; i < pics.Length; i++)
+            {
+                string tk = pics[i] ?? "";
+                if ((tk.StartsWith("ui_") || tk.StartsWith("fx_") || tk.StartsWith("e_") || tk.StartsWith("boss_")) && SpriteBank.Get(tk) == null)
+                { on = false; Debug.LogWarning("[BriefingUI] 그림 줄 - 그림 없음: " + tk); break; }
+            }
+        if (picsRow != null) picsRow.gameObject.SetActive(on);
+        if (!on) { PlaceTopLeft(bodyText.rectTransform, 40f, -90f, 560f, 130f); return; }
+        // 리뷰 M6: 그림 줄은 본문 실제 높이 바로 아래 (본문이 세 줄이어도 안 겹치게 - 본문은 위 60 ~ 70)
+        PlaceTopLeft(bodyText.rectTransform, 40f, -90f, 560f, 70f);
+        float bodyH = Mathf.Clamp(bodyText.preferredHeight, 24f, 70f);
+        PlaceTopLeft(bodyText.rectTransform, 40f, -90f, 560f, bodyH);
+        PlaceTopLeft(picsRow, 40f, -90f - bodyH - 6f, 560f, 64f);
+        float x = 0f;
+        for (int i = 0; i < pics.Length; i++)
+        {
+            string tok = pics[i] ?? "";
+            bool isSprite = tok.StartsWith("ui_") || tok.StartsWith("fx_") || tok.StartsWith("e_") || tok.StartsWith("boss_");
+            Sprite sp = isSprite ? SpriteBank.Get(tok) : null;
+            if (isSprite && sp == null) continue;   // 그림 파일이 없으면 그 칸은 뺀다 (이름이 글자로 나오지 않게)
+            GameObject go = new GameObject("Pic" + i);
+            RectTransform rt = go.AddComponent<RectTransform>();
+            rt.SetParent(picsRow, false);
+            rt.anchorMin = new Vector2(0f, 0.5f); rt.anchorMax = new Vector2(0f, 0.5f); rt.pivot = new Vector2(0f, 0.5f);
+            float w;
+            if (sp != null)
+            {
+                Image img = go.AddComponent<Image>();
+                img.sprite = sp; img.preserveAspect = true; img.raycastTarget = false;
+                w = PIC_SIZE;
+                rt.sizeDelta = new Vector2(w, PIC_SIZE);
+            }
+            else
+            {
+                // 그림이 아닌 낱말 - 기호(+ = ▶)는 크게 금색, 글자는 크림색
+                bool sym = tok == "+" || tok == "=" || tok == "▶";
+                Text t = UIFactory.CreateText(rt, "T", tok.Trim(), sym ? 30 : 20, sym ? UIFactory.GOLD : UIFactory.CREAM, TextAnchor.MiddleCenter);
+                float pw = t.preferredWidth;   // 리뷰 L6: 실제 글 폭 (잴 수 없으면 글자 수로)
+                w = sym ? 30f : Mathf.Max(30f, pw > 1f ? pw + 8f : tok.Trim().Length * 18f);
+                rt.sizeDelta = new Vector2(w, PIC_SIZE);
+            }
+            rt.anchoredPosition = new Vector2(x, 0f);
+            x += w + PIC_GAP;
+            picItems.Add(go);
+        }
     }
 
     /// <summary>키 카드 배치: 초상과 같이면 아래쪽(글자 40pt, 라벨 y 12) / 키만이면 판 위쪽 절반(54pt, 라벨 y 24)</summary>
@@ -394,6 +455,13 @@ public class BriefingUI : MonoBehaviour
         PlaceTopLeft(bodyText.rectTransform, 40f, -90f, 560f, 130f);
         bodyText.lineSpacing = 1.3f;
         bodyText.horizontalOverflow = HorizontalWrapMode.Wrap;   // 긴 줄은 접는다 (560 폭)
+
+        // v1.5 (v9.38): 그림 줄 (본문 두 줄 아래, 높이 64)
+        GameObject picsGo = new GameObject("Pics");
+        picsRow = picsGo.AddComponent<RectTransform>();
+        picsRow.SetParent(panel, false);
+        PlaceTopLeft(picsRow, 40f, -158f, 560f, 64f);
+        picsGo.SetActive(false);
 
         // 초상 판 220x200 (오른쪽 위 (-30,-40), 아래 끝 y 60 = "[Enter] 알겠어" 줄 위) - 링 카드
         portraitCard = UIFactory.CreatePanel(panel, "Portrait",

@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 
 /// <summary>
-/// [AugmentSystem.cs] v4.15 (v9.35.5 2026-10-26 유저 "증강설명이 너무 길다 - 플레이어 입장에서 필요한 설명들만": 카드 글 66개를 '무엇에 · 얼마나 · 대신' 한두 줄로. 예외 · 요리 이름 나열 · 괄호 덧말은 빼고 맨 아래 줄 AugmentTargets.Note 에 맡긴다 (뺀 예외는 밸런스표 증강 시트 '안 걸리는 것') / 맨 아래 줄 짧게 "[내 포탑 2기에 걸림]" / 안 쓰게 된 DotWhere · ShredWhere · AspdCapNote 삭제) / v4.14 (v9.35.2 2026-10-26 유저 "증강설명 폭발반경이나 이런거 좀 더 친절하게 - 어떤 종류에 적용이 되는지 알아야 집든말든하지": 설명 66개를 '어디에 걸리나'가 보이게 새로 (밸런스 표 '증강' 시트) / 카드 맨 아래 줄 AugmentTargets.Note - 지금 내 포탑 중 몇 기에 걸리나 / '부식성 위산'은 깎기 겹 상한 +2 (ShredCapAdd - 예전엔 실버와 같은 효과), 깎기 증강 둘은 겹쳐 집기 없음, 부식성 위산 뒤엔 구리 도금 탄환이 후보에 안 나온다 / AugmentHooks 장부 정리는 1초에 한 번 / 공격속도 -> 공격 속도) / v4.13 (v9.35 2026-10-25 성장·구조: 증강 등급 확률은 옛 25웨이브 자 (GameBalance.EqWave) / '야전 정비반' 웨이브마다 최대 HP x 웨이브 한 판의 몫 (지역 5 = +50 -> +80)) / v4.12 (v9.34 2026-10-25: '선대의 기본기' 글의 "새로 놓으면 레벨 2 부터"는 GameBalance.StartLevelBonusOn 일 때만 - 새 포탑은 늘 Lv1. 피해 % 는 BasicsT1Bonus 에서 읽는다) / v4.11 (v9.25 2026-10-16 B1 증강 덧셈 - 5차 피드백 3·10·11번 "너무 쉬움 / 명예도 안 쓰고 깸 / 무기 하나로 깸": 피해·화상독·폭발 반경·사거리·재료·공격속도 증강은 같은 종류끼리 % 를 더해 배율을 만든다 (AddAtk 등 - 피해 +12% 다섯 장 = +60%, 예전엔 곱 + 점증으로 x3.9). 같은 증강을 또 집어도 같은 만큼만 (StackTimes = 1). 증강 카드·중첩 알림에 그 종류의 지금 합계 (StackSummary). GameBalance.AugmentLinear = false 면 예전) / v4.10 (v9.24.1 2026-10-16 5차 피드백 6번 "실버 공속증강 사기": 고속 회전 모터는 점증 없이 집을 때마다 x1.12 (GameBalance.AugmentNoEscalate - StackTimes), 증강으로 붙는 공격속도는 합쳐서 GameBalance.AugmentAspdCap 배까지 (오버차지 엔진 포함 - 상한 없이 곱이 쌓여 다섯 번이면 x3.9 였다)) / v4.9 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v4.8 (v9.19.3 2026-10-07: 육수 한 국자·회복의 만찬 설명에 "(1초에 N번까지)" - 타격당 회복을 1초에 GameBalance.LifestealHitsPerSec 번까지만 센다. LifestealDesc) / v4.7 (v9.19.2 2026-10-07: 육수 한 국자·회복의 만찬 설명에서 v4.6 의 "최대 … (떼로 온 손님은 덜)"을 뺐다 - 때릴 때마다 적힌 만큼 회복한다) / v4.6 (v9.19.1: 그 문구를 넣었다) / v4.5 (v9.18 2026-10-06: 선대의 기본기 설명에 "기본 요리 최대 레벨" - 레벨 상한이 돌아오면서 이 증강은 기본 요리 상한을 올려 준다(GameBalance.BasicsT1MaxLevel)) / v4.4 (v9.13 2026-09-23: AugmentDatabase.ForceGrade - 선로 보상 "증강 1회 더" 의 등급 고정) / v4.3 (v9.11.1 2026-09-22 문구: 이번 운행·유물·진화) / v4.2 (v9.10 2026-09-17 테스터 피드백 "증강에 모르겠는 말": 첫 지역은 바로 이해되는 증강만 후보(EARLY_SIMPLE, GameBalance.AugmentSimpleEarly) / 설명 낱말 일상어 - 도트·스택·인접 버프·공명·DEF·감쇄) / v4.1 (2026-09-14: 중첩 배수 상한 AugmentStackMulCap) / v4
+/// [AugmentSystem.cs] v4.16 (v9.39 2026-10-29 밸런스 가안 (유저 검토 보고서 4 · 5 순위): 강철의 요새 FortressMaxHp · FortressHeal / 정밀 렌즈 LensCrit / 약점 파고들기 · 사냥꾼의 본능 WeakpointBonus · HunterBonus / 출혈 베팅 BloodBetAtk / 폭발 전문가 · 2연장 개조 실버, 개전 포격 골드 (GradeShift939) / 헛픽 거르기 (AugmentDeadPickFilter) - 이미 최대인 증축 칸 · 행운의 부적, 마지막 고르기의 앞날 증강) / v4.15 (v9.35.5 2026-10-26 유저 "증강설명이 너무 길다 - 플레이어 입장에서 필요한 설명들만": 카드 글 66개를 '무엇에 · 얼마나 · 대신' 한두 줄로. 예외 · 요리 이름 나열 · 괄호 덧말은 빼고 맨 아래 줄 AugmentTargets.Note 에 맡긴다 (뺀 예외는 밸런스표 증강 시트 '안 걸리는 것') / 맨 아래 줄 짧게 "[내 포탑 2기에 걸림]" / 안 쓰게 된 DotWhere · ShredWhere · AspdCapNote 삭제) / v4.14 (v9.35.2 2026-10-26 유저 "증강설명 폭발반경이나 이런거 좀 더 친절하게 - 어떤 종류에 적용이 되는지 알아야 집든말든하지": 설명 66개를 '어디에 걸리나'가 보이게 새로 (밸런스 표 '증강' 시트) / 카드 맨 아래 줄 AugmentTargets.Note - 지금 내 포탑 중 몇 기에 걸리나 / '부식성 위산'은 깎기 겹 상한 +2 (ShredCapAdd - 예전엔 실버와 같은 효과), 깎기 증강 둘은 겹쳐 집기 없음, 부식성 위산 뒤엔 구리 도금 탄환이 후보에 안 나온다 / AugmentHooks 장부 정리는 1초에 한 번 / 공격속도 -> 공격 속도) / v4.13 (v9.35 2026-10-25 성장·구조: 증강 등급 확률은 옛 25웨이브 자 (GameBalance.EqWave) / '야전 정비반' 웨이브마다 최대 HP x 웨이브 한 판의 몫 (지역 5 = +50 -> +80)) / v4.12 (v9.34 2026-10-25: '선대의 기본기' 글의 "새로 놓으면 레벨 2 부터"는 GameBalance.StartLevelBonusOn 일 때만 - 새 포탑은 늘 Lv1. 피해 % 는 BasicsT1Bonus 에서 읽는다) / v4.11 (v9.25 2026-10-16 B1 증강 덧셈 - 5차 피드백 3·10·11번 "너무 쉬움 / 명예도 안 쓰고 깸 / 무기 하나로 깸": 피해·화상독·폭발 반경·사거리·재료·공격속도 증강은 같은 종류끼리 % 를 더해 배율을 만든다 (AddAtk 등 - 피해 +12% 다섯 장 = +60%, 예전엔 곱 + 점증으로 x3.9). 같은 증강을 또 집어도 같은 만큼만 (StackTimes = 1). 증강 카드·중첩 알림에 그 종류의 지금 합계 (StackSummary). GameBalance.AugmentLinear = false 면 예전) / v4.10 (v9.24.1 2026-10-16 5차 피드백 6번 "실버 공속증강 사기": 고속 회전 모터는 점증 없이 집을 때마다 x1.12 (GameBalance.AugmentNoEscalate - StackTimes), 증강으로 붙는 공격속도는 합쳐서 GameBalance.AugmentAspdCap 배까지 (오버차지 엔진 포함 - 상한 없이 곱이 쌓여 다섯 번이면 x3.9 였다)) / v4.9 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v4.8 (v9.19.3 2026-10-07: 육수 한 국자·회복의 만찬 설명에 "(1초에 N번까지)" - 타격당 회복을 1초에 GameBalance.LifestealHitsPerSec 번까지만 센다. LifestealDesc) / v4.7 (v9.19.2 2026-10-07: 육수 한 국자·회복의 만찬 설명에서 v4.6 의 "최대 … (떼로 온 손님은 덜)"을 뺐다 - 때릴 때마다 적힌 만큼 회복한다) / v4.6 (v9.19.1: 그 문구를 넣었다) / v4.5 (v9.18 2026-10-06: 선대의 기본기 설명에 "기본 요리 최대 레벨" - 레벨 상한이 돌아오면서 이 증강은 기본 요리 상한을 올려 준다(GameBalance.BasicsT1MaxLevel)) / v4.4 (v9.13 2026-09-23: AugmentDatabase.ForceGrade - 선로 보상 "증강 1회 더" 의 등급 고정) / v4.3 (v9.11.1 2026-09-22 문구: 이번 운행·유물·진화) / v4.2 (v9.10 2026-09-17 테스터 피드백 "증강에 모르겠는 말": 첫 지역은 바로 이해되는 증강만 후보(EARLY_SIMPLE, GameBalance.AugmentSimpleEarly) / 설명 낱말 일상어 - 도트·스택·인접 버프·공명·DEF·감쇄) / v4.1 (2026-09-14: 중첩 배수 상한 AugmentStackMulCap) / v4
 /// 로그라이크 증강 시스템 (기획 C) - 창의적 증강 재설계판
 ///
 /// 설계 철학
@@ -564,8 +564,8 @@ public static class AugmentDatabase
             delegate { AugmentManager.AddTrainMaxHP(250f); AugmentManager.HealTrain(250f); }));
 
         all.Add(new AugmentData("silver_crit", "정밀 렌즈",
-            "8% 확률로 치명타 (피해 1.5배)", AugmentGrade.Silver, true,
-            delegate { AugmentManager.CritChanceAdd += 0.08f; }));
+            P(GameBalance.LensCrit) + "% 확률로 치명타 (피해 1.5배)", AugmentGrade.Silver, true,
+            delegate { AugmentManager.CritChanceAdd += GameBalance.LensCrit; }));   // v4.16: 0.08 -> LensCrit
 
         all.Add(new AugmentData("silver_dot", "매운 양념 한 스푼",
             "화상·독 피해 +25%", AugmentGrade.Silver, true,
@@ -633,8 +633,8 @@ public static class AugmentDatabase
             delegate { AugmentManager.LifestealPerHit += 2f; }));
 
         all.Add(new AugmentData("gold_fortress", "강철의 요새",
-            "기차 최대 HP +1000, 그만큼 회복", AugmentGrade.Gold, false,
-            delegate { AugmentManager.AddTrainMaxHP(1000f); AugmentManager.HealTrain(1000f); }));
+            "기차 최대 HP +" + Mathf.RoundToInt(GameBalance.FortressMaxHp) + ", HP " + Mathf.RoundToInt(GameBalance.FortressHeal) + " 회복", AugmentGrade.Gold, false,
+            delegate { AugmentManager.AddTrainMaxHP(GameBalance.FortressMaxHp); AugmentManager.HealTrain(GameBalance.FortressHeal); }));   // v4.16: 1000 / 1000 -> 600 / 300
 
         all.Add(new AugmentData("gold_nanoarmor", "나노 수복 장갑",
             "기차가 받는 피해 -15%", AugmentGrade.Gold, true,
@@ -648,21 +648,21 @@ public static class AugmentDatabase
             delegate { AugmentManager.StaticNth = 4; }));
 
         all.Add(new AugmentData("gold_weakpoint", "약점 파고들기",
-            "화상·독이 붙은 손님에게 포탑 피해 +25%", AugmentGrade.Gold, true,
-            delegate { AugmentManager.DotTargetBonus += 0.25f; }));
+            "화상·독이 붙은 손님에게 포탑 피해 +" + P(GameBalance.WeakpointBonus) + "%", AugmentGrade.Gold, true,
+            delegate { AugmentManager.DotTargetBonus += GameBalance.WeakpointBonus; }));   // v4.16: 0.25 -> WeakpointBonus
 
         all.Add(new AugmentData("gold_hunter", "사냥꾼의 본능",
-            "느려지거나 마비된 손님에게 포탑 피해 +30%", AugmentGrade.Gold, true,
-            delegate { AugmentManager.ControlTargetBonus += 0.30f; }));
+            "느려지거나 마비된 손님에게 포탑 피해 +" + P(GameBalance.HunterBonus) + "%", AugmentGrade.Gold, true,
+            delegate { AugmentManager.ControlTargetBonus += GameBalance.HunterBonus; }));   // v4.16: 0.30 -> HunterBonus
 
         // (Phase 2-3: '보험 계약'/'부채질 장인'은 아이템으로 이관 - ItemSystem.cs 참고)
 
         all.Add(new AugmentData("gold_fullsplash", "폭발 전문가",
-            "폭발에 휘말린 손님도 100% 피해 (원래 80%)", AugmentGrade.Gold, false,
+            "폭발에 휘말린 손님도 100% 피해 (원래 80%)", GameBalance.GradeShift939 ? AugmentGrade.Silver : AugmentGrade.Gold, false,   // v4.16: 골드 -> 실버
             delegate { AugmentManager.FullSplash = true; }));
 
         all.Add(new AugmentData("gold_doubletap", "2연장 개조",
-            "25% 확률로 한 발 더 (피해 50%)", AugmentGrade.Gold, false,
+            "25% 확률로 한 발 더 (피해 50%)", GameBalance.GradeShift939 ? AugmentGrade.Silver : AugmentGrade.Gold, false,   // v4.16: 골드 -> 실버
             delegate { AugmentManager.DoubleTapChance = 0.25f; }));
 
         // v4.13 (v9.35): 웨이브가 줄어든 만큼(GameBalance.WaveWorth) 한 번에 더 - 같은 웨이브 자에서 옛 운행과 같은 최대 HP (지역 5 = +80). 응급 정비·식탁보의 회복은 그대로 (한 판의 피해가 옛 한 판과 같다)
@@ -687,8 +687,8 @@ public static class AugmentDatabase
             null, "도박"));
 
         all.Add(new AugmentData("gold_bloodbet", "출혈 베팅",
-            "포탑 피해 +35%. 대신 웨이브마다 기차 HP -80", AugmentGrade.Gold, false,
-            delegate { AugmentManager.BloodBet = true; AugmentManager.AddAtk(0.35f); },
+            "포탑 피해 +" + P(GameBalance.BloodBetAtk) + "%. 대신 웨이브마다 기차 HP -80", AugmentGrade.Gold, false,
+            delegate { AugmentManager.BloodBet = true; AugmentManager.AddAtk(GameBalance.BloodBetAtk); },   // v4.16: 0.35 -> BloodBetAtk
             null, "도박"));
 
         all.Add(new AugmentData("gold_chalice", "도박사의 성배",
@@ -749,7 +749,7 @@ public static class AugmentDatabase
 
         all.Add(new AugmentData("prism_opening", "개전 포격",
             "웨이브 첫 8초 동안 포탑 피해 2배",
-            AugmentGrade.Prismatic, false,
+            GameBalance.GradeShift939 ? AugmentGrade.Gold : AugmentGrade.Prismatic, false,   // v4.16: 프리즘 -> 골드 (긴 웨이브에선 평균 +7 ~ 13%)
             delegate { AugmentManager.OpeningBarrage = true; }));
 
         // --- 하이리스크 프리즘 ---
@@ -923,7 +923,19 @@ public static class AugmentDatabase
             if (simpleOnly && System.Array.IndexOf(EARLY_SIMPLE, a.id) < 0) continue;
             if (AugmentManager.AspdNearCap(a.id)) continue;   // v4.10 (v9.24.1): 증강 공격속도가 상한 가까이면 공속 증강은 안 나온다
             if (a.id == "silver_shred" && AugmentManager.ShredCapAdd > 0) continue;   // v4.14 (v9.35.2): 부식성 위산 뒤엔 구리 도금 탄환이 더 하는 게 없다
+            if (GameBalance.AugmentDeadPickFilter && DeadPick(a.id, waveNumber)) continue;   // v4.16 (v9.39): 지금 집어도 아무 일 없는 후보
             pool.Add(a);
+        }
+        if (pool.Count < count)   // v4.16 리뷰: 모자라면 거르기를 한 단계 푼다 - 가진 것 · 충돌은 그대로 지킨다
+        {
+            pool.Clear();
+            for (int i = 0; i < All.Count; i++)
+            {
+                AugmentData a = All[i];
+                if (!a.stackable && AugmentManager.HasAugment(a.id)) continue;
+                if (a.conflictId != null && AugmentManager.HasAugment(a.conflictId)) continue;
+                pool.Add(a);
+            }
         }
         if (pool.Count < count) { pool.Clear(); for (int i = 0; i < All.Count; i++) if ((All[i].stackable || !AugmentManager.HasAugment(All[i].id))) pool.Add(All[i]); }
 
@@ -949,6 +961,28 @@ public static class AugmentDatabase
         }
 
         return result;
+    }
+
+    /// <summary>
+    /// v4.16 (v9.39, 유저 검토 보고서 6장 "적용 대상 없음 표시만으로는 세 장 중 실제로 한 장"): 지금 집어도 아무 일 없는 후보.
+    /// 이미 최대인 것 (증축된 주방 칸 +2 · 행운의 부적 +2) / 마지막 고르기(뒤에 고르기가 없는 웨이브)에서 앞날에만 듣는 것
+    /// </summary>
+    private static bool DeadPick(string id, int waveNumber)
+    {
+        if (id == "prism_extraslot" && AugmentManager.ExtraSlotUnlock >= 2) return true;
+        if (id == "gold_luckycharm" && AugmentManager.ExtraCards >= 2) return true;
+        if (!IsLastPick(waveNumber)) return false;
+        // 리뷰: 고리대금업자는 뺐다 - 보스 뒤 정차에서 +800 을 쓰고, '앞으로 웨이브 골드 -50%' 는 남은 웨이브가 없어 오히려 이득
+        return id == "gold_fieldrepair" || id == "gold_luckycharm" || id == "gold_pantry"
+            || id == "prism_curation" || id == "silver_wavehal";
+    }
+
+    /// <summary>v4.16: 이 웨이브 뒤로 증강 고르기가 더 없나 (최종전 전까지)</summary>
+    private static bool IsLastPick(int waveNumber)
+    {
+        for (int w = waveNumber + 1; w < GameBalance.FinalWave; w++)
+            if (GameBalance.AugmentPickAt(w)) return false;
+        return true;
     }
 
     /// <summary>v9.10: 첫 지역 후보 - 숫자 하나로 이해되는 것들 (베팅·숙련·공명·T2·도박 패밀리·조건부 계산은 지역 2 부터)</summary>

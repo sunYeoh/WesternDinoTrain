@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// [EnemyHpBar.cs] v1 (신규, v9.10 2026-09-17) - 손님 머리 위 얇은 HP 바
+/// [EnemyHpBar.cs] v1.1 (v9.36 2026-10-29 그림 팩: 머리 위 상태 표시 fx_status_(burn·poison·slow·stun) - 걸린 동안 바 위(바가 숨어 있으면 그 자리)에 한 줄로, GameBalance.FxStatusSprite) / v1 (신규, v9.10 2026-09-17) - 손님 머리 위 얇은 HP 바
 ///
 /// 테스터 피드백 "몬스터 체력도 위에 보여줬으면". 개정안 §6: "피해를 받은 적 위에 얇게, 모든 적의 수치를 상시 띄우지 않는다".
 ///  - 0.2초마다 씬의 Enemy 를 훑어 마커가 없는 손님에 바를 붙인다 (EnemySkin 과 같은 방식, 씬·프리팹 수정 0). 보스는 전용 HP 바가 있으니 제외.
@@ -28,6 +28,12 @@ public class EnemyHpBar : MonoBehaviour
     private float lastRatio = 1f;
     private float showUntil = 0f;
     private float topOffset = 1.0f;
+
+    // v1.1: 상태 표시 넷 (화상 · 독 · 감속 · 마비) - 바와 따로 산다, 바가 안 보여도 뜬다
+    private static readonly string[] STATUS_NAMES = { "fx_status_burn", "fx_status_poison", "fx_status_slow", "fx_status_stun" };
+    private Transform statusRoot;
+    private SpriteRenderer[] statusSr;
+    private bool statusTried;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void Bootstrap()
@@ -96,7 +102,8 @@ public class EnemyHpBar : MonoBehaviour
 
     private void TickBar()
     {
-        if (enemy == null || bg == null) { if (bg != null) Destroy(bg.gameObject); Destroy(this); return; }
+        if (enemy == null || bg == null) { if (bg != null) Destroy(bg.gameObject); if (statusRoot != null) Destroy(statusRoot.gameObject); Destroy(this); return; }
+        TickStatus();   // v1.1: 상태 표시는 바와 따로
         if (!enemy.IsAlive || !GameBalance.EnemyHpBars)
         {
             if (bg.gameObject.activeSelf) bg.gameObject.SetActive(false);
@@ -125,8 +132,63 @@ public class EnemyHpBar : MonoBehaviour
                                     : Color.Lerp(new Color(0.9f, 0.2f, 0.2f), new Color(0.95f, 0.85f, 0.2f), ratio * 2f);
     }
 
+    /// <summary>v1.1: 상태 표시 - 처음 필요할 때 넷을 만들고, 걸린 것만 켜서 가운데 정렬로 한 줄. 바가 보이면 바 위, 아니면 바 자리</summary>
+    private void TickStatus()
+    {
+        if (!GameBalance.FxStatusSprite || !enemy.IsAlive)
+        {
+            if (statusRoot != null && statusRoot.gameObject.activeSelf) statusRoot.gameObject.SetActive(false);
+            return;
+        }
+        if (statusSr != null && statusRoot == null) { statusSr = null; statusTried = false; }   // 리뷰: 루트가 바깥에서 지워졌으면 다시 만든다
+        if (statusSr == null)
+        {
+            if (statusTried) return;
+            statusTried = true;
+            if (!SpriteBank.Has(STATUS_NAMES[0])) return;   // 그림이 없으면 아무것도 안 만든다
+            GameObject rootGo = new GameObject("StatusIcons");
+            rootGo.transform.SetParent(enemy.transform, false);
+            statusRoot = rootGo.transform;
+            statusSr = new SpriteRenderer[STATUS_NAMES.Length];
+            for (int i = 0; i < STATUS_NAMES.Length; i++)
+            {
+                GameObject go = new GameObject(STATUS_NAMES[i]);
+                go.transform.SetParent(statusRoot, false);
+                SpriteRenderer sr = go.AddComponent<SpriteRenderer>();
+                sr.sprite = SpriteBank.Get(STATUS_NAMES[i]); sr.sortingOrder = SORT_ORDER + 2;
+                sr.enabled = false;
+                statusSr[i] = sr;
+            }
+        }
+        bool b = enemy.HasBurn, p = enemy.HasPoison, s = enemy.IsSlowedNow, st = enemy.IsStunnedNow;
+        int on = (b ? 1 : 0) + (p ? 1 : 0) + (s ? 1 : 0) + (st ? 1 : 0);
+        if (on == 0) { if (statusRoot.gameObject.activeSelf) statusRoot.gameObject.SetActive(false); return; }
+        if (!statusRoot.gameObject.activeSelf) statusRoot.gameObject.SetActive(true);
+
+        // 월드 기준으로 세운다 (부모 회전·크기 상쇄 - 바와 같은 식). 그림은 16px = 0.5u (32ppu) - FxStatusSize 로 다시 잰다
+        Vector3 ls = enemy.transform.lossyScale;
+        float invX = ls.x != 0f ? 1f / Mathf.Abs(ls.x) : 1f, invY = ls.y != 0f ? 1f / Mathf.Abs(ls.y) : 1f;
+        float barUp = (bg != null && bg.gameObject.activeSelf) ? HEIGHT + 0.08f : 0f;
+        statusRoot.rotation = Quaternion.identity;
+        statusRoot.position = enemy.transform.position + Vector3.up * (topOffset + barUp + GameBalance.FxStatusSize * 0.5f);
+        float sz = GameBalance.FxStatusSize / 0.5f;
+        statusRoot.localScale = new Vector3(sz * invX, sz * invY, 1f);
+        float step = (GameBalance.FxStatusSize + GameBalance.FxStatusGap) / Mathf.Max(0.01f, GameBalance.FxStatusSize) * 0.5f;   // 자식 로컬 단위 (한 칸 = 0.5u)
+        float x = -(on - 1) * step * 0.5f;
+        bool[] flags = { b, p, s, st };
+        for (int i = 0; i < statusSr.Length; i++)
+        {
+            bool show = flags[i] && statusSr[i].sprite != null;
+            statusSr[i].enabled = show;
+            if (!show) continue;
+            statusSr[i].transform.localPosition = new Vector3(x, 0f, -0.01f);
+            x += step;
+        }
+    }
+
     private void OnDestroy()
     {
         if (bg != null) Destroy(bg.gameObject);
+        if (statusRoot != null) Destroy(statusRoot.gameObject);
     }
 }

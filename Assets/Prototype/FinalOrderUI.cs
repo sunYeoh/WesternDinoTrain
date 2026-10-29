@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [FinalOrderUI.cs] v2.2 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v2.1 (v9.15.1 2026-09-29 스토리 개정: 선택창 문구 "기관심장이 드러났다 - 마지막 식사를 준비할 수 있다", 풀코스 제목 "백 년 만에 차려 주는 저녁") / v2 (교수 피드백 A7/C1/C3 반영 2026-09-14) - C-2: 마지막 주문 (진엔딩 B)
+/// [FinalOrderUI.cs] v2.3 (v9.36 2026-10-29 그림 팩: 코스 줄 왼쪽에 ui_dish_final_1·2·3 (전채 · 본식 · 후식) 아이콘 48 - 라운드마다 바뀐다) / v2.2 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v2.1 (v9.15.1 2026-09-29 스토리 개정: 선택창 문구 "기관심장이 드러났다 - 마지막 식사를 준비할 수 있다", 풀코스 제목 "백 년 만에 차려 주는 저녁") / v2 (교수 피드백 A7/C1/C3 반영 2026-09-14) - C-2: 마지막 주문 (진엔딩 B)
 /// 디 오리지널 P3(해치 개방)에서, 자격을 갖춘 요리사에게만 열리는 마지막 선택지.
 ///
 /// - v2 변경점:
@@ -271,9 +271,19 @@ public class FinalOrderUI : MonoBehaviour
             UpdateRoundLabel();
     }
 
+    private Image courseIcon;   // v2.3 (v9.36)
+
     private void UpdateRoundLabel()
     {
         string course = round == 0 ? "전채" : (round == 1 ? "본식" : "후식");
+        // v2.3: 코스 아이콘 (ui_dish_final_1 ~ 3). 글 줄 왼쪽에 48
+        if (GameBalance.DishIconOn && roundText != null)
+        {
+            Sprite cs = SpriteBank.Get("ui_dish_final_" + Mathf.Clamp(round + 1, 1, 3));
+            if (courseIcon == null && cs != null)
+                courseIcon = UIFactory.CreateIcon(roundText.transform.parent, "CourseIcon", cs, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(18f, roundText.rectTransform.anchoredPosition.y + 10f), 48f);
+            if (courseIcon != null) { courseIcon.gameObject.SetActive(cs != null); if (cs != null) courseIcon.sprite = cs; }
+        }
         roundText.text = "코스 " + (round + 1) + "/" + GameBalance.FinalOrderRounds
             + "  [" + course + "]   정중앙에서 [Space]";
     }

@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [TutorialHint.cs] v1.12 (v9.27 2026-10-20 튜토리얼 개편: "조리 시작" 칩을 조리법 셋(굽기 타이밍 / 볶기 키 순서 / 끓이기 [Space] 꾹)으로 / 새 빌드를 처음 켜면 견습·첫 등장 카드·프롤로그 기록을 비운다 CheckNewBuild (GameBalance.FreshRecordsOnNewBuild - PlayerPrefs 는 PC 레지스트리에 남아 시연 PC 가 지난 시연의 견습 완료를 들고 있었다, 유저 10-20) / 빌드에서도 F4 리셋 (GameBalance.ResetKeyInBuild) / 리셋 본문을 ResetRecords 로 - F4 와 새 빌드가 같이 쓴다) / v1.11 (v9.22.2 2026-10-14 유저 "튜토리얼 말투가 번역체·AI 같고 딱딱하다": 안내 글 말투를 반말 해체로 - 명령형 ~라·설명 ~다 끝맺음, 문장 속 기호, 어려운 말(투입·재가동·곁·유인)를 걷어냈다. 규칙 = 문구원칙 10-14 저녁 "말투" 절) / v1.10 (v9.22.1 2026-10-14 유저 "튜토리얼에 드래그가 반영 안 됐다": first_battle·merge_ready 칩을 끌어다 놓기 기준으로, first_stun 에 "방치하면 파손" / 새 칩 fuse_ready(기본 요리 카드 둘 = 진화 조리 - 합칠 수 있는 짝이 재고에 생기면) · swap_ready(빈 칸이 없는데 못 넣은 요리가 있으면 = 교체)) / v1.9 (v9.22 2026-10-14 조작 팩 2-2: Tab 키가 없어져 "재료가 모였다" 칩에서 [Tab] 주방 전체 메뉴를 뺐다 - 조리대 [E] 만) / v1.8 (v9.18 2026-10-06: 배너 폭 660 -> 620 - 씬 HUD 가 UI 배율을 따르면서 커진 좌상단 판과 8 겹치던 것) / v1.7 (v9.13 2026-09-23: first_route 트리거 = BranchRouteUI.ChoicePending - 선로 선택이 카드 창이 아니게 됨) / v1.6 (v9.12 2026-09-22: F4 가 구간 기록도 지운다 / 리롤 복원) / v1.5 (v9.11.1 2026-09-22 문구: 복구법 상태별·공명 예외·이번 운행·다시 뽑기·무방비) / v1.4 (v9.9.2 2026-09-16: 승격 5 - first_town / first_augment / first_route / first_item / first_overheat 는 배너 대신 브리핑 카드(BriefingTexts.Promoted), F4 가 첫 등장 카드 기록도 지운다) / v1.3 (v9.9 2026-09-16: 견습 운행·브리핑 카드 중엔 배너 쉼, F4 가 견습 완료 기록도 지움, 배너 캔버스 DontDestroyOnLoad) / v1.2 (v9.8.1: F4 리셋은 GameBalance.CheatsAllowed 일 때만) / v1.1 (교수 피드백 A13: 표시 5초 + 아무 키 닫기 + 조리 중 대기) - 컨텍스트 트리거 튜토리얼 (설계: 튜토리얼_온보딩_설계_2026-08-18)
+/// [TutorialHint.cs] v1.13 (v9.38 2026-10-29 유저 "와바바박 - 띄엄띄엄": 급하지 않은 조각끼리 GameBalance.HintGapSec 간격 (급한 것 = 마비 · 과열 · 사고 · 보스 · 바위 · 정차 · 증강 · 갈림길 · 유물 - 줄 앞으로, 바로) / 띠 왼쪽 그림 (HintIconOn) / 새 조각 "속성 재료" (팬 · 솥) / 조리 조각은 조리 독 단추를 짚는다 (GameHUD.PointDock) / 조리 조각 글에 아래 단추) / v1.12 (v9.27 2026-10-20 튜토리얼 개편: "조리 시작" 칩을 조리법 셋(굽기 타이밍 / 볶기 키 순서 / 끓이기 [Space] 꾹)으로 / 새 빌드를 처음 켜면 견습·첫 등장 카드·프롤로그 기록을 비운다 CheckNewBuild (GameBalance.FreshRecordsOnNewBuild - PlayerPrefs 는 PC 레지스트리에 남아 시연 PC 가 지난 시연의 견습 완료를 들고 있었다, 유저 10-20) / 빌드에서도 F4 리셋 (GameBalance.ResetKeyInBuild) / 리셋 본문을 ResetRecords 로 - F4 와 새 빌드가 같이 쓴다) / v1.11 (v9.22.2 2026-10-14 유저 "튜토리얼 말투가 번역체·AI 같고 딱딱하다": 안내 글 말투를 반말 해체로 - 명령형 ~라·설명 ~다 끝맺음, 문장 속 기호, 어려운 말(투입·재가동·곁·유인)를 걷어냈다. 규칙 = 문구원칙 10-14 저녁 "말투" 절) / v1.10 (v9.22.1 2026-10-14 유저 "튜토리얼에 드래그가 반영 안 됐다": first_battle·merge_ready 칩을 끌어다 놓기 기준으로, first_stun 에 "방치하면 파손" / 새 칩 fuse_ready(기본 요리 카드 둘 = 진화 조리 - 합칠 수 있는 짝이 재고에 생기면) · swap_ready(빈 칸이 없는데 못 넣은 요리가 있으면 = 교체)) / v1.9 (v9.22 2026-10-14 조작 팩 2-2: Tab 키가 없어져 "재료가 모였다" 칩에서 [Tab] 주방 전체 메뉴를 뺐다 - 조리대 [E] 만) / v1.8 (v9.18 2026-10-06: 배너 폭 660 -> 620 - 씬 HUD 가 UI 배율을 따르면서 커진 좌상단 판과 8 겹치던 것) / v1.7 (v9.13 2026-09-23: first_route 트리거 = BranchRouteUI.ChoicePending - 선로 선택이 카드 창이 아니게 됨) / v1.6 (v9.12 2026-09-22: F4 가 구간 기록도 지운다 / 리롤 복원) / v1.5 (v9.11.1 2026-09-22 문구: 복구법 상태별·공명 예외·이번 운행·다시 뽑기·무방비) / v1.4 (v9.9.2 2026-09-16: 승격 5 - first_town / first_augment / first_route / first_item / first_overheat 는 배너 대신 브리핑 카드(BriefingTexts.Promoted), F4 가 첫 등장 카드 기록도 지운다) / v1.3 (v9.9 2026-09-16: 견습 운행·브리핑 카드 중엔 배너 쉼, F4 가 견습 완료 기록도 지움, 배너 캔버스 DontDestroyOnLoad) / v1.2 (v9.8.1: F4 리셋은 GameBalance.CheatsAllowed 일 때만) / v1.1 (교수 피드백 A13: 표시 5초 + 아무 키 닫기 + 조리 중 대기) - 컨텍스트 트리거 튜토리얼 (설계: 튜토리얼_온보딩_설계_2026-08-18)
 ///
 /// 몰아서 가르치지 않는다. 각 기믹을 "처음 마주치는 순간" 1회만 배너로 안내한다.
 /// - 영구 기록: PlayerPrefs "WDT_Tut_(id)" - 2회차부터 반복 없음 (다회차 마찰 방지)
@@ -37,7 +37,9 @@ public class TutorialHint : MonoBehaviour
         new HintDef("first_battle", "황야로 출발!",
             "[WASD]로 달리고 [Shift]로 대시. 요리 카드는 끌어서 포탑 이름표에 놔"),
         new HintDef("cook_ready", "재료가 모였다",
-            "재료 두 개면 요리 하나. 조리대 앞에서 [E], 재료를 올리면 뭐가 나올지 보여"),
+            "재료 두 개면 요리 하나. 아래 [그릴 · 굽기] 를 누르거나 조리대 앞에서 [E]"),
+        new HintDef("attr_mats", "속성 재료",
+            "속성 재료는 팬이나 솥에서. 아래 [팬 · 볶기] [솥 · 끓이기]"),
         new HintDef("cook_start", "조리 시작",
             "굽기는 초록 구간에서 [Space], 볶기는 뜨는 키 순서대로, 끓이기는 [Space] 꾹으로 바늘을 구간에. [ESC]로 그만둬도 재료는 돌려받아"),
         new HintDef("merge_ready", "같은 요리로 키우기",
@@ -106,6 +108,7 @@ public class TutorialHint : MonoBehaviour
     {
         if (instance != null && instance != this) { Destroy(gameObject); return; }
         instance = this;
+        UnityEngine.SceneManagement.SceneManager.sceneLoaded += OnSceneLoadedHint;   // v1.13
         CheckNewBuild();   // v1.12: 새 빌드 첫 실행이면 기록 리셋 (allSeen 을 세기 전에)
         BuildBanner();
         RefreshAllSeen();
@@ -201,19 +204,91 @@ public class TutorialHint : MonoBehaviour
         if (Time.unscaledTime >= showUntil && pending.Count > 0
             && !PauseMenu.IsOpen && !StoryTexts.IsBlocking && !CookingMinigame.IsActive)
         {
-            int idx = pending[0];
-            pending.RemoveAt(0);
+            // v1.13: 급한 것부터, 급하지 않은 것은 앞 조각에서 HintGapSec 지난 뒤 (한 번에 몰아서 안 나오게)
+            int at = 0;
+            for (int i = 0; i < pending.Count; i++) if (Urgent(HINTS[pending[i]].id)) { at = i; break; }
+            int idx = pending[at];
+            if (!Urgent(HINTS[idx].id) && GameBalance.HintGapSec > 0f && lastHintAt > 0f && Time.unscaledTime - lastHintAt < GameBalance.HintGapSec)
+                goto Poll;
+            pending.RemoveAt(at);
+            // v1.13 (리뷰 M1): 본 것으로 적는 건 띄우는 지금 - 기다리는 동안 상황이 지나간 조각(재료 · 진화 · 교체)은 적지 않고 버린다 (다음에 다시 맞으면 또 들어온다)
+            if (Seen(HINTS[idx].id) || (StateHint(HINTS[idx].id) && !CheckTrigger(HINTS[idx].id))) goto Poll;
+            MarkSeen(HINTS[idx].id);
+            RefreshAllSeen();
+            lastHintAt = Time.unscaledTime;
             // v1.4: 승격 5 는 5초 배너 대신 시간 정지 카드 (증강 선택창 위에서도 열린다 - BriefingUI v1.1)
             if (GameBalance.FirstEncounterBriefings && IsPromoted(HINTS[idx].id))
                 BriefingUI.ShowOnce("promo_" + HINTS[idx].id, BriefingTexts.Promoted(HINTS[idx].id));
             else
                 ShowBanner(HINTS[idx]);
+            PointFor(HINTS[idx].id);   // v1.13: 조리 조각은 아래 단추를 짚는다
         }
 
+        Poll:
         // 상태 폴링 (전부 봤으면 중단 - 비용 0)
         if (allSeen || Time.unscaledTime < nextPollTime) return;
         nextPollTime = Time.unscaledTime + 0.3f;
         PollTriggers();
+    }
+
+    private float lastHintAt = 0f;   // v1.13: 마지막 조각을 띄운 때 (실시간)
+
+    /// <summary>v1.13 (리뷰 M1): 상황이 지나가면 뜻이 없는 조각 - 띄우기 직전에 조건을 다시 본다</summary>
+    private static bool StateHint(string id)
+    {
+        return id == "cook_ready" || id == "attr_mats" || id == "fuse_ready" || id == "swap_ready" || id == "merge_ready" || id == "resonance_near";
+    }
+
+    /// <summary>v1.13 (리뷰 M1): 씬이 바뀌면 기다리던 조각을 버린다 (판이 끝나 로비에서 "아래 [팬 · 볶기]" 가 뜨지 않게). 본 것으로 안 적었으니 다음 판에 다시 들어온다</summary>
+    private void OnSceneLoadedHint(UnityEngine.SceneManagement.Scene scene, UnityEngine.SceneManagement.LoadSceneMode mode)
+    {
+        pending.Clear();
+        lastHintAt = Time.unscaledTime;   // 판 시작에 급하지 않은 조각이 바로 뜨지 않게 (리뷰 L3)
+    }
+
+    /// <summary>v1.13: 견습이 방금 가르친 조각은 본 것으로 (정식 운행에서 또 안 뜬다)</summary>
+    public static void MarkLearned(params string[] ids)
+    {
+        for (int i = 0; i < ids.Length; i++) PlayerPrefs.SetInt(PREF_PREFIX + ids[i], 1);
+        PlayerPrefs.Save();
+        if (instance != null) instance.RefreshAllSeen();
+    }
+
+    /// <summary>v1.13: 기다리면 때를 놓치는 조각 (그 상황이 지금 화면에 있다) - 간격 없이 바로, 줄 앞으로</summary>
+    private static bool Urgent(string id)
+    {
+        return id == "first_stun" || id == "first_overheat" || id == "first_event" || id == "boss_incoming" || id == "first_rock"
+            || id == "first_town" || id == "first_augment" || id == "first_route" || id == "first_item" || id == "attr_mats";   // 리뷰 H2: 속성 재료는 바로 (cook_start 는 조리가 끝난 뒤라 급하지 않다)
+    }
+
+    /// <summary>v1.13: 조각마다 그림 (없으면 null - 그림 없는 띠)</summary>
+    private static string IconOf(string id)
+    {
+        switch (id)
+        {
+            case "first_battle": return "ui_npc_spino";
+            case "cook_ready": return "ui_dish_meat_meat";
+            case "attr_mats": return "ui_mat_elec";
+            case "cook_start": return "ui_mat_fire";
+            case "merge_ready": return "fx_levelup";
+            case "fuse_ready": return "ui_dish_t2_phys_phys";
+            case "swap_ready": return "ui_dish_elec_elec";
+            case "first_stun": return "fx_status_stun";
+            case "first_overheat": return "fx_status_burn";
+            case "first_event": return "ui_item_extinguisher";   // 리뷰 L7: 과열(불 표시)과 다른 그림
+            case "first_item": return "ui_item_knife";
+            case "first_town": return "ui_npc_ankylo";
+            case "boss_incoming": return "ui_dish_meat_poison";
+            default: return null;
+        }
+    }
+
+    /// <summary>v1.13: 조각이 짚을 UI (조리 독 단추) - GameHUD 가 금색 테 + ▼</summary>
+    private static void PointFor(string id)
+    {
+        if (GameHUD.Instance == null) return;
+        if (id == "cook_ready") GameHUD.Instance.PointDock(0, GameBalance.HintShowSec + 3f);
+        else if (id == "attr_mats") GameHUD.Instance.PointDock(1, GameBalance.HintShowSec + 3f);
     }
 
     /// <summary>v1.4: 카드로 승격된 힌트 (계획 v2 §4 "승격 5")</summary>
@@ -230,8 +305,7 @@ public class TutorialHint : MonoBehaviour
             if (Seen(id) || pending.Contains(i)) continue;
             if (!CheckTrigger(id)) continue;
 
-            MarkSeen(id);          // 트리거 즉시 기록 (큐 대기 중 중복 방지)
-            pending.Add(i);
+            pending.Add(i);        // v1.13 (리뷰 M1): 큐에 넣을 땐 안 적는다 - 띄울 때 적는다 (중복은 pending.Contains 가 막는다)
         }
         RefreshAllSeen();
     }
@@ -248,6 +322,13 @@ public class TutorialHint : MonoBehaviour
         if (id == "boss_incoming") return inBattle && gm != null && GameBalance.IsBossWave(gm.currentWave);
 
         if (id == "cook_start") return CookingMinigame.IsActive;
+        if (id == "attr_mats")   // v1.13: 속성 재료가 둘 모였다 (요리 하나 만들 만큼) - 팬 · 솥 차례
+        {
+            MaterialInventory inv = MaterialInventory.Instance;
+            if (inv == null || !inBattle) return false;
+            return inv.Get(MaterialType.Armor) >= 2 || inv.Get(MaterialType.Elec) >= 2 || inv.Get(MaterialType.Fire) >= 2
+                || inv.Get(MaterialType.Ice) >= 2 || inv.Get(MaterialType.Poison) >= 2;
+        }
         if (id == "first_event") return KitchenEventManager.IsActive;
         if (id == "first_augment") return AugmentPickUI.IsOpen;
         if (id == "first_route") return BranchRouteUI.ChoicePending;   // v1.7: 갈림길 + 왼쪽 카드 (창이 아니다)
@@ -377,6 +458,16 @@ public class TutorialHint : MonoBehaviour
             new Vector2(-310f, -160f), new Vector2(310f, -84f),   // v1.8: 폭 660 -> 620 (좌우 판 사이 띠 - UISkin.TopBandWidth. 660 은 커진 좌상단 판에 걸쳤다)
             UIFactory.PANEL, UIFactory.GOLD, 2f);
 
+        // v1.13: 왼쪽 그림 칸 (그림이 있을 때만 켜고 글을 오른쪽으로 민다)
+        GameObject iconGo = new GameObject("Icon");
+        bannerIconRt = iconGo.AddComponent<RectTransform>();
+        bannerIconRt.SetParent(bannerRoot, false);
+        bannerIconRt.anchorMin = new Vector2(0f, 0.5f); bannerIconRt.anchorMax = new Vector2(0f, 0.5f); bannerIconRt.pivot = new Vector2(0f, 0.5f);
+        bannerIconRt.anchoredPosition = new Vector2(10f, 0f); bannerIconRt.sizeDelta = new Vector2(56f, 56f);
+        bannerIcon = iconGo.AddComponent<Image>();
+        bannerIcon.preserveAspect = true; bannerIcon.raycastTarget = false;
+        iconGo.SetActive(false);
+
         bannerTitle = UIFactory.CreateText(bannerRoot, "Title", "", 18,
             UIFactory.GOLD, TextAnchor.UpperCenter);
         bannerTitle.rectTransform.offsetMin = new Vector2(10f, 30f);
@@ -397,14 +488,41 @@ public class TutorialHint : MonoBehaviour
             UIFactory.DIM, TextAnchor.LowerRight);
         footer.rectTransform.offsetMin = new Vector2(10f, 3f);
         footer.rectTransform.offsetMax = new Vector2(-8f, -56f);
+        bannerFooter = footer;   // v1.13: 그림 띠에선 끈다
 
         bannerRoot.gameObject.SetActive(false);
     }
+
+    private Image bannerIcon;
+    private RectTransform bannerIconRt;
+    private Text bannerFooter;   // v1.13: 바닥 "[H] 지나간 안내 다시 보기"
 
     private void ShowBanner(HintDef def)
     {
         bannerTitle.text = "일지 조각 - " + def.title;
         bannerBody.text = def.body;
+        // v1.13: 그림이 있으면 왼쪽에, 글은 그만큼 오른쪽으로
+        string ic = GameBalance.HintIconOn ? IconOf(def.id) : null;
+        Sprite sp = string.IsNullOrEmpty(ic) ? null : SpriteBank.Get(ic);
+        if (bannerIcon != null)
+        {
+            bannerIcon.gameObject.SetActive(sp != null);
+            if (sp != null) bannerIcon.sprite = sp;
+        }
+        float left = sp != null ? 74f : 10f;
+        if (GameBalance.HintIconOn)
+        {
+            // v1.13 (리뷰 M5): 제목 46 ~ 70 / 본문 6 ~ 46 (두 줄 - 그림 때문에 폭이 줄어 넘치던 둘째 줄이 잘렸다), 바닥 "[H] ..." 줄은 뺀다 (글 줄이기)
+            bannerTitle.rectTransform.offsetMin = new Vector2(left, 46f);
+            bannerBody.rectTransform.offsetMin = new Vector2(left, 6f);
+            bannerBody.rectTransform.offsetMax = new Vector2(-10f, -30f);
+            if (bannerFooter != null) bannerFooter.gameObject.SetActive(false);
+        }
+        else
+        {
+            bannerTitle.rectTransform.offsetMin = new Vector2(left, 30f);
+            bannerBody.rectTransform.offsetMin = new Vector2(left, 18f);
+        }
         bannerRoot.gameObject.SetActive(true);
         showUntil = Time.unscaledTime + GameBalance.HintShowSec;   // v1.1: 6.5 -> GameBalance(5초)
         bannerShownAt = Time.unscaledTime;
@@ -417,7 +535,9 @@ public class TutorialHint : MonoBehaviour
     {
         if (bannerRoot == null || !bannerRoot.gameObject.activeSelf) return;
         // v1.1 (A13): 0.6초 지난 뒤 아무 키나 누르면 먼저 닫힌다 (읽었으면 넘긴다)
-        bool dismissed = Time.unscaledTime - bannerShownAt > 0.6f && Input.anyKeyDown;
+        // v1.13 (리뷰 H1): 싸우는 중엔 키로 안 닫힌다 - 달리고 [E] 누르는 키에 뜨자마자 닫혀 못 읽던 것. 시간(HintShowSec)이 되면 닫힌다
+        bool inBattle = GameManager.Instance != null && GameManager.Instance.currentState == GameManager.GameState.Battle;
+        bool dismissed = !inBattle && Time.unscaledTime - bannerShownAt > 1.2f && Input.anyKeyDown;
         if (force || dismissed || Time.unscaledTime >= showUntil)
         {
             bannerRoot.gameObject.SetActive(false);

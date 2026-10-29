@@ -2,7 +2,7 @@
 using UnityEngine;
 
 /// <summary>
-/// [RecipeDatabase.cs] v2.1 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v2
+/// [RecipeDatabase.cs] v2.2 (v9.39 2026-10-29 밸런스 가안: 플라즈마 볶음 피해 GameBalance.PlasmaDamage (11 -> 14) / 철판 정식 최대 HP 가 레벨 따라 (IronSetBase ~ IronSetLv80) / 수정 방패 설명에 상한) / v2.1 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v2
 /// 레시피 데이터베이스 (정적 정의)
 /// 프로토타입 v3에서 밸런스 검증된 수치를 그대로 사용
 /// - v2 변경점: 도감 플레이버 텍스트 42종 추가 (스토리바이블 Phase 1)
@@ -78,7 +78,7 @@ public static class RecipeDatabase
         AddT1("elec+elec", "과부하 코일", FoodTag.Elec, TurretRole.MagicDealer, AttackShape.Chain, DamageType.Magic,
               9f, 0.55f, 600f, r => { r.chainCount = 3; r.description = "번개가 손님 3마리로 튄다"; });
         AddT1("elec+fire", "플라즈마 볶음", FoodTag.Elec, TurretRole.MagicDealer, AttackShape.Pierce, DamageType.Magic,
-              11f, 1.1f, 0f, r => { r.description = "직선 관통 · 줄 선 손님 전부"; });
+              GameBalance.PlasmaDamage, 1.1f, 0f, r => { r.description = "직선 관통 · 줄 선 손님 전부"; });   // v2.2: 11 -> PlasmaDamage
 
         // 화염 계열 (4)
         AddT1("armor+fire", "화염 방벽", FoodTag.Fire, TurretRole.MagicDealer, AttackShape.Aura, DamageType.Magic,
@@ -108,7 +108,8 @@ public static class RecipeDatabase
 
         // 방어 계열 (3)
         AddT1("armor+armor", "철판 정식", FoodTag.Def, TurretRole.Support, AttackShape.Passive, DamageType.Phys,
-              0f, 0f, 0f, r => { r.passiveType = "maxhp"; r.passiveValue = 60f; r.description = "[상시] 기차 최대 HP +60"; });
+              0f, 0f, 0f, r => { r.passiveType = "maxhp"; r.passiveValue = GameBalance.IronSetGrows ? GameBalance.IronSetBase : 60f;
+                  r.description = GameBalance.IronSetGrows ? "[상시] 기차 최대 HP +" + Mathf.RoundToInt(GameBalance.IronSetBase) + " (Lv 따라 +" + Mathf.RoundToInt(GameBalance.IronSetLv80) + " 까지)" : "[상시] 기차 최대 HP +60"; });
         AddT1("armor+elec", "축전 장갑", FoodTag.Def, TurretRole.Support, AttackShape.Passive, DamageType.Magic,
               0f, 0f, 0f, r => { r.passiveType = "thorns"; r.description = "[상시] 기차 피격 시 감전 반격"; });
         AddT1("armor+poison", "해독 스튜", FoodTag.Def, TurretRole.Support, AttackShape.Passive, DamageType.Phys,

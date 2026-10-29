@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [LobbyUI.cs] v1.14 (v9.35 2026-10-25: 하드가 열린 저장에 한 번 "[명성 상점] 화덕 증축" 알림 - 하드 운행의 포탑 최대 레벨을 올리는 줄이 생겼다) / v1.13 (v9.34 2026-10-25: 요리 도감을 [ESC] 로도 닫는다 - 예전엔 ESC 에 일시정지 창이 대신 열렸다 (CollectionOpen 을 PauseMenu 가 본다)) / v1.12 (v9.28 2026-10-20 하드 모드: 출발 버튼 오른쪽 [2] 하드 모드 칩 (종착역에 닿은 뒤에만, 켜면 황동 테 + 금색 글자 + 아래 한 줄) - 고른 것은 HardMode.Picked 에 남는다 / 칭호 줄에 "황야의 베테랑") / v1.11 (v9.26 2026-10-16 마감 정리: 안 쓰는 MatKorName · SetCorner 삭제) / v1.10 (v9.20 2026-10-07: 글 속 화살표를 게임 글꼴에 있는 세모로(게임 글꼴에 화살표 글리프가 없어 PC 의 다른 글꼴로 그려졌다 - 모양이 따로 놀고, 대신할 글꼴이 없는 빌드에선 빈칸)) / v1.9 (v9.17 2026-10-06 D6: 출발 때 검정 페이드 - 덮인 사이에 로비 -> 운행) / v1.8 (v9.15 2026-09-29: 왼쪽 아래 소리·화면 줄을 [설정] 버튼 하나로 - SettingsUI(화면·소리·언어). 화면 모드 코드는 SettingsUI 로 이동) / v1.7 (v9.14 2026-09-28 테스터 반영: 화면 설정 줄(전체화면 / 창 1920·1600·1280, PlayerPrefs WDT_ScreenMode, 시작 때 적용) / 도감은 클릭으로 고정(다시 클릭 = 닫기, 마우스 스침 무시) + 설명 짧게(맛 문구 제외)) / v1.6 (v9.13.1 2026-09-24: 오른쪽 아래 빌드 표시 GameBalance.BuildTag) / v1.5 (v9.12 2026-09-22: [T] = 견습 기록이 없으면 견습 운행 전부, 있으면 훈련장(TrainingGroundUI) 목록 / 처음 실행이면 [출발]·[Enter] 도 견습부터(GameBalance.TutorialForceFirst) / 버튼 글자 "훈련장") / v1.4 (v9.10.1 2026-09-21: 재료 이름 MaterialNames) / [LobbyUI.cs] v1.3 (v9.10 2026-09-17: 요리 도감에 설명 상자 - 이름에 마우스를 올리거나 클릭하면 무엇을 하나·어떤 손님에·언제 (RecipeText)) / v1.2 (v9.9 2026-09-16: [T] 견습 운행 버튼 + 첫 실행 강조) / v1.1 (v9.8: 칭호 표시) / v1 - 로비 개편 (튜토리얼_온보딩_설계 6절 + 화면 검수 "시작 버튼 묻힘")
+/// [LobbyUI.cs] v1.15 (v9.36 2026-10-29 그림 팩: 요리 도감 줄 왼쪽 아이콘 22 (미발견은 실루엣) + 설명 상자 오른쪽 위 아이콘 64) / v1.14 (v9.35 2026-10-25: 하드가 열린 저장에 한 번 "[명성 상점] 화덕 증축" 알림 - 하드 운행의 포탑 최대 레벨을 올리는 줄이 생겼다) / v1.13 (v9.34 2026-10-25: 요리 도감을 [ESC] 로도 닫는다 - 예전엔 ESC 에 일시정지 창이 대신 열렸다 (CollectionOpen 을 PauseMenu 가 본다)) / v1.12 (v9.28 2026-10-20 하드 모드: 출발 버튼 오른쪽 [2] 하드 모드 칩 (종착역에 닿은 뒤에만, 켜면 황동 테 + 금색 글자 + 아래 한 줄) - 고른 것은 HardMode.Picked 에 남는다 / 칭호 줄에 "황야의 베테랑") / v1.11 (v9.26 2026-10-16 마감 정리: 안 쓰는 MatKorName · SetCorner 삭제) / v1.10 (v9.20 2026-10-07: 글 속 화살표를 게임 글꼴에 있는 세모로(게임 글꼴에 화살표 글리프가 없어 PC 의 다른 글꼴로 그려졌다 - 모양이 따로 놀고, 대신할 글꼴이 없는 빌드에선 빈칸)) / v1.9 (v9.17 2026-10-06 D6: 출발 때 검정 페이드 - 덮인 사이에 로비 -> 운행) / v1.8 (v9.15 2026-09-29: 왼쪽 아래 소리·화면 줄을 [설정] 버튼 하나로 - SettingsUI(화면·소리·언어). 화면 모드 코드는 SettingsUI 로 이동) / v1.7 (v9.14 2026-09-28 테스터 반영: 화면 설정 줄(전체화면 / 창 1920·1600·1280, PlayerPrefs WDT_ScreenMode, 시작 때 적용) / 도감은 클릭으로 고정(다시 클릭 = 닫기, 마우스 스침 무시) + 설명 짧게(맛 문구 제외)) / v1.6 (v9.13.1 2026-09-24: 오른쪽 아래 빌드 표시 GameBalance.BuildTag) / v1.5 (v9.12 2026-09-22: [T] = 견습 기록이 없으면 견습 운행 전부, 있으면 훈련장(TrainingGroundUI) 목록 / 처음 실행이면 [출발]·[Enter] 도 견습부터(GameBalance.TutorialForceFirst) / 버튼 글자 "훈련장") / v1.4 (v9.10.1 2026-09-21: 재료 이름 MaterialNames) / [LobbyUI.cs] v1.3 (v9.10 2026-09-17: 요리 도감에 설명 상자 - 이름에 마우스를 올리거나 클릭하면 무엇을 하나·어떤 손님에·언제 (RecipeText)) / v1.2 (v9.9 2026-09-16: [T] 견습 운행 버튼 + 첫 실행 강조) / v1.1 (v9.8: 칭호 표시) / v1 - 로비 개편 (튜토리얼_온보딩_설계 6절 + 화면 검수 "시작 버튼 묻힘")
 ///
 /// - v1.2: 출발 버튼 아래 [T] 견습 운행 (340x44, y 130). 미완료(TutorialDirector.Done == false)면 목업 v2 (C) 대로
 ///   위에 현장 마커 화살표(tut_arrow 2배)가 까딱이고, 버튼 양끝 경광등(ui_ev_beacon_0/1)이 0.3초마다 교대, 황동 테,
@@ -540,6 +540,7 @@ public class LobbyUI : MonoBehaviour
 
     private const float DEX_DETAIL_H = 120f;
     private Text dexDetailText;
+    private Image dexDetailIcon;   // v1.15 (v9.36)
 
     /// <summary>v1.3: 도감 설명 (발견한 요리만 - 미발견은 ??? 그대로)</summary>
     private RecipeData dexSelected;   // v1.7: 클릭으로 고정된 요리 (다시 클릭 = 닫기)
@@ -553,10 +554,21 @@ public class LobbyUI : MonoBehaviour
             dexSelected = null;
             dexDetailText.text = DEX_PROMPT;
             dexDetailText.color = UIFactory.DIM;
+            if (dexDetailIcon != null) dexDetailIcon.gameObject.SetActive(false);   // v1.15
             return;
         }
         dexSelected = r;
         bool seen = MetaProgress.IsRecipeDiscovered(r.recipeId);
+        // v1.15 (v9.36): 설명 상자 오른쪽 위 아이콘 64
+        Sprite ds = SpriteBank.DishIcon(r.recipeId);
+        if (dexDetailIcon == null && ds != null && dexDetailText.transform.parent != null)   // 리뷰: 특정 파일에 안 기댄다
+            dexDetailIcon = UIFactory.CreateIcon(dexDetailText.transform.parent, "Icon", ds, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-10f, -8f), 64f);
+        if (dexDetailIcon != null)
+        {
+            dexDetailIcon.gameObject.SetActive(ds != null);
+            if (ds != null) { dexDetailIcon.sprite = ds; dexDetailIcon.color = seen ? Color.white : UIFactory.SILHOUETTE; }
+            dexDetailText.rectTransform.offsetMax = new Vector2(ds != null ? -84f : -16f, dexDetailText.rectTransform.offsetMax.y);
+        }
         if (!seen) { dexDetailText.text = "???  아직 만든 적 없는 요리 - 재료 둘을 조리대에 올리면 알게 된다"; dexDetailText.color = UIFactory.DIM; return; }
         string t = r.displayName + (r.tier == 2 ? "  [전설]" : "") + "   " + RecipeText.RoleWord(r) + "   |   " + RecipeText.Source(r) + "\n";
         t += RecipeText.Full(r, 1f);
@@ -576,6 +588,15 @@ public class LobbyUI : MonoBehaviour
             c, TextAnchor.MiddleLeft);
         t.raycastTarget = true;   // 클릭을 받아야 한다
         SetBookRow(t.rectTransform, left, height, row);
+        // v1.15 (v9.36): 줄 왼쪽에 요리 아이콘 22 - 글은 그만큼 오른쪽으로
+        Image rowIcon = UIFactory.CreateIcon(t.rectTransform, "Icon", SpriteBank.DishIcon(r.recipeId), new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0f, 0f), 22f);
+        if (rowIcon != null)
+        {
+            if (!seen) rowIcon.color = UIFactory.SILHOUETTE;
+            rowIcon.raycastTarget = true;   // 리뷰: 아이콘을 눌러도 줄이 눌리게 (클릭은 부모 Text 의 relay 로 올라간다)
+            t.rectTransform.offsetMin = new Vector2(t.rectTransform.offsetMin.x + 26f, t.rectTransform.offsetMin.y);   // 글은 26 오른쪽으로
+            rowIcon.rectTransform.anchoredPosition = new Vector2(-26f, 0f);                                           // 아이콘은 원래 글 자리에
+        }
         // v1.7: 이름 클릭 = 설명 상자에 고정 (v1.3 의 마우스 스침은 읽는 도중 바뀌어서 뺐다)
         RecipeHoverRelay relay = t.gameObject.AddComponent<RecipeHoverRelay>();
         relay.recipe = r; relay.onClick = ShowDexDetail;

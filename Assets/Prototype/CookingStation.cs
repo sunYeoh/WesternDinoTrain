@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// [CookingStation.cs] v2.4 (v9.26 2026-10-16 마감 정리: 옛 UI 스텁 ResetCooking 삭제) / v2.3 (v9.14 2026-09-28: [E] 안내 글자 배율 GameBalance.InteractPromptScale) / v2.2 (v9.10 2026-09-17 테스터 피드백: 행상인·베팅·분기 선로 창이 떠 있을 때 조리 시작 금지 - "안킬로 상인 나올 때 요리 되던 것") / v2.1 (교수 피드백 A10: 열람 패널 중 기구 상호작용 차단 2026-09-14) / v2
+/// [CookingStation.cs] v2.5 (v9.37 2026-10-29 유저 "E-조리가 아니라 E-화로, E-끓이기 식으로": 안내 글을 "[E] 굽기 / [E] 볶기 / [E] 끓이기" 로 (StationPromptVerb false 면 "[E] 그릴 / 팬 / 솥". 씬 글을 Start 에서 바꾼다 - TextMesh · TMP · UI.Text 어느 것이든, GameBalance.StationPromptNames) / 조리 독(GameHUD)이 쓰는 CanInteractNow · OpenFromDock - 창 가림 검사는 [E] 와 한 곳(WindowsClear)) / v2.4 (v9.26 2026-10-16 마감 정리: 옛 UI 스텁 ResetCooking 삭제) / v2.3 (v9.14 2026-09-28: [E] 안내 글자 배율 GameBalance.InteractPromptScale) / v2.2 (v9.10 2026-09-17 테스터 피드백: 행상인·베팅·분기 선로 창이 떠 있을 때 조리 시작 금지 - "안킬로 상인 나올 때 요리 되던 것") / v2.1 (교수 피드백 A10: 열람 패널 중 기구 상호작용 차단 2026-09-14) / v2
 /// 주방 기구(그릴/볶음팬/냄비) 오브젝트에 붙이는 스크립트입니다.
 /// 셰프가 상호작용 범위 안에서 E키를 누르면 조리창이 열립니다.
 ///
@@ -63,6 +63,7 @@ public class CookingStation : MonoBehaviour
             interactPrompt.SetActive(false);
             if (GameBalance.InteractPromptScale > 0f && !Mathf.Approximately(GameBalance.InteractPromptScale, 1f))
                 interactPrompt.transform.localScale = interactPrompt.transform.localScale * GameBalance.InteractPromptScale;
+            if (GameBalance.StationPromptNames) ApplyPromptLabel();   // v2.5: "E-조리" -> "[E] 그릴" 등
         }
 
         Debug.Log("[CookingStation] " + GetStationName() + " 초기화 완료 (v2 - 새 조리창 연동)");
@@ -73,11 +74,8 @@ public class CookingStation : MonoBehaviour
     // ─────────────────────────────────────────────
     private void Update()
     {
-        // 다른 전체화면 UI 진행 중엔 기구 상호작용 차단
-        if (CookingMinigame.IsActive || KitchenEventManager.IsActive ||
-            KitchenPanel.IsOpenStatic || WorkshopUI.IsOpen || AugmentPickUI.IsOpen ||
-            AugmentListUI.ReadingOpen ||   // A10: 열람 패널(V/J) 중에는 멈춘 시간에 조리 시작 불가
-            MerchantUI.IsOpen || SpinoBetUI.IsOpen || BranchRouteUI.IsOpen)   // v2.2: 정차역 창(행상인·베팅·선로)이 입력을 독점한다
+        // 다른 전체화면 UI 진행 중엔 기구 상호작용 차단 (v2.5: 조건은 WindowsClear 한 곳 - 조리 독도 같이 쓴다)
+        if (!WindowsClear())
         {
             HidePrompt();
             return;
@@ -121,6 +119,77 @@ public class CookingStation : MonoBehaviour
 
             OpenKitchen();
         }
+    }
+
+    /// <summary>v2.5: 조리법 번호(0 굽기 1 볶기 2 끓이기)의 기구 이름 - 주방 창(KitchenPanel.STATION_NAMES)과 같은 말</summary>
+    public static string StationShort(int method)
+    {
+        return method == 1 ? "팬" : method == 2 ? "솥" : "그릴";
+    }
+
+    /// <summary>v2.5: 씬의 안내 글("E-조리")을 이 기구 글로 - TextMesh · TMP · UI.Text 를 전부 바꾼다 (그림자용 복제 글이 있어도 같이). 하나도 없으면 경고 한 줄</summary>
+    private void ApplyPromptLabel()
+    {
+        int method = MethodIndex();
+        string label = "[E] " + (GameBalance.StationPromptVerb ? KitchenPanel.MethodName(method) : StationShort(method));
+        int n = 0;
+        TextMesh[] tms = interactPrompt.GetComponentsInChildren<TextMesh>(true);
+        for (int i = 0; i < tms.Length; i++) { tms[i].text = label; n++; }
+        TMPro.TMP_Text[] tmps = interactPrompt.GetComponentsInChildren<TMPro.TMP_Text>(true);
+        for (int i = 0; i < tmps.Length; i++) { tmps[i].text = label; n++; }
+        UnityEngine.UI.Text[] uts = interactPrompt.GetComponentsInChildren<UnityEngine.UI.Text>(true);
+        for (int i = 0; i < uts.Length; i++) { uts[i].text = label; n++; }
+        if (n == 0) Debug.LogWarning("[CookingStation] " + GetStationName() + " - [E] 안내 글 컴포넌트를 못 찾았다 (그림 글이면 씬에서 직접 바꿔야 한다)");
+    }
+
+    /// <summary>v2.5: 조리법 번호 0 굽기 1 볶기 2 끓이기</summary>
+    private int MethodIndex()
+    {
+        return stationType == StationType.Saute ? 1 : stationType == StationType.Boiling ? 2 : 0;
+    }
+
+    // v2.5: 켜져 있는 조리대 목록 - 조리 독은 이 칸에 실제로 있는 조리대만 연다
+    private static readonly System.Collections.Generic.List<CookingStation> live = new System.Collections.Generic.List<CookingStation>();
+    private void OnEnable() { if (!live.Contains(this)) live.Add(this); }
+    private void OnDisable() { live.Remove(this); }
+
+    /// <summary>v2.5: 이 조리법의 조리대가 지금 기차에 있나 (조리 독 단추를 켤지)</summary>
+    public static bool HasStation(int method)
+    {
+        for (int i = 0; i < live.Count; i++)
+            if (live[i] != null && live[i].isActiveAndEnabled && live[i].MethodIndex() == method) return true;
+        return false;
+    }
+
+    /// <summary>v2.5: 다른 창이 하나도 안 떠 있나 - [E] (Update) 와 조리 독이 같이 쓴다 (창을 더하면 여기 한 곳만)</summary>
+    public static bool WindowsClear()
+    {
+        return !(CookingMinigame.IsActive || KitchenEventManager.IsActive ||
+            KitchenPanel.IsOpenStatic || WorkshopUI.IsOpen || AugmentPickUI.IsOpen ||
+            AugmentListUI.ReadingOpen ||   // A10: 열람 패널(V/J) 중에는 멈춘 시간에 조리 시작 불가
+            MerchantUI.IsOpen || SpinoBetUI.IsOpen || BranchRouteUI.IsOpen);   // v2.2: 정차역 창(행상인·베팅·선로)이 입력을 독점한다
+    }
+
+    /// <summary>v2.5: 지금 조리 창을 열어도 되나 - [E] 와 같은 검사 (다른 창이 떠 있거나 싸움·정차가 아니면 false). 조리 독 단추가 쓴다</summary>
+    public static bool CanInteractNow()
+    {
+        if (!WindowsClear() || PauseMenu.IsOpen || BriefingUI.IsOpen || StoryTexts.IsBlocking) return false;
+        if (GameManager.Instance != null)
+        {
+            GameManager.GameState state = GameManager.Instance.currentState;
+            if (state != GameManager.GameState.Battle && state != GameManager.GameState.Town) return false;
+        }
+        return KitchenPanel.Instance != null;
+    }
+
+    /// <summary>v2.5: 조리 독 단추 - 그 조리대의 조리 창을 연다 (조리대까지 안 가도 된다). 정차 조리 횟수 검사는 조리 시작 때 CookingBridge 가 한다</summary>
+    public static bool OpenFromDock(int method)
+    {
+        method = Mathf.Clamp(method, 0, 2);
+        if (!CanInteractNow() || !HasStation(method)) return false;
+        for (int i = 0; i < live.Count; i++)
+            if (live[i] != null && live[i].isActiveAndEnabled && live[i].MethodIndex() == method) { live[i].OpenKitchen(); return true; }   // [E] 와 같은 길 (안내 글 숨김 · 로그)
+        return false;
     }
 
     // ─────────────────────────────────────────────

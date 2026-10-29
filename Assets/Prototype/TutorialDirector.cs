@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 /// <summary>
-/// [TutorialDirector.cs] v2.9 (v9.35.3 2026-10-26 유저 "끓이기 볶기 같이하는 구간 - 요리 잘못하면 재료가 부족해서 진행이 안 된다, 재료를 넉넉하게": 카드 5 솥 요리 = 해독 스튜 (예전 '철판 정식'은 그릴 요리라 솥에선 못 만들었다 - KitchenPanel.MethodOf) · 재료 넉넉히 (GameBalance.TutorialCookMats, 창이 열려 있어도 모자라면 채우고 창을 새로) · 다른 요리를 만들면 무엇을 만들었는지 알림 · 글의 '장갑' -> '등심' (화면 재료 이름) / 주방 창이 열려 있으면 목표 카드를 창 안 오른쪽 아래로, 키는 글만큼 (UI 목업 v1 의 1) / 리뷰: 다른 요리를 GameBalance.TutorialWrongDishGift 번 만들면 할 일 요리를 하나 만들어 주고 넘긴다 · 알림이 '재료 채워 놨어'에 묻히지 않게 · 재료를 채우면 열린 주방 창을 그릴 수 있을 때까지 다시 그린다 (kitchenStale) · 팬 차례에 해독 스튜를 먼저 하면 "그것도 할 일 맞아" + 진행 1/2 · 카드 키는 LayoutCard 한 곳에서 잰다 (상한 242, 조리 판이 떠 있으면 평소 자리) · 글 "굽기·볶기·끓이기는 요리마다 달라" "팬 끝" "[Space]로" "망쳤네") / v2.8 (v9.35.2 2026-10-26 예습 카드 3번 줄 - 무리는 미끼에 붙고 왕은 잠깐 돌아본다 (GameBalance.BaitBossLureSec - 예습 새끼도 같다)) / v2.7 (v9.27 2026-10-20 유저 "5초면 끝나는 단계는 묶고, 새 기능 튜토리얼을 더하고, 바뀐 조작은 고쳐라": 8구간 13카드 - 구간 1 기본(옛 1·2 묶음 + 옛 3·4 묶음 + 굽기 + Lv) / 2 요리 심화(새 - 팬·솥 조리법 둘, 진화 조리, 교체, 지원 요리) / 3 멈춘 포탑 살리기(감전 + 과열) / 4 주방 사고(새 - 기구 고장·화재, KitchenEventManager.ForceEvent) / 5 기관실(옛 작살·레버 묶음) / 6 실전(+ 단골 주문 OrderSystem.TutorialOrder) / 7 정산 / 8 보스 예습(+ 무방비 [F] 독침 육포, 처치까지). 옛 구간 기록은 MigrateV3 가 새 번호로 옮긴다 (새 구간 2·4 는 "아직"). 인라인 연습(정식 운행 첫 낙뢰·바위·레버)은 그대로이고 기록만 구간과 따로(WDT_Tut_In2·3·4) - 묶인 구간이 통째로 완료로 찍히지 않게. 한 카드 안에서 할 일이 넘어가면 SetLines 로 본문만 바꾼다. 리뷰 반영: 조리 카드는 FoodStock.OnCooked 횟수로 판정(재고 아님) / 사고 카드는 취소·거부·미니게임을 기다린다 / 전설이 폐기되면 다시 준다 / 못 일으키거나 포기한 카드는 구간 기록을 "건너뜀"으로 - 훈련장에서 다시, 인라인 연습도 막히지 않게 / 인라인 연습 인자는 kind) / v2.6 (v9.22.2 2026-10-14 유저 "튜토리얼 말투가 번역체·AI 같고 딱딱하다": 안내 글 말투를 반말 해체로 - 명령형 ~라·설명 ~다 끝맺음, 문장 속 기호, 어려운 말(투입·재가동·곁·유인)를 걷어냈다. 규칙 = 문구원칙 10-14 저녁 "말투" 절) / v2.5 (v9.22.1 2026-10-14 유저 "튜토리얼에 드래그가 반영 안 됐다": 2·5·6단계 목표 글과 지연 힌트를 v9.22 조작(카드 끌어다 놓기 - 교체 / 재료 중심 조리 창) 기준으로. 클릭 ▶ 클릭도 된다고 덧붙임. 5단계에 20초 지연 힌트(고기 카드 두 번 누르기) 추가) / v2.4 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v2.3 (v9.20 2026-10-07: 글 속 화살표를 게임 글꼴에 있는 세모로(게임 글꼴에 화살표 글리프가 없어 PC 의 다른 글꼴로 그려졌다 - 모양이 따로 놀고, 대신할 글꼴이 없는 빌드에선 빈칸)) / v2.2 (v9.18 2026-10-06: 목표 카드의 아래 끝·왼쪽 끝을 밖에서 읽게(CardBottomY·CardLeftFromRight - 알림 줄과 예고 카드가 카드를 피한다) / [Enter] 건너뛰기 오작동 - 요리 창·카드가 닫히는 그 프레임의 Enter 가 단계 건너뛰기로 새던 것(직전 프레임에 창이 떠 있었으면 무시) / 4단계 고기: 손님이 재료를 반드시 떨어뜨리고(Enemy), 그래도 모자라면 10초 뒤 채운다(구 30초)) / v2.1 (v9.15 2026-09-29 2차 피드백 "훈련장 무한 반복·맨땅 연습": 구간 완료 카드 [R] 한 번 더(PendingSegment - 씬 리로드 뒤 자동 시작) / 자유 연습 Begin(SANDBOX=8) - 손님이 계속 오고(SandboxSpawn*) 재료가 안 떨어지고 기차가 안 죽는다, [1] 낙뢰 [2] 화재 [3] 흘림 [4] 고장 [5] 침입 을 직접 일으킨다, 나가기 = [ESC] 메뉴 그만두기. SandboxActive 동안 포탑 파손도 진짜로 일어난다) / v2 (v9.12 2026-09-22: 견습 운행 구간화 - 7구간(S1 이동과 첫 포탑 1~6 / S2 감전된 포탑 복구 7 / S3 작살로 재료 얻기 8 / S4 전속 주행 켜고 끄기 9 /
+/// [TutorialDirector.cs] v3.0 (v9.38 2026-10-29 유저 "첫판 튜토리얼이 와바바박 - 게임 진행하면서 띄엄띄엄": 처음 켠 견습(로비 [출발]이 견습부터)은 구간 1 만 (lightRun, GameBalance.TutorialFirstLight) - 앞길 카드(13)도 빼고 끝 카드 TutorialLightDone. 나머지 구간은 정식 운행의 일지 조각 · 인라인 연습이 그때그때, 훈련장은 그대로 / 글 대신 짚기: 카드 1 은 요리 카드에, 카드 3 은 조리 독 [그릴 · 굽기] 에 금색 테 (GameHUD.PointCard · PointDock)) / v2.9 (v9.35.3 2026-10-26 유저 "끓이기 볶기 같이하는 구간 - 요리 잘못하면 재료가 부족해서 진행이 안 된다, 재료를 넉넉하게": 카드 5 솥 요리 = 해독 스튜 (예전 '철판 정식'은 그릴 요리라 솥에선 못 만들었다 - KitchenPanel.MethodOf) · 재료 넉넉히 (GameBalance.TutorialCookMats, 창이 열려 있어도 모자라면 채우고 창을 새로) · 다른 요리를 만들면 무엇을 만들었는지 알림 · 글의 '장갑' -> '등심' (화면 재료 이름) / 주방 창이 열려 있으면 목표 카드를 창 안 오른쪽 아래로, 키는 글만큼 (UI 목업 v1 의 1) / 리뷰: 다른 요리를 GameBalance.TutorialWrongDishGift 번 만들면 할 일 요리를 하나 만들어 주고 넘긴다 · 알림이 '재료 채워 놨어'에 묻히지 않게 · 재료를 채우면 열린 주방 창을 그릴 수 있을 때까지 다시 그린다 (kitchenStale) · 팬 차례에 해독 스튜를 먼저 하면 "그것도 할 일 맞아" + 진행 1/2 · 카드 키는 LayoutCard 한 곳에서 잰다 (상한 242, 조리 판이 떠 있으면 평소 자리) · 글 "굽기·볶기·끓이기는 요리마다 달라" "팬 끝" "[Space]로" "망쳤네") / v2.8 (v9.35.2 2026-10-26 예습 카드 3번 줄 - 무리는 미끼에 붙고 왕은 잠깐 돌아본다 (GameBalance.BaitBossLureSec - 예습 새끼도 같다)) / v2.7 (v9.27 2026-10-20 유저 "5초면 끝나는 단계는 묶고, 새 기능 튜토리얼을 더하고, 바뀐 조작은 고쳐라": 8구간 13카드 - 구간 1 기본(옛 1·2 묶음 + 옛 3·4 묶음 + 굽기 + Lv) / 2 요리 심화(새 - 팬·솥 조리법 둘, 진화 조리, 교체, 지원 요리) / 3 멈춘 포탑 살리기(감전 + 과열) / 4 주방 사고(새 - 기구 고장·화재, KitchenEventManager.ForceEvent) / 5 기관실(옛 작살·레버 묶음) / 6 실전(+ 단골 주문 OrderSystem.TutorialOrder) / 7 정산 / 8 보스 예습(+ 무방비 [F] 독침 육포, 처치까지). 옛 구간 기록은 MigrateV3 가 새 번호로 옮긴다 (새 구간 2·4 는 "아직"). 인라인 연습(정식 운행 첫 낙뢰·바위·레버)은 그대로이고 기록만 구간과 따로(WDT_Tut_In2·3·4) - 묶인 구간이 통째로 완료로 찍히지 않게. 한 카드 안에서 할 일이 넘어가면 SetLines 로 본문만 바꾼다. 리뷰 반영: 조리 카드는 FoodStock.OnCooked 횟수로 판정(재고 아님) / 사고 카드는 취소·거부·미니게임을 기다린다 / 전설이 폐기되면 다시 준다 / 못 일으키거나 포기한 카드는 구간 기록을 "건너뜀"으로 - 훈련장에서 다시, 인라인 연습도 막히지 않게 / 인라인 연습 인자는 kind) / v2.6 (v9.22.2 2026-10-14 유저 "튜토리얼 말투가 번역체·AI 같고 딱딱하다": 안내 글 말투를 반말 해체로 - 명령형 ~라·설명 ~다 끝맺음, 문장 속 기호, 어려운 말(투입·재가동·곁·유인)를 걷어냈다. 규칙 = 문구원칙 10-14 저녁 "말투" 절) / v2.5 (v9.22.1 2026-10-14 유저 "튜토리얼에 드래그가 반영 안 됐다": 2·5·6단계 목표 글과 지연 힌트를 v9.22 조작(카드 끌어다 놓기 - 교체 / 재료 중심 조리 창) 기준으로. 클릭 ▶ 클릭도 된다고 덧붙임. 5단계에 20초 지연 힌트(고기 카드 두 번 누르기) 추가) / v2.4 (v9.21.2 2026-10-14 문구 팩: 용어 통일 - 접시->요리(개) / 데미지->피해 / 슬롯->칸 / 랜덤->무작위 / 레시피->요리 / 적·아군->손님 / 드랍->드롭 / 마법 저항->저항 / 힐러·러시·청구 / 진화 조리 판 이름) / v2.3 (v9.20 2026-10-07: 글 속 화살표를 게임 글꼴에 있는 세모로(게임 글꼴에 화살표 글리프가 없어 PC 의 다른 글꼴로 그려졌다 - 모양이 따로 놀고, 대신할 글꼴이 없는 빌드에선 빈칸)) / v2.2 (v9.18 2026-10-06: 목표 카드의 아래 끝·왼쪽 끝을 밖에서 읽게(CardBottomY·CardLeftFromRight - 알림 줄과 예고 카드가 카드를 피한다) / [Enter] 건너뛰기 오작동 - 요리 창·카드가 닫히는 그 프레임의 Enter 가 단계 건너뛰기로 새던 것(직전 프레임에 창이 떠 있었으면 무시) / 4단계 고기: 손님이 재료를 반드시 떨어뜨리고(Enemy), 그래도 모자라면 10초 뒤 채운다(구 30초)) / v2.1 (v9.15 2026-09-29 2차 피드백 "훈련장 무한 반복·맨땅 연습": 구간 완료 카드 [R] 한 번 더(PendingSegment - 씬 리로드 뒤 자동 시작) / 자유 연습 Begin(SANDBOX=8) - 손님이 계속 오고(SandboxSpawn*) 재료가 안 떨어지고 기차가 안 죽는다, [1] 낙뢰 [2] 화재 [3] 흘림 [4] 고장 [5] 침입 을 직접 일으킨다, 나가기 = [ESC] 메뉴 그만두기. SandboxActive 동안 포탑 파손도 진짜로 일어난다) / v2 (v9.12 2026-09-22: 견습 운행 구간화 - 7구간(S1 이동과 첫 포탑 1~6 / S2 감전된 포탑 복구 7 / S3 작살로 재료 얻기 8 / S4 전속 주행 켜고 끄기 9 /
 ///   S5 요리하며 기차 지키기 10 / S6 증강 선택과 정비 11 / S7 미끼로 첫 보스 상대하기 12(신규)) + 마지막 앞길 카드 13. Begin(segment) 로 한 구간만 (훈련장 TrainingGroundUI),
 ///   구간마다 PlayerPrefs WDT_Tut_S1..S7 = 1 완료 / 2 건너뜀. 정식 운행 인라인 연습 PlayInline(seg) - 새 기믹 첫 등장 순간(협곡 낙뢰 / 첫 바위 / 레버 웨이브) 손님·스폰·사고·포탑을 멈추고(InlineFreeze)
 ///   셰프만 움직여 그 행동을 해낸다. 30초 = 힌트 추가(자동 통과 없음), [Enter] = 건너뛰기(기록 2). 큰 카드 540x250 = 연습·예습, 목표 카드 330x156 은 그대로 (목업 v4.2).
@@ -228,6 +228,7 @@ public class TutorialDirector : MonoBehaviour
     // ── 진행 상태 ──
     private int step = 0;
     private int runSegment = 0;                  // 0 = 전부, 1~8 = 그 구간만
+    private bool lightRun = false;               // v3.0: 처음 견습 - 전부(0) 로 시작했지만 구간 1 만 한다
     private readonly List<int> runSteps = new List<int>();   // 이번 런의 단계 번호 목록 (카드 "목표 n / N")
     private int curSeg = 0;
     private int segSkips = 0;                    // 현재 구간에서 건너뛴 단계 수
@@ -379,6 +380,7 @@ public class TutorialDirector : MonoBehaviour
         BlockAmbient = true;
         EngineCabUnlocked = false;
         Instance.runSegment = segment;
+        Instance.lightRun = segment == 0 && GameBalance.TutorialFirstLight && !Done && !HasAnyRecord();   // v3.0: 처음 켠 견습은 기본만
         BriefingUI.ClearQueue();
         GameManager.Instance.StartTutorial();          // Battle 상태로 (웨이브 시작 없음)
         Instance.runRoutine = Instance.StartCoroutine(segment == SANDBOX ? Instance.RunSandbox() : Instance.Run());
@@ -475,7 +477,7 @@ public class TutorialDirector : MonoBehaviour
     // ─────────────────────────────────────────────
     // 런 본체 (코루틴 상태기계) - 구간 단위
     // ─────────────────────────────────────────────
-    private bool RunsSeg(int seg) { return runSegment == 0 || runSegment == seg; }
+    private bool RunsSeg(int seg) { return lightRun ? seg == 1 : (runSegment == 0 || runSegment == seg); }   // v3.0: 처음 견습은 구간 1 만
 
     private IEnumerator Run()
     {
@@ -494,7 +496,7 @@ public class TutorialDirector : MonoBehaviour
         for (int s = 1; s <= SEGMENTS; s++)
             if (RunsSeg(s))
                 for (int n = SEGMENT_TABLE[s - 1].firstStep; n <= SEGMENT_TABLE[s - 1].lastStep; n++) runSteps.Add(n);
-        if (runSegment == 0) runSteps.Add(13);
+        if (runSegment == 0 && !lightRun) runSteps.Add(13);   // v3.0: 처음 견습은 앞길 카드 없이
 
         SetupKit(runSegment);
 
@@ -520,7 +522,7 @@ public class TutorialDirector : MonoBehaviour
         if (RunsSeg(6)) { BeginSegment(6); yield return Step10_Defense(); EndSegment(6); }
         if (RunsSeg(7)) { BeginSegment(7); yield return Step11_Settlement(); EndSegment(7); }
         if (RunsSeg(8)) { BeginSegment(8); yield return Step12_BossPractice(); EndSegment(8); }
-        if (runSegment == 0) yield return Step13_Cards();
+        if (runSegment == 0 && !lightRun) yield return Step13_Cards();
 
         yield return Finish();
     }
@@ -538,6 +540,7 @@ public class TutorialDirector : MonoBehaviour
     private void EndSegment(int seg)
     {
         MarkSegment(seg, segSkips > 0 ? 2 : 1);
+        if (seg == 1 && GameBalance.TutorialFirstLight) TutorialHint.MarkLearned("first_battle", "cook_ready", "merge_ready");   // v3.0: 방금 배운 것 - 정식 운행에서 같은 조각을 또 띄우지 않는다
         curSeg = 0;
     }
 
@@ -603,6 +606,7 @@ public class TutorialDirector : MonoBehaviour
         {
             SetLines("화면 아래 더블 육포 카드를 끌어서\n화살표 밑 [+] 이름표에 놔");
             if (slot != null) ShowMarkerFollow(slot.transform, SlotArrowTip(1), RING_TURRET);
+            if (GameHUD.Instance != null) GameHUD.Instance.PointCard(STARTER_RECIPE, 120f);   // v3.0: 카드에 금색 테
             int filledAtStart = FilledSlotCount();
             float insertMark = Time.time;
             float hintAt = Time.time + 15f;
@@ -614,6 +618,7 @@ public class TutorialDirector : MonoBehaviour
             }
         }
         SetProgress(2, 2);
+        if (GameHUD.Instance != null) GameHUD.Instance.StopPoint();
         yield return EndStep();
     }
 
@@ -672,8 +677,10 @@ public class TutorialDirector : MonoBehaviour
         CookingStation grill = FindStation(CookingStation.StationType.Grilling);
         BeginStep(3, "그릴에서 더블 육포 굽기", "그릴 앞에서 [E], 고기 두 개 올려\n눈금이 초록 구간에 오면 [Space]", "굽기", 0, 1);
         if (grill != null) ShowMarkerFollow(grill.transform, 1.0f, RING_STATION);
+        if (GameHUD.Instance != null) GameHUD.Instance.PointDock(0, 120f);   // v3.0: 조리대 대신 아래 단추로도 - 금색 테
         yield return Brief(BriefingTexts.Tutorial(4));
         yield return CookOne(STARTER_RECIPE, MaterialType.Meat, MaterialType.Meat, "[견습] 조리 창에서 고기 카드를 두 번 누르거나 끌어 놓고 [굽기 시작]", "[견습] 탔네. 고기 다시 줬어. 초록 구간에서 [Space]");
+        if (GameHUD.Instance != null) GameHUD.Instance.StopPoint();
         if (!skipRequested && !lastCookGifted) Spino("[스피노] 바로 그거야. 요리가 곧 총알이지");
         SetProgress(1, 1);
         yield return EndStep();
@@ -810,6 +817,7 @@ public class TutorialDirector : MonoBehaviour
         BeginStep(4, "같은 요리로 Lv 올리기", "구운 육포 카드를 화살표 포탑에 놔\n다른 요리가 든 칸에 놓으면 교체야", "넣기", 0, 1);
         if (FoodStock.Instance != null && TotalFood() < 1) FoodStock.Instance.Add(STARTER_RECIPE, 1);
         if (first != null) ShowMarkerFollow(first.transform, SlotArrowTip(0), RING_TURRET);
+        if (GameHUD.Instance != null) GameHUD.Instance.PointCard(STARTER_RECIPE, 120f);   // v3.0
         yield return Brief(BriefingTexts.Tutorial(5));
 
         float insertMark = Time.time;
@@ -820,6 +828,7 @@ public class TutorialDirector : MonoBehaviour
             if (Time.time > hintAt) { hintAt = float.MaxValue; UIManager.Instance?.ShowStatChange("[견습] 카드를 화살표 포탑 이름표에 끌어다 놔. 카드 누르고 이름표 눌러도 돼"); }
             yield return null;
         }
+        if (GameHUD.Instance != null) GameHUD.Instance.StopPoint();
         SetProgress(1, 1);
         yield return EndStep();
     }
@@ -1568,7 +1577,8 @@ public class TutorialDirector : MonoBehaviour
             Debug.Log("[Tutorial] 완료 " + Mathf.FloorToInt(seconds / 60f) + "분" + Mathf.FloorToInt(seconds % 60f) + "초 | 스킵 " + skips
                 + " | 조리 실패 " + cookFails + " | 실전 재시작 " + retries10 + " | 예습 재시작 " + retries12
                 + (first ? " | 명성 +" + GameBalance.TutorialReward : " | 재플레이") + " | 카드별 초 " + perStep);
-            done = BriefingTexts.TutorialDone(first, GameBalance.TutorialReward, seconds, skips, cookFails);
+            done = lightRun ? BriefingTexts.TutorialLightDone(first, GameBalance.TutorialReward)   // v3.0: 기본만 - 나머지는 운행하면서
+                : BriefingTexts.TutorialDone(first, GameBalance.TutorialReward, seconds, skips, cookFails);
         }
         else
         {

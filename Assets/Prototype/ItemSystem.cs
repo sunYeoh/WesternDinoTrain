@@ -4,7 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 /// <summary>
-/// [ItemSystem.cs] v1.6 (v9.29 2026-10-21 손맛 3차 B8: 획득(Acquire = 효과·소유)과 드러내기(Reveal = 알림 줄·카드·소리)를 나눴다 - 갑판 상자는 GrantRandom(label, deferReveal, out item) 으로 효과만 먼저 걸고 상자가 날아와 닿을 때 Reveal. GrantRandom 이 "유물을 줬나" 를 돌려준다 (못 주면 골드). RelicToast.FlightTarget = 날아갈 캔버스·카드 자리, 씬이 바뀌면 날아가던 상자도 지운다) / v1.5 (v9.25 2026-10-16 B5 - 5차 피드백 4번 "유물 개구림 의미없음": 조리 판정·사고 쪽 8 (보험·부채·매트·숫돌·온도계·뒤집개·밸브·고글)을 싸움 유물 8 로 - 녹슨 탄창·굶주린 화덕·짝꿍 숟가락·탐욕의 국자·무거운 냄비·선대의 식탁보·독한 소스·빈 접시. 09 월 "증강 = 싸움 / 유물 = 주방 일" 나누기를 바꾸는 것이라 GameBalance.RelicCombatSet = false 면 예전 15종. 새 값은 ItemManager 의 v1.5 칸, 피해 배율은 RelicDamageMul) / v1.4 (v9.18 2026-10-06: 유물 획득 알림 카드 RelicToast - 이름·효과·"[V] 로 다시 본다" 를 4.5초 띄운다. 상자로 주운 유물은 알림 줄에 이름만 나와 무슨 효과인지 알 수 없었다) / v1.3 (v9.16 2026-09-29 손맛 2차 - 소리: 유물 획득 sfx_relic) / v1.2 (v9.14 2026-09-28: 유물 15종 설명을 일상어로 - 테스터 "황금 조리 기구가 뭔지 모르겠음": "판정 구간" -> "맞춰야 하는 구간이 넓어진다") / v1.1 (2026-09-14: IsItemUsable 스위치 연동) / v1 (신규 파일) - Phase 2-3: 아이템(유물) 시스템
+/// [ItemSystem.cs] v1.7 (v9.36 2026-10-29 그림 팩: 유물 획득 카드 왼쪽에 ui_item_<id> 아이콘 64 - 글은 오른쪽으로 (GameBalance.ItemIconOn + 그림이 있을 때)) / v1.6 (v9.29 2026-10-21 손맛 3차 B8: 획득(Acquire = 효과·소유)과 드러내기(Reveal = 알림 줄·카드·소리)를 나눴다 - 갑판 상자는 GrantRandom(label, deferReveal, out item) 으로 효과만 먼저 걸고 상자가 날아와 닿을 때 Reveal. GrantRandom 이 "유물을 줬나" 를 돌려준다 (못 주면 골드). RelicToast.FlightTarget = 날아갈 캔버스·카드 자리, 씬이 바뀌면 날아가던 상자도 지운다) / v1.5 (v9.25 2026-10-16 B5 - 5차 피드백 4번 "유물 개구림 의미없음": 조리 판정·사고 쪽 8 (보험·부채·매트·숫돌·온도계·뒤집개·밸브·고글)을 싸움 유물 8 로 - 녹슨 탄창·굶주린 화덕·짝꿍 숟가락·탐욕의 국자·무거운 냄비·선대의 식탁보·독한 소스·빈 접시. 09 월 "증강 = 싸움 / 유물 = 주방 일" 나누기를 바꾸는 것이라 GameBalance.RelicCombatSet = false 면 예전 15종. 새 값은 ItemManager 의 v1.5 칸, 피해 배율은 RelicDamageMul) / v1.4 (v9.18 2026-10-06: 유물 획득 알림 카드 RelicToast - 이름·효과·"[V] 로 다시 본다" 를 4.5초 띄운다. 상자로 주운 유물은 알림 줄에 이름만 나와 무슨 효과인지 알 수 없었다) / v1.3 (v9.16 2026-09-29 손맛 2차 - 소리: 유물 획득 sfx_relic) / v1.2 (v9.14 2026-09-28: 유물 15종 설명을 일상어로 - 테스터 "황금 조리 기구가 뭔지 모르겠음": "판정 구간" -> "맞춰야 하는 구간이 넓어진다") / v1.1 (2026-09-14: IsItemUsable 스위치 연동) / v1 (신규 파일) - Phase 2-3: 아이템(유물) 시스템
 ///
 /// 설계 (사용자 결정 - 증강/아이템 이원화):
 ///  - 증강 = 포탑 강화 + 기차 유틸 (전투 출력에 관여)
@@ -500,6 +500,7 @@ public class RelicToast : MonoBehaviour
     private Image rarityBar;
     private Image ring;                       // 스킨이 있을 때의 테 (희귀도 색)
     private Text captionText, nameText, descText, footText;
+    private Image iconImg;   // v1.7 (v9.36): 유물 아이콘
     private readonly Queue<ItemData> queue = new Queue<ItemData>();
     private Coroutine showCo;
     private Canvas canvas;                    // v1.6: 날아오는 상자가 쓰는 캔버스
@@ -572,6 +573,9 @@ public class RelicToast : MonoBehaviour
         rarityBar = bar.GetComponent<Image>();
         rarityBar.raycastTarget = false;
 
+        // v1.7: 아이콘 자리 (Run 이 유물마다 그림을 바꾼다 - 없으면 숨기고 글은 예전 자리)
+        iconImg = UIFactory.CreateIcon(root, "Icon", TrainDeck.GetWhiteSprite(), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(22f, -30f), 64f);
+        if (iconImg != null) iconImg.gameObject.SetActive(false);
         captionText = MakeLine("Caption", 16, new Vector2(24f, -8f), 22f, TextAnchor.MiddleLeft);
         nameText = MakeLine("Name", 26, new Vector2(24f, -30f), 34f, TextAnchor.MiddleLeft);
         nameText.fontStyle = FontStyle.Bold;
@@ -627,6 +631,16 @@ public class RelicToast : MonoBehaviour
             captionText.color = rc;
             nameText.text = item.name;
             descText.text = item.desc;
+            // v1.7: 유물 아이콘 - 있으면 이름·설명을 아이콘 오른쪽(x 100)으로
+            Sprite ic = SpriteBank.ItemIcon(item.id);
+            if (iconImg != null)
+            {
+                iconImg.gameObject.SetActive(ic != null);
+                if (ic != null) iconImg.sprite = ic;
+            }
+            float textX = ic != null ? 100f : 24f;
+            nameText.rectTransform.anchoredPosition = new Vector2(textX, -30f); nameText.rectTransform.sizeDelta = new Vector2(-(textX + 18f), 34f);
+            descText.rectTransform.anchoredPosition = new Vector2(textX, -68f); descText.rectTransform.sizeDelta = new Vector2(-(textX + 18f), 26f);
 
             // 설명 줄 수에 맞춰 카드 높이 (위 68 + 설명 + 아래 34)
             root.gameObject.SetActive(true);

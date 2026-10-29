@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [TrainStripUI.cs] v1 (신규 파일) - B-2: 기차 스트립 (방향결정 2026-08-31)
+/// [TrainStripUI.cs] v1.1 (v9.37 2026-10-29 유저 "UI 끼리 겹침": 주방 창 · 조리 판 · 증강 · 정비소 · 행상인 · 베팅 · 선로 · 열람이 떠 있는 동안 띠를 숨긴다 - 주방 창 위 테와 겹쳤다, GameBalance.StripHideUnderWindows) / v1 (신규 파일) - B-2: 기차 스트립 (방향결정 2026-08-31)
 ///
 /// 화면 상단의 미니 기차 상황판 (FTL식). 기차가 4칸이 되어 화면 밖 칸이 생기면서,
 /// "뒷칸에서 불났다"를 눈으로 아는 수단이 필요해졌다.
@@ -22,6 +22,7 @@ public class TrainStripUI : MonoBehaviour
     private Image[] cellBGs;
     private Text[] cellTexts;
     private Transform chefTransform;
+    private bool hiddenByWindow = false;   // v1.1: 창 때문에 내가 숨겼나
 
     private static readonly Color BG_IDLE = new Color(0.10f, 0.08f, 0.06f, 0.85f);
     private static readonly Color BORDER_IDLE = new Color(0.35f, 0.28f, 0.22f);
@@ -113,6 +114,16 @@ public class TrainStripUI : MonoBehaviour
     private void Update()
     {
         if (cellBorders == null) return;
+
+        // v1.1: 창이 떠 있으면 숨긴다 (창 위에 띠가 겹쳤다) - 내가 숨긴 것만 내가 되돌린다
+        if (GameBalance.StripHideUnderWindows && canvasGo != null)
+        {
+            bool window = KitchenPanel.IsOpenStatic || CookingMinigame.IsActive || AugmentPickUI.IsOpen || WorkshopUI.IsOpen
+                || MerchantUI.IsOpen || SpinoBetUI.IsOpen || BranchRouteUI.IsOpen || AugmentListUI.ReadingOpen;
+            if (window && canvasGo.activeSelf) { canvasGo.SetActive(false); hiddenByWindow = true; }
+            else if (!window && hiddenByWindow) { canvasGo.SetActive(true); hiddenByWindow = false; }
+            if (window) return;
+        }
 
         if (chefTransform == null)
         {

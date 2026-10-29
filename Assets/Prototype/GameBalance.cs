@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// [GameBalance.cs] v9.35.3 (2026-10-26 피드백: 맨 아래 v9.35.3 섹션 - 견습 팬·솥 재료 · 부채꼴 몸 판정 · 부식 · 오라 범위 · 목표 카드 자리 · 이름표 줌) / v9.35.2 (2026-10-26 설명·밸런스 표: 맨 아래 v9.35.2 섹션 - 장판 4초 · 독 장판 · 오라 불 = 화상 · 부식의 정수 깎기 · 깎기 겹 상한 · 부채꼴 조준 · 왕 미끼 3초 · 증강 카드 아래 줄) / v9.35.1 (2026-10-26 버그·첫 보스: 맨 아래 v9.35.1 섹션 - 작살·레버 안내 순서 EngineCabHintSort / 지역 보스 무는 힘 BossBiteStageMul, 지역 1 보스 HP BossHPStageMul 4 -> 6) / v9.35 (2026-10-25 성장·구조: 지역 8 -> 5 웨이브 (보스 5·10·15, 최종전 16) - 세기·수급은 옛 25웨이브 자 EqWave·WaveWorth 로 그대로 / 레벨 상한 80 LevelCurve80On (Lv80 = 옛 Lv6) /
+/// [GameBalance.cs] v9.39 (2026-10-29 밸런스 가안 - 유저 검토 보고서 1 ~ 6 순위: 맨 아래 v9.39 섹션. 하나가 이상하면 그 값만 예전 값으로 (주석에 예전 값)) / v9.38 (2026-10-29 튜토리얼 띄엄띄엄: 맨 아래 v9.38 섹션 - 처음 견습은 구간 1 만 TutorialFirstLight / 일지 조각 간격 HintGapSec / 그림 HintIconOn · BriefPicsOn · UiPointOn / 짧은 글 TutorialShortBriefs · EnemyCardShort) / v9.37 (2026-10-29 보기 편하게: 맨 아래 v9.37 섹션 - 조리 독 KitchenDock* / 조리대 [E] 이름 StationPromptNames / 정차 조리 배지 StopCookBadge / 글 줄이기 KitchenHintDiet·HudTextDiet / 최소 글자 16 UIFontFloor / 기차 띠 숨김 StripHideUnderWindows / "쓰는 때" 줄 RecipeWhenLine) / v9.35.3 (2026-10-26 피드백: 맨 아래 v9.35.3 섹션 - 견습 팬·솥 재료 · 부채꼴 몸 판정 · 부식 · 오라 범위 · 목표 카드 자리 · 이름표 줌) / v9.35.2 (2026-10-26 설명·밸런스 표: 맨 아래 v9.35.2 섹션 - 장판 4초 · 독 장판 · 오라 불 = 화상 · 부식의 정수 깎기 · 깎기 겹 상한 · 부채꼴 조준 · 왕 미끼 3초 · 증강 카드 아래 줄) / v9.35.1 (2026-10-26 버그·첫 보스: 맨 아래 v9.35.1 섹션 - 작살·레버 안내 순서 EngineCabHintSort / 지역 보스 무는 힘 BossBiteStageMul, 지역 1 보스 HP BossHPStageMul 4 -> 6) / v9.35 (2026-10-25 성장·구조: 지역 8 -> 5 웨이브 (보스 5·10·15, 최종전 16) - 세기·수급은 옛 25웨이브 자 EqWave·WaveWorth 로 그대로 / 레벨 상한 80 LevelCurve80On (Lv80 = 옛 Lv6) /
 ///   하드 = 손님이 웨이브마다 곱으로 HardEnemyHpGrowth·AtkGrowth / 하드 명성 상점 화덕 증축 HardCap*) / v9.34 (2026-10-25 규칙·편의: 단골 주문이 정차에 안 끊김 OrderKeepThroughStops / 진화 = 재료 레벨 그대로 FusionKeepLevel·FusionBonusDishes / 새 포탑은 늘 Lv1 StartLevelBonusOn) / v9.33 (2026-10-25 소리 팩: 효과음 버스 예산·경고 덕킹·피치 - Sound*, 배경음을 맵·보스·정차마다 - Music*) / v9.32 (2026-10-22 노선: 1·2·3 지역 자리에 맵(사막·협곡·광산)을 무작위로 - MapShuffle*, 맵마다 제 손님만, 세기는 자리를 따라 지금보다 조금 더 - MapStatNorm*·MapStronger*, 보스 HP 배율은 자리 - BossHpByStage, 맵 그림 자리 - MapGround*·MapDeco*. 낙뢰는 맵 AmbientLightningMap) / v9.31 (2026-10-21 급식 조리: 지역 2 부터 2인분 · 지역 3 부터 3인분 - 재료를 인분만큼 넣고 요리도 인분만큼, 대신 불이 세다 (Batch*) / 작살 바위는 카메라 밖에서 생기고 사라진다 (RockOffscreenMargin)) / v9.30 (2026-10-21 포탑 칸: 시작 BaseSlotCount 6 -> 4, 지역 보스를 잡을 때마다 하나씩 BossSlotUnlockMax 2 - 유저 "합성·스왑이 되니 초반 칸이 많이 필요 없다") / v9.29 (2026-10-21 손맛 3차 - 나중 디테일: 맨 아래 v9.29 섹션 - 유물 상자 열림·날아가기 LootOpenFx·LootOpenSec·LootFlySec / 크리 처치 히트스탑 CritKillHitstopSec·Gap / 관통 잔광 BeamAfterglow·BeamGlow* / 연쇄 2중 줄 LightningDouble) / v9.28 (2026-10-20 하드 모드 = 2회차: 맨 아래 v9.28 섹션 - HardModeOn / 손님 HardEnemyHpMul·AtkMul·DefMul / 머릿수 HardCountMul / 보스 HardBossHpMul·MeleeMul / 사고 HardEventIntervalMul·FailMul / 수급 HardKillGoldMul·MaterialMul / 기차 HardTrainHpMul / 주문 HardOrderTimeMul / 명성 HardFameMul·HardClearFame. 쓰는 쪽은 HardMode.Mul) / v9.27 (2026-10-20 튜토리얼 개편: 맨 아래 v9.27 섹션 - 견습 과열 TutorialOverheatOn / 주문 TutorialOrderOn·TutorialOrderSec / 사고 제한 시간 TutorialEventTimeMul / 실전 한도 TutorialDefenseSec / 예습 처치 한도 TutorialBossKillSec / 예습 보스 무방비 BossPracticeGroggy / 새 빌드 첫 실행 기록 리셋 FreshRecordsOnNewBuild · 빌드 F4 ResetKeyInBuild) / v9.26 (2026-10-16 마감 정리: 꺼 둔 값을 지금 값으로 굳히고 지웠다 - 편성 이름 줄 FormationLineShows · 예고 화살표 SpawnCueSec · 주방 창 KitchenMaterialFirst · KitchenTabKey · KitchenFuseTab. 동작 변경 없음) / v9.25 (2026-10-16 밸런스·성장 - claude/테스터피드백5_2026-10-16.md 의 v9.25 스펙 표: 맨 아래 v9.25 섹션. 증강 덧셈 AugmentLinear / 지역 곡선 RegionCurveOn·RegionHpMul·RegionAtkMul·BossHpCurveMul / 단골 주문 OrderOn·OrderFirstWave·OrderDelaySec·OrderCount·OrderTimeSec·OrderBuffPct·OrderBuffSec·OrderGold / 싸움 유물 RelicCombatSet (B2 손님 입맛은 뺐다 - 09-29 "센 빌드를 틀어막지 말고 밸런스로")) / v9.24.1 (2026-10-16 5차 피드백 픽스 - claude/테스터피드백5_2026-10-16.md: 맨 아래 v9.24.1 섹션. 합체 넘침 = 요리로 돌려받기 MergeOverflowRefund / 탄이 손님을 따라간다 ProjectileHoming · ProjectileMaxFlight, 대체 표적 반경 3 -> 4 / 공속 증강 점증 없음 AugmentNoEscalate · 합계 상한 AugmentAspdCap / 주방 사고 위치 먼저 EventLocationFirst) / v9.24 (2026-10-15 클라이맥스·갈림길 - 테스터피드백3 B·D 스펙 표: 맨 아래 v9.24 섹션. 갈림길 = 칸이 선로를 따라 꺾임 ForkCarFollow·회전 ForkCarRotate·손님 대기 ForkHoldOn·출발 가속 ForkDepartBoost·덜컹 소리 / 클라이맥스 = ClimaxOn - 숨(히트스톱·흰 번쩍·음악 끊김) -> 다음 박에 BGM 층 -> 기적·전조등·배경 가속·호박색 -> 처치에 끊김. 지역 보스 발악은 가벼운 층만 ClimaxLiteOn) / v9.23 (2026-10-14 보스 새 패턴 - 보스개편 스펙 3-1 ~ 3-4절 + B2 피해 예고 바 + 기차 HP 위기 표시 + 명성 상점 실루엣: 맨 아래 v9.23 섹션. 패턴마다 스위치가 있다 - 하나가 이상하면 그것만 끈다. BossNewPatterns = false 면 v9.22 까지의 보스) / v9.22.1 (2026-10-14 유저 확인 7번 "판 앞에 멈춰 있는 게 더 불편": 진화 조리 읽을 시간 InfuseReadSec 1.0 -> 0 - 안내는 커서가 움직이는 채로 읽는다) / v9.22 (2026-10-14 조작 팩 - 4차 피드백 5·6번 + 1번의 화면: 맨 아래 v9.22 섹션 - 카드 끌어다 놓기 교체 DragReplaceOn / 카드 위 카드 진화 조리 DragFuseOn / 재료 중심 조리대 창 KitchenMaterialFirst / Tab 키 KitchenTabKey false / 합성 탭 KitchenFuseTab false / 진화 조리 화면 InfuseCookLook) / v9.21.1 (2026-10-13 4차 피드백 픽스: 창이 떠 있는 동안 조리·진화 조리 보류 CookHoldWhileWindow / 진화 조리 읽을 시간 InfuseReadSec / 접시 합성도 진화 조리 InfuseStockOn·InfuseStockBonusPlates / 골드 소수 누적 GoldCarryOn / 수급 SwarmRewardMul 1.3 -> 1.0 · KillMaterialChance 0.6 -> 0.5) / v9.21 (2026-10-12 보스 1단계 큰 몸 - 보스개편 스펙 1·4·5절: 맨 아래 v9.21 섹션 - 보스전 카메라 BossCam* / 새 크기 BossBodyLen·Wide (그림을 맞춘다) / 서는 자리 BossStandOff 새 값·BossStandX / 등장 연출 2판 BossEntranceV2·BossEntranceSec / 이름판 BossNamePlateBottom / 등장 때 대응법 줄 BossEntranceLine / 미끼 때 제자리 BossHoldWhenTaunted) / v9.20 (2026-10-07 유저 "패턴이 눈에 안 띔": 보스 패턴의 준비·발동·결과를 몸과 전장에 그린다 BossPatternFxOn·BossCastSwell·BossReleaseSquash·BossLunge*·BossBite* / 부른 무리는 보스 등 뒤에서 BossSummonBehind·SpreadX·StatMul·Share, HowlSummonCount 5 -> 10 · OriginalRoarCount 4 -> 10) / v9.19.4 (2026-10-07 유저 "포탑 설명이 너무 길다 - 필요한 것만 남기고 폰트를 키워라": 포탑 정보창 글자 크기 SlotInfoFontSize·TitleSize·HintSize, 조작 줄 SlotInfoShowControls) / v9.19.3 (2026-10-07 유저 확인 "체력 회복 증강을 먹으니 HP 가 거의 90% 넘게 남는다": 타격당 회복을 1초에 LifestealHitsPerSec 번까지만 센다) / v9.19.2 (2026-10-07 유저 확인 뒤: 머릿수를 늘린 손님을 약하게 하지 않는다 - GroupPower* 삭제, 크기별 HP 배율 TierHpMul*·초반 배율 EarlyBodyStart·보상 SwarmRewardMul / 손님 전체 강화 EnemyHPMul 1.3·EnemyATKMul 1.2·EnemyDefMul 1.2 (견습 운행은 TutorialEnemy* 로 예전 값) / 기차 방어력 바닥 TrainDefFloor / 보스 HP 종류별 배율 BossHPKindMul / 편성 이름 줄·방향 예고 화살표 끔 FormationLineShows 0·SpawnCueSec 0) / v9.19.1 (2026-10-07 유저 소감: 스폰 테두리가 보이는 화면을 따라간다 SpawnEdgeFollowView·ViewMargin·BossSpawnExtra / 머릿수 대폭 증가 CountMulSmall·Mid·Big + GroupPower* + FormationSizeMul - SwarmCountMul 을 대신한다) / v9.19 (2026-10-06 웨이브 편성·보스 페이즈 모습: 맨 아래 v9.19 섹션 - 편성 스위치·풀리는 웨이브·예고 시간·조각 사이 쉼·스폰 테두리·작은 손님 머릿수·호위 행렬 / 보스 상태 그림·전환 순간·상태 유지 효과·알림 자리) / v9.18 (2026-10-06 테스터 피드백 3 - 버그·밸런스·새 기차 그림: 맨 아래 v9.18 섹션 - 보행 바닥 표 / 슬롯·꼬리 좌표 / 레벨 상한 복구 / 같은 레벨끼리만 진화 / 폐기 환급 / 사고 실패 피해 / 과열 무작위 / 칸 덜컹임 / 보스 그림·HP 바·등장 띠 / UI 배율) / v9.17 (2026-10-06 화면 손맛 2차: 맨 아래 v9.17 섹션 - 발사 반동·섬광 / 데미지 숫자 크기·합산 / 넉백 / 셰프 찌그러짐 / HUD 수치 / 카드 순차 등장·퇴장 / 보스 등장·처치 / 패배·승리 순서 / 장면 전환 / 알림 중복) / v9.16 (2026-09-29 소리 v2: BuildTag 만 - 소리 표는 SoundManager 에) / v9.15.1 (2026-09-29 스토리 개정 스위치: 최종전 베팅 없음·스피노 고백 카드·마지막 식사 장면 시간) / v9.15 (2026-09-29 2차 피드백: 레벨 상한 해제 -> 접시 곡선·레벨 체감·저항 표시 / 훈련장 반복·자유 연습 / 드래그 투입 / 사고 해결 연출 / 포탑 파손 / HUD 재배치 / 설정창) / v9.12 (2026-09-22 튜토리얼 구간화·인라인 연습·협곡 낙뢰·미니 보스 예습 섹션 추가) / v1 (v9.11 2026-09-22: 타격감 섹션 - 피격 플래시·찌그러짐·스파크·킬 버스트·기차 피격·버튼·모달·웨이브 띠 스위치 / v9.10.1 2026-09-21: 유저 플레이 소감 섹션 - 웨이브 물량·길이, 정차 조리 제한, 행상인 자동 퇴장, 처치 보상 배율 / v9.9 2026-09-16: 포탑 4모서리 배치 SlotPosition + 견습 운행/브리핑 스위치 섹션)
 /// 게임 전체 밸런스 수치를 한 곳에 모은 설정 파일.
 ///
@@ -517,7 +517,7 @@ public static class GameBalance
     /// <summary>주방장은 하나다: 기본 보너스 / 처치당 누적 / 누적 상한 / 나머지 포탑 감소율</summary>
     public static float OneChefBonus = 0.5f;
     public static float OneChefPerKill = 0.02f;
-    public static int OneChefMaxStacks = 100;
+    public static int OneChefMaxStacks = 50;   // v9.39: 100 -> 50 (추가 누적 +200% -> +100%, 검토 보고서 6장 "주방장은 하나다")
     public static float OneChefOthersPenalty = 0.2f;
 
     /// <summary>넘치는 솥: 증기 보호막 상한 (최대 HP 비율)</summary>
@@ -1062,7 +1062,7 @@ public static class GameBalance
     public static int SlotInfoTitleSize = 23;
     public static int SlotInfoHintSize = 15;
     /// <summary>v9.19.4: 포탑 정보창 맨 아래의 조작 한 줄 ("좌클릭 = 합체 선택 / 우클릭 2번 = 폐기"). false = 안 보인다</summary>
-    public static bool SlotInfoShowControls = true;
+    public static bool SlotInfoShowControls = false;   // v9.37: 끔 - 유저 "텍스트가 너무 많다" (조작은 견습 운행이 가르친다. 예전 true)
     /// <summary>포탑 실물(월드)을 클릭·호버해도 이름표와 같이 동작 (반경, 유닛)</summary>
     public static float SlotWorldClickRadius = 0.9f;
 
@@ -1187,7 +1187,7 @@ public static class GameBalance
 
     // ── (v9.13.1 2026-09-24) 3인 테스트 준비 ──
     /// <summary>빌드 표시 - 로비 오른쪽 아래에 찍힌다 (테스터 시트에 어느 빌드였는지 적기 위해). 팩마다 올린다</summary>
-    public const string BuildTag = "v9.35.5 (2026-10-26)";   // v9.35.5: 증강 카드 글 짧게 / v9.35.4: 맵 그림·소품 · 피해 숫자 글씨 / v9.35.3: 견습 팬·솥 · 부채꼴 헛방 · 부식의 정수 · UI 글씨 / v9.35.2: 증강 설명 · 장판·오라가 설명대로 · 왕은 미끼 3초 / v9.35.1: 작살 안내 · 불 그림 · 첫 보스 강화 / v9.35: 5웨이브마다 보스 · 레벨 상한 80 · 하드 지수 성장 · 화덕 증축 / v9.34: 주문 이어가기 · ESC · 진화 레벨 그대로 · 새 포탑 Lv1 / v9.33: 소리 팩 (맵·보스·정차 배경음 + 효과음 새로) / v9.32: 노선 무작위 + 맵마다 제 손님 / v9.31: 급식 조리 + 바위 맵 밖 / v9.30: 포탑 칸 4 로 시작, 보스마다 하나 / v9.29: 손맛 3차 - 유물 상자 연출·크리 히트스탑·잔광 / v9.28: 하드 모드 (2회차) / v9.27: 견습 8구간 13카드 (요리 심화·주방 사고 새로) / v9.26: 마감 정리 (안 쓰는 코드·파일 정리 - 동작 변경 없음) / v9.25: 밸런스·성장 / v9.20: 보스 패턴이 화면에서 보인다 + 화살표 글자 / v9.19.4: 포탑 정보창을 네 줄로 + 글자 크게 / v9.19.3: 타격당 회복 증강은 1초에 한 번만 / v9.19.2: 손님이 제 힘으로 + 전체 강화 / 예고 화살표·편성 이름 줄 끔
+    public const string BuildTag = "v9.39 (2026-10-29)";   // v9.39: 밸런스 가안 (검토 보고서 1 ~ 6 순위) / v9.38: 튜토리얼 띄엄띄엄 + 그림 카드 / v9.37: 보기 편하게 (조리 독 · [E] 기구 이름 · 정차 조리 배지 · 글 줄이기 · 글자 16) / v9.36: 그림 팩 (요리·유물 아이콘 · 초상 · 공통 표시 · 일지 종이) / v9.35.5: 증강 카드 글 짧게 / v9.35.4: 맵 그림·소품 · 피해 숫자 글씨 / v9.35.3: 견습 팬·솥 · 부채꼴 헛방 · 부식의 정수 · UI 글씨 / v9.35.2: 증강 설명 · 장판·오라가 설명대로 · 왕은 미끼 3초 / v9.35.1: 작살 안내 · 불 그림 · 첫 보스 강화 / v9.35: 5웨이브마다 보스 · 레벨 상한 80 · 하드 지수 성장 · 화덕 증축 / v9.34: 주문 이어가기 · ESC · 진화 레벨 그대로 · 새 포탑 Lv1 / v9.33: 소리 팩 (맵·보스·정차 배경음 + 효과음 새로) / v9.32: 노선 무작위 + 맵마다 제 손님 / v9.31: 급식 조리 + 바위 맵 밖 / v9.30: 포탑 칸 4 로 시작, 보스마다 하나 / v9.29: 손맛 3차 - 유물 상자 연출·크리 히트스탑·잔광 / v9.28: 하드 모드 (2회차) / v9.27: 견습 8구간 13카드 (요리 심화·주방 사고 새로) / v9.26: 마감 정리 (안 쓰는 코드·파일 정리 - 동작 변경 없음) / v9.25: 밸런스·성장 / v9.20: 보스 패턴이 화면에서 보인다 + 화살표 글자 / v9.19.4: 포탑 정보창을 네 줄로 + 글자 크게 / v9.19.3: 타격당 회복 증강은 1초에 한 번만 / v9.19.2: 손님이 제 힘으로 + 전체 강화 / 예고 화살표·편성 이름 줄 끔
 
     // ── (v9.14 2026-09-28) 3인 테스트 반영 1차 - 버그·밸런스·읽기 ──
     // ── 포탑 (테스터 "더블 육포만 올려도 됨 / 전설이 더 약함 / 하나 점사하면 나머지가 빗나감") ──
@@ -1500,7 +1500,7 @@ public static class GameBalance
 
     // ── 화면 글자 ──
     /// <summary>코드로 만드는 글자의 최소 크기 (이보다 작게 적힌 건 이 크기로 - 11·12px 로 적힌 안내·꼬리말이 해당). 0 = 끔</summary>
-    public static int UIFontFloor = 13;
+    public static int UIFontFloor = 16;   // v9.37: 13 -> 16 - 유저 "폰트·글씨 크기 자체가 불편" (13·14·15 로 만든 글이 전부 16 으로. 되돌리려면 13)
 
     // ── (v9.19 2026-10-06) 웨이브 편성 + 보스 페이즈 모습 - claude/테스터피드백3_2026-10-06.md 의 v9.19 스펙 표 C·A ──
     // ── 웨이브 편성 (C) ──
@@ -2172,4 +2172,102 @@ public static class GameBalance
     public static float DmgPopupShade = 0.7f;
     /// <summary>피해 숫자가 떠 있는 시간(초, 크리는 +0.1). 0 = 예전 (0.8 / 0.9)</summary>
     public static float DmgPopupLifeSec = 1.0f;
+
+    // ── (v9.36 2026-10-29) 그림 팩 - 유저 10-26 zip (초상 2 · 유물 23 · 요리 45 · 공통 표시 6 · 일지 종이 1) ──
+    //   그림이 없으면 스위치가 켜져 있어도 예전 그대로 (SpriteBank.Has 가 거른다). 하나가 눈에 거슬리면 그것만 끈다.
+    /// <summary>요리 아이콘 ui_dish_* (48px): 하단 요리 카드 · 주방 창 요리 줄 · 되는 요리 상자 · 도감 · 설명 상자 · 포탑 정보창 · 조리 완성 날아가기 · 마지막 식사 코스. false = 글만 (카드도 예전 크기)</summary>
+    public static bool DishIconOn = true;
+    /// <summary>하단 요리 카드 크기 (아이콘이 켜져 있을 때 - 예전 116 x 56). 두 줄 134 가 바 안 136 에 든다</summary>
+    public static float DishCardW = 140f, DishCardH = 64f;
+    /// <summary>유물 아이콘 ui_item_* (48px): 획득 카드 · [V] 목록 · 행상인 매대</summary>
+    public static bool ItemIconOn = true;
+    /// <summary>손님이 쓰러질 때 fx_kill 한 장 (커지며 흐려짐 FxKillSec) - 지금 점·고리 위에. 보스는 안 띄운다 (제 연출이 있다)</summary>
+    public static bool FxKillSprite = true;
+    public static float FxKillSec = 0.35f;
+    /// <summary>손님 머리 위 상태 표시 fx_status_(burn·poison·slow·stun) 16px - 상태가 걸린 동안 (HP 바가 안 보여도)</summary>
+    public static bool FxStatusSprite = true;
+    /// <summary>상태 표시 한 칸 크기(u) 와 칸 사이</summary>
+    public static float FxStatusSize = 0.42f, FxStatusGap = 0.06f;
+    /// <summary>포탑 등급이 오를 때(B · A · S, 최대) fx_levelup 한 장 (커지며 흐려짐 FxLevelupSec)</summary>
+    public static bool FxLevelupSprite = true;
+    public static float FxLevelupSec = 0.5f;
+    /// <summary>[J] 선대의 일지 창 본문 배경 = story_journal_paper (글은 잉크색으로)</summary>
+    public static bool JournalPaperOn = true;
+    /// <summary>스토리 컷 (story_opening · story_ending_b) - 오프닝 · 엔딩 B 장면의 배경 층 + 페이드. 파일이 없으면 예전 그대로 (10-29 zip 엔 셋이 안 왔다)</summary>
+    public static bool StoryCutOn = true;
+    /// <summary>스토리 컷 위에 덮는 어둠 (글이 읽히게 - 예전 배경은 0.78)</summary>
+    public static float StoryCutDim = 0.35f;
+
+    // ───────────────────────────────────────────────
+    //  v9.37 (2026-10-29) 보기 편하게 - 유저 "텍스트가 너무 많다 · 조리 UI 를 구석에 · [E] 기구 이름 · 정차 조리 횟수 잘 보이게 · UI 겹침"
+    // ───────────────────────────────────────────────
+    /// <summary>조리 독: 하단 바 오른쪽 구석(예전 게이지 · 밸브 장식 자리)에 그릴 · 팬 · 솥 단추 셋 - 누르면 그 조리대의 조리 창이 바로 열린다 (조리대까지 안 가도 된다. [E] 도 그대로). 켜면 그 자리 장식 셋은 안 그린다</summary>
+    public static bool KitchenDockOn = true;
+    /// <summary>조리 독 단추 폭 · 높이 · 사이 (요리 카드 구역은 44px 만 줄어든다)</summary>
+    public static float KitchenDockW = 144f, KitchenDockBtnH = 38f, KitchenDockGap = 5f;
+    /// <summary>조리 독 명판에 정차 조리 횟수 - 달릴 땐 "조리", 정차 땐 "조리 1번 남음", 다 쓰면 주황 "정차 조리 끝"</summary>
+    public static bool StopCookBadgeOn = true;
+    /// <summary>조리대 위 [E] 안내 글을 바꾼다 (씬의 "E-조리" 글을 코드가 바꾼다). false = 씬 글 그대로</summary>
+    public static bool StationPromptNames = true;
+    /// <summary>[E] 안내 글 = 조리법 ("[E] 굽기" / "[E] 볶기" / "[E] 끓이기") - false 면 기구 이름 ("[E] 그릴" / "[E] 팬" / "[E] 솥")</summary>
+    public static bool StationPromptVerb = true;
+    /// <summary>주방 창 글 줄이기: 머리줄 "재료" · "솥에서 되는 요리" 만 (조작 설명 괄호는 뺀다), 위 오른쪽 줄은 "[1~n] 인분  [E] 조리  [ESC] 닫기" + 정차 조리 횟수(금색)</summary>
+    public static bool KitchenHintDiet = true;
+    /// <summary>HUD 글 줄이기: 하단 바 명판 "요리" (예전 "요리 (끌어다 놓기 / 클릭 = 투입, 휠 = 스크롤)"), 마비 칩 줌아웃 땐 "[E] 꾹"</summary>
+    public static bool HudTextDiet = true;
+    /// <summary>요리 설명의 "쓰는 때: ..." 줄 (조리 창 설명 상자 · 도감 · 포탑 설명). false = 뺀다 (유저 "현학적")</summary>
+    public static bool RecipeWhenLine = false;
+    /// <summary>위 가운데 기차 띠(기관차·주방·포탑 A·B)를 창(주방 · 조리 판 · 증강 · 정비소 · 행상인 · 베팅 · 선로 · 열람)이 떠 있는 동안 숨긴다 - 주방 창 위 테와 겹쳤다</summary>
+    public static bool StripHideUnderWindows = true;
+
+    // ───────────────────────────────────────────────
+    //  v9.38 (2026-10-29) 튜토리얼 띄엄띄엄 + 그림 카드 - 유저 "첫판 튜토리얼이 와바바박 / 텍스트 말고 다른 방식으로"
+    // ───────────────────────────────────────────────
+    /// <summary>처음 켠 견습 운행 = 구간 1 (달리기 · 카드 넣기 · 굽기 · Lv) 만. 나머지는 정식 운행에서 처음 만날 때 (일지 조각 · 인라인 연습). 훈련장 [T] 은 그대로 전부. false = 예전처럼 8구간 전부</summary>
+    public static bool TutorialFirstLight = true;
+    /// <summary>급하지 않은 일지 조각끼리 최소 간격(초, 실시간). 급한 것(마비 · 과열 · 사고 · 보스 · 바위 · 정차 · 증강 · 갈림길 · 유물)은 기다리지 않는다. 0 = 예전 (바로 다음)</summary>
+    public static float HintGapSec = 25f;
+    /// <summary>일지 조각 왼쪽에 그림 (요리 · 재료 · 상태 표시 · 초상) - 그림 파일이 없으면 예전 띠</summary>
+    public static bool HintIconOn = true;
+    /// <summary>브리핑 카드 본문 아래 그림 줄 (재료 + 재료 = 요리 같은) - BriefDef.pics 가 있을 때만</summary>
+    public static bool BriefPicsOn = true;
+    /// <summary>견습 · 일지 조각이 짚는 UI (요리 카드 · 조리 독 단추) 에 금색 테 + ▼ 가 깜빡인다</summary>
+    public static bool UiPointOn = true;
+    /// <summary>견습 브리핑 1 ~ 5 를 한두 줄 + 그림으로 (false = 예전 두 문단)</summary>
+    public static bool TutorialShortBriefs = true;
+    /// <summary>새 손님 카드 = 한 줄 + 그림 (잘 박히는 재료 · 떨구는 재료). false = 예전 세 줄</summary>
+    public static bool EnemyCardShort = true;
+
+    // ─────────────────────────────────────────────
+    //  v9.39 (2026-10-29) 밸런스 가안 - 유저 'WDT 밸런스 검토 v9.35.5' (10-26) 의 첫 시험값. 되돌리려면 주석의 예전 값으로
+    // ─────────────────────────────────────────────
+    /// <summary>[1 순위] 정전기 축적의 마비: 같은 손님은 이 초에 한 번만 (개틀링 + 공속이면 계속 묶이던 것). 0 = 예전 (4타마다 무조건)</summary>
+    public static float StaticStunIcdSec = 1.0f;
+    /// <summary>[2 순위] 붉은 주방이 붙이는 화상: 같은 요리 · 같은 손님 이 초에 한 번 (요리가 원래 가진 화상 · 독은 그대로). 0 = 예전 (매 타격)</summary>
+    public static float RedKitchenIcdSec = 0.5f;
+    /// <summary>[3 · 4 순위] 이웃 강화(지휘관 · 축포 · 마법사)와 수정 방패의 성장: Lv1 값에서 Lv80 에 SupportLv80Mul 배까지 고르게 (설명의 +40% 가 Lv1 값).
+    /// false = 예전 (레벨 배율 그대로 x AdjBuffScale 1.5 - Lv20 +117%, Lv80 +195%)</summary>
+    public static bool SupportCurveOn = true;
+    public static float SupportLv80Mul = 2f;
+    /// <summary>[3 순위] 한 포탑에 같은 종류 이웃 강화가 둘 닿으면 큰 것 하나만 (false = 예전 - 더한다)</summary>
+    public static bool SupportSameTypeMax = true;
+    /// <summary>[4 순위] 수정 방패 + 방어 공명이 줄이는 기차 피해의 합 상한 (예전 0.6)</summary>
+    public static float SlotDrCap = 0.5f;
+    /// <summary>[4 순위] 강철의 요새 (예전 최대 HP +1000 · 회복 1000)</summary>
+    public static float FortressMaxHp = 600f, FortressHeal = 300f;
+    /// <summary>[5 순위] 정밀 렌즈 치명타 확률 (예전 0.08)</summary>
+    public static float LensCrit = 0.12f;
+    /// <summary>[5 순위] 약점 파고들기 · 사냥꾼의 본능 (예전 0.25 · 0.30 - 조건 없는 볼케이노 압축기 +30% 보다 낮거나 같았다)</summary>
+    public static float WeakpointBonus = 0.40f, HunterBonus = 0.40f;
+    /// <summary>[5 순위] 출혈 베팅 포탑 피해 (예전 0.35 - 웨이브마다 HP 80 을 내는데 조건 없는 +30% 와 5%p 차이)</summary>
+    public static float BloodBetAtk = 0.45f;
+    /// <summary>[5 순위] 등급 옮기기: 폭발 전문가 · 2연장 개조 = 실버, 개전 포격 = 골드 (false = 예전 골드 · 골드 · 프리즘)</summary>
+    public static bool GradeShift939 = true;
+    /// <summary>[5 순위] 지금 집어도 아무 일 없는 후보를 뺀다: 이미 최대인 증축된 주방 칸 · 행운의 부적 / 마지막 고르기에서 앞날에만 듣는 것 (야전 정비반 · 행운의 부적 · 고리대금업자 · 비상 식량 창고 · 엄선된 메뉴판 · 응급 정비)</summary>
+    public static bool AugmentDeadPickFilter = true;
+    /// <summary>[6 순위] 플라즈마 볶음 피해 (예전 11 - Lv20 둘 맞혀도 33, 상태 효과 없음)</summary>
+    public static float PlasmaDamage = 14f;
+    /// <summary>[6 순위] 철판 정식 최대 HP: Lv1 IronSetBase -> Lv80 IronSetLv80 (레벨이 오를 때 다시 잰다, 현재 HP 는 안 채운다). IronSetGrows false = 예전 +60 고정</summary>
+    public static bool IronSetGrows = true;
+    public static float IronSetBase = 100f, IronSetLv80 = 180f;
 }

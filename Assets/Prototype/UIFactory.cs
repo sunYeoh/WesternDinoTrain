@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// [UIFactory.cs] v4.3 (v9.18 2026-10-06: CreateText 최소 글자 크기(GameBalance.UIFontFloor) / FitScale - 기준 화면보다 큰 창을 화면 안으로 줄이는 배율 (UI 배율을 올려도 큰 창이 잘리지 않게)) / v4.2 (v9.14 2026-09-28: RefResolution - 모든 캔버스 기준 해상도를 GameBalance.UIScale 로 나눈다, 글자·창 전체 확대) / v4.1 (v9.11 2026-09-22: CreateButton 에 ButtonFeel - 호버·프레스 반응) / v4 - uGUI 요소를 코드로 생성하는 헬퍼 (에디터 Canvas 세팅 불필요)
+/// [UIFactory.cs] v4.4 (v9.36 2026-10-29 그림 팩: CreateIcon - 스프라이트 한 장을 네모 칸에 (비율 유지, 클릭 안 막음). 요리·유물 아이콘이 쓴다) / v4.3 (v9.18 2026-10-06: CreateText 최소 글자 크기(GameBalance.UIFontFloor) / FitScale - 기준 화면보다 큰 창을 화면 안으로 줄이는 배율 (UI 배율을 올려도 큰 창이 잘리지 않게)) / v4.2 (v9.14 2026-09-28: RefResolution - 모든 캔버스 기준 해상도를 GameBalance.UIScale 로 나눈다, 글자·창 전체 확대) / v4.1 (v9.11 2026-09-22: CreateButton 에 ButtonFeel - 호버·프레스 반응) / v4 - uGUI 요소를 코드로 생성하는 헬퍼 (에디터 Canvas 세팅 불필요)
 ///
 /// v4 (2026-09-07, "쇳냄새" 픽셀 스킨): UISkin(ui_*.png)이 있으면
 ///   - CreatePanel: borderWidth 3 이상 + 큰 창(600x150 이상) = 구리 파이프 프레임(무쇠 평판 내장, 색 인자 무시)
@@ -193,6 +193,24 @@ public static class UIFactory
         Vector2 anchorMin, Vector2 anchorMax, Vector2 offsetMin, Vector2 offsetMax, Color ringColor)
     {
         return CreatePanel(parent, name, anchorMin, anchorMax, offsetMin, offsetMax, PANEL, ringColor, 2f);
+    }
+
+    /// <summary>v4.4 (v9.36): 아직 못 만든 요리 아이콘의 실루엣 색 (틴트)</summary>
+    public static readonly Color SILHOUETTE = new Color(0.25f, 0.22f, 0.2f, 1f);
+
+    /// <summary>v4.4 (v9.36): 아이콘 Image 하나 - anchor·pivot 기준 pos 에 size x size. sprite 가 null 이면 안 만들고 null</summary>
+    public static Image CreateIcon(Transform parent, string name, Sprite sprite, Vector2 anchor, Vector2 pivot, Vector2 pos, float size)
+    {
+        if (sprite == null) return null;
+        GameObject go = new GameObject(name);
+        go.transform.SetParent(parent, false);
+        RectTransform rt = go.AddComponent<RectTransform>();
+        rt.anchorMin = anchor; rt.anchorMax = anchor; rt.pivot = pivot;
+        rt.anchoredPosition = pos;
+        rt.sizeDelta = new Vector2(size, size);
+        Image img = go.AddComponent<Image>();
+        img.sprite = sprite; img.type = Image.Type.Simple; img.preserveAspect = true; img.raycastTarget = false;
+        return img;
     }
 
     /// <summary>텍스트 생성</summary>
